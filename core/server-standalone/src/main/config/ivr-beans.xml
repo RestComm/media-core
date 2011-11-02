@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+	
+
+    <!-- Endpoint definition  -->
+    <bean name="IVREndpoint" class="org.mobicents.media.server.EndpointFactoryImpl">
+		<property name="localName">/mobicents/media/IVR/[1..10]	</property>
+		<!-- property name="sourceFactory">
+                    <map class="java.util.Hashtable" keyClass="java.lang.String" 
+                    valueClass="org.mobicents.media.ComponentFactory">
+                        <entry>
+                            <key>audio</key>
+                            <value><inject bean="AudioNoise"/></value>
+                        </entry>
+                    </map>
+		</property -->
+		<property name="connectionFactory"><inject bean="default-connection" /></property>
+		<property name="connectionPoolSize">1</property>
+    </bean>
+
+</deployment>

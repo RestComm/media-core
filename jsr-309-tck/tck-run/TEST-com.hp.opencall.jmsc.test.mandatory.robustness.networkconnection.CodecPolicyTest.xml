@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="kulikov.mobicents.org" name="com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest" tests="6" time="2.152" timestamp="2011-09-27T07:12:55">
+  <properties>
+    <property name="ant.project.invoked-targets" value="run" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="DATE_TIME" value="2011-09-27_11-01" />
+    <property name="sun.boot.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386" />
+    <property name="java.vm.version" value="19.1-b02" />
+    <property name="ant.library.dir" value="/home/kulikov/apache-ant-1.8.2//lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on December 20 2010" />
+    <property name="run.report" value="/home/kulikov/jsr-309-tck/tck-reports/2011-09-27_11-01" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.runtime.version" value="1.6.0_24-b07" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.endorsed.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="run" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/home/kulikov/apache-ant-1.8.2/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+    <property name="os.name" value="Linux" />
+    <property name="DSTAMP" value="20110927" />
+    <property name="ant.home" value="/home/kulikov/apache-ant-1.8.2/" />
+    <property name="ant.project.name" value="TCK" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="run.dir" value="/home/kulikov/jsr-309-tck/tck-run" />
+    <property name="TODAY" value="September 27 2011" />
+    <property name="java.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386/server:/home/kulikov/jdk1.6.0_24/jre/lib/i386:/home/kulikov/jdk1.6.0_24/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="50.0" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="ant.file.type.TCK" value="file" />
+    <property name="os.version" value="2.6.33.3-85.fc13.i686" />
+    <property name="ant.file" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="user.home" value="/home/kulikov" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="TSTAMP" value="1101" />
+    <property name="user.name" value="kulikov" />
+    <property name="java.class.path" value="/home/kulikov/jsr-309-tck:/home/kulikov/jsr-309-tck/mgcp-impl-2.0.0.GA.jar:/home/kulikov/jsr-309-tck/tck.jar:/home/kulikov/jsr-309-tck/deps/jain-mgcp-ri-1.0.jar:/home/kulikov/jsr-309-tck/deps/jain-sip-ri-1.2.146.jar:/home/kulikov/jsr-309-tck/deps/junit-4.7-src.jar:/home/kulikov/jsr-309-tck/deps/junit.jar:/home/kulikov/jsr-309-tck/deps/log4j-1.2.14.jar:/home/kulikov/jsr-309-tck/deps/mgcp-impl-2.0.1.RC1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mobicents-jsr309-impl-2.0.1.CR1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mscontrol.jar:/home/kulikov/apache-ant-1.8.2/lib/junit-4.8.1.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-launcher.jar:/home/kulikov/apache-ant-1.8.2/lib/ant.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit4.jar" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="java.home" value="/home/kulikov/jdk1.6.0_24/jre" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_24" />
+    <property name="java.ext.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/resources.jar:/home/kulikov/jdk1.6.0_24/jre/lib/rt.jar:/home/kulikov/jdk1.6.0_24/jre/lib/sunrsasign.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jsse.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jce.jar:/home/kulikov/jdk1.6.0_24/jre/lib/charsets.jar:/home/kulikov/jdk1.6.0_24/jre/lib/modules/jdk.boot.jar:/home/kulikov/jdk1.6.0_24/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="ant.file.TCK" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest" name="test_2_2_8_1_ExcludedInRequired" time="0.438" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest" name="test_2_2_8_2_ExcludedInCapabilities" time="0.304" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest" name="test_2_2_8_3_ExcludedInPreferences" time="0.303" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest" name="test_2_2_8_4_BogusCodecNamesExcluded" time="0.413" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest" name="test_2_2_8_5_BogusCodecNamesCapable" time="0.336" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest" name="test_2_2_8_6_BogusCodecNamesPreferred" time="0.342" />
+  <system-out><![CDATA[11:12:55,518 INFO  [Runner] Start    mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_1_ExcludedInRequired
+11:12:55,534 INFO  [DriverImpl] Initializing MGCP on /127.0.0.1:2729
+11:12:55,539 ERROR [JainMgcpStackImpl] Failed to locate properties file, using default values
+11:12:55,546 INFO  [JainMgcpStackImpl] Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+73   [] DEBUG TestBase - log4j configured
+74   [] DEBUG TestBase - Loading file:/home/kulikov/jsr-309-tck/TCK.properties
+81   [] INFO  CodecPolicyTest - Excluding: [PCMU, G722]
+81   [] INFO  CodecPolicyTest - Requiring: [telephone-event, PCMU]
+120  [] INFO  CodecPolicyTest - Caught expected SdpPortManagerException: Codec PCMU is excluded
+123  [] INFO  DriverImpl - MediaSession1 NetworkConnection2 Releasing....
+428  [] INFO  Runner - End      mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_1_ExcludedInRequired
+431  [] INFO  Runner - Start    mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_2_ExcludedInCapabilities
+432  [] INFO  CodecPolicyTest - Excluding: [PCMU, G722]
+432  [] INFO  CodecPolicyTest - Codec capabilities: [telephone-event, PCMU]
+432  [] INFO  CodecPolicyTest - Caught expected SdpPortManagerException: Codec PCMU is excluded but in capabilities
+433  [] INFO  DriverImpl - MediaSession3 NetworkConnection4 Releasing....
+734  [] INFO  Runner - End      mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_2_ExcludedInCapabilities
+735  [] INFO  Runner - Start    mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_3_ExcludedInPreferences
+736  [] INFO  CodecPolicyTest - Excluding: [PCMU, G722]
+736  [] INFO  CodecPolicyTest - Preferences: [telephone-event, PCMU]
+737  [] INFO  CodecPolicyTest - Caught expected SdpPortManagerException: Codec PCMU is excluded but in preferences
+737  [] INFO  DriverImpl - MediaSession5 NetworkConnection6 Releasing....
+1038 [] INFO  Runner - End      mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_3_ExcludedInPreferences
+1039 [] INFO  Runner - Start    mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_4_BogusCodecNamesExcluded
+1040 [] INFO  CodecPolicyTest - Excluding: [fmtp, AS, sendrecv, audio, IP4, G722]
+1144 [] DEBUG CodecPolicyTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@7cbde6 received: ANSWER_GENERATED
+1145 [] INFO  CodecPolicyTest - SDP answer: v=0
+o=- 1317107576632 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65080 RTP/AVP 0 8 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+1145 [] INFO  DriverImpl - MediaSession7 NetworkConnection8 Releasing....
+1450 [] INFO  Runner - End      mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_4_BogusCodecNamesExcluded
+1453 [] INFO  Runner - Start    mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_5_BogusCodecNamesCapable
+1454 [] INFO  CodecPolicyTest - Codec capabilities: [fmtp, AS, sendrecv, audio, IP4, telephone-event, PCMU]
+1487 [] DEBUG CodecPolicyTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@1a001ff received: ANSWER_GENERATED
+1487 [] INFO  CodecPolicyTest - SDP answer: v=0
+o=- 1317107576990 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65078 RTP/AVP 0 8 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+1487 [] INFO  DriverImpl - MediaSession9 NetworkConnection10 Releasing....
+1788 [] INFO  Runner - End      mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_5_BogusCodecNamesCapable
+1789 [] INFO  Runner - Start    mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_6_BogusCodecNamesPreferred
+1790 [] INFO  CodecPolicyTest - Preferences: [fmtp, AS, sendrecv, audio, IP4, telephone-event, PCMU]
+1829 [] DEBUG CodecPolicyTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@1fe88d received: ANSWER_GENERATED
+1829 [] INFO  CodecPolicyTest - SDP answer: v=0
+o=- 1317107577327 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65076 RTP/AVP 0 8 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+1830 [] INFO  DriverImpl - MediaSession11 NetworkConnection12 Releasing....
+2131 [] INFO  Runner - End      mandatory.robustness.networkconnection.CodecPolicyTest.test_2_2_8_6_BogusCodecNamesPreferred
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

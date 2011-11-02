@@ -1,0 +1,15 @@
+com.hp.opencall.jmsc.test
+com.hp.opencall.jmsc.test.mandatory
+com.hp.opencall.jmsc.test.mandatory.functional
+com.hp.opencall.jmsc.test.mandatory.functional.join
+com.hp.opencall.jmsc.test.mandatory.functional.mediagroup
+com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals
+com.hp.opencall.jmsc.test.mandatory.functional.mixer
+com.hp.opencall.jmsc.test.mandatory.functional.networkconnection
+com.hp.opencall.jmsc.test.mandatory.functional.resource
+com.hp.opencall.jmsc.test.mandatory.functional.vxml
+com.hp.opencall.jmsc.test.mandatory.robustness
+com.hp.opencall.jmsc.test.mandatory.robustness.MSFaultTestServer
+com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup
+com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection
+com.hp.opencall.jmsc.test.mandatory.robustness.resource

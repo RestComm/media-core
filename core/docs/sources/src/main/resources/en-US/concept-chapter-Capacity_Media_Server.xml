@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="chapter-Capacity_Media_Server">
+  <title>Technical Specification and Capacity of the JBCP Media Server</title>
+  <section id="itms-Technical_Specification_Media_Server">
+    <title>Technical Specification</title>
+    <itemizedlist>
+      <listitem>
+        <para>Media and Coders:</para>
+        <itemizedlist>
+          <listitem>
+            <para>G711 (a-Law, u-Law)</para>
+          </listitem>
+          <listitem>
+            <para>GSM</para>
+          </listitem>
+          <listitem>
+            <para>SPEEX</para>
+          </listitem>
+          <listitem>
+            <para>G729</para>
+          </listitem>
+          <listitem>
+            <para>DTMF(RFC 2833, INBAND)</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+      <listitem>
+        <para>Media Files:</para>
+        <itemizedlist>
+          <listitem>
+            <para>WAV</para>
+          </listitem>
+          <listitem>
+            <para>SPX</para>
+          </listitem>
+          <listitem>
+            <para>GSM</para>
+          </listitem>
+          <listitem>
+            <para>MP3</para>
+          </listitem>		
+          <listitem>
+            <para>ISO base media file format</para>
+          </listitem>		
+        </itemizedlist>
+      </listitem>
+      <listitem>
+        <para>Signaling and control:</para>
+        <itemizedlist>
+          <listitem>
+            <para>MGCP</para>
+          </listitem>
+          <listitem>
+            <para>Java Media Control API(JSR-309)</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+      <listitem>
+        <para>Audio processing:</para>
+        <itemizedlist>
+          <listitem>
+            <para>Audio transcoding, bridging, attenuator and conference</para>
+          </listitem>
+          <listitem>
+            <para>DTMF detection and generation, both Inband as well as RFC2833</para>
+          </listitem>
+          <listitem>
+            <para>Inband generation/detection of other tones like busy, congestion etc possible</para>
+          </listitem>
+          <listitem>
+            <para>Text-To-Speech Support</para>
+          </listitem>
+          <listitem>
+            <para>Capability to generate silence/comfort noise</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="itms-Capacity_Media_Server">
+    <title>Capacity</title>
+    <itemizedlist>
+      <listitem>
+        <para>Capacity: Typical media sessions per server</para>
+        <itemizedlist>
+          <listitem>
+            <para>G.711 @ 20 ms - up to 500 with dual-core 2.33GHz CPU 4GB RAM</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+    </itemizedlist>
+  </section>
+</chapter>
+

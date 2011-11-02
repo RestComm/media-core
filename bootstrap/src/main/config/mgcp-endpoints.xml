@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : mgcp-endpoints.xml
+    Created on : May 26, 2011, 7:15 PM
+    Author     : kulikov
+    Description:
+        Purpose of the document follows.
+-->
+
+<mgcp>
+    <endpoint name="">
+        <server endpoint=""/>
+        <packages>AU</packages>
+    </endpoint>
+</mgcp>

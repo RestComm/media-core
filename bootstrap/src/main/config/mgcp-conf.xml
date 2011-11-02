@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mgcp>
+    <!-- Implemented packages -->
+    <packages>
+        <package name="A">
+            <signal name="ann" handler="org.mobicents.media.server.mgcp.pkg.ann.Play"/>
+        </package>        
+        
+        <package name="AU">
+            <signal name="pa" handler="org.mobicents.media.server.mgcp.pkg.au.Play"/>
+            <signal name="pc" handler="org.mobicents.media.server.mgcp.pkg.au.PlayCollect"/>
+            <signal name="pr" handler="org.mobicents.media.server.mgcp.pkg.au.PlayRecord"/>
+            <signal name="es" handler="org.mobicents.media.server.mgcp.pkg.au.EndSignal"/>
+        </package>        
+    </packages>
+
+    <!-- Mapping packages to endpoints -->
+    <endpoints>
+        <endpoint local-name="mobicents/aap/$" packages="A,AU"/>
+        <endpoint local-name="mobicents/ivr/$" packages="A,AU"/>
+    </endpoints>
+</mgcp>
+    

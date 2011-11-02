@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.jboss.aop</groupId>
+	<artifactId>method-execution</artifactId>
+	<packaging>jar</packaging>
+	<version>1.0.0</version>
+	<description>JBoss AOP Examples</description>
+	<name>JBoss AOP Examples</name>
+	<url>http://labs.jboss.org/jbossaop/</url>
+
+	<properties>
+		<jboss.aop.version>2.1.8.GA</jboss.aop.version>
+		<jboss.aop.plugin.version>2.1.3.GA</jboss.aop.plugin.version>
+		<jdkVersion>1.5</jdkVersion>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jboss.maven.plugins</groupId>
+			<artifactId>maven-jbossaop-plugin</artifactId>
+			<version>${jboss.aop.plugin.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.mobicents.servers.media</groupId>
+			<artifactId>mms-spi</artifactId>
+			<version>2.0.0.CR1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<artifactId>mms-impl</artifactId>
+			<groupId>org.mobicents.servers.media</groupId>
+			<version>2.0.0.CR1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<sourceDirectory>.</sourceDirectory>
+		<outputDirectory>target</outputDirectory>
+		<defaultGoal>install</defaultGoal>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${jdkVersion}</source>
+					<target>${jdkVersion}</target>
+					<excludes>
+						<exclude>target/*</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jboss.maven.plugins</groupId>
+				<artifactId>maven-jbossaop-plugin</artifactId>
+				<version>${jboss.aop.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>run</id>
+						<configuration>
+							<includeProjectDependency>
+								true
+							</includeProjectDependency>
+
+							<aoppaths>
+								<aoppath>jboss-aop.xml</aoppath>
+							</aoppaths>
+							<loadtime>true</loadtime>
+							<executable>Driver</executable>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

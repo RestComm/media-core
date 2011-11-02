@@ -1,0 +1,42 @@
+License
+--------------------------------------------------------------
+This mbrola database is being provided to you, the licensee,by 
+the Faculte Polytechnique de Mons, the licensor and owner of the
+database. The original diphone database, from which this mbrola 
+database has been built, is owned and copyrighted by the Oregon
+Graduate Institute of Science & Technology.
+
+By obtaining, using and/or copying this database, you agree 
+that you have read, understood, and will comply with these 
+terms and conditions :
+
+Terms and conditions on the use of US3
+--------------------------------------
+
+Permission is granted to use this database for synthesizing 
+speech with and only with the Mbrola program made available 
+from the MBROLA project www homepage :
+
+   http://tcts.fpms.ac.be/synthesis
+   
+Terms and conditions for the distribution of US3
+------------------------------------------------
+
+The distribution of this database is submitted to the same terms 
+and conditions as the distribution of the Mbrola program. 
+In addition, this database may not be sold or incorporated into 
+any product which is sold without prior permission from the 
+Diphone Database Owner ( Oregon Graduate Institute of Science &
+Technology, P.O. Box 91000, Portland, Oregon 97291-1000, USA ).
+
+When no charge is made, this database may be copied and distributed
+freely, provided that this notice is copied and distributed with it.
+
+Disclaimer
+----------
+
+THIS DATABASE CARRIES NO WARRANTY, EXPRESSED OR IMPLIED.  THE USER
+ASSUMES ALL RISKS, KNOWN OR UNKNOWN, DIRECT OR INDIRECT, WHICH 
+INVOLVE THIS DATABASE IN ANY WAY. IN PARTICULAR, THE LICENSOR OF 
+THE DATABASE DOES NOT TAKE ANY COMMITMENT IN VIEW OF ANY POSSIBLE
+THIRD PARTY RIGHTS.

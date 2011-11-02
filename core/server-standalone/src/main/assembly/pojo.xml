@@ -1,0 +1,117 @@
+<assembly>
+	<id>server</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<files>
+		<file>
+			<source>src/main/config/log4j.xml</source>
+			<destName>conf/log4j.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/bootstrap-beans.xml</source>
+			<destName>conf/bootstrap-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/server-beans.xml</source>
+			<destName>deploy/server-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/components-beans.xml</source>
+			<destName>deploy/comp-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/avprofile-beans.xml</source>
+			<destName>deploy/avprofile-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/connection-states-beans.xml</source>
+			<destName>deploy/connection-states-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/rtp-beans.xml</source>
+			<destName>deploy/rtp-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/connection-beans.xml</source>
+			<destName>deploy/connection-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/ann-beans.xml</source>
+			<destName>deploy/endpoint/ann-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/packetrelay-beans.xml</source>
+			<destName>deploy/endpoint/packetrelay-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/ivr-beans.xml</source>
+			<destName>deploy/endpoint/ivr-beans.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/cnf-beans.xml</source>
+			<destName>deploy/endpoint/cnf-beans.xml</destName>
+		</file>
+		<!-- file>
+			<source>src/main/config/rtsp-beans.xml</source>
+			<destName>deploy/endpoint/rtsp-beans.xml</destName>
+		</file -->
+<!-- Legacy Telco  -->		
+		<file>
+			<source>src/main/config/mgw-beans.xml</source>
+			<destName>deploy/endpoint/mgw-beans.xml</destName>
+		</file>
+<!-- MGCP Controller -->                
+		<file>
+			<source>src/main/config/mgcp-conf.xml</source>
+			<destName>deploy/controllers/mgcp/mgcp-conf.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/mgcp/packages/au/events.xml</source>
+			<destName>deploy/controllers/mgcp/packages/au/events.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/mgcp/packages/au/signals.xml</source>
+			<destName>deploy/controllers/mgcp/packages/au/signals.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/mgcp/packages/au/package.xml</source>
+			<destName>deploy/controllers/mgcp/packages/au/package/package.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/mgcp/packages/dtmf/events.xml</source>
+			<destName>deploy/controllers/mgcp/packages/dtmf/events.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/mgcp/packages/dtmf/signals.xml</source>
+			<destName>deploy/controllers/mgcp/packages/dtmf/signals.xml</destName>
+		</file>
+		<file>
+			<source>src/main/config/mgcp/packages/dtmf/package.xml</source>
+			<destName>deploy/controllers/mgcp/packages/dtmf/package/package.xml</destName>
+		</file>
+<!-- RTSP Controller -->                                
+		<!-- file>
+			<source>src/main/config/rtsp-conf.xml</source>
+			<destName>deploy/controllers/rtsp/rtsp-conf.xml</destName>
+		</file -->
+
+	</files>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/lib</outputDirectory>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+			<includes>
+				<include>org.mobicents.servers.media:mms-spi</include>
+				<include>org.mobicents.servers.media:mms-impl</include>
+			</includes>
+		</dependencySet>
+	</dependencySets>
+	<componentDescriptors>
+		<componentDescriptor>
+			src/main/assembly/common.xml
+		</componentDescriptor>
+	</componentDescriptors>
+</assembly>

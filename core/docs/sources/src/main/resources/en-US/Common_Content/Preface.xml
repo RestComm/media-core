@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE preface PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<preface id="mssug-Media_Server_User_Guide-Preface">
+	<title>Preface</title>
+	<para>&nbsp;</para>
+	<xi:include href="Conventions.xml" xmlns:xi="http://www.w3.org/2001/XInclude">
+	</xi:include>
+	<xi:include
+		href="Feedback.xml"
+		xmlns:xi="http://www.w3.org/2001/XInclude">		
+	</xi:include>
+</preface>

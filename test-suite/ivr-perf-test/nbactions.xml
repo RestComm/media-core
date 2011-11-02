@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>run</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-agentpath:C:\\Users\\kulikov\\.netbeans\\6.1\\lib\\deployed\\jdk15\\windows\\profilerinterface.dll=C:\\Users\\kulikov\\.netbeans\\6.1\\lib,5140 -classpath %classpath ${packageClassName}</exec.args>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xdebug -Djava.compiler=none -Xnoagent -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -agentpath:C:\\Users\\kulikov\\.netbeans\\6.1\\lib\\deployed\\jdk15\\windows\\profilerinterface.dll=C:\\Users\\kulikov\\.netbeans\\6.1\\lib,5140 -classpath %classpath ${packageClassName}</exec.args>
+                <jpda.listen>true</jpda.listen>
+                <exec.executable>java</exec.executable>
+            </properties>
+        </action>
+    </actions>

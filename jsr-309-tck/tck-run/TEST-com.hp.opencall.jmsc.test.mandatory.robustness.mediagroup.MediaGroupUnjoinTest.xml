@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="1" failures="1" hostname="kulikov.mobicents.org" name="com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.MediaGroupUnjoinTest" tests="3" time="31.031" timestamp="2011-09-27T07:11:05">
+  <properties>
+    <property name="ant.project.invoked-targets" value="run" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="DATE_TIME" value="2011-09-27_11-01" />
+    <property name="sun.boot.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386" />
+    <property name="java.vm.version" value="19.1-b02" />
+    <property name="ant.library.dir" value="/home/kulikov/apache-ant-1.8.2//lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on December 20 2010" />
+    <property name="run.report" value="/home/kulikov/jsr-309-tck/tck-reports/2011-09-27_11-01" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.runtime.version" value="1.6.0_24-b07" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.endorsed.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="run" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/home/kulikov/apache-ant-1.8.2/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+    <property name="os.name" value="Linux" />
+    <property name="DSTAMP" value="20110927" />
+    <property name="ant.home" value="/home/kulikov/apache-ant-1.8.2/" />
+    <property name="ant.project.name" value="TCK" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="run.dir" value="/home/kulikov/jsr-309-tck/tck-run" />
+    <property name="TODAY" value="September 27 2011" />
+    <property name="java.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386/server:/home/kulikov/jdk1.6.0_24/jre/lib/i386:/home/kulikov/jdk1.6.0_24/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="50.0" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="ant.file.type.TCK" value="file" />
+    <property name="os.version" value="2.6.33.3-85.fc13.i686" />
+    <property name="ant.file" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="user.home" value="/home/kulikov" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="TSTAMP" value="1101" />
+    <property name="user.name" value="kulikov" />
+    <property name="java.class.path" value="/home/kulikov/jsr-309-tck:/home/kulikov/jsr-309-tck/mgcp-impl-2.0.0.GA.jar:/home/kulikov/jsr-309-tck/tck.jar:/home/kulikov/jsr-309-tck/deps/jain-mgcp-ri-1.0.jar:/home/kulikov/jsr-309-tck/deps/jain-sip-ri-1.2.146.jar:/home/kulikov/jsr-309-tck/deps/junit-4.7-src.jar:/home/kulikov/jsr-309-tck/deps/junit.jar:/home/kulikov/jsr-309-tck/deps/log4j-1.2.14.jar:/home/kulikov/jsr-309-tck/deps/mgcp-impl-2.0.1.RC1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mobicents-jsr309-impl-2.0.1.CR1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mscontrol.jar:/home/kulikov/apache-ant-1.8.2/lib/junit-4.8.1.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-launcher.jar:/home/kulikov/apache-ant-1.8.2/lib/ant.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit4.jar" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="java.home" value="/home/kulikov/jdk1.6.0_24/jre" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_24" />
+    <property name="java.ext.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/resources.jar:/home/kulikov/jdk1.6.0_24/jre/lib/rt.jar:/home/kulikov/jdk1.6.0_24/jre/lib/sunrsasign.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jsse.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jce.jar:/home/kulikov/jdk1.6.0_24/jre/lib/charsets.jar:/home/kulikov/jdk1.6.0_24/jre/lib/modules/jdk.boot.jar:/home/kulikov/jdk1.6.0_24/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="ant.file.TCK" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.MediaGroupUnjoinTest" name="test_2_2_4_1_UnjoinMGPlay" time="7.465" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.MediaGroupUnjoinTest" name="test_2_2_4_2_UnjoinMGRecord" time="9.362">
+    <error message="mscontrol://127.0.0.1:2427/MediaSession6/MediaGroup10 Container is not joined to any other container" type="javax.media.mscontrol.MsControlException">javax.media.mscontrol.MsControlException: mscontrol://127.0.0.1:2427/MediaSession6/MediaGroup10 Container is not joined to any other container
+	at org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl.record(RecorderImpl.java:127)
+	at com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.MediaGroupUnjoinTest.test_2_2_4_2_UnjoinMGRecord(MediaGroupUnjoinTest.java:137)
+	at com.hp.opencall.jmsc.test.TestBase.runBare(TestBase.java:437)
+</error>
+  </testcase>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.MediaGroupUnjoinTest" name="test_2_2_4_3_UnjoinMGSignalDetector" time="14.189">
+    <failure message="Timed out waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15), after 10seconds" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Timed out waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15), after 10seconds
+	at com.hp.opencall.jmsc.test.TestBase$EventWaiter.waitInternal(TestBase.java:255)
+	at com.hp.opencall.jmsc.test.TestBase$EventWaiter.waitForOKEvent(TestBase.java:303)
+	at com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.MediaGroupUnjoinTest.test_2_2_4_3_UnjoinMGSignalDetector(MediaGroupUnjoinTest.java:185)
+	at com.hp.opencall.jmsc.test.TestBase.runBare(TestBase.java:437)
+</failure>
+  </testcase>
+  <system-out><![CDATA[11:11:05,598 INFO  [Runner] Start    mandatory.robustness.mediagroup.MediaGroupUnjoinTest.test_2_2_4_1_UnjoinMGPlay
+11:11:05,614 INFO  [DriverImpl] Initializing MGCP on /127.0.0.1:2729
+11:11:05,619 ERROR [JainMgcpStackImpl] Failed to locate properties file, using default values
+11:11:05,625 INFO  [JainMgcpStackImpl] Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+77   [] DEBUG TestBase - log4j configured
+78   [] DEBUG TestBase - Loading file:/home/kulikov/jsr-309-tck/TCK.properties
+221  [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107465746 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65108 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+222  [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107465746 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65108 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+262  [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107465836 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65106 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+441  [] INFO  MediaGroupUnjoinTest - Detecting DTMF with a joined MediaGroup
+441  [] INFO  DriverImpl - MediaSession1 MediaGroup5 Receive signal called
+960  [] DEBUG TestBase - getProperty(testcase.dtmf1) = file:///home/kulikov/jsr-309-tck/media/dtmf-1.wav
+1472 [] DEBUG MediaGroupUnjoinTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@14d7745 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@d17ec3
+1984 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup5) (4s remaining)
+2706 [] DEBUG MediaGroupUnjoinTest - Detector(mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup5) received: RECEIVE_SIGNALS_COMPLETED(NUM_SIGNALS_DETECTED, signal=1)
+2707 [] INFO  MediaGroupUnjoinTest - Checking that DTMF is not detected when MediaGroup is unjoined
+2708 [] INFO  DriverImpl - MediaSession1 MediaGroup4 Initiation of unjoin procedure, other party = NetworkConnection2
+2731 [] INFO  DriverImpl - MediaSession1 MediaGroup5 Receive signal called
+3232 [] DEBUG TestBase - getProperty(testcase.dtmf1) = file:///home/kulikov/jsr-309-tck/media/dtmf-1.wav
+3732 [] DEBUG MediaGroupUnjoinTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@14d7745 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@747fa2
+4250 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup5) (2s remaining)
+5251 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup5) (0s remaining)
+6252 [] INFO  DriverImpl - MediaSession1 MediaGroup4 Releasing...
+6552 [] INFO  DriverImpl - MediaSession1 MediaGroup5 Releasing...
+6853 [] INFO  DriverImpl - MediaSession1 NetworkConnection2 Releasing....
+7156 [] INFO  DriverImpl - MediaSession1 NetworkConnection3 Releasing....
+7457 [] INFO  Runner - End      mandatory.robustness.mediagroup.MediaGroupUnjoinTest.test_2_2_4_1_UnjoinMGPlay
+7460 [] INFO  Runner - Start    mandatory.robustness.mediagroup.MediaGroupUnjoinTest.test_2_2_4_2_UnjoinMGRecord
+7510 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107473073 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65104 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+7550 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107473126 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65102 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+7691 [] DEBUG TestBase - getProperty(testcase.shortpromptfile) = file:///home/kulikov/jsr-309-tck/media/Numbers_1-5_3s.wav
+7692 [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+8710 [] DEBUG MediaGroupUnjoinTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1682598 (4s remaining)
+9710 [] DEBUG MediaGroupUnjoinTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1682598 (3s remaining)
+10711 [] DEBUG MediaGroupUnjoinTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1682598 (1s remaining)
+10724 [] DEBUG MediaGroupUnjoinTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@e53220 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@13e0aba
+11711 [] DEBUG MediaGroupUnjoinTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1682598 (0s remaining)
+13711 [] DEBUG MediaGroupUnjoinTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1682598 (4s remaining)
+14712 [] DEBUG MediaGroupUnjoinTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1682598 (2s remaining)
+15588 [] DEBUG MediaGroupUnjoinTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1682598 received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@ef83d3
+15589 [] INFO  DriverImpl - MediaSession6 MediaGroup10 Initiation of unjoin procedure, other party = NetworkConnection8
+15608 [] INFO  DriverImpl - MediaSession6 MediaGroup9 Releasing...
+15910 [] INFO  DriverImpl - MediaSession6 MediaGroup10 Releasing...
+16210 [] INFO  DriverImpl - MediaSession6 NetworkConnection7 Releasing....
+16512 [] INFO  DriverImpl - MediaSession6 NetworkConnection8 Releasing....
+16823 [] INFO  Runner - Start    mandatory.robustness.mediagroup.MediaGroupUnjoinTest.test_2_2_4_3_UnjoinMGSignalDetector
+16875 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107482436 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65100 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+16876 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107482436 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65100 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+16915 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107482491 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65098 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+17055 [] INFO  DriverImpl - MediaSession11 MediaGroup15 Receive signal called
+17556 [] DEBUG TestBase - getProperty(testcase.dtmf1) = file:///home/kulikov/jsr-309-tck/media/dtmf-1.wav
+18061 [] DEBUG MediaGroupUnjoinTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@19ec4ed received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@92dcdb
+18577 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (4s remaining)
+19261 [] DEBUG MediaGroupUnjoinTest - Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) received: RECEIVE_SIGNALS_COMPLETED(NUM_SIGNALS_DETECTED, signal=1)
+19262 [] INFO  DriverImpl - MediaSession11 MediaGroup15 Initiation of unjoin procedure, other party = NetworkConnection13
+19283 [] INFO  DriverImpl - MediaSession11 MediaGroup15 Receive signal called
+19784 [] DEBUG TestBase - getProperty(testcase.dtmf1) = file:///home/kulikov/jsr-309-tck/media/dtmf-1.wav
+20287 [] DEBUG MediaGroupUnjoinTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@19ec4ed received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@17ec9f7
+20804 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (9s remaining)
+21804 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (8s remaining)
+22805 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (6s remaining)
+23805 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (5s remaining)
+24806 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (4s remaining)
+25806 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (3s remaining)
+26806 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (2s remaining)
+27807 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (1s remaining)
+28807 [] DEBUG MediaGroupUnjoinTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (0s remaining)
+29808 [] INFO  DriverImpl - MediaSession11 MediaGroup14 Releasing...
+30109 [] INFO  DriverImpl - MediaSession11 MediaGroup15 Releasing...
+30409 [] INFO  DriverImpl - MediaSession11 NetworkConnection12 Releasing....
+30711 [] INFO  DriverImpl - MediaSession11 NetworkConnection13 Releasing....
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

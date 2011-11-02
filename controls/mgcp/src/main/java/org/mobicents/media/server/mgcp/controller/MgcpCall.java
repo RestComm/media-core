@@ -1,0 +1,92 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.mobicents.media.server.mgcp.controller;
+
+import java.util.ArrayList;
+import org.mobicents.media.server.utils.Text;
+
+/**
+ * MGCP call.
+ * 
+ * @author kulikov
+ */
+public class MgcpCall {
+
+    private CallManager callManager;
+    protected Text id = new Text(new byte[30], 0, 30);
+    protected final ArrayList<MgcpConnection> connections = new ArrayList(20);
+
+    protected MgcpCall(CallManager callManager, Text id) {
+        id.duplicate(this.id);
+        this.id.trim();
+        
+        this.callManager = callManager;
+    }
+
+    public MgcpConnection getMgcpConnection(Text id) {
+        for (MgcpConnection activity : connections) {
+            if (activity.id.equals(id)) {
+                return activity;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Excludes connection activity from this call.
+     * 
+     * @param activity the activity to be excluded.
+     */
+    public void exclude(MgcpConnection activity) {
+        //remove activity
+        synchronized (connections) {
+            connections.remove(activity);
+
+            //if no more connections terminate the entire call
+            if (connections.isEmpty()) {
+                callManager.terminate(this);
+            }
+        }
+    }
+    
+    /**
+     * The amount of connections related to this call.
+     * 
+     * @return the amount.
+     */
+    public int size() {
+        return connections.size();
+    }
+    
+    public void deleteConnections() {        
+        ArrayList<MgcpConnection> temp = new ArrayList(20);
+        for (MgcpConnection connection : temp) {
+            connection.mgcpEndpoint.deleteConnection(connection.getID());
+        }
+        temp.clear();
+    }
+    
+    @Override
+    public String toString() {
+        return "call[" + id + "]";
+    }
+}

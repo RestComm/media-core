@@ -1,0 +1,766 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="chapter-Installing_the_Media_Server">
+	<title>Installing the &THIS.PLATFORM; Media Server</title>
+
+	<para>
+		The &THIS.PLATFORM; Media Server is available in both binary and source code
+		distributions. The simplest way to get started with the Media
+		Server is to download the ready-to-run binary distribution.
+		Alternatively, the source code for the &THIS.PLATFORM; Media Server can be
+		obtained by checking it out from its repository using the
+		Subversion version control system (
+		<acronym>SVN</acronym>
+		), and then built using the Maven build system. Whereas
+		installing the binary distribution is recommended for most
+		users, obtaining and building the source code is recommended for
+		those who want access to the latest revisions and Media Server
+		capabilities.
+	</para>
+	<bridgehead id="itms-Installing_the_Java_Development_Kit">
+		Installing the Java Development Kit
+	</bridgehead>
+
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="mob-task-section-Java_Development_Kit-Installing_Configuring_and_Running.xml">
+	</xi:include>
+
+	<section
+		id="itms-binary-Standalone_Media_Server-Installing_Configuring_and_Running">
+		<title>
+			Media Server Binary Distribution: Installing,
+			Configuring and Running
+		</title>
+		<para>
+			This section details how to install the &THIS.PLATFORM; Media Server.
+		</para>
+
+		<section
+			id="itms-binary-Standalone_Media_Server-PreInstall_Requirements_and_Prerequisites">
+			<title>Pre-Install Requirements and Prerequisites</title>
+			<para>
+				Ensure that the following requirements have been met
+				before continuing with the install.
+			</para>
+			<variablelist
+				id="itms-binary-Standalone_Media_Server-Hardware_Requirements">
+				<title>Hardware Requirements</title>
+				<varlistentry>
+					<term>Sufficient Disk Space</term>
+					<listitem>
+						<para>
+							Once unzipped, the Standalone Media Server
+							binary release requires
+							<emphasis>at least</emphasis>
+							&RELEASE.STANDALONE.FILESIZE;
+							of free disk space. Keep in mind that disk
+							space requirements may change from release
+							to release.
+						</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Anything Java Itself Will Run On</term>
+					<listitem>
+						<para>
+							The Media Server is 100% Java.
+						</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+			<variablelist
+				id="itms-binary-Standalone_Media_Server-Software_Prerequisites">
+				<title>Software Prerequisites</title>
+				<varlistentry>
+					<term>JDK 5 or Higher</term>
+					<listitem>
+						<para>
+							A working installation of the Java
+							Development Kit (
+							<acronym>JDK</acronym>
+							) version 5 or higher is required in order
+							to run the Media Server.
+						</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+		</section>
+		<section id="itms-binary-Standalone_Media_Server-Downloading">
+			<title>Downloading</title>
+			<para>
+				The latest version of the Media Server is
+				available from
+				<ulink
+					url="http://www.mobicents.org/mms/mms-downloads.html" />
+				. The top row of the table holds the latest version.
+				Click the
+				<literal>Download</literal>
+				link to start the download.
+			</para>
+		</section>
+		<section id="itms-binary-Standalone_Media_Server-Installing">
+			<title>Installing</title>
+			<para>
+				Once the requirements and prerequisites have been met,
+				the Media Server can be installed onto the
+				system. Follow the instructions below for the operating
+				system on which the server will reside.
+			</para>
+			<note>
+			<title>Version Numbers</title>
+			<para>
+				For clarity, the command line instructions presented in this chapter use specific version numbers and directory names. Ensure this information is substituted with the binary distribution's version numbers and file names. 
+			</para>
+		      </note>			
+			<procedure>
+				<title>
+					Installing the Media Server Binary Distribution on Linux
+				</title>
+				<para>
+					It is assumed that the downloaded archive is saved
+					in the home directory, and that a terminal window is
+					open displaying the home directory.
+				</para>
+				<step>
+					<para>
+						Create a subdirectory to extract the files into.
+						For ease of identification, it is recommended
+						that the version number of the binary is
+						included in this directory name.
+					</para>
+					<screen>~]$ mkdir <quote>ms-<replaceable>&lt;version&gt;</replaceable></quote></screen>
+				</step>
+				<step>
+					<para>
+						Move the downloaded zip file into the directory:
+					</para>
+					<screen>~]$ mv <quote>&RELEASE.STANDALONE.FILENAME;</quote> <quote>ms-<replaceable>&lt;version&gt;</replaceable></quote></screen>
+				</step>
+				<step>
+					<para>Move into the directory:</para>
+					<screen>~]$ cd <quote>ms-<replaceable>&lt;version&gt;</replaceable></quote></screen>
+				</step>
+				<step>
+					<para>
+						Extract the files into the current directory by
+						executing one of the following commands.
+						<itemizedlist>
+							<listitem>
+								<para>
+									Java:
+									<screen>ms-<replaceable>&lt;version&gt;</replaceable>]$ jar -xvf <quote>&RELEASE.STANDALONE.FILENAME;</quote></screen>
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									Linux:
+									<screen>ms-&lt;version&gt;]$unzip &quot;&RELEASE.STANDALONE.FILENAME;&quot;</screen>
+								</para>
+							</listitem>
+						</itemizedlist>
+						<note>
+							<para>
+								Alternatively, use
+								<command>unzip</command>
+								-d &lt;unzip_to_location&gt; to extract
+								the zip file's contents to a location
+								other than the current directory.
+							</para>
+						</note>
+					</para>
+				</step>
+				<step>
+					<para>
+						Consider deleting the archive, if free disk
+						space is an issue.
+					</para>
+					<screen>ms-<replaceable>&lt;version&gt;</replaceable>]$ rm	<quote>&RELEASE.STANDALONE.FILENAME;</quote></screen>
+				</step>
+			</procedure>
+			<procedure>
+				<title>Installing the Media Server Binary Distribution on Windows</title>
+				<step>
+					<para>
+						For this procedure, it is assumed that the
+						downloaded archive is saved in the
+						<filename>My Downloads</filename>
+						folder.
+					</para>
+				</step>
+				<step>
+					<para>
+						Create a subfolder in
+						<filename>My Downloads</filename>
+						to extract the zip file's contents into. For
+						ease of identification, it is recommended that
+						the version number of the binary is included in
+						the folder name. For example,
+						<filename>ms-&lt;version&gt;</filename>
+						.
+					</para>
+				</step>
+				<step>
+					<para>
+						Extract the contents of the archive, specifying
+						the destination folder as the one created in the
+						previous step.
+					</para>
+				</step>
+				<step>
+					<para>
+						Alternatively, execute the
+						<command>jar -xvf</command>
+						command to extract the binary distribution files
+						from the zip archive.
+					</para>
+					<orderedlist>
+						<listitem>
+							<para>
+								Move the downloaded zip file from
+								<filename>My Downloads</filename>
+								to the folder created in the previous
+								step.
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Open the Windows Command Prompt and
+								navigate to the folder that contains the
+								archive using the
+								<command>cd</command>
+								command
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Execute the
+								<command>jar -xvf</command>
+								command to extract the archive contents
+								into the current folder.
+							</para>
+							<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;ms-&lt;version&gt;&bsol;jar -xvf &quot;&RELEASE.STANDALONE.FILENAME;&quot;</screen>
+						</listitem>
+					</orderedlist>
+				</step>
+				<step>
+					<para>
+						It is recommended that the folder holding the Media Server files (in this example, the folder named <filename>mms-standalone-<replaceable>&lt;version&gt;</replaceable></filename>) is moved to a user-defined location for	storing executable programs. For example, the <filename>Program Files</filename> folder.</para>
+				</step>
+				<step>
+					<para>
+						Consider deleting the archive, if free disk
+						space is an issue.
+					</para>
+					<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;ms-&lt;version&gt;&bsol;delete &quot;&RELEASE.STANDALONE.FILENAME;&quot;</screen>
+				</step>
+			</procedure>
+		</section>
+
+		<section id="itms-binary-Standalone_Media_Server-Running">
+			<title>Running</title>
+			<para>
+				In the Linux terminal or Windows command prompt, the
+				Standalone Media Server has started successfully if the
+				last line of output is similar to the following
+			</para>
+			<programlisting><![CDATA[2100 [main] INFO  org.mobicents.media.server.bootstrap.MainDeployer  - [[[[[[[[[ Mobicents Media Server: release.version=]]>&THIS.VERSION; <![CDATA[Started ]]]]]]]]]]]></programlisting>
+			<procedure>
+				<title>
+					Running the Media Server on Linux
+				</title>
+				<step>
+					<para>
+						Change the working directory to installation
+						directory (the one in which the zip file's
+						contents was extracted to)
+					</para>
+					<screen>downloads]$ cd &quot;mms-standalone-&lt;version&gt;&quot;</screen>
+				</step>
+				<step>
+					<para>
+						(Optional) Ensure that the
+						<filename>bin/run.sh</filename>
+						start script is executable.
+					</para>
+					<screen>ms-&lt;version&gt;]$ chmod +x bin/run.sh</screen>
+				</step>
+				<step>
+					<para>
+						Execute the
+						<filename>run.sh</filename>
+						Bourne shell script.
+					</para>
+					<screen>ms-&lt;version&gt;]$ ./bin/run.sh</screen>
+				</step>
+			</procedure>
+			<note>
+				<para>
+					Instead of executing the Bourne shell script to
+					start the server, the
+					<filename>run.jar</filename>
+					executable Java archive can be executed from the
+					<filename>bin</filename>
+					directory:
+				</para>
+				<screen>mms-standalone-&lt;version&gt;]$ java -jar bin/run.jar</screen>
+			</note>
+			<procedure>
+				<title>
+					Running the Media Server on
+					<productname>Windows</productname>
+				</title>
+				<step>
+					<para>
+						Using Windows Explorer, navigate to the
+						<filename>bin</filename>
+						subfolder in the installation directory.
+					</para>
+				</step>
+				<step>
+					<para>
+						The preferred way to start the Media
+						Server is from the Command Prompt. The command
+						line interface displays details of the startup
+						process, including any problems encountered
+						during the startup process.
+					</para>
+					<para>
+						Open the Command Prompt via the
+						<guilabel>Start</guilabel>
+						menu and navigate to the correct folder:
+					</para>
+					<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My	Downloads&gt;cd &quot;mms-standalone-&lt;version&gt;&quot;</screen>
+				</step>
+				<step>
+					<para>
+						Start the Server by executing one of
+						the following files:
+						<itemizedlist>
+							<listitem>
+								<para>
+									<filename>run.bat</filename>
+									batch file:
+								</para>
+								<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;mms-standalone&lt;version&gt;&gt;bin&bsol;run.bat</screen>
+							</listitem>
+							<listitem>
+								<para>
+									<filename>run.jar</filename>
+									executable Java archive:
+								</para>
+								<screen>C:&bsol;Users&bsol;&lt;user&gt;My Downloads&bsol;mms-standalone-&lt;version&gt;&gt;java	-jar bin&bsol;run.jar</screen>
+							</listitem>
+						</itemizedlist>
+					</para>
+				</step>
+			</procedure>
+		</section>
+		<section id="itms-binary-Standalone_Media_Server-Running-alter">
+			<title>Start the Server With Alternate Configuration</title>
+			<para>
+				Using <literal>run.sh</literal> without any arguments binds the server at <literal>127.0.0.1</literal>. To bind server to different ip, pass the ip address as value to <literal>-b</literal> command line option. For example to bind the server to <literal>115.252.103.220</literal>
+			</para>
+			<screen>ms-&lt;version&gt;]$ ./bin/run.sh -b 115.252.103.220</screen>
+		</section>	
+		
+		<section id="itms-binary-Standalone_Media_Server-using-run">
+			<title>Using run.sh</title>
+			<para>
+				The <literal>run</literal> script supports the following options: 				
+			</para>
+			<programlisting>
+usage: run.sh [options]
+-h, --help                          Show help message
+-b, --host=&lt;host or ip&gt;       Bind address for media server. 
+			</programlisting>
+		</section>
+		<section id="itms-binary-Standalone_Media_Server-Stopping">
+			<title>Stopping</title>
+			<para>
+				Detailed instructions for stopping the Media
+				Server are given below, arranged by platform. If the
+				server is correctly stopped, the following three lines
+				are displayed as the last output in the Linux terminal
+				or Command Prompt:
+			</para>
+			<programlisting>
+				[Server] Shutdown complete Shutdown complete Halting VM
+			</programlisting>
+			<procedure>
+				<title>
+					Stopping the Standalone Media Server on Linux
+				</title>
+				<step>
+					<para>
+						Change the working directory to the binary
+						distribution's install directory.
+					</para>
+					<screen>~]$ cd &quot;mms-standalone-&lt;version&gt;&quot;</screen>
+				</step>
+				<step>
+					<para>
+						(Optional) Ensure that the bin/shutdown.sh start
+						script is executable:
+					</para>
+					<screen>mms-standalone-&lt;version&gt;]$ chmod +x bin/shutdown.sh</screen>
+				</step>
+				<step>
+					<para>
+						Run the
+						<filename>shutdown.sh</filename>
+						executable Bourne shell script with the
+						<option>-S</option>
+						option (the short option for
+						<option>--shutdown</option>
+						) as a command line argument:
+					</para>
+					<screen>mms-standalone-&lt;version&gt;]$./bin/shutdown.sh -S</screen>
+				</step>
+			</procedure>
+			<!--  note>
+				<para>
+					The
+					<filename>shutdown.jar</filename>
+					executable Java archive with the
+					<option>-S</option>
+					option can also be used to shut down the server:
+				</para>
+				<screen>mms-standalone-&lt;version&gt;]$ java -jar	bin/shutdown.jar -S</screen>
+			</note -->
+			<procedure>
+				<title>
+					Stopping Standalone Media Server on Windows
+				</title>
+				<step>
+					<para>
+						Stopping the Standalone Media Server on Windows
+						consists of executing either the
+						<filename>shutdown.bat</filename>
+						or the
+						<filename>shutdown.jar</filename>
+						executable file in the
+						<filename>bin</filename>
+						subfolder of the MMS for JBoss binary
+						distribution. Ensure the
+						<option>-S</option>
+						option (the short option for
+						<option>--shutdown</option>
+						) is included in the command line argument.
+					</para>
+					<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;mms-standalone-&lt;version&gt;&gt;bin&bsol;shutdown.bat -S</screen>
+					<stepalternatives>
+						<step>
+							<para>
+								The
+								<filename>shutdown.jar</filename>
+								executable Java archive with the
+								<option>-S</option>
+								option can also be used to shut down the
+								server:
+							</para>
+							<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;mms-standalone-&lt;version&gt;&gt;java -jar bin&bsol;shutdown.jar -S</screen>
+						</step>
+					</stepalternatives>
+				</step>
+			</procedure>
+		</section>
+		<section id="itms-Standalone_Server_Structure">
+			<title>Server Structure</title>
+			<para>
+				Now the server is installed, it is important to
+				understand the layout of the server directories. An
+				understanding of the server structure is useful when
+				deploying examples, and making configuration changes. It
+				is also useful to understand what components can be
+				removed to reduce the server boot time.
+			</para>
+			<para>
+				The directory structure in the Standalone Media Server
+				installation directory is named using a standard
+				structure.
+				<xref linkend="tab-mms-Standalone_Directory-Structure" />
+				describes each directory, and the type of information
+				contained within each location.
+			</para>
+			<table id="tab-mms-Standalone_Directory-Structure"
+				frame='all'>
+				<title>Directory Structure</title>
+				<tgroup cols='2' align='left' colsep='1' rowsep='1'>
+					<colspec colname='c1' />
+					<colspec colname='c2' />
+					<thead>
+						<row>
+							<entry align="center">Directory Name</entry>
+							<entry align="center">Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>bin</entry>
+							<entry>
+								All the entry point JARs and start
+								scripts included with the Media Server
+								distribution are located in the bin
+								directory
+							</entry>
+						</row>
+						<row>
+							<entry>conf</entry>
+							<entry>
+								The conf directory contains the bootstrap descriptor, bootstrap-beans.xml by default, file for a given server configuration. This
+								defines the core services that are fixed for the lifetime of the server.
+								
+								It also contains the log4j.xml that defines the logging filter.
+							</entry>
+						</row>
+						<row>
+							<entry>deploy</entry>
+							<entry>
+								The deploy directory is the default location the deployment service looks to at start time for deployment content.
+								This may be overridden through the <emphasis>MainDeployer's path</emphasis> attribute.
+							</entry>
+						</row>
+						<row>
+							<entry>lib</entry>
+							<entry>
+								Contains the startup JAR files used by
+								the server.
+							</entry>
+						</row>
+						<row>
+							<entry>log</entry>
+							<entry>
+								Contains the logs from the bootstrap
+								logging service. The
+								<filename>log</filename>
+								directory is the default directory into
+								which the bootstrap logging service
+								places its logs, however, the location
+								can be overridden by altering the
+								log4j.xml configuration file. This file
+								is located in the
+								<filename>/conf</filename>
+								directory. <filename>log</filename> directory is created automatically when the server is started.
+							</entry>
+						</row>
+						<row>
+							<entry>mbrola</entry>
+							<entry>
+								Contains the MBROLA binary and voices. The available voices are 
+								<itemizedlist
+									id="mbrola_tts_voices">
+									<title>
+										The available MBROLA voices are
+									</title>
+									<listitem>
+										<para>
+											us1: American English Female. Voice Name : mbrola_us1
+										</para>
+									</listitem>
+									<listitem>
+										<para>
+											us2: American English Male. Voice Name : mbrola_us2
+										</para>
+									</listitem>
+									<listitem>
+										<para>
+											us3: American English Male. Voice Name : mbrola_us3
+										</para>
+									</listitem>
+								</itemizedlist>								
+								<para>								
+								Please note that MBROLA is not LGPL model. To understand license please look at <ulink url="http://tcts.fpms.ac.be/synthesis/mbrola/mbrlicen.html">http://tcts.fpms.ac.be/synthesis/mbrola/mbrlicen.html</ulink>
+								</para>
+								<para>
+								In addition to MBROLA, the free voices available are
+								<itemizedlist
+									id="freetts_tts_voices">
+									<title>
+										Free Voice
+									</title>
+									<listitem>
+										<para>
+											kevin: A low quality, unlimited domain, 8kHz diphone male voice. Voice Name : kevin
+										</para>
+									</listitem>
+									<listitem>
+										<para>
+											kevin16: A medium quality, unlimited domain, 16kHz diphone male voice. Voice Name : mbrola_us2
+										</para>
+									</listitem>
+									<listitem>
+										<para>
+											alan: A high quality, limited domain, 16kHz cluster unit male voice. Voice Name : alan
+										</para>
+									</listitem>
+								</itemizedlist>									
+								</para> 
+								
+							</entry>
+						</row>	
+						<row>
+							<entry>media</entry>
+							<entry>
+								The default directory for media files. The MediaPlayer, Recorder etc components uses media directory as default directory to read from/write and play/record media files.
+							</entry>
+						</row>
+						<row>
+							<entry>temp</entry>
+							<entry>
+								<filename>temp</filename> is created automatically when the server is started. 
+								The <emphasis>MainDeployer</emphasis> creates a <emphasis>temp/deployment-beans.xml</emphasis> which contains all 
+								the beans defined in *-beans.xml file's from <emphasis>/deploy</emphasis> directory.
+							</entry>
+						</row>	
+						<row>
+							<entry>native</entry>
+							<entry>
+								Contains the native library to read/write from <emphasis>dahdi</emphasis> channels. As of now the native library is only for <literal>linux OS</literal>.
+							</entry>
+						</row>	
+						<row>
+							<entry>ss7</entry>
+							<entry>
+								The <filename>ss7</filename> directory contains the configuration file <emphasis>ss7-beans.xml</emphasis> for configuring the channels. One needs to configure the Channel and MTP beans and copy this file to <filename>/deploy</filename> to enable the <emphasis>SS7</emphasis>.  
+							</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+			<para>
+				The  Media Server uses a number of XML configuration
+				files that control various aspects of the server.
+							</para>
+		</section>
+
+
+		<section id="itms-Standalone_Server_file-set">
+			<title>Server File Set</title>
+			<para>
+				The following example illustrates a truncated directory structure of the <literal>mms-standalone-&lt;version&gt;</literal> server files:
+			</para>
+			<screen>
+[user@localhost &lt;MMS_HOME&gt;]$ tree
+|-- bin
+|   |-- init_redhat.sh
+|   |-- run.bat
+|   |-- run.jar
+|   `-- run.sh
+|-- conf
+|   |-- bootstrap-beans.xml
+|   `-- log4j.xml
+|-- deploy
+|   |-- avprofile-beans.xml
+|   |-- comp-beans.xml
+|   |-- connection-beans.xml
+|   |-- connection-states-beans.xml
+|   |-- controllers
+|   |   `-- mgcp
+|   |       |-- mgcp-conf.xml
+|   |       `-- packages
+|   |           |-- au
+|   |           |   |-- events.xml
+|   |           |   |-- package
+|   |           |   |   `-- package.xml
+|   |           |   `-- signals.xml
+|   |           `-- dtmf
+|   |               |-- events.xml
+|   |               |-- package
+|   |               |   `-- package.xml
+|   |               `-- signals.xml
+|   |-- endpoint
+|   |   |-- ann-beans.xml
+|   |   |-- cnf-beans.xml
+|   |   |-- ivr-beans.xml
+|   |   |-- mgw-beans.xml
+|   |   `-- packetrelay-beans.xml
+|   |-- rtp-beans.xml
+|   `-- server-beans.xml
+|-- lib
+|   |-- activation-1.1.jar
+|   |-- cmu_time_awb-1.2.2.jar
+|   |-- cmu_us_kal-1.2.2.jar
+|   |-- cmudict04-1.2.2.jar
+|   |-- cmulex-1.2.2.jar
+|   |-- cmutimelex-1.2.2.jar
+|   |-- dtdparser121-1.2.1.jar
+|   |-- en_us-1.2.2.jar
+|   |-- freetts-1.2.2.jar
+|   |-- jain-mgcp-ri-1.0.jar
+|   |-- jain-sip-ri-1.2.X-20100813.024234-297.jar
+|   |-- java-getopt-1.0.9.jar
+|   |-- jaxb-api-2.1.9-brew.jar
+|   |-- jboss-common-core-2.2.14.GA.jar
+|   |-- jboss-dependency-2.0.6.GA.jar
+|   |-- jboss-kernel-2.0.6.GA.jar
+|   |-- jboss-logging-spi-2.1.0.GA.jar
+|   |-- jboss-mdr-2.0.1.GA.jar
+|   |-- jboss-reflect-2.0.2.GA.jar
+|   |-- jbossxb-2.0.1.GA.jar
+|   |-- jspeex-0.9.7.jar
+|   |-- log4j-1.2.14.jar
+|   |-- mbrola-1.2.2.jar
+|   |-- mgcp-impl-2.0.0.GA.jar
+|   |-- mms-controllers-mgcp-2.1.0.BETA1-SNAPSHOT.jar
+|   |-- mms-controllers-rtsp-2.1.0.BETA1-SNAPSHOT.jar
+|   |-- mms-impl-2.1.0.BETA1-SNAPSHOT.jar
+|   |-- mms-spi-2.1.0.BETA1-SNAPSHOT.jar
+|   |-- mms-standalone-2.1.0.BETA1-SNAPSHOT.jar
+|   |-- mtp-1.0.0.BETA3.jar
+|   |-- netty-3.2.0.BETA1.jar
+|   |-- stream-1.0.0.BETA1.jar
+|   |-- stun4j-1.0.MOBICENTS.jar
+|   |-- tritonus_gsm-0.3.6.jar
+|   |-- tritonus_share-0.3.6.jar
+|   `-- xml-apis-2.9.1.jar
+|-- log
+|   `-- server.log
+|-- mbrola
+|   |-- mbrola
+|   |-- mbrola.exe
+|   |-- readme.txt
+|   |-- us1
+|   |   |-- license.txt
+|   |   |-- us1
+|   |   |-- us1.txt
+|   |   `-- us1mrpa
+|   |-- us2
+|   |   |-- license.txt
+|   |   |-- us2
+|   |   `-- us2.txt
+|   `-- us3
+|       |-- license.txt
+|       |-- us3
+|       `-- us3.txt
+|-- media
+|   |-- 8kalaw.wav
+|   |-- 8kulaw.wav
+|   |-- gwn44m.wav
+|   |-- gwn44s.wav
+|   |-- sample_100kbit.mov
+|   |-- sample_100kbit.mp4
+|   `-- sample_50kbit.3gp
+|-- native
+|   `-- zap-native-linux.so
+|-- ss7
+|   `-- ss7-beans.xml
+`-- temp
+    `-- deployment-beans.xml
+			
+			</screen>
+		</section>
+
+
+		<section id="itms-binary-Standalone_Media_Server-Uninstalling">
+			<title>Uninstalling</title>
+			<para>
+				To uninstall the Media Server, delete the directory
+				containing the extracted binary distribution.
+			</para>
+		</section>
+	</section>
+</chapter>
+

@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=UTF-8" http-equiv="content-type"><title>TCK Coverage Document</title></head>
+<body>
+<h1 align="center">TCK Coverage Document for JSR-309</h1>
+<h1>TCK Coverage Overview</h1>
+<p>The
+TCK is composed of a suite of Junit test cases. It leverages Junit for
+the test environment, run and reporting. This provides the ability to
+run in many environments like eclipse, ant, cactus (see the <a href="../TCKUserGuide.html">TCK User Guide</a>). 
+The JSR 309 TCK has been validated on top of the JSR 309 RI in a standalone Java 
+environment as well as within a SIP Servlet Application Server Environment, see 
+also JSR 309 RI user guide.<br></p>
+<h1>Documentation</h1>The documentation of the TCK is composed of:<br><ul><li>the <a href="TCKAssertionsList.html">assertions list</a></li><li>a&nbsp;<a href="../javadoc/TCK/TCKSummary.html">summary of the testcases</a></li><li>a complete <a href="../javadoc/TCK/index.html">javadoc</a></li><li>source code for the test classes, included in the TCK jar. 
+	This provides TCK licensee with a clear understanding of how the API is used 
+	during the tests.</li><li>a&nbsp;<a href="../TCKUserGuide.html">user guide</a> with instructions for installing and running the TCK, including the signature test and the test appeal process</li><li>the assertions and 
+	test cases are cross-referenced:</li><ul><li>when a test case is run, it prints the assertion IDs that it verifies</li><li>in the assertions list table, the 
+		test case ID is indicated</li></ul></ul><h1>Coverage</h1>
+<ul>
+	<li>From the API javadoc, <span style="font-weight: bold;">235 assertions</span> were identified.<ul>
+		<li>3&nbsp;other assertions were identified based on good programming practices.</li>
+		<li>77 assertions concern optional features, and are thus excluded from the scope 
+		of the TCK. </li>
+		<li><span style="font-weight: bold;">75% mandatory assertions coverage:
+		</span>among the 161 mandatory assertions, 121 are tested</li>
+	</ul>
+	</li>
+	<li>The TCK includes 140 test cases, grouped in 36 Junit test classes that 
+	can be run automatically<ul>
+		<li>76% of mandatory methods are tested, 64% of all methods are tested 
+		(146 methods,&nbsp; corresponding to 122 for mandatory features, 29 are 
+		not tested directly, 24 methods correspond to optional features) </li>
+		<li>97% of mandatory fields are tested, 24% of all fields are tested 
+		(293 fields, corresponding to 73 for mandatory features, 2 are not 
+		tested directly, 220 fields correspond to optional features)</li>
+	</ul>
+	</li>
+	<li>100% API Signature Coverage: for all defined fields and methods for all 
+	interfaces and classes are validated<br>
+	by the Signature Testing tool</li>
+</ul>
+<p>Please consult the <a href="methods-coverage">methods coverage</a> and 
+<a href="fields-coverage">fields coverage</a>
+documents for details. In those documents, the first column has a "M"
+or "O" to indicate mandatory / optional items, and the second column has a
+"+" or "-" to indicate tested/non-tested items in this version of the TCK.</p>
+<p>Refer to documentation of the JSR 309 API overview concerning mandatory / 
+optional features. Optional features may not be supported on a specific 
+implementation or media server, the API must however be complete and there are 
+capabilities built in the API to discover which features are supported. </p>
+<h1>TCK Quality and adequacy</h1>
+<p>JSR 309 TCK was run on configuration of the JSR 309 Reference Imlpementation 
+on Linux and Windows within a standalone Java environment or an Application 
+Server environment.</p>
+<ul>
+	<li>TCK run in standalone mode over the Reference Implementation: <a href="TCK-report-standalone.html">
+	TCK-report-standalone</a>.</li>
+	<li>TCK run in App Server mode over the Reference Implementation: <a href="TCK-report-appserver.html">
+	TCK-report-appserver</a>.</li>
+</ul>
+
+<p>Code quality was demonstrated through use of code reviews. User&#39;s Guide was 
+constructed from sections of the TCK User&#39;s Guide template. The TCK has been 
+reviewed and tested by several members of the HP &amp; Oracle Spec Lead team and 
+some of the JSR 309 expert group members.</p>
+<p>As the first major release of this new Media Server Control 1.0 specification 
+, the coverage is good and consistent with the coverage of similar JSRs at this 
+level of spec maturity. Coverage variance is due to effects of late spec changes 
+and the availability/cost of test development resources. Emphasis was given to 
+covering critical spec areas as identified by the<br>
+Spec Lead and Expert Group, especially for applications use cases covering audio 
+IVR and Conferencing. The coverage can be increased during the next major 
+specification update.</p>
+
+</body></html>

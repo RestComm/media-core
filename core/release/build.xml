@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Release_build" default="deploy">
+
+  <property name="home" value="${ant.file.Release_build}/../" />
+  
+  <property environment="env"/>
+  <property name="deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy/" />
+
+  <property name="component.version" value="@COMPONENT_VERSION@" />
+
+  <target name="deploy-jmx">
+    <antcall target="deploy" />
+  </target>
+
+  <target name="undeploy-jmx">
+    <antcall target="undeploy" />
+  </target>
+
+  <target name="deploy">
+		<copy overwrite="true" todir="${deploy.dir}">
+			<fileset dir="${home}">
+				<include name="**" />
+				<exclude name="build.xml" />
+			</fileset>
+		</copy>
+  </target>
+
+  <target name="undeploy">
+		<delete dir="${deploy.dir}/${component.version}.sar" />
+  </target>
+
+</project>

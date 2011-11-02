@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <artifactId>media-documentation-checkout</artifactId>
+    <groupId>org.mobicents</groupId>
+    <version>1.0</version>
+    
+    <properties>
+        <checkout.basedir>${basedir}/documentation</checkout.basedir>
+        <checkout.username>mobicents-read-only</checkout.username>
+        <checkout.password></checkout.password>
+        
+        <media.docs.connectionURL>scm:svn:https://svn.devel.redhat.com/repos/ecs/JBoss_Communications_Platform/1.2.0/Media_Server_User_Guide</media.docs.connectionURL>
+    </properties>
+    
+    <profiles>
+    
+        <profile>
+            <id>checkout</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>media-docs-checkout</id>
+                                <goals>
+                                    <goal>checkout</goal>
+                                </goals>
+                                <phase>validate</phase>
+                                <configuration>
+                                    <scmVersion>HEAD</scmVersion>
+                                    <scmVersionType>revision</scmVersionType>
+                                    <skipCheckoutIfExists>true</skipCheckoutIfExists>
+                                    <checkoutDirectory>${checkout.basedir}/media</checkoutDirectory>
+                                    <connectionUrl>${media.docs.connectionURL}</connectionUrl>
+                                    <username>${checkout.username}</username>
+                                    <password>${checkout.password}</password>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>update</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>media-docs-update</id>
+                                <goals>
+                                    <goal>update</goal>
+                                </goals>
+                                <phase>validate</phase>
+                                <configuration>
+                                    <basedir>${checkout.basedir}/media</basedir>
+                                    <scmVersion>HEAD</scmVersion>
+                                    <scmVersionType>revision</scmVersionType>
+                                    <connectionUrl>${media.docs.connectionURL}</connectionUrl>
+                                    <username>${checkout.username}</username>
+                                    <password>${checkout.password}</password>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+    </profiles>
+    
+</project>

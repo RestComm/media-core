@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: org.mobicents.media.server.impl.resource.dtmf.DtmfBufferingTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.484 sec

@@ -1,0 +1,4853 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:lxslt="http://xml.apache.org/xslt" xmlns:stringutils="xalan://org.apache.tools.ant.util.StringUtils">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Unit Test Results</title>
+<style type="text/css">
+      body {
+        font:normal 68% verdana,arial,helvetica;
+        color:#000000;
+      }
+      table tr td, table tr th {
+          font-size: 68%;
+      }
+      table.details tr th{
+        font-weight: bold;
+        text-align:left;
+        background:#a6caf0;
+      }
+      table.details tr td{
+        background:#eeeee0;
+      }
+
+      p {
+        line-height:1.5em;
+        margin-top:0.5em; margin-bottom:1.0em;
+      }
+      h1 {
+        margin: 0px 0px 5px; font: 165% verdana,arial,helvetica
+      }
+      h2 {
+        margin-top: 1em; margin-bottom: 0.5em; font: bold 125% verdana,arial,helvetica
+      }
+      h3 {
+        margin-bottom: 0.5em; font: bold 115% verdana,arial,helvetica
+      }
+      h4 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      h5 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      h6 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      .Error {
+        font-weight:bold; color:red;
+      }
+      .Failure {
+        font-weight:bold; color:purple;
+      }
+      .Properties {
+        text-align:right;
+      }
+      </style>
+<script type="text/javascript" language="JavaScript">
+        var TestCases = new Array();
+        var cur;
+        
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.MediaConfigTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.MediaObjectIdTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.MediaSessionTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.SupportedFeaturesTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.join.InitJoinTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.PlayerTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.PromptAndCollectTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.PromptAndRecordTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.DTMFBufferingTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mixer.MixerAdapterTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mixer.MixerJoinTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mixer.MixerMediaGroupTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mixer.MixerTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mixer.ParticipantDTMFTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.mixer.ParticipantJoinTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.networkconnection.CodecPolicyTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.networkconnection.NetworkConnectionTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.resource.ConfirmTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.functional.vxml.VxmlTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.ListenerTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.MediaObjectIdTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.NullReferenceTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.UnchangedArgsTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.MediaGroupUnjoinTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.mediagroup.PlayerRobustnessTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.networkconnection.CodecPolicyTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    
+    cur = TestCases['com.hp.opencall.jmsc.test.mandatory.robustness.resource.RTCTest'] = new Array();
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.file.TCK'] = '/home/acomment/tmp/jsr309sdk2/build.xml';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.6';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.name'] = 'TCK';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on August 29 2007';
+    
+        cur['basedir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['DATE_TIME'] = '2009-09-17_17-34';
+    
+        cur['DSTAMP'] = '20090917';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/acomment/tmp/jsr309sdk2:/home/acomment/tmp/jsr309sdk2/mscontrol.jar:/home/acomment/tmp/jsr309sdk2/mscontrolRI.jar:/home/acomment/tmp/jsr309sdk2/tck.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipApi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/JainSipRi1.2.jar:/home/acomment/tmp/jsr309sdk2/deps/castor-1.1.2.1-xml.jar:/home/acomment/tmp/jsr309sdk2/deps/commons-logging.jar:/home/acomment/tmp/jsr309sdk2/deps/concurrent.jar:/home/acomment/tmp/jsr309sdk2/deps/junit.jar:/home/acomment/tmp/jsr309sdk2/deps/log4j-1.2.14.jar:/home/acomment/tmp/jsr309sdk2/deps/nist-sdp-1.0.jar:/home/acomment/tmp/jsr309sdk2/deps/xercesImpl.jar:/usr/share/ant/lib/junit.jar:/usr/share/ant/lib/ant-launcher.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar';
+    
+        cur['java.class.version'] = '50.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/java/jdk1.6.0_13/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/java/jdk1.6.0_13/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386/server:/usr/java/jdk1.6.0_13/jre/lib/i386:/usr/java/jdk1.6.0_13/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'Java(TM) SE Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.6.0_13-b03';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.6';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.6.0_13';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '11.3-b02';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '2.6.24-23-generic';
+    
+        cur['path.separator'] = ':';
+    
+        cur['run.dir'] = '/home/acomment/tmp/jsr309sdk2/tck-run';
+    
+        cur['run.report'] = '/home/acomment/tmp/jsr309sdk2/tck-reports/2009-09-17_17-34';
+    
+        cur['run.testlist'] = 'com/hp/opencall/jmsc/test/mandatory/**/*Test.class';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/java/jdk1.6.0_13/jre/lib/resources.jar:/usr/java/jdk1.6.0_13/jre/lib/rt.jar:/usr/java/jdk1.6.0_13/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_13/jre/lib/jsse.jar:/usr/java/jdk1.6.0_13/jre/lib/jce.jar:/usr/java/jdk1.6.0_13/jre/lib/charsets.jar:/usr/java/jdk1.6.0_13/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/java/jdk1.6.0_13/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['TODAY'] = 'September 17 2009';
+    
+        cur['TSTAMP'] = '1734';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/acomment/tmp/jsr309sdk2';
+    
+        cur['user.home'] = '/home/acomment';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'acomment';
+    
+        cur['user.timezone'] = '';
+    </script><script type="text/javascript" language="JavaScript">
+        function displayProperties (name) {
+          var win = window.open('','JUnitSystemProperties','scrollbars=1,resizable=1');
+          var doc = win.document;
+          doc.open();
+          doc.write("<html><head><title>Properties of " + name + "</title>");
+          doc.write("<style>")
+          doc.write("body {font:normal 68% verdana,arial,helvetica; color:#000000; }");
+          doc.write("table tr td, table tr th { font-size: 68%; }");
+          doc.write("table.properties { border-collapse:collapse; border-left:solid 1 #cccccc; border-top:solid 1 #cccccc; padding:5px; }");
+          doc.write("table.properties th { text-align:left; border-right:solid 1 #cccccc; border-bottom:solid 1 #cccccc; background-color:#eeeeee; }");
+          doc.write("table.properties td { font:normal; text-align:left; border-right:solid 1 #cccccc; border-bottom:solid 1 #cccccc; background-color:#fffffff; }");
+          doc.write("h3 { margin-bottom: 0.5em; font: bold 115% verdana,arial,helvetica }");
+          doc.write("</style>");
+          doc.write("</head><body>");
+          doc.write("<h3>Properties of " + name + "</h3>");
+          doc.write("<div align=\"right\"><a href=\"javascript:window.close();\">Close</a></div>");
+          doc.write("<table class='properties'>");
+          doc.write("<tr><th>Name</th><th>Value</th></tr>");
+          for (prop in TestCases[name]) {
+            doc.write("<tr><th>" + prop + "</th><td>" + TestCases[name][prop] + "</td></tr>");
+          }
+          doc.write("</table>");
+          doc.write("</body></html>");
+          doc.close();
+          win.focus();
+        }
+      
+      </script>
+</head>
+<body>
+<h1>Unit Test Results.</h1>
+<table width="100%" id="table1">
+	<tr>
+		<td align="left" style="font-size: 68%">&nbsp;</td>
+		<td align="right" style="font-size: 68%">Designed for use with
+		<a href="http://www.junit.org">JUnit</a> and
+		<a href="http://ant.apache.org/ant">Ant</a>.</td>
+	</tr>
+</table>
+<hr SIZE="1">
+<h2>Summary</h2>
+<table class="details" cellSpacing="2" cellPadding="5" width="95%" border="0" id="table2">
+	<tr vAlign="top">
+		<th style="font-size: 68%">Tests</th>
+		<th style="font-size: 68%">Failures</th>
+		<th style="font-size: 68%">Errors</th>
+		<th style="font-size: 68%">Success rate</th>
+		<th style="font-size: 68%">Time</th>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">139</td>
+		<td style="font-size: 68%">0</td>
+		<td style="font-size: 68%">0</td>
+		<td style="font-size: 68%">100.00%</td>
+		<td style="font-size: 68%">524.396</td>
+	</tr>
+</table>
+<table width="95%" border="0" id="table3">
+	<tr>
+		<td style="text-align: justify; font-size: 68%">Note: <i>failures</i> 
+		are anticipated and checked for with assertions while <i>errors</i> are 
+		unanticipated. 
+		</td>
+	</tr>
+</table>
+<hr align="left" width="95%" SIZE="1">
+<h2>Packages</h2>
+Note: package statistics are not computed recursively, they only sum up all of 
+its testsuites numbers. 
+<table class="details" cellSpacing="2" cellPadding="5" width="95%" border="0" id="table4">
+	<tr vAlign="top">
+		<th width="80%" style="font-size: 68%">Name</th>
+		<th style="font-size: 68%">Tests</th>
+		<th style="font-size: 68%">Errors</th>
+		<th style="font-size: 68%">Failures</th>
+		<th noWrap style="font-size: 68%">Time(s)</th>
+		<th noWrap style="font-size: 68%">Time Stamp</th>
+		<th style="font-size: 68%">Host</th>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">
+		<a href="#com.hp.opencall.jmsc.test.mandatory">
+		com.hp.opencall.jmsc.test.mandatory</a></td>
+		<td style="font-size: 68%">139</td>
+		<td style="font-size: 68%">0</td>
+		<td style="font-size: 68%">0</td>
+		<td style="font-size: 68%">524.396</td>
+		<td style="font-size: 68%">2009-10-28T11:06:36</td>
+		<td style="font-size: 68%">mbrandt6</td>
+	</tr>
+</table>
+<hr align="left" width="95%" SIZE="1">
+<h3>Package com.hp.opencall.jmsc.test.mandatory</h3>
+<table class="details" cellSpacing="2" cellPadding="5" width="95%" border="0" id="table5">
+	<tr vAlign="top">
+		<th width="80%" style="font-size: 68%">Name</th>
+		<th style="font-size: 68%">Tests</th>
+		<th style="font-size: 68%">Errors</th>
+		<th style="font-size: 68%">Failures</th>
+		<th noWrap style="font-size: 68%">Time(s)</th>
+		<th noWrap style="font-size: 68%">Time Stamp</th>
+		<th style="font-size: 68%">Host</th>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%"><a href="#AllCactusTests">AllCactusTests</a></td>
+		<td style="font-size: 68%">139</td>
+		<td style="font-size: 68%">0</td>
+		<td style="font-size: 68%">0</td>
+		<td style="font-size: 68%">524.396</td>
+		<td style="font-size: 68%">2009-10-28T11:06:36</td>
+		<td style="font-size: 68%">mbrandt6</td>
+	</tr>
+</table>
+<a href="#top">Back to top</a> 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<hr align="left" width="95%" SIZE="1">
+<h3>TestCase AllCactusTests</h3>
+<table class="details" cellSpacing="2" cellPadding="5" width="95%" border="0" id="table6">
+	<tr vAlign="top">
+		<th style="font-size: 68%">Name</th>
+		<th style="font-size: 68%">Status</th>
+		<th width="80%" style="font-size: 68%">Type</th>
+		<th noWrap style="font-size: 68%">Time(s)</th>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_1_Play</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">7.889</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_2_MaxDuration</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.702</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_3_StartOffset</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">27.243</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_4_RepeatCount</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">5.218</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_5_Interval</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">5.139</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_6_Stop</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">6.092</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_7_PlayURIArray</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">6.217</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_1_8_STOP_IF_BUSY</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">5.124</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_2_1_Record</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">5.998</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_2_2_MaxDuration</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">8.810</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_2_3_Append</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">5.749</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_2_4_StartBeep</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">4.140</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_2_5_SilenceTerminationOn</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">21.041</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_2_6_FinalTimeout</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">36.896</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_3_1_ReceiveOneSignal</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.985</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_3_2_ReceiveFiveSignals</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.780</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_3_3_Receive123</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.359</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_3_4_Receive123And456</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.358</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_3_5_Receive45And9And123</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.375</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_3_10_ReceivePoundOr4Digits</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.061</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_3_11_Receive4DigitsOrDTMF3</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.359</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_1_Buffer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.172</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_2_BufferBetweenReceive</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.749</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_3_BufferBeforeReceive</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.609</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_4_ReceiveBufferedOneAtATime</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.188</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_5_flushBuffer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">4.639</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_6_BufferAfterFlush</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">4.233</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_7_BufferParticipantDTMF</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.375</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_8_BufferParticipantEarlyDTMF</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.797</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_12_9_FlushParticipantEarlyDTMF</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">6.826</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_4_1_MultiNCs</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.062</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_4_2_NCLoopback</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.063</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_4_3_PlayRecord</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">15.183</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_1_NetworkConnectionContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_2_NetworkConnectionContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.000</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_3_NetworkConnectionContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_4_MediaGroupContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.015</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_5_MediaGroupContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.000</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_6_MediaGroupContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_7_MediaMixerContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.156</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_8_MediaMixerContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.156</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_9_MediaMixerContainer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.156</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_10_CreateVxmlDialog</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_11_SetGetAttribute</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_12_RemoveAttribute</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.000</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_11_13_GetAttributeNames</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.015</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_5_1_CreateMixer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.157</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_5_2_JoinNetworkConnectionToMixer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.218</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_5_3_UnjoinNetworkConnection</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.250</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_5_4_DTMFThroughMixer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.969</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_8_1_DTMFClamp</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">7.669</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_8_2_VolumeControl</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">10.466</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_1_BasicBridge</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.906</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_2_ThreeWaysBridge</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">4.123</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_3_FiveWaysSplitter</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">22.307</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_4_UnjoinedBridge</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.921</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_8_BasicBridgeRecvOK</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.921</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_9_BasicBridgeRecvNOK</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.842</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_10_BasicBridgeRejoinRecvNOK</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.984</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_6_11_BasicBridgeUnMute</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.999</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_13_1_MGJoinMixer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.640</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_13_2_MGJoinMixerTwoParticipants</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">11.013</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_14_1_EnterAndLeaveConference</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">37.148</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_15_1_CatchDTMFOnParticipant</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.781</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_15_2_MuteAndDTMF</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.844</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_20_PerSessionId</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.297</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_1_ExcludeTelephoneEvent</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_2_ExcludeOneCodec</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.156</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_3_ExcludeMostCodecs</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_4_ExcludeAllCodecs</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_5_ExcludeCodecsMinimalOffer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.062</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_6_RequireTelephoneEvent</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.032</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_7_RequirePcmuTelephoneEvent</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_8_RequireTelephoneEventAmr</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.047</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_9_RequireAbsentCodec</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.000</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_10_PreferPcmu</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.062</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_11_PreferAmr</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_12_PreferPcmuPcmaTelephoneEvent</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.032</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_13_CapablePcmu</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.047</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_14_CapablePcmuPcmaTelephoneEvent</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_15_CapableG726TelephoneEvent</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.015</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_16_CapableG726G722</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_17_CapablePcmuPcmaTeAmrPreferAmr</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_18_ComplexPolicy</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.032</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_19_AudioCapability</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.046</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_20_AudioVideoCapability</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.032</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_18_21_VideoCapability</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.015</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_10_1_PROMPT</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.485</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_10_2_Prompt_BargeIn</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">17.075</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_10_3_Cancel</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.359</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_10_4_CancelWithPrompt</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.327</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_10_5_Cleardigits</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">9.624</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_1_PROMPT</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.468</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_2_Prompt_BargeIn</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">9.483</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_3_CANCEL</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.562</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_4_NoCancelWrongDTMF</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">4.171</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_5_CancelWithPrompt</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.562</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_6_SingleReturnKey</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.563</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_7_MultipleReturnKeys</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.593</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_8_NonMatchingReturnKey</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">4.140</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_9_NoReturnKey</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">10.514</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_10_AnyReturnKey</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.609</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_9_11_Cleardigits</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">13.247</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_7_1_PLAYERParams</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_7_2_PLAYEREvents</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_7_3_PLAYERIrrelevant</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.000</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_7_4_SIGNALDETECTOR</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_7_5_PLAYER_SIGNALDETECTOR</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_7_2_PLAYER_RECORDER_SIGNALDETECTOR</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_19_1_CustomizedClone</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_16_1_InitJoinNCMG</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.093</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_16_2_InitJoinNCMixer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">3.843</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_1_17_1_ConfirmMixer</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.172</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_3_1_remove_Listener</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">12.107</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_3_2_Run_AnyCode_In_Listener</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">9.999</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_10_1_LongId</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.078</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_10_2_InvalidInitialCharacter</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.015</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_10_3_DuplicateIDs</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.156</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_4_1_UnjoinMGPlay</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.625</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_4_2_UnjoinMGRecord</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">6.155</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_4_3_UnjoinMGSignalDetector</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.594</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_6_1_CreateMediaObjectWithNullConfig</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_6_2_CreateMixerAdapterWithNullParams</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.156</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_1_1_Play_BadURI</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.062</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_1_2_Player_Invalid_Maxduration</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">45.305</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_1_3_Player_Invalid_StartOffset</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.078</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_1_4_Invalid_RepeatCount</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.124</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_1_5_Invalid_Interval</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">2.109</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_1_6_Player_State</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">25.137</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_7_1_InvalidRTC</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_7_2_InvalidTriggerRTC</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.078</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_8_1_ExcludedInRequired</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.000</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_8_2_ExcludedInCapabilities</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_8_3_ExcludedInPreferences</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.015</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_8_4_BogusCodecNamesExcluded</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.031</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_8_5_BogusCodecNamesCapable</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.016</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_8_6_BogusCodecNamesPreferred</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">0.047</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_9_1_UnchangedRecordRTC</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.078</td>
+	</tr>
+	<tr class vAlign="top">
+		<td style="font-size: 68%">test_2_2_9_2_UnchangedSigDetRTC</td>
+		<td style="font-size: 68%">Success</td>
+		<td style="font-size: 68%">&nbsp;</td>
+		<td style="font-size: 68%">1.062</td>
+	</tr>
+</table>
+<div class="Properties">
+	<a href="javascript:displayProperties('com.hp.opencall.jmsc.test.mandatory.AllCactusTests');">
+	Properties &raquo; </a></div>
+<p>&nbsp;</p>
+<a href="#top">Back to top</a> 
+</body>
+</html>

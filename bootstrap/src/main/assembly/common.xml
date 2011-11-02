@@ -1,0 +1,74 @@
+<component>
+        <files>
+            <file>
+                <source>target/run.jar</source>
+                <destName>bin/run.jar</destName>
+            </file>
+
+<!-- Conf -->
+            <file>
+                <source>src/main/config/bootstrap-beans.xml</source>
+                <destName>conf/bootstrap-beans.xml</destName>
+            </file>
+
+            <file>
+                <source>src/main/config/log4j.xml</source>
+                <destName>conf/log4j.xml</destName>
+            </file>
+            
+            <file>
+                <source>src/main/config/mgcp-conf.properties</source>
+                <destName>conf/mgcp-conf.properties</destName>
+            </file>
+
+<!-- Deploy -->
+            <!-- file>
+                <source>src/main/config/avprofile-beans.xml</source>
+                <destName>deploy/avprofile-beans.xml</destName>
+            </file>
+            <file>
+                <source>src/main/config/components-beans.xml</source>
+                <destName>deploy/comp-beans.xml</destName>
+            </file>
+            <file>
+                <source>src/main/config/connection-beans.xml</source>
+                <destName>deploy/connection-beans.xml</destName>
+            </file>
+            <file>
+                <source>src/main/config/connection-states-beans.xml</source>
+                <destName>deploy/connection-states-beans.xml</destName>
+            </file>
+                <file>
+                <source>src/main/config/rtp-beans.xml</source>
+                <destName>deploy/rtp-beans.xml</destName>
+            </file -->
+            <file>
+                <source>src/main/config/server-beans.xml</source>
+                <destName>deploy/server-beans.xml</destName>
+            </file>
+
+<!-- Endpoints -->
+            <!-- file>
+                <source>src/main/config/ann-beans.xml</source>
+                <destName>deploy/endpoints/ann-beans.xml</destName>
+            </file>
+            <file>
+                <source>src/main/config/cnf-beans.xml</source>
+                <destName>deploy/endpoints/cnf-beans.xml</destName>
+            </file>
+            <file>
+                <source>src/main/config/ivr-beans.xml</source>
+                <destName>deploy/endpoints/ivr-beans.xml</destName>
+            </file>
+            <file>
+                <source>src/main/config/packetrelay-beans.xml</source>
+                <destName>deploy/endpoints/packetrelay-beans.xml</destName>
+            </file -->
+<!-- control -->
+            <file>
+                <source>src/main/config/mgcp-conf.xml</source>
+                <destName>conf/mgcp-conf.xml</destName>
+            </file>
+
+        </files>
+</component>

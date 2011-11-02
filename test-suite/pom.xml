@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents</artifactId>
+		<version>12</version>
+	</parent>
+
+	<groupId>org.mobicents.testsuite</groupId>
+	<artifactId>mms-testsuite</artifactId>
+	<version>2.0.0.BETA3-SNAPSHOT</version>
+	<name>Mobicents Media Server Test Suite</name>
+	<url>http://www.mobicents.org/products_media_server.html</url>
+	<packaging>pom</packaging>
+	<modules>
+		<!-- This should be enabled in case oe wants to expose fial via http: for instance
+		http://127.0.0.1:8080/mms-load-test/audio/ulaw_13s.wav  		 -->
+		<module>web</module>
+
+		<module>core</module>
+	</modules>
+
+	<properties>
+		<mgcp-stack.version>2.0.0.RC5-SNAPSHOT</mgcp-stack.version>
+		<mms.version>2.0.0.BETA2</mms.version>
+		<jfree-chart.version>1.0.0</jfree-chart.version>
+		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>jfreechart</groupId>
+				<artifactId>jfreechart</artifactId>
+				<version>${jfree-chart.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.servers.media</groupId>
+				<artifactId>mms-spi</artifactId>
+				<version>${mms.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>mms-impl</artifactId>
+				<groupId>org.mobicents.servers.media</groupId>
+				<version>${mms.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.sip</groupId>
+				<artifactId>jain-sip-ri</artifactId>
+				<version>${jain-sip-ri.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.protocols.mgcp</groupId>
+				<artifactId>mgcp-impl</artifactId>
+				<version>${mgcp-stack.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.external.appframework</groupId>
+				<artifactId>appframework</artifactId>
+				<version>1.0.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.external.appframework</groupId>
+				<artifactId>swing-layout</artifactId>
+				<version>1.0.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.external.appframework</groupId>
+				<artifactId>swing-worker</artifactId>
+				<version>1.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mobicents.external.fmj</groupId>
+				<artifactId>fmj</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.external.fmj</groupId>
+				<artifactId>mp3spi</artifactId>
+				<version>1.9.4</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.external.fmj</groupId>
+				<artifactId>tritonus_share</artifactId>
+				<version>1.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.external.fmj</groupId>
+				<artifactId>vorbisspi</artifactId>
+				<version>1.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.external.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>1.8</version>
+			</dependency>
+			
+			
+			<dependency>
+				<groupId>urbanophile</groupId>
+				<artifactId>java-getopt</artifactId>
+				<version>1.0.9</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<!-- RELEASE STUFF -->
+
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>core</module>
+				<module>web</module>
+			</modules>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<version>2.0-beta-9</version>
+						<configuration>
+							<remoteTagging>true</remoteTagging>
+							<autoVersionSubmodules>
+								true
+							</autoVersionSubmodules>
+
+							<tagBase>
+								https://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/test-suite
+							</tagBase>
+							<resume>false</resume>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/media/test-suite</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/media/test-suite</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk/servers/media/test-suite</url>
+	</scm>
+
+	<build>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<version>
+					1.0.0.BETA2
+				</version>
+				<!--
+					This does not work. <version>
+					${mobicents.tools.mavenplugin.eclipse.version} </version>
+				-->
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>
+						true
+					</resolveTransitiveDependencies>
+					<eclipseProjectName>
+						mobicents-media-server-test-suite
+					</eclipseProjectName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<resume>false</resume>
+					<tagBase>
+						https://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/test-suite
+					</tagBase>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

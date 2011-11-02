@@ -1,0 +1,25 @@
+<assembly>
+	<id>rtsp-controller-service.sar</id>
+	<fileSets>
+		<fileSet>
+			<directory>src/main/config</directory>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/lib</outputDirectory>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+			<includes>
+				<!-- include>
+					org.mobicents.jain:mobicents-mgcp-impl
+				</include -->
+				<include>
+					org.mobicents.servers.media:mms-controllers-rtsp
+				</include>				
+			</includes>
+		</dependencySet>
+	</dependencySets>
+	
+</assembly>

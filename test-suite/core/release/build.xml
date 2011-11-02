@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="test-suite" default="run" basedir=".">
+    <property name="jar.name" value="@JAR.NAME@" />
+    <property name="jar.version" value="@JAR.VERSION@" />
+
+	<target name="run">
+		<java classname="org.mobicents.media.server.testsuite.gui.MainGUI" fork="true">
+			<classpath>
+				<pathelement location="${jar.name}-${jar.version}.jar" />
+				<pathelement location="mobicents-media-server-spi.jar" />
+				<pathelement location="mobicents-media-server-impl.jar" />
+				<pathelement location="log4j.jar" />
+				<pathelement location="mgcp-stack.jar" />
+				<pathelement location="jain-mgcp-ri.jar" />
+				<pathelement location="concurrent.jar" />
+				<pathelement location="mobicents-media-server-constants.jar" />
+				<pathelement location="jain-sip-ri.jar" />
+				<pathelement location="jboss-common.jar" />
+				<pathelement location="jspeex.jar" />
+				<pathelement location="appframework.jar" />
+				<pathelement location="swing-layout.jar" />
+				<pathelement location="swing-worker.jar" />
+				<pathelement location="fmj.jar" />
+				<pathelement location="mp3spi.jar" />
+				<pathelement location="tritonus_share.jar" />
+				<pathelement location="vorbisspi.jar" />
+				<pathelement location="opencsv.jar" />
+				<pathelement location="jcommon.jar" />
+				<pathelement location="jfreechart.jar" />
+			</classpath>
+		</java>
+	</target>
+</project>

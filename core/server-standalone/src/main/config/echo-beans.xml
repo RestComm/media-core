@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+    <!-- Connetion definition -->
+    <bean name="echo-connection-channel" class="org.mobicents.media.server.resource.ChannelFactory"/>
+    <bean name="echo-connection" class="org.mobicents.media.server.ConnectionFactory">
+        <property name="txChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry>
+                    <key>audio</key>
+                    <value>
+                        <inject bean="echo-connection-channel"/>
+                    </value>
+                </entry>
+                <entry>
+                    <key>video</key>
+                    <value>
+                        <inject bean="echo-connection-channel"/>
+                    </value>
+                </entry>
+            </map>
+        </property>
+        <property name="rxChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry>
+                    <key>audio</key>
+                    <value>
+                        <inject bean="echo-connection-channel"/>
+                    </value>
+                </entry>
+                <entry>
+                    <key>video</key>
+                    <value>
+                        <inject bean="echo-connection-channel"/>
+                    </value>
+                </entry>
+            </map>
+        </property>
+	    <property name="connectionStateManager">
+           <inject bean="ConnectionStateManager"/>
+        </property>        
+    </bean>
+    <bean name="Echo" class="org.mobicents.media.server.impl.resource.echo.EchoFactory">
+        <property name="name">Echo
+        </property>
+    </bean>
+        
+    <!-- Endpoint definition  -->
+    <bean name="Echo-Endpoint"
+		class="org.mobicents.media.server.EndpointImpl">
+        <property name="localName">
+			/mobicents/media/echo/[1..10]
+        </property>
+        <property name="timer">
+            <inject bean="Timer" />
+        </property>
+        <property name="groupFactory">
+            <inject bean="Echo"/>
+        </property>
+		<property name="rtpFactory">
+                    <inject bean="RTPFactory"/>
+		</property>
+        <property name="connectionFactory">
+            <inject bean="echo-connection" />
+        </property>
+    </bean>
+</deployment>

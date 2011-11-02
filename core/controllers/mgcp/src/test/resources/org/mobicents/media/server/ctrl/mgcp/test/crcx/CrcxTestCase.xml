@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+	<!-- from bootstrap-beans.xml -->
+	<!-- Timer definition -->
+    <bean name="Timer"
+		class="org.mobicents.media.server.impl.clock.TimerImpl">
+        <property name="heartBeat">20
+        </property>
+    </bean>
+
+	<!-- Media Server -->
+    <bean name="MediaServer"
+		class="org.mobicents.media.server.impl.naming.InnerNamingService">
+        <incallback method="addEndpoint" />
+        <uncallback method="removeEndpoint" />
+    </bean>
+
+	<!-- Definition of media formats -->
+    <bean name="PCMU" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ULAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    
+    
+    <bean name="PCMA" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ALAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    
+    <bean name="SPEEX" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>SPEEX</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    
+    <bean name="GSM" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ULAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    
+    <bean name="G729" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ULAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    
+    <bean name="DTMF" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>telephone-event/8000</parameter>
+        </constructor>
+    </bean>
+    
+    
+	<!-- RTP stuff configuration -->
+    <bean name="RTPAudioFactory"
+		class="org.mobicents.media.server.impl.rtp.RtpFactory">
+        <property name="bindAddress">127.0.0.1
+        </property>
+        <property name="localPorts">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="java.lang.Integer">
+                <entry>
+                    <key>audio</key><value>9201</value>
+                </entry>
+                <entry>
+                    <key>video</key><value>9203</value>
+                </entry>
+            </map>
+        </property>
+        <property name="jitter">60
+        </property>
+        <property name="timer">
+            <inject bean="Timer" />
+        </property>
+        <property name="period">20</property>
+    </bean>
+	<!-- RTP stuff configuration -->
+    <bean name="G711.UlawEncoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.ulaw.EncoderFactory" />
+    <bean name="G711.UlawDecoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.ulaw.DecoderFactory" />
+    <bean name="AudioPlayerFactory"
+		class="org.mobicents.media.server.impl.resource.audio.AudioPlayerFactory">
+        <property name="name">audio.player
+        </property>
+    </bean>
+    
+    <bean name="TxChannelFactory"
+		class="org.mobicents.media.server.resource.ChannelFactory" />
+    <bean name="RxChannelFactory"
+		class="org.mobicents.media.server.resource.ChannelFactory" />
+                
+    <bean name="AnnConnectionFactory" class="org.mobicents.media.server.ConnectionFactory">
+        <property name="txChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry><key>audio</key><value><inject bean="TxChannelFactory"/></value></entry>
+            </map>
+        </property>
+        <property name="rxChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry><key>audio</key><value><inject bean="RxChannelFactory"/></value></entry>
+            </map>
+        </property>
+    </bean>    
+
+    <bean name="AudioNoise" class="org.mobicents.media.server.impl.resource.audio.AudioNoiseGeneratorFactory">
+        <property name="name">audio.noise</property>
+    </bean>
+
+	<!-- ANNOUNCEMENT  -->
+    <bean name="Announcement-Access-Point" class="org.mobicents.media.server.EndpointImpl">
+        <property name="localName">
+            /mobicents/media/aap/[1..10]
+        </property>
+        <property name="timer">
+            <inject bean="Timer"/>
+        </property>
+        <property name="sourceFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.MediaSource">
+                <entry><key>audio</key><value><inject bean="AudioNoise"/></value></entry>
+            </map>
+        </property>
+        <property name="rtpFactory">
+             <inject bean="RTPAudioFactory"/>
+        </property>
+        <property name="connectionFactory">
+            <inject bean="AnnConnectionFactory" />
+        </property>
+    </bean>
+
+	<!-- from mgcp-conf.xml -->
+    <bean name="MgcpController"
+		class="org.mobicents.media.server.ctrl.mgcp.MgcpController">
+        <property name="namingService">
+            <inject bean="MediaServer" />
+        </property>
+        <property name="bindAddress">127.0.0.1
+        </property>
+        <property name="port">2427
+        </property>
+        <incallback method="addPackage" />
+        <uncallback method="removePackage" />
+    </bean>
+    <bean name="PlayAnnouncement"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.ann.PlayAnnouncementFactory">
+        <property name="eventName">ann
+        </property>
+        <property name="resourceName">audio.player
+        </property>
+    </bean>
+    <bean name="Announcement.OC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">oc
+        </property>
+        <property name="resourceName">audio.player
+        </property>
+        <property name="eventID">2
+        </property>
+    </bean>
+    <bean name="Announcement.OF"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">of
+        </property>
+        <property name="resourceName">audio.player
+        </property>
+        <property name="eventID">3
+        </property>
+    </bean>
+    <bean name="Package.Announcement"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+        <property name="name">A
+        </property>
+        <property name="generators">
+            <list>
+                <inject bean="PlayAnnouncement" />
+            </list>
+        </property>
+        <property name="detectors">
+            <list>
+                <inject bean="Announcement.OC" />
+                <inject bean="Announcement.OF" />
+            </list>
+        </property>
+    </bean>
+</deployment>

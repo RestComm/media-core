@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+            xmlns="urn:jboss:bean-deployer:2.0">
+    <bean name="RTPFactory" class="org.mobicents.media.server.impl.rtp.RtpFactory">
+        <property name="bindAddress">${mms.bind.address}</property>
+        <property name="silenceSuppression">true</property>
+        <property name="jitter">100</property>
+        <property name="lowPort">1024</property>
+        <property name="highPort">65535</property>
+        <property name="codecs">
+            <map class="java.util.Hashtable" keyClass="org.mobicents.media.server.spi.MediaType" valueClass="java.util.List">
+                <entry>
+                    <key><inject bean="MediaType.audio"></inject></key>
+                    <value>
+                        <list>
+                            <inject bean="G711.ulaw.encoder" />
+                            <inject bean="G711.ulaw.decoder" />
+                            <inject bean="G711.alaw.encoder" />
+                            <inject bean="G711.alaw.decoder" />
+                            <inject bean="Speex.encoder" />
+                            <inject bean="Speex.decoder" />
+                            <inject bean="GSM.encoder" />
+                            <inject bean="GSM.decoder" />
+                            <inject bean="G729.encoder" />
+                            <inject bean="G729.decoder" />
+                        </list>
+                    </value>
+                </entry>
+            </map>
+        </property>
+    </bean>
+</deployment>

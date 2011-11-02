@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+	<!-- from bootstrap-beans.xml -->
+	<!-- Timer definition -->
+    <bean name="Timer"
+		class="org.mobicents.media.server.impl.clock.TimerImpl">
+        <property name="heartBeat">20
+        </property>
+    </bean>
+
+	<!-- Media Server -->
+    <bean name="MediaServer"
+		class="org.mobicents.media.server.impl.naming.InnerNamingService">
+        <incallback method="addEndpoint" />
+        <uncallback method="removeEndpoint" />
+    </bean>
+
+	<!-- Definition of media formats -->
+	<!-- Definition of media formats -->
+    <bean name="PCMU" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ULAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="PCMA" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ALAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="SPEEX" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>SPEEX</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="GSM" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ULAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="G729" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ULAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="DTMF" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>telephone-event/8000</parameter>
+        </constructor>
+    </bean>
+
+    <bean name="RTPAudioClock" class="org.mobicents.media.server.impl.rtp.clock.AudioClock"/>
+
+	<!-- RTP stuff configuration -->
+    <bean name="RTPAudioFactory1"
+		class="org.mobicents.media.server.impl.rtp.RtpFactory">
+        <property name="bindAddress">127.0.0.1</property>
+        <property name="localPorts">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="java.lang.Integer">
+                <entry>
+                    <key>audio</key><value>9201</value>
+                </entry>
+            </map>
+        </property>
+        <property name="jitter">60</property>
+        <property name="timer">
+            <inject bean="Timer" />
+        </property>
+         <property name="period">20</property>
+    </bean>
+    <bean name="RTPAudioFactory2"
+		class="org.mobicents.media.server.impl.rtp.RtpFactory">
+        <property name="bindAddress">127.0.0.1</property>
+        <property name="localPorts">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="java.lang.Integer">
+                <entry>
+                    <key>audio</key><value>9205</value>
+                </entry>
+            </map>
+        </property>
+        <property name="jitter">60
+        </property>
+        <property name="timer">
+            <inject bean="Timer" />
+        </property>
+        <property name="period">20</property>
+    </bean>
+    <bean name="G711.UlawEncoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.ulaw.EncoderFactory" />
+    <bean name="G711.UlawDecoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.ulaw.DecoderFactory" />
+    <bean name="G711.AlawEncoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.alaw.EncoderFactory" />
+    <bean name="G711.AlawDecoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.alaw.DecoderFactory" />
+    <bean name="SpeexEncoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.speex.EncoderFactory" />
+    <bean name="SpeexDecoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.speex.DecoderFactory" />
+    <bean name="G729EncoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g729.EncoderFactory" />
+    <bean name="G729DecoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.g729.DecoderFactory" />
+    <bean name="GSMEncoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.gsm.EncoderFactory" />
+    <bean name="GSMDecoderFactory"
+		class="org.mobicents.media.server.impl.dsp.audio.gsm.DecoderFactory" />
+    <bean name="AudioProcessorFactory"
+		class="org.mobicents.media.server.impl.dsp.DspFactory">
+        <property name="name">audio.processor
+        </property>
+        <property name="codecFactories">
+            <list>
+                <inject bean="G711.UlawEncoderFactory" />
+                <inject bean="G711.UlawDecoderFactory" />
+                <inject bean="G711.AlawEncoderFactory" />
+                <inject bean="G711.AlawDecoderFactory" />
+                <inject bean="SpeexEncoderFactory" />
+                <inject bean="SpeexDecoderFactory" />
+                <inject bean="GSMEncoderFactory" />
+                <inject bean="GSMDecoderFactory" />
+                <inject bean="G729EncoderFactory" />
+                <inject bean="G729DecoderFactory" />
+            </list>
+        </property>
+    </bean>
+    <bean name="Noise"
+		class="org.mobicents.media.server.impl.resource.audio.AudioNoiseGeneratorFactory">
+        <property name="name">audio.player</property>
+    </bean>
+    <bean name="MixerFactory"
+		class="org.mobicents.media.server.impl.resource.cnf.AudioMixerFactory">
+        <property name="name">audio.mixer</property>
+    </bean>
+    <bean name="DtmfGeneratorFactory"
+		class="org.mobicents.media.server.impl.resource.dtmf.GeneratorFactory">
+        <property name="name">dtmf</property>
+    </bean>
+    <bean name="ann-Pipe-1"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="outlet">audio.mixer</property>
+    </bean>
+    <bean name="ann-Pipe-2"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">dtmf</property>
+        <property name="outlet">audio.mixer</property>
+    </bean>
+    <bean name="ann-Pipe-3"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">audio.mixer</property>
+        <property name="outlet">audio.processor</property>
+    </bean>
+    
+    <bean name="ann-Pipe-4"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">audio.processor</property>
+    </bean>
+    
+    <bean name="RxChannelFactory"
+		class="org.mobicents.media.server.resource.ChannelFactory" />
+    
+    <bean name="TxChannelFactory"
+		class="org.mobicents.media.server.resource.ChannelFactory">
+        <property name="components">
+            <list>
+                <inject bean="MixerFactory" />
+                <inject bean="DtmfGeneratorFactory" />
+                <inject bean="AudioProcessorFactory" />
+            </list>
+        </property>
+        <property name="pipes">
+            <list>
+                <inject bean="ann-Pipe-1" />
+                <inject bean="ann-Pipe-2" />
+                <inject bean="ann-Pipe-3" />
+                <inject bean="ann-Pipe-4" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean name="AnnConnectionFactory" class="org.mobicents.media.server.ConnectionFactory">
+        <property name="txChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry><key>audio</key><value><inject bean="TxChannelFactory"/></value></entry>
+            </map>
+        </property>
+        <property name="rxChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry><key>audio</key><value><inject bean="RxChannelFactory"/></value></entry>
+            </map>
+        </property>
+    </bean>    
+
+
+	<!-- ANNOUNCEMENT  -->
+    <bean name="Announcement-Access-Point"
+		class="org.mobicents.media.server.EndpointImpl">
+        <property name="localName">
+			/mobicents/media/aap/[1..10]
+        </property>
+        <property name="timer">
+            <inject bean="Timer" />
+        </property>
+        <property name="sourceFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String"
+				valueClass="org.mobicents.media.MediaSource">
+                <entry>
+                    <key>audio</key><value><inject bean="Noise" /></value>
+                </entry>                
+            </map>
+        </property>
+        <property name="rtpFactory">
+                        <inject bean="RTPAudioFactory1" />
+        </property>
+        <property name="connectionFactory">
+            <inject bean="AnnConnectionFactory" />
+        </property>
+    </bean>
+        
+    <bean name="RecorderFactory"
+		class="org.mobicents.media.server.impl.resource.audio.RecorderFactory">
+        <property name="name">audio.recorder
+        </property>
+    </bean>
+    <bean name="Splitter"
+		class="org.mobicents.media.server.impl.resource.cnf.SplitterFactory">
+        <property name="name">splitter</property>
+    </bean>
+    <bean name="DTMFDetectorFactory"
+		class="org.mobicents.media.server.impl.resource.dtmf.DetectorFactory">
+        <property name="name">dtmf</property>
+    </bean>
+
+    <bean name="IVR-TxChannelFactory"
+		class="org.mobicents.media.server.resource.ChannelFactory" />
+    <bean name="IVR-Pipe-1"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="outlet">audio.processor</property>
+    </bean>
+    
+    <bean name="IVR-Pipe-2"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">audio.processor</property>
+        <property name="outlet">splitter</property>
+    </bean>
+    
+    <bean name="IVR-Pipe-3"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">splitter</property>
+        <property name="outlet">dtmf</property>
+    </bean>
+    
+    <bean name="IVR-Pipe-4"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">splitter</property>
+    </bean>
+    
+    <bean name="IVR-RxChannelFactory"
+		class="org.mobicents.media.server.resource.ChannelFactory">
+        <property name="components">
+            <list>
+                <inject bean="Splitter" />
+                <inject bean="DTMFDetectorFactory" />
+                <inject bean="AudioProcessorFactory" />
+            </list>
+        </property>
+        <property name="pipes">
+            <list>
+                <inject bean="IVR-Pipe-1" />
+                <inject bean="IVR-Pipe-2" />
+                <inject bean="IVR-Pipe-3" />
+                <inject bean="IVR-Pipe-4" />
+            </list>
+        </property>
+    </bean>
+
+   
+    <bean name="IVRConnectionFactory" class="org.mobicents.media.server.ConnectionFactory">
+        <property name="txChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry><key>audio</key><value><inject bean="IVR-TxChannelFactory"/></value></entry>
+            </map>
+        </property>
+        <property name="rxChannelFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                <entry><key>audio</key><value><inject bean="IVR-RxChannelFactory"/></value></entry>
+            </map>
+        </property>
+    </bean>    
+    
+    <bean name="IVREndpoint"
+		class="org.mobicents.media.server.EndpointImpl">
+        <property name="localName">
+			/mobicents/media/IVR/[1..10]
+        </property>
+        <property name="timer">
+            <inject bean="Timer" />
+        </property>
+        <property name="sourceFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String"
+				valueClass="org.mobicents.media.MediaSource">
+                <entry>
+                    <key>audio</key><value><inject bean="Noise" /></value>
+                </entry>                
+            </map>
+        </property>
+        <property name="sinkFactory">
+            <map class="java.util.Hashtable" keyClass="java.lang.String"
+				valueClass="org.mobicents.media.MediaSink">
+                <entry>
+                    <key>audio</key><value><inject bean="RecorderFactory" /></value>
+                </entry>                
+            </map>
+        </property>
+        <property name="rtpFactory">
+                        <inject bean="RTPAudioFactory2" />
+        </property>
+        <property name="connectionFactory">
+            <inject bean="IVRConnectionFactory" />
+        </property>
+    </bean>
+
+
+    <bean name="MgcpController"
+		class="org.mobicents.media.server.ctrl.mgcp.MgcpController">
+        <property name="namingService">
+            <inject bean="MediaServer" />
+        </property>
+        <property name="bindAddress">127.0.0.1
+        </property>
+        <property name="port">2427
+        </property>
+        <incallback method="addPackage" />
+        <uncallback method="removePackage" />
+    </bean>
+    <bean name="Signal.Dtmf0"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf0</property>
+        <property name="digit">0</property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf1"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf1</property>
+        <property name="digit">1</property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf2"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf2
+        </property>
+        <property name="digit">2</property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf3"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf3
+        </property>
+        <property name="digit">3
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf4"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf4
+        </property>
+        <property name="digit">4
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf5"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf5
+        </property>
+        <property name="digit">5
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf6"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf6
+        </property>
+        <property name="digit">6
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf7"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf7
+        </property>
+        <property name="digit">7
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf8"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf8
+        </property>
+        <property name="digit">8
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.Dtmf9"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmf9
+        </property>
+        <property name="digit">9
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.DtmfA"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmfA
+        </property>
+        <property name="digit">A
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.DtmfB"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmfB
+        </property>
+        <property name="digit">B
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.DtmfC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmfC
+        </property>
+        <property name="digit">C
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.DtmfD"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmfD
+        </property>
+        <property name="digit">D
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.DtmfHash"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmfHash
+        </property>
+        <property name="digit">#
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Signal.DtmfStar"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+        <property name="eventName">dtmfStar
+        </property>
+        <property name="digit">*
+        </property>
+        <property name="resourceName">dtmf</property>
+    </bean>
+    <bean name="Event.Dtmf0"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf0
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">0
+        </property>
+    </bean>
+    <bean name="Event.Dtmf1"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf1
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">1
+        </property>
+    </bean>
+    <bean name="Event.Dtmf2"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf2
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">2
+        </property>
+    </bean>
+    <bean name="Event.Dtmf3"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf3
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">3
+        </property>
+    </bean>
+    <bean name="Event.Dtmf4"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf4
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">4
+        </property>
+    </bean>
+    <bean name="Event.Dtmf5"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf5
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">5
+        </property>
+    </bean>
+    <bean name="Event.Dtmf6"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf6
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">6
+        </property>
+    </bean>
+    <bean name="Event.Dtmf7"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf7
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">7
+        </property>
+    </bean>
+    <bean name="Event.Dtmf8"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf8
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">8
+        </property>
+    </bean>
+    <bean name="Event.Dtmf9"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmf9
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">9
+        </property>
+    </bean>
+    <bean name="Event.DtmfA"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmfA
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">10
+        </property>
+    </bean>
+    <bean name="Event.DtmfB"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmfB
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">11
+        </property>
+    </bean>
+    <bean name="Event.DtmfC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmfC
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">12
+        </property>
+    </bean>
+    <bean name="Event.DtmfD"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmfD
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">13
+        </property>
+    </bean>
+    <bean name="Event.DtmfHash"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmfHash
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">14
+        </property>
+    </bean>
+    <bean name="Event.DtmfStar"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+        <property name="eventName">dtmfStar
+        </property>
+        <property name="resourceName">dtmf</property>
+        <property name="eventID">15
+        </property>
+    </bean>
+    <bean name="Package.Dtmf"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+        <property name="name">D
+        </property>
+        <property name="generators">
+            <list>
+                <inject bean="Signal.Dtmf0" />
+                <inject bean="Signal.Dtmf1" />
+                <inject bean="Signal.Dtmf2" />
+                <inject bean="Signal.Dtmf3" />
+                <inject bean="Signal.Dtmf4" />
+                <inject bean="Signal.Dtmf5" />
+                <inject bean="Signal.Dtmf6" />
+                <inject bean="Signal.Dtmf7" />
+                <inject bean="Signal.Dtmf8" />
+                <inject bean="Signal.Dtmf9" />
+                <inject bean="Signal.DtmfA" />
+                <inject bean="Signal.DtmfB" />
+                <inject bean="Signal.DtmfC" />
+                <inject bean="Signal.DtmfD" />
+                <inject bean="Signal.DtmfStar" />
+                <inject bean="Signal.DtmfHash" />
+            </list>
+        </property>
+        <property name="detectors">
+            <list>
+                <inject bean="Event.Dtmf0" />
+                <inject bean="Event.Dtmf1" />
+                <inject bean="Event.Dtmf2" />
+                <inject bean="Event.Dtmf3" />
+                <inject bean="Event.Dtmf4" />
+                <inject bean="Event.Dtmf5" />
+                <inject bean="Event.Dtmf6" />
+                <inject bean="Event.Dtmf7" />
+                <inject bean="Event.Dtmf8" />
+                <inject bean="Event.Dtmf9" />
+                <inject bean="Event.DtmfA" />
+                <inject bean="Event.DtmfB" />
+                <inject bean="Event.DtmfC" />
+                <inject bean="Event.DtmfD" />
+                <inject bean="Event.DtmfStar" />
+                <inject bean="Event.DtmfHash" />
+            </list>
+        </property>
+    </bean>
+-->    
+</deployment>

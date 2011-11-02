@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+            
+	<bean name="au.oc"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">oc</property>
+		<property name="eventID">20000</property>
+	</bean>
+
+	<bean name="au.of"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">of</property>
+		<property name="eventID">10001</property>
+	</bean>
+	<bean name="a.oc"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">oc</property>
+		<property name="eventID">20000</property>
+	</bean>
+
+	<bean name="a.of"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">of</property>
+		<property name="eventID">10001</property>
+	</bean>
+</deployment>

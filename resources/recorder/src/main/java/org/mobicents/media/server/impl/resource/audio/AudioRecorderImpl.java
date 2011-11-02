@@ -1,0 +1,495 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2011, Red Hat, Inc. and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+package org.mobicents.media.server.impl.resource.audio;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.Formats;
+import org.mobicents.media.server.spi.listener.Listeners;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.recorder.Recorder;
+import org.mobicents.media.server.spi.recorder.RecorderEvent;
+import org.mobicents.media.server.spi.recorder.RecorderListener;
+
+/**
+ *
+ * @author kulikov
+ */
+public class AudioRecorderImpl extends AbstractSink implements Recorder {
+
+    private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
+    private final static Formats formats = new Formats();
+    
+    private final static int SILENCE_LEVEL = 10;
+    
+    static {
+        formats.add(LINEAR);
+    }
+    
+    private String recordDir;
+    private FileOutputStream fout;
+    
+    //file for recording
+    private File file;
+    
+    //temp file for raw data
+    private File temp;
+    
+    //if set ti true the record will terminate recording when silence detected
+    private long postSpeechTimer = -1L;
+    
+    //total non-interraptible silence time
+    private long silence;
+    
+    //samples
+    private byte[] data;
+    private int offset;
+    private int len;
+    
+    private KillRecording killRecording;
+    private Scheduler scheduler;
+    
+    //maximum recrding time. -1 means until stopped.
+    private long maxRecordTime = -1;
+    
+    //length in time of recording
+    private long time;
+    
+    
+    //listener
+    private Listeners<RecorderListener> listeners = new Listeners();
+    
+    //events
+    private RecorderEventImpl recorderStarted;
+    private RecorderEventImpl recorderStopped;
+    private RecorderEventImpl recorderFailed;
+    
+    //event sender task
+    private EventSender eventSender;
+    
+    //event qualifier
+    private int qualifier;
+    
+    public AudioRecorderImpl(Scheduler scheduler) {
+        super("recorder", scheduler,scheduler.MIXER_INPUT_QUEUE);
+        this.scheduler = scheduler;
+        
+        
+        killRecording = new KillRecording(scheduler);
+        
+        //initialize events
+        recorderStarted = new RecorderEventImpl(RecorderEvent.START, this);
+        recorderStopped = new RecorderEventImpl(RecorderEvent.STOP, this);
+        recorderFailed = new RecorderEventImpl(RecorderEvent.FAILED, this);
+        
+        //initialize event sender task
+        eventSender = new EventSender(scheduler);
+    }
+
+    @Override
+    public void start() {
+    	this.time = 0;
+    	this.silence=0;
+        super.start();
+        
+        //send event
+        fireEvent(recorderStarted);
+    }
+    
+    @Override
+    public void stop() {
+        if (!this.isStarted()) {
+            return;
+        }
+        
+        super.stop();
+        this.maxRecordTime = -1;
+        this.time = 0;
+        this.silence=0;
+        
+        try {
+            writeToWaveFile();
+        } catch (IOException e) {
+        }
+        
+        //send event
+        recorderStopped.setQualifier(qualifier);
+        fireEvent(recorderStopped);
+        
+        //clean qualifier
+        this.qualifier = 0;
+        this.maxRecordTime = -1L;
+        this.postSpeechTimer = -1L;
+    }
+    
+    /**
+     * (Non Java-doc.)
+     * 
+     * @see org.mobicents.media.server.spi.resource.Recorder;
+     */
+    public void setPostSpeechTimer(long value) {
+        this.postSpeechTimer = value;
+    }
+    
+    /**
+     * (Non Java-doc.)
+     * 
+     * @see org.mobicents.media.server.spi.resource.Recorder;
+     */
+    public void setMaxRecordTime(long maxRecordTime) {
+        this.maxRecordTime = maxRecordTime;
+    }
+    
+    /**
+     * Fires specified event
+     * 
+     * @param event the event to fire.
+     */
+    private void fireEvent(RecorderEventImpl event) {
+        eventSender.event = event;
+        scheduler.submit(eventSender,scheduler.SPLITTER_OUTPUT_QUEUE);
+    }
+    
+    @Override
+    public void onMediaTransfer(Frame frame) throws IOException {
+        //update time
+        time += frame.getDuration();
+        //extract data
+        data = frame.getData();
+        offset = frame.getOffset();
+        len = frame.getLength();
+        
+        //write raw data as integer
+        for (int i = offset + 1; i < len; i+= 2) {
+            fout.write(data[i - 1]);
+            fout.write(data[i]);
+        }
+        
+        if (this.postSpeechTimer > 0) {
+            //detecting silence
+            if (this.checkForSilence(data, offset, len)) {
+                //silence frame detected, update selence total time
+                this.silence += frame.getDuration();
+                //check that silence does not exceed the limit yet
+                if (this.silence > postSpeechTimer) {
+                    this.qualifier = RecorderEvent.NO_SPEECH;                    
+                    scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+                }
+            } else {
+                //reset silence time
+                this.silence = 0;                
+            }
+        }
+        
+        //check max time and stop recording if exeeds limit
+        if (this.maxRecordTime > 0 && time >= this.maxRecordTime) {
+            //set qualifier
+            this.qualifier = RecorderEvent.MAX_DURATION_EXCEEDED;            
+            scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+        }
+    }
+
+    @Override
+    public Formats getNativeFormats() {
+        return formats;
+    }
+
+    public void setRecordDir(String recordDir) {
+        this.recordDir = recordDir;
+    }
+
+    public void setRecordFile(String uri, boolean append) throws IOException {
+        //calculate the full path
+        String path = uri.startsWith("file:")  ?  uri.replaceAll("file://", "") :
+                this.recordDir + "/" + uri;
+        
+        //create file for recording and temp file
+        file = new File(path);        
+        temp = new File(path + "~");
+        
+        //open stream to temporary file
+        fout = new FileOutputStream(temp);            
+        
+        //if append specified and file really exist copy data from the current
+        //file to temp
+        if (append && file.exists()) {
+            System.out.println("..............>>>>>Copying samples from " + file);
+            copySamples(file, fout);
+        }        
+    }
+    
+    /**
+     * Writes samples to file following WAVE format.
+     * 
+     * @throws IOException 
+     */
+    private void writeToWaveFile() throws IOException {
+System.out.println("!!!!!!!!!! Writting to file......................")        ;
+        //stop called on inactive recorder
+        if (fout == null) {
+            return;
+        }
+        
+        fout.flush();
+        fout.close();
+        
+        FileInputStream fin = new FileInputStream(temp);
+        fout = new FileOutputStream(file);
+        
+        int size = fin.available();
+System.out.println("!!!!!!!!!! Size=" + size)        ;
+        
+        //RIFF
+        fout.write((byte) 0x52);
+        fout.write((byte) 0x49);
+        fout.write((byte) 0x46);
+        fout.write((byte) 0x46);
+        
+        int length = size + 36;
+        
+        //Length
+        fout.write((byte) (length));
+        fout.write((byte) (length >> 8));
+        fout.write((byte) (length >> 16));
+        fout.write((byte) (length >> 24));
+        
+        //WAVE
+        fout.write((byte) 0x57);
+        fout.write((byte) 0x41);
+        fout.write((byte) 0x56);
+        fout.write((byte) 0x45);
+        
+        //fmt
+        fout.write((byte) 0x66);
+        fout.write((byte) 0x6d);
+        fout.write((byte) 0x74);
+        fout.write((byte) 0x20);
+        
+        fout.write((byte) 0x10);
+        fout.write((byte) 0x00);
+        fout.write((byte) 0x00);
+        fout.write((byte) 0x00);
+        
+        //format - PCM
+        fout.write((byte) 0x01);
+        fout.write((byte) 0x00);
+        
+        //format - MONO
+        fout.write((byte) 0x01);
+        fout.write((byte) 0x00);
+        
+        //sample rate:8000
+        fout.write((byte) 0x40);
+        fout.write((byte) 0x1F);
+        fout.write((byte) 0x00);
+        fout.write((byte) 0x00);
+
+        //byte rate
+        fout.write((byte) 0x80);
+        fout.write((byte) 0x3E);
+        fout.write((byte) 0x00);
+        fout.write((byte) 0x00);
+        
+        
+        //Block align
+        fout.write((byte) 0x02);
+        fout.write((byte) 0x00);
+        
+        //Bits per sample: 16
+        fout.write((byte) 0x10);
+        fout.write((byte) 0x00);
+        
+        //"data"
+        fout.write((byte) 0x64);
+        fout.write((byte) 0x61);
+        fout.write((byte) 0x74);
+        fout.write((byte) 0x61);
+        
+        //len
+        fout.write((byte) (size));
+        fout.write((byte) (size >> 8));
+        fout.write((byte) (size >> 16));
+        fout.write((byte) (size >> 24));
+        
+        copyData(fin, 0, fout);
+        
+        fout.flush();
+        fout.close();
+        
+        fin.close();
+        temp.delete();
+               
+    }
+    
+    /**
+     * Copies samples from source wav file to temporary raw destination.
+     * 
+     * @param src wav source file
+     * @param dst raw destination file.
+     */
+    private void copySamples(File src, FileOutputStream out) throws IOException {
+        FileInputStream in = new FileInputStream(src);
+        try {
+            this.copyData(in, 44, out);
+        } finally {
+            in.close();
+        }
+     }
+    
+    /**
+     * Copies data from specified input to specified destination.
+     * 
+     * @param in the input of data
+     * @param offset the first position of data to read
+     * @param out destination
+     * @throws IOException 
+     */
+    private void copyData(InputStream in, int offset,  OutputStream out) throws IOException {
+        //skip header
+        in.skip(offset);
+        
+        //copy samples
+        byte[] buff = new byte[8192];
+        int length = 0;
+        
+/*        while (in.available() > 0) {
+            //read data from source
+            length = in.read(buff);            
+            
+            //write data to the destination
+            out.write(buff, 0, length);
+        }
+         * 
+         */
+        
+        int count = 0;
+        int b = -1;
+        while ((b = in.read()) != -1) {
+            out.write(b);
+            count++;
+        }
+                
+        System.out.println("Was copied " + count  + " bytes");
+    }
+    
+    /**
+     * Checks does the frame contains sound or silence.
+     * 
+     * @param data  buffer with samples
+     * @param offset the position of first sample in buffer
+     * @param len the number if samples
+     * @return true if silence detected
+     */
+    private boolean checkForSilence(byte[] data, int offset, int len) {
+        for (int i = offset; i < len - 1; i += 2) {
+            int s = (data[i] & 0xff) | (data[i + 1] << 8);
+            if (s > SILENCE_LEVEL) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.mobicents.media.server.impl.AbstractSink#getInterface(java.lang.Class)
+     */
+    @Override
+    public <T> T getInterface(Class<T> interfaceType) {
+        if (interfaceType.equals(Recorder.class)) {
+            return (T) this;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * (Non Java-doc.)
+     * 
+     * @see org.mobicents.media.server.spi.recorder.Recorder#addListener(org.mobicents.media.server.spi.recorder.RecorderListener) 
+     */
+    public void addListener(RecorderListener listener) throws TooManyListenersException {
+        listeners.add(listener);
+    }
+
+    /**
+     * (Non Java-doc.)
+     * 
+     * @see org.mobicents.media.server.spi.recorder.Recorder#removeListener(org.mobicents.media.server.spi.recorder.RecorderListener) 
+     */
+    public void removeListener(RecorderListener listener) {
+        listeners.remove(listener);
+    }
+    
+    /**
+     * Asynchronous recorder stopper.
+     */
+    private class KillRecording extends Task {
+
+        public KillRecording(Scheduler scheduler) {
+            super(scheduler);
+        }        
+
+        @Override
+        public long perform() {
+            stop();
+            return 0;
+        }
+    
+        public int getQueueNumber() {
+            return scheduler.MANAGEMENT_QUEUE;
+        }
+    }
+    
+    /**
+     * Asynchronous recorder stopper.
+     */
+    private class EventSender extends Task {
+
+        protected RecorderEventImpl event;
+        
+        public EventSender(Scheduler scheduler) {
+            super(scheduler);
+        }        
+
+        @Override
+        public long perform() {
+            listeners.dispatch(event);
+            return 0;
+        }
+    
+        public int getQueueNumber() {
+            return scheduler.MANAGEMENT_QUEUE;
+        }
+    }
+    
+}

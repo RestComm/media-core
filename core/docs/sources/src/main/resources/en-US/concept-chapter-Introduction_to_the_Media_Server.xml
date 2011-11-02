@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="ittms-Introduction_to_the_Media_Server">
+	<title>Introduction to the &THIS.PLATFORM; Media Server</title>
+	<para>
+	The &THIS.PLATFORM; Media Server is an open source, software based 
+	implementation of the VoIP network element responsible for media handling. It 
+	supports IP and TDM interfaces, and can act as both a Media Server and as a 
+	Media Gateway. It provides support for both distributed and centralized 
+	services, including circuit switch voice/video, announcements and tones.
+	</para>
+	<para>
+	In the modern VoIP world, providers offer highly customized services that 
+	combine media such as audio, video and IM. These services require dedicated 
+	and customized media processing capabilities. To achieve this, the VoIP 
+	network separates the media processing functions into a dedicated node which 
+	is responsible for media processing only, while all the intelligence is 
+	executed by the separate call controller. The node processing the media 
+	streams is called a Media Server.
+	</para>
+	<para>
+	The media handling node must also be able to bridge the gap between 
+	traditional legacy systems and modern VoIP networks. This node is typically 
+	called a Media Gateway.
+	</para>
+	<para>
+	The &THIS.PLATFORM; Media Server can operate with the &THIS.PLATFORM; JAIN 
+	SLEE Application Server. However, the Media Server comes with a telco 
+	standard MGCP interface, which allows you to use another call controller if 
+	desired.
+	</para>
+	<para>
+	The &THIS.PLATFORM; Media Server is also equipped with an implementation of 
+	the media control API compliant to JSR-309 specifications, which allows you 
+	to use the Media Server with the &THIS.PLATFORM; SIP Servlet Container.
+	</para>
+	<para>
+	The Media Server includes an embedded signaling gateway	function which 
+	supports the complete set of TDM and IP signaling protocols. It supports TDM 
+	access variants like ETSI ISUP, PRI, as well as supporting signaling backhaul 
+	over IP with M3UA and SUA options.
+	</para>
+	<para>
+	The Media Server is implemented using the JBoss Microcontainer kernel, which 
+	allows you to archive maximum flexibility. It gives you the ability to adopt 
+	the Media Server for task specific actions, and/or extend the functions of the 
+	Media	Server by installing additional media processing components.
+	</para>
+</chapter>

@@ -1,0 +1,720 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<chapter id="ctms-Configuring_the_Media_Server">
+	<title>Configuring the &THIS.PLATFORM; Media Server</title>
+
+	<para>
+		The &THIS.PLATFORM; Media Server is developed on top of existing
+		Java technologies. The Java platform is ideal for network
+		computing. It offers single, unified-and-unifying
+		programming model that can connect all elements of a
+		business infrastructure. The modularization effort is
+		supported by use of the JBoss Microcontainer which
+		allows to deploy services written as Plain Java Objects into
+		a Standard Java SE runtime environment in controlled manner
+		and achieve great level of customization.
+	</para>
+
+
+	<section>
+		<title>MainDeployer</title>
+		<para>The configurable aspects of MainDeployer are:</para>
+		<variablelist>
+			<varlistentry>
+				<term>path</term>
+				<listitem>
+					<para>
+					Specifies the location of the configuration XML files. By default, this is the /deploy directory.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>fileFilter</term>
+				<listitem>
+					<para>
+					Specifies the file extensions that will be deployed or monitored. Supported file extensions are -beans.xml and -conf.xml
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+	</section>
+	<section id="ctms-Server_Instance">
+		<title>Server instance</title>
+		<para>
+		The modularization effort allows the user to construct and start more then one instance of the media server in the single JBoss microcontainer. The single server instance is defined by the following description:
+		</para>
+		<example id="ctms-server-instance">
+			<title>The Media Server instance Declaration</title>
+			<programlisting linenumbering="unnumbered" role="XML">
+	&lt;bean name="MediaServer" class="org.mobicents.media.Server"&gt;
+&lt;property name="rtpManager"&gt;&lt;inject bean="RTPFactory"/&gt;&lt;/property&gt;
+			&lt;incallback method="addFactory" /&gt;
+			&lt;uncallback method="removeFactory" /&gt;
+	&lt;/bean&gt;   			
+			</programlisting>
+		</example>
+		<para>The configurable aspects of the server instance are:</para>
+		<variablelist>
+			<varlistentry>
+				<term>rtpManager</term>
+				<listitem>
+					<para>
+					Specifies the relationship between the Real Time Transmission Protocol Manager and the server instance.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<para>
+		It is possible to run several Media Server instances with different RTP configurations. These configurations are used when the Media Server acts as a gateway at the boundaries of the different networks.
+		</para>
+	</section>
+	<section id="ctms-Media_Types">
+		<title>Media Types</title>
+		<para>
+		Each media type to be processed must be declared. Below is an example declaration of Audio and Video media types.
+		</para>
+		<programlisting linenumbering="unnumbered" role="XML">
+		&lt;bean name="MediaType.audio" class="org.mobicents.media.server.spi.MediaType"&gt;
+					&lt;constructor factoryClass="org.mobicents.media.server.spi.MediaType" factoryMethod="getInstance"&gt;
+							&lt;parameter>audio&lt;/parameter&gt;
+					&lt;/constructor&gt;
+			&lt;/bean&gt;
+
+			&lt;bean name="MediaType.Video" class="org.mobicents.media.server.spi.MediaType"&gt;
+					&lt;constructor factoryClass="org.mobicents.media.server.spi.MediaType" factoryMethod="getInstance"&gt;
+							&lt;parameter>video&lt;/parameter&gt;
+					&lt;/constructor&gt;
+			&lt;/bean&gt;	
+		</programlisting>
+	</section>
+	<section id="ctms-Format_Definition">
+		<title>Media Format</title>
+		<para>
+		Format specifies a particular arrangement of data in a media stream. By examining the information stored in the format, components can discover how to interpret the bits in the binary sound data. Format accommodates a number of common encoding techniques, including pulse-code modulation (PCM), mu-law encoding or a-law encoding. These encoding techniques are predefined, but the user can create new encoding types.
+		</para>
+		<para>
+    In addition to the encoding, the format includes other properties that further specify the exact arrangement of the data which are specific for each media type.
+		</para>
+		<section id="ctms-Audio_Format_Definition">
+			<title>Audio Format</title>
+      <para>
+      Audio specific parameters include the number of channels, sample rate, sample size and byte order. Sounds may have different numbers of audio channels (for example, one stereo and two mono). The sample rate measures how many "snapshots" (samples) of the sound pressure are taken per second, per channel.
+      </para>
+      <note>
+        <para>
+        If the sound is stereo rather than mono, two samples are actually measured at each instant of time: one for the left channel, and another for the right channel. However, the sample rate still measures the number per channel, so the rate is the same regardless of the number of channels. This is the standard use of the term.
+        </para>
+      </note>
+      <para>
+      The sample size indicates how many bits are used to store each snapshot; 8 and 16 are typical values. For 16-bit samples (or any other sample size larger than a byte), byte order is important - the bytes in each sample are arranged in either the "little-endian" or "big-endian" style.
+      </para>
+			<example id="ctms-format_def">	
+				<title>Audio format definition</title>	
+				<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="PCMU" class="org.mobicents.media.format.AudioFormat"&gt;
+		&lt;constructor&gt;
+				&lt;parameter>ULAW&lt;/parameter&gt;
+				&lt;parameter>8000&lt;/parameter&gt;
+				&lt;parameter>8&lt;/parameter&gt;
+				&lt;parameter>1&lt;/parameter&gt;
+		&lt;/constructor&gt;
+&lt;/bean&gt;		
+				</programlisting>
+			</example>
+			<para>The respective parameters of the audio format are:</para>
+			<itemizedlist>
+				<listitem>
+					<para>Encoding name</para>
+				</listitem>	
+				<listitem>
+					<para>Sample rate</para>
+				</listitem>	
+				<listitem>
+					<para>Sample size in bits</para>
+				</listitem>	
+				<listitem>
+					<para>Number of channels</para>
+				</listitem>	
+			</itemizedlist>
+		</section>
+	</section>
+	<section id="ctms-Codec_Definition">
+		<title>Codec definition</title>
+		<para>
+		A codec is a component capable of encoding and/or decoding a digital data stream or signal.
+		</para>
+		<example id="ctms-codec_def">	
+			<title>Codec definition</title>	
+			<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="G711.ulaw.encoder"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.ulaw.EncoderFactory" /&gt;
+					
+			</programlisting>
+		</example>
+		<para>
+		The following example shows how codecs can be grouped into processors.
+		</para>
+		<example id="ctms-format_def_dsp">	
+			<title>Codec definition</title>	
+			<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="DSP"
+		class="org.mobicents.media.server.impl.dsp.DspFactory"&gt;
+				&lt;property name="name">dsp&lt;/property&gt;
+				&lt;property name="codecFactories"&gt;
+						&lt;list&gt;
+								&lt;inject bean="G711.ulaw.encoder" /&gt;
+								&lt;inject bean="G711.ulaw.decoder" /&gt;
+						&lt;/list&gt;
+				&lt;/property&gt;
+		&lt;/bean&gt;
+			</programlisting>
+		</example>
+	</section>
+	<section id="AV_PROFILE">
+		<title>RTP Audio Video profile</title>
+    <para>
+    Real-time audio and video conferencing and communication applications that use the Real-time Transport Protocol (RTP) employ a standardized description format (Session Description Protocol, SDP) to describe the media streams carried in a multi-media session.
+    </para>
+    <para>
+    This description format specifies the technical parameters of the media streams. Such a set of RTP parameters of the media stream and its compression or encoding methods is known as a media profile, or RTP audio video profile (RTP/AVP). Each profile is identified by a standardized payload type identifier (RFC 3551 and others).
+    </para>
+		<table frame="all" id="ctms-Supported_RTP_Formats">
+			<title>RTP/AVP audio and video payload types</title>
+			<tgroup align="left" cols="4" colsep="1" rowsep="1">
+				<colspec colname="col1" colnum="1" />
+				<colspec colname="col2" colnum="2" />
+				<colspec colname="col3" colnum="3" />
+				<colspec colname="col4" colnum="4" />
+				<thead>
+					<row>
+						<entry>Payload Type</entry>
+						<entry>Format</entry>
+						<entry>Specification</entry>
+						<entry>Description</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>0</entry>
+						<entry>PCMU</entry>
+						<entry>
+						<ulink
+						url="http://www.ietf.org/rfc/rfc1890.txt">
+						RFC 1890
+						</ulink>
+						</entry>
+						<entry>ITU G.711 U-law audio</entry>
+					</row>
+					<row>
+						<entry>3</entry>
+						<entry>GSM</entry>
+						<entry>
+						<ulink
+						url="http://www.ietf.org/rfc/rfc1890.txt">
+						RFC 1890
+						</ulink>
+						</entry>
+						<entry>GSM full-rate audio</entry>
+					</row>
+					<row>
+						<entry>8</entry>
+						<entry>PCMA</entry>
+						<entry>
+						<ulink
+						url="http://www.ietf.org/rfc/rfc1890.txt">
+						RFC 1890
+						</ulink>
+						</entry>
+						<entry>ITU G.711 A-law audio</entry>
+					</row>
+					<row>
+						<entry>18</entry>
+						<entry>G729</entry>
+						<entry>N/A</entry>
+						<entry>G.729 audio</entry>
+					</row>
+					<row>
+						<entry>31</entry>
+						<entry>H.261</entry>
+						<entry>N/A</entry>
+						<entry>Video</entry>
+					</row>
+					<row>
+						<entry>97</entry>
+						<entry>SPEEX</entry>
+						<entry>N/A</entry>
+						<entry>Speex narrow band audio</entry>
+					</row>
+					<row>
+						<entry>101</entry>
+						<entry>DTMF</entry>
+						<entry>
+						<ulink
+						url="http://www.ietf.org/rfc/rfc2893.txt">
+						RFC 2893
+						</ulink>
+						</entry>
+						<entry>
+						Dual-tone Multi-frequency (DTMF) Events
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>
+    <para>
+    Payload identifiers 96–127 are reserved for payloads defined dynamically during a session. The minimum payload support is defined as 0 (PCMU) and 5 (DVI4). Dynamically assigned port numbers are recommended, although 5004 and 5005 have been registered for use by the profile and can be used instead.
+    </para>
+    <para>
+    Dynamic payloads can be configured using the Format description and the A/V Profile description.
+    </para>
+	</section>
+	<section id="ctms-RTP_Manager ">
+		<title>RTP Manager</title>
+    <para>
+    This is the starting point for creating, maintaining and closing an RTP session. RTP Manager supports unicast sessions only.
+    </para>
+    <para>
+    The configurable aspects of the RTPFactory are:
+    </para>
+		<variablelist>
+      <varlistentry>
+        <term>codecs</term>
+        <listitem>
+          <para>
+					List of encoders/decoders that this <literal>RtpFactory</literal> is capable of transcoding.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>bindAddress</term>
+        <listitem>
+          <para>
+					Specifies the IP address which will be used for the RTP session.
+          </para>
+        </listitem>
+      </varlistentry>
+			<varlistentry>
+				<term>silenceSuppression</term>
+				<listitem>
+					<para>
+					Indicates whether UA supports silence suppression. Set to true if silence suppression is supported.
+					</para>
+				</listitem>
+			</varlistentry>			
+      <varlistentry>
+        <term>lowPort</term>
+				<listitem>
+          <para>
+					Lowest port (in the range of lowest to highest ports) available for creating RTP sessions. The first free port in the given range is assigned to the session.
+          </para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>highPort</term>
+				<listitem>
+          <para>
+					Highest port (in the range of lowest to highest ports) available for creating RTP sessions. The first free port in the given range is assigned to the session.
+          </para>
+				</listitem>
+			</varlistentry>			
+			<varlistentry>
+				<term>jitter</term>
+				<listitem>
+					<para>
+          Specifies the size of the jitter buffer (in milliseconds) for incoming packets.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<example id="ctms-rtp_manager">	
+			<title>RTP Manager definition</title>	
+			<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="RTPFactory" class="org.mobicents.media.server.impl.rtp.RtpFactory"&gt;
+        &lt;property name="bindAddress">${mms.bind.address}&lt;/property&gt;
+        &lt;property name="silenceSuppression"&gt;true&lt;/property&gt;
+        &lt;property name="jitter">100&lt;/property&gt;
+        &lt;property name="lowPort">1024&lt;/property&gt;
+        &lt;property name="highPort">65535&lt;/property&gt;
+        &lt;property name="codecs"&gt;
+        &lt;map class="java.util.Hashtable" keyClass="org.mobicents.media.server.spi.MediaType" valueClass="java.util.List"&gt;
+                &lt;entry&gt;
+                    &lt;key&gt;&lt;inject bean="MediaType.audio"&gt;&lt;/inject&gt;&lt;/key&gt;
+                    &lt;value&gt;
+                        &lt;list&gt;
+                            &lt;inject bean="G711.ulaw.encoder" /&gt;
+                            &lt;inject bean="G711.ulaw.decoder" /&gt;
+                        &lt;/list&gt;
+                    &lt;/value&gt;
+                &lt;/entry&gt;
+            &lt;/map&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+			</programlisting>
+		</example>
+	</section>
+
+<section id="ctms-Dtmf">
+	<title>Dual-tone multi-frequency (DTMF) tones</title>
+    <para>
+    Dual-tone multi-frequency (DTMF) signaling is used for telephone signaling over the line in the voice-frequency band to the call switching center. The version of DTMF used for telephone tone dialing is known by the trademarked term Touch-Tone, and is standardised by ITU-T Recommendation Q.23. Other multi-frequency systems are used for signaling internal to the telephone network
+    </para>
+		<section id="DTMF_Detector">
+			<title>DTMF Detector</title>
+			<para>
+      The DTMF detector is defined by the following component:
+			</para>
+			<example id="ctms-dtmf-det">	
+				<title>DTMF detector</title>	
+				<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="dtmf.detector" class="org.mobicents.media.server.impl.resource.dtmf.DetectorFactory"&gt;
+        &lt;property name="name">dtmf.detector&lt;/property&gt;
+        &lt;property name="duration">40&lt;/property&gt;
+        &lt;property name="interdigitInterval">150&lt;/property&gt;
+    &lt;/bean&gt;
+				</programlisting>
+			</example>
+      <para>The configurable aspects of the DTMF detector are</para>
+      <variablelist>
+        <varlistentry>
+          <term>name</term>
+          <listitem>
+            <para>The name of the detector.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>duration</term>
+          <listitem>
+            <para>The minimal duration of the tone in milliseconds.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>interDigitInterval</term>
+          <listitem>
+            <para>The minimal interval between two tones in milliseconds.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+		</section>
+		<section id="ctms-DTMF_Generator">
+			<title>DTMF Generator</title>
+			<para>
+			The DTMF generator is defined by the following component:
+			</para>
+			<example id="ctms-dtmf-gen">	
+				<title>DTMF generator</title>	
+				<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="dtmf.generator" class="org.mobicents.media.server.impl.resource.dtmf.GeneratorFactory"&gt;
+        &lt;property name="name">dtmf.generator&lt;/property&gt;
+        &lt;property name="duration">40&lt;/property&gt;
+    &lt;/bean&gt;
+				</programlisting>
+			</example>
+      <para>
+      The configurable aspects of the DTMF generator are:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>name</term>
+          <listitem>
+            <para>The name of the detector.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>duration</term>
+          <listitem>
+            <para>The minimal duration of the tone in milliseconds.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+		</section>
+	</section>
+<section id="ctms-tts-voices">
+	<title>Text-to-Speech engine</title>
+    <para>
+    Changing text to speech requires a capability to stream speech generated from text. The &THIS.PLATFORM; Media Server supports two TTS engines:
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>FreeTTS</para>
+      </listitem>
+      <listitem>
+        <para>MBrola</para>
+      </listitem>
+    </itemizedlist>
+    <important>
+      <para>
+      MBrola is only free for non comercial applications.
+      </para>
+    </important>
+    <para>
+    By default, the servers provide the following set of voices:
+    </para>
+	<!-- Add more info about voices? -->
+		<table id="ctms-tts-voices-vlist" frame="all">
+			<title>TTS Voices</title>
+			<tgroup cols="2" align="left" colsep="1" rowsep="1">
+				<colspec colnum="1" colname="col1"></colspec>
+				<colspec colnum="2" colname="col2"></colspec>
+				<thead>
+					<row>
+						<entry>Voice</entry>
+						<entry>Engine</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>alan</entry>
+						<entry>FreeTTS</entry>
+					</row>
+					<row>
+						<entry>kevin</entry>
+						<entry>FreeTTS</entry>
+					</row>
+					<row>
+						<entry>kevin16</entry>
+						<entry>FreeTTS</entry>
+					</row>					
+					<row>
+						<entry>mbrola_us1</entry>
+						<entry>MBrola</entry>
+					</row>
+					<row>
+						<entry>mbrola_us2</entry>
+						<entry>MBrola</entry>
+					</row>
+					<row>
+						<entry>mbrola_us3</entry>
+						<entry>MBrola</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>
+		<section>
+			<title>MBrola configuration</title>
+      <para>
+      The MBrola engine picks up a list of available voices from a directory. The directory is specified at runtime with the following switch: <command><replaceable>-Dmbrola.base</replaceable></command>. The following value is the default:
+      </para>
+			<screen>-Dmbrola.base="$MMS_HOME/mbrola"</screen>
+		</section>
+		<section>
+			<title>FreeTTS configuration</title>
+      <para>
+      FreeTTS does not require any configuration.
+      </para>
+		</section>
+		<section>
+			<title>Voice pool configuration</title>
+      <para>
+      The Media Server has a pool of voices. At startup, it creates the desired number of voice generating objects. This reduces runtime overhead and delays in response from the server. The size of the pool, for each voice, can be configured via the media player configuration property: <literal>voices</literal>.
+      </para>
+      <para>
+      The <literal>Voices</literal> property is of the type <literal>Map</literal>. The table below describes the values stored in this property:
+      </para>
+			<table id="ctms-tts-voices-v-conf" frame="all">
+				<title>Voices Map property</title>
+				<tgroup cols="3" align="left" colsep="1" rowsep="1">
+					<colspec colnum="1" colname="col1"></colspec>
+					<colspec colnum="2" colname="col2"></colspec>
+					<colspec colnum="3" colname="col3"></colspec>
+					<thead>
+						<row>
+							<entry>Attribute</entry>
+							<entry>Type</entry>
+							<entry>Description</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>key</entry>
+							<entry>String</entry>
+							<entry>Defines pool name. It must match correct voice name, ie: alan</entry>
+						</row>
+						<row>
+							<entry>value</entry>
+							<entry>Integer</entry>
+							<entry>Defines size of pool for voice. It must be positive integer.</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+			<para>Below is an example configuration:</para>
+			<programlisting lang="XML" role="XML">
+			<![CDATA[
+<bean name="media.audio"
+	class="org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory">
+	<property name="name">media.player</property>
+	<property name="audioMediaDirectory">${mms.media.dir}</property>
+
+	<property name="voices">
+		<map class="java.util.Hashtable" keyClass="java.lang.String"
+			valueClass="java.lang.Integer">
+
+			<entry>
+				<key>alan</key>
+				<value>1</value>
+			</entry>
+			<entry>
+				<key>kevin16</key>
+				<value>1</value>
+			</entry>
+			<entry>
+				<key>kevin</key>
+				<value>1</value>
+			</entry>
+			<entry>
+				<key>mbrola_us3</key>
+				<value>1</value>
+			</entry>
+			<entry>
+				<key>mbrola_us2</key>
+				<value>1</value>
+			</entry>
+			<entry>
+				<key>mbrola_us1</key>
+				<value>1</value>
+			</entry>
+
+		</map>
+	</property>
+
+</bean>
+		]]>
+			</programlisting>	
+		</section>
+	</section>
+	<section id="ctms-connection-state-manager">
+		<title>Connection state manager</title>
+    <para>
+    The <literal>Connection</literal> can be in one of the following four operational states.
+    </para>
+    <variablelist>
+      <varlistentry>
+        <term>NULL</term>
+        <listitem>
+          <para>
+          The <literal>Connection</literal> has been installed successfully and is ready to be activated. The <literal>Connection</literal> is not running (it is not receiving or transmitting media).
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>IDLE</term>
+        <listitem>
+          <para>
+          The receiving and/or transmitting Channels of the Connection are connected to a Sink and/or a Source of an Endpoint. However, the Connection is still not running. (it is not receiving or transmitting media). The Connection transits back to NULL when deleted in this stage.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>HALF_OPEN</term>
+        <listitem>
+          <para>
+          The Connection is bound and can only receive media. The Connection transits back to NULL when deleted in this stage.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>OPEN</term>
+        <listitem>
+          <para>
+          The remote SDP is set and now the Connection can receive as well as transmit media. The Connection transits back to NULL when deleted in this stage.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+    There is no direct control over the states of Connection, only through the Controller module.
+    </para>
+		<para>
+		The ConnectionStateManager maps the various states of Connection, with the lifetime (in milliseconds) of each Connection included.
+		</para>
+    <para>
+    The ConnectionStateManager is defined by the following component:
+    </para>
+		<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="ConnectionStateManager" class="org.mobicents.media.server.ConnectionStateManager"&gt;
+	&lt;constructor&gt;
+		&lt;parameter&gt;
+			&lt;map class="java.util.Hashtable" keyClass="org.mobicents.media.server.spi.ConnectionState" valueClass="java.lang.Integer"&gt;
+				&lt;entry&gt;
+					&lt;key&gt;&lt;inject bean="ConnectionState.NULL"&gt;&lt;/inject&gt;&lt;/key&gt;	
+					&lt;value&gt;0&lt;/value&gt;					
+				&lt;/entry&gt;
+				&lt;entry&gt;
+					&lt;key&gt;&lt;inject bean="ConnectionState.IDLE"&gt;&lt;/inject&gt;&lt;/key&gt;	
+					&lt;value&gt;30000&lt;/value&gt;					
+				&lt;/entry&gt;
+				&lt;entry&gt;
+					&lt;key&gt;&lt;inject bean="ConnectionState.HALF_OPEN"&gt;&lt;/inject&gt;&lt;/key&gt;	
+					&lt;value&gt;3600000&lt;/value&gt;					
+				&lt;/entry&gt;
+				&lt;entry&gt;
+					&lt;key&gt;&lt;inject bean="ConnectionState.OPEN"&gt;&lt;/inject&gt;&lt;/key&gt;	
+					&lt;value&gt;3600000&lt;/value&gt;					
+				&lt;/entry&gt;
+				&lt;entry&gt;
+					&lt;key&gt;&lt;inject bean="ConnectionState.CLOSED"&gt;&lt;/inject&gt;&lt;/key&gt;	
+					&lt;value&gt;0&lt;/value&gt;					
+				&lt;/entry&gt;				
+			&lt;/map&gt;				
+		&lt;/parameter&gt;			
+	&lt;/constructor&gt;
+&lt;/bean&gt;
+		</programlisting>	
+    <important>
+      <para>
+      The Connection will be deleted after timeout value specified for that state has been reached, whether it is running or not.
+      </para>
+    </important>
+	</section>
+	<section id="ctms-controller-mgcp">
+		<title>MGCP controller configuration</title>
+    <para>
+    The MGCP Controller is implemented by the following component:
+    </para>
+		<programlisting linenumbering="unnumbered" role="XML">
+&lt;bean name="MgcpController"
+		class="org.mobicents.media.server.ctrl.mgcp.MgcpController"&gt;
+        &lt;property name="server"&gt;
+            &lt;inject bean="MediaServer" /&gt;
+        &lt;/property&gt;
+        &lt;property name="defaultNotifiedEntity"&gt;client@localhost:2727&lt;/property&gt;
+        &lt;property name="bindAddress"&gt;${mms.bind.address}&lt;/property&gt;
+        &lt;property name="port">2427&lt;/property&gt;
+        &lt;incallback method="addPackage" /&gt;
+        &lt;uncallback method="removePackage" /&gt;
+    &lt;/bean&gt;
+		</programlisting>
+ 		<para>
+    The configurable aspects of the MGCP controller are:
+    </para>
+		<variablelist>
+			<varlistentry>
+				<term>server</term>
+				<listitem>
+					<para>The server instance which is under control.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>bindAddress</term>
+				<listitem>
+					<para>The IP address to which the controller is bound.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>port</term>
+				<listitem>
+					<para>The port number used by the controller.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>defaultNotifiedEntity</term>
+				<listitem>
+					<para>Defines the default notified entity value.</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>   
+  </section>
+</chapter>

@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<project name="tck-cactus" default="deploy">
+
+	<property file="local.properties" />
+
+	<property name="WLS-HOME" value="${OCCAS-HOME}/wlserver_10.3/" />
+	<property name="WLCS-HOME" value="${OCCAS-HOME}/wlcserver_10.3/" />
+	<property name="MODULES_HOME" value="${OCCAS-HOME}//modules/" />
+
+	<property name="APP-NAME" value="tck" />
+	<property name="CACTIFIED-APP-NAME" value="tck-cactified" />
+	
+	<property name="report.dir" value="${basedir}/test-reports" />
+	<property name="dist.dir" value="${basedir}/dist" />
+
+	<target name="init">
+		<path id="CLASSPATH">
+			<pathelement location="${log4j.jar}" />
+			<pathelement location="${tck.jar}" />
+			<pathelement location="${mscontrol.jar}" />
+			<pathelement location="${cactus.lib.dir}/junit-3.8.1.jar" />
+			<pathelement location="${cactus.lib.dir}/cactus-1.7.2.jar" />
+			<pathelement location="${cactus.lib.dir}/cactus-ant-1.7.2.jar" />
+		</path>
+		<path id="WL_DEPLOY_CLASSPATH">
+			<pathelement path="${WLS-HOME}/server/lib/weblogic.jar" />
+		</path>
+		<taskdef name="wldeploy" classpathref="WL_DEPLOY_CLASSPATH" classname="weblogic.ant.taskdefs.management.WLDeploy" />
+		<!-- Define the Cactus tasks -->
+		<taskdef resource="cactus.tasks">
+			<classpath>
+				<pathelement location="${cactus.lib.dir}/junit-3.8.1.jar" />
+				<pathelement location="${cactus.lib.dir}/cactus-1.7.2.jar" />
+				<pathelement location="${cactus.lib.dir}/cactus-ant-1.7.2.jar" />
+				<pathelement location="${cactus.lib.dir}/commons-httpclient-2.0.2.jar" />
+				<pathelement location="${cactus.lib.dir}/commons-logging-1.0.4.jar" />
+				<pathelement location="${cactus.lib.dir}/aspectjrt-1.2.1.jar" />
+				<pathelement location="${cactus.lib.dir}/cargo-0.5.jar" />
+			</classpath>
+		</taskdef>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${dist.dir}"/>
+	</target>
+
+	<target name="package" depends="clean">
+		<mkdir dir="${dist.dir}" />
+		<war destfile="${dist.dir}/${APP-NAME}.war" webxml="src/WEB-INF/web.xml" >
+			<fileset file="src/cactus.properties"/>
+			<lib file="${tck.jar}"/>
+			<lib file="${log4j.jar}"/>
+		</war>
+	</target>
+
+	<target name="cactify" depends="package">
+		<cactifywar version="2.3" srcfile="${dist.dir}/${APP-NAME}.war" destfile="dist/${CACTIFIED-APP-NAME}.war" />
+	</target>
+
+	<target name="deploy" depends="cactify">
+		<wldeploy action="deploy" source="${dist.dir}/${CACTIFIED-APP-NAME}.war" name="${CACTIFIED-APP-NAME}" user="${USERNAME}" password="${PASSWORD}" upload="true" verbose="false" adminurl="t3://${SERVER}:${PORT}" debug="false" targets="${DEPLOY-TARGETS}" />
+	</target>
+
+	<target name="undeploy" depends="init">
+		<wldeploy action="undeploy" name="${CACTIFIED-APP-NAME}" user="${USERNAME}" password="${PASSWORD}" verbose="true" adminurl="t3://${SERVER}:${PORT}" debug="false" targets="${DEPLOY-TARGETS}" />
+	</target>
+
+	<target name="startwls">
+		<echo>Start server, and then test again!</echo>
+		<fail message="Start server, and then test again!" />
+	</target>
+
+	<target name="shutdownwls">
+	</target>
+
+	<target name="report_test">
+		<junitreport todir="${report.dir}">
+			<fileset dir="${report.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<!--report format="frames" todir="${report.dir}"/-->
+			<report format="noframes" todir="${report.dir}" />
+		</junitreport>
+	</target>
+
+	<target name="test" depends="init, clean_test, run_test, report_test" />
+
+	<target name="clean_test">
+		<delete dir="${report.dir}" />
+	</target>
+	
+	<target name="run_test" depends="init">
+		<mkdir dir="${report.dir}" />
+		<cactus warfile="${dist.dir}/${CACTIFIED-APP-NAME}.war" printsummary="yes">
+			<classpath>
+				<path refid="CLASSPATH" />
+			</classpath>
+			<containerset>
+				<generic server="${SERVER}" port="${PORT}" todir="${report.dir}" startuptarget="startwls" shutdowntarget="shutdownwls" />
+			</containerset>
+			<formatter type="xml" />
+			<test name="com.hp.opencall.jmsc.test.mandatory.AllCactusTests" todir="${report.dir}" />
+		</cactus>
+	</target>
+</project>

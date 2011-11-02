@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.mobicents.servers.media</groupId>
+		<artifactId>mms-core</artifactId>
+		<version>2.1.0.BETA2-SNAPSHOT</version>	
+	</parent>
+        
+	<artifactId>mms-controllers</artifactId>	
+	<packaging>pom</packaging>
+	
+	<name>Mobicents Media Server Controllers</name>	
+
+	
+	<modules>
+		<module>mgcp</module>
+		<module>rtsp</module>
+		<!-- module>mgcp/mgcp-stack</module -->
+	</modules>
+</project>

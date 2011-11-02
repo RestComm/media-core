@@ -1,0 +1,1436 @@
+<HEAD>
+<TITLE>
+Summary of Testcases (Test Compatibility Kit for JSR309)
+</TITLE>
+<style type="text/css">
+.testname {
+font-weight: bold;
+color: #0000FF;
+}
+</style>
+</HEAD>
+<BODY>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.join.InitJoinTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/join/InitJoinTest.html#test_2_1_16_1_InitJoinNCMG()">test_2_1_16_1_InitJoinNCMG</A>
+
+<BR>
+</TD><TD>Basic announcement play, using the asynchronous
+ <CODE>joinInitiate</CODE>
+ and <CODE>unjoinInitiate</CODE>
+ instead of <CODE>join</CODE>/
+ <CODE>unjoin</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/join/InitJoinTest.html#test_2_1_16_2_InitJoinNCMixer()">test_2_1_16_2_InitJoinNCMixer</A>
+
+<BR>
+</TD><TD>Join two <CODE>NetworkConnection</CODE>s to a <CODE>MediaMixer</CODE>, using <CODE>joinInitiate</CODE>/
+ <CODE>unjoinInitiate</CODE>.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.MediaConfigTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaConfigTest.html#test_2_1_19_1_CustomizedClone()">test_2_1_19_1_CustomizedClone</A>
+
+<BR>
+</TD><TD>Create a MediaGroup with a customized MediaConfig.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mediagroup.PlayerTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_1_Play()">test_2_1_1_1_Play</A>
+
+<BR>
+</TD><TD>Basics: verify that you can play a file.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_2_MaxDuration()">test_2_1_1_2_MaxDuration</A>
+
+<BR>
+</TD><TD>Check that <CODE>Player.MAX_DURATION</CODE> is efficient.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_3_StartOffset()">test_2_1_1_3_StartOffset</A>
+
+<BR>
+</TD><TD>Check that <CODE>Player.START_OFFSET</CODE> is efficient.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_4_RepeatCount()">test_2_1_1_4_RepeatCount</A>
+
+<BR>
+</TD><TD>Check that <CODE>Player.REPEAT_COUNT</CODE> is efficient.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_5_Interval()">test_2_1_1_5_Interval</A>
+
+<BR>
+</TD><TD>test <CODE>Player.INTERVAL</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_6_Stop()">test_2_1_1_6_Stop</A>
+
+<BR>
+</TD><TD>Play a file, and run Player.stop() after 5 seconds.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_7_PlayURIArray()">test_2_1_1_7_PlayURIArray</A>
+
+<BR>
+</TD><TD>Basics: verify that you can play an array of files.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PlayerTest.html#test_2_1_1_8_STOP_IF_BUSY()">test_2_1_1_8_STOP_IF_BUSY</A>
+
+<BR>
+</TD><TD>Check the behavior of parameter v_stop when the play action is invoked as player is active.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mediagroup.PromptAndCollectTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndCollectTest.html#test_2_1_10_1_PROMPT()">test_2_1_10_1_PROMPT</A>
+
+<BR>
+</TD><TD>Test <CODE>SignalDetector.PROMPT</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndCollectTest.html#test_2_1_10_2_Prompt_BargeIn()">test_2_1_10_2_Prompt_BargeIn</A>
+
+<BR>
+</TD><TD>Test the barge-in feature of the Signal detector.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndCollectTest.html#test_2_1_10_3_Cancel()">test_2_1_10_3_Cancel</A>
+
+<BR>
+</TD><TD>Test that <CODE>SignalDetector.CANCEL</CODE> is efficient.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndCollectTest.html#test_2_1_10_4_CancelWithPrompt()">test_2_1_10_4_CancelWithPrompt</A>
+
+<BR>
+</TD><TD>Test that <CODE>SignalDetector.CANCEL</CODE> is efficient also during the prompt phase.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndCollectTest.html#test_2_1_10_5_Cleardigits()">test_2_1_10_5_Cleardigits</A>
+
+<BR>
+</TD><TD>Test the "cleardigits" feature.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mediagroup.PromptAndRecordTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#cleardigitsTest(boolean)">cleardigitsTest</A></B>(boolean&nbsp;cleardigits)</CODE>
+
+<BR>
+</TD><TD>&nbsp;</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_1_PROMPT()">test_2_1_9_1_PROMPT</A>
+
+<BR>
+</TD><TD>Test <CODE>Recorder.PROMPT</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_10_AnyReturnKey()">test_2_1_9_10_AnyReturnKey</A>
+
+<BR>
+</TD><TD>Test with any digit enabled as return key.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_11_Cleardigits()">test_2_1_9_11_Cleardigits</A>
+
+<BR>
+</TD><TD>Test the "cleardigits" feature.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_2_Prompt_BargeIn()">test_2_1_9_2_Prompt_BargeIn</A>
+
+<BR>
+</TD><TD>Test the barge-in feature of the recorder.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_3_CANCEL()">test_2_1_9_3_CANCEL</A>
+
+<BR>
+</TD><TD>Test the "cancel" feature of the recorder.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_4_NoCancelWrongDTMF()">test_2_1_9_4_NoCancelWrongDTMF</A>
+
+<BR>
+</TD><TD>Test that a DTMF will not cause cancellation if it does not match the cancel pattern.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_5_CancelWithPrompt()">test_2_1_9_5_CancelWithPrompt</A>
+
+<BR>
+</TD><TD>Test the cancel feature, while the recorder is in the prompt phase.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_6_SingleReturnKey()">test_2_1_9_6_SingleReturnKey</A>
+
+<BR>
+</TD><TD>Test the "return key" feature (a record can be stopped by pressing a DTMF).</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_7_MultipleReturnKeys()">test_2_1_9_7_MultipleReturnKeys</A>
+
+<BR>
+</TD><TD>Test with multiple digits enabled as return key.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_8_NonMatchingReturnKey()">test_2_1_9_8_NonMatchingReturnKey</A>
+
+<BR>
+</TD><TD>Test that the recorder is not stopped by a DTMF that does not match the returnkey.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/PromptAndRecordTest.html#test_2_1_9_9_NoReturnKey()">test_2_1_9_9_NoReturnKey</A>
+
+<BR>
+</TD><TD>Test that when no return key is enabled, the record is not stopped by any DTMF.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mediagroup.RecorderTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/RecorderTest.html#test_2_1_2_1_Record()">test_2_1_2_1_Record</A>
+
+<BR>
+</TD><TD>Test the basic record feature.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/RecorderTest.html#test_2_1_2_2_MaxDuration()">test_2_1_2_2_MaxDuration</A>
+
+<BR>
+</TD><TD>Test <CODE>Recorder.MAX_DURATION</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/RecorderTest.html#test_2_1_2_3_Append()">test_2_1_2_3_Append</A>
+
+<BR>
+</TD><TD>Test <CODE>Recorder.APPEND</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/RecorderTest.html#test_2_1_2_4_StartBeep()">test_2_1_2_4_StartBeep</A>
+
+<BR>
+</TD><TD>Check whether parameter <CODE>Recorder.START_BEEP</CODE> is efficient.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/RecorderTest.html#test_2_1_2_5_SilenceTerminationOn()">test_2_1_2_5_SilenceTerminationOn</A>
+
+<BR>
+</TD><TD>Test <CODE>Recorder.SILENCE_TERMINATION_ON</CODE> parameter.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/RecorderTest.html#test_2_1_2_6_FinalTimeout()">test_2_1_2_6_FinalTimeout</A>
+
+<BR>
+</TD><TD>Test <CODE>SpeechDetectorConstants.FINAL_TIMEOUT</CODE> applied to the Recorder.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mediagroup.signals.DTMFBufferingTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_1_Buffer()">test_2_1_12_1_Buffer</A>
+
+<BR>
+</TD><TD>Test that DTMFs are buffered by the SignalDetector.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_2_BufferBetweenReceive()">test_2_1_12_2_BufferBetweenReceive</A>
+
+<BR>
+</TD><TD>Test that DTMFs are buffered by the SignalDetector, between calls to
+ <CODE>receiveSignals</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_3_BufferBeforeReceive()">test_2_1_12_3_BufferBeforeReceive</A>
+
+<BR>
+</TD><TD>Test that DTMFs are buffered as soon as the MediaGroup is joined to the NetworkConnection.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_4_ReceiveBufferedOneAtATime()">test_2_1_12_4_ReceiveBufferedOneAtATime</A>
+
+<BR>
+</TD><TD>Test that buffered DTMFs can be retrieved one by one.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_5_flushBuffer()">test_2_1_12_5_flushBuffer</A>
+
+<BR>
+</TD><TD>Test that <CODE>SignalDetector.flushBuffer()</CODE> is efficient.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_6_BufferAfterFlush()">test_2_1_12_6_BufferAfterFlush</A>
+
+<BR>
+</TD><TD>Test that after a <CODE>SignalDetector.flushBuffer()</CODE>, new DTMFs are buffered.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_7_BufferParticipantDTMF()">test_2_1_12_7_BufferParticipantDTMF</A>
+
+<BR>
+</TD><TD>Test that DTMFs emitted by a conference participant are buffered.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_8_BufferParticipantEarlyDTMF()">test_2_1_12_8_BufferParticipantEarlyDTMF</A>
+
+<BR>
+</TD><TD>Test that DTMFs emitted by conference participants, <i>before they enter the conference</i>, are buffered.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/DTMFBufferingTest.html#test_2_1_12_9_FlushParticipantEarlyDTMF()">test_2_1_12_9_FlushParticipantEarlyDTMF</A>
+
+<BR>
+</TD><TD>Test that DTMFs emitted by conference participants, before they enter the conference, can be flushed.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mediagroup.signals.SignalDetectorTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_1_ReceiveOneSignal()">test_2_1_3_1_ReceiveOneSignal</A>
+
+<BR>
+</TD><TD>Basics: check that we can detect one DTMF, no questions asked.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_10_ReceivePoundOr4Digits()">test_2_1_3_10_ReceivePoundOr4Digits</A>
+
+<BR>
+</TD><TD>Define numSignals=4, pattern0="#".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_11_Receive4DigitsOrDTMF3()">test_2_1_3_11_Receive4DigitsOrDTMF3</A>
+
+<BR>
+</TD><TD>Define numSignals=4, pattern0="3", FILTERED_PATTERNS={pattern0}.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_2_ReceiveFiveSignals()">test_2_1_3_2_ReceiveFiveSignals</A>
+
+<BR>
+</TD><TD>Basics: check that we can detect five DTMFs in a row.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_3_Receive123()">test_2_1_3_3_Receive123</A>
+
+<BR>
+</TD><TD>Test with pattern0="123" defined by MG.setParameters().</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_4_Receive123And456()">test_2_1_3_4_Receive123And456</A>
+
+<BR>
+</TD><TD>Similar to <A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_3_Receive123()"><CODE>test_2_1_3_3_Receive123()</CODE></A>, with also pattern1="456".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_5_Receive45And9And123()">test_2_1_3_5_Receive45And9And123</A>
+
+<BR>
+</TD><TD>Similar to <A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mediagroup/signals/SignalDetectorTest.html#test_2_1_3_3_Receive123()"><CODE>test_2_1_3_3_Receive123()</CODE></A>, with:
+ <br>- pattern0="45"
+ <br>- pattern1="9"
+ <br>- pattern2="123".</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.MediaObjectIdTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaObjectIdTest.html#test_2_1_20_PerSessionId()">test_2_1_20_PerSessionId</A>
+
+<BR>
+</TD><TD>Check that different MediaSessions can host MediaObjects with the same MEDIAOBJECT_ID.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.MediaSessionTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_1_NetworkConnectionContainer()">test_2_1_11_1_NetworkConnectionContainer</A>
+
+<BR>
+</TD><TD>Create NetworkConnection with "createNetworkConnection(NetworkConnection.BASIC)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_10_CreateVxmlDialog()">test_2_1_11_10_CreateVxmlDialog</A>
+
+<BR>
+</TD><TD>Create VxmlDialog with "createVxmlDialog(Parameters)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_11_SetGetAttribute()">test_2_1_11_11_SetGetAttribute</A>
+
+<BR>
+</TD><TD>Test set/getAttribute of a MediaSession.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_12_RemoveAttribute()">test_2_1_11_12_RemoveAttribute</A>
+
+<BR>
+</TD><TD>Test removeAttribute of a MediaSession.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_13_GetAttributeNames()">test_2_1_11_13_GetAttributeNames</A>
+
+<BR>
+</TD><TD>Test getAttributeNames of a MediaSession.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_2_NetworkConnectionContainer()">test_2_1_11_2_NetworkConnectionContainer</A>
+
+<BR>
+</TD><TD>Create NetworkConnection with "createNetworkConnection(NetworkConnection.BASIC, Parameters)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_3_NetworkConnectionContainer()">test_2_1_11_3_NetworkConnectionContainer</A>
+
+<BR>
+</TD><TD>Create NetworkConnection with "createNetworkConnection(MediaConfig, Parameters)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_4_MediaGroupContainer()">test_2_1_11_4_MediaGroupContainer</A>
+
+<BR>
+</TD><TD>Create MediaGroup with "createMediaGroup(MediaGroup.BASIC)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_5_MediaGroupContainer()">test_2_1_11_5_MediaGroupContainer</A>
+
+<BR>
+</TD><TD>Create MediaGroup with "createMediaGroup(MediaGroup.PLAYER, Parameters)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_6_MediaGroupContainer()">test_2_1_11_6_MediaGroupContainer</A>
+
+<BR>
+</TD><TD>Create MediaGroup with "createMediaGroup(MediaConfig, Parameters)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_7_MediaMixerContainer()">test_2_1_11_7_MediaMixerContainer</A>
+
+<BR>
+</TD><TD>Create MediaMixer with "createMediaMixer(MediaMixer.AUDIO)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_8_MediaMixerContainer()">test_2_1_11_8_MediaMixerContainer</A>
+
+<BR>
+</TD><TD>Create MediaMixer with "createMediaMixer(MediaMixer.AUDIO, Parameters)".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/MediaSessionTest.html#test_2_1_11_9_MediaMixerContainer()">test_2_1_11_9_MediaMixerContainer</A>
+
+<BR>
+</TD><TD>Create MediaMixer with "createMediaMixer(MediaConfig, Parameters)".</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mixer.MixerAdapterTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerAdapterTest.html#test_2_1_8_1_DTMFClamp()">test_2_1_8_1_DTMFClamp</A>
+
+<BR>
+</TD><TD>Test the DTMF clamping feature of the MixerAdapter.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerAdapterTest.html#test_2_1_8_2_VolumeControl()">test_2_1_8_2_VolumeControl</A>
+
+<BR>
+</TD><TD>Test volume control via MixerAdapter.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mixer.MixerJoinTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_1_BasicBridge()">test_2_1_6_1_BasicBridge</A>
+
+<BR>
+</TD><TD>Bridge two calls through a mixer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_10_BasicBridgeRejoinRecvNOK()">test_2_1_6_10_BasicBridgeRejoinRecvNOK</A>
+
+<BR>
+</TD><TD>Same as <A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_9_BasicBridgeRecvNOK()"><CODE>test_2_1_6_9_BasicBridgeRecvNOK()</CODE></A>, but the sender is joined DUPLEX first,
+ and then RECV.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_11_BasicBridgeUnMute()">test_2_1_6_11_BasicBridgeUnMute</A>
+
+<BR>
+</TD><TD>Check that after being muted (RECV), the sender can be set on normal again (DUPLEX) and send media.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_2_ThreeWaysBridge()">test_2_1_6_2_ThreeWaysBridge</A>
+
+<BR>
+</TD><TD>Connect 3 <A HREF="com/hp/opencall/jmsc/test/SipPhoneEmulator.html" title="class in com.hp.opencall.jmsc.test"><CODE>SipPhoneEmulator</CODE></A> on a Mixer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_3_FiveWaysSplitter()">test_2_1_6_3_FiveWaysSplitter</A>
+
+<BR>
+</TD><TD>Same as <A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_2_ThreeWaysBridge()"><CODE>test_2_1_6_2_ThreeWaysBridge()</CODE></A> with 1+5 phones.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_4_UnjoinedBridge()">test_2_1_6_4_UnjoinedBridge</A>
+
+<BR>
+</TD><TD>Check that unjoin actually blocks media stream.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_8_BasicBridgeRecvOK()">test_2_1_6_8_BasicBridgeRecvOK</A>
+
+<BR>
+</TD><TD>Check that joining in Direction.RECV actually blocks the mediastream in one direction.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_9_BasicBridgeRecvNOK()">test_2_1_6_9_BasicBridgeRecvNOK</A>
+
+<BR>
+</TD><TD>Same as <A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerJoinTest.html#test_2_1_6_8_BasicBridgeRecvOK()"><CODE>test_2_1_6_8_BasicBridgeRecvOK()</CODE></A>, with sender in RECV.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mixer.MixerMediaGroupTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerMediaGroupTest.html#test_2_1_13_1_MGJoinMixer()">test_2_1_13_1_MGJoinMixer</A>
+
+<BR>
+</TD><TD>Join a SipPhoneEmulator (named "Paul") and a MediaGroup on a Mixer, DUPLEX.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerMediaGroupTest.html#test_2_1_13_2_MGJoinMixerTwoParticipants()">test_2_1_13_2_MGJoinMixerTwoParticipants</A>
+
+<BR>
+</TD><TD>Check that media flows through a Mixer, using one MediaGroup and
+ three <A HREF="com/hp/opencall/jmsc/test/SipPhoneEmulator.html" title="class in com.hp.opencall.jmsc.test"><CODE>SipPhoneEmulator</CODE></A>'s.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mixer.MixerTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerTest.html#test_2_1_5_1_CreateMixer()">test_2_1_5_1_CreateMixer</A>
+
+<BR>
+</TD><TD>Basic test: create a MediaMixer and verify that it is not null.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerTest.html#test_2_1_5_2_JoinNetworkConnectionToMixer()">test_2_1_5_2_JoinNetworkConnectionToMixer</A>
+
+<BR>
+</TD><TD>Create a Mixer, a NetworkConnection, and join them DUPLEX.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerTest.html#test_2_1_5_3_UnjoinNetworkConnection()">test_2_1_5_3_UnjoinNetworkConnection</A>
+
+<BR>
+</TD><TD>Unjoin a NetworkConnection from a Mixer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/MixerTest.html#test_2_1_5_4_DTMFThroughMixer()">test_2_1_5_4_DTMFThroughMixer</A>
+
+<BR>
+</TD><TD>&nbsp;</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mixer.ParticipantDTMFTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/ParticipantDTMFTest.html#test_2_1_15_1_CatchDTMFOnParticipant()">test_2_1_15_1_CatchDTMFOnParticipant</A>
+
+<BR>
+</TD><TD>A MediaGroup joined to a NetworkConnection catches DTMFs while the NC is joined to a Mixer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/ParticipantDTMFTest.html#test_2_1_15_2_MuteAndDTMF()">test_2_1_15_2_MuteAndDTMF</A>
+
+<BR>
+</TD><TD>Verify that a <CODE>receiveSignals</CODE>
+ can be running while the NetworkConnection is rejoined RECV to the MediaMixer.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.mixer.ParticipantJoinTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/mixer/ParticipantJoinTest.html#test_2_1_14_1_EnterAndLeaveConference()">test_2_1_14_1_EnterAndLeaveConference</A>
+
+<BR>
+</TD><TD>Test that a <CODE>NetworkConnection</CODE>
+ can be joined DUPLEX alternatively to a <CODE>MediaGroup</CODE> and a <CODE>MediaMixer</CODE>.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.networkconnection.CodecPolicyTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_1_ExcludeTelephoneEvent()">test_2_1_18_1_ExcludeTelephoneEvent</A>
+
+<BR>
+</TD><TD>Exclude "telephone-event" from a rich SDP offer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_10_PreferPcmu()">test_2_1_18_10_PreferPcmu</A>
+
+<BR>
+</TD><TD>Prefer "PCMU".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_11_PreferAmr()">test_2_1_18_11_PreferAmr</A>
+
+<BR>
+</TD><TD>Prefer "AMR".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_12_PreferPcmuPcmaTelephoneEvent()">test_2_1_18_12_PreferPcmuPcmaTelephoneEvent</A>
+
+<BR>
+</TD><TD>Prefer "PCMU", "PCMA" and "telephone-event".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_13_CapablePcmu()">test_2_1_18_13_CapablePcmu</A>
+
+<BR>
+</TD><TD>Set CodecCapabilities to "PCMU".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_14_CapablePcmuPcmaTelephoneEvent()">test_2_1_18_14_CapablePcmuPcmaTelephoneEvent</A>
+
+<BR>
+</TD><TD>Set CodecCapabilities to "PCMU", "PCMA", "telephone-event", on a rich offer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_15_CapableG726TelephoneEvent()">test_2_1_18_15_CapableG726TelephoneEvent</A>
+
+<BR>
+</TD><TD>Set CodecCapabilities to "G726" and "telephone-event", on an offer limited to "PCMU" (expect error).</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_16_CapableG726G722()">test_2_1_18_16_CapableG726G722</A>
+
+<BR>
+</TD><TD>Set CodecCapabilities to "G726" and "G722", on a rich offer that does not include them (expect error).</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_17_CapablePcmuPcmaTeAmrPreferAmr()">test_2_1_18_17_CapablePcmuPcmaTeAmrPreferAmr</A>
+
+<BR>
+</TD><TD>With a rich offer, set CodecCapabilities to "PCMU", "PCMA", "telephone-event", and "AMR", and
+ preferences to "AMR".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_18_ComplexPolicy()">test_2_1_18_18_ComplexPolicy</A>
+
+<BR>
+</TD><TD>Test a complex CodecPolicy, including Capabilities, Preferences, Required and Excluded codecs.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_19_AudioCapability()">test_2_1_18_19_AudioCapability</A>
+
+<BR>
+</TD><TD>Set the MediaTypeCapability to "audio".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_2_ExcludeOneCodec()">test_2_1_18_2_ExcludeOneCodec</A>
+
+<BR>
+</TD><TD>Exclude one of the multiple codecs of a rich SDP offer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_20_AudioVideoCapability()">test_2_1_18_20_AudioVideoCapability</A>
+
+<BR>
+</TD><TD>Set the MediaTypeCapability to "video" and "audio".</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_21_VideoCapability()">test_2_1_18_21_VideoCapability</A>
+
+<BR>
+</TD><TD>Set the MediaTypeCapability to "video", causing error.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_3_ExcludeMostCodecs()">test_2_1_18_3_ExcludeMostCodecs</A>
+
+<BR>
+</TD><TD>Exclude almost all codecs of a rich offer, keeping only one (AMR).</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_4_ExcludeAllCodecs()">test_2_1_18_4_ExcludeAllCodecs</A>
+
+<BR>
+</TD><TD>Exclude all codecs of a rich offer (Expect an error).</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_5_ExcludeCodecsMinimalOffer()">test_2_1_18_5_ExcludeCodecsMinimalOffer</A>
+
+<BR>
+</TD><TD>Same as <A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_2_ExcludeOneCodec()"><CODE>test_2_1_18_2_ExcludeOneCodec()</CODE></A>, but applied to a
+ minimal SDP offer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_6_RequireTelephoneEvent()">test_2_1_18_6_RequireTelephoneEvent</A>
+
+<BR>
+</TD><TD>Require "telephone-event", which is present.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_7_RequirePcmuTelephoneEvent()">test_2_1_18_7_RequirePcmuTelephoneEvent</A>
+
+<BR>
+</TD><TD>Require "PCMU" and "telephone-event", which are present in the offer.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_8_RequireTelephoneEventAmr()">test_2_1_18_8_RequireTelephoneEventAmr</A>
+
+<BR>
+</TD><TD>Require "telephone-event" and "AMR", which are present.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/CodecPolicyTest.html#test_2_1_18_9_RequireAbsentCodec()">test_2_1_18_9_RequireAbsentCodec</A>
+
+<BR>
+</TD><TD>Require an absent codec (expect error).</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.networkconnection.NetworkConnectionTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/NetworkConnectionTest.html#test_2_1_4_1_MultiNCs()">test_2_1_4_1_MultiNCs</A>
+
+<BR>
+</TD><TD>As a first step, verify that we can create two NetworkConnections.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/NetworkConnectionTest.html#test_2_1_4_2_NCLoopback()">test_2_1_4_2_NCLoopback</A>
+
+<BR>
+</TD><TD>Create a pair of NetworkConnections, exchanging their local/remote SDP.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/NetworkConnectionTest.html#test_2_1_4_3_PlayRecord()">test_2_1_4_3_PlayRecord</A>
+
+<BR>
+</TD><TD>Same setup as <A HREF="com/hp/opencall/jmsc/test/mandatory/functional/networkconnection/NetworkConnectionTest.html#test_2_1_4_2_NCLoopback()"><CODE>test_2_1_4_2_NCLoopback()</CODE></A>, then join a MediaGroup on each NetworkConnection, play on one and record on the other.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.resource.ConfirmTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/resource/ConfirmTest.html#test_2_1_17_1_ConfirmMixer()">test_2_1_17_1_ConfirmMixer</A>
+
+<BR>
+</TD><TD>Call <CODE>ResourceContainer.confirm()</CODE> on a <CODE>MediaMixer</CODE>.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.SupportedFeaturesTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/SupportedFeaturesTest.html#test_2_1_7_1_PLAYERParams()">test_2_1_7_1_PLAYERParams</A>
+
+<BR>
+</TD><TD>Test supported Parameters of <CODE>MediaGroup.PLAYER</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/SupportedFeaturesTest.html#test_2_1_7_2_PLAYER_RECORDER_SIGNALDETECTOR()">test_2_1_7_2_PLAYER_RECORDER_SIGNALDETECTOR</A>
+
+<BR>
+</TD><TD>Test supported features of <CODE>MediaGroup.PLAYER_RECORDER_SIGNALDETECTOR</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/SupportedFeaturesTest.html#test_2_1_7_2_PLAYEREvents()">test_2_1_7_2_PLAYEREvents</A>
+
+<BR>
+</TD><TD>Test supported EventTypes of <CODE>MediaGroup.PLAYER</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/SupportedFeaturesTest.html#test_2_1_7_3_PLAYERIrrelevant()">test_2_1_7_3_PLAYERIrrelevant</A>
+
+<BR>
+</TD><TD>Test that some irrelevant features are not included in <CODE>MediaGroup.PLAYER</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/SupportedFeaturesTest.html#test_2_1_7_4_SIGNALDETECTOR()">test_2_1_7_4_SIGNALDETECTOR</A>
+
+<BR>
+</TD><TD>Test the features supported by <CODE>MediaGroup.SIGNALDETECTOR</CODE>.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/SupportedFeaturesTest.html#test_2_1_7_5_PLAYER_SIGNALDETECTOR()">test_2_1_7_5_PLAYER_SIGNALDETECTOR</A>
+
+<BR>
+</TD><TD>Test the features supported by <CODE>MediaGroup.PLAYER_SIGNALDETECTOR</CODE>.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.functional.vxml.VxmlTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/functional/vxml/VxmlTest.html#test_2_1_19_1_VxmlDialog()">test_2_1_19_1_VxmlDialog</A>
+
+<BR>
+</TD><TD>Basic testing of a VxmlDialog - Accept "unsupported" response.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.ListenerTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/ListenerTest.html#test_2_2_3_1_remove_Listener()">test_2_2_3_1_remove_Listener</A>
+
+<BR>
+</TD><TD>Test if a Listener can <code>removeListener</code> of itself.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/ListenerTest.html#test_2_2_3_2_Run_AnyCode_In_Listener()">test_2_2_3_2_Run_AnyCode_In_Listener</A>
+
+<BR>
+</TD><TD>JSR309 implementation is in most case based on or deployed in application server
+ such as a J2EE Server, SIP Server container.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.mediagroup.MediaGroupUnjoinTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/MediaGroupUnjoinTest.html#test_2_2_4_1_UnjoinMGPlay()">test_2_2_4_1_UnjoinMGPlay</A>
+
+<BR>
+</TD><TD>Play while MediaGroup is unjoined.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/MediaGroupUnjoinTest.html#test_2_2_4_2_UnjoinMGRecord()">test_2_2_4_2_UnjoinMGRecord</A>
+
+<BR>
+</TD><TD>Record while MediaGroup is unjoined.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/MediaGroupUnjoinTest.html#test_2_2_4_3_UnjoinMGSignalDetector()">test_2_2_4_3_UnjoinMGSignalDetector</A>
+
+<BR>
+</TD><TD>Detecting signals while the MediaGroup is unjoined.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.mediagroup.PlayerRobustnessTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/PlayerRobustnessTest.html#test_2_2_1_1_Play_BadURI()">test_2_2_1_1_Play_BadURI</A>
+
+<BR>
+</TD><TD>Test that a bad URI (does not exist) is properly handled by the Player.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/PlayerRobustnessTest.html#test_2_2_1_2_Player_Invalid_Maxduration()">test_2_2_1_2_Player_Invalid_Maxduration</A>
+
+<BR>
+</TD><TD>Check behavior when an invalid value for <CODE>Player.MAX_DURATION</CODE> is provided.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/PlayerRobustnessTest.html#test_2_2_1_3_Player_Invalid_StartOffset()">test_2_2_1_3_Player_Invalid_StartOffset</A>
+
+<BR>
+</TD><TD>Check behavior as <CODE>Player.START_OFFSET</CODE> is set longer than the file maximum play duration.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/PlayerRobustnessTest.html#test_2_2_1_4_Invalid_RepeatCount()">test_2_2_1_4_Invalid_RepeatCount</A>
+
+<BR>
+</TD><TD>Check behavior as <CODE>Player.REPEAT_COUNT</CODE> is set with invalid type (String) and value.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/PlayerRobustnessTest.html#test_2_2_1_5_Invalid_Interval()">test_2_2_1_5_Invalid_Interval</A>
+
+<BR>
+</TD><TD>Check behavior when <CODE>Player.INTERVAL</CODE> is set with an invalid value.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/mediagroup/PlayerRobustnessTest.html#test_2_2_1_6_Player_State()">test_2_2_1_6_Player_State</A>
+
+<BR>
+</TD><TD>Verify that the Player sends a PlayerEvent only when appropriate.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.MediaObjectIdTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/MediaObjectIdTest.html#test_2_2_10_1_LongId()">test_2_2_10_1_LongId</A>
+
+<BR>
+</TD><TD>Test that a 30 characters <CODE>MediaObject.MEDIAOBJECT_ID</CODE> is accepted.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/MediaObjectIdTest.html#test_2_2_10_2_InvalidInitialCharacter()">test_2_2_10_2_InvalidInitialCharacter</A>
+
+<BR>
+</TD><TD>Test that a <CODE>MediaObject.MEDIAOBJECT_ID</CODE> started with a non-letter/non-number is rejected.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/MediaObjectIdTest.html#test_2_2_10_3_DuplicateIDs()">test_2_2_10_3_DuplicateIDs</A>
+
+<BR>
+</TD><TD>Test that duplicate <CODE>MediaObject.MEDIAOBJECT_ID</CODE>s are rejected.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.MSFaultTestServer.MediaServerFaultTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/MSFaultTestServer/MediaServerFaultTest.html#test_2_2_5_1_MediaServerSendsBye()">test_2_2_5_1_MediaServerSendsBye</A>
+
+<BR>
+</TD><TD>Media Server terminates the SIP session with BYE
+ 
+ Create a NetworkConnection.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/MSFaultTestServer/MediaServerFaultTest.html#test_2_2_5_2_MediaServerRejectSDP()">test_2_2_5_2_MediaServerRejectSDP</A>
+
+<BR>
+</TD><TD>Media Server rejects initial INIVITE carrying SDP, in most case modifying local SDP fails.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/MSFaultTestServer/MediaServerFaultTest.html#test_2_2_5_3_MediaServerSendsReInvite()">test_2_2_5_3_MediaServerSendsReInvite</A>
+
+<BR>
+</TD><TD>Media Server manipulates SIP Session by sending re-Invite.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/MSFaultTestServer/MediaServerFaultTest.html#test_2_2_5_4_MediaServerRejectReinvite()">test_2_2_5_4_MediaServerRejectReinvite</A>
+
+<BR>
+</TD><TD>Media Server rejects re-Invite for Mixer
+ 
+ Create a NetworkConnection and join with Mixer
+ the re-Invite to configure the leg is rejected by MS
+ a exception should warn the application.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.networkconnection.CodecPolicyTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/networkconnection/CodecPolicyTest.html#test_2_2_8_1_ExcludedInRequired()">test_2_2_8_1_ExcludedInRequired</A>
+
+<BR>
+</TD><TD>Test that a codec cannot be at the same time required and excluded.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/networkconnection/CodecPolicyTest.html#test_2_2_8_2_ExcludedInCapabilities()">test_2_2_8_2_ExcludedInCapabilities</A>
+
+<BR>
+</TD><TD>Test that a codec cannot be at the same time in the capabilities and excluded.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/networkconnection/CodecPolicyTest.html#test_2_2_8_3_ExcludedInPreferences()">test_2_2_8_3_ExcludedInPreferences</A>
+
+<BR>
+</TD><TD>Test that a codec cannot be at the same time preferred and excluded.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/networkconnection/CodecPolicyTest.html#test_2_2_8_4_BogusCodecNamesExcluded()">test_2_2_8_4_BogusCodecNamesExcluded</A>
+
+<BR>
+</TD><TD>Test that excluded codec names like "fmtp", "AS", "sendrecv", "audio", "IP4" are properly
+ ignored by the implementation.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/networkconnection/CodecPolicyTest.html#test_2_2_8_5_BogusCodecNamesCapable()">test_2_2_8_5_BogusCodecNamesCapable</A>
+
+<BR>
+</TD><TD>Test that codec capability names like "fmtp", "AS", "sendrecv", "audio", "IP4" are properly
+ ignored by the implementation.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/networkconnection/CodecPolicyTest.html#test_2_2_8_6_BogusCodecNamesPreferred()">test_2_2_8_6_BogusCodecNamesPreferred</A>
+
+<BR>
+</TD><TD>Test that preferred codec names like "fmtp", "AS", "sendrecv", "audio", "IP4" are properly
+ ignored by the implementation.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.NullReferenceTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/NullReferenceTest.html#test_2_2_6_1_CreateMediaObjectWithNullConfig()">test_2_2_6_1_CreateMediaObjectWithNullConfig</A>
+
+<BR>
+</TD><TD>Create MediaContainer object with null MediaConfig object we expected a
+ NullPointException</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/NullReferenceTest.html#test_2_2_6_2_CreateMixerAdapterWithNullParams()">test_2_2_6_2_CreateMixerAdapterWithNullParams</A>
+
+<BR>
+</TD><TD>If create MixerAdapter is called with a null argument, an exception should
+ be thrown.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.resource.RTCTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/resource/RTCTest.html#test_2_2_7_1_InvalidRTC()">test_2_2_7_1_InvalidRTC</A>
+
+<BR>
+</TD><TD>Test that RTC(Player.PLAY_START, Player.STOP) is rejected.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/resource/RTCTest.html#test_2_2_7_2_InvalidTriggerRTC()">test_2_2_7_2_InvalidTriggerRTC</A>
+
+<BR>
+</TD><TD>&nbsp;</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>mandatory.robustness.UnchangedArgsTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/UnchangedArgsTest.html#test_2_2_9_1_UnchangedRecordRTC()">test_2_2_9_1_UnchangedRecordRTC</A>
+
+<BR>
+</TD><TD>Test that the RTC[] argument of <CODE>Recorder.record(URI, RTC[], Parameters)</CODE>
+ is not altered by the call, and can be reused by the application.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/mandatory/robustness/UnchangedArgsTest.html#test_2_2_9_2_UnchangedSigDetRTC()">test_2_2_9_2_UnchangedSigDetRTC</A>
+
+<BR>
+</TD><TD>Test that the RTC[] argument of <CODE>SignalDetector.receiveSignals(int, Parameter[], RTC[], Parameters)</CODE>
+ is not altered by the call, and can be reused by the application.</TD>
+</TR>
+</TABLE>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>SimplePlayTest</B></FONT></TH>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/SimplePlayTest.html#test_1_1_1_CreateMediaSession()">test_1_1_1_CreateMediaSession</A>
+
+<BR>
+</TD><TD>Create a MediaSession and assert that it is not null</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/SimplePlayTest.html#test_1_1_2_CreateMG()">test_1_1_2_CreateMG</A>
+
+<BR>
+</TD><TD>Create a MediaGroup and assert that it is not null.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/SimplePlayTest.html#test_1_1_3_CreateNC()">test_1_1_3_CreateNC</A>
+
+<BR>
+</TD><TD>Create a NetworkConnection and assert that it is not null.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/SimplePlayTest.html#test_1_1_4_SetupNC()">test_1_1_4_SetupNC</A>
+
+<BR>
+</TD><TD>Create a NetworkConnection, call processSdpOffer and wait for the listener to be called.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/SimplePlayTest.html#test_1_1_5_JoinMGNC()">test_1_1_5_JoinMGNC</A>
+
+<BR>
+</TD><TD>Create and setup a NetworkConnection, a MediaGroup, and join them.</TD>
+</TR>
+<TR >
+
+
+<TD CLASS="testname"><A HREF="com/hp/opencall/jmsc/test/SimplePlayTest.html#test_1_1_6_PlayPrompt()">test_1_1_6_PlayPrompt</A>
+
+<BR>
+</TD><TD>Create, setup and join a NetworkConnection and a MediaGroup, and play a file.</TD>
+</TR>
+</TABLE>
+</BODY>echo

@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="1" hostname="kulikov.mobicents.org" name="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest" tests="6" time="93.024" timestamp="2011-09-27T07:04:35">
+  <properties>
+    <property name="ant.project.invoked-targets" value="run" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="DATE_TIME" value="2011-09-27_11-01" />
+    <property name="sun.boot.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386" />
+    <property name="java.vm.version" value="19.1-b02" />
+    <property name="ant.library.dir" value="/home/kulikov/apache-ant-1.8.2//lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on December 20 2010" />
+    <property name="run.report" value="/home/kulikov/jsr-309-tck/tck-reports/2011-09-27_11-01" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.runtime.version" value="1.6.0_24-b07" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.endorsed.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="run" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/home/kulikov/apache-ant-1.8.2/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+    <property name="os.name" value="Linux" />
+    <property name="DSTAMP" value="20110927" />
+    <property name="ant.home" value="/home/kulikov/apache-ant-1.8.2/" />
+    <property name="ant.project.name" value="TCK" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="run.dir" value="/home/kulikov/jsr-309-tck/tck-run" />
+    <property name="TODAY" value="September 27 2011" />
+    <property name="java.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386/server:/home/kulikov/jdk1.6.0_24/jre/lib/i386:/home/kulikov/jdk1.6.0_24/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="50.0" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="ant.file.type.TCK" value="file" />
+    <property name="os.version" value="2.6.33.3-85.fc13.i686" />
+    <property name="ant.file" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="user.home" value="/home/kulikov" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="TSTAMP" value="1101" />
+    <property name="user.name" value="kulikov" />
+    <property name="java.class.path" value="/home/kulikov/jsr-309-tck:/home/kulikov/jsr-309-tck/mgcp-impl-2.0.0.GA.jar:/home/kulikov/jsr-309-tck/tck.jar:/home/kulikov/jsr-309-tck/deps/jain-mgcp-ri-1.0.jar:/home/kulikov/jsr-309-tck/deps/jain-sip-ri-1.2.146.jar:/home/kulikov/jsr-309-tck/deps/junit-4.7-src.jar:/home/kulikov/jsr-309-tck/deps/junit.jar:/home/kulikov/jsr-309-tck/deps/log4j-1.2.14.jar:/home/kulikov/jsr-309-tck/deps/mgcp-impl-2.0.1.RC1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mobicents-jsr309-impl-2.0.1.CR1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mscontrol.jar:/home/kulikov/apache-ant-1.8.2/lib/junit-4.8.1.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-launcher.jar:/home/kulikov/apache-ant-1.8.2/lib/ant.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit4.jar" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="java.home" value="/home/kulikov/jdk1.6.0_24/jre" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_24" />
+    <property name="java.ext.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/resources.jar:/home/kulikov/jdk1.6.0_24/jre/lib/rt.jar:/home/kulikov/jdk1.6.0_24/jre/lib/sunrsasign.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jsse.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jce.jar:/home/kulikov/jdk1.6.0_24/jre/lib/charsets.jar:/home/kulikov/jdk1.6.0_24/jre/lib/modules/jdk.boot.jar:/home/kulikov/jdk1.6.0_24/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="ant.file.TCK" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest" name="test_2_1_2_1_Record" time="5.432">
+    <failure message="org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@15e2ccd event error: &quot;NOT_FOUND&quot; -  -  expected:&lt;NO_ERROR&gt; but was:&lt;NOT_FOUND&gt;" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@15e2ccd event error: &quot;NOT_FOUND&quot; -  -  expected:&lt;NO_ERROR&gt; but was:&lt;NOT_FOUND&gt;
+	at com.hp.opencall.jmsc.test.TestBase$EventWaiter.waitInternal(TestBase.java:256)
+	at com.hp.opencall.jmsc.test.TestBase$EventWaiter.waitForOKEvent(TestBase.java:303)
+	at com.hp.opencall.jmsc.test.MediaSessionBase.measurePlayDuration(MediaSessionBase.java:283)
+	at com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest.test_2_1_2_1_Record(RecorderTest.java:61)
+	at com.hp.opencall.jmsc.test.TestBase.runBare(TestBase.java:437)
+</failure>
+  </testcase>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest" name="test_2_1_2_2_MaxDuration" time="11.439" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest" name="test_2_1_2_3_Append" time="8.52" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest" name="test_2_1_2_4_StartBeep" time="5.704" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest" name="test_2_1_2_5_SilenceTerminationOn" time="23.925" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.RecorderTest" name="test_2_1_2_6_FinalTimeout" time="37.986" />
+  <system-out><![CDATA[11:04:35,406 INFO  [Runner] Start    mandatory.functional.mediagroup.RecorderTest.test_2_1_2_1_Record javadoc::MediaGroup::2 javadoc::Recorder::1
+11:04:35,421 INFO  [DriverImpl] Initializing MGCP on /127.0.0.1:2729
+11:04:35,426 ERROR [JainMgcpStackImpl] Failed to locate properties file, using default values
+11:04:35,432 INFO  [JainMgcpStackImpl] Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+70   [] DEBUG TestBase - log4j configured
+71   [] DEBUG TestBase - Loading file:/home/kulikov/jsr-309-tck/TCK.properties
+213  [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107075547 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65436 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+252  [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107075635 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65434 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+431  [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+443  [] DEBUG TestBase - getProperty(testcase.shortpromptfile) = file:///home/kulikov/jsr-309-tck/media/Numbers_1-5_3s.wav
+1452 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@18ce14a (19s remaining)
+2452 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@18ce14a (18s remaining)
+3452 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@18ce14a (17s remaining)
+3473 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@18ce14a received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@9ffe3f
+3474 [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+3475 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+3585 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@15e2ccd received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@1cf7491
+3586 [] INFO  DriverImpl - MediaSession1 MediaGroup4 Releasing...
+3889 [] INFO  DriverImpl - MediaSession1 MediaGroup5 Releasing...
+4190 [] INFO  DriverImpl - MediaSession1 MediaGroup7 Releasing...
+4491 [] INFO  DriverImpl - MediaSession1 NetworkConnection2 Releasing....
+4794 [] INFO  DriverImpl - MediaSession1 NetworkConnection3 Releasing....
+5095 [] INFO  DriverImpl - MediaSession1 NetworkConnection6 Releasing....
+5411 [] INFO  Runner - Start    mandatory.functional.mediagroup.RecorderTest.test_2_1_2_2_MaxDuration javadoc::Recorder::13
+5456 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107080829 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65430 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+5499 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107080877 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65428 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+5638 [] DEBUG TestBase - getProperty(testcase.promptfile) = file:///home/kulikov/jsr-309-tck/media/Numbers_1-15.wav
+5655 [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+6657 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@11756a4 (5s remaining)
+7658 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@11756a4 (4s remaining)
+8658 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@11756a4 (2s remaining)
+9658 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@11756a4 (1s remaining)
+10435 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@11756a4 received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@b301f2
+10436 [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+10437 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+11556 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@1554d32 (19s remaining)
+12557 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@1554d32 (18s remaining)
+13557 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@1554d32 (16s remaining)
+14557 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@1554d32 (15s remaining)
+15039 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@1554d32 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@14a18d
+15041 [] INFO  RecorderTest - Measured record duration is acceptable: expected: 4500ms - actual: 4502ms
+15042 [] INFO  DriverImpl - MediaSession8 MediaGroup11 Releasing...
+15343 [] INFO  DriverImpl - MediaSession8 MediaGroup12 Releasing...
+15644 [] INFO  DriverImpl - MediaSession8 MediaGroup14 Releasing...
+15945 [] INFO  DriverImpl - MediaSession8 NetworkConnection9 Releasing....
+16246 [] INFO  DriverImpl - MediaSession8 NetworkConnection10 Releasing....
+16547 [] INFO  DriverImpl - MediaSession8 NetworkConnection13 Releasing....
+16849 [] INFO  Runner - End      mandatory.functional.mediagroup.RecorderTest.test_2_1_2_2_MaxDuration
+16851 [] INFO  Runner - Start    mandatory.functional.mediagroup.RecorderTest.test_2_1_2_3_Append javadoc::MediaGroup::2 javadoc::Recorder::2
+16891 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107092270 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65424 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+16933 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107092315 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65422 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+17069 [] DEBUG TestBase - getProperty(testcase.onesecondfile) = file:///home/kulikov/jsr-309-tck/media/cagocago-onesecond.wav
+17070 [] DEBUG TestBase - getProperty(testcase.appendrecordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+18089 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@139e351 (1s remaining)
+18093 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@139e351 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@1578aab
+18173 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@691dee received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@12bf892
+19192 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@139e351 (1s remaining)
+19200 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@139e351 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@1568fb5
+19340 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@691dee received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@1dccedd
+20360 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@139e351 (1s remaining)
+20365 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@139e351 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@199939
+20565 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@691dee received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@8aeb74
+20566 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+21686 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@136a1a1 (19s remaining)
+22686 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@136a1a1 (18s remaining)
+23562 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@136a1a1 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@5f2db0
+23562 [] INFO  RecorderTest - Appended record file  duration is acceptable: expected: 3000ms - actual: 2896ms
+23562 [] INFO  DriverImpl - MediaSession15 MediaGroup18 Releasing...
+23864 [] INFO  DriverImpl - MediaSession15 MediaGroup19 Releasing...
+24165 [] INFO  DriverImpl - MediaSession15 MediaGroup21 Releasing...
+24466 [] INFO  DriverImpl - MediaSession15 NetworkConnection16 Releasing....
+24766 [] INFO  DriverImpl - MediaSession15 NetworkConnection17 Releasing....
+25068 [] INFO  DriverImpl - MediaSession15 NetworkConnection20 Releasing....
+25369 [] INFO  Runner - End      mandatory.functional.mediagroup.RecorderTest.test_2_1_2_3_Append
+25371 [] INFO  Runner - Start    mandatory.functional.mediagroup.RecorderTest.test_2_1_2_4_StartBeep javadoc::Recorder::17
+25413 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107100788 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65418 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+25453 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107100837 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65416 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+25593 [] DEBUG TestBase - getProperty(testcase.recordedfile2) = file:///home/kulikov/jsr-309-tck/media/recorded2.wav
+26594 [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+27596 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@190a0d6 (2s remaining)
+28596 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@190a0d6 (0s remaining)
+29809 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@190a0d6 received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@10deb5f
+29869 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@20f443 received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@4a9a7d
+29869 [] DEBUG TestBase - getProperty(testcase.recordedfile2) = file:///home/kulikov/jsr-309-tck/media/recorded2.wav
+29869 [] INFO  RecorderTest - Please listen to the recorded file to check the start beep: file:///home/kulikov/jsr-309-tck/media/recorded2.wav
+29869 [] INFO  DriverImpl - MediaSession22 MediaGroup25 Releasing...
+30170 [] INFO  DriverImpl - MediaSession22 MediaGroup26 Releasing...
+30471 [] INFO  DriverImpl - MediaSession22 NetworkConnection23 Releasing....
+30772 [] INFO  DriverImpl - MediaSession22 NetworkConnection24 Releasing....
+31073 [] INFO  Runner - End      mandatory.functional.mediagroup.RecorderTest.test_2_1_2_4_StartBeep
+31076 [] INFO  Runner - Start    mandatory.functional.mediagroup.RecorderTest.test_2_1_2_5_SilenceTerminationOn javadoc::Recorder::16 javadoc::RecorderEvent::7
+31115 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107106495 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65414 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+31156 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107106538 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65412 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+31294 [] DEBUG TestBase - getProperty(testcase.promptfile) = file:///home/kulikov/jsr-309-tck/media/Numbers_1-15.wav
+31295 [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+32315 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@12f1bf0 (2s remaining)
+33315 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@12f1bf0 (1s remaining)
+34317 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@12f1bf0 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@182ef6b
+35318 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (9s remaining)
+36318 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (7s remaining)
+37318 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (6s remaining)
+38318 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (5s remaining)
+39319 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (4s remaining)
+40319 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (3s remaining)
+41319 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (2s remaining)
+42319 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (1s remaining)
+43320 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (0s remaining)
+45113 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@3aff84
+46135 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@12f1bf0 (2s remaining)
+47135 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@12f1bf0 (0s remaining)
+48136 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@12f1bf0 received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@b4be3d
+49136 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (9s remaining)
+50137 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (8s remaining)
+51137 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (6s remaining)
+52137 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (5s remaining)
+53137 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 (4s remaining)
+53795 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@1f02b85 received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@e4245
+53795 [] INFO  DriverImpl - MediaSession27 MediaGroup30 Releasing...
+54096 [] INFO  DriverImpl - MediaSession27 MediaGroup31 Releasing...
+54397 [] INFO  DriverImpl - MediaSession27 NetworkConnection28 Releasing....
+54699 [] INFO  DriverImpl - MediaSession27 NetworkConnection29 Releasing....
+55000 [] INFO  Runner - End      mandatory.functional.mediagroup.RecorderTest.test_2_1_2_5_SilenceTerminationOn
+55001 [] INFO  Runner - Start    mandatory.functional.mediagroup.RecorderTest.test_2_1_2_6_FinalTimeout javadoc::SpeechDetectorConstants::1
+55039 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107130419 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65410 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+55080 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107130461 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65408 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+55219 [] DEBUG TestBase - getProperty(testcase.promptfile) = file:///home/kulikov/jsr-309-tck/media/Numbers_1-15.wav
+55219 [] DEBUG TestBase - getProperty(testcase.recordedfile) = file:///home/kulikov/jsr-309-tck/media/recorded.wav
+56240 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a (2s remaining)
+57240 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a (0s remaining)
+58241 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@1284fd4
+59242 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (11s remaining)
+60242 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (10s remaining)
+61242 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (9s remaining)
+62243 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (8s remaining)
+63243 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (6s remaining)
+63837 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@130633a
+64858 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a (2s remaining)
+65858 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a (0s remaining)
+66859 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@bcb23e
+67859 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (11s remaining)
+68860 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (9s remaining)
+69860 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (8s remaining)
+70860 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (7s remaining)
+71860 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (6s remaining)
+72861 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (5s remaining)
+73861 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (4s remaining)
+74861 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (3s remaining)
+75861 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (2s remaining)
+76758 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@44f787
+77778 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a (2s remaining)
+78778 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a (1s remaining)
+79780 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@46b90a received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@c00025
+80780 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (11s remaining)
+81780 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (10s remaining)
+82781 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (8s remaining)
+83781 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (7s remaining)
+84781 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (6s remaining)
+85781 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (5s remaining)
+86781 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (4s remaining)
+87782 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (3s remaining)
+88782 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (2s remaining)
+89782 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (1s remaining)
+90782 [] DEBUG RecorderTest - Waiting for event from org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee (0s remaining)
+91783 [] INFO  DriverImpl - MediaSession32 MediaGroup35 Releasing...
+92084 [] INFO  DriverImpl - MediaSession32 MediaGroup36 Releasing...
+92384 [] INFO  DriverImpl - MediaSession32 NetworkConnection33 Releasing....
+92685 [] INFO  DriverImpl - MediaSession32 NetworkConnection34 Releasing....
+92720 [] DEBUG RecorderTest - org.mobicents.javax.media.mscontrol.mediagroup.RecorderImpl@3f96ee received: org.mobicents.javax.media.mscontrol.mediagroup.RecorderEventImpl@c5aa00
+92986 [] INFO  Runner - End      mandatory.functional.mediagroup.RecorderTest.test_2_1_2_6_FinalTimeout
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

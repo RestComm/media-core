@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+
+	<bean name="PacketRelayBridgeFactory"
+		class="org.mobicents.media.server.impl.resource.prelay.BridgeFactory">
+		<property name="name">packet.relay</property>
+                <property name="dspFactory"><inject bean="DSP"/></property>
+	</bean>
+
+	<bean name="PacketRelayEndpoint" class="org.mobicents.media.server.EndpointFactoryImpl">
+		<property name="localName">/mobicents/media/packetrelay/[1..10]	</property>
+		<property name="connectionFactory">
+			<inject bean="default-connection" />
+		</property>
+		<property name="groupFactory">
+			<inject bean="PacketRelayBridgeFactory" />
+		</property>
+		<property name="connectionPoolSize">2</property>
+	</bean>
+
+
+</deployment>

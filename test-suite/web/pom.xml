@@ -1,0 +1,49 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.testsuite</groupId>
+		<artifactId>mms-testsuite</artifactId>
+		<version>2.0.0.BETA3-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>mms-testsuite-web</artifactId>
+
+	<packaging>war</packaging>
+	<name>Mobicents Media Server Test Suite Web</name>
+
+	<build>
+		<finalName>mms-load-test-audio</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>deploy-datasource</id>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy overwrite="true" file="target/${project.build.finalName}.war" todir="${jboss.home}/server/${node}/deploy" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>undeploy-datasource</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete file="${jboss.home}/server/${node}/deploy/${project.build.finalName}.war" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

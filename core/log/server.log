@@ -1,0 +1,45 @@
+2011-01-18 12:50:38,012 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us1 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 12:50:38,013 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us2 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 12:50:38,013 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us3 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 12:50:38,014 INFO  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoiceManager]Available voices for TTS are : alan, kevin16, kevin, 
+2011-01-18 12:50:41,438 INFO  [org.mobicents.media.server.impl.naming.InnerNamingService]-------------Free endpoints =1
+2011-01-18 12:50:45,151 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us1 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 12:50:45,152 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us2 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 12:50:45,152 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us3 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 12:50:45,152 INFO  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoiceManager]Available voices for TTS are : alan, kevin16, kevin, 
+2011-01-18 15:03:31,630 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us1 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:03:31,644 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us2 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:03:31,644 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us3 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:03:31,644 INFO  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoiceManager]Available voices for TTS are : alan, kevin16, kevin, 
+2011-01-18 15:03:35,236 INFO  [org.mobicents.media.server.impl.naming.InnerNamingService]-------------Free endpoints =1
+2011-01-18 15:03:39,018 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us1 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:03:39,019 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us2 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:03:39,019 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us3 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:03:39,019 INFO  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoiceManager]Available voices for TTS are : alan, kevin16, kevin, 
+2011-01-18 15:21:35,661 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us1 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:21:35,662 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us2 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:21:35,662 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us3 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:21:35,663 INFO  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoiceManager]Available voices for TTS are : alan, kevin16, kevin, 
+2011-01-18 15:21:38,998 INFO  [org.mobicents.media.server.impl.naming.InnerNamingService]-------------Free endpoints =1
+2011-01-18 15:21:42,676 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us1 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:21:42,677 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us2 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:21:42,677 WARN  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.MbrolaVoiceFactory]MBROLA Voice mbrola_us3 set-up failed. 
+System property "mbrola.base" is undefined. You might need to set the MBROLA_DIR environment variable.
+2011-01-18 15:21:42,677 INFO  [org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoiceManager]Available voices for TTS are : alan, kevin16, kevin, 

@@ -1,0 +1,29 @@
+<!-- NOTES ON CHANGING ENTITY FILES
+Important: take care when changing entities for directories
+* Linux path separators must be: "/"
+* Windows path separators must be: "\"
+* Entities which represent directories MUST HAVE a final path separator:
+	my/path/  <- (final separator)
+If this final separator is missing, then the documentation will be wrong. -->
+
+<!-- Common entities: same across all books except for BOOKID -->
+<!ENTITY THIS.VERSION "${version}">
+<!ENTITY THIS.PLATFORM "${THIS.PLATFORM}">
+<!ENTITY JEE.PLATFORM "${JEE.PLATFORM}">
+<!ENTITY MANAGEMENT.PLATFORM "${MANAGEMENT.PLATFORM}">
+<!ENTITY BOOK_ID "${THIS.PLATFORM}_JAIN_SLEE_Jopr_Plugin_User_Guide">
+<!ENTITY THIS.PLATFORM.INSTALL_SECTION "${THIS.PLATFORM.INSTALL_SECTION}">
+<!ENTITY YEAR "2009">
+<!ENTITY HOLDER "Red Hat Inc">
+
+<!ENTITY RELEASE.INTEGRATED.FILESIZE "110 Mb">
+<!ENTITY RELEASE.INTEGRATED.FILENAME "mms-jboss-5.1.0.GA-${version}.zip">
+<!ENTITY RELEASE.STANDALONE.FILESIZE "5 Mb">
+<!ENTITY RELEASE.STANDALONE.FILENAME "mms-standalone-${version}.zip">
+
+<!ENTITY AUTHOR.EMAIL.OLEG "${author.email.oleg}">
+<!ENTITY AUTHOR.EMAIL.AMIT "${author.email.amit}">
+<!ENTITY AUTHOR.EMAIL.BARTOSZ "${author.email.bartosz}">
+<!ENTITY AUTHOR_EMAIL_TOM "${author.email.tom}">
+<!ENTITY AUTHOR_EMAIL_JARED "${author.email.jared}">
+<!ENTITY AUTHOR_EMAIL_SILAS "${author.email.silas}">

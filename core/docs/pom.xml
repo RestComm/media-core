@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<!-- groupId>org.mobicents</groupId>
+			<artifactId>mobicents-parent</artifactId>
+			<version>2.2</version -->
+		<groupId>org.mobicents.servers.media</groupId>
+		<artifactId>mms-core</artifactId>
+		<version>2.1.0.BETA2-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>mms-user-guide</artifactId>
+	<!-- groupId>org.mobicents.servers.media</groupId>
+	<version>2.0.0.BETA3-SNAPSHOT</version -->
+
+	<name>Mobicents Media Server Guide</name>
+
+
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>sources</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>
+			UTF8
+		</project.build.sourceEncoding>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>all</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>sources-mobicents</module>
+				<module>sources-jbcp</module>
+				<module>jdocbook-mobicents</module>
+				<module>jdocbook-jbcp</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>mobicents</id>
+			<modules>
+				<module>sources-mobicents</module>
+				<module>jdocbook-mobicents</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>jbcp</id>
+			<modules>
+				<module>sources-jbcp</module>
+				<module>jdocbook-jbcp</module>
+			</modules>
+		</profile>
+	</profiles>
+
+</project>

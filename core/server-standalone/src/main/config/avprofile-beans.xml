@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+	<!-- Definition of media formats -->
+    <bean name="PCMU" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ULAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="PCMA" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>ALAW</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="SPEEX" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>SPEEX</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="GSM" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>GSM</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="G729" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>G729</parameter>
+            <parameter>8000</parameter>
+            <parameter>8</parameter>
+            <parameter>1</parameter>
+        </constructor>
+    </bean>
+    <bean name="DTMF" class="org.mobicents.media.format.AudioFormat">
+        <constructor>
+            <parameter>telephone-event</parameter>
+            <parameter>8000</parameter>
+            <parameter>-1</parameter>
+            <parameter>-1</parameter>
+        </constructor>
+    </bean>
+
+    <bean name="H263" class="org.mobicents.media.format.VideoFormat">
+        <constructor>
+            <parameter>H263</parameter>
+            <parameter>25</parameter>
+            <parameter>90000</parameter>
+        </constructor>
+    </bean>
+
+                
+    
+</deployment>

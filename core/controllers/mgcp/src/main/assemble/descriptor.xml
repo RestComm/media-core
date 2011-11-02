@@ -1,0 +1,26 @@
+<assembly>
+	<id>mgcp-controller-service.sar</id>
+	<fileSets>
+		<fileSet>
+			<directory>src/main/config</directory>
+			<outputDirectory>/</outputDirectory>
+		</fileSet>
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/lib</outputDirectory>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+			<includes>
+				<include>jain:jain-mgcp-ri</include>
+				<include>
+					org.mobicents.jain:mobicents-mgcp-impl
+				</include>
+				<include>
+					org.mobicents.servers.media:mms-controllers-mgcp
+				</include>				
+			</includes>
+		</dependencySet>
+	</dependencySets>
+	
+</assembly>

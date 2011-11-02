@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!-- Build file for the JSR 309 TCK                                -->
+<!-- Copyright (c) 2009 Hewlett-Packard, Inc. All rights reserved. -->
+<!-- Use is subject to license terms.                              -->
+
+<project name="TCK" default="run" basedir=".">
+	
+	<description>Provide an ant-based test launcher for the JSR 309 TCK</description>
+	
+	<property name="run.dir" location="tck-run" />
+	
+	<path id="run.classpath" >
+		<pathelement location="." />                       <!-- for properties files       -->
+		<fileset dir=".">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="deps">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	
+	<tstamp>
+		<format property="DATE_TIME" pattern="yyyy-MM-dd_HH-mm" />
+	</tstamp>
+	
+	<target name="run" description="Run TCK testcases">
+		<!-- Define which testcases should be run   -->
+		<!-- By default run all mandatory testcases -->
+		<property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+		<!-- Where to store the test results -->
+		<property name="run.report" location="tck-reports/${DATE_TIME}" />
+
+		<delete dir="${run.dir}" />
+		<mkdir dir="${run.dir}" />
+		<echo message="run.classpath: ${toString:run.classpath}" />
+		<junit printsummary="on" filtertrace="on" showoutput="on" >
+			<classpath>
+				<path refid="run.classpath" />
+			</classpath>
+			<formatter type="xml" />
+			<batchtest fork="yes" todir="${run.dir}">
+				<zipfileset src="tck.jar">
+					<include name="${run.testlist}"/>
+					<exclude name="**/MSFaultTestServer/**" /> <!-- manual testcases -->
+					<exclude name="**/All*Tests.class"/>
+				</zipfileset>
+			</batchtest>
+		</junit>
+		<junitreport todir="${run.dir}">
+			<fileset dir="${run.dir}">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			<report format="noframes" todir="${run.report}">
+				<param name="TITLE" expression="JSR 309 TCK ${run.testlist} report - ${DATE_TIME}" />
+			</report>
+		</junitreport>
+	</target>
+</project>

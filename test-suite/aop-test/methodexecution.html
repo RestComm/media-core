@@ -1,0 +1,112 @@
+<html>
+<body>
+<p>
+<h2>Method interception</h2>
+
+</p><p>
+<h4>Overview</h4>
+
+JBoss AOP allows you to insert behavior between the caller of a method and the actual method being called.
+If you look at <tt>Driver.java</tt> you will see that it is invoking a number of methods declared in <tt>POJO.java</tt>.  JBoss AOP allows you to intercept a method call and transparently insert behavior when the method is invoked.
+</p><p>
+<h4>What is an Interceptor?</h4>
+
+Behavior that you want to insert when a method is executed must be encapsulated in a implementation of the <tt>org.jboss.aop.advice.Interceptor</tt> interface.  (<i>For those of you familiar with AOP terms, an Interceptor in JBoss is an aspect with only one advice.</i>)
+<pre>
+package org.jboss.aop.advice;
+
+import org.jboss.aop.joinpoint.Invocation;
+
+public interface Interceptor
+{
+   public String getName();
+   public Object invoke(Invocation invocation) throws Throwable;
+}
+</pre>
+</p><p>
+When an AOP'ed method is called, JBoss will break up the method into its parts: a <tt>java.lang.reflect.Method</tt> object and an <pre>Object[]</pre> array representing the arguments of the method.  These parts are encapsulated in an <tt>org.jboss.aop.joinpoint.Invocation</tt> object.  <tt>SimpleInterceptor.java</tt> is a simple implementation of an interceptor.
+</p><p>
+<h4>How do I apply an Interceptor to a method execution?</h4>
+
+To bind an interceptor to a method execution, you must create an XML file.  Open up <tt>jboss-aop.xml</tt> and take a look.  Let's first start by applying <tt>SimpleInterceptor.java</tt> to the <tt>POJO.noop()</tt> method.
+<pre>
+&lt;aop&gt;
+...
+   &lt;bind pointcut="execution(public void POJO-&gt;noop())"&gt;
+       &lt;interceptor class="SimpleInterceptor"/&gt;
+   &lt;/bind&gt;
+...
+&lt;/aop&gt;
+</pre>
+To apply the interceptor you must create a binding and a <i>pointcut</i> that specifies where in your Java code you want the interceptor applied.  <i>execution(method expression)</i> defines <i>whenever the method noop() is executed</i>. A method expression requires a <i>return type</i> followed by a class expression followed by '-&gt;' followed by the method name followed by a list of parameters.  You can optionally provide method attributes like 'public', 'static', etc. if so desired.
+</p><p>
+<h4>Method expressions</h4>
+
+You do not have to specify the entire signature of the method and can use wildcards anywhere you want.  The next binding defined in <tt>jboss-aop.xml</tt> looks like this.
+<pre>
+   &lt;bind pointcut="execution(* POJO-&gt;*(int))"&gt;
+       &lt;interceptor class="MethodInterceptor"/&gt;
+   &lt;/bind&gt;
+</pre>
+This binding says, whenever any POJO method that has one parameter that is an <tt>int</tt> is executed, invoke the <tt>MethodInterceptor</tt>.  The next bindings shows another example.
+<pre>
+   &lt;bind pointcut="execution(static * POJO-&gt;*(..))"&gt;
+       &lt;interceptor class="MethodInterceptor"/&gt;
+   &lt;/bind&gt;
+</pre>
+This binding says, whenever any static POJO method is executed invoke the <tt>MethodInterceptor</tt>
+</p><p>
+<pre>
+   &lt;bind pointcut="execution(* POJO$Bar-&gt;*(..))"&gt;
+       &lt;interceptor class="MethodInterceptor"/&gt;
+   &lt;/bind&gt;
+</pre>
+The above binding shows how to specify an inner class.
+</p><p>
+<h4>Decomposing the Interceptor class</h4>
+
+When an intercepted method is executed, the AOP framework will call each bound interceptor in a chain within the same call stack.  The Invocation object drives the chain.  Interceptors call invocation.invokeNext() to proceed with the method invocation.  After the chain is exhausted, Java reflection is called to execute the actual method.  Because this is one call stack, you can place try/catch/finally blocks around invocation.invokeNext() to catch any exceptions thrown by the executed method if you so desired.
+</p><p>
+Each type of intercepted execution (method, constructor, field, etc.) has a specific class that extends the base class <tt>org.jboss.aop.joinpoint.Invocation</tt>.  If you open up <tt>MethodInterceptor.java</tt>, you will see that you can typecast the Invocation parameter into a <tt>org.jboss.aop.joinpoint.MethodInvocation</tt> object.  The <tt>MethodInvocation</tt> class allows you to obtain additional information about the particular method call like the <tt>java.lang.reflect.Method</tt> object representing the call, the arguments, and even the targetObject of the interception.
+</p><p>
+</p><p>
+<h4>Configure with XML</h4>
+
+If you want to do some XML configuration of the interceptor instance, you can have it implement org.jboss.util.xml.XmlLoadable.
+</p><p>
+<pre>
+public interface XmlLoadable
+{
+   public void importXml(Element element);
+}
+</pre>
+</p><p>
+<h4>Running</h4>
+
+<p>
+To compile and run (for further detail, refer to our <a href="../running_examples.html"/>Compiling and Running Examples Guide</a>):</p>
+<pre>
+  $ ant run.aopc
+</pre>
+<p>It will javac the files and then run the AOPC precompiler to manipulate the bytecode, then finally run the example.  The output should be similar to this:</p>
+<pre>
+_run.aopc:
+     [java] --- pojo.noop(); ---
+     [java] &lt;&lt;&lt; Entering SimpleInterceptor
+     [java] noop()
+     [java] &gt;&gt;&gt; Leaving SimpleInterceptor
+     [java] --- pojo.test1(String param); ---
+     [java] test1(String param): hello world
+     [java] --- pojo.test1(int param); ---
+     [java] &lt;&lt;&lt; Entering MethodInterceptor for: public void POJO.test2(int)
+     [java] test2(int param): 55
+     [java] &gt;&gt;&gt; Leaving MethodInterceptor
+     [java] --- POJO.test2(); ---
+     [java] &lt;&lt;&lt; Entering MethodInterceptor for: public static void POJO.test2()
+     [java] static method
+     [java] &gt;&gt;&gt; Leaving MethodInterceptor
+</pre>
+</p><p>
+</p>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+	<bean name="Event.Dtmf0"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf0</property>
+
+		<property name="eventID">0</property>
+	</bean>
+
+	<bean name="Event.Dtmf1"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf1</property>
+
+		<property name="eventID">1</property>
+	</bean>
+
+	<bean name="Event.Dtmf2"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf2</property>
+
+		<property name="eventID">2</property>
+	</bean>
+
+	<bean name="Event.Dtmf3"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf3</property>
+
+		<property name="eventID">3</property>
+	</bean>
+
+	<bean name="Event.Dtmf4"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf4</property>
+
+		<property name="eventID">4</property>
+	</bean>
+
+	<bean name="Event.Dtmf5"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf5</property>
+
+		<property name="eventID">5</property>
+	</bean>
+
+	<bean name="Event.Dtmf6"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf6</property>
+
+		<property name="eventID">6</property>
+	</bean>
+
+	<bean name="Event.Dtmf7"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf7</property>
+
+		<property name="eventID">7</property>
+	</bean>
+
+	<bean name="Event.Dtmf8"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf8</property>
+
+		<property name="eventID">8</property>
+	</bean>
+
+	<bean name="Event.Dtmf9"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmf9</property>
+
+		<property name="eventID">9</property>
+	</bean>
+
+	<bean name="Event.DtmfA"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmfA</property>
+
+		<property name="eventID">10</property>
+	</bean>
+
+	<bean name="Event.DtmfB"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmfB</property>
+
+		<property name="eventID">11</property>
+	</bean>
+
+	<bean name="Event.DtmfC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmfC</property>
+
+		<property name="eventID">12</property>
+	</bean>
+
+	<bean name="Event.DtmfD"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmfD</property>
+
+		<property name="eventID">13</property>
+	</bean>
+	<bean name="Event.DtmfHash"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmfHash</property>
+
+		<property name="eventID">14</property>
+	</bean>
+
+	<bean name="Event.DtmfStar"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfDetectorFactory">
+		<property name="eventName">dtmfStar</property>
+
+		<property name="eventID">15</property>
+	</bean>
+
+</deployment>

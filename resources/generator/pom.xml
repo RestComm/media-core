@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>org.mobicents.media.resources</groupId>
+        <artifactId>resources</artifactId>
+        <version>2.1.0.BETA2-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.mobicents.media.resources</groupId>
+    <artifactId>generator</artifactId>
+
+    <name>Generators</name>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>components</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>mobicents-player-${project.version}</finalName>
+    </build>
+
+</project>

@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>JSR 309 TCK Assertions List</title></head>
+<body>JSR 309 Assertions list<br><table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2"><tbody><tr align="center"><td colspan="6" rowspan="1"><span style="font-weight: bold;">Assertions derived from the javadoc</span></td><td></td></tr><tr><td style="font-weight: bold; text-align: center;" colspan="3" rowspan="1"><span style="font-weight: bold;"><span style="font-weight: bold;">master </span></span>package (javax.media.mscontrol)</td><td></td><td></td><td></td><td></td></tr><tr><td>Assertion ID</td><td>Interface</td><td>Method/Field</td><td>Description</td><td>Required/<br>Optional</td><td>Testable</td><td>test case</td></tr><tr><td>javadoc::MediaObject::1</td><td>MediaObject</td><td>MEDIAOBJECT_ID</td><td>ID must start with a letter or number</td><td>
+	R</td><td>true</td><td>test_2_2_10_2_InvalidInitialCharacter</td></tr><tr><td>javadoc::MediaObject::2</td><td></td><td></td><td>ID can be 30 characters long</td><td>
+		R</td><td></td><td>test_2_2_10_1_LongId</td></tr><tr><td>javadoc::MediaObject::3</td><td></td><td></td><td>ID must be unique in the scope of its parent</td><td>
+		R</td><td></td><td>test_2_2_10_3_DuplicateIDs</td></tr><tr><td>javadoc::MediaObject::4</td><td></td><td></td><td>ID can be same if parents are different</td><td>
+		R</td><td></td><td>test_2_1_20_PerSessionId</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::MediaSession::1</td><td>MediaSession</td><td>createNetworkConnection(Configuration)</td><td>createNetworkConnection(NetworkConnection.BASIC) returns a NetworkConnection</td><td>
+	R</td><td>true</td><td>test_2_1_11_1_NetworkConnectionContainer</td></tr><tr><td>javadoc::MediaSession::2</td><td></td><td>createNetworkConnection(Configuration, Parameters)</td><td>createNetworkConnection(NetworkConnection.BASIC, Parameters) returns a NetworkConnection</td><td>
+		R</td><td>true</td><td>test_2_1_11_2_NetworkConnectionContainer</td></tr><tr><td>javadoc::MediaSession::3</td><td></td><td>createNetworkConnection(MediaConfig, Parameters)</td><td>createNetworkConnection(MediaConfig, Parameters) returns a NetworkConnection</td><td>
+		R</td><td>true</td><td>test_2_1_11_3_NetworkConnectionContainer</td></tr><tr><td>javadoc::MediaSession::4</td><td></td><td>createMediaGroup(MediaGroup.BASIC)</td><td>createMediaGroup(MediaGroup.BASIC)</td><td>
+		R</td><td>true</td><td>test_2_1_11_4_MediaGroupContainer</td></tr><tr>
+		<td height="47">javadoc::MediaSession::5</td><td height="47"></td>
+		<td height="47">createMediaGroup(MediaGroup.PLAYER, Parameters)</td>
+		<td height="47">createMediaGroup(MediaGroup.PLAYER, Parameters) returns a MediaGroup</td>
+		<td height="47">R</td><td height="47"></td><td height="47">test_2_1_11_5_MediaGroupContainer</td></tr><tr><td>javadoc::MediaSession::6</td><td></td><td>createMediaGroup(MediaConfig, Parameters)</td><td>createMediaGroup(MediaConfig, Parameters) returns a MediaGroup</td><td>
+		R</td><td></td><td>test_2_1_11_6_MediaGroupContainer</td></tr><tr><td>javadoc::MediaSession::7</td><td></td><td>createMediaMixer(MediaMixer.AUDIO)</td><td>createMediaMixer(MediaMixer.AUDIO) returns a MediaMixer</td><td>
+		R</td><td></td><td>test_2_1_11_7_MediaMixerContainer</td></tr><tr><td>javadoc::MediaSession::8</td><td></td><td>createMediaMixer(MediaMixer.AUDIO, Parameters)</td><td>createMediaMixer(MediaMixer.AUDIO, Parameters) returns a MediaMixer</td><td>
+		R</td><td></td><td>test_2_1_11_8_MediaMixerContainer</td></tr><tr><td>javadoc::MediaSession::9</td><td></td><td>createMediaMixer(MediaConfig, Parameters)</td><td>createMediaMixer(MediaConfig, Parameters) returns a MediaMixer</td><td>
+		R</td><td></td><td>test_2_1_11_8_MediaMixerContainer</td></tr><tr><td>javadoc::MediaSession::10</td><td></td><td>createVxmlDialog(Parameters)</td><td>createVxmlDialog(Parameters) returns a VxmlDialog or throws exception</td><td>
+		R</td><td></td><td>test_2_1_11_10_CreateVxmlDialog</td></tr><tr><td>javadoc::MediaSession::11</td><td></td><td>setAttribute/getAttribute</td><td>MediaSession attributes must be settable and gettable</td><td>
+		R</td><td></td><td>test_2_1_11_11_SetGetAttribute</td></tr><tr><td>javadoc::MediaSession::12</td><td></td><td>removeAttribute</td><td>MediaSession attributes must be removable</td><td>
+		R</td><td></td><td>test_2_1_11_12_RemoveAttribute</td></tr><tr><td>javadoc::MediaSession::13</td><td></td><td>getAttributeNames</td><td>MediaSession attributes names must be retrievable</td><td>
+		R</td><td></td><td>test_2_1_11_13_GetAttributeNames</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::MediaConfig::1</td><td>MediaConfig</td><td>createCustomizedClone</td><td>createCustomizedClone returns a MediaConfig with customized values<br></td><td>
+	R</td><td></td><td>test_2_1_19_1_CustomizedClone</td></tr><tr><td>javadoc::MediaConfig::2</td><td></td><td>getSupportedFeatures</td><td>getSupportedFeatures returns a&nbsp;SupportedFeatures instance</td><td>
+		R</td><td></td><td>test_2_1_7_1_PLAYERParams</td></tr><tr><td>javadoc::MediaConfig::3</td><td></td><td>hasStream</td><td>hasStream(audio) returns true on usual MediaConfigs</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::MediaConfig::4</td><td></td><td>hasStream</td><td>hasStream(video) returns&nbsp; false on AUDIO</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::MediaConfig::5</td><td></td><td>hasStream</td><td>hasStream(video) returns true on Mixer.AUDIO_VIDEO</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::MediaConfig::6</td><td></td><td>marshall</td><td></td><td></td><td>&nbsp;</td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::SupportedFeatures::1</td><td>SupportedFeatures</td><td>getSupportedParameters</td><td>getSupportedParameters returns the documented set of Parameters(PLAYER)</td><td>
+	R</td><td></td><td>test_2_1_7_1_PLAYERParams</td></tr><tr><td>javadoc::SupportedFeatures::2</td><td></td><td>getSupportedEventTypes</td><td>getSupportedEventTypes returns the documented set of EventTypes (PLAYER)</td><td>
+		R</td><td></td><td>test_2_1_7_2_PLAYEREvents</td></tr><tr><td>javadoc::SupportedFeatures::3</td><td></td><td>getSupportedParameters</td><td>getSupportedParameters returns no irrelevant Parameter (PLAYER)</td><td>
+		R</td><td></td><td>test_2_1_7_3_PLAYERIrrelevant</td></tr><tr><td>javadoc::SupportedFeatures::4</td><td></td><td>getSupportedParameters/getSupportedEventTypes</td><td>getSupportedParameters/EventTypes returns the documented values and no irrelevant values (SIGNALDETECTOR)</td><td>
+		R</td><td></td><td>test_2_1_7_4_SIGNALDETECTOR</td></tr><tr><td>javadoc::SupportedFeatures::5</td><td></td><td>getSupportedParameters/getSupportedEventTypes</td><td>getSupportedParameters/EventTypes return the documented values and no irrelevant values (PLAYER_SIGNALDETECTOR)</td><td>
+		R</td><td></td><td>test_2_1_7_5_PLAYER_SIGNALDETECTOR</td></tr><tr><td>javadoc::SupportedFeatures::6</td><td></td><td>getSupportedParameters/getSupportedEventTypes</td><td>getSupportedParameters/EventTypes return the documented values (PLAYER_RECORDER_SIGNALDETECTOR)</td><td>
+		R</td><td></td><td>test_2_1_7_2_PLAYER_RECORDER_SIGNALDETECTOR</td></tr><tr><td style="text-align: center;" colspan="3" rowspan="1"><span style="font-weight: bold;">join</span> package</td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::Joinable::1</td><td>Joinable</td><td>join</td><td>stream flows between a joined NetworkConnection and MediaGroup</td><td>
+	R</td><td></td><td>test_2_1_1_1_Play</td></tr><tr><td>javadoc::Joinable::2</td><td><br></td><td>join</td><td>stream flows between a joined NetworkConnection and MediaMixer</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::Joinable::3</td><td><br></td><td>join</td><td>stream flows between a joined MediaGroup and MediaMixer</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::Joinable::4</td><td><br></td><td>RECV</td><td>stream flows from a MediaMixer to a NetworkConnection, not vice-versa</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::Joinable::5</td><td></td><td>SEND</td><td>stream flows from a&nbsp;NetworkConnection to a&nbsp;MediaMixer, not vice-versa</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Joinable::6</td><td></td><td>join+join</td><td>re-joining replaces/overrides previous Direction</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::Joinable::7</td><td></td><td>join</td><td>join a MediaGroup and a NetworkConnection from different MediaSessions of the same MsControlFactory</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::Joinable::8</td><td></td><td>unjoin</td><td>no stream between unjoined MediaGroup and MediaMixer</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::Joinable::9</td><td></td><td>joinInitiate</td><td>calling joinInitiate causes JoinEvent and media flows between&nbsp;NetworkConnection and MediaGroup</td><td>
+		R</td><td></td><td>test_2_1_16_1_InitJoinNCMG</td></tr><tr><td>javadoc::Joinable::10</td><td></td><td>joinInitiate</td><td>calling joinInitiate causes JoinEvent and media flows between&nbsp;NetworkConnection and MediaMixer</td><td>
+		R</td><td></td><td>test_2_1_16_2_InitJoinNCMixer</td></tr><tr><td>javadoc::Joinable::11</td><td></td><td>unjoinInitiate</td><td>calling unjoinInitiate causes JoinEvent (NC, MG)</td><td>
+		R</td><td></td><td>test_2_1_16_1_InitJoinNCMG</td></tr><tr><td>javadoc::Joinable::12</td><td></td><td>unjoinInitiate</td><td>calling unjoinInitiate causes JoinEvent (NC, Mixer)</td><td>
+		R</td><td></td><td>test_2_1_16_2_InitJoinNCMixer</td></tr><tr><td></td><td></td><td>getJoinees</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td>getJoinees(Direction)</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td>JoinableContainer</td><td>getJoinableStream(StreamType)</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td>getJoinableStreams</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td>JoinableDialog</td><td>getJoinables</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td>JoinableStream</td><td>getType</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td>getContainer</td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::JoinEvent::1</td><td>JoinEvent</td><td>getOtherJoinable</td><td>returns correct reference</td><td>
+	R</td><td></td><td>test_2_1_16_1_InitJoinNCMG</td></tr><tr><td>javadoc::JoinEvent::2</td><td></td><td>getThisJoinable</td><td>returns correct reference</td><td>
+		R</td><td></td><td>test_2_1_16_1_InitJoinNCMG</td></tr><tr><td>javadoc::JoinEvent::3</td><td></td><td>EventType JOINED</td><td>properly set in Event</td><td>
+		R</td><td></td><td>test_2_1_16_1_InitJoinNCMG</td></tr><tr><td>javadoc::JoinEvent::4</td><td></td><td>EventType UNJOINED</td><td>properly set in Event</td><td>
+		R</td><td></td><td>test_2_1_16_1_InitJoinNCMG</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::JoinEventListener::1</td><td>JoinEventListener</td><td>onEvent</td><td>onEvent is called with correct argument</td><td>
+	R</td><td></td><td>test_2_1_16_2_InitJoinNCMixer</td></tr><tr><td>javadoc::JoinEventNotifier::1</td><td>JoinEventNotifier</td><td>addListener</td><td>listener is added</td><td>
+		R</td><td></td><td>test_2_1_16_2_InitJoinNCMixer</td></tr><tr><td>javadoc::JoinEventNotifier::2</td><td></td><td>removeListener</td><td>listener is removed</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::JoinEventNotifier::3</td><td></td><td>getMediaSession</td><td>Correct MediaSession is returned</td><td>
+		R</td><td></td><td></td></tr><tr><td style="text-align: center;" colspan="3" rowspan="1"><span style="font-weight: bold;">mediagroup</span> package</td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::MediaGroup::1</td><td>MediaGroup</td><td>getPlayer</td><td>returns a Player</td><td>
+	R</td><td></td><td>test_2_1_1_1_Play</td></tr><tr><td>javadoc::MediaGroup::2</td><td></td><td>getRecorder</td><td>returns a Recorder</td><td>
+		R</td><td></td><td>test_2_1_2_1_Record</td></tr><tr><td>javadoc::MediaGroup::3</td><td></td><td>getSignalDetector</td><td>returns a SignalDetector</td><td>
+		R</td><td></td><td>test_2_1_13_1_MGJoinMixer</td></tr><tr><td>javadoc::MediaGroup::4</td><td></td><td>getSignalGenerator</td><td>returns a&nbsp;SignalGenerator</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::MediaGroup::5</td><td></td><td>stop</td><td>stops running resources</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::MediaGroup::6</td><td></td><td>Configuration PLAYER</td><td>allow playing</td><td>
+		R</td><td></td><td>test_2_1_1_1_Play</td></tr><tr><td>javadoc::MediaGroup::7</td><td></td><td>Configuration SIGNALDETECTOR</td><td>allow signal detection</td><td>
+		R</td><td></td><td>test_2_1_12_7_BufferParticipantDTMF</td></tr><tr><td>javadoc::MediaGroup::8</td><td></td><td>Configuration PLAYER_SIGNALDETECTOR</td><td>allow playing and signal detection</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::MediaGroup::9</td><td></td><td>Configuration PLAYER_RECORDER_SIGNALDETECTOR</td><td>allow playing and recording and signal detection</td><td>
+		R</td><td></td><td>test_2_1_13_1_MGJoinMixer</td></tr><tr><td>javadoc::MediaGroup::10</td><td></td><td>Configuration PLAYER_RECORDER_SIGNALDETECTOR_SIGNALGENERATOR</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::MediaGroup::11</td><td></td><td>RTC SIGDET_STOPRECORD</td><td>stop recording when a DTMF is received</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::MediaGroup::12</td><td></td><td>RTC SIGDET_STOPPLAY</td><td>stop playing when a DTMF is received</td><td>
+		R</td><td></td><td>test_2_1_9_2_Prompt_BargeIn</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::Player::1</td><td>Player</td><td>play(URI)</td><td>media is streamed out to joined NetworkConnection</td><td>
+	R</td><td></td><td>test_2_1_1_1_Play</td></tr><tr><td>javadoc::Player::2</td><td></td><td>play(URI[])</td><td>all URIs are played</td><td>
+		R</td><td></td><td>test_2_1_1_7_PlayURIArray</td></tr><tr><td>javadoc::Player::3</td><td></td><td>Parameter BEHAVIOUR_IF_BUSY = STOP_IF_BUSY</td><td>second play stops the running play</td><td>
+		R</td><td></td><td>test_2_1_1_8_STOP_IF_BUSY</td></tr><tr><td>javadoc::Player::4</td><td></td><td>Parameter MAX_DURATION</td><td>MAX_DURATION sets the play duration</td><td>
+		R</td><td></td><td>test_2_1_1_2_MaxDuration</td></tr><tr><td>javadoc::Player::5</td><td></td><td>Parameter START_OFFSET</td><td>START_OFFSET changes play duration</td><td>
+		R</td><td></td><td>test_2_1_1_3_StartOffset</td></tr><tr><td>javadoc::Player::6</td><td></td><td>Parameter START_IN_PAUSED_MODE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::7</td><td></td><td>Parameter ENABLED_EVENTS</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::8-19</td><td></td><td>Parameter JUMP_XXX</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::20</td><td></td><td>Parameter REPEAT_COUNT</td><td>REPEAT_COUNT causes play repetitions</td><td>
+		R</td><td></td><td>test_2_1_1_4_RepeatCount</td></tr><tr><td>javadoc::Player::21</td><td></td><td>Parameter INTERVAL</td><td>INTERVAL causes increase of play duration</td><td>
+		R</td><td></td><td>test_2_1_1_5_Interval</td></tr><tr><td>javadoc::Player::22</td><td></td><td>Parameter VOLUME_CHANGE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::23</td><td></td><td>Parameter FILE_FORMAT</td><td>FILE_FORMAT allows raw files with any extension</td><td>
+		R</td><td></td><td>TBC</td></tr><tr><td>javadoc::Player::24</td><td></td><td>Action STOP</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::25</td><td></td><td>Action STOP_ALL</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::26</td><td></td><td>Action RESUME</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::27</td><td></td><td>Action PAUSE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::28-39</td><td></td><td>Actions JUMP_XXX</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::40-49</td><td></td><td>Actions SPEED_UP/DOWN/NORMAL/TOGGLE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::50-59</td><td></td><td>Actions VOLUME_UP/DOWN/NORMAL/TOGGLE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::60</td><td></td><td>Trigger PLAY_START</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::61</td><td></td><td>Trigger PLAY_COMPLETION</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Player::61</td><td>Player/Resource</td><td>Player.stop()</td><td>Player.stop() cause stop of the Player</td><td>
+		R</td><td></td><td>test_2_1_1_6_Stop</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::PlayerEvent::1</td><td>PlayerEvent</td><td>getIndex</td><td>getIndex returns the index into the play list</td><td>
+	O</td><td></td><td></td></tr><tr><td>javadoc::PlayerEvent::2</td><td></td><td>getOffset</td><td>getOffset returns the offset into the file</td><td>
+		R</td><td></td><td>test_2_1_1_2_MaxDuration</td></tr><tr><td>javadoc::PlayerEvent::3-9</td><td></td><td>getChangeType</td><td>getChangeType returns the Action that caused event</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::PlayerEvent::10</td><td></td><td>EventType PLAY_COMPLETED</td><td>set for play completion</td><td>
+		R</td><td></td><td>TBC</td></tr><tr><td>javadoc::PlayerEvent::11</td><td></td><td>EventType PAUSED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::PlayerEvent::12</td><td></td><td>EventType RESUMED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::PlayerEvent::13</td><td></td><td>EventType SPEED_CHANGED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::PlayerEvent::14</td><td></td><td>EventType VOLUME_CHANGED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::PlayerEvent::15</td><td></td><td>Qualifier END_OF_PLAY_LIST</td><td>set when the stream plays to completion</td><td>
+		R</td><td></td><td>test_2_1_1_1_Play</td></tr><tr><td>javadoc::PlayerEvent::16</td><td></td><td>Qualifier END_OF_PLAY_LIST</td><td>set when all streams play to completion</td><td>
+		R</td><td></td><td>test_2_1_1_7_PlayURIArray</td></tr><tr><td>javadoc::PlayerEvent::17</td><td>PlayerEvent/ResourceEvent</td><td>Qualifier DURATION_EXCEEDED</td><td>set when play stops because of MAX_DURATION</td><td>
+		R</td><td></td><td>test_2_1_1_2_MaxDuration</td></tr><tr><td>javadoc::PlayerEvent::18</td><td>PlayerEvent/ResourceEvent</td><td>Qualifier STOPPED</td><td>STOPPED is set when Player.stop() was called</td><td>
+		R</td><td></td><td>test_2_1_1_6_Stop</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::Recorder::1</td><td>Recorder</td><td>record</td><td>record saves a recording of the media stream</td><td>
+	R</td><td></td><td>test_2_1_2_1_Record</td></tr><tr><td>javadoc::Recorder::2</td><td></td><td>Parameter APPEND</td><td>appends to recording</td><td>
+		R</td><td></td><td>test_2_1_2_3_Append</td></tr><tr><td>javadoc::Recorder::3</td><td></td><td>Parameter BEEP_FREQUENCY</td><td>changes the frequency of the recorder beep</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::4</td><td></td><td>Parameter BEEP_LENGTH</td><td>changes the duration of the recorder beep</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::5</td><td></td><td>Parameter AUDIO_CODEC</td><td>indicates audio encoding in recording</td><td>
+		R</td><td></td><td>TBC</td></tr><tr><td>javadoc::Recorder::6</td><td></td><td>Parameter AUDIO_FMTP</td><td>indicates detailed audio codec parameters</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::7</td><td></td><td>Parameter AUDIO_MAX_BITRATE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::8</td><td></td><td>Parameter AUDIO_CLOCKRATE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::9</td><td></td><td>Parameter VIDEO_CODEC</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::10</td><td></td><td>Parameter VIDEO_FMTP</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::11</td><td></td><td>Parameter VIDEO_MAX_BITRATE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::12</td><td></td><td>Parameter ENABLED_EVENTS</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::13</td><td></td><td>Parameter MAX_DURATION</td><td>recording is stopped after indicated duration</td><td>
+		R</td><td></td><td>test_2_1_2_2_MaxDuration</td></tr><tr><td>javadoc::Recorder::14</td><td></td><td>Parameter MIN_DURATION</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::15</td><td></td><td>Parameter SIGNAL_TRUNCATION_ON</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::16</td><td></td><td>Parameter SILENCE_TERMINATION_ON</td><td>when true, recorder stops automatically if silence</td><td>
+		O</td><td></td><td>test_2_1_2_5_SilenceTerminationOn</td></tr><tr><td>javadoc::Recorder::17</td><td></td><td>Parameter START_BEEP</td><td>when true, a beep can be heard by caller</td><td>
+		O</td><td></td><td>test_2_1_2_4_StartBeep</td></tr><tr><td>javadoc::Recorder::18</td><td></td><td>Parameter START_IN_PAUSED_MODE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::19-24</td><td></td><td>Parameter FILE_FORMAT</td><td>determines recording format</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::25</td><td></td><td>Parameter SPEECH_DETECTION_MODE (and Values)</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::26</td><td></td><td>Parameter PROMPT</td><td>when set, the prompt is played before recording</td><td>
+		R</td><td></td><td>test_2_1_9_1_p_Prompt</td></tr><tr><td>javadoc::Recorder::27</td><td></td><td>Action STOP</td><td>causes recorder to stop (in RTC)</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::28</td><td></td><td>Action PAUSE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::29</td><td></td><td>Action RESUME</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::Recorder::30</td><td></td><td>Action CANCEL</td><td>Cancel the current recording</td><td>
+		O</td><td></td><td>test_2_1_9_3_CANCEL</td></tr><tr><td>javadoc::Recorder::31</td><td></td><td>Trigger RECORD_COMPLETION</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::RecorderEvent::1</td><td>RecorderEvent</td><td>getDuration</td><td>Returns the length of the recording, in milliseconds</td><td>
+	R</td><td></td><td>TBC</td></tr><tr><td>javadoc::RecorderEvent::2</td><td></td><td>getDuration</td><td>This length does not include any elided silence</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::RecorderEvent::3</td><td></td><td>EventType COMPLETED</td><td>Indicates that recording has been completed</td><td>
+		R</td><td></td><td>TBC</td></tr><tr><td>javadoc::RecorderEvent::4</td><td></td><td>EventType PAUSED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::RecorderEvent::5</td><td></td><td>EventType RESUMED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::RecorderEvent::6</td><td></td><td>EventType STARTED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::RecorderEvent::7</td><td></td><td>Qualifier SILENCE</td><td>Indicates that the record was terminated because&nbsp;silence was detected</td><td>
+		R</td><td></td><td>test_2_1_2_5_SilenceTerminationOn</td></tr><tr><td>javadoc::RecorderEvent::8</td><td></td><td>Qualifier PROMPT_FAILURE</td><td>indicate that the record operation was aborted because the prompt could not be played</td><td>
+		R</td><td></td><td>TBC</td></tr><tr><td>javadoc::RecorderEvent::9</td><td>RecorderEvent/ResourceEvent</td><td>Qualifier DURATION_EXCEEDED</td><td></td><td>
+		R</td><td></td><td>test_2_1_2_2_MaxDuration</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::SpeechDetectorConstants::1</td><td>SpeechDetectorConstants</td><td>Parameter FINAL_TIMEOUT</td><td>Controls the length of a period of silence after callers have spoken to conclude they finished</td><td>
+	O</td><td></td><td>test_2_1_2_6_FinalTimeout</td></tr><tr><td>javadoc::SpeechDetectorConstants::2-</td><td></td><td>Other fields</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::CodecConstants::</td><td>CodecConstants</td><td>TBC</td><td></td><td></td><td></td><td>TBC</td></tr><tr><td style="text-align: center;" colspan="3" rowspan="1"><span style="font-weight: bold;">mediagroup.signals</span> package</td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::1</td><td>SignalDetector</td><td>receiveSignals</td><td>The SignalDetector can detect single DTMF signals</td><td>
+	R</td><td></td><td>test_2_1_3_1_ReceiveOneSignal</td></tr><tr><td><br></td><td></td><td>receiveSignals</td><td><br></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::2</td><td></td><td>receiveSignals</td><td>SD can optionally emit an event for each signal detected</td><td>
+	O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::3</td><td></td><td>receiveSignals</td><td>SD can collect a sequence of signals into a buffer</td><td>
+		R</td><td></td><td>test_2_1_3_2_ReceiveFiveSignals</td></tr><tr><td>javadoc::SignalDetector::4</td><td></td><td>receiveSignals</td><td>SD can match or detect a pattern in the signal buffer</td><td>
+		R</td><td></td><td>test_2_1_3_3_Receive123</td></tr><tr><td>javadoc::SignalDetector::5</td><td></td><td>receiveSignals</td><td>SD can match or detect multiple patterns</td><td>
+		R</td><td></td><td>test_2_1_3_4_Receive123And456</td></tr><tr><td>javadoc::SignalDetector::6</td><td></td><td>receiveSignals</td><td>SD can match or detect multiple patterns in any order</td><td>
+		R</td><td></td><td>test_2_1_3_5_Receive45And9And123</td></tr><tr><td>javadoc::SignalDetector::7</td><td></td><td>receiveSignals</td><td>SD can combine numdigits and pattern</td><td>
+		R</td><td></td><td>test_2_1_3_10_ReceivePoundOr4Digits</td></tr><tr><td>javadoc::SignalDetector::8</td><td></td><td>receiveSignals</td><td>SD can optionally emit an event for each pattern matched</td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::9</td><td></td><td>Parameter FILTERED_PATTERNS</td><td>SD can remove signals from the signal buffer when a pattern is matched</td><td>
+		R</td><td></td><td>test_2_1_3_11_Receive4DigitsOrDTMF3</td></tr><tr><td>javadoc::SignalDetector::10</td><td></td><td>flushBuffer()</td><td>SD can remove all signals from the signal buffer</td><td>
+		R</td><td></td><td>test_2_1_12_5_flushBuffer</td></tr><tr><td>javadoc::SignalDetector::11</td><td></td><td>receiveSignals</td><td>Signals are kept in the signal buffer until they are removed by the application</td><td>
+		R</td><td></td><td>test_2_1_12_1_Buffer</td></tr><tr><td>javadoc::SignalDetector::12</td><td></td><td>receiveSignals</td><td>Signals are kept in the signal buffer between calls to receiveSignals</td><td>
+		R</td><td></td><td>test_2_1_12_2_BufferBetweenReceive</td></tr><tr><td>javadoc::SignalDetector::13</td><td></td><td>receiveSignals</td><td>numsignals can limit the number of received signals</td><td>
+		R</td><td></td><td>test_2_1_12_4_ReceiveBufferedOneAtATime</td></tr><tr><td>javadoc::SignalDetector::14</td><td></td><td>flushBuffer</td><td>buffering continues after flush</td><td>
+		R</td><td></td><td>test_2_1_12_6_BufferAfterFlush</td></tr><tr><td>javadoc::SignalDetector::15</td><td></td><td>Parameter ENABLED_EVENTS</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::16</td><td></td><td>Parameter MAX_DURATION</td><td>retrieveSignals stops after MAX_DURATION</td><td>
+		R</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::17</td><td></td><td>Parameter INITIAL_TIMEOUT</td><td>retrieveSignals stops if first signal not received after INITIAL_TIMEOUT</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetector::18</td><td></td><td>Parameter INTER_SIG_TIMEOUT</td><td>receiveSignal stops if the second signal is not detected within this many milliseconds after detecting the first signal </td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetector::19</td><td></td><td>Parameter MODE</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::20</td><td></td><td>Parameter[] PATTERN</td><td>Each PATTERN defines a pattern to be matched</td><td>
+		R</td><td></td><td>test_2_1_3_5_Receive45And9And123</td></tr><tr><td>javadoc::SignalDetector::21</td><td></td><td>Parameter[] PATTERN</td><td>a PATTERN can be set via setParameters</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetector::22</td><td></td><td>Parameter PATTERN_COUNT</td><td>PATTERN_COUNT value must be at least 32</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetector::23</td><td></td><td>Parameter PROMPT</td><td>when set, the prompt is played before starting DTMF reception</td><td>
+		R</td><td></td><td>test_2_1_10_1_PROMPT</td></tr><tr><td>javadoc::SignalDetector::24</td><td></td><td>Action FLUSH_BUFFER</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::25</td><td></td><td>Action STOP</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::26</td><td></td><td>Action CANCEL</td><td>CANCEL causes abort of receiveSignals</td><td>
+		O</td><td></td><td>test_2_1_10_3_Cancel</td></tr><tr><td>javadoc::SignalDetector::27</td><td></td><td>Trigger DETECTION_OF_ONE_SIGNAL</td><td>DETECTION_OF_ONE_SIGNAL operates in a RTC</td><td>
+		O</td><td></td><td>test_2_1_10_2_Prompt_BargeIn</td></tr><tr><td>javadoc::SignalDetector::28</td><td></td><td>Trigger FLUSHING_OF_BUFFER</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::29</td><td></td><td>Trigger RECEIVE_SIGNALS_COMPLETION</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetector::30</td><td></td><td>Trigger[] PATTERN_MATCH</td><td>PATTERN_MATCH&nbsp;operates in a RTC</td><td>
+		O</td><td></td><td>test_2_1_10_3_Cancel</td></tr><tr><td>javadoc::SignalDetector::31</td><td></td><td>Parameter[] NO_PATTERN</td><td>Using NO_PATTERN set no pattern</td><td>
+		R</td><td></td><td>test_2_1_12_1_Buffer</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::SignalDetectorEvent::1</td><td>SignalDetectorEvent</td><td>getSignalString</td><td>return the received signals</td><td>
+	R</td><td></td><td>test_2_1_12_1_Buffer</td></tr><tr><td>javadoc::SignalDetectorEvent::2</td><td></td><td>getSignalBuffer</td><td>return an array of DTMF Values</td><td></td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetectorEvent::3</td><td></td><td>getPatternIndex</td><td>return the index of the matched PATTERN when a match occurred</td><td>
+	R</td><td></td><td>test_2_1_3_5_Receive45And9And123</td></tr><tr><td>javadoc::SignalDetectorEvent::4</td><td></td><td>EventType SIGNAL_DETECTED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetectorEvent::5</td><td></td><td>EventType RECEIVE_SIGNALS_COMPLETED</td><td>The event caused by receiveSignals has this EventType</td><td>
+		R</td><td></td><td>test_2_1_3_1_ReceiveOneSignal</td></tr><tr><td>javadoc::SignalDetectorEvent::6</td><td></td><td>EventType[] PATTERN_MATCHED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetectorEvent::7</td><td></td><td>EventType BUFFER_FLUSHED</td><td>The event caused by flushBuffer has this EventType</td><td>&nbsp;</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetectorEvent::8</td><td></td><td>EventType OVERFLOWED</td><td></td><td>
+	O</td><td></td><td></td></tr><tr><td>javadoc::SignalDetectorEvent::9</td><td></td><td>Qualifier[] PATTERN_MATCHING</td><td>PATTERN_MATCHING is set when receiveSignals terminates because that pattern was matched</td><td>
+		R</td><td></td><td>test_2_1_3_3_Receive123</td></tr><tr><td>javadoc::SignalDetectorEvent::10</td><td></td><td>Qualifier DURATION_EXCEEDED</td><td>DURATION_EXCEEDED is set when completion is caused by MAX_DURATION</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetectorEvent::11</td><td></td><td>Qualifier INITIAL_TIMEOUT_EXCEEDED</td><td> INITIAL_TIMEOUT_EXCEEDED&nbsp; is set when completion is caused by timeout on the first DTMF</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetectorEvent::12</td><td></td><td>Qualifier INTER_SIG_TIMEOUT_EXCEEDED</td><td>INTER_SIG_TIMEOUT_EXCEEDED&nbsp;is set when completion is caused by timeout between DTMFs</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalDetectorEvent::13</td><td></td><td>Qualifier NUM_SIGNALS_DETECTED</td><td>NUM_SIGNALS_DETECTED is set when completion is caused by requested number of signals</td><td>
+		R</td><td></td><td>test_2_1_12_1_Buffer</td></tr><tr><td>javadoc::SignalDetectorEvent::14</td><td></td><td>Qualifier PROMPT_FAILURE</td><td></td><td></td><td></td><td>TBD</td></tr><tr><td>javadoc::SignalGenerator::</td><td></td><td></td><td></td><td>
+	O</td><td></td><td></td></tr><tr><td>javadoc::SignalGeneratorEvent::</td><td></td><td></td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SpeechRecognitionEvent::</td><td></td><td></td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td style="text-align: center;" colspan="3" rowspan="1"><span style="font-weight: bold;">mixer</span> package</td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::MediaMixer::1</td><td>MediaMixer</td><td>createMixerAdapter(Configuration)</td><td>return a MixerAdapter</td><td>
+	R</td><td></td><td>test_2_1_8_1_DTMFClamp</td></tr><tr><td>javadoc::MediaMixer::2</td><td></td><td>createMixerAdapter(Configuration, Parameters)</td><td>return a MixerAdapter</td><td></td><td></td><td>TBD</td></tr><tr><td>javadoc::MediaMixer::3</td><td></td><td>createMixerAdapter(MediaConfig, Parameters)</td><td>return a MixerAdapter</td><td></td><td></td><td>TBD</td></tr><tr><td>javadoc::MediaMixer::4</td><td></td><td>Configuration AUDIO</td><td>Can create a MediaMixer with Configuration AUDIO</td><td></td><td></td><td>test_2_1_5_1_CreateMixer</td></tr><tr><td>javadoc::MediaMixer::5</td><td></td><td>Configuration AUDIO_EVENTS</td><td></td><td>
+	O</td><td></td><td></td></tr><tr><td>javadoc::MediaMixer::6</td><td></td><td>Configuration AUDIO_VIDEO</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::MediaMixer::7</td><td></td><td>Configuration AUDIO_VIDEO_RENDERING</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::MediaMixer::8</td><td></td><td>Parameter MAX_PORTS</td><td></td><td></td><td>false</td><td></td></tr><tr><td>javadoc::MediaMixer::9</td><td></td><td>Parameter MAX_ACTIVE_INPUTS</td><td></td><td>
+	O</td><td></td><td></td></tr><tr><td>javadoc::MediaMixer::10</td><td></td><td>Parameter ENABLED_EVENTS</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::MixerAdapter::1</td><td>MixerAdapter</td><td>Configuration EMPTY</td><td>Configuration EMPTY lets the media pass through</td><td>
+	R</td><td></td><td>test_2_1_8_1_DTMFClamp</td></tr><tr><td>javadoc::MixerAdapter::2</td><td></td><td>Configuration DTMF_CLAMP</td><td>Configuration DTMF_CLAMP clamps DTMFs</td><td>
+		R</td><td></td><td>test_2_1_8_1_DTMFClamp</td></tr><tr><td>javadoc::MixerAdapter::3</td><td></td><td>Configuration DTMFCLAMP_VOLUME</td><td>Configuration DTMFCLAMP_VOLUME allows volume control</td><td>
+		R</td><td></td><td>test_2_1_8_2_VolumeControl</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::MixerEvent::1</td><td>MixerEvent</td><td>getActiveInputs</td><td></td><td>
+	O</td><td></td><td></td></tr><tr><td>javadoc::MixerEvent::2</td><td></td><td>EventType MOST_ACTIVE_INPUT_CHANGED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::MixerEvent::3</td><td></td><td>EventType ACTIVE_INPUTS_CHANGED</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td style="text-align: center;" colspan="3" rowspan="1"><span style="font-weight: bold;">networkconnection</span> package</td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::CodecPolicy::1</td><td>CodecPolicy</td><td>getExcludedCodecs</td><td>returns what was set</td><td>
+	R</td><td></td><td>TBD</td></tr><tr><td>javadoc::CodecPolicy::2</td><td></td><td>setExcludedCodecs</td><td>telephone-event can be excluded with setExcludedCodecs</td><td>
+		R</td><td></td><td>test_2_1_18_1_ExcludeTelephoneEvent</td></tr><tr><td>javadoc::CodecPolicy::3</td><td></td><td>getCodecCapabilities</td><td>returns what was set</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::CodecPolicy::4</td><td></td><td>setCodecCapabilities</td><td>Setting CodecCapabilities to PCMU causes it to be retained<br></td><td>
+		R</td><td></td><td>test_2_1_18_13_CapablePcmu<br></td></tr><tr><td>javadoc::CodecPolicy::5</td><td></td><td>getRequiredCodecs</td><td>returns what was set</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::CodecPolicy::6</td><td></td><td>setRequiredCodecs</td><td>telephone-event can be set as the required codec</td><td>
+		R</td><td></td><td>test_2_1_18_6_RequireTelephoneEvent</td></tr><tr><td>javadoc::CodecPolicy::7</td><td></td><td>getCodecPreferences</td><td>returns what was set</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::CodecPolicy::8</td><td></td><td>setCodecPreferences</td><td>setCodecPreferences indicates a preference between codecs</td><td>
+		R</td><td></td><td>test_2_1_18_10_PreferPcmu</td></tr><tr><td>javadoc::CodecPolicy::9</td><td></td><td>getMediaTypeCapabilities</td><td>returns what was set</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::CodecPolicy::10</td><td></td><td>setMediaTypeCapabilities</td><td>media-type capability can be restricted to audio<br></td><td>
+		R</td><td></td><td>test_2_1_18_19_AudioCapability</td></tr><tr>
+		<td height="45">javadoc::CodecPolicy::11</td><td height="45"></td>
+		<td height="45">setExcludedCodecs</td><td height="45">Each major audio codec can be excluded with setExcludedCodecs</td>
+		<td height="45">R</td><td height="45"></td><td height="45">test_2_1_18_2_ExcludeOneCodec</td></tr><tr><td>javadoc::CodecPolicy::12</td><td></td><td>setExcludedCodecs</td><td>All major audio codecs&nbsp;can be excluded with setExcludedCodecs, keeping AMR</td><td>
+		R</td><td></td><td>test_2_1_18_3_ExcludeMostCodecs</td></tr><tr><td>javadoc::CodecPolicy::13</td><td></td><td>setExcludedCodecs</td><td>Excluding all codecs causes SDP_NOT_ACCEPTABLE or SdpException</td><td>
+		R</td><td></td><td>test_2_1_18_4_ExcludeAllCodecs</td></tr><tr><td>javadoc::CodecPolicy::14</td><td></td><td>setExcludedCodecs</td><td>setExcludedCodecs is no-op when codec is not offered</td><td>
+		R</td><td></td><td>test_2_1_18_5_ExcludeCodecsMinimalOffer</td></tr><tr><td>javadoc::CodecPolicy::15</td><td></td><td>setRequiredCodecs</td><td>PCMU and&nbsp;telephone-event can be set as the required codecs</td><td>
+		R</td><td></td><td>test_2_1_18_7_RequirePcmuTelephoneEvent</td></tr><tr><td>javadoc::CodecPolicy::16</td><td></td><td>setRequiredCodecs</td><td>telephone-event and AMR can be set as the required codecs</td><td>
+		R</td><td></td><td>test_2_1_18_8_RequireTelephoneEventAmr</td></tr><tr><td>javadoc::CodecPolicy::17</td><td></td><td>setRequiredCodecs</td><td>setting an absent codec as required causes SDP_NOT_ACCEPTABLE or SdpException</td><td>
+		R</td><td></td><td>test_2_1_18_9_RequireAbsentCodec</td></tr><tr><td>javadoc::CodecPolicy::18</td><td></td><td>setCodecCapabilities</td><td>Setting CodecCapabilities to PCMU/PCMA/telephone-event causes PCMU or PCMA to be retained</td><td>
+		R</td><td></td><td>test_2_1_18_14_CapablePcmuPcmaTelephoneEvent</td></tr><tr><td>javadoc::CodecPolicy::19</td><td></td><td>setCodecCapabilities</td><td>When intersection of offer and CodecCapabilities is only telephone-event, error is detected</td><td>
+		R</td><td></td><td>test_2_1_18_15_CapableG726TelephoneEvent</td></tr><tr><td>javadoc::CodecPolicy::20</td><td></td><td>setCodecCapabilities</td><td>When intersection of offer and CodecCapabilities is null, error is detected</td><td>
+		R</td><td></td><td>test_2_1_18_16_CapableG726G722</td></tr><tr><td>javadoc::CodecPolicy::21</td><td></td><td>setCodecCapabilities+setCodecPreferences</td><td>A CodecPolicy can combine capabilities and preferences</td><td>
+		R</td><td></td><td>test_2_1_18_17_CapablePcmuPcmaTeAmrPreferAmr</td></tr><tr><td>javadoc::CodecPolicy::22</td><td></td><td>setCodecCapabilities+setCodecPreferences<br>+setExcludedCodecs+setRequiredCodecs</td><td>A CodecPolicy can combine all 4 requirement types</td><td>
+		R</td><td></td><td>test_2_1_18_18_ComplexPolicy</td></tr><tr><td>javadoc::CodecPolicy::23</td><td></td><td>setMediaTypeCapabilities</td><td>media-type capability can be restricted to audio and video</td><td>
+		R</td><td></td><td>test_2_1_18_20_AudioVideoCapability</td></tr><tr><td>javadoc::CodecPolicy::24</td><td></td><td>setMediaTypeCapabilities</td><td>restricting media-types to an absent media-type causes error</td><td>
+		R</td><td></td><td>test_2_1_18_21_VideoCapability</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::NetworkConnection::1</td><td>NetworkConnection</td><td>getSdpPortManager</td><td>return a&nbsp;SdpPortManager</td><td>
+	R</td><td></td><td>test_2_1_4_1_MultiNCs</td></tr><tr><td>javadoc::NetworkConnection::2</td><td></td><td>Configuration BASIC</td><td>BASIC is able to handle network audio streams</td><td>
+		R</td><td></td><td>test_2_1_4_3_PlayRecord</td></tr><tr><td>javadoc::NetworkConnection::3</td><td></td><td>Configuration ECHO_CANCEL</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::NetworkConnection::4</td><td></td><td>Configuration DTMF_CONVERSION</td><td></td><td>
+		O</td><td></td><td></td></tr><tr><td>javadoc::SdpPortManager::1</td><td>SdpPortManager</td><td>generateSdpOffer</td><td>causes an offer generation</td><td>
+		R</td><td></td><td>test_2_1_4_3_PlayRecord</td></tr><tr><td>javadoc::SdpPortManager::2</td><td></td><td>processSdpOffer</td><td>causes an SDP anwer generation</td><td>
+		R</td><td></td><td>test_2_1_4_3_PlayRecord</td></tr><tr><td>javadoc::SdpPortManager::3</td><td></td><td>processSdpAnswer</td><td>completes the network setup</td><td>
+		R</td><td></td><td>test_2_1_4_3_PlayRecord</td></tr><tr><td>javadoc::SdpPortManager::4</td><td></td><td>rejectSdpOffer</td><td></td><td></td><td></td><td>TBD</td></tr><tr><td>javadoc::SdpPortManager::5</td><td></td><td>getMediaServerSessionDescription</td><td></td><td></td><td></td><td>TBD</td></tr><tr><td>javadoc::SdpPortManager::6</td><td></td><td>getUserAgentSessionDescription</td><td></td><td></td><td></td><td></td></tr><tr><td>javadoc::SdpPortManager::7</td><td></td><td>setCodecPolicy</td><td>sets the CodecPolicy</td><td>
+	R</td><td></td><td>test_2_1_18_1_ExcludeTelephoneEvent</td></tr><tr><td>javadoc::SdpPortManager::8</td><td></td><td>getCodecPolicy</td><td>returns the policy that was set previously</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SdpPortManager::9</td><td></td><td>getCodecPolicy</td><td>returns an empty policy</td><td>
+		R</td><td></td><td>TBD</td></tr><tr><td>javadoc::SdpPortManager::10</td><td></td><td>setCodecPolicy</td><td>Application changes to CodecPolicy have no effect when posterior to calling setCodecPolicy</td><td>
+		R</td><td></td><td>TBD</td></tr><tr align="center"><td colspan="7" rowspan="1"><span style="font-weight: bold;">Assertions derived from best practices</span></td></tr><tr><td>Assertion ID</td><td></td><td></td><td>Description</td><td>Required/<br>Optional</td><td>Testable</td><td></td></tr><tr><td>BestPractices::arguments::1</td><td></td><td></td><td>The RTC[] argument of Player.play must not be changed by the call</td><td></td><td>no</td><td>no mandatory RTC for Player</td></tr><tr><td>BestPractices::arguments::2</td><td></td><td></td><td>The RTC[] argument of Recorder.record must not be changed by the call</td><td>
+	R</td><td></td><td>test_2_2_9_1_UnchangedRecordRTC</td></tr><tr><td>BestPractices::arguments::3</td><td></td><td></td><td>The RTC[] argument of SignalDetector.receiveSignals must not be changed by the call</td><td>
+		R</td><td></td><td>test_2_2_9_2_UnchangedSigDetRTC</td></tr><tr align="center"><td colspan="6" rowspan="1"><span style="font-weight: bold;">Assertions derived from the specification document</span></td><td></td></tr><tr><td>Assertion ID</td><td>Chapter</td><td>location</td><td>Description</td><td>Required/<br>Optional</td><td>Testable</td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table></body></html>

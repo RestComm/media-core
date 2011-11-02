@@ -1,0 +1,20 @@
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+	<!-- Resource type definition -->
+	<bean name="RtspController"
+		class="org.mobicents.media.server.ctrl.rtsp.RtspController">
+		<property name="namingService">
+			<inject bean="MediaServer" />
+		</property>
+		<property name="mediaDir">${mms.media.dir}</property>
+		<property name="bindAddress">${mms.bind.address}</property>
+		<property name="port">1554</property>
+		<property name="endpoints">
+			<set elementClass="java.lang.String">
+				<value>/mobicents/media/aap/</value>
+				<value>/mobicents/media/IVR/</value>
+				<value>/mobicents/media/cnf/</value>
+				<value>/mobicents/media/rtsp/</value>
+			</set>
+		</property>
+	</bean>
+</deployment>

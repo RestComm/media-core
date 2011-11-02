@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+            <bean name="Package.Announcement"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+        <property name="name">A</property>
+        <property name="generators">
+            <list>
+                <inject bean="a.ann" />
+            </list>
+        </property>
+        <property name="detectors">
+            <list>
+                <inject bean="a.oc" />
+                <inject bean="a.of" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean name="Package.AdvanceAudio"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+        <property name="name">AU</property>
+        <property name="generators">
+            <list>
+                <inject bean="au.pa" />
+                <inject bean="au.play_record" />
+                <inject bean="au.ann" />
+            </list>
+        </property>
+        <property name="detectors">
+            <list>
+                <inject bean="au.oc" />
+                <inject bean="au.of" />
+            </list>
+        </property>
+    </bean>
+</deployment>

@@ -1,0 +1,434 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+<meta content="text/html;charset=UTF-8" http-equiv="Content-Type"><title>JSR 309 TCK User Guide</title>
+<style>
+<!--
+ li.MsoNormal
+	{mso-style-parent:"";
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	margin-left:0cm; margin-right:0cm; margin-top:0cm}
+-->
+</style></head>
+<body><div style="text-align: center;"><big><big><big><span style="font-weight: bold;">JSR 309 Test Compatibility Kit</span></big></big></big><br></div><div style="text-align: center;"><big><big><big>U</big>ser Guide</big></big><br></div><h1>
+License</h1>
+<p>Refer to the&nbsp;<a href="JSR_309_TCK_License.pdf">TCK license</a>.</p>
+<p>JSR 309 TCK Revision: 1.0</p><h1>
+Overview</h1>This guide describes how to install, configure, and run the 
+Technology Compatibility Kit (TCK) that is used to test implementations of the<br>
+JSR 309 Media Server Control API 1.0 specification.<br>
+The JSR 309 TCK is designed as a portable, configurable automated test suite for 
+verifying the compliance of a licensee’s implementation of the JSR 309 Media 
+Server Control API 1.0 Specification. 
+<p>The JSR 309 TCK is based on the JSR 309 Media Server Control API 1.0 
+Specification. Links to the specification and other product information can be 
+found on the Web at:<br>
+<a href="http://jcp.org/en/jsr/detail?id=309">
+http://jcp.org/en/jsr/detail?id=309</a> . </p>
+<p>A TCK is a set of tools and tests used to verify that a licensee’s 
+implementation of Media Server Control API 1.0 technology conforms to the 
+applicable specification. All tests in the TCK are based on the JSR 309 Media 
+Server Control API 1.0 specifications for the Java platform. The core of the TCK is a set of JUnit classes, bundled in "<span style="font-weight: bold;">tck.jar</span>".
+</p>
+<p>Tests in the TCK test suite are self-checking and return success or failures. 
+Some tests assume the media operations tested through the JSR 309 Media Server 
+Control API objects return consistent results as if a Media Server was present. 
+It is left to the licensee how to ensure the underlying implementation processes 
+the API calls. The TCK does not make any assumption about the presence of a real 
+media server or its connection through a specific interface, the TCK never tries 
+to reach or connect with a media server, it only invokes JSR 309 Media Server 
+Control API . &lt;refer to section below&gt;</p>
+<p>For a given platform to be certified, all of the mandatory tests must pass. 
+The definition of required tests will change over time. Before your final 
+certification test<br>
+passes, be sure to download the latest Exclude List for the TCK you are using.</p>
+<h1>Requirements</h1>
+<ul>
+	<li>JSR 309 Media Server Control API 1.0 Specification can be found at:
+	<a href="http://jcp.org/en/jsr/detail?id=309">
+	http://jcp.org/en/jsr/detail?id=309</a> </li>
+	<li>JSR 309 TCK: complete zip containing the set of JUnit classes bundled in 
+	"<span style="font-weight: bold;">tck.jar</span>" and these dependencies can 
+	be obtained from the JSR 309 TCK download page</li>
+	<li>JUnit: The required dependencies are installed and delivered with the 
+	JSR 309 TCK. Refer to <a href="deps/junit-license.html">junit-license.html</a> .</li>
+	<li>sigtest: to test the signatures of the licensee's implementation. The 
+	required dependencies are installed and delivered with the JSR 309 TCK. 
+	Refer to <a href="coverage/sigtest-license.html">sigtest-license.html</a>.</li>
+	<li>log4j: The required dependencies are installed and delivered with the 
+	JSR 309 TCK. Refer to
+	<a href="deps/log4j-license.html">log4j-license.html</a></li>
+	<li>optional: cactus:&nbsp; Cactus is typically used when testing licensee's 
+	implementation inside SIP Servlet container. It uses JUnit and extends it. 
+	The required dependencies must be installed as explained in the user guide 
+	below in case the licensee tests within an application server. See 
+<a href="http://jakarta.apache.org/cactus/">http://jakarta.apache.org/cactus/</a>&nbsp; for more 
+information.</li>
+	<li>optional: ant: requires&nbsp;installation of ant version 1.7 or later. ant is 
+	used to run the TCK and report formatted result status. refer to
+	<a href="http://ant.apache.org/">http://ant.apache.org/</a>. </li>
+	<li>Platform requirements<ul>
+		<li>The TCK requires a java environment, release 5.0 or later.</li>
+		<li>No additional hardware requirement. The TCK will use about 32MB of disk space.</li>
+	</ul>
+	</li>
+	<li>The test cases make no assumption regarding a specific implementation/Driver of
+the API,
+nor on a specific media server. </li>
+	<li>The licensee's implementation is expected to accept at least "audio/pcmu" 
+	where media content is used like in a <font face="Courier New">Play() </font>
+	operation</li>
+	<li>The licensee's implementation is expected to detect inband DTMFs through 
+	the relevant Media Server Control API operations. Detection of inband DTMFs is used 
+	in many places
+in the TCK, to assert that the media flows as expected.</li>
+	<li>The TCK does <span style="font-weight: bold;">not</span> require a 
+	signaling interface to a user agent. It can however be run in a SipServlet container, or an HttpServlet
+container, using a wrapping framework like <span style="font-style: italic;">cactus</span> (see below).</li>
+</ul>
+<p>JSR 309 TCK dependencies and their corresponding licenses described in the 
+list above are available from
+<a href="deps">./deps</a>. For information about the source of these 
+dependencies see contact in the license or contact HP for more information.</p>
+<h1>Exclude List</h1>
+<p>The JSR 309 TCK implements an Exclude List that identifies test cases that do 
+not have to be run for the specific version of the TCK being used. Whenever 
+tests are run, the JSR 309 TCK automatically excludes any test on the Exclude 
+List from being executed. A licensee is not required to pass any test—or even 
+run any test—on the Exclude List.</p>
+<p>A test might be included in an Exclude List for reasons such as:</p>
+<ul>
+	<li>An error in an underlying implementation API has been discovered which 
+	does not allow<br>
+	the test to execute properly</li>
+	<li>An error in the specification that was used as the basis of the test has 
+	been discovered.</li>
+	<li>An error in the test itself has been discovered.</li>
+	<li>The test fails due to a bug in the tools</li>
+	<li>The test has been superseded or is no more applicable</li>
+</ul>
+<p>The Exclude List is read from the file <span style="font-weight: bold;">"<a href="exclude-list.properties">exclude-list.properties</a>"</span>. See this file for details.</p>
+<p>Note - You should regularly check the JSR 309 TCK web site for updates to the 
+Exclude List.<br></p>
+<h1>Installation</h1>
+<p>Download and unzip JSR 309 TCK to $JSR309_HOME.</p>
+<h1>Setup</h1><h3>Hooking up on a Licensee's JSR 309 Driver</h3>The TCK framework uses the first available JSR 309 Driver, calling <span style="font-style: italic;">DriverManager.getDrivers().next()</span>;<h3>Configuring the 
+Licensee's JSR 309 Driver</h3>
+If the JSR 309 driver under test requires to be passed properties as argument of the method<span style="font-style: italic;">
+javax.media.mscontrol.spi.Driver.getFactory</span>,
+you may set the java System property "<span style="font-weight: bold;">mscontrol.driver.propertiesfile</span>"
+to the name
+of a file from which they will be loaded:<br>
+<pre>$ java -Dmscontrol.driver.propertiesfile=/etc/mydriver.properties -classpath ....<br></pre>Note
+that this is not mandatory: the TCK framework will not cause an error
+if this property is not set; implementers are free to use any mean to
+configure their implementation.<br>
+<h2><a name="config"></a>Configuring the JSR 309 TCK</h2><h3>Properties files</h3>The 
+JSR 309 TCK reads&nbsp;configuration properties files from its classpath.
+Sample properties files are delivered in the distribution.
+<br>
+There are two files for global properties, "<span style="font-weight: bold;"><a href="log4j.properties">log4j.properties</a></span>"
+and
+"<span style="font-weight: bold;"><a href="TCK.properties">TCK.properties</a></span>".
+<br>
+Each test case can also have an optional properties file. The
+per-test case properties files are named like the java class,
+lowercased. For example: <span style="font-style: italic;">playertest.properties</span>
+for PlayerTest.class.<br><h3>Media files</h3>
+The TCK uses test media files (wav files, etc) that are provided in the
+"$JSR309_HOME/media" directory. These files are typically used as parameters 
+when for instance invoking Player, Recorder along with SignalDetector operations 
+on licensee's implementation. Refer to 
+<span style="font-style: italic;"><a href="TCK.properties">TCK.properties</a></span> for further 
+information about these files.<p>The media files will 
+typically have to be made available to licensee's implementation. This can be 
+obtained by copying those files over to the media server on top of which the 
+licensee's implementation works. If the JSR 309 TCK is run on top of the JSR 309 RI these files will have to 
+be located by default in the JSR 309 RI Media Server directory
+/opt/OC/share/jsr309-TCK-media.
+For example, assuming that "admin" is a user with sufficient privileges
+on the media server "mediaserver.com" : </p>
+<pre>$ ssh admin@mediaserver.com mkdir -p /opt/OC/share/jsr309-TCK-media<br>$ scp media/* admin@mediaserver.com:/opt/OC/share/jsr309-TCK-media<br></pre>
+<b>Note:</b><ul><li>the media&nbsp; files location can be changed to suit the
+	licensee's implementation and media server environment </li><li>the media files 
+	can be loaded on a web server, and http used to access them</li></ul>
+In both cases, the various properties in 
+<span style="font-style: italic;"><a href="TCK.properties">TCK.properties</a></span>&nbsp; must be 
+adjusted according to the licensee's implementation environment.<br>
+<h1>Various run environments</h1>
+The JSR 309 TCK is made of JUnit test classes, that can be exercised by any JUnit Runner:
+<ul><li>in eclipse (with appropriate launchers)
+</li><li>with ant, see &lt;junit&gt; in
+build.xml
+</li><li>in standalone mode, see below
+</li><li>with cactus, targeting an application server (see below).
+
+</li></ul>
+
+<h1><a name="run"></a>Running the TCK in standalone mode</h1>The JSR 309 TCK test cases can run in standalone mode (outside of an application server
+container), assuming that the JSR309 driver has the same capability.<h3>Using the launch-TCK.sh script</h3>A simple command line is provided for this: "<span style="font-weight: bold;">launch-TCK.sh</span>".<br><br>The test harness offers the following possibilities:<br>
+<ol>
+<li> Run all the mandatory test cases:<br>
+<ul>
+<li>on Linux:<br>
+<pre>$ sh launch-TCK.sh</pre>
+</li>
+<li>on Windows:<br>
+<br>
+change to $JSR309_HOME&nbsp; directory<pre>C:&gt; java -classpath [content of "windows_classpath" ] org.junit.runner.JUnitCore com.hp.opencall.jmsc.test.AllTests</pre>
+</li>
+</ul>
+You may tune the verbosity of the output with the property
+"testcase.default_logging_level"
+in TCK.properties.<br>
+<br>
+</li>
+<li>Run a particular testcase:<br>
+<pre>$ sh launch-TCK.sh SimplePlayTest<br>...<br>$ sh launch-TCK.sh mandatory.functional.mediagroup.PlayerTest<br>...<br></pre>On Windows, replace "AllTests" by "SimplePlayTest" or
+"mandatory.functional.mediagroup.PlayerTest" in the command line of paragraph 1.<br>
+<br>
+</li>
+<li>Run only one method in one test case:
+<br>
+In the file "TCK.properties", set the property "testcase.testmethod" as desired, for example:<br>
+<pre>testcase.testmethod=mandatory.functional.mediagroup.PlayerTest.test_2_1_1_2_MaxDuration<br></pre>
+Then run:<br>
+<pre>$ sh launch-TCK.sh CustomTestMethod</pre></li></ol>
+<h3><a name="Using_ant"></a>Using ant</h3>The file "<a href="build.xml">build.xml</a>" is suitable for running the testcases in standalone mode with <span style="font-weight: bold;">ant</span>:<br>
+(See dependencies: requires&nbsp;installation 
+of ant version 1.7 or later)<br><br>$ ant -f build.xml<br><br>The default target will run all mandatory test cases, and create a report in <span style="font-weight: bold;">tck-reports/&lt;date_time&gt;/junit-noframes.html</span>.<br>This report is suitable for publication. 
+An example of this report is available in
+<a href="coverage/TCK-report-standalone.html">TCK-report-standalone</a>.<br><br>The list of 
+test cases to run can be customized with an ant property named "<span style="font-weight: bold;">run.testlist</span>". The default value is "com/hp/opencall/jmsc/test/mandatory/**/*Test.class". You may customize this property, for example:<br>$ ant -Drun.testlist="com/hp/opencall/jmsc/test/mandatory/functional/mixer/Mixer*Test.class"
+<h1>Running the JSR 309 TCK in an application server</h1>The TCK is also
+delivered with an ant build file that creates a <span style="font-style: italic;">cactus</span> wrapper, in "<span style="font-weight: bold;">tck-cactified.war</span>". The
+cactus wrapper will load the TCK test classes in the application
+server, together with a server-side stub.<br>On the command-line, you can then 
+start the test cases, using a client-side stub that talks to the server-side 
+stub.<br>See 
+<a href="http://jakarta.apache.org/cactus/">http://jakarta.apache.org/cactus/</a>&nbsp; for more 
+information.<p>The following steps describe how to run the JSR 309 TCK to 
+verify compliance of the JSR 309 RI on top of the Oracle Communications 
+Converged Application Server, OCCAS. Refer to JSR 309 RI installation guide, 
+note the TCK may be installed (unzipped) in the same <code style="font-weight: bold;">
+$JSR309_HOME/</code> as the RI in that case.</p>
+<p class="MsoNormal">Prerequisite: JSR 309 RI installed in OCCAS and OCCAS 
+started. Refer to JSR 309 RI User Guide.</p>
+<p class="MsoNormal">&lt;$JSR309_HOME&gt;: top directory of the TCK distribution, e.g. 
+C:\opt\jsr309tck&nbsp; &nbsp;(can be same as <code style="font-weight: bold;">
+$JSR309_HOME/ used for RI)</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
+<p class="MsoNormal">&lt;CACTUS_LIB&gt;: lib directory with Cactus distribution, e.g. 
+C:\opt\jakarta-cactus 13-1.7.2</p>
+<p class="MsoNormal">&lt;DOMAIN_HOME&gt;: top directory of the WebLogic domain, e.g. 
+C:\occas40\user_projects\domains\jsr309ri </p>
+<ol style="margin-top: 0cm; margin-bottom: 0cm;" start="1" type="1">
+	<li class="MsoNormal">Download and install Ant,
+	<a style="color: blue; text-decoration: underline;" href="http://ant.apache.org/">
+	http://ant.apache.org/</a> (e.g. apache-ant-1.7.1-bin.zip)</li>
+	<li class="MsoNormal">Download and install Cactus version 13-1.7.2 from
+	<a style="color: blue; text-decoration: underline;" href="http://archive.apache.org/dist/jakarta/cactus/binaries/jakarta-cactus-13-1.7.2.zip">
+	jakarta-cactus-13-1.7.2.zip</a>&nbsp;&nbsp; &nbsp;</li>
+	<li class="MsoNormal">Edit &lt;$JSR309_HOME&gt;/tck-cactus/local.properties according 
+	to your environment</li>
+	<li class="MsoNormal">Copy the following TCK properties files from &lt;$JSR309_HOME&gt; to &lt;DOMAIN_HOME&gt;:<ul style="margin-top: 0cm; margin-bottom: 0cm;">
+		<li>TCK.properties</li>
+		<li>mixeradaptertest.properties</li>
+		<li>exclude-list.properties (refer to the section on Exclude List)</li>
+	</ul>
+ 	</li>
+	<li class="MsoNormal">Open a terminal window (DOS Command Prompt or similar)</li>
+	<li class="MsoNormal">Go to tck-cactus directory:</li>
+</ol>
+<p class="MsoNormal" style="margin-left: 54pt;">cd &lt;$JSR309_HOME&gt;/tck-cactus</p>
+<ol style="margin-top: 0cm; margin-bottom: 0cm;" start="7" type="1">
+	<li class="MsoNormal">Add Java (JDK) to your path environment variable:</li>
+</ol>
+<p class="MsoNormal" style="margin-left: 54pt;">e.g. set PATH=C:\occas40\jdk160_05\bin;%PATH%</p>
+<ol style="margin-top: 0cm; margin-bottom: 0cm;" start="8" type="1">
+	<li class="MsoNormal">Add ant to your path environment variable:</li>
+</ol>
+<p class="MsoNormal" style="margin-left: 54pt;">&nbsp;e.g. set PATH=%PATH%;C:\opt\apache-ant-1.7.1\bin</p>
+<ol style="margin-top: 0cm; margin-bottom: 0cm;" start="9" type="1">
+	<li class="MsoNormal">Deploy tck application:</li>
+</ol>
+<p class="MsoNormal" style="margin-left: 54pt;">ant deploy</p>
+<ol style="margin-top: 0cm; margin-bottom: 0cm;" start="10" type="1">
+	<li class="MsoNormal">Run test: </li>
+</ol>
+<p class="MsoNormal" style="margin-left: 54pt;">ant -lib ../deps/junit.jar test</p>
+<ol style="margin-top: 0cm; margin-bottom: 0cm;" start="11" type="1">
+	<li class="MsoNormal">After the run, the test results are to be found in &lt;$JSR309_HOME&gt;\tck-cactus\test-reports\junit-noframes.html</li>
+</ol>
+<p>Troubleshooting with OCCAS</p>
+<ul>
+	<li>edit &lt;DOMAIN_HOME&gt;/log4j.xml or TCK.properties as explained below 
+	</li>
+	<li>Restart OCCAS after changing the properties.</li>
+</ul>
+<h1>Test Case groups</h1>
+The test cases are classified in groups, based on two independent
+aspects:
+<ul>
+<li><span style="font-style: italic;">mandatory</span>
+versus <span style="font-style: italic;">optional</span>
+features</li>
+<li><span style="font-style: italic;">functional</span>
+versus <span style="font-style: italic;">robustness</span>
+testing</li>
+</ul>
+The JSR 309 TCK only performs mandatory tests for conformance testing. Refer to
+<a href="coverage/TCKCoverageDocument.html">Test Coverage</a> below for more 
+information.<p>"functional"
+assumes that the application makes proper use
+of the API, while
+"robustness" testing is checking what happens if the application has
+coding errors (not applicable parameters,
+illegal values, state management errors, etc).<br><br>The name of java packages reflect this 
+differentiation.<br></p>
+<h3>Test Cases numbering</h3>Each test method starts with a unique identification number, followed by a descriptive name, like: <span style="font-style: italic;">test_2_1_15_1_CatchDTMFOnParticipant()</span>.<br><h1>Test reports</h1>The
+test report format depends on the JUnit driver/launcher that was used. For
+publication, it is recommended to use the formatted provided by ant, see <a href="#Using_ant">above</a> . 
+An example of this report is available in
+<a href="coverage/TCK-report-standalone.html">TCK-report-standalone</a>.<br><h1>Signature Test</h1>The reference signature file of the JSR 309 API is delivered in&nbsp;<a href="coverage/jsr309_api.sig"><span style="font-weight: bold;">coverage/jsr309_api.sig</span></a>.<br>The
+same directory also contains the redistributed "sigtest.jar", see dependencies.<br>
+<h3>Running the signature test</h3>Assuming
+that the variable IMPLEMCLASSPATH contains the classpath to the
+implementation to test, the signature test is run with the command:<br><pre>java -cp coverage/sigtest.jar:$IMPLEMCLASSPATH com.sun.tdk.signaturetest.SignatureTest -apiVersion V1.0 -FileName coverage/jsr309_api.sig</pre>Success is indicated by "STATUS:Passed".<p>Please see http://jcp.org/en/resources/tdk for more
+about the signature test.</p><h1>Assertions List</h1>The 
+<a href="coverage/TCKAssertionsList.html">list of test assertions</a> is provided for reference.<br><h1>Test coverage</h1>
+For test coverage, see the&nbsp;<a href="coverage/TCKCoverageDocument.html">TCK Coverage Document</a> and the summary table of all test cases: 
+<a target="_blank" href="javadoc/TCK/TCKSummary.html">TCKSummary.html</a>.
+<br><h1><a name="Test_documentation"></a>Test documentation</h1>Please consult the 
+<a href="javadoc/TCK/index.html">javadoc of the test cases</a> for detailed documentation.<br> The java source files of the TCK 
+test cases are also included in the TCK jar (tck.jar).<h1>Troubleshooting</h1>
+<p>The JSR 309 TCK uses apache <span style="font-weight: bold;">log4j</span> for tracing.</p><p>Verbose mode:
+<br>
+Each test case has its Logger set by default to INFO when it starts.
+<br>
+For a more verbose output, you can change for DEBUG, see
+"testcase.default_logging_level" in <span style="font-style: italic;">
+<a href="TCK.properties">TCK.properties</a></span>.
+<br>
+All other Loggers default to ERROR. This can be tuned, per test case or
+globally, in 
+<span style="font-style: italic;"><a href="log4j.properties">log4j.properties</a></span>.</p><p>For a better understanding of the 
+test cases, please consult their&nbsp;<a href="#Test_documentation">documentation</a>.</p>
+<h3>JSR 309 Reference Implementation - Media Server behavior</h3>
+When running JSR 309 TCK on the JSR 309 Reference Implementation, the tests run real media
+operations on the connected Media Server.
+<br>
+If the Media Server behaves incorrectly (for example, returns incorrect
+information in the responses), the
+test cases may fail, even though the Reference Implementation is
+correct. You can assess this by checking manually the
+MSCML requests and responses to/from the Media Server. Refer to the JSR 309 
+Reference Implementation User Guide for more troubleshooting information.<h1>
+JSR 309 Media Server Control API 1.0
+Test Appeals Process</h1>
+<p>Important note: <b>For contacting the Maintenance Lead through the JSR 309 
+TCK Appeal Process please use the link to the submission form available on the JSR 309 TCK 
+Download page.</b></p>
+<p>The Maintenance Lead will be the point of contact for all test challenges to 
+the Test Suite for the JSR 309 Media Server Control API 1.0.</p>
+<p>If a test is determined to be invalid in function or if its basis in the 
+specification is suspect, the test may be challenged by any licensee of the JSR 
+309 TCK. Each test validity issue must be covered by a separate test challenge. 
+Test validity or invalidity will be determined based on its technical 
+correctness such as:</p>
+<p>1. Test has bugs (i.e., program logic errors)<br>
+2. Specification item covered by the test is ambiguous<br>
+3. Test does not match the specification<br>
+4. Test assumes unreasonable hardware and/or software requirements<br>
+5. Test is biased to a particular implementation</p>
+<p>Challenges based upon issues unrelated to technical correctness as defined by 
+the specification will normally be rejected. Test challenges must be made in 
+writing to Maintenance Lead and include all relevant information as described in 
+the Test Challenge form below. The process used to determine the validity or 
+invalidity of a test (or related group of tests) is described underneath.</p>
+<h3>JSR 309 TCK Test Appeals Steps</h3>
+<ol>
+	<li><b>JSR 309 TCK licensee writes a test challenge to the Maintenance Lead 
+	contesting the validity of one or a related set of JSR 309 TCK tests</b>. A 
+	detailed justification for why each test should be invalidated must be 
+	included with the challenge as described by the Test Challenge form below.
+	<b>Please select the JSR 309 TCK Appeal submission link available from the JSR 
+	309 TCK Download page in order to send the test challenge information to the 
+	Maintenance lead</b></li>
+	<li><b>The Maintenance Lead evaluates the challenge</b>. If the appeal is 
+	incomplete or unclear, it is returned to the submitting licensee for 
+	correction. If all is in order, the Maintenance Lead will check with the 
+	test developers to review the purpose and validity of the test before 
+	writing a response. The Maintenance Lead will attempt to complete the 
+	response within 5 business days. If the challenge is similar to a previously 
+	rejected test challenge (i.e. same test and justification), the<br>
+	Maintenance Lead will send the previous response to the licensee.</li>
+	<li><b>The challenge and any supporting materials from test developers are 
+	sent to the specification engineers for evaluation</b>.<br>
+	A decision of test validity or invalidity is normally made within 15 working 
+	days of receipt of the challenge. All decisions will be documented with an 
+	explanation of why test validity was maintained or rejected. All tests found 
+	to be invalid will either be placed on the Exclude List for that version of 
+	the JSR 309 TCK or have an alternate test made available.</li>
+	<li><b>The licensee is informed of the decision and proceeds accordingly</b>. 
+	<ul>
+		<li>If the test challenge is approved and one or more tests are invalidated, the 
+	Maintenance Lead
+	places the tests on the Exclude List for that version of the JSR 309 TCK 
+	(effectively removing the test(s) from the Test Suite). Tests that are 
+		placed on the Exclude List will be communicated to the JSR 309 TCK 
+		licensee that submitted the test challenge within one business day after 
+		the determination of test validity</li>
+		<li>All tests placed on the Exclude List will have a bug report written 
+		to document the decision and the new Exclude List will be made available to all licensees through the JSR 309 TCK web site 
+		within one business week. </li>
+		<li>The Maintenance Lead has the option of creating alternative tests to 
+		address any challenge. If the test is valid but difficult to pass due to 
+		hardware or operating system limitations, the Maintenance Lead may 
+		choose to provide an alternate test to use in place of the original 
+		test. Alternate tests (and criteria for their use) will be made 
+		available to the licensee community on the JSR 309 TCK website</li>
+	</ul>
+	</li>
+	<li><b>If the test challenge is rejected, the licensee may choose to 
+	escalate the decision to the Executive Committee (EC)</b>, however, it is 
+	expected that the licensee would continue to work with the Maintenance Lead 
+	to resolve the issue and only involve the EC as a last resort.</li>
+</ol>
+<table id="table3" border="1" width="676">
+	<tbody><tr>
+		<td><b>Test Challenge Form</b></td>
+	</tr>
+	<tr>
+		<td width="666">Test Challenger Name and Company: &lt;name&gt;<p>Specification Name(s) and Version(s): 
+		&lt;Media Server Control API 1.0&gt;</p>
+		Test Suite Name and Version: &lt;refer to Test Cases numbering and 
+		documentation referred above in the TCK User Guide to report the test 
+		number&gt;<p>Exclude List: &lt;by default the latest published exclude list 
+		should be used, indicate version of exclude list that was used 
+		otherwise, or insert its content&gt;</p>
+		<p>Test Name Complaint: 
+		&lt;argument for why test is invalid&gt;</td>
+	</tr>
+</tbody></table>
+<table id="table4" border="1" width="681">
+	<tbody><tr>
+		<td width="671"><b>Test Challenge Response Form</b></td>
+	</tr>
+	<tr>
+		<td width="671">Test Defender Name and Company: &lt;Maintenance Lead&gt;<p>Test Defender Role in Defense:&nbsp; (e.g., test developer, 
+		Maintenance Lead, etc.)</p>
+		Specification Name(s) and Version(s): &lt;Media Server Control API 1.0&gt;<p>Test Suite Name and Version: 
+		&lt;refer to Test Cases numbering and documentation referred above in the 
+		TCK User Guide&gt;</p>
+		Test Name: &lt;refer to Test Cases numbering and documentation referred 
+		above in the TCK User Guide&gt;<p>Defense: (argument for why test is valid) -can be 
+		iterative-</p>
+		Implications of test invalidity: (e.g., other affected 
+		tests and test framework code, creation or exposure of ambiguities in 
+		spec (due to unspecified requirements), invalidation of the reference 
+		implementation, creation of serious holes in test suite)<p>Alternatives: (e.g., is an alternative test appropriate?)</td>
+	</tr>
+</tbody></table>
+
+</body></html>
