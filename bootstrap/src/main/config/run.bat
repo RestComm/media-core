@@ -102,7 +102,7 @@ rem Add -server to the JVM options, if supported
 if not errorlevel == 1 (set JAVA_OPTS=%JAVA_OPTS% -server)
 
 rem JVM memory allocation pool parameters. Modify as appropriate.
-set JAVA_OPTS=%JAVA_OPTS% -Xms128m -Xmx512m
+set JAVA_OPTS=%JAVA_OPTS% -Xms256m -Xmx512m
 
 rem profiler
 rem set JAVA_OPTS=%JAVA_OPTS% -agentpath:C:\Users\kulikov\.netbeans\6.1\lib\deployed\jdk15\windows\profilerinterface.dll=C:\Users\kulikov\.netbeans\6.1\lib,5140
