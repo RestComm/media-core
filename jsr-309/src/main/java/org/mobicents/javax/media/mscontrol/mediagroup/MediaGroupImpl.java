@@ -46,6 +46,8 @@ public class MediaGroupImpl extends ContainerImpl implements MediaGroup {
     
     public RequestIdentifier reqID = null;    
     
+    private Boolean stopping=false;
+    
     public MediaGroupImpl(MediaSessionImpl session, MediaConfigImpl config) throws MsControlException {
         super(session, config.getParameters());
         //determine endpoint local name
@@ -60,6 +62,24 @@ public class MediaGroupImpl extends ContainerImpl implements MediaGroup {
         recorder = new RecorderImpl(this);
         detector = new SignalDetectorImpl(this, config);
         
+    }
+    
+    public boolean isStopping()
+    {
+    	return this.stopping;
+    }
+    
+    public void waitForStop()
+    {
+    	this.stopping=true;
+    }
+    
+    public void releaseStop()
+    {
+    	this.stopping=false;
+    	player.stopCompleted();
+    	recorder.stopCompleted();
+    	detector.stopCompleted();
     }
 
     // MediaGroup Methods

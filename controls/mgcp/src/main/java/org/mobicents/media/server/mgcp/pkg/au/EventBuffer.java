@@ -63,6 +63,10 @@ public class EventBuffer implements DtmfDetectorListener {
         return sequence.length();
     }
     
+    public String getSequence() {
+        return sequence;
+    }
+    
     public void flush() { 
         //do nothing if digit collect phase is not active
         if (!this.isActive) {

@@ -77,7 +77,7 @@ public class RTPChannelTest {
 
     @Before
     public void setUp() throws Exception {
-        AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
+    	AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
         Formats fmts = new Formats();
         fmts.add(pcma);
         
@@ -154,8 +154,7 @@ public class RTPChannelTest {
         txPipe2.connect(channel2.getOutput());
 
         rxPipe2.connect(analyzer2);
-        rxPipe2.connect(channel2.getInput());
-        
+        rxPipe2.connect(channel2.getInput());    	
     }
 
     @After

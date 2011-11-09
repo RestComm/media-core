@@ -27,6 +27,7 @@ import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Scheduler;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Implements pool of transactions.
  * 
@@ -37,7 +38,7 @@ public class TransactionManager {
     private static int ID = 1;
     
     //pool of transaction objects
-    private Transaction[] pool;
+    private ConcurrentLinkedQueue<Transaction> pool;
     //currently active transactions.
     private Transaction[] active;
     
@@ -60,11 +61,11 @@ public class TransactionManager {
     public TransactionManager(Scheduler scheduler, int size) {
         this.scheduler = scheduler;
         
-        pool = new Transaction[size];
+        pool = new ConcurrentLinkedQueue<Transaction>();
         active = new Transaction[size];
         
-        for (int i = 0; i < pool.length; i++) {
-            pool[i] = new Transaction(this);
+        for (int i = 0; i < size; i++) {
+        	pool.add(new Transaction(this));            
         }
     }
     
@@ -131,18 +132,12 @@ public class TransactionManager {
      * @return the object which represents transaction.
      */
     private Transaction begin(int id) {
-        Transaction t = null;
-        for (int i = 0; i < pool.length; i++) {
-            if (pool[i] != null) {
-                t = pool[i];
-                pool[i] = null;
-                break;
-            }
-        }
+        Transaction t = pool.poll();
         
         if (t == null) {
             return t;
         }
+        
         t.id = id;
         insert(t, active);
         
@@ -163,7 +158,7 @@ public class TransactionManager {
     	}
                 
     	t.id = 0;
-    	insert(t, pool);    	
+    	pool.add(t);    	    
     }
     
     /**
@@ -197,12 +192,6 @@ public class TransactionManager {
      * @return the number of available transaction objects.
      */
     protected int remainder() {
-        int count = 0;
-        for (int i = 0; i < pool.length; i++) {
-            if (pool[i] != null) {
-                count++;
-            }
-        }
-        return count;
+    	return pool.size();        
     }
 }

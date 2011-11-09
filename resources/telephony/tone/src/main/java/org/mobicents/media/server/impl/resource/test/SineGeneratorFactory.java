@@ -19,24 +19,54 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.mgcp.controller.signal;
 
-import org.mobicents.media.server.utils.Text;
+package org.mobicents.media.server.impl.resource.test;
+
+import org.mobicents.media.Component;
+import org.mobicents.media.ComponentFactory;
+import org.mobicents.media.server.spi.Endpoint;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
- * Immediately sends notification to the user.
- * 
+ *
  * @author kulikov
  */
-public class NotifyImmediately extends EventAction {
-    
-	public NotifyImmediately(String name) {
-        super(name);
+public class SineGeneratorFactory implements ComponentFactory {
+
+    private String name;
+    private int f;
+    private short A;
+
+    public short getA() {
+        return A;
     }
 
-    public void perform(Signal signal, Event event, Text options) {
-    	signal.sendEvent(signal.getPackage().getName(), event.getName(), options);        
+    public int getF() {
+        return f;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setA(short A) {
+        this.A = A;
+    }
+
+    public void setF(int f) {
+        this.f = f;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
     
     
+    public Component newInstance(Endpoint endpoint) throws ResourceUnavailableException {
+        SineGenerator gen = new SineGenerator(endpoint, name);
+        gen.setAmplitude(A);
+        gen.setFrequency(f);
+        return gen;
+    }
+
 }

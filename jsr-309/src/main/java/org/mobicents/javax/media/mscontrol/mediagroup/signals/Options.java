@@ -49,6 +49,9 @@ public class Options {
     private int fdt=0;
     private int idt=0;
     
+    private int maxDuration=0;
+    private int numberOfAttempts=0;
+    
     private boolean ni = false;
     private long recordDuration = -1;
     
@@ -57,7 +60,7 @@ public class Options {
     
     private boolean silenceTermination = false;
     private long postSpeechTimer;    
-    private boolean clearDigits;
+    private boolean clearDigits = false;
     
     /**
      * Creates options.
@@ -102,6 +105,10 @@ public class Options {
             	this.fdt=Integer.parseInt(val);
             } else if(param.equalsIgnoreCase("idt")) {
             	this.idt=Integer.parseInt(val);
+            } else if(param.equalsIgnoreCase("x-md")) {
+            	this.maxDuration=Integer.parseInt(val);
+            } else if(param.equalsIgnoreCase("na")) {
+            	this.numberOfAttempts=Integer.parseInt(val);
             }
         }
     }
@@ -169,6 +176,22 @@ public class Options {
         return idt;
     }
     
+    public void setMaxDuration(int maxDuration) {
+        this.maxDuration=maxDuration;
+    }
+    
+    public int getMaxDuration() {
+        return maxDuration;
+    }
+    
+    public void setNumberOfAttempts(int numberOfAttempts) {
+        this.numberOfAttempts=numberOfAttempts;
+    }
+    
+    public int getNumberOfAttempts() {
+        return numberOfAttempts;
+    }
+    
     public void setDigitsNumber(int mn) {
         this.mn = mn;
     }
@@ -227,6 +250,10 @@ public class Options {
     
     public void setPostSpeechTimer(long postSpeechTimer) {
         this.postSpeechTimer = postSpeechTimer;
+    }
+    
+    public boolean getClearDigits() {
+        return this.clearDigits;
     }
     
     public void setClearDigits(boolean val) {
@@ -308,10 +335,20 @@ public class Options {
             buff.append("idt=").append(idt/100);
         }
         
+        if (this.maxDuration > 0) {
+        	buff.append(" ");
+            buff.append("x-md=").append(maxDuration/100);
+        }
+        
+        if(this.numberOfAttempts > 0) {
+        	buff.append(" ");
+            buff.append("na=").append(numberOfAttempts);
+        }
+        
         if (this.clearDigits) {
             buff.append(" ");
             buff.append("cb=true");
-        }
+        }              
         
         return buff.toString().trim();
     }

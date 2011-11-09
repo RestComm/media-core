@@ -76,6 +76,8 @@ public class PlayCollect extends Signal {
     
     private long firstDigitTimer=0;
     private long nextDigitTimer=0;
+    private long maxDuration=0;
+    private int numberOfAttempts=1;
     
     private Heartbeat heartbeat;
     
@@ -119,6 +121,16 @@ public class PlayCollect extends Signal {
         else
         	this.nextDigitTimer=0;
                 
+        if(options.getMaxDuration()>0)
+        	this.maxDuration=options.getMaxDuration();
+        else
+        	this.maxDuration=0;
+        
+        if(options.getNumberOfAttempts()>1)
+        	this.numberOfAttempts=options.getNumberOfAttempts();
+        else
+        	this.numberOfAttempts=1;
+        
         //if initial prompt has been specified then start with prompt phase
         if (options.hasPrompt()) {
             logger.info(String.format("(%s) Start prompt phase", getEndpoint().getLocalName()));
@@ -210,12 +222,21 @@ public class PlayCollect extends Signal {
     }
     
     private void startCollectPhase() {
-    	if(this.firstDigitTimer>0)
+    	if(this.firstDigitTimer>0 || this.maxDuration>0)
     	{
-    		heartbeat.setTtl(1 + (int)(this.firstDigitTimer/100000000L));
+    		if(this.firstDigitTimer>0)
+    			heartbeat.setTtl((int)(this.firstDigitTimer/100000000L));
+    		else
+    			heartbeat.setTtl(-1);
+    		
+    		if(this.maxDuration>0)
+    			heartbeat.setOverallTtl((int)(this.maxDuration/100000000L));
+    		else
+    			heartbeat.setOverallTtl(-1);
+    		
     		heartbeat.activate();
     		getEndpoint().getScheduler().submitHeatbeat(heartbeat);
-    	}
+    	}    	
     	
         buffer.activate();
         buffer.flush();
@@ -241,6 +262,9 @@ public class PlayCollect extends Signal {
     private void terminate() {
     	this.terminatePrompt();
         this.terminateCollectPhase();
+        
+        if(this.heartbeat!=null)
+    		this.heartbeat.disable();
     }
     
 
@@ -397,14 +421,14 @@ public class PlayCollect extends Signal {
         public void tone(String s) {
         	if(nextDigitTimer>0)
         	{
-        		heartbeat.setTtl(1 + (int)(nextDigitTimer/100000000L));
+        		heartbeat.setTtl((int)(nextDigitTimer/100000000L));
         		if(!heartbeat.isActive())
         		{
         			heartbeat.activate();
         			getEndpoint().getScheduler().submitHeatbeat(heartbeat);        			
         		}
         	}
-        	else
+        	else if(maxDuration==0)
         		heartbeat.disable();
         	
             logger.info(String.format("(%s) Tone '%s' has been detected", getEndpoint().getLocalName(), s));
@@ -428,7 +452,7 @@ public class PlayCollect extends Signal {
     
     private class Heartbeat extends Task {
 
-    	private int ttl=0;       	
+    	private int ttl=-1,overallTtl=-1;       	
     	private boolean active=false;
     	private Scheduler scheduler;
     	private Signal signal;
@@ -447,6 +471,11 @@ public class PlayCollect extends Signal {
         public synchronized void setTtl(int value)
         {
         	this.ttl=value;        	
+        }
+        
+        public synchronized void setOverallTtl(int value)
+        {
+        	this.overallTtl=value;        	
         }
         
         public synchronized void disable()
@@ -469,17 +498,51 @@ public class PlayCollect extends Signal {
         	if(!active)
         		return 0;
         	
-        	if(ttl>0)
+        	if(ttl!=0 && overallTtl!=0)
         	{
-        		ttl--;
+        		if(ttl>0)
+        			ttl--;
+        		
+        		if(overallTtl>0)
+        			overallTtl--;
+        		
         		scheduler.submitHeatbeat(this);
         		return 0;
         	}
             
         	logger.info(String.format("(%s) Timeout expired waiting for dtmf", getEndpoint().getLocalName()));
-        	oc.fire(signal, new Text("rc=326"));
-        	reset();
-        	complete();
+        	if(numberOfAttempts==1)
+        	{
+        		if(ttl==0)
+        			if(buffer.getSequence().length()>0)
+        				oc.fire(signal, new Text("rc=326 dc=" + buffer.getSequence()));
+        			else
+        				oc.fire(signal, new Text("rc=326"));
+        		else
+        			oc.fire(signal, new Text("rc=330"));
+        		
+        		reset();
+        		complete();
+        	}
+        	else
+        	{
+        		numberOfAttempts--;
+        		if (options.hasPrompt()) {
+        			buffer.passivate();
+        			isPromptActive = true;
+        			startPromptPhase(options);
+        			active=false;
+        		} else {
+        			if(maxDuration>0)
+        				setOverallTtl((int)(maxDuration/100000000L));
+        			
+        			if(firstDigitTimer>0)
+        				setTtl((int)(firstDigitTimer/100000000L));
+        					
+        			scheduler.submitHeatbeat(this);        			        			
+        		}
+        	}
+        	
         	return 0;        	
         }
 	}

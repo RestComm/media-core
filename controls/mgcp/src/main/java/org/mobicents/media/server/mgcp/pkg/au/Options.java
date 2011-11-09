@@ -47,7 +47,9 @@ public class Options {
     private final static Text cb = new Text("cb");
     private final static Text fdt= new Text("fdt");
     private final static Text idt= new Text("idt");    
-
+    private final static Text na= new Text("na");
+    private final static Text x_md= new Text("x-md");
+    
     private final static Text TRUE = new Text("true");
     private final static Text FALSE = new Text("false");
     
@@ -89,6 +91,8 @@ public class Options {
     
     private long firstDigitTimer=0;
     private long interDigitTimer=0;
+    private long maxDuration=0;
+    private int numberOfAttempts=0;
     
     /**
      * Creates options.
@@ -139,6 +143,10 @@ public class Options {
                 this.firstDigitTimer = value.toInteger() * 100000000L;
             } else if (name.equals(idt)) {
                 this.interDigitTimer = value.toInteger() * 100000000L;
+            } else if (name.equals(x_md)) {
+                this.maxDuration = value.toInteger() * 100000000L;
+            } else if (name.equals(na)) {
+                this.numberOfAttempts = value.toInteger();
             } else if (name.equals(cb)) {
                 this.clearDigits = value.equals(TRUE);
             }
@@ -208,6 +216,14 @@ public class Options {
     public long getInterDigitTimer() {
         return this.interDigitTimer;
     }
+    
+    public long getMaxDuration() {
+        return this.maxDuration;
+    }
+    
+    public int getNumberOfAttempts() {
+        return this.numberOfAttempts;
+    }    
     
     public boolean isClearDigits() {
         return clearDigits;

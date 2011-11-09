@@ -37,8 +37,8 @@ public class MgcpEndpointTest {
     @Before
     public void setUp() {
         endpoint = new MyTestEndpoint("test");
-        mgcpEndpoint = new MgcpEndpoint(endpoint, null, "localhost", 2727, new ArrayList());
         
+        mgcpEndpoint = new MgcpEndpoint(endpoint, null, "localhost", 2727, new ArrayList());        
         callManager = new CallManager();
     }
     

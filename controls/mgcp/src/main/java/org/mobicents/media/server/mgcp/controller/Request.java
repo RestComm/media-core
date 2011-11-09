@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -34,7 +35,6 @@ import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.utils.Text;
-
 /**
  *
  * @author kulikov
@@ -59,7 +59,7 @@ public class Request {
      * The list of signals/events requested.
      * This list is cleared each time before accept new request.
      */ 
-    private ArrayList<Signal> executors = new ArrayList(15);
+    private ConcurrentLinkedQueue<Signal> executors = new ConcurrentLinkedQueue<Signal>();
     
     //notified entity address
     private InetSocketAddress address;
@@ -89,8 +89,9 @@ public class Request {
      */    
     public void accept(Text ID, Text callAgent, Collection<Text> events, Collection<Text> signals) 
             throws UnknownPackageException, UnknownEventException, UnknownSignalException {
-        //clean previously requested events and signals
-        executors.clear();
+        
+    	//clean previously requested events and signals
+    	executors.clear();
         
         //reset packages
         for (MgcpPackage p : packages) {
@@ -137,24 +138,22 @@ public class Request {
      */
     public void execute() {
         if (!executors.isEmpty()) {
-            currentSignal = executors.remove(0);
-            currentSignal.execute();
-        }
+        	currentSignal = executors.poll();
+        	currentSignal.execute();                    
+        }        
     }
     
     public void onEvent(Text event) { 
-        address = new InetSocketAddress(callAgent.getHostName().toString(), callAgent.getPort());
-        
+    	address = new InetSocketAddress(callAgent.getHostName().toString(), callAgent.getPort());
         MgcpEvent evt = (MgcpEvent) endpoint.mgcpProvider.createEvent(MgcpEvent.REQUEST, address);
         MgcpRequest msg = (MgcpRequest) evt.getMessage();
-        
         msg.setCommand(new Text("NTFY"));
         msg.setEndpoint(endpoint.fullName);
         msg.setParameter(Parameter.OBSERVED_EVENT, event);
         msg.setParameter(Parameter.NOTIFIED_ENTITY, callAgent.getValue());
         msg.setParameter(Parameter.REQUEST_ID, ID);
         msg.setTxID(MgcpEndpoint.txID++);
-        endpoint.send(evt, address);
+        endpoint.send(evt, address);        
     }
 
     public void completed() {

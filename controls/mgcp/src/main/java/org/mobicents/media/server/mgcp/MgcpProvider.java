@@ -117,7 +117,7 @@ public class MgcpProvider {
      * @param eventID the event identifier: REQUEST or RESPONSE
      * @return event object.
      */
-    public synchronized MgcpEvent createEvent(int eventID, SocketAddress address) {
+    public MgcpEvent createEvent(int eventID, SocketAddress address) {
     	MgcpEventImpl evt = events.poll();
     	evt.setEventID(eventID);
     	evt.setAddress(address);

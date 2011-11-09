@@ -24,6 +24,7 @@ package org.mobicents.media.server.mgcp.tx.cmd;
 import java.io.IOException;
 import java.util.Collection;
 import org.mobicents.media.server.mgcp.MgcpEvent;
+import org.mobicents.media.server.mgcp.controller.Request;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.UnknownEventException;
 import org.mobicents.media.server.mgcp.controller.UnknownPackageException;
@@ -56,7 +57,7 @@ public class NotificationRequestCmd extends Action {
     //error code and message
     private int code;
     private Text message;
-    
+        
     public NotificationRequestCmd(Scheduler scheduler) {
         handler = new TaskChain(3);
         
@@ -140,7 +141,7 @@ public class NotificationRequestCmd extends Action {
             
             if (pe != null || ps != null) {
                 try {
-                    endpoint.getRequest().accept(reqID.getValue(), callAgent, events, signals);                    
+                	endpoint.getRequest().accept(reqID.getValue(), callAgent, events, signals);                    
                 } catch (UnknownEventException e1) {
                 	throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_DETECT_EVENT, new Text(e1.getMessage()));
                 } catch (UnknownSignalException e2) {
@@ -195,7 +196,7 @@ public class NotificationRequestCmd extends Action {
         }
         
         public int getQueueNumber()
-        {
+        {        	
         	return scheduler.MANAGEMENT_QUEUE;
         }
 

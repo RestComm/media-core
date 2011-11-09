@@ -24,6 +24,8 @@ package org.mobicents.media.server.mgcp.controller;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
@@ -58,7 +60,7 @@ public class MgcpEndpoint {
     private int state = STATE_FREE;
     
     //Request executor associated with endpoint
-    protected Request request;
+    Request request;
     
     //pool of connection activities, limited to 15
     private ArrayList<MgcpConnection> connections = new ArrayList(N);
@@ -77,8 +79,9 @@ public class MgcpEndpoint {
         this.endpoint = endpoint;
         this.mgcpProvider = mgcpProvider;
         this.fullName = new Text(endpoint.getLocalName() + "@" + domainName + ":" + port);
+        
         //create request executor
-        this.request = new Request(this, packages);
+        request=new Request(this, packages);        
 
         for (int i = 0; i < N; i++) {
             connections.add(new MgcpConnection());
@@ -126,7 +129,7 @@ public class MgcpEndpoint {
      * @return request executor.
      */
     public Request getRequest() {
-        return this.request;
+    	return this.request;
     }
     
     /**
@@ -203,7 +206,8 @@ public class MgcpEndpoint {
     	if (activeConnections.isEmpty()) {        	        	
     		this.state = STATE_FREE;
     	}
-    	this.request.cancel();    	
+    	
+    	this.request.cancel();    	    	   
     }
 
     public void deleteAllConnections() {

@@ -19,24 +19,54 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.mgcp.controller.signal;
 
-import org.mobicents.media.server.utils.Text;
+package org.mobicents.media.server.impl.resource.test;
+
+import org.mobicents.media.Component;
+import org.mobicents.media.ComponentFactory;
+import org.mobicents.media.server.spi.Endpoint;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
- * Immediately sends notification to the user.
- * 
+ *
  * @author kulikov
  */
-public class NotifyImmediately extends EventAction {
-    
-	public NotifyImmediately(String name) {
-        super(name);
+public class MeanderDetectorFactory implements ComponentFactory {
+
+    private String name;
+    private double T;
+    private short A;
+
+    public short getAmplitude() {
+        return A;
     }
 
-    public void perform(Signal signal, Event event, Text options) {
-    	signal.sendEvent(signal.getPackage().getName(), event.getName(), options);        
+    public double getPeriod() {
+        return T;
+    }
+
+    public String getName() {
+        return name;
     }
     
-    
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAmplitude(short A) {
+        this.A = A;
+    }
+
+    public void setPeriod(double T) {
+        this.T = T;
+    }
+
+        
+    public Component newInstance(Endpoint endpoint) throws ResourceUnavailableException {
+        MeanderDetector det = new MeanderDetector(name);
+        det.setAmplitude(A);
+        det.setPeriod(T);
+        return det;
+    }
+
 }

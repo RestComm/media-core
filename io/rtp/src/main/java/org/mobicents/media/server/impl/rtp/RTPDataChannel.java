@@ -25,6 +25,7 @@ package org.mobicents.media.server.impl.rtp;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -41,7 +42,6 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-
 /**
  *
  * @author kulikov
@@ -91,8 +91,7 @@ public class RTPDataChannel {
     
     //Formats for RTP events
     private RTPFormats eventFormats = new RTPFormats();
-    private final Object LOCK = new Object();
-
+    
     /**
      * Create RTP channel instance.
      *
@@ -145,7 +144,7 @@ public class RTPDataChannel {
     public void bind() throws SocketException {
         try {
             dataChannel = rtpManager.udpManager.open(rtpHandler);
-
+            
             //if control enabled open rtcp channel as well
             if (rtpManager.isControlEnabled) {
                 controlChannel = rtpManager.udpManager.open(new RTCPHandler());
@@ -178,6 +177,12 @@ public class RTPDataChannel {
      */
     public void setPeer(SocketAddress address) {
         this.remotePeer = address;
+        if(dataChannel!=null && !dataChannel.isConnected() && rtpManager.udpManager.connectImmediately((InetSocketAddress)address))
+        	try {
+        		dataChannel.connect(address);
+        	}
+        	catch (IOException e) {           		
+        	}        	
     }
 
     /**
@@ -186,7 +191,20 @@ public class RTPDataChannel {
     public void close() {
         input.stop();
         output.stop();
-        dataChannel.socket().close();
+        
+        if(dataChannel.isConnected())
+        	try {        
+        		dataChannel.disconnect();        		
+        	}
+        	catch(IOException e) {        		
+        	}        	        	        
+        
+        try {   
+        	dataChannel.socket().close();
+        	dataChannel.close();
+        } catch(IOException e) {        		
+        }  
+        	
         if (controlChannel != null) {
             controlChannel.socket().close();
         }
@@ -256,10 +274,8 @@ public class RTPDataChannel {
          * @see org.mobicents.media.server.io.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel)
          */
         public void receive(DatagramChannel channel) {
-        	synchronized(LOCK) {
         		count++;
-        		rtpManager.scheduler.submit(rx,rtpManager.scheduler.RX_TASK_QUEUE);
-        	}
+        		rtpManager.scheduler.submit(rx,rtpManager.scheduler.RX_TASK_QUEUE);        	
         }
 
         public boolean isReadable() {
@@ -271,9 +287,7 @@ public class RTPDataChannel {
         }
 
         protected void allowReading() {
-            synchronized(rxMonitor) {
-                this.isReading = false;
-            }
+                this.isReading = false;            
         }
 
         /**
@@ -282,11 +296,9 @@ public class RTPDataChannel {
          * @see org.mobicents.media.server.io.network.ProtocolHandler#send(java.nio.channels.DatagramChannel)
          */
         public void send(DatagramChannel channel) {
-        	synchronized(LOCK) {
         		//at this point we are not writting directly
         		//instead the task for writting is scheduled to run at next time unit
-        		rtpManager.scheduler.submit(tx,rtpManager.scheduler.OUTPUT_QUEUE);
-        	}
+        		rtpManager.scheduler.submit(tx,rtpManager.scheduler.OUTPUT_QUEUE);        	
         }
 
         public void setKey(SelectionKey key) {
@@ -393,8 +405,10 @@ public class RTPDataChannel {
 
         @Override
         public void onMediaTransfer(Frame frame) throws IOException {
-            txBuffer.offer(frame);
-            tx.perform();
+        	if (dataChannel.isConnected()) {
+        		txBuffer.offer(frame);
+        		tx.perform();
+        	}
         }
 
         /**
@@ -452,8 +466,16 @@ public class RTPDataChannel {
             try {
                 //clean buffer before read
                 rtpPacket.getBuffer().clear();
-                while (dataChannel.receive(rtpPacket.getBuffer()) != null) {
-                    dataChannel.receive(rtpPacket.getBuffer());
+                
+                SocketAddress currAddress=dataChannel.receive(rtpPacket.getBuffer());
+                try {                	               
+                	if(currAddress!=null && !dataChannel.isConnected())                	
+                		dataChannel.connect(currAddress);
+                }
+                catch (IOException e) {            
+                }
+                                	
+                while (currAddress != null) {                	
                     //put pointer to the begining of the buffer
                     rtpPacket.getBuffer().flip();
 
@@ -463,6 +485,7 @@ public class RTPDataChannel {
                         rxCount++;
                     } 
                     rtpPacket.getBuffer().clear();
+                    currAddress=dataChannel.receive(rtpPacket.getBuffer());
                 }
             } catch (Exception e) {
                 //TODO: handle error
@@ -555,8 +578,8 @@ public class RTPDataChannel {
 
                 frame.recycle();
                 try {
-                    if (dataChannel.isOpen()) {
-                        dataChannel.send(rtpPacket.getBuffer(), remotePeer);
+                    if (dataChannel.isConnected()) {
+                    	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
                         txCount++;
                     }
                 } catch (Exception e) {

@@ -33,6 +33,8 @@ import javax.media.mscontrol.mediagroup.Player;
 import javax.media.mscontrol.mediagroup.PlayerEvent;
 import javax.media.mscontrol.resource.RTC;
 
+import org.mobicents.javax.media.mscontrol.spi.DriverImpl;
+
 import org.mobicents.fsm.FSM;
 import org.mobicents.fsm.Logger;
 import org.mobicents.fsm.State;
@@ -86,10 +88,13 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
     
     private ConcurrentLinkedQueue<PlayTask> playList = new ConcurrentLinkedQueue();
     
+    private MgcpSender mgcpSender;
+    
     //-------------------------------------------------------------------------------------------/
     
     protected PlayerImpl(MediaGroupImpl parent) throws MsControlException {
         this.parent = parent;
+        mgcpSender=new MgcpSender();
         this.initFSM();
     }
 
@@ -353,7 +358,7 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
         eventList.add(new RequestedEvent(new EventName(PackageAU.Name, MgcpEvent.of), actions));
         
         EventName[] signals = new EventName[signalList.size()];        
-	signalList.toArray(signals);
+        signalList.toArray(signals);
         
         RequestedEvent[] events = new RequestedEvent[eventList.size()];
         eventList.toArray(events);
@@ -363,12 +368,18 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
         req.setSignalRequests(signals);
         
         req.setTransactionHandle(txID);
-        req.setNotifiedEntity(parent.getMediaSession().getDriver().getCallAgent());
-
-        parent.getMediaSession().getDriver().attach(txID, this);
-        parent.getMediaSession().getDriver().attach(reqID, this);
         
-        parent.getMediaSession().getDriver().send(req);
+        DriverImpl driver=parent.getMediaSession().getDriver();
+        
+        req.setNotifiedEntity(driver.getCallAgent());
+
+        driver.attach(txID, this);
+        driver.attach(reqID, this);
+        
+        if(this.parent.isStopping())
+        	mgcpSender.init(driver, req);
+        else
+        	driver.send(req);        
     }
 
     private void requestStop() {
@@ -380,12 +391,15 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
         NotificationRequest req = new NotificationRequest(this, parent.getEndpoint().getIdentifier(), reqID);
         
         req.setTransactionHandle(txID);
-        req.setNotifiedEntity(parent.getMediaSession().getDriver().getCallAgent());
-
-        parent.getMediaSession().getDriver().attach(txID, this);
-        parent.getMediaSession().getDriver().attach(reqID, this);
         
-        parent.getMediaSession().getDriver().send(req);
+        DriverImpl driver=parent.getMediaSession().getDriver();
+        
+        req.setNotifiedEntity(driver.getCallAgent());
+
+        driver.attach(txID, this);
+        driver.attach(reqID, this);
+                  
+        driver.send(req);
     }
     
     /**
@@ -412,6 +426,12 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
                 break;            
         }
         
+    }
+    
+    public void stopCompleted()
+    {
+    	if(mgcpSender.waiting)
+    		mgcpSender.run();
     }
     
     private class PlayRequest implements TransitionHandler {
@@ -442,8 +462,7 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
             if (!playList.isEmpty()) {
                 new Thread(new Starter()).start();
             }
-        }
-        
+        }       
     }
 
     private class PlayFailure implements TransitionHandler {
@@ -486,9 +505,8 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
             PlayerEventImpl evt = new PlayerEventImpl(player, PlayerEvent.PLAY_COMPLETED, true, PlayerEvent.STOPPED, null);
             evt.setOffset((int)(stopTime - startTime));
             fireEvent(evt);
-        }
-        
-    }
+        }        
+    }    
     
     private class OnStart implements StateEventHandler {
 
@@ -558,7 +576,7 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
             params = createParams(task.uris, task.params);
             
             try {
-                fsm.signal(SIGNAL_PLAY);
+            	fsm.signal(SIGNAL_PLAY);
             } catch (UnknownTransitionException e) {
             }
         }
@@ -587,6 +605,29 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
         }
     }
     
+    private class MgcpSender {
+    	
+    	private DriverImpl driver;
+    	private NotificationRequest req;
+    	private Boolean waiting=false;
+    	
+    	public MgcpSender()
+    	{
+    	}
+    	
+    	public void init(DriverImpl driver,NotificationRequest req)
+    	{
+    		this.driver=driver;
+    		this.req=req;
+    		waiting=true;
+    	}
+    	
+        public void run() {
+        	driver.send(req);
+        	waiting=false;
+        }
+    }
+    
     public void info(String s) {
         parent.info(s);
     }
@@ -597,5 +638,5 @@ public class PlayerImpl implements Player, JainMgcpListener, Logger {
 
     public void warn(String s) {
         parent.warn(s);
-    }
+    }    
 }

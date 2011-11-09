@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.mobicents.media.server.impl.resource.dtmf.DtmfTest
--------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.665 sec

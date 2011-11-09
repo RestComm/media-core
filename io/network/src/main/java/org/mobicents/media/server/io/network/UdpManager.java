@@ -51,6 +51,15 @@ public class UdpManager {
     /** bind address */
     private String bindAddress = "127.0.0.1";
     
+    /** local network address and subnet*/
+    private byte[] localNetwork;
+    private IPAddressType currNetworkType;
+    private byte[] localSubnet;
+    private IPAddressType currSubnetType;
+    
+    /** use sbc */
+    private Boolean useSbc=false;
+    
     //port manager
     private PortManager portManager = new PortManager();
 
@@ -100,7 +109,43 @@ public class UdpManager {
     public String getBindAddress() {
         return bindAddress;
     }
+    
+    /**
+     * Set the local network address
+     * 
+     * @param address the IP address as character string.
+     */
+    public void setLocalNetwork(String localNetwork) {
+        IPAddressType currNetworkType=IPAddressCompare.getAddressType(localNetwork);
+        if(currNetworkType==IPAddressType.IPV4)
+        	this.localNetwork=IPAddressCompare.addressToByteArrayV4(localNetwork);
+        else if(currNetworkType==IPAddressType.IPV6)
+        	this.localNetwork=IPAddressCompare.addressToByteArrayV6(localNetwork);
+    }
 
+    /**
+     * Set the local network address
+     *
+     *@param address the IP subnet as character string.
+     */
+    public void setLocalSubnet(String localSubnet) {
+    	IPAddressType currSubnetType=IPAddressCompare.getAddressType(localSubnet);
+    	if(currSubnetType==IPAddressType.IPV4)
+    		this.localSubnet=IPAddressCompare.addressToByteArrayV4(localSubnet);
+    	else if(currSubnetType==IPAddressType.IPV6)
+    		this.localSubnet=IPAddressCompare.addressToByteArrayV6(localSubnet);
+    }
+
+    /**
+     * Set the useSbc property
+     *
+     *@param useSbc whether to use sbc or not
+     */
+    public void setUseSbc(Boolean useSbc)
+    {
+    	this.useSbc=useSbc;
+    }
+    
     /**
      * Modify the low boundary.
      * @param low port number
@@ -133,6 +178,28 @@ public class UdpManager {
         return portManager.getLowestPort();
     }
 
+    public boolean connectImmediately(InetSocketAddress address)
+    {
+    	if(!useSbc)
+    		return true;
+    	
+    	boolean connectImmediately=true;
+    	byte[] addressValue=address.getAddress().getAddress();
+    	    	
+    	if(currSubnetType==IPAddressType.IPV4 && currNetworkType==IPAddressType.IPV4)
+    	{
+    		if(!IPAddressCompare.isInRangeV4(localNetwork,localSubnet,addressValue))
+    			connectImmediately=false;
+    	}
+    	else if(currSubnetType==IPAddressType.IPV6 && currNetworkType==IPAddressType.IPV6)
+    	{
+    		if(!IPAddressCompare.isInRangeV6(localNetwork,localSubnet,addressValue))
+    			connectImmediately=false;
+    	}
+    	
+    	return connectImmediately;
+    }
+    
     /**
      * Opens and binds new datagram channel.
      *
@@ -146,7 +213,7 @@ public class UdpManager {
         channel.configureBlocking(false);
         SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
         key.attach(handler);
-        handler.setKey(key);
+        handler.setKey(key);        
         return channel;
     }
 
@@ -170,8 +237,7 @@ public class UdpManager {
         		port = portManager.next();
         		ex = null;
         		break;
-        	} catch (SocketException e) {
-        		
+        	} catch (SocketException e) {        		
         		ex = e;
         		logger.info("Failed trying to bind " + bindAddress + ":" + port);
         		port = portManager.next();

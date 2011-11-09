@@ -17,6 +17,9 @@
             <parameter><inject bean="Scheduler"/></parameter>
         </constructor>
         <property name="bindAddress">127.0.0.1</property>
+	<property name="localNetwork">127.0.0.1</property>
+	<property name="localSubnet">255.255.255.255</property>
+	<property name="useSbc">false</property>
     </bean>
     
     <!-- MGCP Controller definition -->

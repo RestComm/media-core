@@ -119,10 +119,11 @@ public class Configurator {
         }
         
         ArrayList<MgcpPackage> packages = new ArrayList();
+        
         if (descriptor != null) {
-            for (int i = 0; i < descriptor.packages.length; i++) {
-                packages.add(packageFactory.getPackage(descriptor.packages[i].trim()));
-            }
+        	for (int i = 0; i < descriptor.packages.length; i++) {
+               packages.add(packageFactory.getPackage(descriptor.packages[i].trim()));
+        	}        	
         }
         
         return new MgcpEndpoint(endpoint, mgcpProvider, address, port, packages);

@@ -23,7 +23,6 @@ package org.mobicents.media.server.mgcp.controller.signal;
 
 import java.util.ArrayList;
 import org.mobicents.media.server.utils.Text;
-
 /**
  * Event thrown by endpoint or connection.
  * 
@@ -130,7 +129,7 @@ public class Event {
      * Executes action associated with this event
      */
     public void fire(Signal s, Text options) {
-        if (this.isActive) {
+    	if (this.isActive) {
             this.requestedAction.perform(s, this, options);
         }
     }

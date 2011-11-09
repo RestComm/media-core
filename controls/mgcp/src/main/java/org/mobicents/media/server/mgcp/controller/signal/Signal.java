@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.utils.Text;
-
 /**
  * Bridges the gap between the MGCP signal/event model and server SPI.
  * 
@@ -48,8 +47,8 @@ public abstract class Signal {
     /** Dispatches detected events and gets resources */
     private MgcpPackage mgcpPackage;
     
-    private Connection connection;
-        
+    private Connection connection;           
+    
     public Signal(String name) {
         this.name = new Text(name);
     }
@@ -121,14 +120,14 @@ public abstract class Signal {
     }
     
     protected void sendEvent(Text evt) {
-        for (Text event : events) {
+    	for (Text event : events) {
             if (event.equals(evt)) {
                 mgcpPackage.onEvent(event);
             }
         }
     }
     
-    protected void sendEvent(Text pckName, Text evtName, Text params) {
+    protected void sendEvent(Text pckName, Text evtName, Text params) {    	
 //        for (Text event : events) {
 //            if (event.equals(evtName) && mgcpPackage != null) {
 //                System.out.println("Checking event: " + event);

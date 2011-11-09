@@ -23,6 +23,13 @@
 package org.mobicents.media.server.scheduler;
 
 import java.lang.InterruptedException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -67,18 +74,6 @@ public class Scheduler  {
     
     //flag indicating state of the scheduler
     private boolean isActive;
-
-    /** the amount of tasks missed their deadline */
-    private volatile long missCount;
-
-    /** the number of total tasks executed */
-    private volatile long taskCount;
-
-    /** The allowed time jitter */
-    private long tolerance = 3000000L;
-
-    //The most worst execution time detected
-    private long wet;
 
     private Logger logger = Logger.getLogger(Scheduler.class) ;
     
@@ -153,7 +148,7 @@ public class Scheduler  {
         
         logger.info("Starting ");
         
-        cpuThread.start();
+        cpuThread.activate();
         
         logger.info("Started ");
     }
@@ -181,150 +176,134 @@ public class Scheduler  {
         heartBeatQueue.clear();
     }
 
+    //removed statistics to increase perfomance
     /**
      * Shows the miss rate.
      * 
      * @return the miss rate value;
      */
     public double getMissRate() {
-        return taskCount > 0 ? (double)missCount/(double)taskCount : 0D;
+        return 0;
     }
 
     public long getWorstExecutionTime() {
-        return wet;
+        return 0;
     }
 
+    public void notifyCompletion()
+    {
+    	cpuThread.notifyCompletion();
+    }
+    
     /**
      * Executor thread.
      */
-    private class CpuThread extends Thread {
-        private Task t;
+    private class CpuThread extends Thread {        
         private volatile boolean active;
-
+        private int currQueue=0;        
+        private AtomicInteger activeTasksCount=new AtomicInteger();
+        private long cycleStart=0;
+        private ExecutorService eservice;
+        private int runIndex=0;
+        private Object LOCK=new Object();
+        
         public CpuThread(String name) {
             super(name);
-        }
-
-        @Override
-        public void run() {
-            this.active = true;
-            Integer queueIndex=0;
-            long cycleStart = clock.getTime();
-            int runIndex=0;
-            long duration;
-            long cycleDuration;
             
-            while (active) {
-                //load task with highest priority and execute it.
-                t = taskQueues[queueIndex].poll();
-                
-                //if task has been canceled take another one
-                if (t == null) {
-                	//cycle completed
-                	if(queueIndex==taskQueues.length-1)
-                	{                		                		
-                		//run here tasks from management pool if have time
-                		cycleDuration=clock.getTime() - cycleStart;
-                		
-                		if(cycleDuration<20000000L)
-                		{
-                			taskQueues[MANAGEMENT_QUEUE].changePool();
-                			t=taskQueues[MANAGEMENT_QUEUE].poll();
-                		}
-                		
-                		while(cycleDuration<20000000L && t!=null)
-                		{
-                			try {
-                                //update miss rate countor
-                                long now = clock.getTime();
-
-                                //increment task countor
-                                taskCount++;
-
-                                //execute task
-                                t.run();
-
-                                //determine worst execution time
-                                duration = clock.getTime() - now;
-                                if (duration > wet) {
-                                    wet = duration;
-                                }
-                            } catch (Exception e) {
-                            }
-                            
-                            cycleDuration=clock.getTime() - cycleStart;
-                            t=taskQueues[MANAGEMENT_QUEUE].poll();
-                		}                		
-                		
-                		//if still have time should sleep
-                		if(cycleDuration<20000000L)         
-                			try
-                			{                				
-                				this.sleep(20L-cycleDuration/1000000L,(int)((20000000L-cycleDuration)%1000000L));
-                			}
-                			catch(InterruptedException e)
-                			{                				
-                				//lets continue
-                			}
-                		
-                		//new cycle started
-                		cycleStart = cycleStart + 20000000L;
-                		runIndex=(runIndex+1)%5;
-                		
-                		//new cycle started , run heartbeat queues if needed
-                		if(runIndex==0)
-                		{
-                			heartBeatQueue.changePool();
-                			t=heartBeatQueue.poll();
-                			
-                			while(t!=null)
-                    		{
-                    			try {
-                                    //update miss rate countor
-                                    long now = clock.getTime();
-
-                                    //increment task countor
-                                    taskCount++;
-
-                                    //execute task
-                                    t.run();
-
-                                    //determine worst execution time
-                                    duration = clock.getTime() - now;
-                                    if (duration > wet) {
-                                        wet = duration;
-                                    }
-                                } catch (Exception e) {
-                                }
-                                
-                                t=heartBeatQueue.poll();
-                    		} 
-                		}
+            int nrOfProcessors = Runtime.getRuntime().availableProcessors();
+            eservice = Executors.newFixedThreadPool(2*nrOfProcessors);            
+        }
+        
+        public void activate() {
+        	this.active = true;
+        	cycleStart = clock.getTime();
+        	this.start();
+        }
+        
+        public void notifyCompletion() {
+        	int newValue=activeTasksCount.decrementAndGet();
+        	if(newValue==0 && this.active)
+        		synchronized(LOCK) {
+        			LOCK.notify();
+        		}        	        	
+        }
+        
+        @Override
+        public void run() {        	
+        	long cycleDuration;
+        	
+        	while(true)
+        	{
+        		while(currQueue<=OUTPUT_QUEUE)
+    			{    				    				
+    				synchronized(LOCK) {    					
+    					if(executeQueue(taskQueues[currQueue]))
+    						try {
+    							LOCK.wait();
+    						}
+    						catch(InterruptedException e)  {                                               
+    							//lets continue
+    						}
+    				}
+    				
+    				currQueue++;
+    			}
+        		        		
+        		cycleDuration=clock.getTime() - cycleStart;
+				if(cycleDuration<18000000L)					
+					synchronized(LOCK) {						
+						if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
+							try  {
+								LOCK.wait();
+							}
+							catch(InterruptedException e)  {                                               
+							//lets continue
+							}
+					}
+        	
+				runIndex=(runIndex+1)%5;
+    			if(runIndex==0)    				    				
+    				synchronized(LOCK) {
+    					if(executeQueue(heartBeatQueue))
+    						try  {
+    							LOCK.wait();
+    						}
+    						catch(InterruptedException e)  {                                               
+    							//lets continue
+    						}
+    				}    				
+            
+        		//sleep till next cycle
+        		cycleDuration=clock.getTime() - cycleStart;
+        		if(cycleDuration<20000000L)
+        			try  {                                               
+        				sleep(20L-cycleDuration/1000000L,(int)((20000000L-cycleDuration)%1000000L));
+        			}
+                	catch(InterruptedException e)  {                                               
+                		//lets continue
                 	}
-                	
-                	queueIndex=(queueIndex+1)%taskQueues.length;
-                	taskQueues[queueIndex].changePool();
-                    continue;
-                }
-
-                try {
-                    //update miss rate countor
-                    long now = clock.getTime();
-
-                    //increment task countor
-                    taskCount++;
-
-                    //execute task
-                    t.run();
-
-                    //determine worst execution time
-                    duration = clock.getTime() - now;
-                    if (duration > wet) {
-                        wet = duration;
-                    }
-                } catch (Exception e) {
-                }
-            }            
+    		
+                //new cycle starts , updating cycle start time by 20ms
+                cycleStart = cycleStart + 20000000L;
+                currQueue=MANAGEMENT_QUEUE;                                               
+        	}
+        }
+        
+        private boolean executeQueue(OrderedTaskQueue currQueue)
+        {
+        	Task t;        	
+        	currQueue.changePool();
+            int currQueueSize=currQueue.size();
+            activeTasksCount.set(currQueueSize);
+            t = currQueue.poll();
+            //submit all tasks in current queue
+            while(t!=null)
+            {            	
+            	eservice.submit(t);
+            	t = currQueue.poll();
+            }
+            
+            return currQueueSize!=0;
         }
 
         /**

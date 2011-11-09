@@ -32,6 +32,7 @@ import javax.media.mscontrol.resource.RTC;
 import javax.media.mscontrol.resource.ResourceEvent;
 import javax.media.mscontrol.resource.Trigger;
 
+import org.mobicents.javax.media.mscontrol.spi.DriverImpl;
 import org.mobicents.javax.media.mscontrol.MediaConfigImpl;
 import org.mobicents.javax.media.mscontrol.mediagroup.MediaGroupImpl;
 import org.mobicents.jsr309.mgcp.PackageAU;
@@ -58,12 +59,16 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
     private FlushHandler flushHandler;
     private StopHandler stopHandler;
     
+    private MgcpSender mgcpSender;
+    
     public SignalDetectorImpl(MediaGroupImpl parent, MediaConfigImpl config) {
         this.parent = parent;
         this.config = config;
         
         flushHandler = new FlushHandler();        
-        stopHandler = new StopHandler();        
+        stopHandler = new StopHandler(); 
+        
+        mgcpSender=new MgcpSender();
     }
 
     public void flushBuffer() throws MsControlException {
@@ -106,9 +111,17 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         if (options != null && options.containsKey(SignalDetectorImpl.INTER_SIG_TIMEOUT)) {
             params.setInterDigitTimer((Integer) options.get(SignalDetectorImpl.INTER_SIG_TIMEOUT));
         }
+        
+        if (options != null && options.containsKey(SignalDetectorImpl.MAX_DURATION)) {
+            params.setMaxDuration((Integer) options.get(SignalDetectorImpl.MAX_DURATION));
+        }
+        
+        if (options != null && options.containsKey(Player.REPEAT_COUNT)) {
+            params.setNumberOfAttempts((Integer) options.get(Player.REPEAT_COUNT));
+        }
 
         params.setNonInterruptiblePlay(true);
-        
+        Boolean hasClearDigits=false;
         if (rtc != null) {
             for (int i = 0; i < rtc.length; i++) {
                 if (rtc[i] == MediaGroup.SIGDET_STOPPLAY) {
@@ -117,12 +130,13 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
                 
                 if (rtc[i].getTrigger() == Player.PLAY_START && rtc[i].getAction() == SignalDetector.FLUSH_BUFFER) {
                 	delay(500);
+                	hasClearDigits=true;
                 	params.setClearDigits(true);
                 }
             }
         }       	
         
-        this.requestPlayCollect(params.toString());
+        this.requestPlayCollect(params.toString(),hasClearDigits);
     }
 
     private void verifyRTC(RTC[] rtc) throws UnsupportedException {
@@ -196,8 +210,8 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         return this.parent;
     }
 
-    public void stop() {
-        this.stopCollection();
+    public void stop() {    	
+    	this.stopCollection();        
     }
 
     public void addListener(MediaEventListener<SignalDetectorEvent> listener) {
@@ -218,7 +232,7 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         }
     }
 
-    private void requestPlayCollect(String params) {
+    private void requestPlayCollect(String params,Boolean hasClearDigits) {
         //generate request identifier and transaction ID
         RequestIdentifier reqID = parent.nextRequestID();        
         int txID = parent.getMediaSession().getDriver().getNextTxID();
@@ -239,22 +253,27 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         eventList.add(new RequestedEvent(new EventName(PackageAU.Name, MgcpEvent.of), actions));
         
         EventName[] signals = new EventName[signalList.size()];        
-	signalList.toArray(signals);
+        signalList.toArray(signals);
         
         RequestedEvent[] events = new RequestedEvent[eventList.size()];
         eventList.toArray(events);
+        
+        DriverImpl driver=parent.getMediaSession().getDriver();
         
         //new EventName(auPackageName, MgcpEvent.oc, connId)        
         req.setRequestedEvents(events);
         req.setSignalRequests(signals);
         
         req.setTransactionHandle(txID);
-        req.setNotifiedEntity(parent.getMediaSession().getDriver().getCallAgent());
+        req.setNotifiedEntity(driver.getCallAgent());
 
-        parent.getMediaSession().getDriver().attach(txID, this);
-        parent.getMediaSession().getDriver().attach(reqID, this);
+        driver.attach(txID, this);
+        driver.attach(reqID, this);
         
-        parent.getMediaSession().getDriver().send(req);
+        if(this.parent.isStopping())
+        	mgcpSender.init(driver, req);
+        else
+        	driver.send(req);        
     }
 
     private void cleanBuffer() {
@@ -269,10 +288,14 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         req.setSignalRequests(new EventName[]{new EventName(PackageAU.Name, PackageAU.es.withParm("cb=true"))});
         
         req.setTransactionHandle(txID);
-        req.setNotifiedEntity(parent.getMediaSession().getDriver().getCallAgent());
+        
+        DriverImpl driver=parent.getMediaSession().getDriver();
+        
+        req.setNotifiedEntity(driver.getCallAgent());
 
-        parent.getMediaSession().getDriver().attach(txID, flushHandler);
-        parent.getMediaSession().getDriver().send(req);
+        driver.attach(txID, flushHandler);
+        
+        driver.send(req);
     }
 
     private void stopCollection() {
@@ -287,10 +310,14 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         req.setSignalRequests(new EventName[]{new EventName(PackageAU.Name, PackageAU.es)});
         
         req.setTransactionHandle(txID);
-        req.setNotifiedEntity(parent.getMediaSession().getDriver().getCallAgent());
+        
+        DriverImpl driver=parent.getMediaSession().getDriver();
+        
+        req.setNotifiedEntity(driver.getCallAgent());
 
-        parent.getMediaSession().getDriver().attach(txID, stopHandler);
-        parent.getMediaSession().getDriver().send(req);
+        driver.attach(txID, stopHandler);
+        this.parent.waitForStop();
+        driver.send(req);
     }
     
     public void processMgcpCommandEvent(JainMgcpCommandEvent event) {
@@ -339,8 +366,13 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
                 report.setRtcTrigger(triggers.get(options.getPatternIndex()));
             }
         } else if(options.getReturnCode()==326) {
-        	report.setQualifier(SignalDetectorEvent.INITIAL_TIMEOUT_EXCEEDED);
-        } 
+        	if(options.getDigitsCollected()!=null && options.getDigitsCollected().length()>0)
+        		report.setQualifier(SignalDetectorEvent.INTER_SIG_TIMEOUT_EXCEEDED);
+        	else
+        		report.setQualifier(SignalDetectorEvent.INITIAL_TIMEOUT_EXCEEDED);
+        } else if(options.getReturnCode()==330) {
+        	report.setQualifier(SignalDetectorEvent.DURATION_EXCEEDED);
+        }
         else {        	
             report.setQualifier(SignalDetectorEvent.NUM_SIGNALS_DETECTED);
         }
@@ -378,6 +410,12 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         return String.format("Detector(%s)", this.getContainer());
     }
     
+    public void stopCompleted()
+    {
+    	if(mgcpSender.waiting)
+    		mgcpSender.run();
+    }
+    
     private class FlushHandler implements JainMgcpListener {
 
         public void processMgcpCommandEvent(JainMgcpCommandEvent event) {
@@ -389,7 +427,7 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
                     SignalDetectorEventImpl oc = 
                 	new SignalDetectorEventImpl(null, SignalDetectorEvent.FLUSH_BUFFER_COMPLETED, true);                    
                             fireEvent(oc);
-        System.out.println("DONE FLUSH BUFFER=======================>");
+                    System.out.println("DONE FLUSH BUFFER=======================>");
                     break;
                 default :
                     break;
@@ -406,12 +444,13 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
 
         public void processMgcpResponseEvent(JainMgcpResponseEvent event) {
             switch (event.getReturnCode().getValue()) {
-                case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:                    
+                case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:  
+                	parent.releaseStop();
                     SignalDetectorEventImpl oc = 
                             new SignalDetectorEventImpl(null, SignalDetectorEvent.RECEIVE_SIGNALS_COMPLETED, true);                    
                     oc.setQualifier(ResourceEvent.STOPPED);
                     fireEvent(oc);
-        System.out.println("DONE STOP=======================>");
+                    System.out.println("DONE STOP=======================>");
                     break;
                 default :
                     break;
@@ -421,4 +460,26 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         
     }
     
+    private class MgcpSender {
+    	
+    	private DriverImpl driver;
+    	private NotificationRequest req;
+    	private Boolean waiting=false;
+    	
+    	public MgcpSender()
+    	{
+    	}
+    	
+    	public void init(DriverImpl driver,NotificationRequest req)
+    	{
+    		this.driver=driver;
+    		this.req=req;
+    		waiting=true;
+    	}
+    	
+        public void run() {
+        	driver.send(req);
+        	waiting=false;
+        }
+    }
 }

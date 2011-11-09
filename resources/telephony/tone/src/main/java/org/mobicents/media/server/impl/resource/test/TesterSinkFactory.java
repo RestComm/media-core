@@ -19,24 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.mgcp.controller.signal;
 
-import org.mobicents.media.server.utils.Text;
+package org.mobicents.media.server.impl.resource.test;
+
+import org.mobicents.media.Component;
+import org.mobicents.media.ComponentFactory;
+import org.mobicents.media.server.spi.Endpoint;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
- * Immediately sends notification to the user.
- * 
+ *
  * @author kulikov
  */
-public class NotifyImmediately extends EventAction {
+public class TesterSinkFactory implements ComponentFactory {
+
+    private TransmissionTester tester;
     
-	public NotifyImmediately(String name) {
-        super(name);
+    public TesterSinkFactory(TransmissionTester tester) {
+        this.tester = tester;
+    }
+    public Component newInstance(Endpoint endpoint) throws ResourceUnavailableException {
+        return tester.getDetector();
     }
 
-    public void perform(Signal signal, Event event, Text options) {
-    	signal.sendEvent(signal.getPackage().getName(), event.getName(), options);        
-    }
-    
-    
 }

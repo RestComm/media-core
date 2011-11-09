@@ -40,6 +40,7 @@ import org.mobicents.fsm.State;
 import org.mobicents.fsm.StateEventHandler;
 import org.mobicents.fsm.TransitionHandler;
 import org.mobicents.fsm.UnknownTransitionException;
+import org.mobicents.javax.media.mscontrol.spi.DriverImpl;
 import org.mobicents.javax.media.mscontrol.mediagroup.signals.Options;
 import org.mobicents.jsr309.mgcp.PackageAU;
 
@@ -76,9 +77,11 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
     private boolean rtcTriggered = false;
     private ArrayList<Trigger> triggers = new ArrayList();
     
+    private MgcpSender mgcpSender;
+    
     public RecorderImpl(MediaGroupImpl mediaGroup) {
         this.parent = mediaGroup;
-
+        mgcpSender=new MgcpSender();
         initFSM();
     }
 
@@ -302,12 +305,18 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
         req.setSignalRequests(signals);
 
         req.setTransactionHandle(txID);
-        req.setNotifiedEntity(parent.getMediaSession().getDriver().getCallAgent());
+        
+        DriverImpl driver=parent.getMediaSession().getDriver();
+        
+        req.setNotifiedEntity(driver.getCallAgent());
 
-        parent.getMediaSession().getDriver().attach(txID, this);
-        parent.getMediaSession().getDriver().attach(reqID, this);
+        driver.attach(txID, this);
+        driver.attach(reqID, this);
 
-        parent.getMediaSession().getDriver().send(req);
+        if(this.parent.isStopping())
+        	mgcpSender.init(driver, req);
+        else
+        	driver.send(req);         
     }
 
     private void stopRecording() {
@@ -319,12 +328,15 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
         NotificationRequest req = new NotificationRequest(this, parent.getEndpoint().getIdentifier(), reqID);
 
         req.setTransactionHandle(txID);
-        req.setNotifiedEntity(parent.getMediaSession().getDriver().getCallAgent());
+        
+        DriverImpl driver=parent.getMediaSession().getDriver();
+        
+        req.setNotifiedEntity(driver.getCallAgent());
 
-        parent.getMediaSession().getDriver().attach(txID, this);
-        parent.getMediaSession().getDriver().attach(reqID, this);
+        driver.attach(txID, this);
+        driver.attach(reqID, this);
 
-        parent.getMediaSession().getDriver().send(req);
+        driver.send(req);
     }
 
 
@@ -419,6 +431,12 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
         }
     }
     
+    public void stopCompleted()
+    {
+    	if(mgcpSender.waiting)
+    		mgcpSender.run();
+    }
+    
     private class RecordRequest implements TransitionHandler {
         public void process(State state) {
             requestRecording();
@@ -428,7 +446,7 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
     private class StopRequest implements StateEventHandler {
         
         public void onEvent(State state) {
-            stopRecording();
+            stopRecording();            
         }
         
     }
@@ -442,7 +460,7 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
     }
     
     private class StoppedNotify implements TransitionHandler {
-        public void process(State state) {
+        public void process(State state) {        	
             fireEvent(new RecorderEventImpl(null, RecorderEvent.RECORD_COMPLETED, true, RecorderEvent.NO_QUALIFIER, null, 0));
         }
     }
@@ -459,6 +477,28 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
                 l.onEvent(event);
             }
         }
-    }
+    }   
     
+    private class MgcpSender {
+    	
+    	private DriverImpl driver;
+    	private NotificationRequest req;
+    	private Boolean waiting=false;
+    	
+    	public MgcpSender()
+    	{
+    	}
+    	
+    	public void init(DriverImpl driver,NotificationRequest req)
+    	{
+    		this.driver=driver;
+    		this.req=req;
+    		waiting=true;
+    	}
+    	
+        public void run() {
+        	driver.send(req);
+        	waiting=false;
+        }
+    }
 }

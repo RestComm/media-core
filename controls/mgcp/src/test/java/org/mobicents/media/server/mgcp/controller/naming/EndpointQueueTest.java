@@ -43,9 +43,9 @@ public class EndpointQueueTest {
     private MyTestEndpoint endpoint2 = new MyTestEndpoint("mobicents/aap/2");
     private MyTestEndpoint endpoint3 = new MyTestEndpoint("mobicents/aap/3");
     
-    private MgcpEndpoint ac1 = new MgcpEndpoint(endpoint1, null, "127.0.0.1", 2427, new ArrayList<MgcpPackage>());
-    private MgcpEndpoint ac2 = new MgcpEndpoint(endpoint2, null, "127.0.0.1", 2427, new ArrayList<MgcpPackage>());
-    private MgcpEndpoint ac3 = new MgcpEndpoint(endpoint3, null, "127.0.0.1", 2427, new ArrayList<MgcpPackage>());
+    private MgcpEndpoint ac1 = new MgcpEndpoint(endpoint1, null, "localhost", 2727, new ArrayList());
+    private MgcpEndpoint ac2 = new MgcpEndpoint(endpoint1, null, "localhost", 2727, new ArrayList());
+    private MgcpEndpoint ac3 = new MgcpEndpoint(endpoint1, null, "localhost", 2727, new ArrayList());
    
     private EndpointQueue queue = new EndpointQueue();
     private MgcpEndpoint[] res = new MgcpEndpoint[10];
@@ -63,7 +63,7 @@ public class EndpointQueueTest {
     
     @Before
     public void setUp() {
-        queue.add(ac1);
+    	queue.add(ac1);
         queue.add(ac2);
         queue.add(ac3);
         

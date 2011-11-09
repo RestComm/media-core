@@ -19,24 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.mgcp.controller.signal;
 
-import org.mobicents.media.server.utils.Text;
+package org.mobicents.media.server.impl.resource.test;
+
+import org.mobicents.media.server.impl.BaseComponent;
+import org.mobicents.media.server.impl.NotifyEventImpl;
 
 /**
- * Immediately sends notification to the user.
- * 
+ *
  * @author kulikov
  */
-public class NotifyImmediately extends EventAction {
-    
-	public NotifyImmediately(String name) {
-        super(name);
-    }
+public class MeanderEvent extends NotifyEventImpl {
 
-    public void perform(Signal signal, Event event, Text options) {
-    	signal.sendEvent(signal.getPackage().getName(), event.getName(), options);        
-    }
+    public final static int EVENT_MEANDER = 0;
+    public final static int EVENT_OUT_OF_SEQUENCE = 1;
+    public final static int EVENT_FORMAT_MISSMATCH = 2;
     
+    public  MeanderEvent(BaseComponent component, int eventID) {
+        super(component, eventID);
+    }
     
 }

@@ -22,12 +22,13 @@
 
 package org.mobicents.media.server.scheduler;
 
+import java.util.concurrent.Callable;
 /**
  * Scheduling task.
  * 
  * @author kulikov
  */
-public abstract class Task {
+public abstract class Task implements Callable {
     protected Scheduler scheduler;
 
     private volatile boolean isActive = true;
@@ -38,10 +39,10 @@ public abstract class Task {
     //reference to the chain
     protected TaskChain chain;
     
-    private final Object LOCK = new Object();
+    private final Object LOCK = new Object();    
     
     public Task(Scheduler scheduler) {
-        this.scheduler = scheduler;
+        this.scheduler = scheduler;        
     }
 
     public Scheduler scheduler() {
@@ -85,8 +86,8 @@ public abstract class Task {
     	}
     }
 
-    protected void run() {
-    	synchronized(LOCK) {
+    //call should not be synchronized since can run only once in queue cycle
+    public Object call() {
     		if (this.isActive)  {
     			try {
     				perform();                
@@ -100,8 +101,10 @@ public abstract class Task {
     			} catch (Exception e) {
     				if (this.listener != null) listener.handlerError(e);
     			}
-    		}
-    	}
+    		}  
+    		
+    		scheduler.notifyCompletion();
+    		return null;
     }
 
     protected void activate(Boolean isHeartbeat) {
@@ -109,5 +112,5 @@ public abstract class Task {
     		this.isActive = true;
     		this.isHeartbeat=isHeartbeat;
     	}
-    }
+    }    
 }

@@ -22,10 +22,8 @@
 
 package org.mobicents.media.server.scheduler;
 
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Implements queue of tasks.
@@ -34,25 +32,19 @@ import java.util.List;
  * @author kulikov
  */
 public class OrderedTaskQueue {
-	private final Object LOCK = new Object();
-
-    private final static int QUEUE_SIZE = 100;
-
-    //inner holder for tasks
-    private List<Task>[] taskList=new List[2];
+	//inner holder for tasks
+    private ConcurrentLinkedQueue<Task>[] taskList=new ConcurrentLinkedQueue[2];
     
     private Integer activeIndex=0;
     
     public OrderedTaskQueue() {
         //intitalize task list
-    	taskList[0] = new ArrayList(QUEUE_SIZE);
-    	taskList[1] = new ArrayList(QUEUE_SIZE);
+    	taskList[0] = new ConcurrentLinkedQueue<Task>();
+    	taskList[1] = new ConcurrentLinkedQueue<Task>();
     }
 
     public Collection<Task> getTasks() {
-    	synchronized(LOCK) {
-    		return taskList[activeIndex];
-    	}
+    		return taskList[activeIndex];    	
     }
 
     /**
@@ -61,9 +53,7 @@ public class OrderedTaskQueue {
      * @return true if queue is currently empty
      */
     public boolean isEmpty() {
-    	synchronized(LOCK) {
-    		return taskList[activeIndex].isEmpty();
-    	}
+    		return taskList[activeIndex].isEmpty();    	
     }
     
     /**
@@ -73,10 +63,8 @@ public class OrderedTaskQueue {
      * @return TaskExecutor for the scheduled task.
      */
     public void accept(Task task) {
-    	synchronized(LOCK) {
-    		if(!taskList[(activeIndex+1)%2].contains(task))
-    			taskList[(activeIndex+1)%2].add(task);
-    	}
+    	if(!taskList[(activeIndex+1)%2].contains(task))
+    		taskList[(activeIndex+1)%2].add(task);    	
     }
     
     /**
@@ -85,25 +73,21 @@ public class OrderedTaskQueue {
      * @return task which has earliest dead line
      */
     public Task poll() {
-    	synchronized(LOCK) {
-    		if(taskList[activeIndex].isEmpty())
-    			return null;
+    	if(taskList[activeIndex].isEmpty())
+    		return null;
     
-    		return taskList[activeIndex].remove(0);
-    	}
+    	return taskList[activeIndex].poll();    	
     }    
     
     public Task pollAny() {
-    	synchronized(LOCK) {    	
+    	if(taskList[activeIndex].isEmpty())
+    	{
+    		activeIndex=(activeIndex+1)%2;
     		if(taskList[activeIndex].isEmpty())
-    		{
-    			activeIndex=(activeIndex+1)%2;
-    			if(taskList[activeIndex].isEmpty())
-    				return null;
-    		}
-    	
-    		return taskList[activeIndex].remove(0);
+    			return null;
     	}
+    	
+    	return taskList[activeIndex].poll();    	
     }
 	
     /**
@@ -112,30 +96,20 @@ public class OrderedTaskQueue {
      * @return task.
      */
     public Task peek() {
-    	synchronized(LOCK) {
-    		return taskList[activeIndex].get(0);
-    	}
+    	return taskList[activeIndex].peek(); 	
     }
 
     public void changePool()
     {
-    	synchronized(LOCK) {    	
-    		activeIndex=(activeIndex+1)%2;
-    	}
-    }
-    
-    public Object getMonitor() {
-        return LOCK;
+    	activeIndex=(activeIndex+1)%2;    
     }
     
     /**
      * Clean the queue.
      */
     public void clear() {
-    	synchronized(LOCK) {
-    		taskList[0].clear();
-    		taskList[1].clear();
-    	}
+    	taskList[0].clear();
+    	taskList[1].clear();    	
     }
     
     /**
@@ -144,15 +118,11 @@ public class OrderedTaskQueue {
      * @return the size of the queue.
      */
     public int size() {
-    	synchronized(LOCK) {
-    		return taskList[activeIndex].size();
-    	}
+    	return taskList[activeIndex].size();    	
     }
 
     protected void remove(Task task) {
-    	synchronized(LOCK) {
-    		taskList[activeIndex].remove(task);
-    	}
+    	taskList[activeIndex].remove(task);    	
     }
 
     @Override
