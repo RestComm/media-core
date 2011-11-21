@@ -38,10 +38,12 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.apache.log4j.Logger;
 /**
  *
  * @author kulikov
@@ -92,6 +94,13 @@ public class RTPDataChannel {
     //Formats for RTP events
     private RTPFormats eventFormats = new RTPFormats();
     
+    private Boolean shouldReceive=false;
+    private HeartBeat heartBeat;
+    private long lastPacketReceived;
+    
+    private RTPChannelListener rtpChannelListener;
+    
+    private Logger logger = Logger.getLogger(RTPDataChannel.class) ;
     /**
      * Create RTP channel instance.
      *
@@ -119,12 +128,43 @@ public class RTPDataChannel {
 
         txBuffer = new ConcurrentLinkedQueue();
         
+        heartBeat=new HeartBeat(rtpManager.scheduler);
+        
         //add RFC2833 dtmf event formats
         if (rtpManager.dtmf > 0) {
             RTPFormat f = new RTPFormat(rtpManager.dtmf, dtmfFormat);
             f.setClockRate(8000);
             eventFormats.add(f);
         }
+    }
+    
+    public void setRtpChannelListener(RTPChannelListener rtpChannelListener)
+    {
+    	this.rtpChannelListener=rtpChannelListener;
+    }
+    
+    public void updateMode(ConnectionMode connectionMode)
+    {
+    	switch (connectionMode) {
+        	case RECV_ONLY:
+        	case SEND_RECV:
+        	case CONFERENCE:
+        		shouldReceive=true;
+        		break;
+        	default:
+        		shouldReceive=false;
+        		break;
+    	}
+    	
+    	if(rtpManager.udpManager.getRtpTimeout()>0 && this.remotePeer!=null) {
+    		if(shouldReceive) {
+    			lastPacketReceived=rtpManager.scheduler.getClock().getTime();
+    			rtpManager.scheduler.submitHeatbeat(heartBeat);
+    		}
+    		else {
+    			heartBeat.cancel();
+    		}
+    	}
     }
 
     /**
@@ -179,10 +219,20 @@ public class RTPDataChannel {
         this.remotePeer = address;
         if(dataChannel!=null && !dataChannel.isConnected() && rtpManager.udpManager.connectImmediately((InetSocketAddress)address))
         	try {
-        		dataChannel.connect(address);
+        		dataChannel.connect(address);        		
         	}
         	catch (IOException e) {           		
-        	}        	
+        	}
+        	
+        if(rtpManager.udpManager.getRtpTimeout()>0) {        	
+        	if(shouldReceive) {
+        		lastPacketReceived=rtpManager.scheduler.getClock().getTime();
+        		rtpManager.scheduler.submitHeatbeat(heartBeat);
+        	}
+        	else {
+        		heartBeat.cancel();
+        	}
+        }
     }
 
     /**
@@ -202,12 +252,14 @@ public class RTPDataChannel {
         try {   
         	dataChannel.socket().close();
         	dataChannel.close();
-        } catch(IOException e) {        		
+        } catch(IOException e) {        	
         }  
         	
         if (controlChannel != null) {
             controlChannel.socket().close();
         }
+        
+        heartBeat.cancel();
     }
 
     /**
@@ -408,7 +460,7 @@ public class RTPDataChannel {
         	if (dataChannel.isConnected()) {
         		txBuffer.offer(frame);
         		tx.perform();
-        	}
+        	}        	
         }
 
         /**
@@ -428,8 +480,8 @@ public class RTPDataChannel {
     private class RxTask extends Task {
 
         //RTP packet representation
-        private RtpPacket rtpPacket = new RtpPacket(8192, true);
-
+        private RtpPacket rtpPacket = new RtpPacket(8192, true);        
+        
         private RxTask(Scheduler scheduler) {
             super(scheduler);
         }
@@ -456,7 +508,7 @@ public class RTPDataChannel {
         public long getDuration() {
             return 0;
         }
-
+        
         /**
          * (Non Java-doc.)
          *
@@ -468,14 +520,15 @@ public class RTPDataChannel {
                 rtpPacket.getBuffer().clear();
                 
                 SocketAddress currAddress=dataChannel.receive(rtpPacket.getBuffer());
-                try {                	               
-                	if(currAddress!=null && !dataChannel.isConnected())                	
-                		dataChannel.connect(currAddress);
+                try {                	                               	                            	
+                	if(currAddress!=null && !dataChannel.isConnected())
+                		dataChannel.connect(currAddress);                	                	
                 }
                 catch (IOException e) {            
                 }
                                 	
-                while (currAddress != null) {                	
+                while (currAddress != null) {  
+                	lastPacketReceived=scheduler.getClock().getTime();                	
                     //put pointer to the begining of the buffer
                     rtpPacket.getBuffer().flip();
 
@@ -488,12 +541,11 @@ public class RTPDataChannel {
                     currAddress=dataChannel.receive(rtpPacket.getBuffer());
                 }
             } catch (Exception e) {
-                //TODO: handle error
+            	//TODO: handle error
             }
             rtpHandler.isReading = false;
             return 0;
         }
-
     }
 
     /**
@@ -560,12 +612,14 @@ public class RTPDataChannel {
                 if (!fmt.getFormat().matches(frame.getFormat())) {
                     fmt = rtpFormats.getRTPFormat(frame.getFormat());
                     //it is unknown format? drop packet
-                    if (fmt == null) return 0;
+                    if (fmt == null) {
+                    	return 0;
+                    }
                 }
 
                 //ignore frames with duplicate timestamp
                 if (frame.getTimestamp()/1000000L == timestamp) {
-                    return 0;
+                	return 0;
                 }
                 
                 //convert to milliseconds first
@@ -582,8 +636,8 @@ public class RTPDataChannel {
                     	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
                         txCount++;
                     }
-                } catch (Exception e) {
-                    //TODO : handle IO problems
+                } catch (Exception e) { 
+                	//TODO : handle IO problems
                 }
             }
 
@@ -593,4 +647,26 @@ public class RTPDataChannel {
 
     }
 
+    private class HeartBeat extends Task {
+
+        public HeartBeat(Scheduler scheduler) {
+            super(scheduler);
+        }        
+
+        public int getQueueNumber()
+        {
+        	return scheduler.HEARTBEAT_QUEUE;
+        }   
+        
+        @Override
+        public long perform() {        	
+            if (scheduler.getClock().getTime()-lastPacketReceived>rtpManager.udpManager.getRtpTimeout()*1000000000L) {
+            	if(rtpChannelListener!=null)
+            		rtpChannelListener.onRtpFailure();
+            } else {
+                scheduler.submitHeatbeat(this);
+            }
+            return 0;
+        }
+    }
 }

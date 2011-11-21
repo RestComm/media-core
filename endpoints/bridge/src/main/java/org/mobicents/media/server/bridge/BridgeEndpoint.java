@@ -29,6 +29,6 @@ import org.mobicents.media.server.ivr.IVREndpoint;
  */
 public class BridgeEndpoint extends IVREndpoint {
     public BridgeEndpoint(String name) {
-        super(name,true);
+        super(name,IVREndpoint.ENDPOINT_LOCAL_TO_REMOTE);
     }
 }

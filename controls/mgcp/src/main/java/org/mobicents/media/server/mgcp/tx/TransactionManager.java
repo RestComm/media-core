@@ -28,6 +28,11 @@ import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Scheduler;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import java.util.Enumeration;
+
 /**
  * Implements pool of transactions.
  * 
@@ -35,12 +40,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class TransactionManager {
     //transaction identifier generator
-    private static int ID = 1;
+    private static java.util.concurrent.atomic.AtomicInteger ID = new AtomicInteger(1);
     
     //pool of transaction objects
     private ConcurrentLinkedQueue<Transaction> pool;
     //currently active transactions.
-    private Transaction[] active;
+    private ConcurrentHashMap<Integer,Transaction> active;
     
     //scheduler instance
     private Scheduler scheduler;
@@ -62,7 +67,7 @@ public class TransactionManager {
         this.scheduler = scheduler;
         
         pool = new ConcurrentLinkedQueue<Transaction>();
-        active = new Transaction[size];
+        active = new ConcurrentHashMap(size);
         
         for (int i = 0; i < size; i++) {
         	pool.add(new Transaction(this));            
@@ -116,12 +121,11 @@ public class TransactionManager {
      * @param id the transaction identifier.
      * @return transaction object or null if does not exist.
      */
-    public synchronized Transaction find(int id) {    	
-    	for (int i = 0; i < active.length; i++) {
-    		if (active[i] != null && active[i].id == id) {
-    			return active[i];
-    		}
-    	}        
+    public Transaction find(int id) {    
+    	Transaction currTransaction=active.get(id);
+    	if(currTransaction!=null)
+    		return currTransaction;
+    	
     	return begin(id);    	
     }
     
@@ -139,7 +143,7 @@ public class TransactionManager {
         }
         
         t.id = id;
-        insert(t, active);
+        active.put(t.id,t);        
         
         return t;
     }
@@ -149,32 +153,11 @@ public class TransactionManager {
      * 
      * @param t the transaction to be terminated
      */
-    protected synchronized void terminate(Transaction t) {
-    	for (int i = 0; i < active.length; i++) {
-    		if (active[i] != null && active[i].id == t.id) {
-    			active[i] = null;
-    			break;
-    		}
-    	}
-                
+    protected void terminate(Transaction t) {
+    	active.remove(t.id);
     	t.id = 0;
     	pool.add(t);    	    
-    }
-    
-    /**
-     * Insert transaction into first empty space of the given array.
-     * 
-     * @param t the transaction to be inserted
-     * @param list the array 
-     */
-    private void insert(Transaction t, Transaction[] list) {
-        for (int i = 0; i < list.length; i++) {
-            if (list[i] == null) {
-                list[i] = t;
-                return;
-            }
-        }
-    }
+    }   
     
     /**
      * Generates unique transaction identifier.
@@ -182,7 +165,7 @@ public class TransactionManager {
      * @return unique integer identifier.
      */
     protected int nextID() {
-        return ID++;
+        return ID.incrementAndGet();
     }
     
     /**

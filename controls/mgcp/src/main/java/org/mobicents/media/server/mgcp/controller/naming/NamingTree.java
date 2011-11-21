@@ -24,6 +24,11 @@ package org.mobicents.media.server.mgcp.controller.naming;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.utils.Text;
 
+import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.DefaultClock;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
  * Naming tree for MGCP endpoints.
  * 
@@ -32,23 +37,24 @@ import org.mobicents.media.server.utils.Text;
 public class NamingTree {
     //the root of the tree
     private NamingNode<EndpointQueue> root = new NamingNode(new Text("root"), null);
-    
-    //Name pattern separated into tokens
-    private Text[] pattern = new Text[10];
-    
-    //actual length of the pattern
-    private int n = 0;
-    
-    //Points to last node of the path during search;
-    private NamingNode node;
+    private ConcurrentLinkedQueue<Text[]> patterns = new ConcurrentLinkedQueue();
     
     //exceptions
     private static UnknownEndpointException UNKNOWN_ENDPOINT_EXCEPTION;// = new UnknownEndpointException();
     
+    public static Clock clock = new DefaultClock();
+    
     public NamingTree() {
-        for (int i = 0; i < pattern.length; i++) {
-            pattern[i] = new Text();
-        }
+    	//preloading text arrays
+    	for(int j=0;j<50;j++)
+    	{
+    		Text[] pattern = new Text[10];
+    		for (int i = 0; i < pattern.length; i++) {
+    			pattern[i] = new Text();
+    		}
+    		
+    		patterns.add(pattern);
+    	}
     }
     
     /**
@@ -90,7 +96,7 @@ public class NamingTree {
      * 
      * @param endpoint the endpoint to be removed.
      */
-    public synchronized void unregister(MgcpEndpoint endpoint) {    	
+    public void unregister(MgcpEndpoint endpoint) {    	
     }
     
     /**
@@ -100,20 +106,30 @@ public class NamingTree {
      * @param endpoints the list of matching endpoints
      * @return number of found endpoints
      */
-    public synchronized int find(Text name, MgcpEndpoint[] endpoints) throws UnknownEndpointException {
+    public int find(Text name, MgcpEndpoint[] endpoints) throws UnknownEndpointException {
+    	Text[] pattern=patterns.poll();
+    	if(pattern==null)
+    	{
+    		//adding more
+    		pattern = new Text[10];
+    		for (int i = 0; i < pattern.length; i++) {
+    			pattern[i] = new Text();
+    		}
+    	}
+    	
     	//clean prev search
-    	node = null;
-        
-    	//splitt name 
-    	n = name.divide('/', pattern);
-        
+    	NamingNode node = null;
+    	int n = name.divide('/', pattern);        
+    	
     	//search node
     	node = root.find(pattern, n - 1);
-        
+    	
     	if (node == null) {
     		throw new UnknownEndpointException();
     	}
         
-    	return ((EndpointQueue)node.poll()).find(pattern[n - 1], endpoints);    	
+    	int result=((EndpointQueue)node.poll()).find(pattern[n - 1], endpoints);
+    	patterns.add(pattern);
+    	return result;
     }
 }

@@ -47,7 +47,7 @@ public class MyTestEndpoint extends BaseEndpointImpl implements Endpoint {
     private SpectraAnalyzer analyzer;
 
     public MyTestEndpoint(String localName) {
-        super(localName,false);
+        super(localName,BaseEndpointImpl.ENDPOINT_NORMAL);
     }
 
     public void setFreq(int f) {

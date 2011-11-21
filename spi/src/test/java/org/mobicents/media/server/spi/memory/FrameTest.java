@@ -68,7 +68,7 @@ public class FrameTest {
      */
     @Test
     public void testClone() {
-        Frame frame1 = Memory.allocate(3);
+    	Frame frame1 = Memory.allocate(3);
         
         frame1.getData()[0] = 1;
         frame1.getData()[1] = 2;
@@ -81,7 +81,6 @@ public class FrameTest {
         frame1.setFormat(FormatFactory.createAudioFormat("LINEAR", 8000));
 
         Frame frame2 = frame1.clone();
-
         assertEquals(frame2.getDuration(), frame1.getDuration());
         assertEquals(frame2.getOffset(), frame1.getOffset());
         assertEquals(frame2.getLength(), frame1.getLength());

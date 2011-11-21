@@ -39,6 +39,7 @@ import org.mobicents.media.server.spi.ConnectionEvent;
 import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionState;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
@@ -218,9 +219,7 @@ public abstract class BaseConnection implements Connection {
      * @see org.mobicents.media.server.spi.Connection#getMode(org.mobicents.media.server.spi.MediaType)
      */
     public ConnectionMode getMode(MediaType mediaType) {
-    	synchronized(stateMonitor) {
-    		return channel(mediaType).getMode();
-    	}
+    	return channel(mediaType).getMode();    	
     }
 
     /**
@@ -248,11 +247,10 @@ public abstract class BaseConnection implements Connection {
      * @see org.mobicents.media.server.spi.Connection#setMode(org.mobicents.media.server.spi.ConnectionMode, org.mobicents.media.server.spi.MediaType)
      */
     public void setMode(ConnectionMode mode, MediaType mediaType) throws ModeNotSupportedException  {
-    	synchronized(stateMonitor) {
-    		ConnectionMode currentMode = this.getMode(mediaType);
+    		ConnectionMode currentMode = this.getMode(mediaType);    		
     		try {
     			//check that mode is going to be changed really
-    			if (channel(mediaType).getMode() == mode) {    				
+    			if (currentMode == mode) {    				
     				return;
     			}
     			//changing mode
@@ -262,8 +260,7 @@ public abstract class BaseConnection implements Connection {
     			//rollback to previous mode
     			channel(mediaType).setMode(currentMode);
     			connections.updateMode(mediaType);
-    		}
-    	}
+    		}    	
     }
 
     /**
@@ -271,12 +268,10 @@ public abstract class BaseConnection implements Connection {
      *
      * @see org.mobicents.media.server.spi.Connection#setMode(org.mobicents.media.server.spi.ConnectionMode)
      */
-    public synchronized void setMode(ConnectionMode mode) throws ModeNotSupportedException  {
-    	synchronized(stateMonitor) {
+    public void setMode(ConnectionMode mode) throws ModeNotSupportedException  {    	
     		this.setMode(mode, MediaType.AUDIO);
 //        	this.setMode(mode, MediaType.VIDEO);
-//        	System.out.println("Set video " + mode);
-    	}
+//        	System.out.println("Set video " + mode);    	
     }
 
     public CheckPoint getCheckPoint(int i) {
@@ -360,6 +355,13 @@ public abstract class BaseConnection implements Connection {
         }
     }
 
+    /**
+     * Sets connection failure listener.
+     * 
+     *
+     */
+    public abstract void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener);
+    
     /**
      * Called when connection created.
      */

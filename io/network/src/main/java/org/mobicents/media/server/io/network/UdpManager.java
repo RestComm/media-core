@@ -56,9 +56,12 @@ public class UdpManager {
     private IPAddressType currNetworkType;
     private byte[] localSubnet;
     private IPAddressType currSubnetType;
-    
+        
     /** use sbc */
     private Boolean useSbc=false;
+    
+    /** rtp timeout in seconds */
+    private int rtpTimeout=0;
     
     //port manager
     private PortManager portManager = new PortManager();
@@ -111,13 +114,32 @@ public class UdpManager {
     }
     
     /**
+     * Modify rtp timeout.
+     * 
+     * @param rtpTimeout the time in seconds.
+     */
+    public void setRtpTimeout(int rtpTimeout) {
+        this.rtpTimeout=rtpTimeout;
+    }
+
+    /**
+     * Gets the rtp timeout.
+     *
+     * @return the rtptimeout as integer.
+     */
+    public int getRtpTimeout() {
+        return this.rtpTimeout;
+    }
+    
+    /**
      * Set the local network address
      * 
      * @param address the IP address as character string.
      */
     public void setLocalNetwork(String localNetwork) {
-        IPAddressType currNetworkType=IPAddressCompare.getAddressType(localNetwork);
-        if(currNetworkType==IPAddressType.IPV4)
+    	IPAddressType currNetworkType=IPAddressCompare.getAddressType(localNetwork);
+    	this.currNetworkType=currNetworkType;
+    	if(currNetworkType==IPAddressType.IPV4)
         	this.localNetwork=IPAddressCompare.addressToByteArrayV4(localNetwork);
         else if(currNetworkType==IPAddressType.IPV6)
         	this.localNetwork=IPAddressCompare.addressToByteArrayV6(localNetwork);
@@ -130,6 +152,7 @@ public class UdpManager {
      */
     public void setLocalSubnet(String localSubnet) {
     	IPAddressType currSubnetType=IPAddressCompare.getAddressType(localSubnet);
+    	this.currSubnetType=currSubnetType;
     	if(currSubnetType==IPAddressType.IPV4)
     		this.localSubnet=IPAddressCompare.addressToByteArrayV4(localSubnet);
     	else if(currSubnetType==IPAddressType.IPV6)
@@ -183,18 +206,18 @@ public class UdpManager {
     	if(!useSbc)
     		return true;
     	
-    	boolean connectImmediately=true;
+    	boolean connectImmediately=false;
     	byte[] addressValue=address.getAddress().getAddress();
     	    	
     	if(currSubnetType==IPAddressType.IPV4 && currNetworkType==IPAddressType.IPV4)
     	{
-    		if(!IPAddressCompare.isInRangeV4(localNetwork,localSubnet,addressValue))
-    			connectImmediately=false;
+    		if(IPAddressCompare.isInRangeV4(localNetwork,localSubnet,addressValue))
+    			connectImmediately=true;
     	}
     	else if(currSubnetType==IPAddressType.IPV6 && currNetworkType==IPAddressType.IPV6)
     	{
-    		if(!IPAddressCompare.isInRangeV6(localNetwork,localSubnet,addressValue))
-    			connectImmediately=false;
+    		if(IPAddressCompare.isInRangeV6(localNetwork,localSubnet,addressValue))
+    			connectImmediately=true;
     	}
     	
     	return connectImmediately;
@@ -297,7 +320,7 @@ public class UdpManager {
 
             //select channels ready for IO and ignore error
             try {
-                selector.selectNow();
+            	selector.selectNow();
                 Iterator<SelectionKey> it = selector.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
@@ -307,7 +330,7 @@ public class UdpManager {
                     ProtocolHandler handler = (ProtocolHandler) key.attachment();
 
                     if (handler == null) {
-                        continue;
+                    	continue;
                     }
                     
                     //do read
@@ -315,7 +338,7 @@ public class UdpManager {
                         handler.receive(channel);
                         count++;
                     }
-
+                    
                     //do write
 //                    if (key.isWritable()) {
 //                        handler.send(channel);
@@ -323,7 +346,7 @@ public class UdpManager {
 
                 }
                 selector.selectedKeys().clear();
-            } catch (IOException e) {
+            } catch (IOException e) {            	
                 return 0;
             } finally {
                 scheduler.submit(this,scheduler.UDP_MANAGER_QUEUE);

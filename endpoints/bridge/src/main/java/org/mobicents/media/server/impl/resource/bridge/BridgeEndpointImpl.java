@@ -35,7 +35,7 @@ import org.mobicents.media.server.spi.MediaType;
 public class BridgeEndpointImpl extends BaseEndpointImpl {
 
     public BridgeEndpointImpl(String localName) {
-        super(localName,true);
+        super(localName,BaseEndpointImpl.ENDPOINT_LOCAL_TO_REMOTE);
     }
 
     @Override

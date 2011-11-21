@@ -28,6 +28,7 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.utils.Text;
 
@@ -118,6 +119,12 @@ public class LocalConnectionImpl extends BaseConnection {
     }
 
     @Override
+    public void setConnectionFailureListener(ConnectionFailureListener connectionListener)
+    {
+    	//currently used only in RTP Connection
+    }
+    
+    @Override
     protected void onCreated() throws Exception {
         descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
     }
@@ -138,10 +145,8 @@ public class LocalConnectionImpl extends BaseConnection {
         }
         
         //release connection
-        synchronized(connections) {
-            connections.activeConnections.remove(this);
-            connections.localConnections.add(this);
-        }
+        connections.activeConnections.remove(this);
+        connections.localConnections.add(this);        
     }
 
 }

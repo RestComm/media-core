@@ -120,6 +120,7 @@ public interface Connection {
      * @throws IOException
      */
     public void setOtherParty(Text descriptor) throws IOException;
+    
     /**
      * Adds connection state listener.
      * 
@@ -127,6 +128,13 @@ public interface Connection {
      */
     public void addListener(ConnectionListener listener);
 
+    /**
+     * Sets connection failure listener.
+     * 
+     * @param listener to be registered
+     */
+    public void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener);
+    
     /**
      * Removes connection state listener.
      * 

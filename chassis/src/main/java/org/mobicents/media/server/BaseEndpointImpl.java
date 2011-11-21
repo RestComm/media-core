@@ -31,6 +31,7 @@ import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.connection.BaseConnection;
 import org.mobicents.media.server.connection.Connections;
 import org.mobicents.media.server.connection.LocalToRemoteConnections;
+import org.mobicents.media.server.connection.RemoteToRemoteConnections;
 import org.mobicents.media.server.impl.rtp.RTPManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -51,6 +52,10 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  */
 public abstract class BaseEndpointImpl implements Endpoint {
 
+	public static final int ENDPOINT_NORMAL=0;
+	public static final int ENDPOINT_LOCAL_TO_REMOTE=1;
+	public static final int ENDPOINT_REMOTE_TO_REMOTE=2;
+	
     //local name of this endpoint
     private String localName;
 
@@ -71,7 +76,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
     //Signaling processor factory;
     private DspFactory dspFactory;
     
-    private Boolean isLocalToRemote=false;
+    private int endpointType=ENDPOINT_NORMAL;
     
     //logger instance
     private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
@@ -79,10 +84,9 @@ public abstract class BaseEndpointImpl implements Endpoint {
     private int localConnections = 10;
     private int rtpConnections = 10;
     
-    public BaseEndpointImpl(String localName,Boolean isLocalToRemote) {
+    public BaseEndpointImpl(String localName,int endpointType) {
         this.localName = localName;
-        this.isLocalToRemote=isLocalToRemote;
-        
+        this.endpointType=endpointType;        
     }
 
 
@@ -216,8 +220,10 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
         //create connections subsystem
         try {
-        	if(this.isLocalToRemote)
+        	if(this.endpointType==ENDPOINT_LOCAL_TO_REMOTE)
         		connections = new LocalToRemoteConnections(this, localConnections, rtpConnections);
+        	else if(this.endpointType==ENDPOINT_REMOTE_TO_REMOTE)
+        		connections = new RemoteToRemoteConnections(this, localConnections, rtpConnections);
         	else
         		connections = new Connections(this, localConnections, rtpConnections,false);
         	

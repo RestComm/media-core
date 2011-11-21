@@ -25,23 +25,29 @@ package org.mobicents.media.server.mgcp.controller;
 import java.io.IOException;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 
+import org.mobicents.media.server.mgcp.MgcpEvent;
+import org.mobicents.media.server.mgcp.message.MgcpRequest;
+import org.mobicents.media.server.mgcp.message.Parameter;
+
+import java.net.SocketAddress;
 /**
  * Represents the connection activity.
  * 
  * @author kulikov
  */
-public class MgcpConnection {
+public class MgcpConnection implements ConnectionFailureListener {
+	public final static Text REASON_CODE = new Text("902 Loss of lower layer connectivity");
     protected Text id;
     protected MgcpCall call;
     protected MgcpEndpoint mgcpEndpoint;
     protected Connection connection;
-    
-    private Text descriptor = new Text();
-    
+    private SocketAddress callAgent;
+    private Text descriptor = new Text();    
     public MgcpConnection() {
         id = new Text(Long.toHexString(System.nanoTime()));
     }
@@ -57,15 +63,19 @@ public class MgcpConnection {
      */
     protected void setCall(MgcpCall call) {
         this.call = call;
-        call.connections.add(this);
+        call.connections.put(this.id,this);
+    }
+    
+    public void setCallAgent(SocketAddress callAgent) {
+    	this.callAgent=callAgent;
     }
     
     public void wrap(MgcpEndpoint mgcpEndpoint, MgcpCall call, Connection connection) {
+    	this.mgcpEndpoint=mgcpEndpoint;
         this.call = call;
         this.connection = connection;
-        synchronized(call.connections) {
-            call.connections.add(this);
-        }
+        this.connection.setConnectionFailureListener(this);        
+        call.connections.put(this.id,this);
     }
     
     public void setMode(Text mode) throws ModeNotSupportedException {
@@ -111,5 +121,18 @@ public class MgcpConnection {
     
     public int getPacketsReceived() {
         return (int) connection.getPacketsReceived(MediaType.AUDIO);
+    }
+    
+    public void onFailure() {
+    	MgcpEvent evt = (MgcpEvent) mgcpEndpoint.mgcpProvider.createEvent(MgcpEvent.REQUEST, callAgent);
+		MgcpRequest msg = (MgcpRequest) evt.getMessage();        
+		msg.setCommand(new Text("DLCX"));
+		msg.setEndpoint(mgcpEndpoint.fullName);
+		msg.setParameter(Parameter.CONNECTION_ID, id);
+		msg.setTxID(MgcpEndpoint.txID++);
+		msg.setParameter(Parameter.REASON_CODE,this.REASON_CODE);
+		mgcpEndpoint.send(evt, callAgent);
+		
+        release();
     }
 }

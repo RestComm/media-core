@@ -22,7 +22,10 @@
 package org.mobicents.media.server.mgcp.controller.naming;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
+import org.mobicents.media.server.mgcp.controller.MgcpEndpointStateListener;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -30,7 +33,7 @@ import org.mobicents.media.server.utils.Text;
  * 
  * @author kulikov
  */
-public class EndpointQueue {
+public class EndpointQueue implements MgcpEndpointStateListener {
     //reserved space for endpoint queue
     private final static int SIZE = 100;
     
@@ -39,10 +42,12 @@ public class EndpointQueue {
     private final static Text ALL = new Text("*");
     
     //queue of endpoints
-    private ArrayList<Holder> queue = new ArrayList(SIZE);
+    private ArrayList<Holder> completeList=new ArrayList(SIZE);
+    private ConcurrentLinkedQueue<MgcpEndpoint> queue = new ConcurrentLinkedQueue();
     
     //reference for just found endpoind
-    private Holder holder;
+    //private Holder holder;
+    
     //index
     private int k;
     
@@ -52,7 +57,10 @@ public class EndpointQueue {
      * @param endpoint the endpoint to be added
      */
     public void add(MgcpEndpoint endpoint) {
-        queue.add(0, new Holder(endpoint));
+    	Holder holder=new Holder(endpoint);
+    	endpoint.setMgcpEndpointStateListener(this);
+    	completeList.add(holder);
+        queue.add(endpoint);
     }
     
     /**
@@ -61,17 +69,14 @@ public class EndpointQueue {
      * @param endpoint the endpoint to be removed.
      */
     public void remove(MgcpEndpoint endpoint) {
-        holder = null;
-        for (Holder h : queue) {
-            if (h.endpoint == endpoint) {
-                holder = h;
-                break;
-            }
-        }
-        
-        if (holder != null) {
-            queue.remove(holder);
-        }
+    	for(int i=0;i<completeList.size();i++)
+    		if(completeList.get(i).endpoint==endpoint)
+    		{
+    			completeList.remove(i);
+    			break;
+    		}
+    	
+    	queue.remove(endpoint);
     }
      
     /**
@@ -85,45 +90,30 @@ public class EndpointQueue {
      * @return the number of found endpoints.
      */
     public int find(Text name, MgcpEndpoint[] endpoints) {
-        //return all endpoint if all requested
+    	//return all endpoint if all requested
         if (name.equals(ALL)) {
             k = 0;
-            for (Holder h : queue) {
-                endpoints[k++] = h.endpoint;
+            for(int i=0;i<completeList.size();i++) {
+                endpoints[k++] = completeList.get(i).endpoint;
             }
-            return queue.size();
+            
+            return completeList.size();
         }
         
         //return first free if ANY endpoint requested
-        if (name.equals(ANY)) {
-            //clean results from prev search
-            holder = null;
-            for (Holder h : queue) {
-                if (h.endpoint.getState() == MgcpEndpoint.STATE_FREE) {
-                    holder = h;
-                    break;
-                }
-            }
-            
-            //prepare result if found
-            if (holder != null) {
-                //lock it first
-                holder.endpoint.lock();
-                
-                //move to the tail
-                //this will speed up search process 
-                queue.remove(holder);
-                queue.add(holder);
-                
-                endpoints[0] = holder.endpoint;
-                return 1;
-            }
-    
+        if (name.equals(ANY)) {        	        	
+        	MgcpEndpoint endp=queue.poll();
+        	if(endp!=null) {
+        		endp.lock();
+        		endpoints[0] = endp;
+        		return 1;        		            
+        	}
+        	
             return 0;
         }
-        
+                
         //search for exact matching
-        for (Holder h : queue) {
+        for (Holder h : completeList) {
             if (h.name.equals(name)) {
                 endpoints[0] = h.endpoint;
                 return 1;
@@ -131,6 +121,11 @@ public class EndpointQueue {
         }
         
         return 0;
+    }
+    
+    public void onFreed(MgcpEndpoint endpoint)
+    {
+    	queue.add(endpoint);
     }
     
     private class Holder {

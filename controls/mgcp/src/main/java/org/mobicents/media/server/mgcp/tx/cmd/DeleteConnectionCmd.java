@@ -152,7 +152,6 @@ public class DeleteConnectionCmd extends Action {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID, UNKNOWN_CALL_IDENTIFIER);
             }
             
-            connectionID = request.getParameter(Parameter.CONNECTION_ID);
             if (connectionID == null) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, CONNECTIONID_EXPECTED);
             }
@@ -162,7 +161,7 @@ public class DeleteConnectionCmd extends Action {
             //searching endpoint
             try {
                 int n = transaction().find(localName, endpoints);
-                if (n == 0) {
+                if (n == 0) {                	
                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
                 }
             } catch (UnknownEndpointException e) {

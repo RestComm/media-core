@@ -137,7 +137,7 @@ public class WavTrackImpl implements Track {
         try {
             while (length < psize) {
                 int len = stream.read(packet, offset + length, psize - length);
-                if (len == -1) {
+                if (len == -1) {                	
                     return length;
                 }
                 length += len;

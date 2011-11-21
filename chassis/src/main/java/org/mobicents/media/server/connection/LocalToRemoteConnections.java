@@ -87,7 +87,7 @@ public class LocalToRemoteConnections extends Connections {
     	}    	
     }   
     
-    public synchronized void updateMode(MediaType mediaType)
+    public void updateMode(MediaType mediaType)
     {
     	//only channels should be modified
     }

@@ -52,26 +52,35 @@ public class LocalToRemoteChannel extends Channel {
     }   
     
     public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
+    	Mode selectedMode=this.mode.get();    	
+    	if(selectedMode!=null && selectedMode.getID()==mode)
+		{
+			//same mode
+			return;
+		}
+    	
+    	//setting mode before updating so other threads will see it.
+    	Mode newMode=convert(mode);
+        this.mode.set(newMode);
+        
     	boolean wasNull=false,isNull=false;
     	
-        if (this.mode != null) {  
+        if (selectedMode != null) {  
         	if(mode==ConnectionMode.INACTIVE)
         		//remove from conference if inactive mode
         		connections.removeFromConference(connection);        	
-            this.mode.deactivate();
+        	selectedMode.deactivate();
         }
         else
-        	wasNull=true;
+        	wasNull=true;                              
         
-        this.mode = convert(mode);        
-        
-        if (this.mode != null) {
+        if (newMode != null) {
             try {
             	if(wasNull)
                 	//if its inactive should not add to conference , if its conference mode itself handles it
                 	connections.addToConference(connection);
             	
-                this.mode.activate();
+            	newMode.activate();
             } catch (FormatNotSupportedException e) {
                 throw new ModeNotSupportedException(e.getMessage());
             }

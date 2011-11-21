@@ -81,6 +81,7 @@ public class BaseConnectionFSM_FR_Test {
     @Before
     public void setUp() throws ResourceUnavailableException, IOException {    	
         ConnectionState.OPEN.setTimeout(5);
+        ConnectionState.HALF_OPEN.setTimeout(5);
 
         //use default clock
         clock = new DefaultClock();

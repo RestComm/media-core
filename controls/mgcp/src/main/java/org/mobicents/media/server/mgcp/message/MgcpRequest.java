@@ -39,7 +39,7 @@ public class MgcpRequest extends MgcpMessage {
     private Text endpointID = new Text();
     
     //transaction identifier
-    private int txID;
+    private int txID;    
     
     //buffer for parameters
     private ArrayList<Parameter> parameters = new ArrayList(15);

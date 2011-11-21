@@ -40,6 +40,8 @@ import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.utils.Text;
 import org.apache.log4j.Logger;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Represents the bi-directional transition path for a particular media type stream.
  *
@@ -78,7 +80,7 @@ public class Channel {
     protected SendRecvMode send_recv;
     protected NetworkLoopMode network_loop;
     protected CnfMode cnfMode;
-    protected Mode mode;
+    protected AtomicReference<Mode> mode=new AtomicReference();
     
     public Channel(BaseConnection connection, Connections connections, MediaType mediaType, Mixer mixer, Splitter splitter) throws Exception {
         this.connection = connection;
@@ -172,22 +174,30 @@ public class Channel {
      * @throws ModeNotSupportedException
      */
     public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
+    	Mode selectedMode=this.mode.get();    	
+    	if(selectedMode!=null && selectedMode.getID()==mode)
+		{
+			//same mode
+			return;
+		}
     	
-    	if (this.mode != null) {
-        	if(this.mode.getID()==ConnectionMode.CONFERENCE)
+    	//setting mode before updating so other threads will see it.
+    	Mode newMode=convert(mode);
+        this.mode.set(newMode);
+        
+    	if (selectedMode != null) {
+        	if(selectedMode.getID()==ConnectionMode.CONFERENCE)
         		connections.removeFromConference(connection);
         	
-            this.mode.deactivate();
-        }
+        	selectedMode.deactivate();
+        }    	
 
-        this.mode = convert(mode);
-
-        if (this.mode != null) {
+        if (newMode != null) {
             try {
-            	if(mode==ConnectionMode.CONFERENCE)
+            	if(newMode.getID()==ConnectionMode.CONFERENCE)
             		connections.addToConference(connection);
             	            	
-                this.mode.activate();
+            	newMode.activate();
             } catch (FormatNotSupportedException e) {
                 throw new ModeNotSupportedException(e.getMessage());
             }
@@ -200,7 +210,8 @@ public class Channel {
      * @return the mode identifier.
      */
     public ConnectionMode getMode() {
-        return mode == null ? ConnectionMode.INACTIVE : this.mode.getID();
+    	Mode selectedNode=mode.get();
+        return  selectedNode== null ? ConnectionMode.INACTIVE : selectedNode.getID();
     }
     
     /**

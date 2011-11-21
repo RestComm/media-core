@@ -24,6 +24,7 @@ package org.mobicents.media.server.mgcp.tx.cmd;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
+import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.utils.Text;
@@ -75,7 +76,14 @@ public class ActionSelector  {
                 } else if (command.equals(MODIFY_CONNECTION)) {
                     return mdcx;
                 } else if (command.equals(DELETE_CONNECTION)) {
-                    return dlcx;
+                	if(request.getParameter(Parameter.REASON_CODE)!=null) {
+                		//its connection deletion from ms
+                		return ntfy;	
+                	}
+                	else {
+                		//its delete connection request
+                		return dlcx;
+                	}
                 } else if (command.equals(REQUEST_NOTIFICATION)) {
                     return rqnt;
                 } else if (command.equals(REQUEST_NOTIFY)) {

@@ -21,8 +21,10 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
-import java.util.ArrayList;
 import org.mobicents.media.server.utils.Text;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 /**
  * MGCP call.
@@ -33,8 +35,8 @@ public class MgcpCall {
 
     private CallManager callManager;
     protected Text id = new Text(new byte[30], 0, 30);
-    protected final ArrayList<MgcpConnection> connections = new ArrayList(20);
-
+    protected ConcurrentHashMap<Text,MgcpConnection> connections=new ConcurrentHashMap(20);
+    
     protected MgcpCall(CallManager callManager, Text id) {
         id.duplicate(this.id);
         this.id.trim();
@@ -43,12 +45,14 @@ public class MgcpCall {
     }
 
     public MgcpConnection getMgcpConnection(Text id) {
-        for (MgcpConnection activity : connections) {
-            if (activity.id.equals(id)) {
-                return activity;
-            }
+    	Text currText;
+    	for (Enumeration<Text> e = connections.keys() ; e.hasMoreElements() ;) {
+    		currText=e.nextElement();
+    		if(currText.equals(id))
+    			return connections.get(currText);    		
         }
-        return null;
+    	
+    	return null;    	
     }
     
     /**
@@ -57,14 +61,11 @@ public class MgcpCall {
      * @param activity the activity to be excluded.
      */
     public void exclude(MgcpConnection activity) {
-        //remove activity
-        synchronized (connections) {
-            connections.remove(activity);
+    	connections.remove(activity.id);
 
-            //if no more connections terminate the entire call
-            if (connections.isEmpty()) {
-                callManager.terminate(this);
-            }
+        //if no more connections terminate the entire call
+        if (connections.isEmpty()) {
+           callManager.terminate(this);
         }
     }
     

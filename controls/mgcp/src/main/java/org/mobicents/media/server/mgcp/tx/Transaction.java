@@ -152,8 +152,9 @@ public class Transaction implements ActionListener {
     public void onComplete() {
         logger.info("tx=" + id + " was executed normaly");
         if (action != null && action.getEvent() != null) {
-            action.getEvent().recycle();
+        	action.getEvent().recycle();
         }
+        
         txManager.terminate(this);
     }
 

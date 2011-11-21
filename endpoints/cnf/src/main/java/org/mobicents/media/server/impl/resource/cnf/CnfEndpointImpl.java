@@ -35,7 +35,7 @@ import org.mobicents.media.server.spi.MediaType;
 public class CnfEndpointImpl extends BaseEndpointImpl {
 
     public CnfEndpointImpl(String localName) {
-        super(localName,false);
+        super(localName,BaseEndpointImpl.ENDPOINT_NORMAL);
     }
 
     @Override

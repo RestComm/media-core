@@ -21,7 +21,8 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Enumeration;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -31,19 +32,20 @@ import org.mobicents.media.server.utils.Text;
  */
 public class CallManager {
     //list of active calls
-    private ArrayList<MgcpCall> calls = new ArrayList();
+	private ConcurrentHashMap<Text,MgcpCall> calls=new ConcurrentHashMap();
     
-    public synchronized MgcpCall getCall(Text id, boolean allowNew) {
-    	for (MgcpCall call : calls) {
-    		if (call.id.equals(id)) {
-    			return call;
-    		}
-    	}
-        
+    public MgcpCall getCall(Text id, boolean allowNew) {
+    	Text currText;
+    	for (Enumeration<Text> e = calls.keys() ; e.hasMoreElements() ;) {
+    		currText=e.nextElement();
+    		if(currText.equals(id))
+    			return calls.get(currText);    		
+        }
+    	
     	if (!allowNew) return null;
         
     	MgcpCall call = new MgcpCall(this, id);
-    	calls.add(call); 
+    	calls.put(call.id,call); 
         
     	return call;    	
     }
@@ -53,8 +55,8 @@ public class CallManager {
      * 
      * @param call the call to be terminated
      */
-    protected synchronized void terminate(MgcpCall call) {
-    	calls.remove(call);    	
+    protected void terminate(MgcpCall call) {
+    	calls.remove(call.id);    	
     }    
     
 }

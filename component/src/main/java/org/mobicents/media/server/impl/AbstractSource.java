@@ -543,7 +543,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
             
             	//send notifications about media termination
             	//and do not resubmit this task again if stream has bee ended
-            	if (frame.isEOM()) {
+            	if (frame.isEOM()) {            		
             		started = false;
         			completed();
         			return -1;

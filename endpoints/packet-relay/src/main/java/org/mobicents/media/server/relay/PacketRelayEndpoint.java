@@ -30,6 +30,6 @@ import org.mobicents.media.server.ivr.IVREndpoint;
  */
 public class PacketRelayEndpoint extends IVREndpoint {
     public PacketRelayEndpoint(String name) {
-        super(name);
+        super(name,IVREndpoint.ENDPOINT_REMOTE_TO_REMOTE);
     }
 }

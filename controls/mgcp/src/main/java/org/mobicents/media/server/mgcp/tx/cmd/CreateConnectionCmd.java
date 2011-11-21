@@ -171,7 +171,7 @@ public class CreateConnectionCmd extends Action {
 
         @Override
         public long perform() {
-            endpoint = null;
+        	endpoint = null;
             endpoint2 = null;
                         
             request = (MgcpRequest) getEvent().getMessage();
@@ -241,8 +241,7 @@ public class CreateConnectionCmd extends Action {
                 handler.add(responder);
             }
             return 0;
-        }
-        
+        }        
     }
     
     /**
@@ -265,9 +264,9 @@ public class CreateConnectionCmd extends Action {
         public long perform() {
             try {
                 //searching endpoint
-                int n = transaction().find(localName, endpoints);
+            	int n = transaction().find(localName, endpoints);
                 if (n == 0) {
-                    throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
                 }
                 
                 if(!endpoints[0].getName().equals(localName.toString()))
@@ -280,7 +279,7 @@ public class CreateConnectionCmd extends Action {
                 
                 //extract found endpoint
                 endpoint = endpoints[0];
-            } catch (Exception e) {
+            } catch (Exception e) {            	
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
             }
             
@@ -345,6 +344,7 @@ public class CreateConnectionCmd extends Action {
         public long perform() {
             try {
                 connections[0] = endpoint.createConnection(call, ConnectionType.RTP);
+                connections[0].setCallAgent(getEvent().getAddress());                
             } catch (Exception e) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection" + e.getMessage()));
             }
@@ -464,7 +464,7 @@ public class CreateConnectionCmd extends Action {
             
             try {
                 connections[0].setMode(m);
-                connections[1].setMode(ConnectionMode.SEND_RECV);
+                //connections[1].setMode(ConnectionMode.SEND_RECV);
             } catch (Exception e) {
                 throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Unsupported mode"));
             }

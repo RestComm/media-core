@@ -30,6 +30,7 @@ import java.io.IOException;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.utils.Text;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 
 /**
  *
@@ -84,6 +85,12 @@ public class MyTestConnection extends BaseConnection {
 
     public double getJitter() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public void setConnectionFailureListener(ConnectionFailureListener connectionListener)
+    {
+    	//currently used only in RTP Connection
     }
 
     @Override

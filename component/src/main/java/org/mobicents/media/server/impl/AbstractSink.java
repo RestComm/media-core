@@ -373,7 +373,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
         public long perform() {
             if (pipe == null) {
                 //no source of data
-                isSynchronized = false;
+            	isSynchronized = false;
                 return 0;
             }
             
@@ -422,14 +422,14 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             	try {
             		onMediaTransfer(frame);
             	} catch (IOException e) {
-                	started = false;
+            		started = false;
                 	failed(e);
             	}
             
             	//check synchronization
             	if (frameDuration == 0 || frameDuration == Long.MAX_VALUE) {
                 	//los of synchronization
-                	isSynchronized = false;
+            		isSynchronized = false;
                 	return 0;
             	}                        
             }

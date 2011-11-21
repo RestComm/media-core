@@ -22,9 +22,11 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
@@ -63,13 +65,14 @@ public class MgcpEndpoint {
     Request request;
     
     //pool of connection activities, limited to 15
-    private ArrayList<MgcpConnection> connections = new ArrayList(N);
+    private ConcurrentLinkedQueue<MgcpConnection> connections = new ConcurrentLinkedQueue();
     
     //list of active connections
-    private ArrayList<MgcpConnection> activeConnections = new ArrayList(N);
+    private ConcurrentHashMap<Text,MgcpConnection> activeConnections=new ConcurrentHashMap(N);
     protected MgcpProvider mgcpProvider;
     
     private MgcpListener listener;
+    private MgcpEndpointStateListener stateListener;
     /**
      * Constructs new endpoint activity.
      * 
@@ -114,6 +117,10 @@ public class MgcpEndpoint {
         this.listener = listener;
     }
     
+    public void setMgcpEndpointStateListener(MgcpEndpointStateListener listener) {
+        this.stateListener = listener;
+    }
+    
     /**
      * Gets the current state of this activity.
      * 
@@ -145,6 +152,8 @@ public class MgcpEndpoint {
     public void share() {
         if (this.state == STATE_LOCKED) {
             this.state = STATE_FREE;
+            if(this.stateListener!=null)
+            	this.stateListener.onFreed(this);
         }
     }
 
@@ -155,15 +164,15 @@ public class MgcpEndpoint {
      * 
      * @return connection activity.
      */
-    public synchronized MgcpConnection createConnection(MgcpCall call, ConnectionType type) throws TooManyConnectionsException, ResourceUnavailableException {
+    public MgcpConnection createConnection(MgcpCall call, ConnectionType type) throws TooManyConnectionsException, ResourceUnavailableException {
     	//create connection
     	Connection connection = endpoint.createConnection(type);
     	//wrap connection with relative activity
-    	MgcpConnection mgcpConnection = connections.remove(0);
+    	MgcpConnection mgcpConnection = connections.poll();
     	mgcpConnection.wrap(this, call, connection);
 
     	//put connection activity into active list
-    	activeConnections.add(mgcpConnection);
+    	activeConnections.put(mgcpConnection.id,mgcpConnection);
 
     	//change state to BUSY what means that this connection has at least one
     	//connection
@@ -177,24 +186,25 @@ public class MgcpEndpoint {
      * 
      * @param id the identifier of the relative connection activity.
      */
-    public synchronized void deleteConnection(Text id) {    	
+    public void deleteConnection(Text id) {    	
     	//looking for connection with specified ID.
-    	int index = -1;
-    	for (int i = 0; i < activeConnections.size(); i++) {
-    		if (activeConnections.get(i).id.equals(id)) {
-    			index = i;
+    	MgcpConnection mgcpConnection=null;
+    	Text currText;
+    	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    		currText=e.nextElement();
+    		if(currText.equals(id)) {
+    			mgcpConnection=activeConnections.remove(currText);
     			break;
     		}
-    	}
-
+        }
+    	
     	//connection not found?
-    	if (index == -1) {
+    	if (mgcpConnection == null) {
     		//TODO: throw exception
     		return;
     	}
 
     	//remove activity from list and terminate
-    	MgcpConnection mgcpConnection = activeConnections.remove(index);
     	mgcpConnection.release();
 
     	endpoint.deleteConnection(mgcpConnection.connection);
@@ -202,34 +212,42 @@ public class MgcpEndpoint {
     	//return object to pool
     	connections.add(mgcpConnection);
 
-    	//update state
+    	//update state    	
     	if (activeConnections.isEmpty()) {        	        	
     		this.state = STATE_FREE;
+    		if(this.stateListener!=null)
+            	this.stateListener.onFreed(this);
     	}
     	
     	this.request.cancel();    	    	   
     }
 
     public void deleteAllConnections() {
-        connections.addAll(activeConnections);
-        activeConnections.clear();
+    	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    		connections.add(activeConnections.remove(e.nextElement()));    
+        }
+    	        
         endpoint.deleteAllConnections();
         
         this.state = STATE_FREE;
+        if(this.stateListener!=null)
+        	this.stateListener.onFreed(this);
         this.request.cancel();
     }
     
     public MgcpConnection getConnection(Text connectionID) {
-        for (int i = 0; i < activeConnections.size(); i++) {
-            if (activeConnections.get(i).id.equals(connectionID)) {
-                return activeConnections.get(i);
-            }
+    	Text currText;
+    	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    		currText=e.nextElement();
+    		if(currText.equals(connectionID))
+    			return activeConnections.get(currText);    		
         }
-        return null;
+    	
+    	return null;        
     }
 
     protected void send(MgcpEvent message, SocketAddress address) {
-        listener.process(message);
+    	listener.process(message);
     }
     
     /**
@@ -240,8 +258,8 @@ public class MgcpEndpoint {
      */
     protected MgcpConnection poll(MgcpCall call) {
     	//take first from pool and put into list of active    	
-        MgcpConnection mgcpConnection = connections.remove(0);
-        activeConnections.add(mgcpConnection);
+        MgcpConnection mgcpConnection = connections.poll();
+        activeConnections.put(mgcpConnection.id,mgcpConnection);
         
         //assign call
         mgcpConnection.setCall(call);        
@@ -254,9 +272,9 @@ public class MgcpEndpoint {
      * @param connection the object to be reclaimed
      */
     protected void offer(MgcpConnection mgcpConnection) {
-        //remove from active list
-        activeConnections.remove(mgcpConnection);
-        
+    	//remove from active list
+    	activeConnections.remove(mgcpConnection.id);
+    	
         //reclaim
         mgcpConnection.release();
         

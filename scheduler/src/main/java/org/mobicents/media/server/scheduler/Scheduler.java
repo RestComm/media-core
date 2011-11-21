@@ -87,7 +87,7 @@ public class Scheduler  {
     	heartBeatQueue=new OrderedTaskQueue();
     	
         cpuThread = new CpuThread(String.format("Scheduler"));
-    }
+    }    
 
     /**
      * Sets clock.
@@ -210,8 +210,7 @@ public class Scheduler  {
         public CpuThread(String name) {
             super(name);
             
-            int nrOfProcessors = Runtime.getRuntime().availableProcessors();
-            eservice = Executors.newFixedThreadPool(2*nrOfProcessors);            
+            eservice = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*2);            
         }
         
         public void activate() {

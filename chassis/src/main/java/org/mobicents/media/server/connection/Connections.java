@@ -24,6 +24,7 @@
 package org.mobicents.media.server.connection;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.CheckPoint;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
@@ -65,9 +66,9 @@ public class Connections {
     protected Scheduler scheduler;
 
     //pool of local connections
-    protected ArrayList<BaseConnection> localConnections;
+    protected ConcurrentLinkedQueue<BaseConnection> localConnections=new ConcurrentLinkedQueue();
     //pool of RTP connections
-    protected ArrayList<BaseConnection> rtpConnections;
+    protected ConcurrentLinkedQueue<BaseConnection> rtpConnections=new ConcurrentLinkedQueue();
 
     //list of currently active connections
     protected ArrayList<BaseConnection> activeConnections;
@@ -116,13 +117,11 @@ public class Connections {
         int count = 1;
 
         //prepare local connections
-        localConnections = new ArrayList(localPoolSize);
         for (int i = 0; i < localPoolSize; i++) {
         	localConnections.add(new LocalConnectionImpl(Integer.toString(count++), this, isLocalToRemote));        	
         }
 
         //prepare rtp connections
-        rtpConnections = new ArrayList(rtpPoolSize);
         for (int i = 0; i < rtpPoolSize; i++) {
             rtpConnections.add(new RtpConnectionImpl(Integer.toString(count++), this, isLocalToRemote));
         }
@@ -147,15 +146,24 @@ public class Connections {
      * @param type the type of connection
      * @return connection instance.
      */
-    public synchronized Connection createConnection(ConnectionType type) throws ResourceUnavailableException {
+    public Connection createConnection(ConnectionType type) throws ResourceUnavailableException {
+    	BaseConnection currConnection=null;
     	switch (type) {
            	case LOCAL:
-           		return poll(localConnections);
+           		currConnection=localConnections.poll();
+           		if(currConnection!=null)
+           			activeConnections.add(currConnection);
+           		
+           		return currConnection;
            	case RTP:
-           		return poll(rtpConnections);
+           		currConnection=rtpConnections.poll();
+           		if(currConnection!=null)
+               		activeConnections.add(currConnection);
+           		
+           		return currConnection;
            	default:
            		throw new ResourceUnavailableException("Unknown connection type");
-    	}        
+    	}            	    
     }
 
     /**
@@ -212,24 +220,7 @@ public class Connections {
                 return null;
         }
     }
-
-    /**
-     * Polls connection from specified pool.
-     *
-     * @param pool the pool to poll.
-     * @return connection instance.
-     */
-    private BaseConnection poll(ArrayList<BaseConnection> pool) throws ResourceUnavailableException {
-        if (pool.isEmpty()) {
-            throw new ResourceUnavailableException("Connections limit exceeded");
-        }
-
-        connection = pool.remove(0);
-        activeConnections.add(connection);
-
-        return connection;
-    }
-
+    
     /**
      * Closes all activities connections.
      */
@@ -289,7 +280,7 @@ public class Connections {
      * It checks modes of all active connections and determines endpoint
      * transition mode as a combination of connections modes.
      */
-    public synchronized void updateMode(MediaType mediaType) throws ModeNotSupportedException {
+    public void updateMode(MediaType mediaType) throws ModeNotSupportedException {
     	//originaly everything is false
     	boolean send = false;
     	boolean recv = false;

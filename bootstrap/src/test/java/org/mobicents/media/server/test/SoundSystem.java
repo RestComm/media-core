@@ -48,7 +48,7 @@ public class SoundSystem extends BaseEndpointImpl implements Endpoint {
     private SoundCard soundcard;
 
     public SoundSystem(String localName) {
-        super(localName,false);
+        super(localName,BaseEndpointImpl.ENDPOINT_NORMAL);
     }
 
     public void setFreq(int f) {

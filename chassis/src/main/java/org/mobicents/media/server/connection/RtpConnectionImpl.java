@@ -29,7 +29,9 @@ import org.mobicents.media.server.SdpTemplate;
 
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
+import org.mobicents.media.server.impl.rtp.RTPChannelListener;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
@@ -42,7 +44,7 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  * @author amit bhayani
  */
-public class RtpConnectionImpl extends BaseConnection {
+public class RtpConnectionImpl extends BaseConnection implements RTPChannelListener {
 
     private RTPDataChannel rtpAudioChannel;
     private RTPDataChannel rtpVideoChannel;
@@ -55,6 +57,8 @@ public class RtpConnectionImpl extends BaseConnection {
 
     //negotiated sdp
     private String descriptor2;
+        
+    private ConnectionFailureListener connectionFailureListener;
     
     public RtpConnectionImpl(String id, Connections connections,Boolean isLocalToRemote) throws Exception {
         super(id, connections,isLocalToRemote);
@@ -71,6 +75,8 @@ public class RtpConnectionImpl extends BaseConnection {
         //create audio and video channel
         rtpAudioChannel = connections.rtpManager.getChannel();
         rtpVideoChannel = connections.rtpManager.getChannel();
+        rtpAudioChannel.setRtpChannelListener(this);
+        rtpVideoChannel.setRtpChannelListener(this);
     }
 
     @Override
@@ -87,6 +93,13 @@ public class RtpConnectionImpl extends BaseConnection {
         }
     }
 
+    @Override
+    public void setMode(ConnectionMode mode) throws ModeNotSupportedException  {
+    	super.setMode(mode);
+    	rtpAudioChannel.updateMode(mode);    
+    	//rtpVideoChannel.updateMode(mode);
+    }
+    
     public void setOtherParty(byte[] descriptor) throws IOException {
         try {
             sdp.parse(descriptor);
@@ -191,8 +204,7 @@ public class RtpConnectionImpl extends BaseConnection {
         try {
             this.join();
         } catch (Exception e) {
-        }
-        
+        }       
     }
     
 
@@ -271,6 +283,16 @@ public class RtpConnectionImpl extends BaseConnection {
         return "RTP Connection [" + getEndpoint().getLocalName() ;
     }
 
+    public void onRtpFailure() {
+    	onFailed();
+    }
+    
+    @Override
+    public void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener)
+    {
+    	this.connectionFailureListener=connectionFailureListener;
+    }
+    
     @Override
     protected void onCreated() throws Exception {
         if (this.isAudioCapabale) {
@@ -288,17 +310,20 @@ public class RtpConnectionImpl extends BaseConnection {
                 connections.rtpManager.getBindAddress(),
                 rtpAudioChannel.getLocalPort(),
                 rtpVideoChannel.getLocalPort());
-    }
-
+    }    
+    
     @Override
     protected void onFailed() {
+    	if(this.connectionFailureListener!=null)
+        	connectionFailureListener.onFailure();
+        
         if (rtpAudioChannel != null) {
             rtpAudioChannel.close();
         }
 
         if (rtpVideoChannel != null) {
             rtpVideoChannel.close();
-        }
+        }        
     }
 
     @Override
@@ -322,10 +347,8 @@ public class RtpConnectionImpl extends BaseConnection {
             this.rtpVideoChannel.close();
         }
 
-        synchronized(connections) {
-            connections.activeConnections.remove(this);
-            connections.rtpConnections.add(this);
-        }
+        connections.activeConnections.remove(this);
+        connections.rtpConnections.add(this);
+        this.connectionFailureListener=null;        
     }
-
 }

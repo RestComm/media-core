@@ -29,7 +29,10 @@ public enum ConnectionState {
 
     NULL(0, "NULL", -1),
     CREATING(1, "CREATING", 5),
-    HALF_OPEN(2, "HALF_OPEN", 5),
+    //5 seconds is not enough for anything and basically means that
+    //connections should be established only after 200 ok received on sip.
+    //but connection should be created when invite received.
+    HALF_OPEN(2, "HALF_OPEN", 300),
     OPENING(3, "OPENING", 5),
     OPEN(4, "OPEN", 30 * 60),
     CLOSING(5, "CLOSING", 5);

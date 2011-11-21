@@ -39,6 +39,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  *
@@ -64,7 +65,7 @@ public class MgcpProvider {
     private Scheduler scheduler;
     
     //transmission buffer
-    private ByteBuffer txBuffer = ByteBuffer.allocate(8192);
+    private ConcurrentLinkedQueue<ByteBuffer> txBuffer;
     
     //receiver buffer
     private ByteBuffer rxBuffer = ByteBuffer.allocate(8192);
@@ -87,8 +88,12 @@ public class MgcpProvider {
         
         //prepare event pool
         for (int i = 0; i < 100; i++) {
-            events.offer(new MgcpEventImpl(this));
+            events.add(new MgcpEventImpl(this));
         }
+        
+        txBuffer=new ConcurrentLinkedQueue();
+        for(int i=0;i<100;i++)
+        	txBuffer.add(ByteBuffer.allocate(8192));
     }
 
     /**
@@ -106,9 +111,13 @@ public class MgcpProvider {
         this.scheduler = scheduler;
         
         //prepare event pool
-        for (int i = 0; i < 10; i++) {
-            events.offer(new MgcpEventImpl(this));
+        for (int i = 0; i < 100; i++) {
+            events.add(new MgcpEventImpl(this));
         }
+        
+        txBuffer=new ConcurrentLinkedQueue();
+        for(int i=0;i<100;i++)
+        	txBuffer.add(ByteBuffer.allocate(8192));
     }
     
     /**
@@ -118,7 +127,11 @@ public class MgcpProvider {
      * @return event object.
      */
     public MgcpEvent createEvent(int eventID, SocketAddress address) {
+    	
     	MgcpEventImpl evt = events.poll();
+    	if(evt==null)
+    		evt=new MgcpEventImpl(this);
+    	
     	evt.setEventID(eventID);
     	evt.setAddress(address);
     	return evt;    	
@@ -131,11 +144,16 @@ public class MgcpProvider {
      * @param message the message to send.
      * @param destination the IP address of the destination.
      */
-    public synchronized void send(MgcpEvent event, SocketAddress destination) throws IOException {
+    public void send(MgcpEvent event, SocketAddress destination) throws IOException {
     	MgcpMessage msg = event.getMessage();
-    	msg.write(txBuffer);
-        
-    	channel.send(txBuffer, destination);    	
+    	ByteBuffer currBuffer=txBuffer.poll();
+    	if(currBuffer==null)
+    		currBuffer=ByteBuffer.allocate(8192);
+    	
+    	msg.write(currBuffer);
+    	channel.send(currBuffer, destination);
+    	currBuffer.clear();
+    	txBuffer.add(currBuffer);
     }
 
     /**
@@ -143,11 +161,16 @@ public class MgcpProvider {
      * 
      * @param message the message to send.
      */
-    public synchronized void send(MgcpEvent event) throws IOException {
+    public void send(MgcpEvent event) throws IOException {
     	MgcpMessage msg = event.getMessage();
-    	msg.write(txBuffer);
-        
-    	channel.send(txBuffer, event.getAddress());    	
+    	ByteBuffer currBuffer=txBuffer.poll();
+    	if(currBuffer==null)
+    		currBuffer=ByteBuffer.allocate(8192);
+    	
+    	msg.write(currBuffer);
+    	channel.send(currBuffer, event.getAddress());    	
+    	currBuffer.clear();
+    	txBuffer.add(currBuffer);    	
     }
     
     /**
@@ -156,9 +179,15 @@ public class MgcpProvider {
      * @param message the message to send.
      * @param destination the IP address of the destination.
      */
-    public synchronized void send(MgcpMessage message, SocketAddress destination) throws IOException {
-    	message.write(txBuffer);        
-    	channel.send(txBuffer, destination);    	
+    public void send(MgcpMessage message, SocketAddress destination) throws IOException {
+    	ByteBuffer currBuffer=txBuffer.poll();
+    	if(currBuffer==null)
+    		currBuffer=ByteBuffer.allocate(8192);
+    	
+    	message.write(currBuffer);
+    	channel.send(currBuffer, destination);
+    	currBuffer.clear();
+    	txBuffer.add(currBuffer);    	
     }
     
     /**
@@ -211,13 +240,13 @@ public class MgcpProvider {
         }        
     }
     
-    private synchronized void recycleEvent(MgcpEventImpl event) {
+    private void recycleEvent(MgcpEventImpl event) {
     	if (events.contains(event)) {
     		logger.warn("====================== ALARM ALARM ALARM==============");
     	}
-    	events.offer(event);
     	event.response.clean();
-    	event.request.clean();    	
+    	event.request.clean();
+    	events.add(event);    	    
     }
     
     /**
@@ -394,7 +423,7 @@ public class MgcpProvider {
          * @see org.mobicents.media.server.mgcp.MgcpEvent#recycle() 
          */
         public void recycle() {
-            recycleEvent(this);
+        	recycleEvent(this);
         }
 
         /**

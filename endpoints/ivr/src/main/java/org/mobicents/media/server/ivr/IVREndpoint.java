@@ -45,8 +45,8 @@ public class IVREndpoint extends AnnouncementEndpoint {
         super(name);
     }
     
-    public IVREndpoint(String name,Boolean isLocalToRemote) {
-        super(name,isLocalToRemote);
+    public IVREndpoint(String name,int endpointType) {
+        super(name,endpointType);
     }
     
     @Override

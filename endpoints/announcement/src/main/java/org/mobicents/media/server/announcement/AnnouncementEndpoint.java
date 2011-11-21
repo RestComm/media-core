@@ -64,7 +64,7 @@ public class AnnouncementEndpoint extends BaseEndpointImpl {
     //private Sine sine;
     
     public AnnouncementEndpoint(String name) {
-        super(name,false);
+        super(name,BaseEndpointImpl.ENDPOINT_NORMAL);
         
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
@@ -73,8 +73,8 @@ public class AnnouncementEndpoint extends BaseEndpointImpl {
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
     }
     
-    public AnnouncementEndpoint(String name,Boolean isLocalToRemote) {
-        super(name,isLocalToRemote);
+    public AnnouncementEndpoint(String name,int endpointType) {
+        super(name,endpointType);
         
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");

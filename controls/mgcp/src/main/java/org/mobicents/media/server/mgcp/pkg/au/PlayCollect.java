@@ -39,6 +39,9 @@ import org.mobicents.media.server.utils.Text;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Implements play announcement signal.
  * 
@@ -451,14 +454,19 @@ public class PlayCollect extends Signal {
     }
     
     private class Heartbeat extends Task {
-
-    	private int ttl=-1,overallTtl=-1;       	
-    	private boolean active=false;
+    	private AtomicInteger ttl;
+    	private AtomicInteger overallTtl;
+    	private AtomicBoolean active;
+    	
     	private Scheduler scheduler;
     	private Signal signal;
     	
         public Heartbeat(Scheduler scheduler,Signal signal) {
-            super(scheduler);
+        	super(scheduler);
+        	
+        	ttl=new AtomicInteger(-1);
+        	overallTtl=new AtomicInteger(-1);
+        	active=new AtomicBoolean(false);
             this.scheduler=scheduler;
             this.signal=signal;
         }
@@ -468,43 +476,45 @@ public class PlayCollect extends Signal {
         	return scheduler.HEARTBEAT_QUEUE;
         }     
         
-        public synchronized void setTtl(int value)
+        public void setTtl(int value)
         {
-        	this.ttl=value;        	
+        	ttl.set(value);        	        
         }
         
-        public synchronized void setOverallTtl(int value)
+        public void setOverallTtl(int value)
         {
-        	this.overallTtl=value;        	
+        	overallTtl.set(value);        	        
         }
         
-        public synchronized void disable()
+        public void disable()
         {
-        	this.active=false;        	
+        	this.active.set(false);        	
         }
         
-        public synchronized void activate()
+        public void activate()
         {
-        	this.active=true;        	
+        	this.active.set(true);  	
         }
         
-        public synchronized boolean isActive()
+        public boolean isActive()
         {
-        	return this.active;
+        	return this.active.get();
         }
 
         @Override
-        public synchronized long perform() {        	
-        	if(!active)
+        public long perform() {        	
+        	if(!active.get())
         		return 0;
         	
-        	if(ttl!=0 && overallTtl!=0)
+        	int ttlValue=ttl.get();
+        	int overallTtlValue=overallTtl.get();
+        	if(ttlValue!=0 && overallTtlValue!=0)
         	{
-        		if(ttl>0)
-        			ttl--;
+        		if(ttlValue>0)
+        			ttl.set(ttlValue-1);
         		
-        		if(overallTtl>0)
-        			overallTtl--;
+        		if(overallTtlValue>0)
+        			overallTtl.set(overallTtlValue-1);
         		
         		scheduler.submitHeatbeat(this);
         		return 0;
@@ -513,7 +523,7 @@ public class PlayCollect extends Signal {
         	logger.info(String.format("(%s) Timeout expired waiting for dtmf", getEndpoint().getLocalName()));
         	if(numberOfAttempts==1)
         	{
-        		if(ttl==0)
+        		if(ttlValue==0)
         			if(buffer.getSequence().length()>0)
         				oc.fire(signal, new Text("rc=326 dc=" + buffer.getSequence()));
         			else
@@ -531,13 +541,13 @@ public class PlayCollect extends Signal {
         			buffer.passivate();
         			isPromptActive = true;
         			startPromptPhase(options);
-        			active=false;
+        			active.set(false);
         		} else {
         			if(maxDuration>0)
-        				setOverallTtl((int)(maxDuration/100000000L));
+        				overallTtl.set((int)(maxDuration/100000000L));
         			
         			if(firstDigitTimer>0)
-        				setTtl((int)(firstDigitTimer/100000000L));
+        				ttl.set((int)(firstDigitTimer/100000000L));
         					
         			scheduler.submitHeatbeat(this);        			        			
         		}

@@ -82,7 +82,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     private GoertzelFilter[] lowFreqFilters = new GoertzelFilter[4];
     private GoertzelFilter[] highFreqFilters = new GoertzelFilter[4];
     
-    private double threshold;
+    private double threshold=0;
     
     private int level;
     private int offset = 0;
@@ -175,8 +175,8 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
             }
             //if dtmf buffer full check signal
             if (offset == N) {
-                offset = 0;
-                //and if max amplitude of signal is greater theshold
+            	offset = 0;
+            	//and if max amplitude of signal is greater theshold
                 //try to detect tone.
                 if (maxAmpl >= threshold) {
                     maxAmpl = 0;
@@ -187,8 +187,8 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
                     String tone = getTone(p, P);
                     
                     if (tone != null)
-                    	dtmfBuffer.push(tone);                    	
-                }
+                    	dtmfBuffer.push(tone);
+                }                
             }
         }
     }

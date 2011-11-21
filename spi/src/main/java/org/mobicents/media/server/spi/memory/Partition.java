@@ -22,7 +22,7 @@
 
 package org.mobicents.media.server.spi.memory;
 
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  *
@@ -31,21 +31,22 @@ import java.util.ArrayList;
 public class Partition {
 
     protected int size;
-    private ArrayList<Frame> heap = new ArrayList();
+    private ConcurrentLinkedQueue<Frame> heap = new ConcurrentLinkedQueue();
 
     protected Partition(int size) {
         this.size = size;
     }
     
-    protected synchronized Frame allocate() {
+    protected Frame allocate() {
 //        if (true) return new Frame(this, new byte[size]);
-        if (heap.isEmpty()) {
+    	Frame result=heap.poll();
+        if (result==null)
             return new Frame(this, new byte[size]);
-        }
-        return heap.remove(0);
+        
+        return result;
     }
 
-    protected synchronized void recycle(Frame frame) {
+    protected void recycle(Frame frame) {
         frame.setHeader(null);
         frame.setDuration(Long.MAX_VALUE);
         frame.setEOM(false);
