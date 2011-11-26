@@ -253,12 +253,13 @@ public abstract class BaseConnection implements Connection {
     			if (currentMode == mode) {    				
     				return;
     			}
+    			
     			//changing mode
     			channel(mediaType).setMode(mode);
-    			connections.updateMode(mediaType);
+    			connections.updateMode(mediaType);    			
     		} catch (ModeNotSupportedException e) {    			
     			//rollback to previous mode
-    			channel(mediaType).setMode(currentMode);
+    			channel(mediaType).setMode(currentMode);    			
     			connections.updateMode(mediaType);
     		}    	
     }

@@ -24,6 +24,8 @@ package org.mobicents.media.server.component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
@@ -48,10 +50,10 @@ public class Splitter {
     private final Input input;
 
     //The pool of output streams
-    private ArrayList<Output> pool = new ArrayList(POOL_SIZE);
+    private ConcurrentLinkedQueue<Output> pool = new ConcurrentLinkedQueue();
 
     //Active output streams
-    private ArrayList<Output> outputs = new ArrayList(POOL_SIZE);
+    private ConcurrentHashMap<Integer,Output> outputs = new ConcurrentHashMap(POOL_SIZE);
 
     private Formats formats = new Formats();
 
@@ -64,7 +66,7 @@ public class Splitter {
     public Splitter(Scheduler scheduler) {
         input = new Input(scheduler);
         for (int i = 0; i < POOL_SIZE; i++) {
-            pool.add(new Output(scheduler));
+            pool.add(new Output(scheduler,(i+1)));
         }
         
         this.dtmfClamp=new DtmfClamp();
@@ -96,8 +98,14 @@ public class Splitter {
         
         //update formats
         input.update();
-        for (int i = 0; i < POOL_SIZE; i++) {
-            pool.get(i).update();
+        Iterator<Output> activeOutputs=outputs.values().iterator();
+        while(activeOutputs.hasNext())
+        	activeOutputs.next().update();
+        
+        Output[] poolOutputs=new Output[0];
+        poolOutputs=pool.toArray(poolOutputs);
+        for (int i = 0; i < poolOutputs.length; i++) {
+        	poolOutputs[i].update();
         }
     }
 
@@ -125,8 +133,8 @@ public class Splitter {
      * @return the new output stream as media source
      */
     public MediaSource newOutput() {
-        Output output = pool.remove(0);
-        outputs.add(output);
+        Output output = pool.remove();
+        outputs.put(output.getOutputId(),output);
         return output;
     }
 
@@ -148,9 +156,10 @@ public class Splitter {
         builder.append(input.report());
         builder.append(")\n");
         
-        for (Output output : outputs) {
+        Iterator<Output> activeOutputs=outputs.values().iterator();
+        while(activeOutputs.hasNext()) {
             builder.append("     output: (");
-            builder.append(output.report());
+            builder.append(activeOutputs.next().report());
             builder.append(")\n");
         }
         
@@ -187,13 +196,16 @@ public class Splitter {
         	if(currFrame!=null)
         	{
         		//clone frame and queue to each active output
-                for (Output output : outputs) {
-                    if (output.buffer.size() < Output.limit) {
+        		Iterator<Output> activeOutputs=outputs.values().iterator();
+                while(activeOutputs.hasNext())
+                {
+                	Output output=activeOutputs.next();
+                	if (output.buffer.size() < Output.limit) {
                         output.buffer.offer((Frame)currFrame.clone());
                         output.wakeup();
                     }
                 }
-
+                
                 //recycle original frame
                 currFrame.recycle();
         	}
@@ -223,17 +235,24 @@ public class Splitter {
     private class Output extends AbstractSource {
         //buffer limit
         private final static int limit = 50;
-
+        private int outputId;
+        
         //transmission buffer
         private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
 
         /**
          * Creates new output stream.
          */
-        public Output(Scheduler scheduler) {
+        public Output(Scheduler scheduler,int outputId) {
             super("splitter.output", scheduler,scheduler.SPLITTER_OUTPUT_QUEUE);
+            this.outputId=outputId;
         }
 
+        public int getOutputId()
+        {
+        	return outputId;
+        }
+        
         @Override
         public Frame evolve(long timestamp) {
             return buffer.poll();
@@ -253,7 +272,7 @@ public class Splitter {
          */
         protected void recycle() {
             buffer.clear();
-            outputs.remove(this);
+            outputs.remove(this.outputId);
             pool.add(this);
         }
 

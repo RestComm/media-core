@@ -23,7 +23,10 @@
 
 package org.mobicents.media.server.connection;
 
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.CheckPoint;
 import org.mobicents.media.MediaSink;
@@ -66,12 +69,12 @@ public class Connections {
     protected Scheduler scheduler;
 
     //pool of local connections
-    protected ConcurrentLinkedQueue<BaseConnection> localConnections=new ConcurrentLinkedQueue();
+    private ConcurrentLinkedQueue<BaseConnection> localConnections=new ConcurrentLinkedQueue();
     //pool of RTP connections
-    protected ConcurrentLinkedQueue<BaseConnection> rtpConnections=new ConcurrentLinkedQueue();
+    private ConcurrentLinkedQueue<BaseConnection> rtpConnections=new ConcurrentLinkedQueue();
 
     //list of currently active connections
-    protected ArrayList<BaseConnection> activeConnections;
+    protected ConcurrentHashMap<String,BaseConnection> activeConnections;    
 
     //used for referecning connection
     private BaseConnection connection;
@@ -85,7 +88,8 @@ public class Connections {
     /**
      * active local channels
      */
-    protected ArrayList<LocalChannel> localChannels = new ArrayList();
+    protected AtomicInteger lastChannelId=new AtomicInteger(1);
+    protected ConcurrentHashMap<Integer,LocalChannel> localChannels = new ConcurrentHashMap();
 
     //intermediate audio and video formats.
     private Formats audioFormats = new Formats();
@@ -127,7 +131,7 @@ public class Connections {
         }
 
         //create holder for active connections
-        activeConnections = new ArrayList(localPoolSize + rtpPoolSize);        
+        activeConnections = new ConcurrentHashMap(localPoolSize + rtpPoolSize);        
     }
 
     public BaseEndpointImpl getEndpoint()
@@ -152,18 +156,32 @@ public class Connections {
            	case LOCAL:
            		currConnection=localConnections.poll();
            		if(currConnection!=null)
-           			activeConnections.add(currConnection);
+           			activeConnections.put(currConnection.getId(),currConnection);
            		
            		return currConnection;
            	case RTP:
            		currConnection=rtpConnections.poll();
            		if(currConnection!=null)
-               		activeConnections.add(currConnection);
+               		activeConnections.put(currConnection.getId(),currConnection);
            		
            		return currConnection;
            	default:
            		throw new ResourceUnavailableException("Unknown connection type");
     	}            	    
+    }
+    
+    public void releaseConnection(BaseConnection connection,ConnectionType type)
+    {
+    	switch (type) {
+       		case LOCAL:
+       			activeConnections.remove(connection.getId());
+       			localConnections.add(connection);
+       			break;
+       		case RTP:
+       			activeConnections.remove(connection.getId());
+       			rtpConnections.add(connection);       			
+       			break;
+    	}
     }
 
     /**
@@ -225,11 +243,9 @@ public class Connections {
      * Closes all activities connections.
      */
     public void release() {
-        ArrayList<BaseConnection> temp = new ArrayList();
-        temp.addAll(activeConnections);
-        for (BaseConnection con : temp) {
-            con.close();
-        }
+        for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+        	activeConnections.remove(e.nextElement()).close();
+        }        
     }
 
     /**
@@ -286,14 +302,15 @@ public class Connections {
     	boolean recv = false;
     	boolean loop = false;
 
+    	Iterator<BaseConnection> currConnections=activeConnections.values().iterator();
     	//check mode for each active connection
-    	for (int i = 0; i < activeConnections.size(); i++) {
+    	while(currConnections.hasNext()) {
     		//if found connection with loopback mode no need to search more
     		if (loop) {
     			break;
     		}
 
-    		connection = activeConnections.get(i);
+    		connection = currConnections.next();
     		switch (connection.getMode(mediaType)) {
                	case SEND_ONLY:
                		send = true;
@@ -304,7 +321,7 @@ public class Connections {
                	case SEND_RECV:
                	case CONFERENCE:
                		send = true;
-               		recv = true;
+               		recv = true;               		
                		break;
                	case LOOPBACK:
                		loop = true;
@@ -344,36 +361,37 @@ public class Connections {
     }
 
     protected void addToConference(BaseConnection connection) {
-        for (BaseConnection c : activeConnections) {
-            if (c.getMode(MediaType.AUDIO) == ConnectionMode.CONFERENCE && connection != c) {
-                LocalChannel channel = new LocalChannel();
+    	String key;
+    	for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    		key=e.nextElement();
+    		BaseConnection c=activeConnections.get(key);
+    		if (c!=null && c.getMode(MediaType.AUDIO) == ConnectionMode.CONFERENCE && connection != c) {
+            	Integer Id=lastChannelId.getAndIncrement();
+                LocalChannel channel = new LocalChannel(Id);
                 channel.join(connection, c);
-                localChannels.add(channel);                
+                localChannels.put(Id,channel);            
             }
         }
     }
     
     protected void updateConnectionChannels(BaseConnection connection) {
-    	for(int i=0;i<localChannels.size();i++)
-    		if(localChannels.get(i).match(connection))
-    			localChannels.get(i).update();
+    	Integer key;
+    	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
+    		key=e.nextElement();
+    		if(localChannels.get(key).match(connection))
+    			localChannels.get(key).update();
+    	}
     }
     
     protected void removeFromConference(BaseConnection connection) {
     	//should remove all channells and not only one
         LocalChannel channel = null;
-        int currIndex=0;
-        while(currIndex<localChannels.size())
-        {
-        	channel=localChannels.get(currIndex);
-        	if(channel.match(connection))
-        	{
-        		localChannels.remove(channel);
-                channel.unjoin();
-        	}
-        	else
-        		currIndex++;
-        }        
+        Integer key;
+    	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
+    		key=e.nextElement();
+    		if(localChannels.get(key).match(connection))
+    			localChannels.remove(key).unjoin();    		
+    	}    	    	              
     }   
     
     public String report() {
@@ -797,11 +815,22 @@ public class Connections {
      * Channel for joining connections in CNF mode.
      */
     protected class LocalChannel {
+    	private Integer id;
         private Party party1 = new Party();
         private Party party2 = new Party();
 
         private PipeImpl audioRxPipe = new PipeImpl();
         private PipeImpl audioTxPipe = new PipeImpl();
+        
+        public LocalChannel(Integer id)
+        {
+        	this.id=id;
+        }
+        
+        public Integer getId()
+        {
+        	return this.id;
+        }
         
         //should be opposite since connecting inside endpoint and not to outside
         protected void join(BaseConnection connection1, BaseConnection connection2) {

@@ -23,7 +23,7 @@
 
 package org.mobicents.media.server.connection;
 
-import java.util.ArrayList;
+import java.util.Enumeration;
 import org.mobicents.media.CheckPoint;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
@@ -63,15 +63,19 @@ public class RemoteToRemoteConnections extends Connections {
     	
     }    
 
+    String key;
     //connecting only remote to remote channels , used for packet relay
     protected void addToConference(BaseConnection connection) {
     	if(connection instanceof RtpConnectionImpl)
     	{
-    		for (BaseConnection c : activeConnections) {
-                if (c instanceof RtpConnectionImpl && connection != c) {
-                    LocalChannel channel = new LocalChannel();
-                    channel.join(c, connection);
-                    localChannels.add(channel);                
+    		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    			key=e.nextElement();
+        		BaseConnection c=activeConnections.get(key);        
+                if (c!=null && c instanceof RtpConnectionImpl && connection != c) {
+                	Integer Id=lastChannelId.getAndIncrement();
+                    LocalChannel channel = new LocalChannel(Id);
+                    channel.join(connection, c);
+                    localChannels.put(Id,channel);              
                 }
             }
     	}    	   

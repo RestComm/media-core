@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
@@ -59,7 +60,7 @@ public class LocalConnectionImpl extends BaseConnection {
             join();
             ((BaseConnection)other).join();
         } catch (Exception e) {
-            throw new IOException(e);
+        	throw new IOException(e);
         }
     }
 
@@ -145,8 +146,7 @@ public class LocalConnectionImpl extends BaseConnection {
         }
         
         //release connection
-        connections.activeConnections.remove(this);
-        connections.localConnections.add(this);        
+        connections.releaseConnection(this,ConnectionType.LOCAL);        
     }
 
 }

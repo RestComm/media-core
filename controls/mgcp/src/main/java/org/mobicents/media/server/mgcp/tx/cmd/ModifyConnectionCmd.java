@@ -92,7 +92,7 @@ public class ModifyConnectionCmd extends Action {
 
         @Override
         public long perform() {
-            request = (MgcpRequest) getEvent().getMessage();
+        	request = (MgcpRequest) getEvent().getMessage();
             
             Parameter callID = request.getParameter(Parameter.CALL_ID);
             if (callID == null) {

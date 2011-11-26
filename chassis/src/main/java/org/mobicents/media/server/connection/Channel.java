@@ -185,13 +185,13 @@ public class Channel {
     	Mode newMode=convert(mode);
         this.mode.set(newMode);
         
-    	if (selectedMode != null) {
+        if (selectedMode != null) {
         	if(selectedMode.getID()==ConnectionMode.CONFERENCE)
         		connections.removeFromConference(connection);
         	
         	selectedMode.deactivate();
         }    	
-
+    	
         if (newMode != null) {
             try {
             	if(newMode.getID()==ConnectionMode.CONFERENCE)

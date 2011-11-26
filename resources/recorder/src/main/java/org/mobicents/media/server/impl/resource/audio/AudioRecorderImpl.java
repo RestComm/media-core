@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -57,8 +59,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     }
     
     private String recordDir;
-    private FileOutputStream fout;
-    
+    private FileOutputStream fout;    
     //file for recording
     private File file;
     
@@ -68,23 +69,22 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     //if set ti true the record will terminate recording when silence detected
     private long postSpeechTimer = -1L;
     
-    //total non-interraptible silence time
-    private long silence;
-    
     //samples
+    private ByteBuffer byteBuffer=ByteBuffer.allocateDirect(8192);
+    private ByteBuffer headerBuffer=ByteBuffer.allocateDirect(44);
     private byte[] data;
     private int offset;
     private int len;
     
     private KillRecording killRecording;
+    private Heartbeat heartbeat;
+    
+    private long lastPacketData=0,startTime=0;
+    
     private Scheduler scheduler;
     
     //maximum recrding time. -1 means until stopped.
     private long maxRecordTime = -1;
-    
-    //length in time of recording
-    private long time;
-    
     
     //listener
     private Listeners<RecorderListener> listeners = new Listeners();
@@ -114,13 +114,18 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         
         //initialize event sender task
         eventSender = new EventSender(scheduler);
+        heartbeat = new Heartbeat(scheduler);
     }
 
     @Override
     public void start() {
-    	this.time = 0;
-    	this.silence=0;
+    	this.lastPacketData=scheduler.getClock().getTime();
+    	this.startTime=scheduler.getClock().getTime();
+    	
         super.start();
+        
+        if(this.postSpeechTimer>0 || this.maxRecordTime>0)
+        	scheduler.submitHeatbeat(this.heartbeat);
         
         //send event
         fireEvent(recorderStarted);
@@ -134,12 +139,14 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         
         super.stop();
         this.maxRecordTime = -1;
-        this.time = 0;
-        this.silence=0;
+        this.lastPacketData=0;
+        this.startTime=0;
+        
+        this.heartbeat.cancel();
         
         try {
             writeToWaveFile();
-        } catch (IOException e) {
+        } catch (IOException e) {        	
         }
         
         //send event
@@ -182,41 +189,27 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
-        //update time
-        time += frame.getDuration();
         //extract data
         data = frame.getData();
         offset = frame.getOffset();
         len = frame.getLength();
         
-        //write raw data as integer
-        for (int i = offset + 1; i < len; i+= 2) {
-            fout.write(data[i - 1]);
-            fout.write(data[i]);
-        }
+        byteBuffer.clear();
+        byteBuffer.limit(len-offset);
+        byteBuffer.put(data, offset, len-offset);
+        byteBuffer.rewind();
+        fout.getChannel().write(byteBuffer);
         
         if (this.postSpeechTimer > 0) {
             //detecting silence
-            if (this.checkForSilence(data, offset, len)) {
-                //silence frame detected, update selence total time
-                this.silence += frame.getDuration();
-                //check that silence does not exceed the limit yet
-                if (this.silence > postSpeechTimer) {
-                    this.qualifier = RecorderEvent.NO_SPEECH;                    
-                    scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
-                }
-            } else {
-                //reset silence time
-                this.silence = 0;                
+            if (!this.checkForSilence(data, offset, len)) {
+                this.lastPacketData=scheduler.getClock().getTime();
             }
         }
+        else
+        	this.lastPacketData=scheduler.getClock().getTime();
         
-        //check max time and stop recording if exeeds limit
-        if (this.maxRecordTime > 0 && time >= this.maxRecordTime) {
-            //set qualifier
-            this.qualifier = RecorderEvent.MAX_DURATION_EXCEEDED;            
-            scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
-        }
+        
     }
 
     @Override
@@ -235,17 +228,17 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         
         //create file for recording and temp file
         file = new File(path);        
-        temp = new File(path + "~");
+        temp = new File(path + "~");                
         
         //open stream to temporary file
-        fout = new FileOutputStream(temp);            
+        fout = new FileOutputStream(temp);
         
         //if append specified and file really exist copy data from the current
         //file to temp
         if (append && file.exists()) {
-            System.out.println("..............>>>>>Copying samples from " + file);
-            copySamples(file, fout);
-        }        
+        	System.out.println("..............>>>>>Copying samples from " + file);
+            copySamples(file, fout);                       
+        }
     }
     
     /**
@@ -262,84 +255,88 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
         
         fout.flush();
         fout.close();
-        
+                
         FileInputStream fin = new FileInputStream(temp);
         fout = new FileOutputStream(file);
         
         int size = fin.available();
-System.out.println("!!!!!!!!!! Size=" + size)        ;
+        System.out.println("!!!!!!!!!! Size=" + size)        ;
         
+		headerBuffer.clear();		
         //RIFF
-        fout.write((byte) 0x52);
-        fout.write((byte) 0x49);
-        fout.write((byte) 0x46);
-        fout.write((byte) 0x46);
+		headerBuffer.put((byte) 0x52);
+		headerBuffer.put((byte) 0x49);
+		headerBuffer.put((byte) 0x46);
+		headerBuffer.put((byte) 0x46);
         
         int length = size + 36;
         
         //Length
-        fout.write((byte) (length));
-        fout.write((byte) (length >> 8));
-        fout.write((byte) (length >> 16));
-        fout.write((byte) (length >> 24));
+        headerBuffer.put((byte) (length));
+        headerBuffer.put((byte) (length >> 8));
+        headerBuffer.put((byte) (length >> 16));
+        headerBuffer.put((byte) (length >> 24));
         
         //WAVE
-        fout.write((byte) 0x57);
-        fout.write((byte) 0x41);
-        fout.write((byte) 0x56);
-        fout.write((byte) 0x45);
+        headerBuffer.put((byte) 0x57);
+        headerBuffer.put((byte) 0x41);
+        headerBuffer.put((byte) 0x56);
+        headerBuffer.put((byte) 0x45);
         
         //fmt
-        fout.write((byte) 0x66);
-        fout.write((byte) 0x6d);
-        fout.write((byte) 0x74);
-        fout.write((byte) 0x20);
+        headerBuffer.put((byte) 0x66);
+        headerBuffer.put((byte) 0x6d);
+        headerBuffer.put((byte) 0x74);
+        headerBuffer.put((byte) 0x20);
         
-        fout.write((byte) 0x10);
-        fout.write((byte) 0x00);
-        fout.write((byte) 0x00);
-        fout.write((byte) 0x00);
+        headerBuffer.put((byte) 0x10);
+        headerBuffer.put((byte) 0x00);
+        headerBuffer.put((byte) 0x00);
+        headerBuffer.put((byte) 0x00);
         
         //format - PCM
-        fout.write((byte) 0x01);
-        fout.write((byte) 0x00);
+        headerBuffer.put((byte) 0x01);
+        headerBuffer.put((byte) 0x00);
         
         //format - MONO
-        fout.write((byte) 0x01);
-        fout.write((byte) 0x00);
+        headerBuffer.put((byte) 0x01);
+        headerBuffer.put((byte) 0x00);
         
         //sample rate:8000
-        fout.write((byte) 0x40);
-        fout.write((byte) 0x1F);
-        fout.write((byte) 0x00);
-        fout.write((byte) 0x00);
+        headerBuffer.put((byte) 0x40);
+        headerBuffer.put((byte) 0x1F);
+        headerBuffer.put((byte) 0x00);
+        headerBuffer.put((byte) 0x00);
 
         //byte rate
-        fout.write((byte) 0x80);
-        fout.write((byte) 0x3E);
-        fout.write((byte) 0x00);
-        fout.write((byte) 0x00);
+        headerBuffer.put((byte) 0x80);
+        headerBuffer.put((byte) 0x3E);
+        headerBuffer.put((byte) 0x00);
+        headerBuffer.put((byte) 0x00);
         
         
         //Block align
-        fout.write((byte) 0x02);
-        fout.write((byte) 0x00);
+        headerBuffer.put((byte) 0x02);
+        headerBuffer.put((byte) 0x00);
         
         //Bits per sample: 16
-        fout.write((byte) 0x10);
-        fout.write((byte) 0x00);
+        headerBuffer.put((byte) 0x10);
+        headerBuffer.put((byte) 0x00);
         
         //"data"
-        fout.write((byte) 0x64);
-        fout.write((byte) 0x61);
-        fout.write((byte) 0x74);
-        fout.write((byte) 0x61);
+        headerBuffer.put((byte) 0x64);
+        headerBuffer.put((byte) 0x61);
+        headerBuffer.put((byte) 0x74);
+        headerBuffer.put((byte) 0x61);
         
         //len
-        fout.write((byte) (size));
-        fout.write((byte) (size >> 8));
-        fout.write((byte) (size >> 16));
-        fout.write((byte) (size >> 24));
+        headerBuffer.put((byte) (size));
+        headerBuffer.put((byte) (size >> 8));
+        headerBuffer.put((byte) (size >> 16));
+        headerBuffer.put((byte) (size >> 24));
+        
+        headerBuffer.rewind();
+        fout.getChannel().write(headerBuffer);
         
         copyData(fin, 0, fout);
         
@@ -374,31 +371,13 @@ System.out.println("!!!!!!!!!! Size=" + size)        ;
      * @param out destination
      * @throws IOException 
      */
-    private void copyData(InputStream in, int offset,  OutputStream out) throws IOException {
-        //skip header
-        in.skip(offset);
-        
-        //copy samples
-        byte[] buff = new byte[8192];
-        int length = 0;
-        
-/*        while (in.available() > 0) {
-            //read data from source
-            length = in.read(buff);            
-            
-            //write data to the destination
-            out.write(buff, 0, length);
-        }
-         * 
-         */
-        
-        int count = 0;
-        int b = -1;
-        while ((b = in.read()) != -1) {
-            out.write(b);
-            count++;
-        }
-                
+    private void copyData(FileInputStream in, int offset,  FileOutputStream out) throws IOException {
+    	FileChannel inChannel = in.getChannel();
+    	FileChannel outChannel = out.getChannel();
+    	
+    	long count=inChannel.size()-(long)offset;
+    	inChannel.transferTo(offset,count,outChannel);    	
+                        
         System.out.println("Was copied " + count  + " bytes");
     }
     
@@ -492,4 +471,37 @@ System.out.println("!!!!!!!!!! Size=" + size)        ;
         }
     }
     
+    /**
+     * Heartbeat
+     */
+    private class Heartbeat extends Task {
+    	public Heartbeat(Scheduler scheduler) {
+            super(scheduler);
+        }        
+
+        @Override
+        public long perform() {
+        	long currTime=scheduler.getClock().getTime();
+        	if(postSpeechTimer>0 && currTime-lastPacketData>postSpeechTimer) {
+        	    qualifier = RecorderEvent.NO_SPEECH;                    
+                scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+                return 0;
+            }
+        	
+        	//check max time and stop recording if exeeds limit
+            if (maxRecordTime > 0 && currTime-startTime >= maxRecordTime) {
+                //set qualifier
+                qualifier = RecorderEvent.MAX_DURATION_EXCEEDED;            
+                scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+                return 0;
+            }
+            
+            scheduler.submitHeatbeat(this);
+            return 0;
+        }
+    
+        public int getQueueNumber() {
+            return scheduler.HEARTBEAT_QUEUE;
+        }
+    }
 }

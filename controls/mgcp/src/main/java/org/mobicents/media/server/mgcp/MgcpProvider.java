@@ -152,6 +152,7 @@ public class MgcpProvider {
     	
     	msg.write(currBuffer);
     	channel.send(currBuffer, destination);
+    	
     	currBuffer.clear();
     	txBuffer.add(currBuffer);
     }
@@ -165,10 +166,11 @@ public class MgcpProvider {
     	MgcpMessage msg = event.getMessage();
     	ByteBuffer currBuffer=txBuffer.poll();
     	if(currBuffer==null)
-    		currBuffer=ByteBuffer.allocate(8192);
+    		currBuffer=ByteBuffer.allocate(8192);    		
     	
     	msg.write(currBuffer);
-    	channel.send(currBuffer, event.getAddress());    	
+    	channel.send(currBuffer, event.getAddress());
+    	
     	currBuffer.clear();
     	txBuffer.add(currBuffer);    	
     }
@@ -186,6 +188,7 @@ public class MgcpProvider {
     	
     	message.write(currBuffer);
     	channel.send(currBuffer, destination);
+    	
     	currBuffer.clear();
     	txBuffer.add(currBuffer);    	
     }
@@ -241,12 +244,14 @@ public class MgcpProvider {
     }
     
     private void recycleEvent(MgcpEventImpl event) {
-    	if (events.contains(event)) {
+    	if (events.contains(event))
     		logger.warn("====================== ALARM ALARM ALARM==============");
+    	else
+    	{
+    		event.response.clean();
+        	event.request.clean();
+        	events.add(event);
     	}
-    	event.response.clean();
-    	event.request.clean();
-    	events.add(event);    	    
     }
     
     /**

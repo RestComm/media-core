@@ -118,7 +118,7 @@ public class RTPJoiningTest extends RTPEnvironment {
      */
     @Test
     public void testSendRecv() throws Exception {
-        long s = System.nanoTime();
+    	long s = System.nanoTime();
 
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
@@ -155,7 +155,7 @@ public class RTPJoiningTest extends RTPEnvironment {
     
     @Test
     public void testNetworkLoop() throws Exception {
-        long s = System.nanoTime();
+    	long s = System.nanoTime();
 
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
@@ -191,7 +191,7 @@ public class RTPJoiningTest extends RTPEnvironment {
     
     @Test
     public void testSendOnly() throws Exception {
-        long s = System.nanoTime();
+    	long s = System.nanoTime();
 
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
@@ -226,7 +226,7 @@ public class RTPJoiningTest extends RTPEnvironment {
 
     @Test
     public void testRecvOnly() throws Exception {
-        long s = System.nanoTime();
+    	long s = System.nanoTime();
 
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
@@ -263,25 +263,20 @@ public class RTPJoiningTest extends RTPEnvironment {
         assertEquals(0, s1.length);
         assertEquals(1, s2.length);
         
-        assertEquals(400, s2[0], 5);
+        assertEquals(400, s2[0], 5);        
     }
 
     @Test
     public void testRxTxChangeMode() throws Exception {
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
+    	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
-        
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
-
-        connection1.setOtherParty(sd2);
+        connection1.setOtherParty(sd2);        
         connection2.setOtherParty(sd1);
-
         connection2.setMode(ConnectionMode.RECV_ONLY);
         connection1.setMode(ConnectionMode.SEND_ONLY);
-        
         Thread.sleep(3000);
-
         SpectraAnalyzer a1 = (SpectraAnalyzer) endpoint1.getSink(MediaType.AUDIO);
         SpectraAnalyzer a2 = (SpectraAnalyzer) endpoint2.getSink(MediaType.AUDIO);
 
@@ -312,7 +307,7 @@ public class RTPJoiningTest extends RTPEnvironment {
     
     @Test
     public void testCnf() throws Exception {
-        long s = System.nanoTime();
+    	long s = System.nanoTime();
 
         //first leg
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
@@ -343,7 +338,7 @@ public class RTPJoiningTest extends RTPEnvironment {
         System.out.println("Duration= " + (System.nanoTime() - s));
 
         Thread.sleep(3000);
-
+        
         SpectraAnalyzer a1 = (SpectraAnalyzer) endpoint1.getSink(MediaType.AUDIO);
         SpectraAnalyzer a2 = (SpectraAnalyzer) endpoint2.getSink(MediaType.AUDIO);
 
@@ -353,8 +348,15 @@ public class RTPJoiningTest extends RTPEnvironment {
         endpoint2.deleteConnection(connection3);
         endpoint1.deleteConnection(connection1);
         
-        endpoint3.deleteAllConnections();
-        
+        try
+        {
+        	endpoint3.deleteAllConnections();
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+        }
+                
 //        System.out.println("Check point 8: " + ((BaseConnection)connection2).getCheckPoint(MediaType.AUDIO, 8));
 //        System.out.println("Check point 6: " + ((BaseConnection)connection2).getCheckPoint(MediaType.AUDIO, 6));
 //        System.out.println("Check point 4: " + ((BaseConnection)connection2).getCheckPoint(4));

@@ -23,7 +23,7 @@
 
 package org.mobicents.media.server.connection;
 
-import java.util.ArrayList;
+import java.util.Enumeration;
 import org.mobicents.media.CheckPoint;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
@@ -63,25 +63,32 @@ public class LocalToRemoteConnections extends Connections {
     	
     }    
 
+    String key;
     //connecting only local connections to remote and vise versa
     protected void addToConference(BaseConnection connection) {
     	if(connection instanceof LocalConnectionImpl)
     	{
-    		for (BaseConnection c : activeConnections) {
-                if (c instanceof RtpConnectionImpl && connection != c) {
-                    LocalChannel channel = new LocalChannel();
+    		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    			key=e.nextElement();
+        		BaseConnection c=activeConnections.get(key);        
+                if (c!=null && c instanceof RtpConnectionImpl && connection != c) {
+                	Integer Id=lastChannelId.getAndIncrement();
+                    LocalChannel channel = new LocalChannel(Id);
                     channel.join(c, connection);
-                    localChannels.add(channel);                
+                    localChannels.put(Id,channel);                
                 }
             }
     	}
     	else
     	{
-    		for (BaseConnection c : activeConnections) {
-                if (c instanceof LocalConnectionImpl && connection != c) {
-                    LocalChannel channel = new LocalChannel();
+    		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    			key=e.nextElement();
+        		BaseConnection c=activeConnections.get(key);        
+                if (c!=null && c instanceof LocalConnectionImpl && connection != c) {
+                	Integer Id=lastChannelId.getAndIncrement();
+                    LocalChannel channel = new LocalChannel(Id);
                     channel.join(connection, c);
-                    localChannels.add(channel);                
+                    localChannels.put(Id,channel);             
                 }
             }
     	}    	

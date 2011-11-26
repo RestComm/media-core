@@ -36,6 +36,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 
@@ -89,12 +90,12 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         try {
             setOtherParty(otherConnection.getEndpoint().describe(MediaType.AUDIO).getBytes());
         } catch (Exception e) {
-            throw new IOException(e.getMessage());
+        	throw new IOException(e.getMessage());
         }
     }
 
     @Override
-    public void setMode(ConnectionMode mode) throws ModeNotSupportedException  {
+    public void setMode(ConnectionMode mode) throws ModeNotSupportedException  {    	
     	super.setMode(mode);
     	rtpAudioChannel.updateMode(mode);    
     	//rtpVideoChannel.updateMode(mode);
@@ -152,7 +153,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     }
 
     public void setOtherParty(Text descriptor) throws IOException {
-        try {
+    	try {
             sdp.init(descriptor);
         } catch (ParseException e) {
             throw new IOException(e.getMessage());
@@ -165,7 +166,6 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 
         RTPFormats audio = sdpComparator.getAudio();
         RTPFormats video = sdpComparator.getVideo();
-        
         if (audio.isEmpty() && video.isEmpty()) {
             throw new IOException("Codecs are not negotiated");
         }
@@ -204,7 +204,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         try {
             this.join();
         } catch (Exception e) {
-        }       
+        }                      
     }
     
 
@@ -347,8 +347,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
             this.rtpVideoChannel.close();
         }
 
-        connections.activeConnections.remove(this);
-        connections.rtpConnections.add(this);
+        connections.releaseConnection(this,ConnectionType.RTP);        
         this.connectionFailureListener=null;        
     }
 }
