@@ -1,0 +1,2 @@
+#mobicents provider of Driver for JSR-309
+org.mobicents.javax.media.mscontrol.spi.DriverImpl

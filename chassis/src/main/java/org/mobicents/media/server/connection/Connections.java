@@ -376,22 +376,27 @@ public class Connections {
     
     protected void updateConnectionChannels(BaseConnection connection) {
     	Integer key;
+    	LocalChannel channel;
     	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
     		key=e.nextElement();
-    		if(localChannels.get(key).match(connection))
-    			localChannels.get(key).update();
+    		channel=localChannels.get(key);
+    		if(channel!=null && channel.match(connection))
+    			channel.update();
     	}
     }
     
     protected void removeFromConference(BaseConnection connection) {
     	//should remove all channells and not only one
-        LocalChannel channel = null;
+        LocalChannel channel;        
         Integer key;
     	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
     		key=e.nextElement();
-    		if(localChannels.get(key).match(connection))
-    			localChannels.remove(key).unjoin();    		
-    	}    	    	              
+    		channel=localChannels.get(key);
+    		if(channel.match(connection)) {
+    			localChannels.remove(channel);
+    			channel.unjoin();    		
+    		}
+    	}
     }   
     
     public String report() {

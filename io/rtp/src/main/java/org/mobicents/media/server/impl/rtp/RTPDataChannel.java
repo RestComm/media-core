@@ -29,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
+import java.text.Format;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
@@ -298,7 +299,7 @@ public class RTPDataChannel {
      * @param rtpFormats the format map
      */
     public void setFormatMap(RTPFormats rtpFormats) {
-        this.rtpFormats = rtpFormats;
+    	this.rtpFormats = rtpFormats;
         this.rxBuffer.setFormats(rtpFormats);
     }
     
@@ -447,7 +448,7 @@ public class RTPDataChannel {
     private class Output extends AbstractSink {
         private TxTask tx = new TxTask(rtpManager.scheduler);
         protected boolean isWritable = true;
-
+        
         /**
          * Creates new transmitter
          */
@@ -462,7 +463,7 @@ public class RTPDataChannel {
         		tx.perform();
         	}        	
         }
-
+        
         /**
          * (Non Java-doc.)
          *
@@ -551,10 +552,10 @@ public class RTPDataChannel {
     /**
      * Writer job.
      */
-    private class TxTask extends Task {
+    private class TxTask extends Task {    	
         private RtpPacket rtpPacket = new RtpPacket(8192, true);
         private RTPFormat fmt;
-        private long timestamp;
+        private long timestamp=-1;
         
         private TxTask(Scheduler scheduler) {
             super(scheduler);
@@ -582,7 +583,7 @@ public class RTPDataChannel {
         public long getDuration() {
             return 0;
         }
-
+        
         /**
          * (Non Java-doc.)
          *
@@ -590,19 +591,21 @@ public class RTPDataChannel {
          */
         public long perform() {
             //TODO: add key frame flag
-            while (!txBuffer.isEmpty()) {
+        	while (!txBuffer.isEmpty()) {
                 Frame frame = txBuffer.poll();
 
                 //discard frame if format is unknown
                 if (frame.getFormat() == null) {
-                    return 0;
+                	return 0;
                 }
 
                 //if current rtp format is unknown determine it
                 if (fmt == null) {
                     fmt = rtpFormats.getRTPFormat(frame.getFormat());
                     //format still unknown? discard packet
-                    if (fmt == null) return 0;
+                    if (fmt == null) {
+                    	return 0;
+                    }
                     //update clock rate
                     rtpClock.setClockRate(fmt.getClockRate());
                 }
@@ -634,7 +637,7 @@ public class RTPDataChannel {
                 try {
                     if (dataChannel.isConnected()) {
                     	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
-                        txCount++;
+                    	txCount++;
                     }
                 } catch (Exception e) { 
                 	//TODO : handle IO problems

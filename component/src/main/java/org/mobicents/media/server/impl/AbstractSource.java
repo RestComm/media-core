@@ -332,10 +332,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      * @see org.mobicents.media.MediaSource#disconnect(org.mobicents.media.server.spi.io.Pipe)
      */
     public void disconnect(Pipe pipe) {
-        if (this.pipe != pipe) {
-            throw new IllegalArgumentException(pipe + " is not connected");
-        }
-        this.pipe.source = null;
+    	((PipeImpl)pipe).source = null;
         this.pipe = null;
     }
 

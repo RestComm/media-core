@@ -109,19 +109,25 @@ public class TransactionManagerTest {
     }
     
     public void testTransaction(int id) throws InterruptedException {
-        Transaction tx = txManager.find(id);
-        tx.process(action);
-        
-        Thread.sleep(1500);
-        assertEquals(3, txManager.remainder());
+    	try
+    	{    		
+    		Transaction tx = txManager.find(id);
+        	tx.process(action);
+        	Thread.sleep(1500);
+        	assertEquals(3, txManager.remainder());
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
     }
     
     @Test
-    public void testExecution() throws InterruptedException {
-        for (int i = 0; i < 10; i++) {
-            System.out.println("Transaction: Test# " + i);
-            testTransaction(i);
-        }
+    public void testExecution() throws InterruptedException {    	
+    	for (int i = 0; i < 10; i++) {
+    		System.out.println("Transaction: Test# " + i);
+    		testTransaction(i);
+    	}    	
     }
 
     private class MyTask extends Task {

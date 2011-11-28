@@ -129,7 +129,7 @@ public class MgcpConnection implements ConnectionFailureListener {
 		msg.setCommand(new Text("DLCX"));
 		msg.setEndpoint(mgcpEndpoint.fullName);
 		msg.setParameter(Parameter.CONNECTION_ID, id);
-		msg.setTxID(MgcpEndpoint.txID++);
+		msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
 		msg.setParameter(Parameter.REASON_CODE,this.REASON_CODE);
 		mgcpEndpoint.send(evt, callAgent);
 		

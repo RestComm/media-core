@@ -319,7 +319,7 @@ public class AudioMixer implements Mixer {
         public Frame evolve(long timestamp) {
             return buffer.poll();
         }
-
+        
         /**
          * (Non Java-doc.)
          *

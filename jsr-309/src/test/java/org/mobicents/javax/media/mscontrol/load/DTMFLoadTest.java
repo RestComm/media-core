@@ -135,7 +135,7 @@ public class DTMFLoadTest {
 		final MsControlFactory msControlFactory = new DriverImpl().getFactory(properties);
 		//MediaSession msSession = msControlFactory.createMediaSession();
 		int[] results = new int[100];
-		int w = 20; // make 10 calls
+		int w = 50; // make 10 calls
 		ExecutorService exec = Executors.newFixedThreadPool(w);
 		CompletionService<Object> cservice = new ExecutorCompletionService<Object>(exec);
 				

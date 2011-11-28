@@ -35,7 +35,9 @@ public class EncodingName extends Text implements Cloneable {
     }
 
     public EncodingName(Text text) {
-        super(text);
+    	byte[] newArray=new byte[text.length()];
+    	this.strain(newArray,0, this.length());
+    	text.duplicate(this);
     }
 
     public EncodingName(String s) {
@@ -44,7 +46,9 @@ public class EncodingName extends Text implements Cloneable {
     
     @Override
     protected EncodingName clone() {
-        Text t = new Text(new byte[this.length()], 0, this.length());
+    	byte[] newArray=new byte[this.length()];
+        Text t = new Text();
+        t.strain(newArray,0, this.length());
         this.duplicate(t);
         return new EncodingName(t);
     }

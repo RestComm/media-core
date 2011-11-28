@@ -318,12 +318,14 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         	connectionFailureListener.onFailure();
         
         if (rtpAudioChannel != null) {
+        	audioChannel.disconnect();
             rtpAudioChannel.close();
         }
 
         if (rtpVideoChannel != null) {
+        	videoChannel.disconnect();
             rtpVideoChannel.close();
-        }        
+        }
     }
 
     @Override
@@ -340,10 +342,12 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         }
 
         if (this.isAudioCapabale) {
+        	audioChannel.disconnect();
             this.rtpAudioChannel.close();
         }
 
         if (this.isVideoCapable) {
+        	videoChannel.disconnect();
             this.rtpVideoChannel.close();
         }
 

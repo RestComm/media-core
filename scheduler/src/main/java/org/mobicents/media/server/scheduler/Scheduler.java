@@ -86,7 +86,7 @@ public class Scheduler  {
     	
     	heartBeatQueue=new OrderedTaskQueue();
     	
-        cpuThread = new CpuThread(String.format("Scheduler"));
+        cpuThread = new CpuThread(String.format("Scheduler"));        
     }    
 
     /**
@@ -140,6 +140,9 @@ public class Scheduler  {
      * Starts scheduler.
      */
     public void start() {
+    	if(this.isActive)
+    		return;
+    	
         if (clock == null) {
             throw new IllegalStateException("Clock is not set");
         }
@@ -162,6 +165,7 @@ public class Scheduler  {
         }
 
         cpuThread.shutdown();
+        
         try
         {
         	Thread.sleep(40);
@@ -200,11 +204,11 @@ public class Scheduler  {
      */
     private class CpuThread extends Thread {        
         private volatile boolean active;
-        private int currQueue=0;        
+        private int currQueue=MANAGEMENT_QUEUE;        
         private AtomicInteger activeTasksCount=new AtomicInteger();
         private long cycleStart=0;
-        private ExecutorService eservice;
         private int runIndex=0;
+        private ExecutorService eservice;
         private Object LOCK=new Object();
         
         public CpuThread(String name) {
@@ -213,7 +217,7 @@ public class Scheduler  {
             eservice = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*2);            
         }
         
-        public void activate() {
+        public void activate() {        	        	
         	this.active = true;
         	cycleStart = clock.getTime();
         	this.start();
@@ -231,7 +235,7 @@ public class Scheduler  {
         public void run() {        	
         	long cycleDuration;
         	
-        	while(true)
+        	while(active)
         	{
         		while(currQueue<=OUTPUT_QUEUE)
     			{    				    				
@@ -246,21 +250,9 @@ public class Scheduler  {
     				}
     				
     				currQueue++;
-    			}
-        		        		
-        		cycleDuration=clock.getTime() - cycleStart;
-				if(cycleDuration<18000000L)					
-					synchronized(LOCK) {						
-						if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
-							try  {
-								LOCK.wait();
-							}
-							catch(InterruptedException e)  {                                               
-							//lets continue
-							}
-					}
-        	
-				runIndex=(runIndex+1)%5;
+    			}        		        		        		
+				
+        		runIndex=(runIndex+1)%5;
     			if(runIndex==0)    				    				
     				synchronized(LOCK) {
     					if(executeQueue(heartBeatQueue))
@@ -270,9 +262,9 @@ public class Scheduler  {
     						catch(InterruptedException e)  {                                               
     							//lets continue
     						}
-    				}    				
-            
-        		//sleep till next cycle
+    				}    
+    			
+    			//sleep till next cycle
         		cycleDuration=clock.getTime() - cycleStart;
         		if(cycleDuration<20000000L)
         			try  {                                               
@@ -311,6 +303,5 @@ public class Scheduler  {
         private void shutdown() {
             this.active = false;
         }
-    }
-
+    }    
 }

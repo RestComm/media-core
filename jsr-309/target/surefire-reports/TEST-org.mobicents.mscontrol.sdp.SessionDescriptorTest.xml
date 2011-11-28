@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite failures="0" time="0.027" errors="0" skipped="0" tests="4" name="org.mobicents.mscontrol.sdp.SessionDescriptorTest">
+  <properties>
+    <property name="java.runtime.name" value="OpenJDK  Runtime Environment"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-6-openjdk/jre/lib/i386"/>
+    <property name="java.vm.version" value="1.6.0_0-b11"/>
+    <property name="java.vm.vendor" value="Sun Microsystems Inc."/>
+    <property name="java.vendor.url" value="http://java.sun.com/"/>
+    <property name="path.separator" value=":"/>
+    <property name="java.vm.name" value="OpenJDK Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="/opt/mobsource/media/jsr-309"/>
+    <property name="java.runtime.version" value="1.6.0_0-b11"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
+    <property name="basedir" value="/opt/mobsource/media/jsr-309"/>
+    <property name="java.endorsed.dirs" value="/usr/lib/jvm/java-6-openjdk/jre/lib/endorsed"/>
+    <property name="os.arch" value="i386"/>
+    <property name="surefire.real.class.path" value="/tmp/surefirebooter7365430173428484197.jar"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc."/>
+    <property name="os.name" value="Linux"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/lib/jvm/java-6-openjdk/jre/lib/i386/server:/usr/lib/jvm/java-6-openjdk/jre/lib/i386:/usr/lib/jvm/java-6-openjdk/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib:/usr/lib/jni"/>
+    <property name="surefire.test.class.path" value="/opt/mobsource/media/jsr-309/target/test-classes:/opt/mobsource/media/jsr-309/target/classes:/root/.m2/repository/org/mobicents/external/jsr309/mscontrol/1.0/mscontrol-1.0.jar:/root/.m2/repository/jain/jain-mgcp-ri/1.0/jain-mgcp-ri-1.0.jar:/root/.m2/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar:/root/.m2/repository/javax/sip/jain-sip-ri/1.2.146/jain-sip-ri-1.2.146.jar:/root/.m2/repository/junit/junit/4.1/junit-4.1.jar:/root/.m2/repository/org/mobicents/protocols/mgcp/mgcp-impl/2.0.0.GA/mgcp-impl-2.0.0.GA.jar:"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="50.0"/>
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers"/>
+    <property name="os.version" value="2.6.26-2-686"/>
+    <property name="user.home" value="/root"/>
+    <property name="user.timezone" value=""/>
+    <property name="user.zoneinfo.dir" value="/usr/share/javazi"/>
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob"/>
+    <property name="java.specification.version" value="1.6"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="user.name" value="root"/>
+    <property name="java.class.path" value="/opt/mobsource/media/jsr-309/target/test-classes:/opt/mobsource/media/jsr-309/target/classes:/root/.m2/repository/org/mobicents/external/jsr309/mscontrol/1.0/mscontrol-1.0.jar:/root/.m2/repository/jain/jain-mgcp-ri/1.0/jain-mgcp-ri-1.0.jar:/root/.m2/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar:/root/.m2/repository/javax/sip/jain-sip-ri/1.2.146/jain-sip-ri-1.2.146.jar:/root/.m2/repository/junit/junit/4.1/junit-4.1.jar:/root/.m2/repository/org/mobicents/protocols/mgcp/mgcp-impl/2.0.0.GA/mgcp-impl-2.0.0.GA.jar:"/>
+    <property name="java.vm.specification.version" value="1.0"/>
+    <property name="sun.arch.data.model" value="32"/>
+    <property name="java.home" value="/usr/lib/jvm/java-6-openjdk/jre"/>
+    <property name="java.specification.vendor" value="Sun Microsystems Inc."/>
+    <property name="user.language" value="en"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.6.0_0"/>
+    <property name="java.ext.dirs" value="/usr/lib/jvm/java-6-openjdk/jre/lib/ext:/usr/java/packages/lib/ext"/>
+    <property name="sun.boot.class.path" value="/usr/lib/jvm/java-6-openjdk/jre/lib/resources.jar:/usr/lib/jvm/java-6-openjdk/jre/lib/rt.jar:/usr/lib/jvm/java-6-openjdk/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-6-openjdk/jre/lib/jsse.jar:/usr/lib/jvm/java-6-openjdk/jre/lib/jce.jar:/usr/lib/jvm/java-6-openjdk/jre/lib/charsets.jar:/usr/lib/jvm/java-6-openjdk/jre/lib/rhino.jar:/usr/lib/jvm/java-6-openjdk/jre/classes"/>
+    <property name="java.vendor" value="Sun Microsystems Inc."/>
+    <property name="localRepository" value="/root/.m2/repository"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.desktop" value="gnome"/>
+    <property name="sun.cpu.isalist" value=""/>
+  </properties>
+  <testcase time="0.013" classname="org.mobicents.mscontrol.sdp.SessionDescriptorTest" name="testExclude"/>
+  <testcase time="0.002" classname="org.mobicents.mscontrol.sdp.SessionDescriptorTest" name="testExclude2"/>
+  <testcase time="0.003" classname="org.mobicents.mscontrol.sdp.SessionDescriptorTest" name="testExclude3"/>
+  <testcase time="0.002" classname="org.mobicents.mscontrol.sdp.SessionDescriptorTest" name="testExclude1"/>
+</testsuite>

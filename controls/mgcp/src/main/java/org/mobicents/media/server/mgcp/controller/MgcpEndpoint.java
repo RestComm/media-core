@@ -27,6 +27,7 @@ import java.util.Enumeration;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
@@ -45,7 +46,7 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class MgcpEndpoint {
-    public static int txID = 1;
+    public static AtomicInteger txID = new AtomicInteger(1);
     
     //The size of the connection's pool
     private final static int N = 15;

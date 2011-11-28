@@ -30,6 +30,7 @@ package org.mobicents.media.server.mgcp;
 
 import java.net.SocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Clock;
@@ -66,7 +67,7 @@ public class MgcpProviderLoadTest {
     private ClientListener demux;
     
     private volatile int errorCount;
-    private volatile int txID = 1;
+    private AtomicInteger txID = new AtomicInteger(1);
     
     public MgcpProviderLoadTest() {
     }
@@ -121,7 +122,7 @@ public class MgcpProviderLoadTest {
         }
         
         Thread.sleep(5000);
-        assertEquals(0, errorCount);        
+        assertEquals(0, errorCount);    	
     }
 
     private class Server implements MgcpListener {
@@ -182,7 +183,7 @@ public class MgcpProviderLoadTest {
                 MgcpRequest req = (MgcpRequest) evt.getMessage();
 
                 req.setCommand(new Text("CRCX"));
-                req.setTxID(txID++);
+                req.setTxID(txID.getAndIncrement());
                 req.setEndpoint(new Text("test@localhost"));
                 req.setParameter(new Text("c"), new Text("abcd"));
 

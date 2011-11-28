@@ -145,6 +145,7 @@ public class LocalConnectionImpl extends BaseConnection {
         } catch (ModeNotSupportedException e) {
         }
         
+        this.audioChannel.disconnect();
         //release connection
         connections.releaseConnection(this,ConnectionType.LOCAL);        
     }

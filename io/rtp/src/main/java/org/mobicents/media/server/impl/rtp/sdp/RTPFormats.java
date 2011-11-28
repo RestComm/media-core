@@ -50,6 +50,10 @@ public class RTPFormats {
         this.rtpFormats = new RTPFormat[size];
     }
 
+    public int getLen()
+    {
+    	return len;
+    }
     /**
      * Creates new formats collection with specified size
      *

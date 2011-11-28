@@ -149,12 +149,12 @@ public class PipeImpl implements Pipe {
      * @see org.mobicents.media.server.spi.io.Pipe#disconnect() 
      */
     public void disconnect() {
-        if (source != null) {
-            source.disconnect(this);
+    	if (source != null) {
+        	source.disconnect(this);
         }
 
         if (sink != null) {
-            sink.disconnect(this);
+        	sink.disconnect(this);
         }
     }
 
@@ -193,8 +193,11 @@ public class PipeImpl implements Pipe {
      * @see org.mobicents.media.server.spi.io.Pipe#stop()
      */
     public void stop() {    	        
-        if (source != null && sink != null) {
+        if (source != null) {
             source.stop();
+        }
+        
+        if(sink != null) {
             sink.stop();
         }
     }

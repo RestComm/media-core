@@ -152,7 +152,7 @@ public class Request {
         msg.setParameter(Parameter.OBSERVED_EVENT, event);
         msg.setParameter(Parameter.NOTIFIED_ENTITY, callAgent.getValue());
         msg.setParameter(Parameter.REQUEST_ID, ID);
-        msg.setTxID(MgcpEndpoint.txID++);
+        msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
         endpoint.send(evt, address);        
     }
 
