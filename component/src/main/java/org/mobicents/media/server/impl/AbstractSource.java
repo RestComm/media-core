@@ -287,9 +287,9 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     /**
      * Restores synchronization
      */
-    public void wakeup() {
+    public void wakeup() {    	
         synchronized(worker) {
-            if (!started) {
+            if (!started) {            	
                 return;
             }
             
@@ -323,7 +323,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      */
     public void connect(Pipe pipe) {
         this.pipe = (PipeImpl) pipe;
-        this.pipe.source = this;
+        this.pipe.source.set(this);
     }
 
     /**
@@ -332,7 +332,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      * @see org.mobicents.media.MediaSource#disconnect(org.mobicents.media.server.spi.io.Pipe)
      */
     public void disconnect(Pipe pipe) {
-    	((PipeImpl)pipe).source = null;
+    	((PipeImpl)pipe).source.set(null);
         this.pipe = null;
     }
 
@@ -408,7 +408,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      * @see org.mobicents.media.MediaSource#getPacketsReceived()
      */
     public long getPacketsTransmitted() {
-        return txPackets;
+    	return txPackets;
     }
 
     /**
@@ -491,7 +491,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         		Frame frame = evolve(timestamp);
         		if (frame == null) {
         			if(readCount==1)
-        			{
+        			{     
         				//stop if frame was not generated
         				isSynchronized = false;
         				return 0;
@@ -524,23 +524,33 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
           
             	//do the transcoding job
             	if (dsp != null) {
-                	frame = dsp.process(frame);
-            	}
-            
+            		try
+            		{
+            			frame = dsp.process(frame);
+            		}
+            		catch(Exception e)
+            		{
+            			//transcoding error , print error and try to move to next frame
+            			e.printStackTrace();
+            			scheduler.submit(this,queueNumber);
+        	            return 0;
+            		}                	
+            	}            	
+            	
             	stats.txFormat = frame.getFormat();
 
             	//delivering data to the other party.
             	if (pipe != null) {
-                	pipe.write(frame);
+            		pipe.write(frame);
             	}
-
+            	
             	//update transmission statistics
             	txPackets++;
             	txBytes += frame.getLength();
             
             	//send notifications about media termination
             	//and do not resubmit this task again if stream has bee ended
-            	if (frame.isEOM()) {            		
+            	if (frame.isEOM()) { 
             		started = false;
         			completed();
         			return -1;
@@ -548,11 +558,11 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
 
             	//check synchronization
             	if (frameDuration <= 0) {
-                	//los of synchronization
+            		//los of synchronization
                 	isSynchronized = false;
                 	return 0;
             	}            
-        	}        
+        	}
         	
         	scheduler.submit(this,queueNumber);
             return 0;

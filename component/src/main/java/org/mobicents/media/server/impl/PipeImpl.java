@@ -23,6 +23,7 @@
 package org.mobicents.media.server.impl;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.spi.io.Pipe;
@@ -38,9 +39,9 @@ public class PipeImpl implements Pipe {
     private final static int limit = 50;
 
     //source connected to this pipe
-    protected MediaSource source;
+    protected AtomicReference<MediaSource> source=new AtomicReference();
     //sink connected to this pipe
-    protected MediaSink sink;
+    protected AtomicReference<MediaSink> sink=new AtomicReference();
 
     //inner buffer
     private volatile ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
@@ -64,6 +65,7 @@ public class PipeImpl implements Pipe {
      */
     protected void write(Frame frame) {
         //ignore duplicate
+    	//last frame released from jitter buffer will be dropped if checked only by timestamp
         if (frame.getTimestamp() == txTimestamp && txTimestamp > 0) {
             System.out.println("Drop packet");
             return;
@@ -84,9 +86,10 @@ public class PipeImpl implements Pipe {
         buffer.offer(frame);
         txTimestamp = frame.getTimestamp();
         
+        MediaSink currSink=sink.get();
         //send notification to the sink
-        if (sink != null) {
-            ((AbstractSink)sink).wakeup();
+        if (currSink != null) {
+            ((AbstractSink)currSink).wakeup();
         }
 
         this.rxPackets++;
@@ -98,8 +101,7 @@ public class PipeImpl implements Pipe {
      * @return the packet read.
      */
     protected Frame read() {
-        this.txPackets++;
-        return buffer.poll();
+    	return buffer.poll();
     }
 
     /**
@@ -132,13 +134,15 @@ public class PipeImpl implements Pipe {
      * @see org.mobicents.media.server.spi.io.Pipe#disconnect(int)
      */
     public void disconnect(int termination) {
-        if (termination == INPUT && source != null) {
-            source.disconnect(this);
+    	MediaSource currSource=source.get();
+        if (termination == INPUT && currSource != null) {
+        	currSource.disconnect(this);
             return;
         }
 
-        if (termination == OUTPUT && sink != null) {
-            sink.disconnect(this);
+        MediaSink currSink=sink.get();
+        if (termination == OUTPUT && currSink != null) {
+        	currSink.disconnect(this);
             return;
         }
     }
@@ -149,12 +153,14 @@ public class PipeImpl implements Pipe {
      * @see org.mobicents.media.server.spi.io.Pipe#disconnect() 
      */
     public void disconnect() {
-    	if (source != null) {
-        	source.disconnect(this);
+    	MediaSource currSource=source.get();
+    	if (currSource != null) {
+    		currSource.disconnect(this);
         }
 
-        if (sink != null) {
-        	sink.disconnect(this);
+    	MediaSink currSink=sink.get();
+        if (currSink != null) {
+        	currSink.disconnect(this);
         }
     }
 
@@ -173,14 +179,14 @@ public class PipeImpl implements Pipe {
      * @see org.mobicents.media.server.spi.io.Pipe#start()
      */
     public void start() {
-        if (source != null && sink != null) {
+        if (source.get() != null && sink.get() != null) {
             //clear buffer
             buffer.clear();            
             this.txTimestamp=0;
             
             //start source and sink
-            source.start();
-            sink.start();
+            source.get().start();
+            sink.get().start();
 
             this.rxPackets = 0;
             this.txPackets = 0;            
@@ -193,12 +199,14 @@ public class PipeImpl implements Pipe {
      * @see org.mobicents.media.server.spi.io.Pipe#stop()
      */
     public void stop() {    	        
-        if (source != null) {
-            source.stop();
+    	MediaSource currSource=source.get();
+    	if (currSource != null) {
+    		currSource.stop();
         }
         
-        if(sink != null) {
-            sink.stop();
+    	MediaSink currSink=sink.get();
+        if(currSink != null) {
+        	currSink.stop();
         }
     }
 

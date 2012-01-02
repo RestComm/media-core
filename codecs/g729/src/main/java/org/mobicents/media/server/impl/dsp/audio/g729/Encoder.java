@@ -100,8 +100,8 @@ public class Encoder implements Codec {
             res.setLength(one.length + two.length);
             byte[] resultBytes = res.getData();
             for (int q = 0; q < one.length; q++) {
-                resultingBytes[q] = one[q];
-                resultingBytes[q + one.length] = two[q];
+            	resultBytes[q] = one[q];            	
+            	resultBytes[q + one.length] = two[q];
             }
         }
         res.setOffset(0);

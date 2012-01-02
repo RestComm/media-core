@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.media</groupId>
 		<artifactId>mms-controllers</artifactId>
-		<version>2.1.0.BETA2-SNAPSHOT</version>
+		<version>2.2.0.CR1</version>
 	</parent>
 
 	<artifactId>mms-controllers-mgcp</artifactId>

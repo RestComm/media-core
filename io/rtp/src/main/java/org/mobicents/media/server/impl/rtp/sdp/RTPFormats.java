@@ -98,6 +98,8 @@ public class RTPFormats {
         for (int i = 0; i < size; i++) {
             rtpFormats[i] = null;
         }
+        
+        formats.clean();
         len = 0;
         cursor = 0;
     }
@@ -172,7 +174,17 @@ public class RTPFormats {
     public RTPFormat next() {
         return rtpFormats[cursor++];
     }
-        
+       
+    public boolean hasNonDTMF() {
+    	for (int i = 0; i < this.len; i++) {
+    		if (!this.rtpFormats[i].getFormat().getName().equals(AVProfile.telephoneEvent.getName())) {
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
+    
     public void intersection(RTPFormats other, RTPFormats res) {
         for (int i = 0; i < this.len; i++) {
             for (int j = 0; j < other.len; j++) {

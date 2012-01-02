@@ -102,7 +102,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         
         //return first free if ANY endpoint requested
         if (name.equals(ANY)) {        	        	
-        	MgcpEndpoint endp=queue.poll();
+        	MgcpEndpoint endp=queue.poll();        	
         	if(endp!=null) {
         		endp.lock();
         		endpoints[0] = endp;
@@ -111,7 +111,14 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         	
             return 0;
         }
-                
+               
+        int value=name.toInteger();
+        if(value>0 && value<completeList.size())
+        {
+        	endpoints[0] = completeList.get(value-1).endpoint;
+        	return 1;
+        }
+        
         //search for exact matching
         for (Holder h : completeList) {
             if (h.name.equals(name)) {
@@ -125,7 +132,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     
     public void onFreed(MgcpEndpoint endpoint)
     {
-    	queue.add(endpoint);
+    	queue.add(endpoint);    	
     }
     
     private class Holder {
@@ -135,7 +142,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         protected Holder(MgcpEndpoint endpoint) {
             this.endpoint = endpoint;
             String[] tokens = endpoint.getName().split("/");
-            this.name = new Text(tokens[tokens.length - 1]);
+            this.name = new Text(tokens[tokens.length - 1]);            
         }
     }
 }

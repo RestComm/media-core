@@ -36,6 +36,8 @@ public class Format implements Cloneable {
     //any specific options
     private Text options;
 
+    private Boolean sendPTime=false;
+    
     /**
      * Creates new descriptor.
      *
@@ -97,6 +99,14 @@ public class Format implements Cloneable {
         return this.name.equals(fmt.name);
     }
 
+    public boolean shouldSendPTime() {
+        return sendPTime;
+    }
+    
+    public void setSendPTime(Boolean newValue) {
+        sendPTime=newValue;
+    }
+    
     @Override
     public Format clone() {
         return null;

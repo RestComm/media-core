@@ -24,6 +24,7 @@ package org.mobicents.media.server.spi.memory;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.mobicents.media.server.spi.format.Format;
 
 /**
@@ -45,6 +46,8 @@ public class Frame implements Delayed {
     private volatile Format format;
     private volatile String header;
     
+    protected AtomicBoolean inPartition=new AtomicBoolean(false);
+    
     protected Frame(Partition partition, byte[] data) {
         this.partition = partition;
         this.data = data;
@@ -56,7 +59,7 @@ public class Frame implements Delayed {
         this.sn = 0;
         this.eom = false;
     }
-
+    
     public String getHeader() {
         return header;
     }

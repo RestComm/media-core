@@ -32,7 +32,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class AVProfile {
 
-    private final static AudioFormat telephoneEvent = FormatFactory.createAudioFormat("telephone-event", 8000);
+    public final static AudioFormat telephoneEvent = FormatFactory.createAudioFormat("telephone-event", 8000);
     static {
         telephoneEvent.setOptions(new Text("0-15"));
     }
@@ -66,9 +66,19 @@ public class AVProfile {
         video.add(MP4V_ES);
     }
     
-    public static RTPFormat getFormat(int p) {
+    public static RTPFormat getFormat(int p) {    	
         RTPFormat res = audio.find(p);
         return res == null ? video.find(p) : res;
+    }    
+    
+    public static RTPFormat getFormat(int p,Text mediaType) {
+    	
+    	RTPFormat res=null;
+    	if(mediaType.equals(SessionDescription.AUDIO))
+    		res = audio.find(p);    		
+    	else if(mediaType.equals(SessionDescription.VIDEO))
+    		res = video.find(p);    		
+    	
+    	return res;
     }
-
 }

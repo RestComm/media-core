@@ -49,16 +49,18 @@ import org.apache.log4j.Logger;
 public class Scheduler  {
 	//MANAGEMENT QUEUE SHOULD CONTAIN ONLY TASKS THAT ARE NOT TIME DEPENDENT , FOR
 	//EXAMPLE MGCP COMMANDS 
-	public static final Integer MANAGEMENT_QUEUE=0;
-	public static final Integer UDP_MANAGER_QUEUE=1;
-	public static final Integer RX_TASK_QUEUE=2;
-	public static final Integer INPUT_QUEUE=3;
-	public static final Integer SPLITTER_INPUT_QUEUE=4;
-	public static final Integer SPLITTER_OUTPUT_QUEUE=5;
-	public static final Integer MIXER_INPUT_QUEUE=6;
-	public static final Integer MIXER_MIX_QUEUE=7;
-	public static final Integer MIXER_OUTPUT_QUEUE=8;
-	public static final Integer OUTPUT_QUEUE=9;
+	public static final Integer MANAGEMENT_QUEUE=1;
+	public static final Integer UDP_MANAGER_QUEUE=2;
+	public static final Integer RX_TASK_QUEUE=3;
+	public static final Integer INPUT_QUEUE=4;
+	public static final Integer SPLITTER_INPUT_QUEUE=5;
+	public static final Integer SPLITTER_OUTPUT_QUEUE=6;
+	public static final Integer MIXER_INPUT_QUEUE=7;
+	public static final Integer MIXER_MIX_QUEUE=8;
+	public static final Integer MIXER_OUTPUT_QUEUE=9;
+	
+	//OUTPUT QUEUE IS SET AS ZERO QUEUE TO ALLOW MORE CORRECTLY GENERATE 20MS DELAY
+	public static final Integer OUTPUT_QUEUE=0;
 	//TX Task is called from OUTPUT AND NOT ADDED TO SCHEDULER THEREFORE NOT NEEDED HERE
 	
 	public static final Integer HEARTBEAT_QUEUE=-1;
@@ -237,7 +239,7 @@ public class Scheduler  {
         	
         	while(active)
         	{
-        		while(currQueue<=OUTPUT_QUEUE)
+        		while(currQueue<=MIXER_OUTPUT_QUEUE)
     			{    				    				
     				synchronized(LOCK) {    					
     					if(executeQueue(taskQueues[currQueue]))
@@ -276,7 +278,7 @@ public class Scheduler  {
     		
                 //new cycle starts , updating cycle start time by 20ms
                 cycleStart = cycleStart + 20000000L;
-                currQueue=MANAGEMENT_QUEUE;                                               
+                currQueue=OUTPUT_QUEUE;                                               
         	}
         }
         

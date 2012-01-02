@@ -69,8 +69,7 @@ public class SdpTemplate {
     private void writeAudioDescriptor(StringBuilder builder, RTPFormats formats) {
         builder.append("m=audio %s RTP/AVP ");
         builder.append(payloads(formats));
-        builder.append("\n");
-        
+        builder.append("\n");        
         formats.rewind();
         while (formats.hasMore()) {
             RTPFormat f = formats.next();
@@ -88,6 +87,9 @@ public class SdpTemplate {
             if (f.getFormat().getOptions() != null) {
                 builder.append(String.format("a=fmtp:%d %s\n", f.getID(), f.getFormat().getOptions()));
             }
+            
+            if(f.getFormat().shouldSendPTime())
+            	builder.append("a=ptime:20\n");
         }
     }
 

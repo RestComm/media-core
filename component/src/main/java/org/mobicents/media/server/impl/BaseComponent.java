@@ -84,6 +84,6 @@ public abstract class BaseComponent implements Component {
      * @return the v + 1 or 0 if max value has been reached.
      */
     protected long inc(long v) {
-        return v == Long.MAX_VALUE ? 0 : v++;
+        return v == Long.MAX_VALUE ? 0 : v+1;
     }
 }

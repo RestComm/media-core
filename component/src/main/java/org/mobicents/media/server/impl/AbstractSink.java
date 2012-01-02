@@ -180,7 +180,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      */
     public void connect(Pipe pipe) {
         this.pipe = (PipeImpl) pipe;
-        this.pipe.sink = this;
+        this.pipe.sink.set(this);
     }
 
     /**
@@ -189,7 +189,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * @see org.mobicents.media.MediaSink#disconnect(org.mobicents.media.server.spi.io.Pipe)
      */
     public void disconnect(Pipe pipe) {
-        ((PipeImpl)pipe).sink = null;
+        ((PipeImpl)pipe).sink.set(null);
         this.pipe = null;
     }
 
@@ -374,7 +374,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             if (pipe == null) {
                 //no source of data
             	isSynchronized = false;
-                return 0;
+            	return 0;
             }
             
             int frameCount=0;  
@@ -406,7 +406,17 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             
             	//do transcoding
             	if (dsp != null) {
-                	frame = dsp.process(frame);
+            		try
+            		{
+            			frame = dsp.process(frame);
+            		}
+            		catch(Exception e)
+            		{
+            			//transcoding error , print error and try to move to next frame
+            			e.printStackTrace();
+            			scheduler.submit(this,queueNumber);
+        	            return 0;
+            		} 
             	}
 
             	stats.txFormat = frame.getFormat();
@@ -421,14 +431,15 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             	//frame is not null, let's handle it
             	try {
             		onMediaTransfer(frame);
-            	} catch (IOException e) {
+            	} catch (IOException e) {  
+            		e.printStackTrace();
             		started = false;
                 	failed(e);
             	}
             
             	//check synchronization
             	if (frameDuration == 0 || frameDuration == Long.MAX_VALUE) {
-                	//los of synchronization
+            		//los of synchronization
             		isSynchronized = false;
                 	return 0;
             	}                        

@@ -39,17 +39,23 @@ public class Partition {
     
     protected Frame allocate() {
 //        if (true) return new Frame(this, new byte[size]);
-    	Frame result=heap.poll();
+    	Frame result=heap.poll();    	
+    	
         if (result==null)
             return new Frame(this, new byte[size]);
         
+        result.inPartition.set(false);
         return result;
     }
 
     protected void recycle(Frame frame) {
+    	if(frame.inPartition.getAndSet(true))
+    	//dont add duplicate,otherwise may be reused in different places
+    		return;
+    	
         frame.setHeader(null);
         frame.setDuration(Long.MAX_VALUE);
-        frame.setEOM(false);
+        frame.setEOM(false);        
         heap.add(frame);
         //queue.offer(frame, frame.getDelay(TimeUnit.NANOSECONDS), TimeUnit.NANOSECONDS);
     }

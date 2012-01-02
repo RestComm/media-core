@@ -23,6 +23,9 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfConverter;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -58,15 +61,11 @@ public class JitterBuffer implements Serializable {
     //The underlying buffer size
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
-    private Frame[] queue = new Frame[QUEUE_SIZE];
-
-    //read and write cursors
-    private int readCursor;
-    private int writeCursor = -1;
-
-    //the actual length of the queue
-    private volatile int len = -1;
-
+    private ArrayList<Frame> queue = new ArrayList(QUEUE_SIZE);
+    
+    //semaphore to correctly organize frames in queue
+    private Semaphore writeSemaphore=new Semaphore(1);
+    
     //RTP clock
     private RtpClock rtpClock;
     //first received sequence number
@@ -85,6 +84,7 @@ public class JitterBuffer implements Serializable {
     //The number of dropped packets
     private int dropCount;
 
+    private int readCount=0,acceptedCount=0;
     //known duration of media wich contains in this buffer.
     private volatile long duration;
 
@@ -102,7 +102,6 @@ public class JitterBuffer implements Serializable {
     //RTP dtmf event converter
     private DtmfConverter dtmfConverter;
     
-    private final Object LOCK = new Object();
     /**
      * Creates new instance of jitter.
      * 
@@ -145,7 +144,7 @@ public class JitterBuffer implements Serializable {
     public int getDropped() {
         return dropCount;
     }
-
+    
     /**
      * Assigns listener for this buffer.
      * 
@@ -161,94 +160,123 @@ public class JitterBuffer implements Serializable {
      * @param packet the packet to accept
      */
     public void write(RtpPacket packet) {
-    	synchronized(LOCK) {
-    		//if this is first packet then synchronize clock
-    		if (isn == -1) {
-    			rtpClock.synchronize(packet.getTimestamp());
-    			isn = packet.getSeqNumber();
-    		}
+    	//if this is first packet then synchronize clock
+    	if (isn == -1) {
+    		rtpClock.synchronize(packet.getTimestamp());
+    		isn = packet.getSeqNumber();
+    	}
 
-    		//checking format
-    		if (this.format == null) {
-    			//if format is not known yet assign the format of this packet
-    			this.format = rtpFormats.find(packet.getPayloadType());
-    			System.out.println("Format has been changed: " + this.format.toString());
-    		} else if (this.format.getID() != packet.getPayloadType()) {
-    			//format has been changed 
-    			this.format = rtpFormats.find(packet.getPayloadType());
-    			System.out.println("Format has been changed: " + this.format.toString());
-    		}
+    	//checking format
+    	if (this.format == null) {
+    		//if format is not known yet assign the format of this packet
+    		this.format = rtpFormats.find(packet.getPayloadType());
+    		System.out.println("Format has been changed: " + this.format.toString());
+    	} else if (this.format.getID() != packet.getPayloadType()) {
+    		//format has been changed 
+    		this.format = rtpFormats.find(packet.getPayloadType());
+    		System.out.println("Format has been changed: " + this.format.toString());
+    	}
 
-    		//ignore unknow packet
-    		if (this.format == null) {
-    			//unknown packet
+    	//ignore unknow packet
+    	if (this.format == null) {
+    		//unknown packet
+    		return;
+    	}
+        
+    	//update clock rate
+    	rtpClock.setClockRate(this.format.getClockRate());            		    		
+        
+    	Frame f;
+    	if (this.format != null && this.format.getFormat().matches(dtmf)) {
+    		f = dtmfConverter.process(packet);
+    		if (f != null) {
+    			f.setSequenceNumber(packet.getSeqNumber());
+    			f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
+    		}
+    	} else {
+    		//drop outstanding packets
+    		//packet is outstanding if its timestamp of arrived packet is less
+    		//then consumer media time
+    		if (packet.getTimestamp() < this.arrivalDeadLine) {
+    			System.out.println("drop packet: dead line=" + arrivalDeadLine
+                    + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber()
+                    + ", payload length=" + packet.getPayloadLength());
+    			dropCount++;
     			return;
     		}
-        
-    		//update clock rate
-    		rtpClock.setClockRate(this.format.getClockRate());
-        
-    		this.updateWritePosition();
+    			
+    		f=Memory.allocate(packet.getPayloadLength());
+    		//put packet into buffer irrespective of its sequence number
+    		f.setHeader(null);
+    		f.setSequenceNumber(packet.getSeqNumber());
+    		//here time is in milliseconds
+    		f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
+    		f.setOffset(0);
+    		f.setLength(packet.getPayloadLength());
+    		packet.getPyalod(f.getData(), 0);
 
-    		//overflow?
-    		//drop packet from the head
-    		if (len == queue.length) {
-//          	  System.out.println("Buffer overflow");
-    			dropCount++;
-    			this.updateReadPosition();
+    		//set format
+    		f.setFormat(this.format.getFormat());
+    	}
+    		
+    	//make checks only if have packet
+    	if(f!=null)
+    	{    	
+    		try
+    		{
+    			//obtaining semaphore aquire and writing frame to queue
+    			writeSemaphore.acquire();
     		}
-        
-        
-    		if (this.format != null && this.format.getFormat().matches(dtmf)) {
-    			Frame f = dtmfConverter.process(packet);
-    			if (f != null) {
-    				queue[writeCursor] = f;
-    				queue[writeCursor].setSequenceNumber(packet.getSeqNumber());
-    				queue[writeCursor].setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
-    			}
-    		} else {
-    			//drop outstanding packets
-    			//packet is outstanding if its timestamp of arrived packet is less
-    			//then consumer media time
-    			if (packet.getTimestamp() < this.arrivalDeadLine) {
-    				System.out.println("drop packet: dead line=" + arrivalDeadLine
-                        + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber()
-                        + ", payload length=" + packet.getPayloadLength());
-    				dropCount++;
-    				return;
-    			}
-    			//put packet into buffer irrespective of its sequence number
-    			queue[writeCursor] = Memory.allocate(packet.getPayloadLength());
-    			queue[writeCursor].setHeader(null);
-    			queue[writeCursor].setSequenceNumber(packet.getSeqNumber());
-    			//here time is in milliseconds
-    			queue[writeCursor].setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
-    			queue[writeCursor].setOffset(0);
-    			queue[writeCursor].setLength(packet.getPayloadLength());
-    			packet.getPyalod(queue[writeCursor].getData(), 0);
-
-    			//set format
-    			queue[writeCursor].setFormat(this.format.getFormat());
+    		catch(InterruptedException e)
+    		{}
+    		
+    		//find correct position to insert a packet    			
+    		int currIndex=queue.size()-1;
+    		while (currIndex>=0 && queue.get(currIndex).getSequenceNumber() > f.getSequenceNumber())
+    			currIndex--;
+    			    		
+    		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
+    		{
+    			//duplicate packet
+    			writeSemaphore.release();
+    			return;
     		}
-    		//we are expecting that sequence number still grow, if not
-    		//move packet forward direction till its sequence number remains
-    		//less then sequence number of previous
-    		sort(writeCursor);
-
-    		//update duration of the previous packet;
-    		//if previous packet exists then len greater then 0
-    		if (len > 0) {
-    			int p = dec(writeCursor);
+    				    			
+    		queue.add(currIndex+1, f);
+    			
+    		//recalculate duration of each frame in queue and overall duration , since we could insert the
+    		//frame in the middle of the queue    			
+    		duration=0;    			
+    		if(queue.size()>1)
+    			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();
+    		
+    		for(int i=0;i<queue.size()-1;i++)
+    		{
     			//duration measured by wall clock
-    			long d = queue[writeCursor].getTimestamp() - queue[p].getTimestamp();
-            
+    			long d = queue.get(i+1).getTimestamp() - queue.get(i).getTimestamp();
     			//in case of RFC2833 event timestamp remains same
-    			if (d > 0) {
-    				queue[p].setDuration(d);
-    			}
-    			duration += queue[p].getDuration();
+    			if (d > 0)    				
+    				queue.get(i).setDuration(d);    					
+    			else
+    				queue.get(i).setDuration(0);
     		}
-
+    			
+    		//if overall duration is negative we have some mess here,try to reset
+    		if(duration<0 && queue.size()>1)
+    		{
+    			writeSemaphore.release();
+    			reset();
+    			return;
+    		}
+    			    			
+    		//overflow?
+    		//only now remove packet if overflow , possibly the same packet we just received
+    		if (queue.size()>QUEUE_SIZE) {
+    			//System.out.println("Buffer overflow");    			
+    			dropCount++;        			
+    			queue.remove(0);    				
+    		}    		
+    			
     		//compute interarrival jitter.
     		//@see RFC1889
     		j += (double)(Math.abs((r - s) - (rtpClock.getTime() - packet.getTimestamp())) - j)/16D;
@@ -259,14 +287,17 @@ public class JitterBuffer implements Serializable {
     		if (j > jm) jm = j;
         
     		//check if this buffer already full
-    		if (!ready) {
-    			ready = duration >= jitter && len > 1;
-    			if (ready) {
+    		if (!ready) {    			
+    			ready = duration >= jitter && queue.size() > 1;
+    			if (ready) {    				
     				if (listener != null) {
     					listener.onFill();
     				}
     			}
     		}
+    		
+    		//releasing semaphore
+    		writeSemaphore.release();
     	}
     }
 
@@ -277,107 +308,42 @@ public class JitterBuffer implements Serializable {
      * @return the media frame.
      */
     public Frame read(long timestamp) {
-    	synchronized(LOCK) {
-    		if (len < 0) {
-    			return null;
-    		}
-
-    		//extract packet
-    		Frame frame = queue[readCursor];
-    		queue[readCursor] = null;
-    		this.updateReadPosition();
-
-    		//buffer empty now? - change ready flag.
-    		if (len < 0) {
-    			this.ready = false;
-    			arrivalDeadLine = 0;
-    			frame.setDuration(0);
-    		} else {
-    			long d = this.arrivalDeadLine;
-    			arrivalDeadLine = rtpClock.convertToRtpTime(frame.getTimestamp() + frame.getDuration());
-    		}
-
-    		//update buffer duration
-    		duration = ready ? duration - frame.getDuration() : 0;
-
-    		//convert duration to nanoseconds
-    		frame.setDuration(frame.getDuration() * 1000000L);
-    		frame.setTimestamp(frame.getTimestamp() * 1000000L);
-        
-    		return frame;
+    	if (queue.size()==0) {
+    		return null;
     	}
+    		
+    	//extract packet
+    	Frame frame = queue.remove(0);
+    		
+    	//buffer empty now? - change ready flag.
+    	if (queue.size() == 0) {
+    		this.ready = false;
+    		//arrivalDeadLine = 0;
+    		//set it as 1 ms since otherwise will be dropped by pipe
+    		frame.setDuration(1);
+    	}    		
+    		
+    	arrivalDeadLine = rtpClock.convertToRtpTime(frame.getTimestamp() + frame.getDuration());
+    	
+    	//convert duration to nanoseconds
+    	frame.setDuration(frame.getDuration() * 1000000L);
+    	frame.setTimestamp(frame.getTimestamp() * 1000000L);
+        
+    	return frame;    	
     }
-
-    /**
-     * Checks the sequence numbers of specified packet and neightbor from left.
-     * If sequence number decrease exchanges place of packets.
-     *
-     * @param p the index of packet to check.
-     */
-    private void sort(int p) {
-        int q = dec(p);
-
-        if (q == readCursor) {
-            return;
-        }
-
-        if (queue[q] == null) {
-            return;
-        }
-
-        if (queue[p].getSequenceNumber() < queue[q].getSequenceNumber()) {
-            Frame temp = queue[p];
-            queue[p] = queue[q];
-            queue[q] = temp;
-            sort(q);
-        }
-    }
-
-    /**
-     * Increments read cursor position
-     */
-    private void updateReadPosition() {
-        readCursor++;
-        if (readCursor == queue.length) {
-            readCursor = 0;
-        }
-        len--;
-    }
-
-    /**
-     * Increments write cursor position
-     */
-    private void updateWritePosition() {
-        writeCursor++;
-        if (writeCursor == queue.length) {
-            writeCursor = 0;
-        }
-        len++;
-    }
-
-    /**
-     * Decrements specified cursor
-     *
-     * @param i the cursor position.
-     * @return new value for the cursor.
-     */
-    private int dec(int i) {
-        i--;
-        return i == -1 ? queue.length - 1 : i;
-    }
-
+    
     /**
      * Resets buffer.
      */
     public void reset() {
-        readCursor = 0;
-        writeCursor = -1;
-        len = -1;
-        isn = -1;
-
-        for (int i = 0; i < queue.length; i++) {
-            queue[i] = null;
-        }
+    	queue.clear();
     }
-
+    
+    public void restart() {
+    	this.ready=false;
+    	arrivalDeadLine = 0;
+    	dropCount=0;
+    	format=null;
+    	isn=-1;
+    }
 }

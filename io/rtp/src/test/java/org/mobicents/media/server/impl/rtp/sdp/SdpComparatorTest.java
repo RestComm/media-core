@@ -115,10 +115,10 @@ public class SdpComparatorTest {
      */
     @Test
     public void testAudio() {
-        comparator.compare(sd1, sd2);
+    	comparator.compare(sd1, sd2);
 
         RTPFormats fmts = comparator.getAudio();
-        assertEquals(2, fmts.size());
+        assertEquals(2, fmts.size());    	
     }
 
     @Test

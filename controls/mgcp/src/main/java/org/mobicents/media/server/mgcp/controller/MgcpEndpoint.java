@@ -60,7 +60,7 @@ public class MgcpEndpoint {
     protected Text fullName;
     
     //the state of this activity
-    private int state = STATE_FREE;
+    private AtomicInteger state = new AtomicInteger(STATE_FREE);
     
     //Request executor associated with endpoint
     Request request;
@@ -128,7 +128,7 @@ public class MgcpEndpoint {
      * @return the state indicator.
      */
     public int getState() {
-        return state;
+        return state.get();
     }
 
     /**
@@ -144,15 +144,15 @@ public class MgcpEndpoint {
      * Exclusively locks this activity.
      */
     public void lock() {
-        this.state = STATE_LOCKED;
+        this.state.set(STATE_LOCKED);
     }
 
     /**
      * Unlocks this activity if it is not busy
      */
     public void share() {
-        if (this.state == STATE_LOCKED) {
-            this.state = STATE_FREE;
+        if (this.state.get() == STATE_LOCKED) {
+            this.state.set(STATE_FREE);
             if(this.stateListener!=null)
             	this.stateListener.onFreed(this);
         }
@@ -177,7 +177,7 @@ public class MgcpEndpoint {
 
     	//change state to BUSY what means that this connection has at least one
     	//connection
-    	this.state = STATE_BUSY;
+    	this.state.set(STATE_BUSY);
         
     	return mgcpConnection;    	
     }
@@ -214,10 +214,10 @@ public class MgcpEndpoint {
     	connections.add(mgcpConnection);
 
     	//update state    	
-    	if (activeConnections.isEmpty()) {        	        	
-    		this.state = STATE_FREE;
-    		if(this.stateListener!=null)
-            	this.stateListener.onFreed(this);
+    	if (activeConnections.isEmpty()) {
+    		int oldValue=this.state.getAndSet(STATE_FREE);
+    		if(oldValue!=STATE_FREE && this.stateListener!=null)
+    				this.stateListener.onFreed(this);    		
     	}
     	
     	this.request.cancel();    	    	   
@@ -227,12 +227,14 @@ public class MgcpEndpoint {
     	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
     		connections.add(activeConnections.remove(e.nextElement()));    
         }
-    	        
+    	    
         endpoint.deleteAllConnections();
         
-        this.state = STATE_FREE;
-        if(this.stateListener!=null)
+        int oldValue=this.state.getAndSet(STATE_FREE);
+        
+        if(oldValue!=STATE_FREE && this.stateListener!=null)
         	this.stateListener.onFreed(this);
+        
         this.request.cancel();
     }
     

@@ -38,6 +38,7 @@ public class Options {
     private final static Text ip = new Text("ip");
     private final static Text iv = new Text("iv");
     private final static Text mn = new Text("mn");
+    private final static Text mx = new Text("mx");
     private final static Text dp = new Text("dp");
     private final static Text ni = new Text("ni");
     private final static Text ri = new Text("ri");
@@ -48,6 +49,8 @@ public class Options {
     private final static Text fdt= new Text("fdt");
     private final static Text idt= new Text("idt");    
     private final static Text na= new Text("na");
+    private final static Text eik = new Text("eik");
+    private final static Text iek = new Text("iek");
     private final static Text x_md= new Text("x-md");
     
     private final static Text TRUE = new Text("true");
@@ -74,7 +77,7 @@ public class Options {
     
     private int interval;
     
-    private int digitsNumber;
+    private int digitsNumber,maxDigitsNumber;
     private long postSpeechTimer = -1;
     
     private Text digitPattern = new Text(new byte[150], 0, 150);
@@ -88,6 +91,9 @@ public class Options {
     private boolean nonInterruptable = false;
     private long recordDuration = -1;
     private boolean clearDigits = false;
+    private boolean includeEndInput = false;
+    
+    private char endInputKey='#';
     
     private long firstDigitTimer=0;
     private long interDigitTimer=0;
@@ -126,7 +132,10 @@ public class Options {
                 this.isPrompt = true;
             } else if (name.equals(mn)) {
                 this.digitsNumber = value.toInteger();
-            } else if (name.equals(dp)) {                
+            } else if (name.equals(mx)) {
+                this.maxDigitsNumber = value.toInteger();
+            }            
+            else if (name.equals(dp)) {                
                 value.duplicate(digitPattern);
                 digitPatterns = digitPattern.split('|');
             } else if (name.equals(ni)) {
@@ -149,6 +158,10 @@ public class Options {
                 this.numberOfAttempts = value.toInteger();
             } else if (name.equals(cb)) {
                 this.clearDigits = value.equals(TRUE);
+            } else if (name.equals(eik) && value.length()==1) {
+                this.endInputKey = value.charAt(0);
+            } else if (name.equals(iek)) {
+                this.includeEndInput = value.equals(TRUE);
             }
         }
     }
@@ -183,6 +196,10 @@ public class Options {
     
     public int getDigitsNumber() {
         return this.digitsNumber;
+    }
+    
+    public int getMaxDigitsNumber() {
+        return this.maxDigitsNumber;
     }
     
     public Collection<Text> getDigitPattern() {
@@ -221,11 +238,19 @@ public class Options {
         return this.maxDuration;
     }
     
+    public char getEndInputKey() {
+        return this.endInputKey;
+    }
+    
     public int getNumberOfAttempts() {
         return this.numberOfAttempts;
     }    
     
     public boolean isClearDigits() {
         return clearDigits;
+    }
+    
+    public boolean isIncludeEndInputKey() {
+        return includeEndInput;
     }
 }

@@ -112,8 +112,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 
         RTPFormats audio = sdpComparator.getAudio();
         RTPFormats video = sdpComparator.getVideo();
-
-        if (audio.isEmpty() && video.isEmpty()) {
+        if ((audio.isEmpty() || !audio.hasNonDTMF()) && video.isEmpty()) {
             throw new IOException("Codecs are not negotiated");
         }
 
@@ -166,7 +165,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 
         RTPFormats audio = sdpComparator.getAudio();
         RTPFormats video = sdpComparator.getVideo();
-        if (audio.isEmpty() && video.isEmpty()) {
+        if ((audio.isEmpty() || !audio.hasNonDTMF()) && video.isEmpty()) {
             throw new IOException("Codecs are not negotiated");
         }
 
@@ -317,7 +316,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     	if(this.connectionFailureListener!=null)
         	connectionFailureListener.onFailure();
         
-        if (rtpAudioChannel != null) {
+        if (rtpAudioChannel != null) {        	
         	audioChannel.disconnect();
             rtpAudioChannel.close();
         }
@@ -352,6 +351,6 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         }
 
         connections.releaseConnection(this,ConnectionType.RTP);        
-        this.connectionFailureListener=null;        
+        this.connectionFailureListener=null;          
     }
 }

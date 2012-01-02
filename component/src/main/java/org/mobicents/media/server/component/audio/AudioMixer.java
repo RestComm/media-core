@@ -23,6 +23,7 @@
 package org.mobicents.media.server.component.audio;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +41,8 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
+
+import org.mobicents.media.server.spi.FormatNotSupportedException;
 
 /**
  * Implements audio mixer.
@@ -194,7 +197,7 @@ public class AudioMixer implements Mixer {
 //        	started = false;
 //        	mixer.cancel();
 //        	output.stop();
-//        	for (Input input: inputs) input.stop();
+//        	for (Input input: inputs) input.stop();    		
     		stopMixer(true);
     	}
     }
@@ -236,10 +239,14 @@ public class AudioMixer implements Mixer {
      * Input stream
      */
     private class Input extends AbstractSink {
-        private final static int limit = 50;
         private int inputId;
-        
+        //50 frames is too much , 5 frames equals 100ms
+        private int limit=5;
         private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
+        private Frame activeFrame=null;
+        private byte[] activeData;
+        private int byteIndex=0;
+        
         //private ElasticBuffer buffer = new ElasticBuffer(3, 10);
 
         /**
@@ -256,11 +263,35 @@ public class AudioMixer implements Mixer {
         }
         
         @Override
-        public void onMediaTransfer(Frame frame) throws IOException {        	
-            if (buffer.size() < limit) {
-                buffer.offer(frame);
-            }
-//            buffer.write(frame);
+        public void onMediaTransfer(Frame frame) throws IOException {
+        	//generate frames with correct size here , aggregate frames if needed.
+        	//allows to accept several sources with different ptime ( packet time ) 
+        	if (buffer.size() >= limit) 
+        		buffer.remove();
+            
+        	byte[] oldData=frame.getData();        	
+        	for(int i=0;i<oldData.length;i++)        	
+        	{
+        		if(activeData==null)
+        		{
+        			activeFrame=Memory.allocate(packetSize);
+        			activeFrame.setOffset(0);
+        			activeFrame.setLength(packetSize);
+        			activeData=activeFrame.getData(); 
+        			byteIndex=0;
+        		}
+        		
+        		activeData[byteIndex++]=oldData[i];
+        		
+        		if(byteIndex>=activeData.length)
+        		{
+        			buffer.offer(activeFrame);
+        			activeFrame=null;
+        			activeData=null;
+        		}
+        	}
+        	
+        	frame.recycle();
         }
 
         /**
@@ -296,8 +327,12 @@ public class AudioMixer implements Mixer {
          */
         protected void recycle() {
             buffer.clear();
+            activeFrame=null;
+			activeData=null;
+			byteIndex=0;
+			
             inputs.remove(this.inputId);
-            pool.add(this);
+            pool.add(this);                        
         }
 
     }
@@ -307,7 +342,6 @@ public class AudioMixer implements Mixer {
      */
     private class Output extends AbstractSource {
         private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
-
         /**
          * Creates new instance with default name.
          */
@@ -317,7 +351,7 @@ public class AudioMixer implements Mixer {
 
         @Override
         public Frame evolve(long timestamp) {
-            return buffer.poll();
+        	return buffer.poll();
         }
         
         /**
@@ -336,9 +370,10 @@ public class AudioMixer implements Mixer {
         }
         
         @Override
-        public void stop() {
-            stopMixer(false);
-            super.stop();
+        public void stop() {        	
+        	//System.out.println("MIX COUNT:" + mixCount);    
+        	stopMixer(false);
+            super.stop();            
         }
     }
 
@@ -383,8 +418,8 @@ public class AudioMixer implements Mixer {
             	Input input=activeInputs.next();
             	frames[count] = input.poll();
             	if(frames[count]!=null && frames[count].getLength()!=packetSize)
-                {
-                	//may happen after codec changes
+                {            		
+            		//may happen after codec changes
                 	frames[count].recycle();
                 	frames[count]=null;                	
                 }
@@ -416,9 +451,10 @@ public class AudioMixer implements Mixer {
         	
         	//recycle received frames
         	for (int i = 0; i < count; i++) {
-        		if (frames[i].getHeader() != null) {
+        		//we are generating new frames , why should we send old headers????
+        		/*if (frames[i].getHeader() != null) {
         			frame.setHeader(frames[i].getHeader());
-        		}
+        		}*/
         		frames[i].recycle();                
         	}
         	

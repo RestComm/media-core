@@ -207,7 +207,10 @@ public class PlayCollect extends Signal {
 
         //assign requested parameters
         buffer.setPatterns(options.getDigitPattern());
-        buffer.setCount(options.getDigitsNumber());        
+        if(options.getMaxDigitsNumber()>0)
+        	buffer.setCount(options.getMaxDigitsNumber());
+        else
+        	buffer.setCount(options.getDigitsNumber());
     }
     
     /**
@@ -422,6 +425,21 @@ public class PlayCollect extends Signal {
          * @see BufferListener#tone(java.lang.String)  
          */
         public void tone(String s) {
+        	if(options.getMaxDigitsNumber()>0 && s.charAt(0)==options.getEndInputKey() && buffer.length()>=options.getDigitsNumber())
+        	{
+        		 logger.info(String.format("(%s) End Input Tone '%s' has been detected", getEndpoint().getLocalName(), s));
+                 //end input key still not included in sequence
+        		if(options.isIncludeEndInputKey())
+        			oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence() + s));        			
+        		else
+        			oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence()));
+        		
+        		heartbeat.disable();
+        		reset();
+        		complete();
+        		return;
+        	}
+        	
         	if(nextDigitTimer>0)
         	{
         		heartbeat.setTtl((int)(nextDigitTimer/100000000L));

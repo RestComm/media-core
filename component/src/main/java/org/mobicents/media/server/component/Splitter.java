@@ -60,6 +60,8 @@ public class Splitter {
     private Boolean dtmfClampActive=false;    
     private DtmfClamp dtmfClamp;
     
+    protected long splitCount = 0;
+    
     /**
      * Creates new Splitter.
      */
@@ -171,7 +173,6 @@ public class Splitter {
      * Implements input stream
      */
     private class Input extends AbstractSink {
-    	
     	/**
          * Creates new stream.
          */
@@ -183,7 +184,10 @@ public class Splitter {
         public void stop()
         {
         	super.stop();
-        	dtmfClamp.recycle();
+        	dtmfClamp.recycle();    
+        	
+        	//System.out.println("SPLIT COUNT:" + splitCount);        	
+        	splitCount=0;
         }
         
         @Override
@@ -195,6 +199,7 @@ public class Splitter {
         	
         	if(currFrame!=null)
         	{
+        		splitCount++;
         		//clone frame and queue to each active output
         		Iterator<Output> activeOutputs=outputs.values().iterator();
                 while(activeOutputs.hasNext())
@@ -207,7 +212,7 @@ public class Splitter {
                 }
                 
                 //recycle original frame
-                currFrame.recycle();
+                currFrame.recycle();                
         	}
         }
 
