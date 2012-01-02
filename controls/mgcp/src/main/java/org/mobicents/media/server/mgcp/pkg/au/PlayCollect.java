@@ -541,11 +541,15 @@ public class PlayCollect extends Signal {
         	logger.info(String.format("(%s) Timeout expired waiting for dtmf", getEndpoint().getLocalName()));
         	if(numberOfAttempts==1)
         	{
-        		if(ttlValue==0)
-        			if(buffer.getSequence().length()>0)
-        				oc.fire(signal, new Text("rc=326 dc=" + buffer.getSequence()));
+        		if(ttlValue==0) {
+        			int length=buffer.getSequence().length();
+        			if(length>=options.getDigitsNumber())
+        				oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence()));
+        			else if(length>0)
+        				oc.fire(signal, new Text("rc=326 dc=" + buffer.getSequence()));        			
         			else
         				oc.fire(signal, new Text("rc=326"));
+        		}
         		else
         			oc.fire(signal, new Text("rc=330"));
         		
