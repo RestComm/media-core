@@ -78,6 +78,10 @@ public class JitterBuffer implements Serializable {
     //initial value equals to infinity
     private long arrivalDeadLine = 0;
 
+    //packet arrival dead line measured on RTP clock.
+    //initial value equals to infinity
+    private long droppedInRaw = 0;
+    
     private long r, s;
     private double j, jm;
 
@@ -189,7 +193,7 @@ public class JitterBuffer implements Serializable {
     	Frame f;
     	if (this.format != null && this.format.getFormat().matches(dtmf)) {
     		f = dtmfConverter.process(packet);
-    		if (f != null) {
+    		if (f != null) {    			
     			f.setSequenceNumber(packet.getSeqNumber());
     			f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
     		}
@@ -202,7 +206,13 @@ public class JitterBuffer implements Serializable {
                     + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber()
                     + ", payload length=" + packet.getPayloadLength());
     			dropCount++;
-    			return;
+    			
+    			//checking if not dropping too much  			
+    			droppedInRaw++;
+    			if(droppedInRaw==QUEUE_SIZE/2)
+    				arrivalDeadLine=0;
+    			else
+    				return;
     		}
     			
     		f=Memory.allocate(packet.getPayloadLength());
@@ -221,7 +231,8 @@ public class JitterBuffer implements Serializable {
     		
     	//make checks only if have packet
     	if(f!=null)
-    	{    	
+    	{    
+    		droppedInRaw=0;
     		try
     		{
     			//obtaining semaphore aquire and writing frame to queue
@@ -343,6 +354,7 @@ public class JitterBuffer implements Serializable {
     	this.ready=false;
     	arrivalDeadLine = 0;
     	dropCount=0;
+    	droppedInRaw=0;
     	format=null;
     	isn=-1;
     }

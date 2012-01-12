@@ -24,7 +24,7 @@ package org.mobicents.media.server.impl.rtp.sdp;
 
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.Formats;
-
+import java.util.ArrayList;
 /**
  * Implements RTP formats collection with fast search.
  *
@@ -36,9 +36,8 @@ public class RTPFormats {
     private final static int size = 10;
 
     //backing array
-    private RTPFormat[] rtpFormats;
-    private int len;
-
+    private ArrayList<RTPFormat> rtpFormats;
+    
     private Formats formats = new Formats();
 
     private int cursor;
@@ -47,12 +46,12 @@ public class RTPFormats {
      * Creates new format collection with default size.
      */
     public RTPFormats() {
-        this.rtpFormats = new RTPFormat[size];
+        this.rtpFormats = new ArrayList(size);
     }
 
     public int getLen()
     {
-    	return len;
+    	return this.rtpFormats.size();
     }
     /**
      * Creates new formats collection with specified size
@@ -60,72 +59,63 @@ public class RTPFormats {
      * @param size the size of collection to be created.
      */
     public RTPFormats(int size) {
-        this.rtpFormats = new RTPFormat[size];
+        this.rtpFormats = new ArrayList(size);
     }
 
     public void add(RTPFormat rtpFormat) {
-        if (len == rtpFormats.length)
-            throw new IllegalStateException("Space limit has exceeded");
-        rtpFormats[len++] = rtpFormat;
+        rtpFormats.add(rtpFormat);
         formats.add(rtpFormat.getFormat());
     }
 
     public void add(RTPFormats fmts) {
-        for (int i = 0; i < fmts.len; i++) {
-            rtpFormats[len++] = fmts.rtpFormats[i];
-            formats.add(fmts.rtpFormats[i].getFormat());
+        for (int i = 0; i < fmts.rtpFormats.size(); i++) {
+            rtpFormats.add(fmts.rtpFormats.get(i));
+            formats.add(fmts.rtpFormats.get(i).getFormat());
         }
     }
     
     public void remove(RTPFormat rtpFormat) {
         int pos = -1;
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < rtpFormats.size(); i++) {
             pos++;
-            if (rtpFormats[i].getID() == rtpFormat.getID()) break;
+            if (rtpFormats.get(i).getID() == rtpFormat.getID()) break;
         }
 
         if (pos == -1) {
             throw new IllegalArgumentException("Unknown format " + rtpFormat);
         }
 
-        System.arraycopy(rtpFormats, pos + 1, rtpFormats, pos, len - pos);
-        len--;
-
+        rtpFormats.remove(pos);
         formats.remove(rtpFormat.getFormat());
     }
 
     public void clean() {
-        for (int i = 0; i < size; i++) {
-            rtpFormats[i] = null;
-        }
-        
+    	rtpFormats.clear();
         formats.clean();
-        len = 0;
         cursor = 0;
     }
 
     public int size() {
-        return len;
+        return rtpFormats.size();
     }
     
     public RTPFormat getRTPFormat(int payload) {
-        for (int i = 0; i < len; i++) {
-            if (rtpFormats[i].getID() == payload) return rtpFormats[i];
+        for (int i = 0; i < rtpFormats.size(); i++) {
+            if (rtpFormats.get(i).getID() == payload) return rtpFormats.get(i);
         }
         return null;
     }
 
     public RTPFormat getRTPFormat(Format format) {
-        for (int i = 0; i < len; i++) {
-            if (rtpFormats[i].getFormat().matches(format)) return rtpFormats[i];
+        for (int i = 0; i < rtpFormats.size(); i++) {
+            if (rtpFormats.get(i).getFormat().matches(format)) return rtpFormats.get(i);
         }
         return null;
     }
 
     public RTPFormat[] toArray() {
-        RTPFormat[] fmts = new RTPFormat[len];
-        System.arraycopy(rtpFormats, 0, fmts, 0, len);
-        return fmts;
+        RTPFormat[] fmts = new RTPFormat[rtpFormats.size()];
+        return rtpFormats.toArray(fmts);        
     }
 
     public Formats getFormats() {
@@ -133,17 +123,17 @@ public class RTPFormats {
     }
     
     public RTPFormat find(int p) {
-        for (int i = 0; i < size; i++) {
-            if (rtpFormats[i] != null && rtpFormats[i].getID() == p) {
-                return rtpFormats[i];
+        for (int i = 0; i < rtpFormats.size(); i++) {
+            if (rtpFormats.get(i).getID() == p) {
+                return rtpFormats.get(i);
             }
         }
         return null;
     }
     
     public boolean contains(Format fmt) {
-        for (int i = 0; i < size; i++) {
-            if (rtpFormats[i] != null && rtpFormats[i].getFormat().matches(fmt)) {
+        for (int i = 0; i < rtpFormats.size(); i++) {
+            if (rtpFormats.get(i).getFormat().matches(fmt)) {
                 return true;
             }
         }
@@ -151,16 +141,16 @@ public class RTPFormats {
     }
     
     public RTPFormat find(Format fmt) {
-        for (int i = 0; i < size; i++) {
-            if (rtpFormats[i] != null && rtpFormats[i].getFormat().matches(fmt)) {
-                return rtpFormats[i];
+        for (int i = 0; i < rtpFormats.size(); i++) {
+            if (rtpFormats.get(i).getFormat().matches(fmt)) {
+                return rtpFormats.get(i);
             }
         }
         return null;
     }
     
     public boolean isEmpty() {
-        return len == 0;
+        return rtpFormats.isEmpty();
     }
     
     public void rewind() {
@@ -168,16 +158,16 @@ public class RTPFormats {
     }
     
     public boolean hasMore() {
-        return cursor != len;
+        return cursor != rtpFormats.size();
     }
     
     public RTPFormat next() {
-        return rtpFormats[cursor++];
+        return rtpFormats.get(cursor++);
     }
        
     public boolean hasNonDTMF() {
-    	for (int i = 0; i < this.len; i++) {
-    		if (!this.rtpFormats[i].getFormat().getName().equals(AVProfile.telephoneEvent.getName())) {
+    	for (int i = 0; i < this.rtpFormats.size(); i++) {
+    		if (!this.rtpFormats.get(i).getFormat().getName().equals(AVProfile.telephoneEvent.getName())) {
     			return true;
     		}
     	}
@@ -186,10 +176,10 @@ public class RTPFormats {
     }
     
     public void intersection(RTPFormats other, RTPFormats res) {
-        for (int i = 0; i < this.len; i++) {
-            for (int j = 0; j < other.len; j++) {
-                if (this.rtpFormats[i].getFormat().matches(other.rtpFormats[j].getFormat())) {
-                    res.add(this.rtpFormats[i]);
+        for (int i = 0; i < this.rtpFormats.size(); i++) {
+            for (int j = 0; j < other.size(); j++) {
+                if (this.rtpFormats.get(i).getFormat().matches(other.rtpFormats.get(j).getFormat())) {
+                    res.add(this.rtpFormats.get(i));
                 }
             }
         }
@@ -200,9 +190,9 @@ public class RTPFormats {
         StringBuilder buffer = new StringBuilder();
         buffer.append("RTPFormats{");
         
-        for (int i = 0; i < this.len; i++) {
-            buffer.append(rtpFormats[i]);
-            if (i != len -1) buffer.append(",");
+        for (int i = 0; i < rtpFormats.size(); i++) {
+            buffer.append(rtpFormats.get(i));
+            if (i != rtpFormats.size() -1) buffer.append(",");
         }
         
         buffer.append("}");                
