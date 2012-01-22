@@ -178,14 +178,11 @@ public class RecorderImpl implements Recorder, JainMgcpListener {
             for (int i = 0; i < rtc.length; i++) {
                 System.out.println("Trigger = " + rtc[i].getTrigger());
                 if (rtc[i] == MediaGroup.SIGDET_STOPPLAY) {
-                    options.setNonInterruptiblePlay(false);
-                } else if (rtc[i].getTrigger() == SignalDetector.DETECTION_OF_ONE_SIGNAL) {                                                           
+                    options.setNonInterruptiblePlay(false);                    
+                } else if (rtc[i].getTrigger() == SignalDetector.DETECTION_OF_ONE_SIGNAL) {
+                	options.setDigitsNumber(1);
                     if(rtc[i].getAction()==Recorder.STOP && hasPrompt)
-                    	//add one digit , first should not be counted
-                    	options.setDigitsNumber(2);
-                    else
-                    	options.setDigitsNumber(1);
-                    
+                    	options.setDigitsNumber(2);                    	                    
                 } else if (rtc[i].getTrigger() == Player.PLAY_START && rtc[i].getAction() == SignalDetector.FLUSH_BUFFER) {
                 	options.setClearDigits(true);                    
                 }

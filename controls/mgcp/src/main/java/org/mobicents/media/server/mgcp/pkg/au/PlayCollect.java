@@ -424,7 +424,7 @@ public class PlayCollect extends Signal {
          * 
          * @see BufferListener#tone(java.lang.String)  
          */
-        public void tone(String s) {
+        public boolean tone(String s) {
         	if(options.getMaxDigitsNumber()>0 && s.charAt(0)==options.getEndInputKey() && buffer.length()>=options.getDigitsNumber())
         	{
         		 logger.info(String.format("(%s) End Input Tone '%s' has been detected", getEndpoint().getLocalName(), s));
@@ -437,7 +437,7 @@ public class PlayCollect extends Signal {
         		heartbeat.disable();
         		reset();
         		complete();
-        		return;
+        		return true;
         	}
         	
         	if(nextDigitTimer>0)
@@ -450,9 +450,9 @@ public class PlayCollect extends Signal {
         		}
         	}
         	else if(maxDuration==0)
-        		heartbeat.disable();
+        		heartbeat.disable();   
         	
-            logger.info(String.format("(%s) Tone '%s' has been detected", getEndpoint().getLocalName(), s));
+        	logger.info(String.format("(%s) Tone '%s' has been detected", getEndpoint().getLocalName(), s));
             if (!options.isNonInterruptable()) {
                 if (isPromptActive) {
                     logger.info(String.format("(%s) Tone '%s' has been detected: prompt phase interrupted", getEndpoint().getLocalName(), s));
@@ -463,10 +463,14 @@ public class PlayCollect extends Signal {
             } else {
                 if (isPromptActive) {
                     logger.info(String.format("(%s) Tone '%s' has been detected, waiting for prompt phase termination", getEndpoint().getLocalName(), s));
+                    if (options.isClearDigits())
+                    	return false;
                 } else {
                     logger.info(String.format("(%s) Tone '%s' has been detected: collected", getEndpoint().getLocalName(), s));
                 }
-            }            
+            } 
+            
+            return true;
         }
         
     }

@@ -460,22 +460,26 @@ public class PlayRecord extends Signal {
          * 
          * @see BufferListener#tone(java.lang.String)  
          */
-        public void tone(String s) {
+        public boolean tone(String s) {
         	logger.info(String.format("(%s) Tone '%s' has been detected", getEndpoint().getLocalName(), s));
             if (!options.isNonInterruptable()) {
                 if (isPromptActive) {
                     logger.info(String.format("(%s) Tone '%s' has been detected: prompt phase interrupted", getEndpoint().getLocalName(), s));
-                    terminatePrompt();                  
+                    terminatePrompt();                    
                 } else {
                     logger.info(String.format("(%s) Tone '%s' has been detected: collected", getEndpoint().getLocalName(), s));
                 }
             } else {
                 if (isPromptActive) {
                     logger.info(String.format("(%s) Tone '%s' has been detected, waiting for prompt phase termination", getEndpoint().getLocalName(), s));
+                    if (options.isClearDigits())
+                    	return false;
                 } else {
                     logger.info(String.format("(%s) Tone '%s' has been detected: collected", getEndpoint().getLocalName(), s));
                 }
-            }            
+            }  
+            
+            return true;
         }
         
     }

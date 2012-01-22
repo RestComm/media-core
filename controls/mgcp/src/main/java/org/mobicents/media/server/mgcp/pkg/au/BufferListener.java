@@ -30,7 +30,7 @@ package org.mobicents.media.server.mgcp.pkg.au;
  * @author kulikov
  */
 public interface BufferListener {
-	public void tone(String s);    
+	public boolean tone(String s);    
     public void patternMatches(int index, String s);
     public void countMatches(String s);
 }

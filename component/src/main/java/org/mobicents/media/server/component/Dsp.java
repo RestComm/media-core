@@ -77,7 +77,8 @@ public class Dsp implements Processor {
     		//reset previously used format
     		this.format = null;
     	}
-    }
+    }		
+	
 
     /**
      * (Non Java-doc.)
@@ -149,8 +150,8 @@ public class Dsp implements Processor {
     				return codec.process(frame);
     			} finally {
     				frame.recycle();
-    			}
-    		}
+    			}    			    			    			
+    		}    		
     		
     		//return frame without changes
     		return frame;

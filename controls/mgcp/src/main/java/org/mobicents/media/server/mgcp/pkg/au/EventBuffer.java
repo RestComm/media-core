@@ -109,7 +109,8 @@ public class EventBuffer implements DtmfDetectorListener {
     public void process(DtmfEvent event) {
     	logger.info("Receive " + event.getTone() + " tone");
     	
-    	listener.tone(event.getTone());    		
+    	if(!listener.tone(event.getTone()))
+    		return;
         
     	//process event immediately if collect phase is active
         if (this.isActive) {

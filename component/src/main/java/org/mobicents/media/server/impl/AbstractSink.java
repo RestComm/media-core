@@ -123,7 +123,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             this.initFormats();
             return;
         }
-
+        
         supportedFormats.clean();
         Formats fmts = this.getNativeFormats();
 
@@ -160,7 +160,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
      */
     public void setFormats(Formats formats) throws FormatNotSupportedException {
-        supportedFormats.intersection(formats, this.formats);
+    	supportedFormats.intersection(formats, this.formats);
         if (dsp != null) dsp.setFormats(this.formats);
     }
 
@@ -408,7 +408,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             	if (dsp != null) {
             		try
             		{
-            			frame = dsp.process(frame);
+            			frame = dsp.process(frame);            			
             		}
             		catch(Exception e)
             		{
@@ -418,9 +418,9 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
         	            return 0;
             		} 
             	}
-
-            	stats.txFormat = frame.getFormat();
-            
+            	
+            	stats.txFormat = frame.getFormat();            	
+            	
             	//buffer.offer(frame);
             	long frameDuration = frame.getDuration();
             	overallDelay+=frameDuration;

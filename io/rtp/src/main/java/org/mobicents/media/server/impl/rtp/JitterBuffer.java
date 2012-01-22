@@ -163,22 +163,20 @@ public class JitterBuffer implements Serializable {
      *
      * @param packet the packet to accept
      */
-    public void write(RtpPacket packet) {
-    	//if this is first packet then synchronize clock
-    	if (isn == -1) {
-    		rtpClock.synchronize(packet.getTimestamp());
-    		isn = packet.getSeqNumber();
-    	}
-
+    public void write(RtpPacket packet) {    	
     	//checking format
     	if (this.format == null) {
     		//if format is not known yet assign the format of this packet
     		this.format = rtpFormats.find(packet.getPayloadType());
-    		System.out.println("Format has been changed: " + this.format.toString());
+    		
+    		if(this.format!=null)
+    			System.out.println("Format has been changed: " + this.format.toString());
     	} else if (this.format.getID() != packet.getPayloadType()) {
     		//format has been changed 
     		this.format = rtpFormats.find(packet.getPayloadType());
-    		System.out.println("Format has been changed: " + this.format.toString());
+    		
+    		if(this.format!=null)
+    			System.out.println("Format has been changed: " + this.format.toString());
     	}
 
     	//ignore unknow packet
@@ -187,6 +185,12 @@ public class JitterBuffer implements Serializable {
     		return;
     	}
         
+    	//if this is first packet then synchronize clock
+    	if (isn == -1) {
+    		rtpClock.synchronize(packet.getTimestamp());
+    		isn = packet.getSeqNumber();
+    	}
+    	
     	//update clock rate
     	rtpClock.setClockRate(this.format.getClockRate());            		    		
         

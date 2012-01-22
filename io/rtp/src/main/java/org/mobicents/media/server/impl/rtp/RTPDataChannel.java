@@ -548,6 +548,7 @@ public class RTPDataChannel {
             } catch (Exception e) {
             	//TODO: handle error
             }
+            
             rtpHandler.isReading = false;
             return 0;
         }
@@ -642,7 +643,7 @@ public class RTPDataChannel {
                     	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
                     	txCount++;
                     }
-                } catch (Exception e) { 
+                } catch (Exception e) {                	
                 	//TODO : handle IO problems
                 }
             }

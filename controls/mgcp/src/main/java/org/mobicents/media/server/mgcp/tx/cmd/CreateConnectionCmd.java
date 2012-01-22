@@ -99,12 +99,8 @@ public class CreateConnectionCmd extends Action {
     
     //subtasks
     private EndpointLocator endpointLocator;
-    private SecondEndpointLocator secondEndpointLocator;
     private RtpConnectionCreator rtpCreator;
-    private RtpConnector rtpConnector;
-    private RtpTransmittor rtpTransmittor;
     private LocalConnector localConnector;
-    private LocalTransmittor localTransmittor;
     private Responder responder;
     private ErrorHandle errorHandle;
     
@@ -127,16 +123,12 @@ public class CreateConnectionCmd extends Action {
     public CreateConnectionCmd(Scheduler scheduler) {
         this.scheduler = scheduler;
 
-        handler = new TaskChain(6);
+        handler = new TaskChain(4);
         
         //intialize action's subtasks
         endpointLocator = new EndpointLocator(scheduler);
-        secondEndpointLocator = new SecondEndpointLocator(scheduler);
         rtpCreator = new RtpConnectionCreator(scheduler);
-        rtpConnector = new RtpConnector(scheduler);
-        rtpTransmittor = new RtpTransmittor(scheduler);
         localConnector = new LocalConnector(scheduler);
-        localTransmittor = new LocalTransmittor(scheduler);
         responder = new Responder(scheduler);
         errorHandle = new ErrorHandle(scheduler);
         
@@ -228,16 +220,12 @@ public class CreateConnectionCmd extends Action {
             if (z2 != null) {            	
                 //create two local connections
                 handler.add(endpointLocator);
-                handler.add(secondEndpointLocator);
                 handler.add(localConnector);
-                handler.add(localTransmittor);
                 handler.add(responder);
             } else {            	
                 //create one RTP connection
                 handler.add(endpointLocator);
                 handler.add(rtpCreator);
-                handler.add(rtpConnector);
-                handler.add(rtpTransmittor);
                 handler.add(responder);
             }
             return 0;
@@ -283,51 +271,36 @@ public class CreateConnectionCmd extends Action {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
             }
             
-            return 0;
-        }
-        
-    }
-    
-    private class SecondEndpointLocator extends Task {
-
-        public SecondEndpointLocator(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
-            try {
-                //searching endpoint
-                int n = transaction().find(localName2, endpoints);
-                
-                if (n == 0) {
-                    throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
-                }
-                
-                if(!endpoints[0].getName().equals(localName2.toString()))
-                {
-                	Endpoint endpoint = endpoints[0].getEndpoint();
-                    DtmfDetector detector=(DtmfDetector) endpoint.getResource(MediaType.AUDIO, DtmfDetector.class);
-                    if(detector!=null)
-                    	detector.clearDigits();
-                }
-                
-                //extract found endpoint
-                endpoint2 = endpoints[0];
-            } catch (Exception e) {
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+            Parameter z2 = request.getParameter(Parameter.SECOND_ENDPOINT);
+            if(z2!=null)
+            {
+            	 try {
+                     //searching endpoint
+                     int n = transaction().find(localName2, endpoints);
+                     
+                     if (n == 0) {
+                         throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                     }
+                     
+                     if(!endpoints[0].getName().equals(localName2.toString()))
+                     {
+                     	Endpoint endpoint = endpoints[0].getEndpoint();
+                         DtmfDetector detector=(DtmfDetector) endpoint.getResource(MediaType.AUDIO, DtmfDetector.class);
+                         if(detector!=null)
+                         	detector.clearDigits();
+                     }
+                     
+                     //extract found endpoint
+                     endpoint2 = endpoints[0];
+                 } catch (Exception e) {
+                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                 }
             }
             
             return 0;
-        
         }
         
-    }
+    }   
 
     private class RtpConnectionCreator extends Task {
 
@@ -349,24 +322,6 @@ public class CreateConnectionCmd extends Action {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection" + e.getMessage()));
             }
             
-            return 0;
-        }
-        
-    }
-    
-
-    private class RtpConnector extends Task {
-    	public RtpConnector(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
             if (sdp != null) {
                 try {
                     connections[0].setOtherParty(sdp.getValue());
@@ -374,25 +329,7 @@ public class CreateConnectionCmd extends Action {
                 	throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
                 }
             }
-            return 0;
-        }
-        
-    }
-    
-
-    private class RtpTransmittor extends Task {
-
-        public RtpTransmittor(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
+            
             try {
                 connections[0].setMode(mode.getValue());
             } catch (ModeNotSupportedException e) {
@@ -404,7 +341,7 @@ public class CreateConnectionCmd extends Action {
             return 0;
         }
         
-    }
+    }    
 
     private class LocalConnector extends Task {
 
@@ -442,24 +379,6 @@ public class CreateConnectionCmd extends Action {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, new Text("Mode was not specified"));
             }
             
-            return 0;            
-        }
-        
-    }
-
-    private class LocalTransmittor extends Task {
-
-        public LocalTransmittor(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
             ConnectionMode m = ConnectionMode.valueOf(mode.getValue());
             
             try {
@@ -471,10 +390,11 @@ public class CreateConnectionCmd extends Action {
             
             connections[0].setGain(lcOptions.getGain());
             connections[0].setDtmfClamp(lcOptions.getDtmfClamp());
-            return 0;
+            
+            return 0;            
         }
         
-    }
+    }    
 
     private class Responder extends Task {
 
