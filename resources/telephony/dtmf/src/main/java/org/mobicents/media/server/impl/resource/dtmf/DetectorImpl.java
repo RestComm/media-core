@@ -107,6 +107,9 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     private Scheduler scheduler;
         
     private Logger logger = Logger.getLogger(DetectorImpl.class) ;
+    
+    private String lastTone=null;
+    private Boolean toneSequence=false;
     /**
      * Creates new instance of Detector.
      */
@@ -131,6 +134,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         this.offset = 0;
         this.maxAmpl = 0;
         
+        toneSequence=false;
         this.dtmfBuffer.clear();        
         super.start();
     }
@@ -187,8 +191,19 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
                     String tone = getTone(p, P);
                     
                     if (tone != null)
-                    	dtmfBuffer.push(tone);
-                }                
+                    {                    
+                    	if(!toneSequence || !tone.equals(lastTone))
+                    		dtmfBuffer.push(tone);
+                    	else
+                    		logger.info(String.format("(%s) Tone '%s' detected,but is duplicated,skipping", getName(), tone));
+                    	
+                    	toneSequence=true;
+                    }   
+                    else
+                    	toneSequence=false;
+                }  
+                else
+                	toneSequence=false;
             }
         }
     }

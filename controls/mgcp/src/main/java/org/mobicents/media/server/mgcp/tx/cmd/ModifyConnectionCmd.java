@@ -65,13 +65,11 @@ public class ModifyConnectionCmd extends Action {
     private LocalConnectionOptions lcOptions = new LocalConnectionOptions();
     
     public ModifyConnectionCmd(Scheduler scheduler) {
-        handler = new TaskChain(2);
+        handler = new TaskChain(1);
         
         Modifier modifier = new Modifier(scheduler);
-        Responder responder = new Responder(scheduler);
         
         handler.add(modifier);
-        handler.add(responder);
         
         ErrorHandler errorHandler = new ErrorHandler(scheduler);
         
@@ -147,24 +145,7 @@ public class ModifyConnectionCmd extends Action {
             
             mgcpConnection.setGain(lcOptions.getGain());
             mgcpConnection.setDtmfClamp(lcOptions.getDtmfClamp());
-            return 0;
-        }
-        
-    }
-    
-    private class Responder extends Task {
-
-        public Responder(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
+            
             MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
             MgcpResponse response = (MgcpResponse) evt.getMessage();
             response.setResponseCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED);
@@ -186,8 +167,7 @@ public class ModifyConnectionCmd extends Action {
             
             return 0;
         }
-        
-    }
+    }    
 
     private class ErrorHandler extends Task {
 

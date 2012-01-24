@@ -22,12 +22,15 @@
 
 package org.mobicents.media.server.impl.rtp.rfc2833;
 
+import org.mobicents.media.server.impl.rtp.JitterBuffer;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -38,14 +41,19 @@ public class DtmfConverter {
     private final static AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     private final static double dt = 1.0 / LINEAR_AUDIO.getSampleRate();
     
-    //one second buffer for tones
-    private final static byte[][] buffer = new byte[16][16000];
+    //5 frames tone buffer
+    private final static byte[][] buffer = new byte[16][1600];
+    
+    private ArrayList<RtpPacket> packetsBuffer=new ArrayList(5);
     
     private final static short A = Short.MAX_VALUE / 2;
     private double time = 0;
     
+    byte[] data = new byte[4];
+    byte[] tempData = new byte[4];
+    
     private RtpClock clock;    
-
+    private JitterBuffer jitterBuffer;
     public final static String[] TONE = new String[] {
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#", "A",
         "B", "C", "D"
@@ -63,6 +71,11 @@ public class DtmfConverter {
     
     static {
         init();
+    }
+    
+    public DtmfConverter(JitterBuffer jitterBuffer)
+    {
+    	this.jitterBuffer=jitterBuffer;
     }
     
     //This is the absolute time when last RTP event arrived
@@ -110,47 +123,67 @@ public class DtmfConverter {
         return (short) (A * (Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t)));
     }
     
-    public Frame process(RtpPacket event) {
+    public void push(RtpPacket event) {
     	System.out.println("Converting...");
-        //check is this begining of the tone
-        long now = System.nanoTime();        
-        start = event.getMarker() || (now - timestamp) > 1000000000L;
-        //remember this time
-        timestamp = now;
-        
-        
-        //rewind time parker in case of tone beging 
-        if (start) time = 0;
-        
-        //obtain payload
-        byte[] data = new byte[5];
+    	
+    	//obtain payload        
         event.getPyalod(data, 0);
         
-        //get the total duration of the tone in milliseconds
-        long duration = clock.convertToAbsoluteTime(((data[2] & 0xff) << 8) | (data[3] & 0xff));
-        //get position in buffer and length
-        int offset = (int)(time * 16);
-        int len = (int)((duration - time) * 16);
+        //check that same tone
+        if(data.length==0)
+        	return;
         
-        if (len == 0) {
-            return null;
+        if(packetsBuffer.size()>0)
+        {
+        	packetsBuffer.get(packetsBuffer.size()-1).getPyalod(tempData,0);
+        	if(tempData[0]!=data[0])
+        		//different tone detected
+        		packetsBuffer.clear();
         }
         
-        //allocate memory for the frame
-        Frame frame = Memory.allocate(320);
-        //copy data
-        System.arraycopy(buffer[data[0]], offset, frame.getData(), 0, len);
-
-        //update time
-        time = duration;
-        frame.setOffset(0);
-        frame.setLength(320);
-        frame.setFormat(LINEAR_AUDIO);
-        frame.setHeader(TONE[data[0]]);
-        frame.setDuration(20);
+        //not storing too much data , 100ms(5 frames) is enough for single tone
+        packetsBuffer.add(event);
+        if(packetsBuffer.size()>5)
+        	packetsBuffer.remove(0);
         
+        //check here if its end of event
+        boolean endOfEvent=false;
+        if(data.length>1)
+        	endOfEvent=(data[1] & 0X1)!=0;
+        
+        if(!endOfEvent)
+        	//not time to send event yet
+        	return;
+        
+        //lets send signal inband
         System.out.println("Convert: " + TONE[data[0]]);
-        return frame;        
+            	
+        if(packetsBuffer.size()<3)               
+        {
+        	System.out.println("Tone too short , clearing");
+        	packetsBuffer.clear();
+        	return;
+        }
+        
+        int offset=0;
+        RtpPacket currPacket;
+        while(packetsBuffer.size()>0)
+        {
+        	currPacket=packetsBuffer.remove(0);
+        	//allocate memory for the frame
+        	Frame frame = Memory.allocate(320);
+        	//copy data
+        	System.arraycopy(buffer[data[0]], offset, frame.getData(), 0, 320);
+
+        	//update time
+        	frame.setSequenceNumber(currPacket.getSeqNumber());
+        	frame.setTimestamp(clock.convertToAbsoluteTime(currPacket.getTimestamp()));
+        	frame.setOffset(0);
+        	frame.setLength(320);
+        	frame.setFormat(LINEAR_AUDIO);
+        	frame.setDuration(20);
+        	offset+=320;
+        	jitterBuffer.pushFrame(frame);
+        }               
     }
-    
 }

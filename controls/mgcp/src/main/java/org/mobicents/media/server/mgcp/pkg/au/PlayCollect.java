@@ -438,19 +438,7 @@ public class PlayCollect extends Signal {
         		reset();
         		complete();
         		return true;
-        	}
-        	
-        	if(nextDigitTimer>0)
-        	{
-        		heartbeat.setTtl((int)(nextDigitTimer/100000000L));
-        		if(!heartbeat.isActive())
-        		{
-        			heartbeat.activate();
-        			getEndpoint().getScheduler().submitHeatbeat(heartbeat);        			
-        		}
-        	}
-        	else if(maxDuration==0)
-        		heartbeat.disable();   
+        	}        	        	
         	
         	logger.info(String.format("(%s) Tone '%s' has been detected", getEndpoint().getLocalName(), s));
             if (!options.isNonInterruptable()) {
@@ -469,6 +457,18 @@ public class PlayCollect extends Signal {
                     logger.info(String.format("(%s) Tone '%s' has been detected: collected", getEndpoint().getLocalName(), s));
                 }
             } 
+            
+            if(nextDigitTimer>0)
+        	{
+        		heartbeat.setTtl((int)(nextDigitTimer/100000000L));
+        		if(!heartbeat.isActive())
+        		{
+        			heartbeat.activate();
+        			getEndpoint().getScheduler().submitHeatbeat(heartbeat);        			
+        		}
+        	}
+        	else if(maxDuration==0)
+        		heartbeat.disable();  
             
             return true;
         }

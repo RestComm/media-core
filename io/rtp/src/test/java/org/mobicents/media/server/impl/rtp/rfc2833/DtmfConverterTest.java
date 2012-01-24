@@ -13,6 +13,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.JitterBuffer;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -27,14 +28,22 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class DtmfConverterTest {
     
+	Clock clock = new DefaultClock();
+	private RtpClock rtpClock = new RtpClock(clock);
+
+    private int period = 20;
+    private int jitter = 40;
+
     private DtmfConverter dtmfConverter;
+    private JitterBuffer jitterBuffer;
+
     private RtpPacket[] packets = new RtpPacket[] {
         new RtpPacket(16, false), new RtpPacket(16, false), new RtpPacket(16, false)
     };
     
     private byte[] event1 = new byte[] {0x03, 0x0a, 0x00, (byte)0xa0};
     private byte[] event2 = new byte[] {0x03, 0x0a, 0x01, (byte)0x40};
-    private byte[] event3 = new byte[] {0x03, 0x0a, 0x01, (byte)0xe0};
+    private byte[] event3 = new byte[] {0x03, 0x0b, 0x01, (byte)0xe0};
     
     private final static double dt = 1.0 / 8000;    
     private byte[] tone = new byte[320 * 3];
@@ -56,12 +65,9 @@ public class DtmfConverterTest {
     
     @Before
     public void setUp() {
-        Clock clock = new DefaultClock();
-        
-        RtpClock rtpClock = new RtpClock(clock);
         rtpClock.setClockRate(8000);
-        
-        dtmfConverter = new DtmfConverter();
+        jitterBuffer = new JitterBuffer(rtpClock, jitter);        
+        dtmfConverter = new DtmfConverter(jitterBuffer);
         dtmfConverter.setClock(rtpClock);
         
         packets[0].wrap(true, 101, 1, 160, 1, event1, 0, 4);
@@ -87,21 +93,17 @@ public class DtmfConverterTest {
      */
 //    @Test
     public void testProcess() {
-        Frame frame0 = dtmfConverter.process(packets[0]);
-        Frame frame1 = dtmfConverter.process(packets[1]);
+        dtmfConverter.push(packets[0]);
+        dtmfConverter.push(packets[1]);
         
         long start = System.nanoTime();
-        Frame frame2 = dtmfConverter.process(packets[2]);
+        dtmfConverter.push(packets[2]);
         long finish = System.nanoTime();
         
-        assertTrue(frame0.getHeader() != null);
-        assertTrue(frame1.getHeader() != null);
-        assertTrue(frame2.getHeader() != null);
-
-        assertEquals(20L, frame0.getDuration());
-        assertEquals(20L, frame1.getDuration());
-        assertEquals(20L, frame2.getDuration());
-        
+        Frame frame0 = jitterBuffer.read(0);
+        Frame frame1 = jitterBuffer.read(0); 
+        Frame frame2 = jitterBuffer.read(0);
+        		
         for (int i = 0; i < 320; i++) {
             assertEquals("Pos " + i, tone[i], frame0.getData()[i]);
         }
@@ -121,7 +123,7 @@ public class DtmfConverterTest {
     public void testRepeat() {
         for (int i = 0; i < 10; i++) {
             System.out.println("Test #" + i);
-            this.testProcess();
+            this.testProcess();            
         }
     }
     

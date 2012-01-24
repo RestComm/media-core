@@ -114,7 +114,7 @@ public class JitterBuffer implements Serializable {
     public JitterBuffer(RtpClock clock, int jitter) {
         this.rtpClock = clock;
         this.jitter = rtpClock.convertToRtpTime(jitter);
-        this.dtmfConverter = new DtmfConverter();
+        this.dtmfConverter = new DtmfConverter(this);
         this.dtmfConverter.setClock(clock);
     }
 
@@ -194,13 +194,10 @@ public class JitterBuffer implements Serializable {
     	//update clock rate
     	rtpClock.setClockRate(this.format.getClockRate());            		    		
         
-    	Frame f;
+    	Frame f=null;
     	if (this.format != null && this.format.getFormat().matches(dtmf)) {
-    		f = dtmfConverter.process(packet);
-    		if (f != null) {    			
-    			f.setSequenceNumber(packet.getSeqNumber());
-    			f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
-    		}
+    		dtmfConverter.push(packet);
+    		return;
     	} else {
     		//drop outstanding packets
     		//packet is outstanding if its timestamp of arrived packet is less
@@ -314,6 +311,78 @@ public class JitterBuffer implements Serializable {
     		//releasing semaphore
     		writeSemaphore.release();
     	}
+    }
+    
+    public void pushFrame(Frame f)
+    {
+    	droppedInRaw=0;
+		try
+		{
+			//obtaining semaphore aquire and writing frame to queue
+			writeSemaphore.acquire();
+		}
+		catch(InterruptedException e)
+		{}
+		
+		//find correct position to insert a packet    			
+		int currIndex=queue.size()-1;
+		while (currIndex>=0 && queue.get(currIndex).getSequenceNumber() > f.getSequenceNumber())
+			currIndex--;
+			    		
+		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
+		{
+			//duplicate packet
+			writeSemaphore.release();
+			return;
+		}
+				    			
+		queue.add(currIndex+1, f);
+			
+		//recalculate duration of each frame in queue and overall duration , since we could insert the
+		//frame in the middle of the queue    			
+		duration=0;    			
+		if(queue.size()>1)
+			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();
+		
+		for(int i=0;i<queue.size()-1;i++)
+		{
+			//duration measured by wall clock
+			long d = queue.get(i+1).getTimestamp() - queue.get(i).getTimestamp();
+			//in case of RFC2833 event timestamp remains same
+			if (d > 0)    				
+				queue.get(i).setDuration(d);    					
+			else
+				queue.get(i).setDuration(0);
+		}
+			
+		//if overall duration is negative we have some mess here,try to reset
+		if(duration<0 && queue.size()>1)
+		{
+			writeSemaphore.release();
+			reset();
+			return;
+		}
+			    			
+		//overflow?
+		//only now remove packet if overflow , possibly the same packet we just received
+		if (queue.size()>QUEUE_SIZE) {
+			//System.out.println("Buffer overflow");    			
+			dropCount++;        			
+			queue.remove(0);    				
+		}    		
+			
+		//check if this buffer already full
+		if (!ready) {    			
+			ready = duration >= jitter && queue.size() > 1;
+			if (ready) {    				
+				if (listener != null) {
+					listener.onFill();
+				}
+			}
+		}
+		
+		//releasing semaphore
+		writeSemaphore.release();
     }
 
     /**
