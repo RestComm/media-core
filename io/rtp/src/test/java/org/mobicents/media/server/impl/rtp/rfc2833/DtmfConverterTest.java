@@ -43,7 +43,7 @@ public class DtmfConverterTest {
     
     private byte[] event1 = new byte[] {0x03, 0x0a, 0x00, (byte)0xa0};
     private byte[] event2 = new byte[] {0x03, 0x0a, 0x01, (byte)0x40};
-    private byte[] event3 = new byte[] {0x03, 0x0b, 0x01, (byte)0xe0};
+    private byte[] event3 = new byte[] {0x03, (byte)0x8a, 0x01, (byte)0xe0};
     
     private final static double dt = 1.0 / 8000;    
     private byte[] tone = new byte[320 * 3];

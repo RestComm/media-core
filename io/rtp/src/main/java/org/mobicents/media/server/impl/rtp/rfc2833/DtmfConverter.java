@@ -149,7 +149,7 @@ public class DtmfConverter {
         //check here if its end of event
         boolean endOfEvent=false;
         if(data.length>1)
-        	endOfEvent=(data[1] & 0X1)!=0;
+        	endOfEvent=(data[1] & 0X80)!=0;
         
         if(!endOfEvent)
         	//not time to send event yet
@@ -166,6 +166,7 @@ public class DtmfConverter {
         }
         
         int offset=0;
+        int count=0;
         RtpPacket currPacket;
         while(packetsBuffer.size()>0)
         {
@@ -177,13 +178,14 @@ public class DtmfConverter {
 
         	//update time
         	frame.setSequenceNumber(currPacket.getSeqNumber());
-        	frame.setTimestamp(clock.convertToAbsoluteTime(currPacket.getTimestamp()));
+        	//since rtp packets arrives with same timestamps , need to add small number , otherwise will be discarded by pipe
+        	frame.setTimestamp(clock.convertToAbsoluteTime(currPacket.getTimestamp())+count++);
         	frame.setOffset(0);
         	frame.setLength(320);
         	frame.setFormat(LINEAR_AUDIO);
         	frame.setDuration(20);
         	offset+=320;
-        	jitterBuffer.pushFrame(frame);
+        	jitterBuffer.pushFrame(frame);        	
         }               
     }
 }
