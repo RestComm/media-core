@@ -44,10 +44,12 @@ public class DtmfConverter {
     //5 frames tone buffer
     private final static byte[][] buffer = new byte[16][1600];
     
-    private ArrayList<RtpPacket> packetsBuffer=new ArrayList(5);
+    private ArrayList<Frame> frameBuffer=new ArrayList(5);
+    private Frame currFrame;
     
     private final static short A = Short.MAX_VALUE / 2;
     private double time = 0;
+    private byte currTone=(byte)0xFF;
     
     byte[] data = new byte[4];
     byte[] tempData = new byte[4];
@@ -133,18 +135,42 @@ public class DtmfConverter {
         if(data.length==0)
         	return;
         
-        if(packetsBuffer.size()>0)
+        if(frameBuffer.size()>0)
         {
-        	packetsBuffer.get(packetsBuffer.size()-1).getPyalod(tempData,0);
-        	if(tempData[0]!=data[0])
+        	if(currTone!=data[0])
+        	{
         		//different tone detected
-        		packetsBuffer.clear();
+        		while(frameBuffer.size()>0)
+        		{
+        			currFrame=frameBuffer.remove(0);
+        			currFrame.recycle();
+        		}        		
+        	}
+        	
+        	for(int i=0;i<frameBuffer.size();i++)
+        		if(frameBuffer.get(i).getSequenceNumber()==event.getSeqNumber())
+        			return;        		
         }
         
+        currTone=data[0];        
+        currFrame = Memory.allocate(320);
+    	
+    	//update time
+        currFrame.setSequenceNumber(event.getSeqNumber());
+    	
+        currFrame.setOffset(0);
+        currFrame.setLength(320);
+        currFrame.setFormat(LINEAR_AUDIO);
+        currFrame.setDuration(20);
+    	
         //not storing too much data , 100ms(5 frames) is enough for single tone
-        packetsBuffer.add(event);
-        if(packetsBuffer.size()>5)
-        	packetsBuffer.remove(0);
+    	frameBuffer.add(currFrame);
+    	
+        if(frameBuffer.size()>5)
+        {
+        	currFrame=frameBuffer.remove(0);
+			currFrame.recycle();
+        }
         
         //check here if its end of event
         boolean endOfEvent=false;
@@ -158,34 +184,32 @@ public class DtmfConverter {
         //lets send signal inband
         System.out.println("Convert: " + TONE[data[0]]);
             	
-        if(packetsBuffer.size()<3)               
+        if(frameBuffer.size()<3)               
         {
-        	System.out.println("Tone too short , clearing");
-        	packetsBuffer.clear();
+        	System.out.println("Tone too short , clearing,size:" + frameBuffer.size());
+        	while(frameBuffer.size()>0)
+    		{
+    			currFrame=frameBuffer.remove(0);
+    			currFrame.recycle();
+    		} 
         	return;
         }
         
-        int offset=0;
-        int count=0;
-        RtpPacket currPacket;
-        while(packetsBuffer.size()>0)
+        int offset=0,time=0;
+        while(frameBuffer.size()>0)
         {
-        	currPacket=packetsBuffer.remove(0);
+        	currFrame=frameBuffer.remove(0);
         	//allocate memory for the frame
-        	Frame frame = Memory.allocate(320);
+        	
         	//copy data
-        	System.arraycopy(buffer[data[0]], offset, frame.getData(), 0, 320);
-
-        	//update time
-        	frame.setSequenceNumber(currPacket.getSeqNumber());
-        	//since rtp packets arrives with same timestamps , need to add small number , otherwise will be discarded by pipe
-        	frame.setTimestamp(clock.convertToAbsoluteTime(currPacket.getTimestamp())+count++);
-        	frame.setOffset(0);
-        	frame.setLength(320);
-        	frame.setFormat(LINEAR_AUDIO);
-        	frame.setDuration(20);
+            System.arraycopy(buffer[data[0]], offset, currFrame.getData(), 0, 320);
+            
+            //since rtp packets arrives with same timestamps , need to add small number , otherwise will be discarded by pipe
+            currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp()) + time);
+            
         	offset+=320;
-        	jitterBuffer.pushFrame(frame);        	
-        }               
+        	time+=20;
+        	jitterBuffer.pushFrame(currFrame);        	
+        }
     }
 }
