@@ -46,9 +46,10 @@ public class DtmfConverter {
     
     private ArrayList<Frame> frameBuffer=new ArrayList(5);
     private Frame currFrame;
+    private int toneLength=0;
     
     private final static short A = Short.MAX_VALUE / 2;
-    private double time = 0;
+    private long time = 0;
     private byte currTone=(byte)0xFF;
     
     byte[] data = new byte[4];
@@ -144,6 +145,7 @@ public class DtmfConverter {
         		{
         			currFrame=frameBuffer.remove(0);
         			currFrame.recycle();
+        			toneLength=0;
         		}        		
         	}
         	
@@ -152,6 +154,7 @@ public class DtmfConverter {
         			return;        		
         }
         
+        toneLength++;
         currTone=data[0];        
         currFrame = Memory.allocate(320);
     	
@@ -192,10 +195,13 @@ public class DtmfConverter {
     			currFrame=frameBuffer.remove(0);
     			currFrame.recycle();
     		} 
+        	
+        	toneLength=0;
         	return;
         }
         
-        int offset=0,time=0;
+        int offset=0;
+        time=(toneLength-frameBuffer.size())*20;
         while(frameBuffer.size()>0)
         {
         	currFrame=frameBuffer.remove(0);
@@ -206,10 +212,11 @@ public class DtmfConverter {
             
             //since rtp packets arrives with same timestamps , need to add small number , otherwise will be discarded by pipe
             currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp()) + time);
-            
-        	offset+=320;
-        	time+=20;
-        	jitterBuffer.pushFrame(currFrame);        	
+            offset+=320;
+        	time+=20;        	
+        	jitterBuffer.pushFrame(currFrame);        	        	
         }
+        
+        toneLength=0;
     }
 }
