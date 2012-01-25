@@ -19,7 +19,6 @@ public class AudioFormat extends Format {
 	public static final String ALAW = "alaw"; // strange that this is lower
 	// case and ULAW is not...
 	public static final String G722 = "g722";
-	public static final String SPEEX = "speex";
 	public static final String IMA4 = "ima4";
 	public static final String IMA4_MS = "ima4/ms";
 	public static final String MSADPCM = "msadpcm";

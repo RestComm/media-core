@@ -37,11 +37,6 @@
         </dependency>
         <dependency>
             <groupId>org.mobicents.servers.media.codecs</groupId>
-            <artifactId>speex</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.servers.media.codecs</groupId>
             <artifactId>gsm</artifactId>
             <version>${project.version}</version>
         </dependency>

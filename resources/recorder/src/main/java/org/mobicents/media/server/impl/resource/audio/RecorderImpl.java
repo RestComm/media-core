@@ -46,12 +46,11 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
-import org.xiph.speex.spi.SpeexEncoding;
 
 /**
  * Implements Audio recorder.
  * Audio recorder supports WAV, GSM and speeex media types.
- * Supported formats are: G711(a-law,u-law), Linear PCM,  Speex.
+ * Supported formats are: G711(a-law,u-law), Linear PCM
  * 
  * @author Oleg Kulikov
  * @author amit bhayani
@@ -63,7 +62,6 @@ public class RecorderImpl extends AbstractSink implements Recorder {
     private final static Formats formats = new Formats();
     
     private final static AudioFileFormat.Type GSM = new AudioFileFormat.Type("GSM0610", ".gsm");
-    private final static AudioFileFormat.Type SPEEX = new AudioFileFormat.Type("SPEEX", ".spx");
     
     /** GSM Encoding constant used by Java Sound API */
     private final static Encoding GSM_ENCODING = new Encoding("GSM0610");
@@ -231,8 +229,6 @@ public class RecorderImpl extends AbstractSink implements Recorder {
             return javax.sound.sampled.AudioFormat.Encoding.ALAW;
         } else if (encodingName.equalsIgnoreCase("pcmu")) {
             return javax.sound.sampled.AudioFormat.Encoding.ULAW;
-        } else if (encodingName.equalsIgnoreCase("speex")) {
-            return SpeexEncoding.SPEEX;
         } else if (encodingName.equalsIgnoreCase("gsm")) {
             return GSM_ENCODING;
         } else {
@@ -264,11 +260,7 @@ public class RecorderImpl extends AbstractSink implements Recorder {
                 encoding, sampleRate, sampleSizeInBits, channels, 1, sampleRate, bigEndian);
 
         //assign file type
-        if (encoding == SpeexEncoding.SPEEX) {
-            fileType = SPEEX;
-        } else {
-            fileType = AudioFileFormat.Type.WAVE;
-        }
+        fileType = AudioFileFormat.Type.WAVE;
         
         recorderCache = new RecorderCache();
     }

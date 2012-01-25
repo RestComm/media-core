@@ -47,9 +47,6 @@ public abstract class AVProfile {
 
     public final static RTPAudioFormat G729 = new RTPAudioFormat(18, AudioFormat.G729, 8000, AudioFormat.NOT_SPECIFIED, 1);
     
-    public final static RTPAudioFormat SPEEX = new RTPAudioFormat(97, AudioFormat.SPEEX, 8000, AudioFormat.NOT_SPECIFIED, 1);
-    
-
     public final static RTPAudioFormat DTMF = new RTPAudioFormat(101, "telephone-event", 8000, AudioFormat.NOT_SPECIFIED, AudioFormat.NOT_SPECIFIED);
     
     public final static RTPVideoFormat H261 = new RTPVideoFormat(31, VideoFormat.H261, 90000);
@@ -66,7 +63,6 @@ public abstract class AVProfile {
         audioFormats.put(LPC.getPayloadType(), LPC);       
         audioFormats.put(PCMA.getPayloadType(), PCMA);
         audioFormats.put(G722.getPayloadType(), G722);  
-        audioFormats.put(SPEEX.getPayloadType(), SPEEX);
         audioFormats.put(G729.getPayloadType(), G729);
 
         audioFormats.put(L16_STEREO.getPayloadType(), L16_STEREO);

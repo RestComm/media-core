@@ -72,8 +72,6 @@ public class SdpComparatorTest {
             "t=0 0\n" +
             "m=audio 7078 RTP/AVP 111 110 0 8 101\n" +
             "c=IN IP4 192.168.0.11\n" +
-            "a=rtpmap:111 speex/16000/1\n" +
-            "a=rtpmap:110 speex/8000/1\n" +
             "a=rtpmap:0 PCMU/8000/1\n" +
             "a=rtpmap:8 PCMA/8000/1\n" +
             "a=rtpmap:101 telephone-event/8000/1\n" +

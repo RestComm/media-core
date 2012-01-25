@@ -36,7 +36,6 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.xiph.speex.spi.SpeexEncoding;
 
 /**
  * PlayerImpl is to play audio to hardware
@@ -67,8 +66,6 @@ public class PlayerImpl extends AbstractSink {
             return javax.sound.sampled.AudioFormat.Encoding.ALAW;
         } else if (encodingName.equalsIgnoreCase("pcmu")) {
             return javax.sound.sampled.AudioFormat.Encoding.ULAW;
-        } else if (encodingName.equalsIgnoreCase("speex")) {
-            return SpeexEncoding.SPEEX;
         } else if (encodingName.equalsIgnoreCase("gsm")) {
             return GSM_ENCODING;
         } else {

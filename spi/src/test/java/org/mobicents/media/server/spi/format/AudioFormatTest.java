@@ -85,7 +85,7 @@ public class AudioFormatTest {
         assertEquals("pcmu", f.getName().toString());
 
         //changing source and checking again
-        f.setName(new EncodingName("speex"));
+        f.setName(new EncodingName("gsm"));
         assertEquals("pcma", fc.getName().toString());
     }
 

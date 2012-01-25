@@ -41,7 +41,6 @@ public class AVProfile {
     
     private final static RTPFormat pcmu = new RTPFormat(0, FormatFactory.createAudioFormat("pcmu", 8000, 8, 1), 8000);
     private final static RTPFormat pcma = new RTPFormat(8, FormatFactory.createAudioFormat("pcma", 8000, 8, 1), 8000);
-    private final static RTPFormat speex = new RTPFormat(4, FormatFactory.createAudioFormat("speex", 8000), 8000);
     private final static RTPFormat gsm = new RTPFormat(3, FormatFactory.createAudioFormat("gsm", 8000), 8000);
     private final static RTPFormat g729 = new RTPFormat(18, FormatFactory.createAudioFormat("g729", 8000), 8000);
     private final static RTPFormat dtmf = new RTPFormat(101, telephoneEvent, 8000);
@@ -54,7 +53,6 @@ public class AVProfile {
     static {
         audio.add(pcma);
         audio.add(pcmu);
-        audio.add(speex);
         audio.add(gsm);
         audio.add(g729);
         audio.add(dtmf);

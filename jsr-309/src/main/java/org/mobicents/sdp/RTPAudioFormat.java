@@ -30,7 +30,6 @@ import javax.sdp.SdpFactory;
  * m=audio 8010 RTP/AVP 0 8 97 
  * a=rtpmap:0 PCMU/8000 
  * a=rtpmap:8 PCMA/8000
- * a=rtpmap:97 speex/8000 
  * a=ptime:20 	
  * </pre>
  * 
@@ -39,7 +38,7 @@ import javax.sdp.SdpFactory;
  * 
  * <br/>
  * 
- * here pay-load is 0 for PCMU, 8 for PCMA and 97 for speex
+ * here pay-load is 0 for PCMU, 8 for PCMA
  * 
  */
 public class RTPAudioFormat extends AudioFormat implements RTPFormat {
@@ -82,8 +81,6 @@ public class RTPAudioFormat extends AudioFormat implements RTPFormat {
 			return AVProfile.G723;
 		} else if (encodingName.equals("pcma")) {
 			return AVProfile.PCMA;
-		} else if (encodingName.equals("speex")) {
-			return AVProfile.SPEEX;
 		} else if (encodingName.equals("telephone-event")) {
 			return AVProfile.DTMF;
 		} else if (encodingName.equals("g729")) {
@@ -119,8 +116,6 @@ public class RTPAudioFormat extends AudioFormat implements RTPFormat {
 			return new RTPAudioFormat(p, AudioFormat.G723, clockRate, AudioFormat.NOT_SPECIFIED, chans);
 		} else if (encodingName.equals("pcma")) {
 			return new RTPAudioFormat(p, AudioFormat.ALAW, clockRate, 8, chans);
-		} else if (encodingName.equals("speex")) {
-			return new RTPAudioFormat(p, AudioFormat.SPEEX, clockRate, AudioFormat.NOT_SPECIFIED, chans);
 		} else if (encodingName.equals("telephone-event")) {
 			return new RTPAudioFormat(p, "telephone-event", clockRate, AudioFormat.NOT_SPECIFIED,
 					AudioFormat.NOT_SPECIFIED);

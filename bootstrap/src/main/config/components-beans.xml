@@ -23,10 +23,6 @@
 		class="org.mobicents.media.server.impl.dsp.audio.g711.alaw.EncoderFactory" />
     <bean name="G711.alaw.decoder"
 		class="org.mobicents.media.server.impl.dsp.audio.g711.alaw.DecoderFactory" />
-    <bean name="Speex.encoder"
-		class="org.mobicents.media.server.impl.dsp.audio.speex.EncoderFactory" />
-    <bean name="Speex.decoder"
-		class="org.mobicents.media.server.impl.dsp.audio.speex.DecoderFactory" />
     <bean name="G729.encoder"
 		class="org.mobicents.media.server.impl.dsp.audio.g729.EncoderFactory" />
     <bean name="G729.decoder"

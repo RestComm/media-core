@@ -127,8 +127,6 @@ public class DtmfConverter {
     }
     
     public void push(RtpPacket event) {
-    	System.out.println("Converting...");
-    	
     	//obtain payload        
         event.getPyalod(data, 0);
         
@@ -184,12 +182,8 @@ public class DtmfConverter {
         	//not time to send event yet
         	return;
         
-        //lets send signal inband
-        System.out.println("Convert: " + TONE[data[0]]);
-            	
         if(frameBuffer.size()<3)               
         {
-        	System.out.println("Tone too short , clearing,size:" + frameBuffer.size());
         	while(frameBuffer.size()>0)
     		{
     			currFrame=frameBuffer.remove(0);
@@ -200,6 +194,9 @@ public class DtmfConverter {
         	return;
         }
         
+        //lets send signal inband
+        System.out.println("Convert: " + TONE[data[0]]);
+            	
         int offset=0;
         time=(toneLength-frameBuffer.size())*20;
         while(frameBuffer.size()>0)
@@ -213,7 +210,8 @@ public class DtmfConverter {
             //since rtp packets arrives with same timestamps , need to add small number , otherwise will be discarded by pipe
             currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp()) + time);
             offset+=320;
-        	time+=20;        	
+        	time+=20;        
+        	System.out.println("PUSHING FRAME:" + currFrame.getSequenceNumber() + ",WITH TIME:" + currFrame.getTimestamp() + " TO JITTER BUFFER");
         	jitterBuffer.pushFrame(currFrame);        	        	
         }
         

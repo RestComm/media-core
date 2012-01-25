@@ -61,9 +61,6 @@ public class AudioFormatParser implements FormatParser {
         } else if (encoding.equalsIgnoreCase("pcma")) {
             formats[index] = new AudioFormat(AudioFormat.ALAW, clockRate, 8, channels);
             payloads[index] = payload;
-        } else if (encoding.equalsIgnoreCase("speex")) {
-            formats[index] = new AudioFormat(AudioFormat.SPEEX, clockRate, AudioFormat.NOT_SPECIFIED, channels);
-            payloads[index] = payload;
         } else if (encoding.equalsIgnoreCase("telephone-event")) {
             formats[index] = new AudioFormat("telephone-event", clockRate, AudioFormat.NOT_SPECIFIED, AudioFormat.NOT_SPECIFIED);
             payloads[index] = payload;
