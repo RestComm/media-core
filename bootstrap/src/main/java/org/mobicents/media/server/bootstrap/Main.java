@@ -48,9 +48,9 @@ import org.jboss.util.StringPropertyReplacer;
 public class Main {
 
     private final static String HOME_DIR = "MMS_HOME";
-    private final static String BOOT_URL = "/config/bootstrap-beans.xml";
-    private final static String LOG4J_URL = "/config/log4j.properties";
-    private final static String LOG4J_URL_XML = "/config/log4j.xml";
+    private final static String BOOT_URL = "/conf/bootstrap-beans.xml";
+    private final static String LOG4J_URL = "/conf/log4j.properties";
+    private final static String LOG4J_URL_XML = "/conf/log4j.xml";
     public static final String MMS_HOME = "mms.home.dir";
     public static final String MMS_MEDIA = "mms.media.dir";
     public static final String MMS_BIND_ADDRESS = "mms.bind.address";
