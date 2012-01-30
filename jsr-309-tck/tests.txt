@@ -1,4 +1,0 @@
-2_1_6
-./launch-TCK.sh mandatory.functional.mixer.MixerJoinTest
-2_1_8
-./launch-TCK.sh mandatory.functional.mixer.MixerAdapterTest

@@ -88,8 +88,7 @@ public class Connections {
     /**
      * active local channels
      */
-    protected AtomicInteger lastChannelId=new AtomicInteger(1);
-    protected ConcurrentHashMap<Integer,LocalChannel> localChannels = new ConcurrentHashMap();
+    protected ConcurrentHashMap<String,LocalChannel> localChannels = new ConcurrentHashMap();
 
     //intermediate audio and video formats.
     private Formats audioFormats = new Formats();
@@ -182,6 +181,8 @@ public class Connections {
        			rtpConnections.add(connection);       			
        			break;
     	}
+    	
+    	removeFromConference(connection);
     }
 
     /**
@@ -243,8 +244,11 @@ public class Connections {
      * Closes all activities connections.
      */
     public void release() {
+    	BaseConnection currConnection;
         for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-        	activeConnections.remove(e.nextElement()).close();
+        	currConnection=activeConnections.remove(e.nextElement());
+        	currConnection.close();
+        	removeFromConference(currConnection);
         }        
     }
 
@@ -360,24 +364,38 @@ public class Connections {
     	}    	
     }
 
+    protected String getChannelId(BaseConnection c1,BaseConnection c2)
+    {
+    	if(c1==null || c2==null)
+    		return null;
+    	
+    	Integer val1=Integer.parseInt(c1.getId());
+    	Integer val2=Integer.parseInt(c2.getId());
+    	if(val1>val2)
+    		return c1.getId() + ":" + c2.getId();
+    	
+    	return c2.getId() + ":" + c1.getId();
+    }
+    
     protected void addToConference(BaseConnection connection) {
-    	String key;
+    	BaseConnection c;   
+    	LocalChannel channel,channel2;
     	for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-    		key=e.nextElement();
-    		BaseConnection c=activeConnections.get(key);
-    		if (c!=null && c.getMode(MediaType.AUDIO) == ConnectionMode.CONFERENCE && connection != c) {
-            	Integer Id=lastChannelId.getAndIncrement();
-                LocalChannel channel = new LocalChannel(Id);
-                channel.join(connection, c);
-                localChannels.put(Id,channel);            
-            }
-        }
+    		String key=e.nextElement();
+    		c=activeConnections.get(key);
+    		if (c!=null && c.getMode(MediaType.AUDIO) == ConnectionMode.CONFERENCE  && c!=connection) {
+    			channel = new LocalChannel();
+    			channel2=localChannels.putIfAbsent(getChannelId(c,connection),channel);
+    			if(channel2==null)
+    				channel.join(c, connection);           
+    		}
+        }    	    	
     }
     
     protected void updateConnectionChannels(BaseConnection connection) {
-    	Integer key;
+    	String key;
     	LocalChannel channel;
-    	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
+    	for(Enumeration<String> e = localChannels.keys() ; e.hasMoreElements() ;) {
     		key=e.nextElement();
     		channel=localChannels.get(key);
     		if(channel!=null && channel.match(connection))
@@ -388,12 +406,12 @@ public class Connections {
     protected void removeFromConference(BaseConnection connection) {
     	//should remove all channells and not only one
         LocalChannel channel;        
-        Integer key;
-    	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
+        String key;
+        for(Enumeration<String> e = localChannels.keys() ; e.hasMoreElements() ;) {
     		key=e.nextElement();
     		channel=localChannels.get(key);
     		if(channel.match(connection)) {
-    			localChannels.remove(channel);
+    			localChannels.remove(key);
     			channel.unjoin();    		
     		}
     	}
@@ -820,21 +838,14 @@ public class Connections {
      * Channel for joining connections in CNF mode.
      */
     protected class LocalChannel {
-    	private Integer id;
-        private Party party1 = new Party();
+    	private Party party1 = new Party();
         private Party party2 = new Party();
 
         private PipeImpl audioRxPipe = new PipeImpl();
         private PipeImpl audioTxPipe = new PipeImpl();
         
-        public LocalChannel(Integer id)
-        {
-        	this.id=id;
-        }
-        
-        public Integer getId()
-        {
-        	return this.id;
+        public LocalChannel()
+        {        	
         }
         
         //should be opposite since connecting inside endpoint and not to outside

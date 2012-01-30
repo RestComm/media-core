@@ -44,7 +44,9 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  * @author kulikov
  */
 public class Controller implements MgcpListener, ServerManager {
-    
+
+	private final static String HOME_DIR = "MMS_HOME";
+	
     private final Logger logger = Logger.getLogger("MGCP");
     
     //network interface
@@ -131,12 +133,12 @@ public class Controller implements MgcpListener, ServerManager {
      */
     public void setConfiguration(String url) throws Exception {
         try {
-            if (url != null) {
+            if (url != null) {            	
                 //getting the full path to the configuration file
-                String home = System.getenv("MMS_HOME");
-        
+            	String home = getHomeDir();
+                
                 if (home == null) {
-                    throw new IOException("MMS_HOME not set");
+                	throw new IOException(HOME_DIR + " not set");
                 }
         
                 String path = home + "/conf/" + url;        
@@ -147,6 +149,21 @@ public class Controller implements MgcpListener, ServerManager {
             logger.error("Could not configure MGCP controller", e);
             throw e;
         }
+    }
+    
+    /**
+    * Gets the Media Server Home directory.
+    * 
+    * @TODO This method duplicates the logic in org.mobicents.media.server.bootstrap.Main
+    * 
+    * @return the path to the home directory.
+    */
+    private static String getHomeDir() {
+    	String mmsHomeDir = System.getProperty(HOME_DIR);
+    	if (mmsHomeDir == null) {
+    		mmsHomeDir = System.getenv(HOME_DIR);
+    	};
+    	return mmsHomeDir;
     }
     
     /**

@@ -39,6 +39,7 @@ import org.mobicents.media.server.utils.Text;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -74,6 +75,7 @@ public class PlayCollect extends Signal {
     private DtmfHandler dtmfHandler;
     
     private volatile boolean isPromptActive;
+    private Iterator<Text> prompt;
     
     private final static Logger logger = Logger.getLogger(PlayCollect.class);
     
@@ -83,6 +85,7 @@ public class PlayCollect extends Signal {
     private int numberOfAttempts=1;
     
     private Heartbeat heartbeat;
+    private int segCount = 0;
     
     public PlayCollect(String name) {
         super(name);
@@ -102,7 +105,7 @@ public class PlayCollect extends Signal {
     		this.complete();
     		return;
     	}
-    	
+    	segCount = 0;
     	heartbeat=new Heartbeat(getEndpoint().getScheduler(),this);
     	
         //get options of the request
@@ -162,9 +165,11 @@ public class PlayCollect extends Signal {
         try {
             //assign listener
             player.addListener(promptHandler);
+            prompt = options.getPrompt().iterator();
+            player.setURL(prompt.next().toString());
             
             //specify URL to play
-            player.setURL(options.getPrompt().toString());
+            //player.setURL(options.getPrompt().toString());
             
             //start playback
             player.start();
@@ -179,6 +184,12 @@ public class PlayCollect extends Signal {
      * Terminates prompt phase if it was started or do nothing otherwise.
      */
     private void terminatePrompt() {
+    	//jump to end of segments
+        if (prompt != null) {
+            while (prompt.hasNext()) {
+                prompt.next();
+            }
+        }
         if (player != null) {
             player.stop();
             player.removeListener(promptHandler);
@@ -340,6 +351,20 @@ public class PlayCollect extends Signal {
         of.reset();
     }
 
+    private void next(long delay) {
+    	segCount++;
+        try {
+        	String url = prompt.next().toString(); 
+        	logger.info(String.format("(%s) Processing player next with url - %s", getEndpoint().getLocalName(), url));
+            player.setURL(url);
+            player.setInitialDelay(delay * 1000000L);
+            //start playback
+            player.start();
+        } catch (Exception e) {
+            of.fire(this, new Text(e.getMessage()));
+        }
+    }
+    
     /**
      * Handler for prompt phase.
      */
@@ -359,9 +384,15 @@ public class PlayCollect extends Signal {
         public void process(PlayerEvent event) {
             switch (event.getID()) {
                 case PlayerEvent.START :
-                    flushBuffer();
+                	if (segCount == 0) {
+                		flushBuffer();
+                	}
                     break;
                 case PlayerEvent.STOP :
+                	if (prompt.hasNext()) {
+                        next(options.getInterval());
+                        return;
+                    }                	
                     //start collect phase when prompted has finished
                     if (isPromptActive) {
                         isPromptActive = false;

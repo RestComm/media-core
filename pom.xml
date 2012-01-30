@@ -3,15 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
-    <parent>
-        <groupId>org.mobicents</groupId>
-        <artifactId>mobicents</artifactId>
-        <version>1.25</version>
-    </parent>
-
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>2.2.0.CR1</version>
+    <version>2.2.0.CR2</version>
 
     <name>Mobicents Media Server</name>
 
@@ -24,10 +18,9 @@
         <mobicents.tools.mavenplugin.eclipse.version>
 			1.0.0.BETA2
         </mobicents.tools.mavenplugin.eclipse.version>
-
-        <version.jboss.jbossas>5.0.1.GA</version.jboss.jbossas>
+	<version.jboss.jbossas>5.0.1.GA</version.jboss.jbossas>
         <version.jboss.microcontainer>
-			2.2.0.M2
+                        2.2.0.M2
         </version.jboss.microcontainer>
         <version.junit>4.4</version.junit>
         <version.javassist>3.9.0.GA</version.javassist>
@@ -63,33 +56,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.sip</groupId>
-            <artifactId>jain-sip-ri</artifactId>
-            <version>1.2.139</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-dependency</artifactId>
-            <version>${version.jboss.microcontainer}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${version.concurrent}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-kernel</artifactId>
-            <version>${version.jboss.microcontainer}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-aop-mc-int</artifactId>
-            <version>${version.jboss.microcontainer}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -109,18 +78,11 @@
             <artifactId>javolution</artifactId>
             <version>5.5.1</version>
         </dependency>
-        <dependency>
+	<dependency>
             <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-kernel</artifactId>
-            <version>${version.jboss.microcontainer}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.microcontainer</groupId>
-            <artifactId>jboss-aop-mc-int</artifactId>
-            <version>${version.jboss.microcontainer}</version>
-            <scope>provided</scope>
-        </dependency>
+            <artifactId>jboss-dependency</artifactId>
+            <version>2.0.6.GA</version>
+        </dependency>        
     </dependencies>
 
 
@@ -294,4 +256,12 @@
         </pluginRepository>
     </pluginRepositories>
 
+	<url>http://code.google.com/p/mediaserver/</url>
+	<organization>
+		<name>TeleStax, Inc.</name>
+	 	<url>http://www.telestax.com</url>
+	</organization>
+	<issueManagement>
+		<url>http://code.google.com/p/mediaserver/issues/list</url>
+	</issueManagement>
 </project>

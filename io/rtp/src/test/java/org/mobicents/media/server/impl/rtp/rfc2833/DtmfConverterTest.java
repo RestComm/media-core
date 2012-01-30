@@ -72,16 +72,7 @@ public class DtmfConverterTest {
         
         packets[0].wrap(true, 101, 1, 160, 1, event1, 0, 4);
         packets[1].wrap(false, 101, 2, 160, 1, event2, 0, 4);
-        packets[2].wrap(false, 101, 3, 160, 1, event3, 0, 4);
-        
-        int k = 0;
-        double t = 0;
-        for (int i = 0; i < tone.length / 2; i++) {
-            short v = (short) (A * (Math.sin(2 * Math.PI * f1 * t) + Math.sin(2 * Math.PI * f2 * t)));
-            tone[k++] = (byte)v;
-            tone[k++] = (byte)(v >> 8);
-            t += dt;
-        }
+        packets[2].wrap(false, 101, 3, 160, 1, event3, 0, 4);        
     }
     
     @After
@@ -105,15 +96,15 @@ public class DtmfConverterTest {
         Frame frame2 = jitterBuffer.read(0);
         		
         for (int i = 0; i < 320; i++) {
-            assertEquals("Pos " + i, tone[i], frame0.getData()[i]);
+            assertEquals("Pos " + i, DtmfTonesData.buffer[3][i], frame0.getData()[i]);
         }
         
         for (int i = 0; i < 320; i++) {
-            assertEquals("Pos " + i, tone[i + 320], frame1.getData()[i]);
+            assertEquals("Pos " + i, DtmfTonesData.buffer[3][i + 320], frame1.getData()[i]);
         }
         
         for (int i = 0; i < 320; i++) {
-            assertEquals("Pos " + i, tone[i + 640], frame2.getData()[i]);
+            assertEquals("Pos " + i, DtmfTonesData.buffer[3][i + 640], frame2.getData()[i]);
         }
         
         System.out.println("Conversation duration=" + (finish - start));

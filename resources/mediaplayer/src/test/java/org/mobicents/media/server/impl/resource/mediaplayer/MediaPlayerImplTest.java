@@ -32,10 +32,12 @@ import static org.junit.Assert.*;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.resource.Player;
+import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 
+import org.mobicents.media.server.impl.PipeImpl;
 /**
  *
  * @author kulikov
@@ -95,5 +97,4 @@ public class MediaPlayerImplTest {
 //        Player player = (Player) mediaPlayer.getMediaSource(MediaType.VIDEO);
 //        assertTrue("AudioPlayerImpl expected", player instanceof VideoPlayerImpl);
 //    }
-
 }

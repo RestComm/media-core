@@ -452,9 +452,9 @@ public class AudioMixer implements Mixer {
         	//recycle received frames
         	for (int i = 0; i < count; i++) {
         		//we are generating new frames , why should we send old headers????
-        		/*if (frames[i].getHeader() != null) {
-        			frame.setHeader(frames[i].getHeader());
-        		}*/
+        		//if (frames[i].getHeader() != null) {
+        			//frame.setHeader(frames[i].getHeader());
+        		//}
         		frames[i].recycle();                
         	}
         	
@@ -469,8 +469,8 @@ public class AudioMixer implements Mixer {
             scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             output.wakeup();
 
-            mixCount++;
-
+            mixCount++;            
+            
             return 0;
             } catch (Exception e) {
                 e.printStackTrace();

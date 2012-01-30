@@ -70,9 +70,12 @@ public class Main {
         System.setProperty(LINKSET_PERSIST_DIR_KEY, homeDir + File.separator + "ss7" );
         
         if (!initLOG4JProperties(homeDir) && !initLOG4JXml(homeDir)) {
-            logger.error("Failed to initialize loggin, no configuration. Defaults are used.");
+        	System.err.println("Could not find configuration file for log4j. Defaults will be used.");
         }
-
+        else {
+        	logger.info("log4j initialized from a configuration file.");        
+        }
+        
         logger.info("log4j configured");
 
         URL bootURL = getBootURL(args);
@@ -140,7 +143,7 @@ public class Main {
     }
 
     private static boolean initLOG4JProperties(String homeDir) {
-        String Log4jURL = homeDir + LOG4J_URL;
+        final String Log4jURL = homeDir + LOG4J_URL;
 
         try {
             URL log4jurl = getURL(Log4jURL);
@@ -154,9 +157,12 @@ public class Main {
             }
         } catch (Exception e) {
             // e.printStackTrace();
-            logger.info("Failed to initialize LOG4J with properties file.");
+        	// Since log4j is not initialized yet, we can't rely on it for logging yet
+            //logger.info("Failed to initialize LOG4J with properties file.");
             return false;
         }
+        
+        logger.debug("LOG4J initialized with properties file: " + Log4jURL);
         return true;
     }
 
@@ -167,8 +173,9 @@ public class Main {
             URL log4jurl = getURL(Log4jURL);
             DOMConfigurator.configure(log4jurl);
         } catch (Exception e) {
+        	// Since log4j is not initialized yet, we can't rely on it for logging yet
             // e.printStackTrace();
-            logger.info("Failed to initialize LOG4J with xml file.");
+            //logger.info("Failed to initialize LOG4J with xml file.");
             return false;
         }
         return true;
@@ -182,15 +189,18 @@ public class Main {
      * @return the path to the home directory.
      */
     private static String getHomeDir(String args[]) {
-        if (System.getenv(HOME_DIR) == null) {
-            if (args.length > index) {
-                return args[index++];
-            } else {
-                return ".";
-            }
-        } else {
-            return System.getenv(HOME_DIR);
-        }
+    	String mmsHomeDir = System.getProperty(HOME_DIR);
+    	if (mmsHomeDir == null) {
+    		mmsHomeDir = System.getenv(HOME_DIR);
+    		if (mmsHomeDir == null) {
+    			if (args.length > index) {
+    				mmsHomeDir = args[index++];
+    			} else {
+    				mmsHomeDir = ".";
+    			}
+    		}
+    	}
+    	return mmsHomeDir;        
     }
 
     /**
@@ -230,12 +240,12 @@ public class Main {
         }
     }
 
-    public static URL getURL(String url) throws Exception {
+    public static URL getURL(String filePath) throws Exception {
         // replace ${} inputs
-        url = StringPropertyReplacer.replaceProperties(url, System.getProperties());
-        File file = new File(url);
+    	filePath = StringPropertyReplacer.replaceProperties(filePath, System.getProperties());
+    	File file = new File(filePath);
         if (file.exists() == false) {
-            throw new IllegalArgumentException("No such file: " + url);
+            throw new IllegalArgumentException("No such file: " + filePath);
         }
         return file.toURI().toURL();
     }

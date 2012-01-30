@@ -94,7 +94,12 @@ public class DtmfBuffer implements Serializable {
             lastSymbol = symbol;
             
             detector.fireEvent(symbol);
-        }
+        }        
+    }
+    
+    public void updateTime()
+    {
+    	lastActivity= System.currentTimeMillis();
     }
     
     /**

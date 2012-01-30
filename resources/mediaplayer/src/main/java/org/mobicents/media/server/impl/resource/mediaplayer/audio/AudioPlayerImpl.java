@@ -109,8 +109,8 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         // creating required extension
         try {
             //check scheme, if its file, we should try to create dirs
-            if (ext.matches(Extension.WAV)) {
-                track = new WavTrackImpl(targetURL);
+            if (ext.matches(Extension.WAV)) {       
+            	track = new WavTrackImpl(targetURL);            	
             } else if (ext.matches(Extension.GSM)) {
                 track = new GsmTrackImpl(targetURL);
             } else if (ext.matches(Extension.TXT)) {

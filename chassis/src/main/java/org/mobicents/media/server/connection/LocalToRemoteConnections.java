@@ -66,30 +66,32 @@ public class LocalToRemoteConnections extends Connections {
     String key;
     //connecting only local connections to remote and vise versa
     protected void addToConference(BaseConnection connection) {
+    	BaseConnection c;
+    	LocalChannel channel,channel2;
     	if(connection instanceof LocalConnectionImpl)
     	{
     		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
     			key=e.nextElement();
-        		BaseConnection c=activeConnections.get(key);        
-                if (c!=null && c instanceof RtpConnectionImpl && connection != c) {
-                	Integer Id=lastChannelId.getAndIncrement();
-                    LocalChannel channel = new LocalChannel(Id);
-                    channel.join(c, connection);
-                    localChannels.put(Id,channel);                
-                }
+        		c=activeConnections.get(key);        
+        		if (c!=null && c instanceof RtpConnectionImpl && connection != c) {
+        			channel = new LocalChannel();
+        			channel2=localChannels.putIfAbsent(getChannelId(c,connection),channel);
+        			if(channel2==null)
+        				channel.join(c, connection);        			
+        		}
             }
     	}
     	else
     	{
     		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
     			key=e.nextElement();
-        		BaseConnection c=activeConnections.get(key);        
-                if (c!=null && c instanceof LocalConnectionImpl && connection != c) {
-                	Integer Id=lastChannelId.getAndIncrement();
-                    LocalChannel channel = new LocalChannel(Id);
-                    channel.join(connection, c);
-                    localChannels.put(Id,channel);             
-                }
+        		c=activeConnections.get(key);
+        		if (c!=null && c instanceof LocalConnectionImpl && connection != c) {
+        			channel = new LocalChannel();
+        			channel2=localChannels.putIfAbsent(getChannelId(c,connection),channel);
+        			if(channel2==null)
+        				channel.join(c, connection);         
+        		}        		
             }
     	}    	
     }   

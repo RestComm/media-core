@@ -202,7 +202,7 @@ public class NotificationRequestCmd extends Action {
 
         @Override
         public long perform() {
-        	endpoint.getRequest().execute();
+        	endpoint.getRequest().execute();        	
         	return 0;
         }
         

@@ -4,14 +4,14 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.mobicents.media.io</groupId>
-        <artifactId>io</artifactId>
+        <groupId>org.mobicents.servers.media.codecs</groupId>
+        <artifactId>codecs</artifactId>
         <version>2.2.0.CR2</version>
     </parent>
 
-    <groupId>org.mobicents.media.io</groupId>
-    <artifactId>local</artifactId>
-    <name>Local</name>
+    <groupId>org.mobicents.servers.media.codecs</groupId>
+    <artifactId>l16</artifactId>
+    <name>L16</name>
     
     <dependencies>
         <dependency>
@@ -26,13 +26,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mobicents-localbus-${project.version}</finalName>
+        <finalName>mobicents-gsm-${project.version}</finalName>
     </build>
 
 </project>

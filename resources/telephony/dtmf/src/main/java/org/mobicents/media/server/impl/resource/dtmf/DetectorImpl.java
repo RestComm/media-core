@@ -177,6 +177,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
                 }
                 signal[offset++] = s;
             }
+            
             //if dtmf buffer full check signal
             if (offset == N) {
             	offset = 0;
@@ -191,20 +192,24 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
                     String tone = getTone(p, P);
                     
                     if (tone != null)
-                    {                    
+                    {            
                     	if(!toneSequence || !tone.equals(lastTone))
                     		dtmfBuffer.push(tone);
                     	else
+                    	{
+                    		dtmfBuffer.updateTime();
                     		logger.info(String.format("(%s) Tone '%s' detected,but is duplicated,skipping", getName(), tone));
+                    	}
                     	
+                    	lastTone=tone;
                     	toneSequence=true;
-                    }   
+                    }
                     else
-                    	toneSequence=false;
+                    	toneSequence=false;                    
                 }  
                 else
-                	toneSequence=false;
-            }
+                	toneSequence=false;                
+            }            
         }
     }
 

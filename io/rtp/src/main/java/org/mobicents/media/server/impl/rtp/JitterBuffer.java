@@ -342,27 +342,8 @@ public class JitterBuffer implements Serializable {
 		//frame in the middle of the queue    			
 		duration=0;    			
 		if(queue.size()>1)
-			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();
-		
-		for(int i=0;i<queue.size()-1;i++)
-		{
-			//duration measured by wall clock
-			long d = queue.get(i+1).getTimestamp() - queue.get(i).getTimestamp();
-			//in case of RFC2833 event timestamp remains same
-			if (d > 0)    				
-				queue.get(i).setDuration(d);    					
-			else
-				queue.get(i).setDuration(0);
-		}
+			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();				
 			
-		//if overall duration is negative we have some mess here,try to reset
-		if(duration<0 && queue.size()>1)
-		{
-			writeSemaphore.release();
-			reset();
-			return;
-		}
-			    			
 		//overflow?
 		//only now remove packet if overflow , possibly the same packet we just received
 		if (queue.size()>QUEUE_SIZE) {

@@ -643,7 +643,7 @@ public class RTPDataChannel {
                     	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
                     	txCount++;
                     }
-                } catch (Exception e) {                	
+                } catch (Exception e) {    
                 	//TODO : handle IO problems
                 }
             }
@@ -651,7 +651,6 @@ public class RTPDataChannel {
             output.isWritable = true;
             return 0;
         }
-
     }
 
     private class HeartBeat extends Task {
