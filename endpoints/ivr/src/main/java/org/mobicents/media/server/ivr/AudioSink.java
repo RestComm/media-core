@@ -23,7 +23,6 @@ package org.mobicents.media.server.ivr;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.Component;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
@@ -33,10 +32,8 @@ import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -45,11 +42,8 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class AudioSink extends AbstractSink {
 
-    private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
-    private final static Formats formats = new Formats();
-    
     //local buffer
-    private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
     
     private SignalSplitter signalSplitter;
     private ArrayList<Component> components = new ArrayList();
@@ -57,10 +51,6 @@ public class AudioSink extends AbstractSink {
     //build-in dtmf detector and pipe for connection
     private DetectorImpl dtmfDetector;
     private PipeImpl dtmfPipe;
-    
-    static {
-        formats.add(LINEAR);
-    }
     
     /**
      * Creates new audio announcement source.
@@ -109,11 +99,6 @@ public class AudioSink extends AbstractSink {
     }
         
     @Override
-    public Formats getNativeFormats() {
-        return formats;
-    }
-
-    @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         buffer.offer(frame);
         signalSplitter.wakeup();
@@ -149,12 +134,7 @@ public class AudioSink extends AbstractSink {
         public void stop() {
             audioSplitter.getInput().stop();
             super.stop();
-        }
-        
-        @Override
-        public Formats getNativeFormats() {
-            return formats;
-        }
+        }                
         
         public void add(MediaSink detector) {
             MediaSource source = audioSplitter.newOutput();

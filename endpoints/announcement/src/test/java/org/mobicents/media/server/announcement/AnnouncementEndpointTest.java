@@ -50,6 +50,8 @@ public class AnnouncementEndpointTest {
     
     @Before
     public void setUp() throws ResourceUnavailableException, IOException {
+    	try
+    	{
         clock = new DefaultClock();
         
         scheduler = new Scheduler();
@@ -72,6 +74,11 @@ public class AnnouncementEndpointTest {
         aap.setRtpManager(rtpManager);
         aap.setDspFactory(dspFactory);
         aap.start();
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
     }
     
     @After
@@ -89,10 +96,17 @@ public class AnnouncementEndpointTest {
      */
     @Test
     public void testRTPConnection() throws Exception {
+    	try
+    	{
         Connection connection = aap.createConnection(ConnectionType.RTP);
         assertTrue("Connection should not be null", connection != null);
         
         System.out.println(connection.getDescriptor());
+    	}
+        catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
     }
 
     @Test

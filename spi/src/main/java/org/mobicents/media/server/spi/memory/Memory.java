@@ -23,28 +23,27 @@
 package org.mobicents.media.server.spi.memory;
 
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.IntConcurrentHashMap;
 import org.mobicents.media.server.scheduler.DefaultClock;
 
-import java.util.concurrent.ConcurrentHashMap;
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class Memory {
     public static Clock clock = new DefaultClock();
     
-    private static ConcurrentHashMap<Integer,Partition> partitions = new ConcurrentHashMap(20);
-    private static int sCount;
-
+    private static IntConcurrentHashMap<Partition> partitions = new IntConcurrentHashMap();
+    
     public static Frame allocate(int size) {
     	Partition currPartition=partitions.get(size);
     	if(currPartition==null)
     	{
-    		partitions.putIfAbsent(size,new Partition(size));
-    		currPartition=partitions.get(size);
+    		currPartition=new Partition(size);
+    		if(!partitions.add(currPartition,size))
+    			currPartition=partitions.get(size);
     	}
     	
     	return currPartition.allocate();
     }
-
 }

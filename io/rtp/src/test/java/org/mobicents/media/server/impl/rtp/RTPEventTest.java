@@ -116,18 +116,11 @@ public class RTPEventTest implements DtmfDetectorListener {
         rtpManager = new RTPManager(udpManager);
         rtpManager.setBindAddress("127.0.0.1");
         rtpManager.setScheduler(scheduler);
-
-        
-//        analyzer = new SpectraAnalyzer("analyzer", scheduler);
-//        analyzer.setDsp(dsp12);
-//        analyzer.setFormats(dstFormats);
         
         detector = new DetectorImpl("dtmf", scheduler);
         detector.setVolume(-35);
         detector.setDuration(40);
         detector.addListener(this);
-        detector.setDsp(dsp11);
-        detector.setFormats(dstFormats);
         
         channel = rtpManager.getChannel();
         channel.bind();
@@ -135,6 +128,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         sender = new Sender(channel.getLocalPort());
         
         channel.setPeer(new InetSocketAddress("127.0.0.1", 9200));
+        channel.getInput().setDsp(dsp11);
         channel.setFormatMap(AVProfile.audio);
 
         txPipe = new PipeImpl();

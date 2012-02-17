@@ -133,11 +133,6 @@ public class BaseConnectionTest implements ConnectionListener {
     public void testGetEndpoint() {
         assertEquals(endpoint, connection.getEndpoint());
     }
-
-//    @Test
-    public void testDescriptionTemplate() {
-        System.out.println(connection.template);
-    }
     
     /**
      * Test of bind method, of class BaseConnection.

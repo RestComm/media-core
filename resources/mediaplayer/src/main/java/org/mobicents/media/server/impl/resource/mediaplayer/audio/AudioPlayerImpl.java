@@ -35,6 +35,7 @@ import org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.TtsTrackIm
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoicesCache;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.wav.WavTrackImpl;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -54,10 +55,9 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
 
     //define natively supported formats
     private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
-    private final static Formats formats = new Formats();    
-    static {
-        formats.add(LINEAR);
-    }
+    
+    //digital signaling processor
+    private Processor dsp;
     
     //audio track
     private Track track;
@@ -84,6 +84,26 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         this.voicesCache = vc;
     }
 
+    /**
+     * Assigns the digital signaling processor of this component.
+     * The DSP allows to get more output formats.
+     *
+     * @param dsp the dsp instance
+     */
+    public void setDsp(Processor dsp) {
+        //assign processor
+        this.dsp = dsp;        
+    }
+    
+    /**
+     * Gets the digital signaling processor associated with this media source
+     *
+     * @return DSP instance.
+     */
+    public Processor getDsp() {
+        return this.dsp;
+    }
+    
     /**
      * (Non Java-doc.)
      * 
@@ -164,12 +184,28 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
     public Frame evolve(long timestamp) {
         try {
             Frame frame = track.process(timestamp);
+            if(frame==null)
+            	return null;
+            
             frame.setTimestamp(timestamp);
 
             if (frame.isEOM()) {
                 logger.info("End of file reached");
             }
 
+            //do the transcoding job
+        	if (dsp != null) {
+        		try
+        		{
+        			frame = dsp.process(frame,frame.getFormat(),LINEAR);
+        		}
+        		catch(Exception e)
+        		{
+        			//transcoding error , print error and try to move to next frame
+        			e.printStackTrace();
+        		}                	
+        	}  
+        	
             if (frame.isEOM()) {
                 track.close();
             }
@@ -178,10 +214,6 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
             track.close();            
         }
         return null;
-    }
-
-    public Formats getNativeFormats() {
-        return formats;
     }
 
     public void setVoiceName(String voiceName) {

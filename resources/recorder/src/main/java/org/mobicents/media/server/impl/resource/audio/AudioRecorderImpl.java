@@ -212,11 +212,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         
     }
 
-    @Override
-    public Formats getNativeFormats() {
-        return formats;
-    }
-
     public void setRecordDir(String recordDir) {
         this.recordDir = recordDir;
     }

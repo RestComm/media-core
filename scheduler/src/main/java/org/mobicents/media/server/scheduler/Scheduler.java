@@ -28,6 +28,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -216,7 +218,8 @@ public class Scheduler  {
         public CpuThread(String name) {
             super(name);
             
-            eservice = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*2);            
+            int size=Runtime.getRuntime().availableProcessors()*2;
+            eservice =new ThreadPoolExecutor(size, size,0L, TimeUnit.MILLISECONDS,new ConcurrentLinkedList<Runnable>());                       
         }
         
         public void activate() {        	        	
@@ -292,7 +295,7 @@ public class Scheduler  {
             //submit all tasks in current queue
             while(t!=null)
             {            	
-            	eservice.submit(t);
+            	eservice.execute(t);
             	t = currQueue.poll();
             }
             

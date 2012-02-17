@@ -28,8 +28,9 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.message.MgcpMessage;
@@ -39,7 +40,6 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  *
@@ -65,13 +65,13 @@ public class MgcpProvider {
     private Scheduler scheduler;
     
     //transmission buffer
-    private ConcurrentLinkedQueue<ByteBuffer> txBuffer;
+    private ConcurrentLinkedList<ByteBuffer> txBuffer = new ConcurrentLinkedList();
     
     //receiver buffer
     private ByteBuffer rxBuffer = ByteBuffer.allocate(8192);
     
     //pool of events
-    private ConcurrentLinkedQueue<MgcpEventImpl> events = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<MgcpEventImpl> events = new ConcurrentLinkedList();
         
     private final static Logger logger = Logger.getLogger(MgcpProvider.class);
     /**
@@ -88,12 +88,11 @@ public class MgcpProvider {
         
         //prepare event pool
         for (int i = 0; i < 100; i++) {
-            events.add(new MgcpEventImpl(this));
+            events.offer(new MgcpEventImpl(this));
         }
         
-        txBuffer=new ConcurrentLinkedQueue();
         for(int i=0;i<100;i++)
-        	txBuffer.add(ByteBuffer.allocate(8192));
+        	txBuffer.offer(ByteBuffer.allocate(8192));
     }
 
     /**
@@ -112,12 +111,11 @@ public class MgcpProvider {
         
         //prepare event pool
         for (int i = 0; i < 100; i++) {
-            events.add(new MgcpEventImpl(this));
+            events.offer(new MgcpEventImpl(this));
         }
         
-        txBuffer=new ConcurrentLinkedQueue();
         for(int i=0;i<100;i++)
-        	txBuffer.add(ByteBuffer.allocate(8192));
+        	txBuffer.offer(ByteBuffer.allocate(8192));
     }
     
     /**
@@ -132,6 +130,7 @@ public class MgcpProvider {
     	if(evt==null)
     		evt=new MgcpEventImpl(this);
     	
+    	evt.inQueue.set(false);
     	evt.setEventID(eventID);
     	evt.setAddress(address);
     	return evt;    	
@@ -154,7 +153,7 @@ public class MgcpProvider {
     	channel.send(currBuffer, destination);
     	
     	currBuffer.clear();
-    	txBuffer.add(currBuffer);
+    	txBuffer.offer(currBuffer);
     }
 
     /**
@@ -172,7 +171,7 @@ public class MgcpProvider {
     	channel.send(currBuffer, event.getAddress());
     	
     	currBuffer.clear();
-    	txBuffer.add(currBuffer);    	
+    	txBuffer.offer(currBuffer);    	
     }
     
     /**
@@ -190,7 +189,7 @@ public class MgcpProvider {
     	channel.send(currBuffer, destination);
     	
     	currBuffer.clear();
-    	txBuffer.add(currBuffer);    	
+    	txBuffer.offer(currBuffer);    	
     }
     
     /**
@@ -244,13 +243,13 @@ public class MgcpProvider {
     }
     
     private void recycleEvent(MgcpEventImpl event) {
-    	if (events.contains(event))
+    	if (event.inQueue.getAndSet(true))
     		logger.warn("====================== ALARM ALARM ALARM==============");
     	else
     	{
     		event.response.clean();
         	event.request.clean();
-        	events.add(event);
+        	events.offer(event);
     	}
     }
     
@@ -377,6 +376,7 @@ public class MgcpProvider {
         //the source address 
         private SocketAddress address;
         
+        private AtomicBoolean inQueue=new AtomicBoolean(true);
         /**
          * Creates new event object.
          * 

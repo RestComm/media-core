@@ -63,17 +63,10 @@ public class IVREndpoint extends AnnouncementEndpoint {
         //construct audio recorder
         recorder = new AudioRecorderImpl(getScheduler());
         
-        //construct DTMF detector
-//        dtmfDetector = new DetectorImpl("", getScheduler());
-//        dtmfDetector.setVolume(-35);
-//        dtmfDetector.setDuration(40);
-        
         //construct audio sink
         audioSink = new AudioSink(getScheduler(), getLocalName());
         audioSink.add(recorder);
-//        audioSink.add(dtmfDetector);
         
-        //default start
         super.start();
     }
     

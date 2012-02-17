@@ -38,6 +38,10 @@ public class Decoder implements Codec {
     private final static Format alaw = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
+    private int j = 0;
+    private int i=0;
+    private int len=0;
+    
     /** decompress table constants */
     private static short aLawDecompressTable[] = new short[]{
         -5504, -5248, -6016, -5760, -4480, -4224, -4992, -4736,
@@ -99,7 +103,7 @@ public class Decoder implements Codec {
      */
     public Frame process(Frame frame) {
         Frame res = Memory.allocate(frame.getLength() * 2);
-        int len = process(frame.getData(), 0, frame.getLength(), res.getData());
+        len = process(frame.getData(), 0, frame.getLength(), res.getData());
 
         res.setOffset(0);
         res.setLength(len);
@@ -111,7 +115,7 @@ public class Decoder implements Codec {
         res.setHeader(frame.getHeader());
         return res;
     }
-
+    
     /**
      * Perform decompression using A-law.
      * 
@@ -119,8 +123,8 @@ public class Decoder implements Codec {
      * @return the output decompressed media.
      */
     private int process(byte[] src, int offset, int len, byte[] res) {
-        int j = 0;
-        for (int i = 0; i < len; i++) {
+    	j=0;
+        for (i = 0; i < len; i++) {
             short s = aLawDecompressTable[src[i + offset] & 0xff];
             res[j++] = (byte) s;
             res[j++] = (byte) (s >> 8);

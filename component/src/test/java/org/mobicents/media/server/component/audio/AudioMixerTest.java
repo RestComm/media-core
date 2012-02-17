@@ -144,13 +144,6 @@ public class AudioMixerTest {
     }
 
 //    @Test
-    public void testPacketSize() {
-        AudioFormat fmt = FormatFactory.createAudioFormat("LINEAR", 44000, 16, 1);
-        mixer.setFormat(fmt);
-        assertEquals(1760, mixer.getPacketSize());
-    }
-
-//    @Test
     public void testMixing() throws InterruptedException {
         sine1.start();
         sine2.start();
@@ -221,7 +214,7 @@ public class AudioMixerTest {
     
     @Test
     public void testRecycle() throws InterruptedException {
-        testMixing();
+    	testMixing();
         
         pipe1.stop();
         pipe1.disconnect();
@@ -233,7 +226,6 @@ public class AudioMixerTest {
         pipe1.connect(input1);
         
         input1.start();
-        testMixing();
-        
+        testMixing();    	
     }
 }

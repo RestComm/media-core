@@ -35,7 +35,7 @@ public interface MgcpEvent extends Event<MgcpProvider> {
     //Event types constants
     public final static int REQUEST = 1;
     public final static int RESPONSE = 2;
-    
+        
     /**
      * Gets the type of this event.
      * 

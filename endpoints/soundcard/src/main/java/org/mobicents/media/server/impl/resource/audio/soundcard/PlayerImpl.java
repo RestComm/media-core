@@ -44,14 +44,6 @@ import org.mobicents.media.server.spi.memory.Frame;
  * 
  */
 public class PlayerImpl extends AbstractSink {
-    private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("LINEAR", 8000, 8, 1);
-    private final static Formats formats = new Formats();
-
-    static{
-        formats.add(LINEAR);
-    }
-
-    
     private final static Encoding GSM_ENCODING = new Encoding("GSM0610");
     private volatile boolean first = true;
     private SourceDataLine sourceDataLine = null;
@@ -122,12 +114,7 @@ public class PlayerImpl extends AbstractSink {
         } catch (ArrayIndexOutOfBoundsException e) {
         }
 
-    }
-
-    @Override
-    public Formats getNativeFormats() {
-        return formats;
-    }
+    }    
 
     @Override
     public void stop() {

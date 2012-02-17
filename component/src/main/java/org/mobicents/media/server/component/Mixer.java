@@ -24,7 +24,6 @@ package org.mobicents.media.server.component;
 
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.spi.format.Format;
 
 /**
  * Signal mixer.
@@ -52,20 +51,6 @@ public interface Mixer {
      * @param input the sink receiving input signal.
      */
     public void release(MediaSink input);
-
-    /**
-     * Modify the intermediate format using for mixing.
-     * 
-     * @param format the format descriptor object
-     */
-    public void setFormat(Format format);
-
-    /**
-     * Gets the intermediate format used for mixing.
-     *
-     * @return the format descriptor object.
-     */
-    public Format getFormat();
 
     public void start();
     public void stop();

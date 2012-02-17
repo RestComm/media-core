@@ -25,18 +25,16 @@ package org.mobicents.media.server.component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.Formats;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.component.DtmfClamp;
 
 /**
@@ -44,31 +42,36 @@ import org.mobicents.media.server.component.DtmfClamp;
  * @author kulikov
  */
 public class Splitter {
-    private final static int POOL_SIZE = 100;
+	private final static int POOL_SIZE = 5;
 
+	//scheduler
+    private Scheduler scheduler;
+    
     //Input stream
     private final Input input;
 
     //The pool of output streams
-    private ConcurrentLinkedQueue<Output> pool = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<Output> pool = new ConcurrentLinkedList();
 
     //Active output streams
-    private ConcurrentHashMap<Integer,Output> outputs = new ConcurrentHashMap(POOL_SIZE);
-
-    private Formats formats = new Formats();
+    private IntConcurrentLinkedList<Output> outputs = new IntConcurrentLinkedList();
 
     private Boolean dtmfClampActive=false;    
     private DtmfClamp dtmfClamp;
     
     protected long splitCount = 0;
     
+    //stores last id used for output
+    private AtomicInteger currentKey=new AtomicInteger(1);
+    
     /**
      * Creates new Splitter.
      */
     public Splitter(Scheduler scheduler) {
-        input = new Input(scheduler);
+    	this.scheduler=scheduler;
+    	input = new Input(scheduler);
         for (int i = 0; i < POOL_SIZE; i++) {
-            pool.add(new Output(scheduler,(i+1)));
+            pool.offer(new Output(scheduler,currentKey.getAndIncrement()));
         }
         
         this.dtmfClamp=new DtmfClamp();
@@ -83,42 +86,7 @@ public class Splitter {
     {
     	this.dtmfClampActive=value;
     	this.dtmfClamp.recycle();    	    	   
-    }
-    
-    public void setDsp(Processor dsp)
-    {
-    	this.dtmfClamp.setDsp(dsp);
-    }
-    
-    /**
-     * Modify intermediate format
-     * 
-     * @param format the format descriptor object
-     */
-    public void setFormat(Format format) {
-        this.formats.add(format);
-        
-        //update formats
-        input.update();
-        Iterator<Output> activeOutputs=outputs.values().iterator();
-        while(activeOutputs.hasNext())
-        	activeOutputs.next().update();
-        
-        Output[] poolOutputs=new Output[0];
-        poolOutputs=pool.toArray(poolOutputs);
-        for (int i = 0; i < poolOutputs.length; i++) {
-        	poolOutputs[i].update();
-        }
-    }
-
-    /**
-     * Gets the intermediate format.
-     *
-     * @return the format descriptor object.
-     */
-    public Format getFormat() {
-        return formats.size() > 0 ? this.formats.get(0) : null;
-    }
+    }    
 
     /**
      * Gets input stream.
@@ -135,8 +103,11 @@ public class Splitter {
      * @return the new output stream as media source
      */
     public MediaSource newOutput() {
-        Output output = pool.remove();
-        outputs.put(output.getOutputId(),output);
+    	if(pool.isEmpty())
+    		pool.offer(new Output(scheduler,currentKey.getAndIncrement()));
+    	
+        Output output = pool.poll();
+        outputs.offer(output,output.outputId);
         return output;
     }
 
@@ -158,7 +129,7 @@ public class Splitter {
         builder.append(input.report());
         builder.append(")\n");
         
-        Iterator<Output> activeOutputs=outputs.values().iterator();
+        Iterator<Output> activeOutputs=outputs.iterator();
         while(activeOutputs.hasNext()) {
             builder.append("     output: (");
             builder.append(activeOutputs.next().report());
@@ -173,6 +144,7 @@ public class Splitter {
      * Implements input stream
      */
     private class Input extends AbstractSink {
+    	Frame currFrame;
     	/**
          * Creates new stream.
          */
@@ -185,7 +157,6 @@ public class Splitter {
         {
         	super.stop();
         	dtmfClamp.recycle();    
-        	
         	//System.out.println("SPLIT COUNT:" + splitCount);        	
         	splitCount=0;
         }
@@ -193,7 +164,7 @@ public class Splitter {
         @Override
         public void onMediaTransfer(Frame frame) throws IOException 
         {
-        	Frame currFrame=frame;
+        	currFrame=frame;
         	if(dtmfClampActive)
         		currFrame=dtmfClamp.process(currFrame);
         	
@@ -201,7 +172,7 @@ public class Splitter {
         	{
         		splitCount++;
         		//clone frame and queue to each active output
-        		Iterator<Output> activeOutputs=outputs.values().iterator();
+        		Iterator<Output> activeOutputs=outputs.iterator();
                 while(activeOutputs.hasNext())
                 {
                 	Output output=activeOutputs.next();
@@ -214,23 +185,7 @@ public class Splitter {
                 //recycle original frame
                 currFrame.recycle();                
         	}
-        }
-
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.impl.AbstractSink#getNativeFormats()
-         */
-        public Formats getNativeFormats() {
-            return formats;
-        }
-
-        /**
-         * Rebuilds formats
-         */
-        private void update() {
-            this.rebuildFormats();
-        }
+        }        
     }    
     
     /**
@@ -239,11 +194,11 @@ public class Splitter {
      */
     private class Output extends AbstractSource {
         //buffer limit
-        private final static int limit = 50;
+        private final static int limit = 5;
         private int outputId;
         
         //transmission buffer
-        private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
+        private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
 
         /**
          * Creates new output stream.
@@ -261,32 +216,17 @@ public class Splitter {
         @Override
         public Frame evolve(long timestamp) {
             return buffer.poll();
-        }
-
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.impl.AbstractSource#getNativeFormats()
-         */
-        public Formats getNativeFormats() {
-            return formats;
-        }
+        }        
 
         /**
          * Recycles output stream
          */
         protected void recycle() {
-            buffer.clear();
+        	while(buffer.size()>0)
+        		buffer.poll().recycle();
+                    	
             outputs.remove(this.outputId);
-            pool.add(this);
+            pool.offer(this);
         }
-
-        /**
-         * Rebuilds formats
-         */
-        private void update() {
-            this.rebuildFormats();
-        }
-
     }
 }

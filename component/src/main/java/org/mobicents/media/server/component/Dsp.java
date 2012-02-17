@@ -42,11 +42,8 @@ public class Dsp implements Processor {
     private Codec codec;
     private Codec[] codecs;
 
-    //The list of supported output formats
-    private Formats formats;
     //The current format of the frame stream
-    private Format format;
-    private final Object LOCK = new Object();
+    private Format format;    
     
     /**
      * Creates new instance of processor.
@@ -64,97 +61,63 @@ public class Dsp implements Processor {
      */
     public Codec[] getCodecs() {
         return codecs;
-    }
-    
+    }    
+	    
     /**
      * (Non Java-doc.)
      * 
-     * @see org.mobicents.media.server.spi.dsp.Processor#setFormats(org.mobicents.media.server.spi.format.Formats)  
+     * @see org.mobicents.media.server.spi.dsp.Processor#process(org.mobicents.media.server.spi.memory.Frame,org.mobicents.media.server.spi.format.Format,org.mobicents.media.server.spi.format.Format)  
      */
-    public void setFormats(Formats formats) {
-    	synchronized(LOCK) {
-    		this.formats = formats;
-    		//reset previously used format
-    		this.format = null;
-    	}
-    }		
-	
-
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.dsp.Processor#process(org.mobicents.media.server.spi.memory.Frame)  
-     */
-    public Frame process(Frame frame) {
-    	synchronized(LOCK) {
-    		if (frame.getFormat() == null) {
-    			//bad frame, impossible to transcode
-    			return frame;
-    		}
-
-    		//normal flow: format of the stream is already known
-    		if (format != null && frame.getFormat().matches(format)) {
-    			//do transcode if required
-    			if (codec != null) {
-    				try {
-    					return codec.process(frame);
-    				} finally {
-    					frame.recycle();
-    				}
-    			}
-
-    			//return the original frame if no transcoding required
-    			return frame;
-    		}
-
-    		//format is not known yet or has been changed
-    		format = frame.getFormat();
-
-    		//check that output formats are defined.
-    		if (formats == null) {
-    			//if not defined we assume any format is supported
-    			return frame;
-    		}
-
-    		if (formats.contains(format)) {
-    			//the new format is one from allowed
-    			//do not transcode data
-    			codec = null;
-    			return frame;
-    		}
-
-    		//transcoding required, looking for codec if available
-    		codec = null;
-
-    		//check that codecs are defined.
-    		if (codecs == null) {
-    			//no spade - no questions
-    			return frame;
-    		}
-
-    		for (int i = 0; i < codecs.length; i++) {
-    			//select codec wich can receive current frame
-    			if (codecs[i].getSupportedInputFormat().matches(format)) {
-    				//check if this codec can transform frame to any of the output format
-    				if (formats.contains(codecs[i].getSupportedOutputFormat())) {
-    					codec = codecs[i];
-    					break;
-    				}
-    			}
-    		}
-
-    		
-    		//if codec found do the transcoding
-    		if (codec != null) {
-    			try {
-    				return codec.process(frame);
-    			} finally {
-    				frame.recycle();
-    			}    			    			    			
-    		}    		
-    		
-    		//return frame without changes
+    public Frame process(Frame frame,Format source,Format destination) {
+    	if (source==null || destination==null)
+			return frame;
+		
+    	if(source.matches(destination))
     		return frame;
-    	}
+    	
+    	//normal flow: format of the stream is already known
+		if (format != null && destination.matches(format)) {
+			//do transcode if required
+			if (codec != null) {
+				try {
+					return codec.process(frame);
+				} finally {
+					frame.recycle();
+				}
+			}
+
+			//return the original frame if no transcoding required
+			return frame;
+		}
+		
+		//check that codecs are defined.
+		if (codecs == null) {
+			//no spade - no questions
+			return frame;
+		}
+		
+		for (int i = 0; i < codecs.length; i++) {
+			//select codec wich can receive current frame
+			if (codecs[i].getSupportedInputFormat().matches(source)) {
+				//check if this codec can transform frame to any of the output format
+				if (codecs[i].getSupportedOutputFormat().matches(destination)) {
+					codec = codecs[i];
+					format=destination;
+					break;
+				}
+			}
+		}
+		
+		//if codec found do the transcoding
+		if (codec != null) {
+			try {
+				return codec.process(frame);
+			} finally {
+				frame.recycle();
+			}    			    			    			
+		}    		
+		
+		//return frame without changes
+		return frame;
     }
 }

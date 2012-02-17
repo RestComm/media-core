@@ -72,13 +72,6 @@ public class VideoMixer implements Mixer {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void setFormat(Format format) {
-    }
-
-    public Format getFormat() {
-        return null;
-    }
-
     public String report() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -93,12 +86,6 @@ public class VideoMixer implements Mixer {
         public void onMediaTransfer(Frame frame) throws IOException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-
-        @Override
-        public Formats getNativeFormats() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
     }
 
     private class Output extends AbstractSource {
@@ -111,11 +98,5 @@ public class VideoMixer implements Mixer {
         public Frame evolve(long timestamp) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-
-        @Override
-        public Formats getNativeFormats() {
-            return formats;
-        }
-
     }
 }

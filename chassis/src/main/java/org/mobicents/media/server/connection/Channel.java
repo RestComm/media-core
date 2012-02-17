@@ -34,9 +34,6 @@ import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.utils.Text;
 import org.apache.log4j.Logger;
 
@@ -49,17 +46,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author kulikov
  */
 public class Channel {
-    private final static AudioFormat DTMF = FormatFactory.createAudioFormat("telephone-event", 8000);
-    static {
-        DTMF.setOptions(new Text("0-15"));
-    }
-    private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
-    private final static Formats AUDIO_FORMATS = new Formats();
-    
-    static {
-        AUDIO_FORMATS.add(LINEAR);
-    }
-    
     protected BaseConnection connection;
     private MediaType mediaType;
     
@@ -86,25 +72,8 @@ public class Channel {
         this.connection = connection;
         this.mediaType = mediaType;
 
-        //create mixer and assign intermediate format
         this.mixer = mixer;
-        if (connections.dspFactory != null) {
-            this.mixer.getOutput().setDsp(connections.dspFactory.newProcessor());            
-        }
-        
-        this.mixer.setFormat(connections.getAudioFormat());
-        //this.mixer.getOutput().setFormats(AUDIO_FORMATS);
-                
-
-        //create splitter and assign intermediate format
         this.splitter = splitter;
-        if (connections.dspFactory != null) {
-        	this.splitter.setDsp(connections.dspFactory.newProcessor());
-            this.splitter.getInput().setDsp(connections.dspFactory.newProcessor());
-        }
-        
-        this.splitter.setFormat(connections.getAudioFormat());
-        splitter.getInput().setFormats(AUDIO_FORMATS);
         
         this.connections=connections;   
 
@@ -116,26 +85,6 @@ public class Channel {
         cnfMode = new CnfMode(connection, connections, send_recv);
     }
 
-    protected Formats getFormats() {
-        Formats intersection = new Formats();
-
-        Formats rx = splitter.getInput().getFormats();
-        Formats tx = mixer.getOutput().getFormats();
-
-        rx.intersection(tx, intersection);
-
-        intersection.add(DTMF);
-        return intersection;
-    }
-
-    protected void selectFormats(Formats fmts) {
-        try {
-            mixer.getOutput().setFormats(fmts);
-        } catch (FormatNotSupportedException e) {
-            //never happen
-        }
-    }
-    
     /**
      * Modify dtmf clamp for splitter
      * 
@@ -366,10 +315,6 @@ public class Channel {
             source = splitter.newOutput();
             sink = connections.getMixer(mediaType).newInput();
 
-            //assign formats
-            sink.setFormats(connections.getFormats(mediaType));
-            source.setFormats(connections.getFormats(mediaType));
-
             //join
             pipe.connect(source);
             pipe.connect(sink);
@@ -442,10 +387,6 @@ public class Channel {
             source = connections.getSplitter(mediaType).newOutput();
             sink = mixer.newInput();
 
-            //assign formats
-            sink.setFormats(connections.getFormats(mediaType));
-            source.setFormats(connections.getFormats(mediaType));
-            
             //join
             pipe.connect(source);
             pipe.connect(sink);
@@ -558,9 +499,6 @@ public class Channel {
             tx = splitter.newOutput();
             rx = mixer.newInput();
             
-            tx.setFormats(connections.getFormats(mediaType));
-            rx.setFormats(connections.getFormats(mediaType));
-
             //join
             pipe.connect(tx);
             pipe.connect(rx);

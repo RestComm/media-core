@@ -29,12 +29,19 @@ import org.mobicents.media.server.SdpTemplate;
 
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.format.Formats;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
+import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
@@ -45,9 +52,11 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  * @author amit bhayani
  */
-public class RtpConnectionImpl extends BaseConnection implements RTPChannelListener {
-
-    private RTPDataChannel rtpAudioChannel;
+public class RtpConnectionImpl extends BaseConnection implements RTPChannelListener {	
+	private final static AudioFormat DTMF = FormatFactory.createAudioFormat("telephone-event", 8000);
+	private final static AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);	
+    
+	private RTPDataChannel rtpAudioChannel;
     private RTPDataChannel rtpVideoChannel;
 
     private SessionDescription sdp = new SessionDescription();
@@ -56,6 +65,13 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     private boolean isAudioCapabale;
     private boolean isVideoCapable;
 
+    protected RTPFormats audioFormats;
+    protected RTPFormats videoFormats;
+    
+    //SDP template
+    protected SdpTemplate template;
+    protected String descriptor;    
+    
     //negotiated sdp
     private String descriptor2;
         
@@ -78,8 +94,58 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         rtpVideoChannel = connections.rtpManager.getChannel();
         rtpAudioChannel.setRtpChannelListener(this);
         rtpVideoChannel.setRtpChannelListener(this);
+        
+        if (connections.dspFactory != null) {
+        	rtpAudioChannel.getInput().setDsp(connections.dspFactory.newProcessor());
+        	rtpAudioChannel.getOutput().setDsp(connections.dspFactory.newProcessor());        	
+        }
+        
+        //create sdp template
+        audioFormats = getRTPMap(audioChannel, AVProfile.audio);
+        videoFormats = getRTPMap(videoChannel, AVProfile.video);
+
+        template = new SdpTemplate(audioFormats, videoFormats);
     }
 
+    /**
+     * Constructs RTP payloads for given channel.
+     *
+     * @param channel the media channel
+     * @param profile AVProfile part for media type of given channel
+     * @return collection of RTP formats.
+     */
+    private RTPFormats getRTPMap(Channel channel, RTPFormats profile) {
+        RTPFormats list = new RTPFormats();
+        Formats fmts=null;
+        switch(channel.getMediaType())
+        {
+        	case AUDIO:
+        		fmts=new Formats();
+        		if(rtpAudioChannel.getOutput().getDsp()!=null)
+        		{
+        			Codec[] currCodecs=rtpAudioChannel.getOutput().getDsp().getCodecs();
+        			for(int i=0;i<currCodecs.length;i++)
+        				if(currCodecs[i].getSupportedInputFormat().matches(format))
+        					fmts.add(currCodecs[i].getSupportedOutputFormat());
+        		}
+        		
+        		fmts.add(DTMF);
+        		break;
+        	case VIDEO:
+        		break;
+        }
+        
+        if(fmts!=null)
+        {
+        	for (int i = 0; i < fmts.size(); i++) {
+        		RTPFormat f = profile.find(fmts.get(i));
+        		if (f != null) list.add(f.clone());
+        	}
+        }
+        
+        return list;
+    }
+    
     @Override
     public void setOtherParty(Connection other) throws IOException {
         if (!(other instanceof RtpConnectionImpl)) {
@@ -117,13 +183,24 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         }
 
         if (!audio.isEmpty()) {
-            rtpAudioChannel.setFormatMap(audioFormats);
-            audioChannel.selectFormats(audio.getFormats());
+        	rtpAudioChannel.setFormatMap(audioFormats);
+            try {
+            	rtpAudioChannel.getOutput().setFormats(audio.getFormats());            	
+            }
+        	catch (FormatNotSupportedException e) {
+            //never happen
+        		e.printStackTrace();
+        	}
         }
 
         if (!video.isEmpty()) {
             rtpVideoChannel.setFormatMap(videoFormats);
-            videoChannel.selectFormats(video.getFormats());
+            try {
+            	rtpVideoChannel.getOutput().setFormats(video.getFormats());
+            }
+        	catch (FormatNotSupportedException e) {
+            //never happen
+        	}            
         }
 
         String address = null;
@@ -170,13 +247,25 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         }
 
         if (!audio.isEmpty()) {
-            rtpAudioChannel.setFormatMap(audio);
-            audioChannel.selectFormats(audio.getFormats());
+        	rtpAudioChannel.setFormatMap(audioFormats);
+            try {
+            	rtpAudioChannel.getOutput().setFormats(audio.getFormats());            	
+            }
+        	catch (FormatNotSupportedException e) {
+            //never happen
+        		e.printStackTrace();
+        	}
         }
 
         if (!video.isEmpty()) {
-            rtpVideoChannel.setFormatMap(video);
-            videoChannel.selectFormats(video.getFormats());
+            rtpVideoChannel.setFormatMap(videoFormats);
+            try {
+            	rtpVideoChannel.getOutput().setFormats(video.getFormats());
+            }
+        	catch (FormatNotSupportedException e) {
+            //never happen
+        	}            
+            //videoChannel.selectFormats(video.getFormats());
         }
 
         String address = null;
@@ -214,7 +303,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
      */
     @Override
     public String getDescriptor() {
-        return descriptor2 != null ? descriptor2 : super.descriptor;
+        return descriptor2 != null ? descriptor2 : descriptor;
     }
     
     @Override

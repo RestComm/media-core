@@ -23,7 +23,7 @@ package org.mobicents.media.server.mgcp.controller.naming;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpointStateListener;
 import org.mobicents.media.server.utils.Text;
@@ -43,7 +43,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     
     //queue of endpoints
     private ArrayList<Holder> completeList=new ArrayList(SIZE);
-    private ConcurrentLinkedQueue<MgcpEndpoint> queue = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<MgcpEndpoint> queue = new ConcurrentLinkedList();
     
     //reference for just found endpoind
     //private Holder holder;
@@ -60,7 +60,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     	Holder holder=new Holder(endpoint);
     	endpoint.setMgcpEndpointStateListener(this);
     	completeList.add(holder);
-        queue.add(endpoint);
+        queue.offer(endpoint);
     }
     
     /**
@@ -132,7 +132,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     
     public void onFreed(MgcpEndpoint endpoint)
     {
-    	queue.add(endpoint);    	
+    	queue.offer(endpoint);    	
     }
     
     private class Holder {

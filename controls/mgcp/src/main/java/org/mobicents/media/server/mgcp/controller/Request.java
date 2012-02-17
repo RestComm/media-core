@@ -26,12 +26,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.utils.Text;
@@ -59,7 +59,7 @@ public class Request {
      * The list of signals/events requested.
      * This list is cleared each time before accept new request.
      */ 
-    private ConcurrentLinkedQueue<Signal> executors = new ConcurrentLinkedQueue<Signal>();
+    private ConcurrentLinkedList<Signal> executors = new ConcurrentLinkedList();
     
     //notified entity address
     private InetSocketAddress address;
@@ -206,7 +206,7 @@ public class Request {
         }
         
         s.setTrigger(pkgName, eventName, options);
-        executors.add(s);
+        executors.offer(s);
     }
     
     private MgcpPackage getPackage(Text name) throws UnknownPackageException {

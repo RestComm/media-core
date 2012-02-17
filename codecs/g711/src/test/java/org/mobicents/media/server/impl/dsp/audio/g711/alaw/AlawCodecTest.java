@@ -76,7 +76,7 @@ public class AlawCodecTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
+    	super.setUp();
         int k = 0;
         int l = 0;
         byte[] src1 = buffer.getData();
@@ -88,7 +88,7 @@ public class AlawCodecTest extends TestCase {
             src1[l++] = (byte)(s);
             src1[l++] = (byte)(s >> 8);
         }
-        buffer.setLength(512);
+        buffer.setLength(512);         
     }
 
     @Override
@@ -99,7 +99,6 @@ public class AlawCodecTest extends TestCase {
      * Test of process method, of class Decoder.
      */
     public void testCodec() {
-        
         org.mobicents.media.server.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();
         compressor.process(buffer);
@@ -113,7 +112,7 @@ public class AlawCodecTest extends TestCase {
             if (src[i] != res[i]) {
                 fail("mismatch found at " + i);
             }
-        }
+        }        
     }
 
 }

@@ -109,26 +109,24 @@ public class RTPChannelTest {
         rtpManager.setScheduler(scheduler);
 
         source1 = new Sine(scheduler);
-        source1.setFrequency(50);
-        source1.setDsp(dsp11);
-        source1.setFormats(fmts);
+        source1.setFrequency(50);        
         
         source2 = new Sine(scheduler);
         source2.setFrequency(50);
-        source2.setDsp(dsp21);
-        source2.setFormats(fmts);
         
-        analyzer1 = new SpectraAnalyzer("analyzer", scheduler);
-        analyzer1.setDsp(dsp12);
-        analyzer1.setFormats(dstFormats);
-        
+        analyzer1 = new SpectraAnalyzer("analyzer", scheduler);        
         analyzer2 = new SpectraAnalyzer("analyzer", scheduler);
-        analyzer2.setDsp(dsp22);
-        analyzer2.setFormats(dstFormats);
         
         channel1 = rtpManager.getChannel();
+        channel1.getOutput().setDsp(dsp11);
+        channel1.getOutput().setFormats(fmts);        
+        channel1.getInput().setDsp(dsp12);
+        
         channel2 = rtpManager.getChannel();
-
+        channel2.getOutput().setDsp(dsp21);
+        channel2.getOutput().setFormats(fmts);
+        channel2.getInput().setDsp(dsp22);        
+        
         channel1.bind();
         channel2.bind();
 
@@ -200,7 +198,7 @@ public class RTPChannelTest {
         System.out.println("tx-channel2: " + channel2.getPacketsTransmitted());
 
         if (s1.length != 1 || s2.length != 1) {
-            System.out.println("Failure");
+            System.out.println("Failure ,s1:" + s1.length + ",s2:" + s2.length);
             fcount++;
         } else System.out.println("Passed");
 //        assertEquals(1, s1.length);

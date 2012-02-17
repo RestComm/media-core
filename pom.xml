@@ -5,7 +5,7 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>2.2.0.CR2</version>
+    <version>2.2.0.CR3-SNAPSHOTS</version>
 
     <name>Mobicents Media Server</name>
 

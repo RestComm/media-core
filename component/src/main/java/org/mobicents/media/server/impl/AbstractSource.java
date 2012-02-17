@@ -23,15 +23,9 @@
 package org.mobicents.media.server.impl;
 
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.apache.log4j.Logger;
@@ -42,7 +36,7 @@ import org.apache.log4j.Logger;
  * <code>AbstractSource</code> and <code>AbstractSink</code> are implement general wirring contruct. All media
  * components have to extend one of these classes.
  * 
- * @author Oleg Kulikov
+ * @author Oifa Yulian
  */
 public abstract class AbstractSource extends BaseComponent implements MediaSource {
 
@@ -78,21 +72,8 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     private long initialDelay = 0;
     
     //media transmission pipe
-    protected PipeImpl pipe;
+    protected PipeImpl pipe;        
 
-    //digital signaling processor
-    private Processor dsp;
-
-    //active transmission formats
-    private final Formats formats = new Formats();
-
-    //supported formats
-    private final Formats supportedFormats = new Formats();
-
-    //temporary buffer
-    //private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
-    private Stats stats = new Stats();
-        
     /**
      * Creates new instance of source with specified name.
      * 
@@ -102,23 +83,8 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     public AbstractSource(String name, Scheduler scheduler,int queueNumber) {
         super(name);
         this.scheduler = scheduler;
-        this.worker = new Worker(scheduler,queueNumber);
-        //this.transcoder = new Transcoder(scheduler);
-        this.initFormats();
-    }
-
-    /**
-     * Initializes list of supported and transmission formats if possible
-     */
-    private void initFormats() {
-        if (this.getNativeFormats().size() > 0) {
-            supportedFormats.clean();
-            supportedFormats.addAll(getNativeFormats());
-        }
-
-        formats.clean();
-        formats.addAll(supportedFormats);
-    }
+        this.worker = new Worker(scheduler,queueNumber);        
+    }    
 
     /**
      * (Non Java-doc.)
@@ -164,79 +130,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      */
     public void setMediaTime(long timestamp) {
         this.initialOffset = timestamp;
-    }
-    
-    /**
-     * Assigns the digital signaling processor of this component.
-     * The DSP allows to get more output formats.
-     * 
-     * @param dsp the dsp instance
-     */
-    public void setDsp(Processor dsp) {
-        //assign processor
-        this.dsp = dsp;
-        this.rebuildFormats();
-    }
-    
-    /**
-     * Rebuilds the list of supported formats.
-     */
-    protected void rebuildFormats() {
-        //rebuild list of supported formats
-        if (dsp == null) {
-            this.initFormats();
-            return;
-        }
-
-        //add formats wich are results of transcoding
-        Formats fmts = this.getNativeFormats();
-        supportedFormats.clean();
-        int fcount = fmts.size();
-        for (int i = 0; i < fcount; i++) {
-            supportedFormats.add(fmts.get(i));
-            for (Codec c : dsp.getCodecs()) {
-                if (c.getSupportedInputFormat().matches(fmts.get(i))) {
-                    supportedFormats.add(c.getSupportedOutputFormat());
-                }
-            }
-        }
-
-        formats.clean();
-        formats.addAll(supportedFormats);
-
-        dsp.setFormats(formats);
-    }
-
-    /**
-     * Gets the digital signalling processor associated with this media source
-     *
-     * @return DSP instance.
-     */
-    public Processor getDsp() {
-        return this.dsp;
-    }
-
-    /**
-     * (Non Java-doc.)
-     *
-     *
-     * @see org.mobicents.media.MediaSource#setFormats(org.mobicents.media.server.spi.format.Formats)
-     */
-    public void setFormats(Formats formats) throws FormatNotSupportedException {
-        supportedFormats.intersection(formats, this.formats);
-        if (dsp != null) {
-            dsp.setFormats(this.formats);
-        }
-    }
-
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.MediaSource#getFormats()
-     */
-    public Formats getFormats() {
-        return supportedFormats;
-    }
+    }       
 
     /**
      * (Non Java-doc).
@@ -366,14 +260,6 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     public abstract Frame evolve(long timestamp);
 
     /**
-     * Gets the list of formats supported by this component without possible
-     * transcoding.
-     * 
-     * @return the list of format descriptors
-     */
-    public abstract Formats getNativeFormats();
-
-    /**
      * Sends notification that media processing has been started.
      */
     protected void started() {
@@ -423,13 +309,11 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     @Override
     public void reset() {
         this.txPackets = 0;
-        this.txBytes = 0;
-        this.formats.clean();
-        this.formats.addAll(this.supportedFormats);
+        this.txBytes = 0;        
     }
     
     public String report() {
-        return stats.toString();
+        return "";
     }
     
     
@@ -453,6 +337,10 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
          */
     	private int queueNumber;    	
     	private long initialTime;
+    	int readCount=0;
+    	long overallDelay=0;
+    	Frame frame;
+    	long frameDuration;
     	
     	public Worker(Scheduler scheduler,int queueNumber) {
             super(scheduler);
@@ -483,12 +371,12 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
                 return 0;
         	}
         	
-        	int readCount=0;
-        	long overallDelay=0;
+        	readCount=0;
+        	overallDelay=0;
         	while(overallDelay<20000000L)
         	{
         		readCount++;
-        		Frame frame = evolve(timestamp);
+        		frame = evolve(timestamp);
         		if (frame == null) {
         			if(readCount==1)
         			{     
@@ -518,27 +406,8 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
             		frame.setEOM(true);
             	}
 
-            	long frameDuration = frame.getDuration();            	
-            	stats.rxFormat = frame.getFormat();
-            
-          
-            	//do the transcoding job
-            	if (dsp != null) {
-            		try
-            		{
-            			frame = dsp.process(frame);
-            		}
-            		catch(Exception e)
-            		{
-            			//transcoding error , print error and try to move to next frame
-            			e.printStackTrace();
-            			scheduler.submit(this,queueNumber);
-        	            return 0;
-            		}                	
-            	}            	
+            	frameDuration = frame.getDuration();            	            	            	          
             	
-            	stats.txFormat = frame.getFormat();
-
             	//delivering data to the other party.
             	if (pipe != null) {
             		pipe.write(frame);
@@ -574,69 +443,4 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         }
 
     }
-
-    /**
-     * Implements DSP and transmission tasks.
-     */
-    //private class Transcoder extends Task {
-
-        /**
-         * Creates new instance of task.
-         *
-         * @param scheduler the task scheduler.
-         */
-        /*private Transcoder(Scheduler scheduler) {
-            super(scheduler);
-        }
-
-        @Override
-        public long getPriority() {
-            return 0;
-        }
-
-        @Override
-        public long getDuration() {
-            return 0;
-        }
-
-        @Override
-        public long perform() {
-            if (buffer.isEmpty()) {
-                //nothing to do
-                return 0;
-            }
-            
-            //poll frame from temporary buffer
-            Frame frame = buffer.poll();
-
-            //do the transcoding job
-            if (dsp != null) {
-                frame = dsp.process(frame);
-            }
-            stats.txFormat = frame.getFormat();
-
-            //delivering data to the other party.
-            if (pipe != null) {
-                pipe.write(frame);
-            }
-
-            //update transmission statistics
-            txPackets++;
-            txBytes += frame.getLength();
-
-            return 0;
-        }
-
-    }*/
-    
-    private class Stats {
-        protected Format rxFormat;
-        protected Format txFormat;
-        
-        @Override
-        public String toString() {
-            return "source: " + rxFormat + ", codec: " + txFormat;
-        }
-    }
-    
 }

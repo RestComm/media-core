@@ -324,6 +324,12 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         //schedule event delivery
         scheduler.submit(eventSender,scheduler.MIXER_OUTPUT_QUEUE);
     }
+    
+    protected void fireEvent(DtmfEventImpl evt) {
+        eventSender.events.add(evt);        
+        //schedule event delivery
+        scheduler.submit(eventSender,scheduler.MIXER_OUTPUT_QUEUE);
+    }
 
     protected void fireEvent(Collection<DtmfEventImpl> evts) {
         eventSender.events.addAll(evts);                

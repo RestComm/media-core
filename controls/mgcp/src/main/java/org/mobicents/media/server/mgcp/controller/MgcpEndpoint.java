@@ -25,7 +25,6 @@ import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Enumeration;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +32,7 @@ import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
@@ -66,7 +66,7 @@ public class MgcpEndpoint {
     Request request;
     
     //pool of connection activities, limited to 15
-    private ConcurrentLinkedQueue<MgcpConnection> connections = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<MgcpConnection> connections = new ConcurrentLinkedList();
     
     //list of active connections
     private ConcurrentHashMap<Text,MgcpConnection> activeConnections=new ConcurrentHashMap(N);
@@ -88,7 +88,7 @@ public class MgcpEndpoint {
         request=new Request(this, packages);        
 
         for (int i = 0; i < N; i++) {
-            connections.add(new MgcpConnection());
+            connections.offer(new MgcpConnection());
         }
     }
 
@@ -211,7 +211,7 @@ public class MgcpEndpoint {
     	endpoint.deleteConnection(mgcpConnection.connection);
         
     	//return object to pool
-    	connections.add(mgcpConnection);
+    	connections.offer(mgcpConnection);
 
     	//update state    	
     	if (activeConnections.isEmpty()) {
@@ -225,7 +225,7 @@ public class MgcpEndpoint {
 
     public void deleteAllConnections() {
     	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-    		connections.add(activeConnections.remove(e.nextElement()));    
+    		connections.offer(activeConnections.remove(e.nextElement()));    
         }
     	    
         endpoint.deleteAllConnections();
@@ -282,6 +282,6 @@ public class MgcpEndpoint {
         mgcpConnection.release();
         
         //back to pool
-        connections.add(mgcpConnection);
+        connections.offer(mgcpConnection);
     }
 }
