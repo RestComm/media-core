@@ -28,7 +28,6 @@ import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.BaseEndpointImpl;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.MediaPlayerImpl;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -50,8 +49,7 @@ public class AnnouncementEndpoint extends BaseEndpointImpl {
     private MediaPlayerImpl mediaPlayer;
     //private AudioAnnouncement audioAnnouncement;
     private AudioMixer audioMixer;
-    private PipeImpl pipe;
-    
+
     private ArrayList<MediaSource> components = new ArrayList();
     
     private DspFactoryImpl dspFactory = new DspFactoryImpl();
@@ -59,9 +57,6 @@ public class AnnouncementEndpoint extends BaseEndpointImpl {
     static {
         formats.add(LINEAR);
     }
-    
-    //why its here? 
-    //private Sine sine;
     
     public AnnouncementEndpoint(String name) {
         super(name,BaseEndpointImpl.ENDPOINT_NORMAL);
