@@ -44,10 +44,10 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  * @author kulikov
  */
 public class Controller implements MgcpListener, ServerManager {
-    
-    private final static String HOME_DIR = "MMS_HOME";
 
-	private final Logger logger = Logger.getLogger("MGCP");
+	private final static String HOME_DIR = "MMS_HOME";
+	
+    private final Logger logger = Logger.getLogger("MGCP");
     
     //network interface
     private UdpManager udpInterface;
@@ -133,13 +133,14 @@ public class Controller implements MgcpListener, ServerManager {
      */
     public void setConfiguration(String url) throws Exception {
         try {
-            if (url != null) {
+            if (url != null) {            	
                 //getting the full path to the configuration file
-                String home = getHomeDir();
-        
-                if (home == null) {
-                    throw new IOException(HOME_DIR + " not set");
-                }
+
+            		String home = getHomeDir();
+            		
+            		if (home == null) {
+            			throw new IOException(HOME_DIR + " not set");
+            		}
         
                 String path = home + "/conf/" + url;        
                 FileInputStream stream = new FileInputStream(path);

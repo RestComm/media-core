@@ -22,6 +22,8 @@
 
 package org.mobicents.media.server.mgcp.pkg.au;
 
+import java.util.Iterator;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
@@ -62,6 +64,7 @@ public class PlayRecord extends Signal {
     private Event of = new Event(new Text("of"));
     
     private volatile boolean isActive;
+    private Iterator<Text> prompt;
     
     private Player player;
     private Recorder recorder;
@@ -77,6 +80,7 @@ public class PlayRecord extends Signal {
     private volatile boolean isPromptActive;
     private boolean isCompleted;
     private final static Logger logger = Logger.getLogger(PlayRecord.class);
+    private int segCount = 0;
     
     public PlayRecord(String name) {
         super(name);
@@ -98,6 +102,7 @@ public class PlayRecord extends Signal {
     		this.complete();
     		return;
     	}
+    	segCount = 0;
     	
     	isCompleted=false;
     	//set flag active signal
@@ -162,9 +167,11 @@ public class PlayRecord extends Signal {
         try {
             //assign listener
             player.addListener(promptHandler);
+            prompt = options.getPrompt().iterator();
+            player.setURL(prompt.next().toString());
             
-            //specify URL to play
-            player.setURL(options.getPrompt().toString());
+          //specify URL to play
+//          player.setURL(options.getPrompt().toString());
             
             //start playback
             player.start();
@@ -179,6 +186,12 @@ public class PlayRecord extends Signal {
      * Terminates prompt phase if it was started or do nothing otherwise.
      */
     private void terminatePrompt() {
+    	//jump to end of segments
+        if (prompt != null) {
+            while (prompt.hasNext()) {
+                prompt.next();
+            }
+        }
         if (player != null) {
             player.stop();
             player.removeListener(promptHandler);
@@ -344,7 +357,20 @@ public class PlayRecord extends Signal {
         of.reset();
     }
 
-
+    private void next(long delay) {
+    	segCount++;
+        try {
+        	String url = prompt.next().toString(); 
+        	logger.info(String.format("(%s) Processing player next with url - %s", getEndpoint().getLocalName(), url));
+            player.setURL(url);
+            player.setInitialDelay(delay * 1000000L);
+            //start playback
+            player.start();
+        } catch (Exception e) {
+            of.fire(this, new Text(e.getMessage()));
+        }
+    }
+    
     /**
      * Handler for prompt phase.
      */
@@ -364,9 +390,15 @@ public class PlayRecord extends Signal {
         public void process(PlayerEvent event) {
             switch (event.getID()) {
                 case PlayerEvent.START :
-                    flushBuffer();
+                	if (segCount == 0) {
+                		flushBuffer();
+                	}
                     break;
                 case PlayerEvent.STOP :
+                	if (prompt.hasNext()) {
+                        next(options.getInterval());
+                        return;
+                    }                	
                     //start collect phase when prompted has finished
                     if (isPromptActive) {
                         isPromptActive = false;

@@ -26,8 +26,7 @@ import org.mobicents.media.server.utils.Text;
 
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 
 /**
  * Naming tree for MGCP endpoints.
@@ -37,7 +36,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class NamingTree {
     //the root of the tree
     private NamingNode<EndpointQueue> root = new NamingNode(new Text("root"), null);
-    private ConcurrentLinkedQueue<Text[]> patterns = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<Text[]> patterns = new ConcurrentLinkedList();
     
     //exceptions
     private static UnknownEndpointException UNKNOWN_ENDPOINT_EXCEPTION;// = new UnknownEndpointException();
@@ -53,7 +52,7 @@ public class NamingTree {
     			pattern[i] = new Text();
     		}
     		
-    		patterns.add(pattern);
+    		patterns.offer(pattern);
     	}
     }
     
@@ -129,7 +128,7 @@ public class NamingTree {
     	}
         
     	int result=((EndpointQueue)node.poll()).find(pattern[n - 1], endpoints);
-    	patterns.add(pattern);
+    	patterns.offer(pattern);
     	return result;
     }
 }

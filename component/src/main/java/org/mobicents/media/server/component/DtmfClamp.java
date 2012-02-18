@@ -24,7 +24,6 @@ package org.mobicents.media.server.component;
 
 import java.util.ArrayList;
 
-import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -42,14 +41,7 @@ import org.mobicents.media.server.component.audio.GoertzelFilter;
  *
  * @author kulikov
  */
-public class DtmfClamp {
-	//active formats
-	private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
-    private final static Formats formats = new Formats();
-    static {
-        formats.add(linear);
-    }
-    
+public class DtmfClamp {	
     /**
     * The default duration of the DTMF tone.
     */
@@ -76,8 +68,6 @@ public class DtmfClamp {
     private double[] signal;
     private double maxAmpl;
     
-    private Processor dsp;
-    
     private ArrayList<Frame> processedData;
     private ArrayList<Frame> inProgressData;
     
@@ -91,12 +81,6 @@ public class DtmfClamp {
         this.level = DtmfDetector.DEFAULT_SIGNAL_LEVEL;
         processedData=new ArrayList<Frame>(10);
         inProgressData=new ArrayList<Frame>(10);
-    }
-    
-    public void setDsp(Processor dsp)
-    {
-    	this.dsp=dsp;
-    	this.dsp.setFormats(formats);
     }
     
     public void recycle()
@@ -114,12 +98,7 @@ public class DtmfClamp {
     {
     	inProgressData.add(source);
     	
-    	Frame activeFrame=(Frame)source.clone();
-    	//do transcoding
-    	if (dsp != null) {
-    		activeFrame = dsp.process(activeFrame);
-    	}
-    	
+    	Frame activeFrame=(Frame)source.clone();    	
     	byte[] data = activeFrame.getData();
 
         int M = activeFrame.getLength();

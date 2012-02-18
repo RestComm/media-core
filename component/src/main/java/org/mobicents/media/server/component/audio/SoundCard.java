@@ -117,12 +117,7 @@ public class SoundCard extends AbstractSink {
         } catch (ArrayIndexOutOfBoundsException e) {
         }
             
-    }
-
-    @Override
-    public Formats getNativeFormats() {
-        return formats;
-    }
+    }    
     
     private javax.sound.sampled.AudioFormat.Encoding getEncoding(String encodingName) {
         if (encodingName.equalsIgnoreCase("pcma")) {

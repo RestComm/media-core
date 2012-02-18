@@ -32,6 +32,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.MultimediaSource;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * @author baranowb
@@ -85,4 +86,10 @@ public class MediaPlayerImpl extends BaseComponent implements MultimediaSource {
         }
     }
 
+    public void setDsp(Processor dsp,MediaType media) {
+    	switch (media) {
+        	case AUDIO : audioPlayer.setDsp(dsp);
+        	break;        	
+    	}    	    	
+    }
 }

@@ -128,6 +128,9 @@ public class MainDeployer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        logger.info("Calling Garbage collector to clear init data");
+        System.gc();
         logger.info("[[[[[[[[[ " + version.toString() + " Started " + "]]]]]]]]]");
     }
 

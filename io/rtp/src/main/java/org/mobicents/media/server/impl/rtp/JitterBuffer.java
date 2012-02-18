@@ -24,7 +24,6 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
 
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfConverter;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -34,6 +33,8 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 import org.mobicents.media.server.utils.Text;
+
+import org.apache.log4j.Logger;
 
 /**
  * Implements jitter buffer.
@@ -51,7 +52,7 @@ import org.mobicents.media.server.utils.Text;
  * that if the jitter buffer size exceeds 100mS then the additional delay
  * introduced can lead to conversational difficulty.
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class JitterBuffer implements Serializable {
     private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
@@ -62,9 +63,6 @@ public class JitterBuffer implements Serializable {
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
     private ArrayList<Frame> queue = new ArrayList(QUEUE_SIZE);
-    
-    //semaphore to correctly organize frames in queue
-    private Semaphore writeSemaphore=new Semaphore(1);
     
     //RTP clock
     private RtpClock rtpClock;
@@ -106,6 +104,7 @@ public class JitterBuffer implements Serializable {
     //RTP dtmf event converter
     private DtmfConverter dtmfConverter;
     
+    private final static Logger logger = Logger.getLogger(JitterBuffer.class);
     /**
      * Creates new instance of jitter.
      * 
@@ -170,13 +169,13 @@ public class JitterBuffer implements Serializable {
     		this.format = rtpFormats.find(packet.getPayloadType());
     		
     		if(this.format!=null)
-    			System.out.println("Format has been changed: " + this.format.toString());
+    			logger.info("Format has been changed: " + this.format.toString());    			
     	} else if (this.format.getID() != packet.getPayloadType()) {
     		//format has been changed 
     		this.format = rtpFormats.find(packet.getPayloadType());
     		
     		if(this.format!=null)
-    			System.out.println("Format has been changed: " + this.format.toString());
+    			logger.info("Format has been changed: " + this.format.toString());    			
     	}
 
     	//ignore unknow packet
@@ -234,13 +233,6 @@ public class JitterBuffer implements Serializable {
     	if(f!=null)
     	{    
     		droppedInRaw=0;
-    		try
-    		{
-    			//obtaining semaphore aquire and writing frame to queue
-    			writeSemaphore.acquire();
-    		}
-    		catch(InterruptedException e)
-    		{}
     		
     		//find correct position to insert a packet    			
     		int currIndex=queue.size()-1;
@@ -250,7 +242,6 @@ public class JitterBuffer implements Serializable {
     		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
     		{
     			//duplicate packet
-    			writeSemaphore.release();
     			return;
     		}
     				    			
@@ -276,7 +267,6 @@ public class JitterBuffer implements Serializable {
     		//if overall duration is negative we have some mess here,try to reset
     		if(duration<0 && queue.size()>1)
     		{
-    			writeSemaphore.release();
     			reset();
     			return;
     		}
@@ -286,7 +276,7 @@ public class JitterBuffer implements Serializable {
     		if (queue.size()>QUEUE_SIZE) {
     			//System.out.println("Buffer overflow");    			
     			dropCount++;        			
-    			queue.remove(0);    				
+    			queue.remove(0).recycle();    				
     		}    		
     			
     		//compute interarrival jitter.
@@ -306,23 +296,13 @@ public class JitterBuffer implements Serializable {
     					listener.onFill();
     				}
     			}
-    		}
-    		
-    		//releasing semaphore
-    		writeSemaphore.release();
+    		}    		    		
     	}
     }
     
     public void pushFrame(Frame f)
     {
-    	droppedInRaw=0;
-		try
-		{
-			//obtaining semaphore aquire and writing frame to queue
-			writeSemaphore.acquire();
-		}
-		catch(InterruptedException e)
-		{}
+    	droppedInRaw=0;		
 		
 		//find correct position to insert a packet    			
 		int currIndex=queue.size()-1;
@@ -332,7 +312,6 @@ public class JitterBuffer implements Serializable {
 		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
 		{
 			//duplicate packet
-			writeSemaphore.release();
 			return;
 		}
 				    			
@@ -342,27 +321,8 @@ public class JitterBuffer implements Serializable {
 		//frame in the middle of the queue    			
 		duration=0;    			
 		if(queue.size()>1)
-			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();
-		
-		for(int i=0;i<queue.size()-1;i++)
-		{
-			//duration measured by wall clock
-			long d = queue.get(i+1).getTimestamp() - queue.get(i).getTimestamp();
-			//in case of RFC2833 event timestamp remains same
-			if (d > 0)    				
-				queue.get(i).setDuration(d);    					
-			else
-				queue.get(i).setDuration(0);
-		}
+			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();				
 			
-		//if overall duration is negative we have some mess here,try to reset
-		if(duration<0 && queue.size()>1)
-		{
-			writeSemaphore.release();
-			reset();
-			return;
-		}
-			    			
 		//overflow?
 		//only now remove packet if overflow , possibly the same packet we just received
 		if (queue.size()>QUEUE_SIZE) {
@@ -379,10 +339,7 @@ public class JitterBuffer implements Serializable {
 					listener.onFill();
 				}
 			}
-		}
-		
-		//releasing semaphore
-		writeSemaphore.release();
+		}				
     }
 
     /**

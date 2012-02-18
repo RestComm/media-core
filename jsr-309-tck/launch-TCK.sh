@@ -1,7 +1,7 @@
 JSR309TCK_HOME=$(dirname $0)
 # Keep "." first, so that properties are loaded from there
 # Change "mscontrolRI.jar" for your implementation jar
-CP=".:mscontrol.jar:mobicents-jsr309-impl-2.0.0.BETA5-SNAPSHOT.jar:tck.jar"
+CP=".:mscontrol.jar:mobicents-jsr309-impl-2.2.0.CR2.jar:tck.jar"
 for jar in deps/*.jar
 do
   CP=$CP:$jar

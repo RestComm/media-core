@@ -22,7 +22,6 @@
 
 package org.mobicents.media.server.scheduler;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Collection;
 
 /**
@@ -33,19 +32,15 @@ import java.util.Collection;
  */
 public class OrderedTaskQueue {
 	//inner holder for tasks
-    private ConcurrentLinkedQueue<Task>[] taskList=new ConcurrentLinkedQueue[2];
+    private ConcurrentLinkedList<Task>[] taskList=new ConcurrentLinkedList[2];
     
     private Integer activeIndex=0;
     
     public OrderedTaskQueue() {
         //intitalize task list
-    	taskList[0] = new ConcurrentLinkedQueue<Task>();
-    	taskList[1] = new ConcurrentLinkedQueue<Task>();
-    }
-
-    public Collection<Task> getTasks() {
-    		return taskList[activeIndex];    	
-    }
+    	taskList[0] = new ConcurrentLinkedList<Task>();
+    	taskList[1] = new ConcurrentLinkedList<Task>();
+    }    
 
     /**
      * Shows if this queue is empty.
@@ -63,8 +58,22 @@ public class OrderedTaskQueue {
      * @return TaskExecutor for the scheduled task.
      */
     public void accept(Task task) {
-    	if(!taskList[(activeIndex+1)%2].contains(task))
-    		taskList[(activeIndex+1)%2].add(task);    	
+    	if((activeIndex+1)%2==0)
+    	{
+    		if(!task.isInQueue0())
+    		{
+    			taskList[0].offer(task);
+    			task.storedInQueue0();
+    		}
+    	}
+    	else
+    	{
+    		if(!task.isInQueue1())
+    		{
+    			taskList[1].offer(task);
+    			task.storedInQueue1();
+    		}
+    	}    	    	    
     }
     
     /**
@@ -73,31 +82,17 @@ public class OrderedTaskQueue {
      * @return task which has earliest dead line
      */
     public Task poll() {
-    	if(taskList[activeIndex].isEmpty())
-    		return null;
-    
-    	return taskList[activeIndex].poll();    	
-    }    
-    
-    public Task pollAny() {
-    	if(taskList[activeIndex].isEmpty())
+    	Task result=taskList[activeIndex].poll();
+    	if(result!=null)
     	{
-    		activeIndex=(activeIndex+1)%2;
-    		if(taskList[activeIndex].isEmpty())
-    			return null;
+    		if(activeIndex==0)
+    			result.removeFromQueue0();
+    		else
+    			result.removeFromQueue1();
     	}
     	
-    	return taskList[activeIndex].poll();    	
-    }
-	
-    /**
-     * Retrieves but do not remove earliest dead line task.
-     * 
-     * @return task.
-     */
-    public Task peek() {
-    	return taskList[activeIndex].peek(); 	
-    }
+    	return result;     		    
+    }    
 
     public void changePool()
     {
@@ -122,7 +117,17 @@ public class OrderedTaskQueue {
     }
 
     protected void remove(Task task) {
-    	taskList[activeIndex].remove(task);    	
+    	if(task.isInQueue0())
+    	{
+    		taskList[0].remove(task);
+    		task.removeFromQueue0();
+    	}
+    	
+    	if(task.isInQueue1())
+    	{
+    		taskList[1].remove(task);    		
+    		task.removeFromQueue1();
+    	}
     }
 
     @Override

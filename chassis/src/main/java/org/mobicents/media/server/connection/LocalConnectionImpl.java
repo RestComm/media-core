@@ -127,7 +127,7 @@ public class LocalConnectionImpl extends BaseConnection {
     
     @Override
     protected void onCreated() throws Exception {
-        descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
+        //descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
     }
 
     @Override

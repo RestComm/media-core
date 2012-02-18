@@ -22,9 +22,6 @@
 
 package org.mobicents.media;
 
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.io.Pipe;
 
 /**
@@ -100,28 +97,7 @@ public interface MediaSource extends Component {
      * @param pipe the pipe to be disconnected.
      */
     public void disconnect(Pipe pipe);
-    
-    /**
-     * Get possible formats in which this source can stream media.
-     * 
-     * @return an array of Format objects.
-     */
-    public Formats getFormats();
-    
-    /**
-     * Set formats for streaming.
-     * 
-     * @param formats the collection of formats.
-     */
-    public void setFormats(Formats formats) throws FormatNotSupportedException;
-
-    /**
-     * Assigns digital signaling processor.
-     * 
-     * @param dsp processor instance.
-     */
-    public void setDsp(Processor dsp);
-    
+        
     /**
      * Gets the state of the component.
      * 

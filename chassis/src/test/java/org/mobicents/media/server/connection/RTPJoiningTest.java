@@ -70,7 +70,7 @@ public class RTPJoiningTest extends RTPEnvironment {
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
-        super.setup();
+    	super.setup();
         
         //assign scheduler to the endpoint
         endpoint1 = new MyTestEndpoint("test-1");
@@ -92,7 +92,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         endpoint3.setRtpManager(rtpManager);
         endpoint3.setDspFactory(dspFactory);
         endpoint3.setFreq(600);
-        endpoint3.start();        
+        endpoint3.start();
+    	
     }
 
     @After
@@ -118,6 +119,8 @@ public class RTPJoiningTest extends RTPEnvironment {
      */
     @Test
     public void testSendRecv() throws Exception {
+    	try
+    	{
     	long s = System.nanoTime();
 
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
@@ -150,6 +153,11 @@ public class RTPJoiningTest extends RTPEnvironment {
         
         assertEquals(200, s1[0], 5);
         assertEquals(400, s2[0], 5);
+    	}
+    	catch(Exception ex)
+    	{
+    		ex.printStackTrace();
+    	}
     }
 
     

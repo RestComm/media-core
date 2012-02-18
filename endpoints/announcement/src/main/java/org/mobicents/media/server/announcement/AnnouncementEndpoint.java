@@ -26,7 +26,6 @@ import org.mobicents.media.Component;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.BaseEndpointImpl;
-import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.MediaPlayerImpl;
@@ -43,39 +42,18 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  */
 public class AnnouncementEndpoint extends BaseEndpointImpl {
 
-	private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
-    private final static Formats formats = new Formats();
-    
-    private MediaPlayerImpl mediaPlayer;
-    //private AudioAnnouncement audioAnnouncement;
+	private MediaPlayerImpl mediaPlayer;
     private AudioMixer audioMixer;
-
+    private PipeImpl pipe;
+    
     private ArrayList<MediaSource> components = new ArrayList();
     
-    private DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
-    static {
-        formats.add(LINEAR);
-    }
-    
     public AnnouncementEndpoint(String name) {
-        super(name,BaseEndpointImpl.ENDPOINT_NORMAL);
-        
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
-        
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        super(name,BaseEndpointImpl.ENDPOINT_NORMAL);                
     }
     
     public AnnouncementEndpoint(String name,int endpointType) {
         super(name,endpointType);
-        
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
-        
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
     }
 
     @Override
@@ -107,31 +85,22 @@ public class AnnouncementEndpoint extends BaseEndpointImpl {
         mediaPlayer = new MediaPlayerImpl("", getScheduler());
 
         //construct audio part
-        //audioAnnouncement = new AudioAnnouncement(getScheduler());
         audioMixer = new AudioMixer(getScheduler());
         
         try {
         	MediaSink sink = audioMixer.newInput();
-            
+            MediaSource source=mediaPlayer.getMediaSource(MediaType.AUDIO);
             PipeImpl p = new PipeImpl();
             p.connect(sink);
-            p.connect(mediaPlayer.getMediaSource(MediaType.AUDIO));
+            p.connect(source);
             
-            components.add(mediaPlayer.getMediaSource(MediaType.AUDIO));
-            
-            sink.setDsp(dspFactory.newProcessor());
-            sink.setFormats(formats);
+            components.add(source);            
+            mediaPlayer.setDsp(getDspFactory().newProcessor(),MediaType.AUDIO);                
             sink.start();
-            
-            //audioAnnouncement.add();
         } catch (Exception e) {
             throw new ResourceUnavailableException(e);
         }
 
-        //its not clear why its needed here
-        //sine = new Sine(getScheduler());
-        //sine.setAmplitude((short)(Short.MAX_VALUE / 2));
-        //sine.setFrequency(50);
         super.start();
     }
 

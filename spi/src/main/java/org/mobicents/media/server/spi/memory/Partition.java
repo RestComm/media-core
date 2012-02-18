@@ -22,23 +22,23 @@
 
 package org.mobicents.media.server.spi.memory;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class Partition {
 
     protected int size;
-    private ConcurrentLinkedQueue<Frame> heap = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<Frame> heap = new ConcurrentLinkedList();
 
     protected Partition(int size) {
         this.size = size;
     }
     
     protected Frame allocate() {
-//        if (true) return new Frame(this, new byte[size]);
+    	//if (true) return new Frame(this, new byte[size]);
     	Frame result=heap.poll();    	
     	
         if (result==null)
@@ -50,13 +50,13 @@ public class Partition {
 
     protected void recycle(Frame frame) {
     	if(frame.inPartition.getAndSet(true))
-    	//dont add duplicate,otherwise may be reused in different places
+    		//dont add duplicate,otherwise may be reused in different places
     		return;
     	
         frame.setHeader(null);
         frame.setDuration(Long.MAX_VALUE);
         frame.setEOM(false);        
-        heap.add(frame);
+        heap.offer(frame);
         //queue.offer(frame, frame.getDelay(TimeUnit.NANOSECONDS), TimeUnit.NANOSECONDS);
     }
 

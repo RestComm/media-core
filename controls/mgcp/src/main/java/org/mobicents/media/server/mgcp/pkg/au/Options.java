@@ -56,13 +56,14 @@ public class Options {
     private final static Text TRUE = new Text("true");
     private final static Text FALSE = new Text("false");
     
-    private Text prompt = new Text(new byte[150], 0, 150);
+    //private Text prompt = new Text(new byte[150], 0, 150);
     private Text recordID = new Text(new byte[150], 0, 150);
     
     private boolean isPrompt;
     private boolean override = true;
     
     private Collection<Text> segments;
+    private Collection<Text> prompt;
     
     private int cursor;
     
@@ -128,7 +129,7 @@ public class Options {
             } else if (name.equals(iv)) {
                 this.interval = value.toInteger();
             } else if (name.equals(ip)) {
-                value.duplicate(prompt);
+            	this.prompt = value.split(';');
                 this.isPrompt = true;
             } else if (name.equals(mn)) {
                 this.digitsNumber = value.toInteger();
@@ -174,7 +175,7 @@ public class Options {
         return this.isPrompt;
     }
     
-    public Text getPrompt() {
+    public Collection<Text> getPrompt() {
         return prompt;
     }
     

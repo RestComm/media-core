@@ -212,11 +212,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         
     }
 
-    @Override
-    public Formats getNativeFormats() {
-        return formats;
-    }
-
     public void setRecordDir(String recordDir) {
         this.recordDir = recordDir;
     }
@@ -336,9 +331,13 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
         headerBuffer.put((byte) (size >> 24));
         
         headerBuffer.rewind();
-        fout.getChannel().write(headerBuffer);
+        FileChannel outChannel=fout.getChannel();
+        outChannel.write(headerBuffer);
         
-        copyData(fin, 0, fout);
+        if(outChannel.position()!=44)
+        	System.out.println("WARNING!INVALID POSITION:" + outChannel.position());
+        
+        copyData(fin.getChannel(), 0, outChannel);
         
         fout.flush();
         fout.close();
@@ -356,8 +355,12 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
      */
     private void copySamples(File src, FileOutputStream out) throws IOException {
         FileInputStream in = new FileInputStream(src);
+        FileChannel inChannel = in.getChannel();
+    	FileChannel outChannel = out.getChannel();
+    	
+    	
         try {
-            this.copyData(in, 44, out);
+            this.copyData(inChannel, 44, outChannel);
         } finally {
             in.close();
         }
@@ -371,10 +374,7 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
      * @param out destination
      * @throws IOException 
      */
-    private void copyData(FileInputStream in, int offset,  FileOutputStream out) throws IOException {
-    	FileChannel inChannel = in.getChannel();
-    	FileChannel outChannel = out.getChannel();
-    	
+    private void copyData(FileChannel inChannel, int offset,  FileChannel outChannel) throws IOException {
     	long count=inChannel.size()-(long)offset;
     	inChannel.transferTo(offset,count,outChannel);    	
                         

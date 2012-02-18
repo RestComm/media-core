@@ -27,7 +27,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.component.Mixer;
@@ -35,6 +36,8 @@ import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -50,28 +53,24 @@ import org.mobicents.media.server.spi.FormatNotSupportedException;
  * @author kulikov
  */
 public class AudioMixer implements Mixer {
-    private final static int POOL_SIZE = 100;
+    private final static int POOL_SIZE = 5;
 
     //scheduler for mixer job scheduling
     private Scheduler scheduler;
     
     //the format of the output stream.
     private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private Formats formats = new Formats();
-
+    
     //The pool of input streams
-    private ConcurrentLinkedQueue<Input> pool = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<Input> pool = new ConcurrentLinkedList();
     //Active input streams
-    private ConcurrentHashMap<Integer,Input> inputs = new ConcurrentHashMap(100);
+    private IntConcurrentLinkedList<Input> inputs = new IntConcurrentLinkedList();
     
     //output stream
     private final Output output;
 
     private long period = 20000000L;
-    private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;
-
-    //frames for mixing
-    private Frame[] frames;
+    private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;    
 
     private MixTask mixer;
     private volatile boolean started = false;
@@ -82,46 +81,32 @@ public class AudioMixer implements Mixer {
     private double gain = 1.0;
     private final Object LOCK = new Object();
     
+    //stores last id used for input
+    private AtomicInteger currentKey=new AtomicInteger(1);
+    
     public AudioMixer(Scheduler scheduler) {
         this.scheduler = scheduler;
-        formats.add(format);
-
+        
         mixer = new MixTask(scheduler);
         output = new Output(scheduler);
         
         for (int i = 0; i < POOL_SIZE; i++) {
-            pool.add(new Input(scheduler,(i+1)));
+            pool.offer(new Input(scheduler, currentKey.getAndIncrement()));
         }
-    }
-
-    /**
-     * Gets the format of the output stream.
-     * 
-     * @return the audio format descriptor.
-     */
-    public Format getFormat() {
-        return format;
-    }
-
-    /**
-     * Modifies format of the output stream.
-     *
-     * @param format the format descriptor.
-     */
-    public void setFormat(Format format) {
-        this.format = (AudioFormat) format;
-        packetSize = (int)(period / 1000000) * this.format.getSampleRate()/1000 * this.format.getSampleSize() / 8;
-    }
+    }    
 
     /**
      * Creates new input for this mixer.
      *
      * @return Input as media sink object.
      */
-    public MediaSink newInput() {    	
-    	Input input = pool.remove();
+    public MediaSink newInput() {  
+    	if(pool.isEmpty())
+    		pool.offer(new Input(scheduler, currentKey.getAndIncrement()));
+    	
+    	Input input = pool.poll();
     	input.buffer.clear();
-    	inputs.put(input.getInputId(),input);
+    	inputs.offer(input,input.inputId);
     	return input;    	
     }
 
@@ -186,7 +171,7 @@ public class AudioMixer implements Mixer {
             output.buffer.clear();
             scheduler.submit(mixer,scheduler.MIXER_MIX_QUEUE);
             mixCount = 0;
-            Iterator<Input> activeInputs=inputs.values().iterator();
+            Iterator<Input> activeInputs=inputs.iterator();
             while(activeInputs.hasNext())
             	activeInputs.next().start();            
         }
@@ -209,7 +194,7 @@ public class AudioMixer implements Mixer {
             output.stop();
         }
         
-        Iterator<Input> activeInputs=inputs.values().iterator();
+        Iterator<Input> activeInputs=inputs.iterator();
         while(activeInputs.hasNext())
         	activeInputs.next().stop();         
     }
@@ -222,7 +207,7 @@ public class AudioMixer implements Mixer {
         builder.append(output.report());
         builder.append(")\n");
         
-        Iterator<Input> activeInputs=inputs.values().iterator();
+        Iterator<Input> activeInputs=inputs.iterator();
         while(activeInputs.hasNext())
         {
         	Input input=activeInputs.next();
@@ -242,9 +227,10 @@ public class AudioMixer implements Mixer {
         private int inputId;
         //50 frames is too much , 5 frames equals 100ms
         private int limit=5;
-        private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
+        private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
         private Frame activeFrame=null;
         private byte[] activeData;
+        private byte[] oldData;
         private int byteIndex=0;
         
         //private ElasticBuffer buffer = new ElasticBuffer(3, 10);
@@ -267,9 +253,9 @@ public class AudioMixer implements Mixer {
         	//generate frames with correct size here , aggregate frames if needed.
         	//allows to accept several sources with different ptime ( packet time ) 
         	if (buffer.size() >= limit) 
-        		buffer.remove();
+        		buffer.poll().recycle();
             
-        	byte[] oldData=frame.getData();        	
+        	oldData=frame.getData();       	
         	for(int i=0;i<oldData.length;i++)        	
         	{
         		if(activeData==null)
@@ -292,16 +278,7 @@ public class AudioMixer implements Mixer {
         	}
         	
         	frame.recycle();
-        }
-
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.impl.AbstractSink#getNativeFormats() 
-         */
-        public Formats getNativeFormats() {
-            return formats;
-        }
+        }        
 
         /**
          * Indicates the state of the input buffer.
@@ -323,25 +300,29 @@ public class AudioMixer implements Mixer {
         }
 
         /**
-         * Recycles output stream
+         * Recycles input stream
          */
         protected void recycle() {
-            buffer.clear();
+        	while(buffer.size()>0)
+        		buffer.poll().recycle();
+        	
+        	if(activeFrame!=null)
+        		activeFrame.recycle();
+        	
             activeFrame=null;
 			activeData=null;
 			byteIndex=0;
 			
             inputs.remove(this.inputId);
-            pool.add(this);                        
+            pool.offer(this);
         }
-
     }
 
     /**
      * Output stream
      */
     private class Output extends AbstractSource {
-        private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
+        private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
         /**
          * Creates new instance with default name.
          */
@@ -352,16 +333,7 @@ public class AudioMixer implements Mixer {
         @Override
         public Frame evolve(long timestamp) {
         	return buffer.poll();
-        }
-        
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.impl.AbstractSource#getNativeFormats()
-         */
-        public Formats getNativeFormats() {
-            return formats;
-        }
+        }        
 
         @Override
         public void start() {
@@ -370,7 +342,10 @@ public class AudioMixer implements Mixer {
         }
         
         @Override
-        public void stop() {        	
+        public void stop() {
+        	while(buffer.size()>0)
+        		buffer.poll().recycle();
+        	
         	//System.out.println("MIX COUNT:" + mixCount);    
         	stopMixer(false);
             super.stop();            
@@ -381,7 +356,15 @@ public class AudioMixer implements Mixer {
 
         private volatile long priority;
         private volatile long duration = -100;
-
+        private Frame frame;
+        private int count;
+        private int k;
+        private byte[] data;
+        private short[] s=new short[packetSize/2];
+        
+        //frames for mixing
+        private ArrayList<Frame> frames=new ArrayList(POOL_SIZE);
+        
         public MixTask(Scheduler scheduler) {
             super(scheduler);
         }
@@ -404,60 +387,58 @@ public class AudioMixer implements Mixer {
         }
         
         public long perform() {
-            try {
-            //allocate new frame
-            Frame frame = Memory.allocate(packetSize);
-            byte[] data = frame.getData();
+            try {            
 
             //poll inputs
-            int count=0;
-            frames = new Frame[inputs.size()];
-            Iterator<Input> activeInputs=inputs.values().iterator();
+            Iterator<Input> activeInputs=inputs.iterator();
             while(activeInputs.hasNext())
             {
             	Input input=activeInputs.next();
-            	frames[count] = input.poll();
-            	if(frames[count]!=null && frames[count].getLength()!=packetSize)
-                {            		
-            		//may happen after codec changes
-                	frames[count].recycle();
-                	frames[count]=null;                	
-                }
-                
-                if(frames[count]!=null)
-                	count++;
-            }                        
+            	frame=input.poll();
+            	if(frame!=null && frame.getLength()!=packetSize)
+                	//may happen after codec changes
+            		frame.recycle();
+            	else if(frame!=null)
+                	frames.add(frame);
+            }
 
-            if(count==0)
+            if(frames.size()==0)
             {            	
-            	frame.recycle();
             	scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             	return 0;
             }
 
-            //do mixing
-        	int k = 0;
-        	for (int j = 0; j < packetSize; j += 2) {
-        		short s = 0;
-        		for (int i = 0; i < count; i++) {
-        			s += (short) (((frames[i].getData()[j + 1]) << 8) | (frames[i].getData()[j] & 0xff));                    
-        		}
+            //allocate new frame
+            frame = Memory.allocate(packetSize);
+            count=frames.size();
             
-        		s = (short)Math.round((double) s * gain);
+            k = 0;
+            for (int j = 0; j < packetSize; k++,j += 2) {
+            	s[k]=0;
+            }
             
-        		data[k++] = (byte) (s);
-        		data[k++] = (byte) (s >> 8);
-        	}
-        	
-        	//recycle received frames
+            //do mixing            
         	for (int i = 0; i < count; i++) {
-        		//we are generating new frames , why should we send old headers????
-        		/*if (frames[i].getHeader() != null) {
-        			frame.setHeader(frames[i].getHeader());
-        		}*/
-        		frames[i].recycle();                
+        		data=frames.get(i).getData();
+        		k = 0;
+        		for (int j = 0; j < packetSize; k++,j += 2) {
+        			s[k]+=(short) (((data[j + 1]) << 8) | (data[j] & 0xff));
+        		}
         	}
         	
+        	data = frame.getData();
+        	k=0;
+            for (int j = 0; j < s.length; j++) {
+        		s[j] = (short)Math.round((double) s[j] * gain);
+            
+        		data[k++] = (byte) (s[j]);
+        		data[k++] = (byte) (s[j] >> 8);
+        	}
+        	
+            //recycle received frames
+            while(frames.size()>0)
+            	frames.remove(0).recycle();
+        	        	
             //assign attributes to the new frame
             frame.setOffset(0);
             frame.setLength(packetSize);
@@ -469,8 +450,8 @@ public class AudioMixer implements Mixer {
             scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             output.wakeup();
 
-            mixCount++;
-
+            mixCount++;            
+            
             return 0;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -478,5 +459,4 @@ public class AudioMixer implements Mixer {
             return 0;
         }
     }
-
 }

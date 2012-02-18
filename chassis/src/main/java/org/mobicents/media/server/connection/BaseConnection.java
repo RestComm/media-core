@@ -74,13 +74,6 @@ public abstract class BaseConnection implements Connection {
     //events
     private ConnectionEvent stateEvent;
 
-    //session descriptor
-    protected SessionDescription description = new SessionDescription();
-
-    //SDP template
-    protected SdpTemplate template;
-    protected String descriptor;
-
     //media channels
     protected Channel audioChannel;
     protected Channel videoChannel;
@@ -89,12 +82,6 @@ public abstract class BaseConnection implements Connection {
     private volatile long ttl;
     private HeartBeat heartBeat;
 
-    protected RTPFormats audioFormats;
-    protected RTPFormats videoFormats;
-
-    /** Signaling processors factory */
-    private DspFactory dspFactory;      
-    
     /**
      * Creates basic connection implementation.
      *
@@ -105,7 +92,6 @@ public abstract class BaseConnection implements Connection {
         this.id = id;
         this.connections = connections;
         this.scheduler = connections.scheduler;
-        this.dspFactory = connections.dspFactory;
         
         heartBeat = new HeartBeat(scheduler);
 
@@ -121,31 +107,8 @@ public abstract class BaseConnection implements Connection {
         	videoChannel = new LocalToRemoteChannel(this, connections, MediaType.AUDIO, new VideoMixer(scheduler), new Splitter(scheduler));
         }
         
-        //create sdp template
-        audioFormats = getRTPMap(audioChannel, AVProfile.audio);
-        videoFormats = getRTPMap(videoChannel, AVProfile.video);
-
-        template = new SdpTemplate(audioFormats, videoFormats);
-
         //initialize event objects
         this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
-    }
-
-    /**
-     * Constructs RTP payloads for given channel.
-     *
-     * @param channel the media channel
-     * @param profile AVProfile part for media type of given channel
-     * @return collection of RTP formats.
-     */
-    private RTPFormats getRTPMap(Channel channel, RTPFormats profile) {
-        RTPFormats list = new RTPFormats();
-        Formats fmts = channel.getFormats();
-        for (int i = 0; i < fmts.size(); i++) {
-            RTPFormat f = profile.find(fmts.get(i));
-            if (f != null) list.add(f.clone());
-        }
-        return list;
     }
     
     /**
@@ -201,7 +164,7 @@ public abstract class BaseConnection implements Connection {
      * @see org.mobicents.media.server.spi.Connection#getDescriptor()
      */
     public String getDescriptor() {
-        return descriptor;
+        return null;
     }
 
     /**

@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.CheckPoint;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
@@ -39,18 +38,14 @@ import org.mobicents.media.server.component.video.VideoMixer;
 import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.rtp.RTPManager;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.VideoFormat;
 /**
  * Implements connection management subsystem.
  *
@@ -69,9 +64,9 @@ public class Connections {
     protected Scheduler scheduler;
 
     //pool of local connections
-    private ConcurrentLinkedQueue<BaseConnection> localConnections=new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<BaseConnection> localConnections=new ConcurrentLinkedList();
     //pool of RTP connections
-    private ConcurrentLinkedQueue<BaseConnection> rtpConnections=new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<BaseConnection> rtpConnections=new ConcurrentLinkedList();
 
     //list of currently active connections
     protected ConcurrentHashMap<String,BaseConnection> activeConnections;    
@@ -88,12 +83,7 @@ public class Connections {
     /**
      * active local channels
      */
-    protected AtomicInteger lastChannelId=new AtomicInteger(1);
-    protected ConcurrentHashMap<Integer,LocalChannel> localChannels = new ConcurrentHashMap();
-
-    //intermediate audio and video formats.
-    private Formats audioFormats = new Formats();
-    private Formats videoFormats = new Formats();
+    protected ConcurrentHashMap<String,LocalChannel> localChannels = new ConcurrentHashMap();
 
     protected RTPManager rtpManager;
     /** Signaling processors factory */
@@ -110,9 +100,6 @@ public class Connections {
         this.rtpManager = endpoint.getRtpManager();
         this.dspFactory = endpoint.getDspFactory();
         
-        audioFormats.add(FormatFactory.createAudioFormat("linear", 8000, 16, 1));
-        videoFormats.add(FormatFactory.createVideoFormat("unknown"));
-
         //creates transmission channels (between endpoint and connections)
         audioChannel = new Channel(new AudioMixer(scheduler), new Splitter(scheduler), MediaType.AUDIO);
         videoChannel = new Channel(new VideoMixer(scheduler), new Splitter(scheduler), MediaType.VIDEO);
@@ -122,12 +109,12 @@ public class Connections {
 
         //prepare local connections
         for (int i = 0; i < localPoolSize; i++) {
-        	localConnections.add(new LocalConnectionImpl(Integer.toString(count++), this, isLocalToRemote));        	
+        	localConnections.offer(new LocalConnectionImpl(Integer.toString(count++), this, isLocalToRemote));        	
         }
 
         //prepare rtp connections
         for (int i = 0; i < rtpPoolSize; i++) {
-            rtpConnections.add(new RtpConnectionImpl(Integer.toString(count++), this, isLocalToRemote));
+            rtpConnections.offer(new RtpConnectionImpl(Integer.toString(count++), this, isLocalToRemote));
         }
 
         //create holder for active connections
@@ -175,76 +162,26 @@ public class Connections {
     	switch (type) {
        		case LOCAL:
        			activeConnections.remove(connection.getId());
-       			localConnections.add(connection);
+       			localConnections.offer(connection);
        			break;
        		case RTP:
        			activeConnections.remove(connection.getId());
-       			rtpConnections.add(connection);       			
+       			rtpConnections.offer(connection);       			
        			break;
     	}
-    }
-
-    /**
-     * Gets the intermediate audio format.
-     *
-     * @return the audio format descriptor.
-     */
-    public AudioFormat getAudioFormat() {
-        return (AudioFormat) this.audioFormats.get(0);
-    }
-
-    /**
-     * Sets the intermediate audio format.
-     *
-     * @param audioFormat the audio format descriptor.
-     */
-    public void setAudioFormat(AudioFormat audioFormat) {
-        this.audioFormats.clean();
-        this.audioFormats.add(audioFormat);
-    }
-
-    /**
-     * Gets the intermediate video format.
-     *
-     * @return the video format descriptor.
-     */
-    public VideoFormat getVideoFormat() {
-        return (VideoFormat) this.videoFormats.get(0);
-    }
-
-    /**
-     * Sets the intermediate video format.
-     *
-     * @param videoFormat the video format descriptor.
-     */
-    public void setVideoFormat(VideoFormat videoFormat) {
-        this.videoFormats.clean();
-        this.videoFormats.add(videoFormat);
-    }
-    
-    /**
-     * Gets intermediate as collection.
-     * 
-     * @param mediaType the media type 
-     * @return the collection wich contains single element with intermediate format.
-     */
-    protected Formats getFormats(MediaType mediaType) {
-        switch (mediaType) {
-            case AUDIO:
-                return audioFormats;
-            case VIDEO:
-                return videoFormats;
-            default:
-                return null;
-        }
+    	
+    	removeFromConference(connection);
     }
     
     /**
      * Closes all activities connections.
      */
     public void release() {
+    	BaseConnection currConnection;
         for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-        	activeConnections.remove(e.nextElement()).close();
+        	currConnection=activeConnections.remove(e.nextElement());
+        	currConnection.close();
+        	removeFromConference(currConnection);
         }        
     }
 
@@ -360,24 +297,38 @@ public class Connections {
     	}    	
     }
 
+    protected String getChannelId(BaseConnection c1,BaseConnection c2)
+    {
+    	if(c1==null || c2==null)
+    		return null;
+    	
+    	Integer val1=Integer.parseInt(c1.getId());
+    	Integer val2=Integer.parseInt(c2.getId());
+    	if(val1>val2)
+    		return c1.getId() + ":" + c2.getId();
+    	
+    	return c2.getId() + ":" + c1.getId();
+    }
+    
     protected void addToConference(BaseConnection connection) {
-    	String key;
+    	BaseConnection c;   
+    	LocalChannel channel,channel2;
     	for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-    		key=e.nextElement();
-    		BaseConnection c=activeConnections.get(key);
-    		if (c!=null && c.getMode(MediaType.AUDIO) == ConnectionMode.CONFERENCE && connection != c) {
-            	Integer Id=lastChannelId.getAndIncrement();
-                LocalChannel channel = new LocalChannel(Id);
-                channel.join(connection, c);
-                localChannels.put(Id,channel);            
-            }
-        }
+    		String key=e.nextElement();
+    		c=activeConnections.get(key);
+    		if (c!=null && c.getMode(MediaType.AUDIO) == ConnectionMode.CONFERENCE  && c!=connection) {
+    			channel = new LocalChannel();
+    			channel2=localChannels.putIfAbsent(getChannelId(c,connection),channel);
+    			if(channel2==null)
+    				channel.join(c, connection);           
+    		}
+        }    	    	
     }
     
     protected void updateConnectionChannels(BaseConnection connection) {
-    	Integer key;
+    	String key;
     	LocalChannel channel;
-    	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
+    	for(Enumeration<String> e = localChannels.keys() ; e.hasMoreElements() ;) {
     		key=e.nextElement();
     		channel=localChannels.get(key);
     		if(channel!=null && channel.match(connection))
@@ -388,12 +339,12 @@ public class Connections {
     protected void removeFromConference(BaseConnection connection) {
     	//should remove all channells and not only one
         LocalChannel channel;        
-        Integer key;
-    	for(Enumeration<Integer> e = localChannels.keys() ; e.hasMoreElements() ;) {
+        String key;
+        for(Enumeration<String> e = localChannels.keys() ; e.hasMoreElements() ;) {
     		key=e.nextElement();
     		channel=localChannels.get(key);
-    		if(channel.match(connection)) {
-    			localChannels.remove(channel);
+    		if(channel!=null && channel.match(connection)) {
+    			localChannels.remove(key);
     			channel.unjoin();    		
     		}
     	}
@@ -596,14 +547,7 @@ public class Connections {
             //check that endpoint has source
             if (source == null) {
                 throw new ModeNotSupportedException("SEND_ONLY");
-            }
-
-            //assign formats
-            try {
-                channel.splitter.getInput().setFormats(source.getFormats());
-            } catch (FormatNotSupportedException e) {
-                throw new ModeNotSupportedException(e.getMessage());
-            }
+            }            
 
             //join source with channel
             pipe.connect(source);
@@ -652,14 +596,7 @@ public class Connections {
             //check that sink is present
             if (sink == null) {
                 throw new ModeNotSupportedException("RECV_ONLY");
-            }
-
-            //assign formats (enable transcoding if required)
-            try {
-                channel.mixer.getOutput().setFormats(sink.getFormats());
-            } catch (FormatNotSupportedException e) {
-                throw new ModeNotSupportedException(e.getMessage());
-            }
+            }            
 
             //join sink with channel and start transmission
             pipe.connect(sink);
@@ -820,21 +757,14 @@ public class Connections {
      * Channel for joining connections in CNF mode.
      */
     protected class LocalChannel {
-    	private Integer id;
-        private Party party1 = new Party();
+    	private Party party1 = new Party();
         private Party party2 = new Party();
 
         private PipeImpl audioRxPipe = new PipeImpl();
         private PipeImpl audioTxPipe = new PipeImpl();
         
-        public LocalChannel(Integer id)
-        {
-        	this.id=id;
-        }
-        
-        public Integer getId()
-        {
-        	return this.id;
+        public LocalChannel()
+        {        	
         }
         
         //should be opposite since connecting inside endpoint and not to outside

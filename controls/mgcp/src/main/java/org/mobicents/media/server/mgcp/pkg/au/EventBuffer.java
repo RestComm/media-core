@@ -23,8 +23,8 @@
 package org.mobicents.media.server.mgcp.pkg.au;
 
 import java.util.Collection;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.utils.Text;
@@ -47,7 +47,7 @@ public class EventBuffer implements DtmfDetectorListener {
     private BufferListener listener;
     
     private volatile boolean isActive = false;
-    private ConcurrentLinkedQueue<DtmfEvent> queue = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<DtmfEvent> queue = new ConcurrentLinkedList();
     
     private Logger logger = Logger.getLogger(EventBuffer.class);
     
@@ -117,7 +117,7 @@ public class EventBuffer implements DtmfDetectorListener {
             process(event.getTone());
         } else {
             //buffer tone if collect phase is not activated yet
-            queue.add(event);
+            queue.offer(event);
         }                          
     }
     

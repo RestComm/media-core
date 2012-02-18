@@ -100,10 +100,4 @@ public class Sine extends AbstractSource {
         time += ((double) period) / 1000000000.0;
         return frame;
     }
-
-    @Override
-    public Formats getNativeFormats() {
-        return formats;
-    }
-
 }

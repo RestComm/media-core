@@ -23,13 +23,13 @@
 package org.mobicents.media.server.impl.resource.dtmf;
 
 import java.io.Serializable;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 
 /**
  * Implements digit buffer.
  * 
- * @author Oleg Kulikov
+ * @author Oifa Yulian
  */
 public class DtmfBuffer implements Serializable {
     
@@ -38,7 +38,7 @@ public class DtmfBuffer implements Serializable {
     public int interdigitInterval = 160;
     
     //Queue for buffered events
-    private ConcurrentLinkedQueue<DtmfEventImpl> queue = new ConcurrentLinkedQueue();
+    private ConcurrentLinkedList<DtmfEventImpl> queue = new ConcurrentLinkedList();
     
     //buffer size
     private int size = 20;
@@ -94,7 +94,12 @@ public class DtmfBuffer implements Serializable {
             lastSymbol = symbol;
             
             detector.fireEvent(symbol);
-        }
+        }        
+    }
+    
+    public void updateTime()
+    {
+    	lastActivity= System.currentTimeMillis();
     }
     
     /**
@@ -115,9 +120,9 @@ public class DtmfBuffer implements Serializable {
      */
     public void flush() {
         logger.info(String.format("(%s) Flush, buffer size: %d", detector.getName(), queue.size()));
-        detector.fireEvent(queue);
-        queue.clear();
-    }    
+        while(queue.size()>0)
+        	detector.fireEvent(queue.poll());                
+    }
     
     /**
      * Clears buffer content

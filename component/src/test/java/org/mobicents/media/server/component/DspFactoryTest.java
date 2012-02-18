@@ -85,7 +85,7 @@ public class DspFactoryTest {
         Dsp dsp = dspFactory.newProcessor();
 
         Frame frame = Memory.allocate(320);
-        Frame frame2 = dsp.process(frame);
+        Frame frame2 = dsp.process(frame,null,null);
 
         assertEquals(frame, frame2);
     }
@@ -100,7 +100,7 @@ public class DspFactoryTest {
         Frame frame = Memory.allocate(320);
         frame.setFormat(FormatFactory.createAudioFormat("test", 8000));
 
-        Frame frame2 = dsp.process(frame);
+        Frame frame2 = dsp.process(frame,frame.getFormat(),null);
 
         assertEquals(frame, frame2);
     }
@@ -108,19 +108,16 @@ public class DspFactoryTest {
     @Test
     public void testInputToOutputMatch() throws Exception {
         Format fmt = FormatFactory.createAudioFormat("test", 8000);
-        Formats fmts = new Formats();
-        fmts.add(fmt);
-
+        
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
         Dsp dsp = dspFactory.newProcessor();
-        dsp.setFormats(fmts);
-
+        
         Frame frame = Memory.allocate(320);
         frame.setFormat(fmt);
 
-        Frame frame2 = dsp.process(frame);
+        Frame frame2 = dsp.process(frame,fmt,null);
 
         assertEquals(frame, frame2);
     }
@@ -130,19 +127,15 @@ public class DspFactoryTest {
         Format fmt = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
         Format fmt2 = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
 
-        Formats fmts = new Formats();
-        fmts.add(fmt2);
-
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
         Dsp dsp = dspFactory.newProcessor();
-        dsp.setFormats(fmts);
-
+        
         Frame frame = Memory.allocate(320);
         frame.setFormat(fmt);
 
-        Frame frame2 = dsp.process(frame);
+        Frame frame2 = dsp.process(frame,fmt,fmt2);
 
         System.out.println("fmt=" + frame2.getFormat().getName());
         assertTrue("Format missmatch", fmt2.matches(frame2.getFormat()));

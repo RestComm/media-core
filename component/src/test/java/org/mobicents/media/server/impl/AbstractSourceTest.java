@@ -179,11 +179,7 @@ public class AbstractSourceTest {
             frame.setDuration(20000000L);
             
             return frame;
-        }
-
-        public Formats getNativeFormats() {
-            return formats;
-        }
+        }        
         
         @Override
         protected void completed() {
@@ -202,11 +198,5 @@ public class AbstractSourceTest {
         public void onMediaTransfer(Frame frame) throws IOException {
             timestamp[count++] = frame.getTimestamp();
         }
-
-        @Override
-        public Formats getNativeFormats() {
-            return formats;
-        }
-        
     }
 }

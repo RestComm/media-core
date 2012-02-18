@@ -24,6 +24,7 @@ package org.mobicents.media.server.spi;
 
 import java.util.Collection;
 import org.mobicents.media.MediaSource;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  *
@@ -32,4 +33,5 @@ import org.mobicents.media.MediaSource;
 public interface MultimediaSource {
     public Collection<MediaType> getMediaTypes();
     public MediaSource getMediaSource(MediaType media);
+    public void setDsp(Processor dsp,MediaType media);
 }

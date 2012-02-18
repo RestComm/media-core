@@ -42,11 +42,6 @@ import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.VideoFormat;
 /**
  * Implements connection management subsystem.
  *
@@ -66,30 +61,32 @@ public class LocalToRemoteConnections extends Connections {
     String key;
     //connecting only local connections to remote and vise versa
     protected void addToConference(BaseConnection connection) {
+    	BaseConnection c;
+    	LocalChannel channel,channel2;
     	if(connection instanceof LocalConnectionImpl)
     	{
     		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
     			key=e.nextElement();
-        		BaseConnection c=activeConnections.get(key);        
-                if (c!=null && c instanceof RtpConnectionImpl && connection != c) {
-                	Integer Id=lastChannelId.getAndIncrement();
-                    LocalChannel channel = new LocalChannel(Id);
-                    channel.join(c, connection);
-                    localChannels.put(Id,channel);                
-                }
+        		c=activeConnections.get(key);        
+        		if (c!=null && c instanceof RtpConnectionImpl && connection != c) {
+        			channel = new LocalChannel();
+        			channel2=localChannels.putIfAbsent(getChannelId(c,connection),channel);
+        			if(channel2==null)
+        				channel.join(c, connection);        			
+        		}
             }
     	}
     	else
     	{
     		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
     			key=e.nextElement();
-        		BaseConnection c=activeConnections.get(key);        
-                if (c!=null && c instanceof LocalConnectionImpl && connection != c) {
-                	Integer Id=lastChannelId.getAndIncrement();
-                    LocalChannel channel = new LocalChannel(Id);
-                    channel.join(connection, c);
-                    localChannels.put(Id,channel);             
-                }
+        		c=activeConnections.get(key);
+        		if (c!=null && c instanceof LocalConnectionImpl && connection != c) {
+        			channel = new LocalChannel();
+        			channel2=localChannels.putIfAbsent(getChannelId(c,connection),channel);
+        			if(channel2==null)
+        				channel.join(c, connection);         
+        		}        		
             }
     	}    	
     }   

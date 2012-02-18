@@ -30,7 +30,6 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.text.Format;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.impl.AbstractSink;
@@ -39,18 +38,22 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.dsp.Codec;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.apache.log4j.Logger;
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class RTPDataChannel {
-
+	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+	
     private final static AudioFormat dtmfFormat = FormatFactory.createAudioFormat("telephony-event", 8000);
     
     private final static int PORT_ANY = -1;
@@ -64,9 +67,12 @@ public class RTPDataChannel {
     private DatagramChannel controlChannel;
 
     //Receiver and transmitter
-    private Input input;
-    private Output output;
+    private RTPInput input;
+    private RTPOutput output;
 
+    //tx task - sender
+    private TxTask tx = new TxTask();
+    
     //RTP clock
     private RtpClock rtpClock;
 
@@ -87,8 +93,7 @@ public class RTPDataChannel {
     private volatile long rxCount;
     private volatile long txCount;
     
-    private JitterBuffer rxBuffer;
-    private ConcurrentLinkedQueue<Frame> txBuffer;
+    private JitterBuffer rxBuffer;    
 
     private Formats formats = new Formats();
     
@@ -108,7 +113,7 @@ public class RTPDataChannel {
      * @param rtpManager RTP manager
      * @throws IOException
      */
-    protected RTPDataChannel(RTPManager rtpManager) throws IOException {
+    protected RTPDataChannel(RTPManager rtpManager) throws IOException {    	
         this.rtpManager = rtpManager;
         this.jitter = rtpManager.jitter;
 
@@ -118,17 +123,15 @@ public class RTPDataChannel {
         //create clock with RTP units
         rtpClock = new RtpClock(rtpManager.getClock());
 
-        //receiver
-        input = new Input(rtpManager.scheduler);
-
-        //transmittor
-        output = new Output(rtpManager.scheduler);
-
         rxBuffer = new JitterBuffer(rtpClock, jitter);
-        rxBuffer.setListener(input);
-
-        txBuffer = new ConcurrentLinkedQueue();
         
+        //receiver
+        input = new RTPInput(rtpManager.scheduler,rxBuffer);
+        rxBuffer.setListener(input);
+        
+        //transmittor
+        output = new RTPOutput(rtpManager.scheduler,this);               
+
         heartBeat=new HeartBeat(rtpManager.scheduler);
         
         //add RFC2833 dtmf event formats
@@ -137,6 +140,8 @@ public class RTPDataChannel {
             f.setClockRate(8000);
             eventFormats.add(f);
         }
+        
+        formats.add(format);
     }
     
     public void setRtpChannelListener(RTPChannelListener rtpChannelListener)
@@ -244,7 +249,7 @@ public class RTPDataChannel {
     public void close() {
         input.stop();
         output.stop();        
-        output.tx.clear();
+        this.tx.clear();    	
         
         if(dataChannel.isConnected())
         	try {        
@@ -271,7 +276,7 @@ public class RTPDataChannel {
      *
      * @return receiver as media source
      */
-    public MediaSource getInput() {
+    public RTPInput getInput() {
         return input;
     }
 
@@ -280,7 +285,7 @@ public class RTPDataChannel {
      *
      * @return transceiver as media sink.
      */
-    public MediaSink getOutput() {
+    public RTPOutput getOutput() {
         return output;
     }
 
@@ -302,8 +307,14 @@ public class RTPDataChannel {
      * @param rtpFormats the format map
      */
     public void setFormatMap(RTPFormats rtpFormats) {
+    	this.rtpHandler.flush();
     	this.rtpFormats = rtpFormats;
         this.rxBuffer.setFormats(rtpFormats);                        
+    }        
+    
+    protected void send(Frame frame)
+    {
+    	tx.perform(frame);
     }
     
     /**
@@ -315,8 +326,7 @@ public class RTPDataChannel {
     private class RTPHandler implements ProtocolHandler {
         //The schedulable task for read operation
         private RxTask rx = new RxTask(rtpManager.scheduler);
-        private TxTask tx = new TxTask(rtpManager.scheduler);
-
+        
         private volatile boolean isReading = false;
         private volatile boolean isWritting;
 
@@ -346,15 +356,17 @@ public class RTPDataChannel {
                 this.isReading = false;            
         }
 
+        private void flush()
+        {
+        	rx.flush();
+        }
+        
         /**
          * (Non Java-doc.)
          *
          * @see org.mobicents.media.server.io.network.ProtocolHandler#send(java.nio.channels.DatagramChannel)
          */
-        public void send(DatagramChannel channel) {
-        		//at this point we are not writting directly
-        		//instead the task for writting is scheduled to run at next time unit
-        		rtpManager.scheduler.submit(tx,rtpManager.scheduler.OUTPUT_QUEUE);        	
+        public void send(DatagramChannel channel) {        		        
         }
 
         public void setKey(SelectionKey key) {
@@ -388,93 +400,7 @@ public class RTPDataChannel {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }
-
-    /**
-     * Receiver implementation.
-     *
-     * The Media source of RTP data.
-     */
-    private class Input extends AbstractSource implements BufferListener {
-    	/**
-         * Creates new receiver.
-         */
-        protected Input(Scheduler scheduler) {
-            super("input", scheduler,scheduler.INPUT_QUEUE);
-        }
-
-        protected int getPacketsLost() {
-            return 0;
-        }
-
-        /**
-         * Accept new RTP packet.         *
-         * This method is called by RX task.
-         *
-         * @param rtpPacket the new RTP data packet
-         */
-        protected void accept(RtpPacket rtpPacket) {
-            //juts put it into the rx buffer
-            rxBuffer.write(rtpPacket);
-        }
-
-        @Override
-        public Frame evolve(long timestamp) {
-        	return rxBuffer.read(timestamp);
-        }
-
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.MediaSource#getFormats()
-         */
-        public Formats getNativeFormats() {
-            return formats;
-        }
-
-        /**
-         * RX buffer's call back method.
-         * 
-         * This method is called when rxBuffer is full and it is time to start
-         * transmission to the consumer.
-         */
-        public void onFill() {
-        	this.wakeup();
-        }
-    }
-
-    /**
-     * Transmitter implementation.
-     *
-     */
-    private class Output extends AbstractSink {
-        private TxTask tx = new TxTask(rtpManager.scheduler);
-        protected boolean isWritable = true;
-        
-        /**
-         * Creates new transmitter
-         */
-        protected Output(Scheduler scheduler) {
-            super("Output", scheduler,scheduler.OUTPUT_QUEUE);
-        }
-
-        @Override
-        public void onMediaTransfer(Frame frame) throws IOException {
-        	if (dataChannel.isConnected()) {        		
-        		txBuffer.offer(frame);
-        		tx.perform();
-        	}        	        		
-        }
-        
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.MediaSink#getFormats()
-         */
-        public Formats getNativeFormats() {
-            return formats;
-        }
-    }
-
+    
     /**
      * Implements scheduled rx job.
      *
@@ -483,6 +409,7 @@ public class RTPDataChannel {
 
         //RTP packet representation
         private RtpPacket rtpPacket = new RtpPacket(8192, true);        
+        private SocketAddress currAddress;
         
         private RxTask(Scheduler scheduler) {
             super(scheduler);
@@ -511,6 +438,24 @@ public class RTPDataChannel {
             return 0;
         }
         
+        private void flush()
+        {
+        	try {
+        		//lets clear the receiver    	
+        		currAddress=dataChannel.receive(rtpPacket.getBuffer());
+        		rtpPacket.getBuffer().clear();
+        	
+        		while(currAddress!=null)
+        		{
+        			currAddress=dataChannel.receive(rtpPacket.getBuffer());
+        			rtpPacket.getBuffer().clear();
+        		}
+        	}
+        	catch (Exception e) {
+            	//TODO: handle error
+            }
+        }
+        
         /**
          * (Non Java-doc.)
          *
@@ -521,7 +466,7 @@ public class RTPDataChannel {
                 //clean buffer before read
                 rtpPacket.getBuffer().clear();
                 
-                SocketAddress currAddress=null;
+                currAddress=null;
                 
                 try {
                 	currAddress=dataChannel.receive(rtpPacket.getBuffer());
@@ -538,7 +483,7 @@ public class RTPDataChannel {
 
                     //queue packet into the receiver's jitter buffer
                     if (rtpPacket.getBuffer().limit() > 0) {
-                        input.accept(rtpPacket);
+                    	rxBuffer.write(rtpPacket);
                         rxCount++;                        
                     } 
                     
@@ -557,38 +502,14 @@ public class RTPDataChannel {
     /**
      * Writer job.
      */
-    private class TxTask extends Task {    	
-        private RtpPacket rtpPacket = new RtpPacket(8192, true);
+    private class TxTask {
+    	private RtpPacket rtpPacket = new RtpPacket(8192, true);
         private RTPFormat fmt;
         private long timestamp=-1;
         
-        private TxTask(Scheduler scheduler) {
-            super(scheduler);
+        private TxTask() {        	                       
         }
 
-        public int getQueueNumber()
-        {
-        	return scheduler.OUTPUT_QUEUE;
-        }
-        
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.scheduler.Task#getPriority()
-         */
-        public long getPriority() {
-            return 0;
-        }
-
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.scheduler.Task#getDuration()
-         */
-        public long getDuration() {
-            return 0;
-        }
-        
         /**
          * if connection is reused fmt could point to old codec , which in case will be incorrect
          *
@@ -598,60 +519,47 @@ public class RTPDataChannel {
         	this.fmt=null;
         }
         
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.scheduler.Task#perform()
-         */
-        public long perform() {
+        public void perform(Frame frame) {
             //TODO: add key frame flag
-        	while (!txBuffer.isEmpty()) {
-                Frame frame = txBuffer.poll();
-
-                //discard frame if format is unknown
-                if (frame.getFormat() == null) {
-                	return 0;
-                }
-
-                //if current rtp format is unknown determine it
-                if (fmt == null || !fmt.getFormat().matches(frame.getFormat())) {
-                    fmt = rtpFormats.getRTPFormat(frame.getFormat());
-                    //format still unknown? discard packet
-                    if (fmt == null) {
-                    	return 0;
-                    }
-                    //update clock rate
-                    rtpClock.setClockRate(fmt.getClockRate());
-                }
-
-                //ignore frames with duplicate timestamp
-                if (frame.getTimestamp()/1000000L == timestamp) {
-                	return 0;
-                }
-                
-                //convert to milliseconds first
-                timestamp = frame.getTimestamp() / 1000000L;
-
-                //convert to rtp time units
-                timestamp = rtpClock.convertToRtpTime(timestamp);
-                rtpPacket.wrap(false, fmt.getID(), sn++, timestamp,
-                        ssrc, frame.getData(), frame.getOffset(), frame.getLength());
-
-                frame.recycle();
-                try {
-                    if (dataChannel.isConnected()) {
-                    	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
-                    	txCount++;
-                    }
-                } catch (Exception e) {                	
-                	//TODO : handle IO problems
-                }
+        	//discard frame if format is unknown
+            if (frame.getFormat() == null) {
+            	return;
             }
 
-            output.isWritable = true;
-            return 0;
-        }
+            //if current rtp format is unknown determine it
+            if (fmt == null || !fmt.getFormat().matches(frame.getFormat())) {
+                fmt = rtpFormats.getRTPFormat(frame.getFormat());
+                //format still unknown? discard packet
+                if (fmt == null) {
+                	return;
+                }
+                //update clock rate
+                rtpClock.setClockRate(fmt.getClockRate());
+            }
 
+            //ignore frames with duplicate timestamp
+            if (frame.getTimestamp()/1000000L == timestamp) {
+            	return;
+            }
+            
+            //convert to milliseconds first
+            timestamp = frame.getTimestamp() / 1000000L;
+
+            //convert to rtp time units
+            timestamp = rtpClock.convertToRtpTime(timestamp);
+            rtpPacket.wrap(false, fmt.getID(), sn++, timestamp,
+                    ssrc, frame.getData(), frame.getOffset(), frame.getLength());
+
+            frame.recycle();
+            try {
+                if (dataChannel.isConnected()) {
+                	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                	txCount++;
+                }
+            } catch (Exception e) {
+            	//TODO : handle IO problems
+            }
+        }
     }
 
     private class HeartBeat extends Task {

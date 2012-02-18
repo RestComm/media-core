@@ -23,16 +23,10 @@
 package org.mobicents.media.server.impl;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -43,7 +37,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  * general wiring construct. 
  * All media components have to extend one of these classes.
  * 
- * @author Oleg Kulikov
+ * @author Oifa Yulian
  */
 public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
@@ -54,30 +48,16 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
     //transmission statisctics
     private volatile long rxPackets;
-    private volatile long rxBytes;
-
+    private volatile long rxBytes;    
+    
     //media transmission pipe
-    private PipeImpl pipe;
-
+    private PipeImpl pipe;    
+    
     //scheduler instance
     private final Scheduler scheduler;
 
     //receiver and transcoding task
-    private final Worker worker;
-
-    //media handler/transfer task
-    //private final Transporter transporter;
-
-    //signaling processor
-    private Processor dsp;
-
-    //active formats
-    private final Formats formats = new Formats();
-    //supported formats
-    private final Formats supportedFormats = new Formats();
-
-    //private ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
-    private Stats stats = new Stats();
+    private final Worker worker;        
     
     /**
      * Creates new instance of sink with specified name.
@@ -87,91 +67,8 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
     public AbstractSink(String name, Scheduler scheduler,int queueNumber) {
         super(name);
         this.scheduler = scheduler;
-        this.worker = new Worker(scheduler,queueNumber);
-        //this.transporter = new Transporter(scheduler);
-        this.initFormats();
-    }
-
-    /**
-     * Initializes list of supported and transmission formats if possible
-     */
-    private void initFormats() {
-        supportedFormats.clean();
-        supportedFormats.addAll(getNativeFormats());
-
-        formats.clean();
-        formats.addAll(supportedFormats);
-    }
-
-    /**
-     * Assigns the digital signaling processor of this component.
-     * The DSP allows to get more output formats.
-     *
-     * @param dsp the dsp instance
-     */
-    public void setDsp(Processor dsp) {
-        //assign processor
-        this.dsp = dsp;
-        this.rebuildFormats();
-    }
-
-    /**
-     * Rebuilds list of supported formats
-     */
-    protected void rebuildFormats() {
-        if (dsp == null) {
-            this.initFormats();
-            return;
-        }
-        
-        supportedFormats.clean();
-        Formats fmts = this.getNativeFormats();
-
-        //add formats wich are results of transcoding
-        int fcount = fmts.size();
-        for (int i = 0; i < fcount; i++) {
-            this.supportedFormats.add(fmts.get(i));
-            for (Codec c : dsp.getCodecs()) {
-                if (c.getSupportedInputFormat().matches(fmts.get(i))) {
-                    this.supportedFormats.add(c.getSupportedOutputFormat());
-                }
-            }
-        }
-
-        formats.clean();
-        formats.addAll(formats);
-
-        dsp.setFormats(formats);
-    }
-
-    /**
-     * Gets the digital signaling processor associated with this media source
-     *
-     * @return DSP instance.
-     */
-    public Processor getDsp() {
-        return this.dsp;
-    }
-
-    /**
-     * (Non Java-doc.)
-     *
-     *
-     * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
-     */
-    public void setFormats(Formats formats) throws FormatNotSupportedException {
-    	supportedFormats.intersection(formats, this.formats);
-        if (dsp != null) dsp.setFormats(this.formats);
-    }
-
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.MediaSource#getFormats()
-     */
-    public Formats getFormats() {
-        return supportedFormats;
-    }
+        this.worker = new Worker(scheduler,queueNumber);        
+    }        
 
     /**
      * (Non Java-doc.)
@@ -217,14 +114,6 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * @param buffer the new portion of media data.
      */
     public abstract void onMediaTransfer(Frame frame) throws IOException;
-
-    /**
-     * Gets the list of formats supported by this component without possible
-     * transcoding.
-     *
-     * @return the list of format descriptors
-     */
-    public abstract Formats getNativeFormats();
 
     /**
      * (Non Java-doc).
@@ -312,9 +201,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
     @Override
     public void reset() {
         this.rxPackets = 0;
-        this.rxBytes = 0;
-        this.formats.clean();
-        this.formats.addAll(this.supportedFormats);
+        this.rxBytes = 0;        
     }
 
     /**
@@ -340,7 +227,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
     }
 
     public String report() {
-    	return stats.toString();
+    	return "";
     }
     
     /**
@@ -354,7 +241,10 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
          * @param scheduler scheduler.
          */
     	private int queueNumber;
-    	
+    	int frameCount=0;  
+        long overallDelay=0;
+        long frameDuration;
+        
         public Worker(Scheduler scheduler,int queueNumber) {
         	super(scheduler);
         	this.queueNumber=queueNumber;            
@@ -375,11 +265,10 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
                 //no source of data
             	isSynchronized = false;
             	return 0;
-            }
+            }                        
             
-            int frameCount=0;  
-            long overallDelay=0;
-            
+            frameCount=0;  
+            overallDelay=0;
             while(overallDelay<20000000L)
             {
             	frameCount++;
@@ -400,29 +289,10 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             			scheduler.submit(this,queueNumber);             
                         return 0;
             		}
-            	}
-
-            	stats.rxFormat = frame.getFormat();
-            
-            	//do transcoding
-            	if (dsp != null) {
-            		try
-            		{
-            			frame = dsp.process(frame);            			
-            		}
-            		catch(Exception e)
-            		{
-            			//transcoding error , print error and try to move to next frame
-            			e.printStackTrace();
-            			scheduler.submit(this,queueNumber);
-        	            return 0;
-            		} 
-            	}
-            	
-            	stats.txFormat = frame.getFormat();            	
+            	}            	
             	
             	//buffer.offer(frame);
-            	long frameDuration = frame.getDuration();
+            	frameDuration = frame.getDuration();
             	overallDelay+=frameDuration;
             	
             	rxPackets++;
@@ -454,14 +324,4 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             return getName();
         }
     }    
-    
-    private class Stats {
-        protected Format rxFormat;
-        protected Format txFormat;
-        
-        @Override
-        public String toString() {
-            return "stream:" + rxFormat + ", codec: " + txFormat;
-        }
-    }
 }

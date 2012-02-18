@@ -22,12 +22,12 @@
 
 package org.mobicents.media.server.impl;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 
 /**
  * Pipe implementation.
@@ -44,7 +44,7 @@ public class PipeImpl implements Pipe {
     protected AtomicReference<MediaSink> sink=new AtomicReference();
 
     //inner buffer
-    private volatile ConcurrentLinkedQueue<Frame> buffer = new ConcurrentLinkedQueue();
+    private volatile ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
 
     //transmission statistics
     private int rxPackets;

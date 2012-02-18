@@ -33,6 +33,7 @@ import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.resource.Player;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * @author baranowb
@@ -47,6 +48,10 @@ public class VideoPlayerImpl extends AbstractSource implements Player {
     
     private Track track;
     private String videoMediaDirectory;
+    
+    //digital signaling processor
+    private Processor dsp;
+    
     /**
      * Creates new instance of the Audio player.
      * 
@@ -59,6 +64,26 @@ public class VideoPlayerImpl extends AbstractSource implements Player {
         this.videoMediaDirectory = videoMediaDirectory;
     }
 
+    /**
+     * Assigns the digital signaling processor of this component.
+     * The DSP allows to get more output formats.
+     *
+     * @param dsp the dsp instance
+     */
+    public void setDsp(Processor dsp) {
+        //assign processor
+        this.dsp = dsp;        
+    }
+    
+    /**
+     * Gets the digital signaling processor associated with this media source
+     *
+     * @return DSP instance.
+     */
+    public Processor getDsp() {
+        return this.dsp;
+    }
+    
     /**
      * (Non Java-doc.)
      * 
@@ -148,11 +173,7 @@ public class VideoPlayerImpl extends AbstractSource implements Player {
             track.close();
         }
         return frame;
-    }
-
-    public Formats getNativeFormats() {
-        return null;
-    }
+    }    
     
     @Override
 	public <T> T getInterface(Class<T> interfaceType) {

@@ -22,7 +22,7 @@
 
 package org.mobicents.media.server.spi.dsp;
 
-import org.mobicents.media.server.spi.format.Formats;
+import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -44,18 +44,11 @@ public interface Processor {
     public Codec[] getCodecs();
     
     /**
-     * Sets the list of supported output formats.
-     * 
-     * @param formats the list of formats sorted by format priority.
-     */
-    public void setFormats(Formats formats);
-
-    /**
      * Transforms supplied frame if frame's format does not match to any
      * of the supported output formats and such transcoding is possible.
      *
      * @param frame the frame for transcoding
      * @return transcoded frame
      */
-    public Frame process(Frame frame);
+    public Frame process(Frame frame,Format source,Format destination);
 }

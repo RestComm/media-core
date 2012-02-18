@@ -42,11 +42,6 @@ import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.VideoFormat;
 /**
  * Implements connection management subsystem.
  *
@@ -65,18 +60,20 @@ public class RemoteToRemoteConnections extends Connections {
 
     String key;
     //connecting only remote to remote channels , used for packet relay
-    protected void addToConference(BaseConnection connection) {
+    protected void addToConference(BaseConnection connection) {    	    	
     	if(connection instanceof RtpConnectionImpl)
     	{
+    		BaseConnection c;
+    		LocalChannel channel,channel2;
     		for(Enumeration<String> e = activeConnections.keys() ; e.hasMoreElements() ;) {
     			key=e.nextElement();
-        		BaseConnection c=activeConnections.get(key);        
-                if (c!=null && c instanceof RtpConnectionImpl && connection != c) {
-                	Integer Id=lastChannelId.getAndIncrement();
-                    LocalChannel channel = new LocalChannel(Id);
-                    channel.join(connection, c);
-                    localChannels.put(Id,channel);              
-                }
+        		c=activeConnections.get(key);
+        		if (c!=null && c instanceof RtpConnectionImpl  && c!=connection) {
+        			channel = new LocalChannel();
+        			channel2=localChannels.putIfAbsent(getChannelId(c,connection),channel);
+        			if(channel2==null)
+        				channel.join(c, connection);    
+        		}        		
             }
     	}    	   
     }   

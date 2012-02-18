@@ -95,8 +95,13 @@ public class MgcpConnection implements ConnectionFailureListener {
     }
     
     public Text getDescriptor() {
-        descriptor.strain(connection.getDescriptor().getBytes(), 0, connection.getDescriptor().length());
-        return descriptor;
+    	if(connection.getDescriptor()!=null)
+    	{	
+    		descriptor.strain(connection.getDescriptor().getBytes(), 0, connection.getDescriptor().length());
+    		return descriptor;
+    	}        
+    	
+    	return null;
     }
 
     public void setOtherParty(Text sdp) throws IOException {

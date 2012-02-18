@@ -22,9 +22,6 @@
 
 package org.mobicents.media;
 
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.io.Pipe;
 
 
@@ -46,27 +43,6 @@ public interface MediaSink extends Component {
      */
     public void stop();
     
-    
-    /**
-     * Get possible formats which this consumer can handle.
-     * 
-     * @return an array of Format objects.
-     */
-    public Formats getFormats();
-    
-    /**
-     * Assigns digital signaling processor.
-     * 
-     * @param dsp processor instance.
-     */
-    public void setDsp(Processor dsp);
-    
-    /**
-     * Set formats for streaming.
-     *
-     * @param formats the collection of formats.
-     */
-    public void setFormats(Formats formats) throws FormatNotSupportedException;
     
     /**
      * Joins this media sink with media source.

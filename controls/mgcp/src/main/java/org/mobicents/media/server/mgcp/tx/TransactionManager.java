@@ -26,8 +26,8 @@ import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,7 +43,7 @@ public class TransactionManager {
     private static java.util.concurrent.atomic.AtomicInteger ID = new AtomicInteger(1);
     
     //pool of transaction objects
-    private ConcurrentLinkedQueue<Transaction> pool;
+    private ConcurrentLinkedList<Transaction> pool=new ConcurrentLinkedList();
     //currently active transactions.
     private ConcurrentHashMap<Integer,Transaction> active;
     
@@ -66,11 +66,10 @@ public class TransactionManager {
     public TransactionManager(Scheduler scheduler, int size) {
         this.scheduler = scheduler;
         
-        pool = new ConcurrentLinkedQueue<Transaction>();
         active = new ConcurrentHashMap(size);
         
         for (int i = 0; i < size; i++) {
-        	pool.add(new Transaction(this));            
+        	pool.offer(new Transaction(this));            
         }
     }
     
@@ -156,7 +155,7 @@ public class TransactionManager {
     protected void terminate(Transaction t) {
     	active.remove(t.id);
     	t.id = 0;
-    	pool.add(t);    	    
+    	pool.offer(t);    	    
     }   
     
     /**

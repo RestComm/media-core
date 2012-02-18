@@ -156,7 +156,9 @@ public class ModifyConnectionCmd extends Action {
                 response.setParameter(Parameter.CONNECTION_ID, connectionID.getValue());
             }
 
-            response.setParameter(Parameter.SDP, mgcpConnection.getDescriptor());
+            Text descriptor=mgcpConnection.getDescriptor();
+            if(descriptor!=null)
+            	response.setParameter(Parameter.SDP, mgcpConnection.getDescriptor());
             
             try {
                 transaction().getProvider().send(evt);
