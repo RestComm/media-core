@@ -92,7 +92,7 @@ public abstract class Task implements Callable {
     			try {
     				perform();                
                 
-    				//notify listenet                
+    				//notify listener                
     				if (this.listener != null) {
     					this.listener.onTerminate();
     				}
