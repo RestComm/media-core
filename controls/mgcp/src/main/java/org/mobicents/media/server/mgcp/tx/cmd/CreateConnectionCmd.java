@@ -248,27 +248,29 @@ public class CreateConnectionCmd extends Action {
         	return scheduler.MANAGEMENT_QUEUE;
         }
 
-        @Override
+		final static String ERROR_ENDPOINT_UNAVAILAVALE = "Endpoint not available: ";
+
+		@Override
         public long perform() {
             try {
                 //searching endpoint
-            	int n = transaction().find(localName, endpoints);
+            		int n = transaction().find(localName, endpoints);
                 if (n == 0) {
-                	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                		throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text(ERROR_ENDPOINT_UNAVAILAVALE + localName));
                 }
                 
                 if(!endpoints[0].getName().equals(localName.toString()))
                 {
-                	Endpoint endpoint = endpoints[0].getEndpoint();
+                		Endpoint endpoint = endpoints[0].getEndpoint();
                     DtmfDetector detector=(DtmfDetector) endpoint.getResource(MediaType.AUDIO, DtmfDetector.class);
                     if(detector!=null)
-                    	detector.clearDigits();
+                    		detector.clearDigits();
                 }
                 
                 //extract found endpoint
                 endpoint = endpoints[0];
             } catch (Exception e) {            	
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text(ERROR_ENDPOINT_UNAVAILAVALE + localName));
             }
             
             Parameter z2 = request.getParameter(Parameter.SECOND_ENDPOINT);
@@ -279,7 +281,7 @@ public class CreateConnectionCmd extends Action {
                      int n = transaction().find(localName2, endpoints);
                      
                      if (n == 0) {
-                         throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                         throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text(ERROR_ENDPOINT_UNAVAILAVALE + localName2));
                      }
                      
                      if(!endpoints[0].getName().equals(localName2.toString()))
@@ -293,7 +295,7 @@ public class CreateConnectionCmd extends Action {
                      //extract found endpoint
                      endpoint2 = endpoints[0];
                  } catch (Exception e) {
-                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text(ERROR_ENDPOINT_UNAVAILAVALE + localName2));
                  }
             }
             
@@ -326,7 +328,7 @@ public class CreateConnectionCmd extends Action {
                 try {
                     connections[0].setOtherParty(sdp.getValue());
                 } catch (IOException e) {
-                	throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
+                		throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
                 }
             }
             
