@@ -27,6 +27,7 @@
 
 package org.mobicents.media.server.impl.rtp;
 
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -118,11 +119,13 @@ public class RTPChannelTest {
         analyzer2 = new SpectraAnalyzer("analyzer", scheduler);
         
         channel1 = rtpManager.getChannel();
+        channel1.updateMode(ConnectionMode.SEND_RECV);
         channel1.getOutput().setDsp(dsp11);
         channel1.getOutput().setFormats(fmts);        
         channel1.getInput().setDsp(dsp12);
         
         channel2 = rtpManager.getChannel();
+        channel2.updateMode(ConnectionMode.SEND_RECV);
         channel2.getOutput().setDsp(dsp21);
         channel2.getOutput().setFormats(fmts);
         channel2.getInput().setDsp(dsp22);        

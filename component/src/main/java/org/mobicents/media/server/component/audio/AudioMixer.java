@@ -168,12 +168,17 @@ public class AudioMixer implements Mixer {
     public void startMixer() {
         if (!started) {
             started = true;
-            output.buffer.clear();
-            scheduler.submit(mixer,scheduler.MIXER_MIX_QUEUE);
+            output.resetBuffer();            
             mixCount = 0;
             Iterator<Input> activeInputs=inputs.iterator();
+            Input currInput;
             while(activeInputs.hasNext())
-            	activeInputs.next().start();            
+            {
+            	currInput=activeInputs.next();
+            	currInput.resetBuffer();
+            	currInput.start();
+            }            	     
+            scheduler.submit(mixer,scheduler.MIXER_MIX_QUEUE);
         }
     }
     
@@ -316,6 +321,12 @@ public class AudioMixer implements Mixer {
             inputs.remove(this.inputId);
             pool.offer(this);
         }
+        
+        private void resetBuffer()
+        {
+        	while(buffer.size()>0)
+        		buffer.poll().recycle();
+        }
     }
 
     /**
@@ -349,6 +360,12 @@ public class AudioMixer implements Mixer {
         	//System.out.println("MIX COUNT:" + mixCount);    
         	stopMixer(false);
             super.stop();            
+        }
+        
+        private void resetBuffer()
+        {
+        	while(buffer.size()>0)
+        		buffer.poll().recycle();
         }
     }
 

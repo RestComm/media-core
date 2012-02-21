@@ -129,7 +129,7 @@ public abstract class Task implements Runnable {
     			try {
     				perform();                
                 
-    				//notify listenet                
+    				//notify listener                
     				if (this.listener != null) {
     					this.listener.onTerminate();
     				}

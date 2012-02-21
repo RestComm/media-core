@@ -56,7 +56,8 @@ public class CreateConnectionCmd extends Action {
     private final static Text MODE_MISSING = new Text("Missing mode value");
     private final static Text WILDCARD_ALL_NOT_ALLOWED= new Text("Wildcard <all> not allowed here");
     private final static Text SDP_NEGOTIATION_FAILED = new Text("SDP_NEGOTIATION_FAILED");
-
+    private final static Text ERROR_ENDPOINT_UNAVAILAVALE = new Text("Endpoint not available");
+    
     private final static Text SUCCESS= new Text("Success");
 
     private Scheduler scheduler;
@@ -254,7 +255,7 @@ public class CreateConnectionCmd extends Action {
                 //searching endpoint
             	int n = transaction().find(localName, endpoints);
                 if (n == 0) {
-                	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
                 }
                 
                 if(!endpoints[0].getName().equals(localName.toString()))
@@ -267,8 +268,9 @@ public class CreateConnectionCmd extends Action {
                 
                 //extract found endpoint
                 endpoint = endpoints[0];
-            } catch (Exception e) {            	
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+            } catch (Exception e) { 
+            	e.printStackTrace();
+                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
             }
             
             Parameter z2 = request.getParameter(Parameter.SECOND_ENDPOINT);
@@ -279,7 +281,7 @@ public class CreateConnectionCmd extends Action {
                      int n = transaction().find(localName2, endpoints);
                      
                      if (n == 0) {
-                         throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                         throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
                      }
                      
                      if(!endpoints[0].getName().equals(localName2.toString()))
@@ -293,7 +295,7 @@ public class CreateConnectionCmd extends Action {
                      //extract found endpoint
                      endpoint2 = endpoints[0];
                  } catch (Exception e) {
-                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
+                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
                  }
             }
             

@@ -40,7 +40,7 @@ public class Decoder implements Codec {
 
     private short k_temp,temp,temp1,temp2,temp3,mant,msr=0,nc,bc,mc,xmaxc,exp,nr,nrp=40,brp,drpp,sri,itest;
     
-    private int i,j,k;
+    private int i,j,k,l,framesCount;
     
     private short[] xmc=new short[13];
     private short[] xmp=new short[13];    
@@ -55,7 +55,8 @@ public class Decoder implements Codec {
     private short[] LARpprev={0,0,0,0,0,0,0,0,0};
     
     private static final int BUFFER_SIZE = 320;
-
+    byte[] resdata;
+    
     public Decoder() 
     {
     	for(i=0;i<120;i++)
@@ -63,7 +64,7 @@ public class Decoder implements Codec {
     }
 
     public Frame process(Frame frame) {
-    	byte[] data=frame.getData();
+    	byte[] data=frame.getData();    	
     	if(data.length==0)
     	{
     		//dummy frame received , sending blank data
@@ -84,98 +85,104 @@ public class Decoder implements Codec {
             return res;
     	}
     	
-    	if(data.length!=33)
+    	if(data.length%33!=0)
     		throw new IllegalArgumentException("invalid frame size expected 33,received " + data.length);
     	
-    	if(((data[0]>>4) & 0xF) != 0xD)
-    		throw new IllegalArgumentException("not gsm fr frame,expected 0xD received " + Integer.toHexString(data[0]>>4));
-    	
-    	//lets load LARC array
-    	//LARC[1] - 4 bits from byte 0 and 2 bits from byte 1
-    	LARc[1]=(short)(((data[0]<<2)&0x3C) | ((data[1]>>6) & 0x3));
-    	//LARC[2] - 6 bits from byte 1 
-    	LARc[2]=(short)(data[1]&0x3F);
-    	//LARC[3] - 5 bits from byte 2
-    	LARc[3]=(short)((data[2]>>3) & 0x1F);
-    	//LARC[4] - 3 bits from byte 2 and 2 bits from byte 3
-    	LARc[4]=(short)(((data[2]<<2)&0x1C) | ((data[3]>>6) & 0x3));
-    	//LARC[5] -4 bits from byte 3
-    	LARc[5]=(short)((data[3]>>2) & 0xF);
-    	//LARC[6] - 2 bits from byte 3 and 2 bits from byte 4
-    	LARc[6]=(short)(((data[3]<<2)&0xC) | ((data[4]>>6) & 0x3));
-    	//LARC[7] - 3 bits from byte 4
-    	LARc[7]=(short)((data[4]>>3) & 0x7);    	
-    	//LARC[8] - 3 bits from byte 4
-    	LARc[8]=(short)(data[4] & 0x7);    	
+    	framesCount=data.length/33;
+    	Frame res = Memory.allocate(320*framesCount);
+    	resdata=res.getData();
+    	for(l=0;l<(data.length/33);l++)
+    	{
+    		k_temp=(short)(l*33);
+    		if(((data[k_temp]>>4) & 0xF) != 0xD)
+    			throw new IllegalArgumentException("not gsm fr frame,expected 0xD received " + Integer.toHexString(data[k_temp]>>4) +  " FRAME SIZE:" + data.length);
+    	    		
+    		//lets load LARC array
+    		//LARC[1] - 4 bits from byte 0 and 2 bits from byte 1
+    		LARc[1]=(short)(((data[k_temp]<<2)&0x3C) | ((data[k_temp+1]>>6) & 0x3));
+    		//LARC[2] - 6 bits from byte 1 
+    		LARc[2]=(short)(data[k_temp+1]&0x3F);
+    		//LARC[3] - 5 bits from byte 2
+    		LARc[3]=(short)((data[k_temp+2]>>3) & 0x1F);
+    		//LARC[4] - 3 bits from byte 2 and 2 bits from byte 3
+    		LARc[4]=(short)(((data[k_temp+2]<<2)&0x1C) | ((data[k_temp+3]>>6) & 0x3));
+    		//LARC[5] -4 bits from byte 3
+    		LARc[5]=(short)((data[k_temp+3]>>2) & 0xF);
+    		//LARC[6] - 2 bits from byte 3 and 2 bits from byte 4
+    		LARc[6]=(short)(((data[k_temp+3]<<2)&0xC) | ((data[k_temp+4]>>6) & 0x3));
+    		//LARC[7] - 3 bits from byte 4
+    		LARc[7]=(short)((data[k_temp+4]>>3) & 0x7);    	
+    		//LARC[8] - 3 bits from byte 4
+    		LARc[8]=(short)(data[k_temp+4] & 0x7);    	
     	    	
-    	LARDecoding();
+    		LARDecoding();
     	
-    	k_temp=5;
-    	//lets handle 4 subframes
-    	for(k=0;k<4;k++)
-    	{   
-    		//taking 7 bits for nc
-    		nc=(short)((data[k_temp]>>1)&0x7F);
+    		k_temp+=5;
+    		//lets handle 4 subframes
+    		for(k=0;k<4;k++)
+    		{   
+    			//taking 7 bits for nc
+    			nc=(short)((data[k_temp]>>1)&0x7F);
     		
-    		//taking one bit from byte 1 and 1 bit from byte 2 for bc
-    		bc=(short)(((data[k_temp++]<<1) & 0x2) | ((data[k_temp]>>7)&0x1));
+    			//taking one bit from byte 1 and 1 bit from byte 2 for bc
+    			bc=(short)(((data[k_temp++]<<1) & 0x2) | ((data[k_temp]>>7)&0x1));
     		
-    		//taking 2 bits of mc
-    		mc=(short)((data[k_temp]>>5) & 0X3);
+    			//taking 2 bits of mc
+    			mc=(short)((data[k_temp]>>5) & 0X3);
     		
-    		//taking 5 bits from byte 2 and 1 bit from byte 3 for xmaxc
-    		xmaxc=(short)(((data[k_temp++]<<1) & 0x3E) | ((data[k_temp]>>7)&0x1));
+    			//taking 5 bits from byte 2 and 1 bit from byte 3 for xmaxc
+    			xmaxc=(short)(((data[k_temp++]<<1) & 0x3E) | ((data[k_temp]>>7)&0x1));
     		
-    		//loading xmc array
-    		xmc[0]=(short)((data[k_temp]>>4) & 0x7);
-    		xmc[1]=(short)((data[k_temp]>>1) & 0x7);
-    		xmc[2]=(short)(((data[k_temp++]<<2)& 0x4) | ((data[k_temp]>>6)&0x3));
+    			//loading xmc array
+    			xmc[0]=(short)((data[k_temp]>>4) & 0x7);
+    			xmc[1]=(short)((data[k_temp]>>1) & 0x7);
+    			xmc[2]=(short)(((data[k_temp++]<<2)& 0x4) | ((data[k_temp]>>6)&0x3));
     		
-    		xmc[3]=(short)((data[k_temp]>>3) & 0x7);
-    		xmc[4]=(short)(data[k_temp++] & 0x7);
+    			xmc[3]=(short)((data[k_temp]>>3) & 0x7);
+    			xmc[4]=(short)(data[k_temp++] & 0x7);
     		
-    		xmc[5]=(short)((data[k_temp]>>5) & 0x7);
-    		xmc[6]=(short)((data[k_temp]>>2) & 0x7);
-    		xmc[7]=(short)(((data[k_temp++]<<1)& 0x6) | ((data[k_temp]>>7)&0x1));
+    			xmc[5]=(short)((data[k_temp]>>5) & 0x7);
+    			xmc[6]=(short)((data[k_temp]>>2) & 0x7);
+    			xmc[7]=(short)(((data[k_temp++]<<1)& 0x6) | ((data[k_temp]>>7)&0x1));
     		
-    		xmc[8]=(short)((data[k_temp]>>4) & 0x7);
-    		xmc[9]=(short)((data[k_temp]>>1) & 0x7);
-    		xmc[10]=(short)(((data[k_temp++]<<2)& 0x4) | ((data[k_temp]>>6)&0x3));
+    			xmc[8]=(short)((data[k_temp]>>4) & 0x7);
+    			xmc[9]=(short)((data[k_temp]>>1) & 0x7);
+    			xmc[10]=(short)(((data[k_temp++]<<2)& 0x4) | ((data[k_temp]>>6)&0x3));
     		
-    		xmc[11]=(short)((data[k_temp]>>3) & 0x7);
-    		xmc[12]=(short)(data[k_temp++] & 0x7);    
+    			xmc[11]=(short)((data[k_temp]>>3) & 0x7);
+    			xmc[12]=(short)(data[k_temp++] & 0x7);    
     		
-    		computeExpAndMant();
-    		ACPMInverseQuantization();
-    		RPEPositioning();
-    		longTermSynthesisFiltering(k);
+    			computeExpAndMant();
+    			ACPMInverseQuantization();
+    			RPEPositioning();
+    			longTermSynthesisFiltering(k);
+    		}
+    	
+    		//drp has data now
+    		shortTermFiltering(result);
+    		deemphasisFilter(result);
+    		upscale(result);
+    		downscale(result);
+    	
+    		//switch LARpp arrays
+    		for(i=1;i<9;i++)
+    		{
+    			LARpprev[i]=LARpp[i];
+    			LARpp[i]=0;
+    		}            	
+    	
+    		
+    		k_temp=(short)(l*320);
+    		//load data into frame    		    
+    		for (i = 0; i < 160; i++) 
+    		{
+    			resdata[k_temp+i*2]=(byte)(result[i]& 0xFF);
+    			resdata[k_temp+i*2 + 1]=(byte)((result[i]>>8) & 0xFF);            
+    		}
     	}
     	
-    	//drp has data now
-    	shortTermFiltering(result);
-    	deemphasisFilter(result);
-    	upscale(result);
-    	downscale(result);
-    	
-    	//switch LARpp arrays
-        for(i=1;i<9;i++)
-        {
-        	LARpprev[i]=LARpp[i];
-        	LARpp[i]=0;
-        }
-        
-    	Frame res = Memory.allocate(320);
-    	
-    	//load data into frame
-    	data=res.getData();    	
-    	for (i = 0; i < 160; i++) 
-    	{
-    		data[i*2]=(byte)(result[i]& 0xFF);
-    		data[i*2 + 1]=(byte)((result[i]>>8) & 0xFF);            
-        }
-    	
         res.setOffset(0);
-        res.setLength(320);
+        res.setLength(320*framesCount);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());
         res.setSequenceNumber(frame.getSequenceNumber());

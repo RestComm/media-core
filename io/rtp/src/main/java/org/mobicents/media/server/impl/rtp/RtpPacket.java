@@ -48,7 +48,7 @@ public class RtpPacket implements Serializable {
      * @param allocateDirect if false then packet will use backing array to hold
      * raw data and if true the direct buffer will be allocated
      */
-    public RtpPacket(int capacity, boolean allocateDirect) {
+    public RtpPacket(int capacity, boolean allocateDirect) {    	
         buffer = allocateDirect ? 
             ByteBuffer.allocateDirect(capacity) :
             ByteBuffer.allocate(capacity);

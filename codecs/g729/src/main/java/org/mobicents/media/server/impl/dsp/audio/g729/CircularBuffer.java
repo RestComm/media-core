@@ -32,7 +32,7 @@ package org.mobicents.media.server.impl.dsp.audio.g729;
 public class CircularBuffer {
 	
 	private byte[] buffer;
-	private int cursor = 0;
+	private int readCursor = 0,writeCursor=0;
 	private int availableData = 0;
 	
 	private final Object LOCK = new Object();
@@ -47,10 +47,15 @@ public class CircularBuffer {
 			//for(int q=0; q<data.length; q++) if(data[q]!=0) zeros = false;
 			if(!zeros) {
 				for(int q=0; q<data.length; q++) {
-					buffer[(cursor+q)%buffer.length] = data[q];
+					buffer[(writeCursor+q)%buffer.length] = data[q];
 				}
+				writeCursor = (writeCursor + data.length)%buffer.length;
 				availableData += data.length;
-				if(availableData > buffer.length) availableData = buffer.length;
+				if(availableData > buffer.length) 
+				{
+					readCursor=(readCursor + availableData - buffer.length)%buffer.length;
+					availableData = buffer.length;
+				}
 			}
 		}
 	}
@@ -60,10 +65,10 @@ public class CircularBuffer {
 			if(availableData<size) return null;
 		
 			byte[] data = new byte[size];
-			for(int q=0; q<data.length; q++) {
-				data[q] = buffer[(cursor+q)%buffer.length];
+			for(int q=0; q<size; q++) {
+				data[q] = buffer[(readCursor+q)%buffer.length];
 			}
-			cursor = (cursor + data.length)%buffer.length;
+			readCursor = (readCursor + data.length)%buffer.length;
 			availableData -= size;
 			return data;
 		}

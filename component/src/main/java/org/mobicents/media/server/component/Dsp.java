@@ -43,7 +43,7 @@ public class Dsp implements Processor {
     private Codec[] codecs;
 
     //The current format of the frame stream
-    private Format format;    
+    private Format sourceFormat,destinationFormat;    
     
     /**
      * Creates new instance of processor.
@@ -76,7 +76,7 @@ public class Dsp implements Processor {
     		return frame;
     	
     	//normal flow: format of the stream is already known
-		if (format != null && destination.matches(format)) {
+		if (sourceFormat!=null && source.matches(sourceFormat) && destinationFormat != null && destination.matches(destinationFormat)) {
 			//do transcode if required
 			if (codec != null) {
 				try {
@@ -102,7 +102,8 @@ public class Dsp implements Processor {
 				//check if this codec can transform frame to any of the output format
 				if (codecs[i].getSupportedOutputFormat().matches(destination)) {
 					codec = codecs[i];
-					format=destination;
+					destinationFormat=destination;
+					sourceFormat=source;
 					break;
 				}
 			}

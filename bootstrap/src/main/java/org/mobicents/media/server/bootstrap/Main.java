@@ -76,7 +76,7 @@ public class Main {
         	logger.info("log4j initialized from a configuration file.");        
         }
         
-        logger.info("log4j configured");
+        logger.info("Home directory: " + homeDir);
 
         URL bootURL = getBootURL(args);
         Main main = new Main();
@@ -153,7 +153,10 @@ public class Main {
                 propertiesLog4j.load(inStreamLog4j);
                 PropertyConfigurator.configure(propertiesLog4j);
             } catch (IOException e) {
-                e.printStackTrace();
+            	// e.printStackTrace();
+            	// Since log4j is not initialized yet, we can't rely on it for logging yet
+                //logger.info("Failed to initialize LOG4J with properties file.");
+                return false;
             }
         } catch (Exception e) {
             // e.printStackTrace();

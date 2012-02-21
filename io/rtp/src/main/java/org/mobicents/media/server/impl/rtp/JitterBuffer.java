@@ -204,12 +204,12 @@ public class JitterBuffer implements Serializable {
     		if (packet.getTimestamp() < this.arrivalDeadLine) {
     			System.out.println("drop packet: dead line=" + arrivalDeadLine
                     + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber()
-                    + ", payload length=" + packet.getPayloadLength());
+                    + ", payload length=" + packet.getPayloadLength() + ", format=" + this.format.toString());
     			dropCount++;
     			
     			//checking if not dropping too much  			
     			droppedInRaw++;
-    			if(droppedInRaw==QUEUE_SIZE/2)
+    			if(droppedInRaw==QUEUE_SIZE/2 || queue.size()==0)
     				arrivalDeadLine=0;
     			else
     				return;
@@ -377,10 +377,12 @@ public class JitterBuffer implements Serializable {
      * Resets buffer.
      */
     public void reset() {
-    	queue.clear();
+    	while(queue.size()>0)
+    		queue.remove(0).recycle();    	
     }
     
     public void restart() {
+    	reset();
     	this.ready=false;
     	arrivalDeadLine = 0;
     	dropCount=0;

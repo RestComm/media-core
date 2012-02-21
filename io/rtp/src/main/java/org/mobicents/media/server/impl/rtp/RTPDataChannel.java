@@ -152,13 +152,12 @@ public class RTPDataChannel {
     public void updateMode(ConnectionMode connectionMode)
     {
     	switch (connectionMode) {
-        	case RECV_ONLY:
-        	case SEND_RECV:
-        	case CONFERENCE:
-        		shouldReceive=true;
+        	case SEND_ONLY:
+        	case INACTIVE:
+        		shouldReceive=false;
         		break;
         	default:
-        		shouldReceive=false;
+        		shouldReceive=true;
         		break;
     	}
     	
@@ -188,9 +187,7 @@ public class RTPDataChannel {
      * @throws SocketException
      */
     public void bind() throws SocketException {
-    	rxBuffer.restart();
-    	
-        try {
+    	try {
             dataChannel = rtpManager.udpManager.open(rtpHandler);
             
             //if control enabled open rtcp channel as well
@@ -224,7 +221,7 @@ public class RTPDataChannel {
      * @param address the address object.
      */
     public void setPeer(SocketAddress address) {
-        this.remotePeer = address;
+    	this.remotePeer = address;
         if(dataChannel!=null && !dataChannel.isConnected() && rtpManager.udpManager.connectImmediately((InetSocketAddress)address))
         	try {
         		dataChannel.connect(address);        		
@@ -247,10 +244,6 @@ public class RTPDataChannel {
      * Closes this socket.
      */
     public void close() {
-        input.stop();
-        output.stop();        
-        this.tx.clear();    	
-        
         if(dataChannel.isConnected())
         	try {        
         		dataChannel.disconnect();        		
@@ -267,6 +260,10 @@ public class RTPDataChannel {
         if (controlChannel != null) {
             controlChannel.socket().close();
         }
+        
+        input.stop();
+        output.stop();        
+        this.tx.clear();    	
         
         heartBeat.cancel();        
     }
@@ -314,7 +311,8 @@ public class RTPDataChannel {
     
     protected void send(Frame frame)
     {
-    	tx.perform(frame);
+    	if(dataChannel.isConnected())
+    		tx.perform(frame);
     }
     
     /**
@@ -471,7 +469,12 @@ public class RTPDataChannel {
                 try {
                 	currAddress=dataChannel.receive(rtpPacket.getBuffer());
                 	if(currAddress!=null && !dataChannel.isConnected())
-                		dataChannel.connect(currAddress);                	                	
+                	{
+                		rxBuffer.restart();    	
+                        dataChannel.connect(currAddress);                        
+                	}
+                	else if(currAddress!=null && rxCount==0)
+                		rxBuffer.restart();
                 }
                 catch (IOException e) {            
                 }
@@ -481,11 +484,16 @@ public class RTPDataChannel {
                     //put pointer to the begining of the buffer
                     rtpPacket.getBuffer().flip();
 
-                    //queue packet into the receiver's jitter buffer
-                    if (rtpPacket.getBuffer().limit() > 0) {
-                    	rxBuffer.write(rtpPacket);
-                        rxCount++;                        
-                    } 
+                    if(rtpPacket.getVersion()!=0 && shouldReceive)
+                    {
+                    	//rpt version 0 packets is used in some application ,
+                    	//discarding since we do not handle them
+                    	//queue packet into the receiver's jitter buffer
+                    	if (rtpPacket.getBuffer().limit() > 0) {
+                    		rxBuffer.write(rtpPacket);
+                    		rxCount++;                        
+                    	} 
+                    }
                     
                     rtpPacket.getBuffer().clear();
                     currAddress=dataChannel.receive(rtpPacket.getBuffer());

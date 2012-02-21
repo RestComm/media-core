@@ -38,13 +38,12 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 /**
  * Implements announcement access point.
  * 
- * @author kulikov
+ * @author oifa yulian
  */
 public class AnnouncementEndpoint extends BaseEndpointImpl {
 
 	private MediaPlayerImpl mediaPlayer;
     private AudioMixer audioMixer;
-    private PipeImpl pipe;
     
     private ArrayList<MediaSource> components = new ArrayList();
     

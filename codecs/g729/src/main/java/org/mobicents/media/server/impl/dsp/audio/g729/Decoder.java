@@ -59,6 +59,9 @@ public class Decoder implements Codec {
     PostFil postFil = new PostFil();
     PostPro postPro = new PostPro();
 
+    private byte[][] subFrames=new byte[10][10];
+    private int framesCount;
+    
     public Decoder() {
         for (int i = 0; i < LD8KConstants.M; i++) {
             synth_buf[i] = (float) 0.0;
@@ -82,35 +85,32 @@ public class Decoder implements Codec {
     public Frame process(Frame frame) {
         Frame res = null;
         byte[] data = frame.getData();
+        
+        if(data.length==0 || data.length>100 || data.length%10!=0)
+        	throw new RuntimeException("Invalid frame size!");
+        
         circular.addData(data);
 
-        byte[] speechWindow = circular.getData(20);
+        byte[] speechWindow = circular.getData(data.length);
 
         // Process two frames at time, 20ms
-        byte[] resultBytes = null;
+        byte[] resultBytes = null,transcodedBytes=null;
         if (speechWindow != null) {
-            byte[] one = new byte[10];
-            byte[] two = new byte[10];
-            for (int q = 0; q < 10; q++) {
-                one[q] = speechWindow[q];
-                two[q] = speechWindow[q + 10];
+            for (int q = 0; q < speechWindow.length; q++) {
+            	subFrames[q/10][q%10]=speechWindow[q];
             }
-            one = process(one);
-            two = process(two);
-
-            if (one.length != two.length) {
-                throw new RuntimeException(
-                        "The two frames are not equal in size!");
-            }
-
-            res = Memory.allocate(one.length + two.length);
-            res.setLength(one.length + two.length);
+            
+            res = Memory.allocate(speechWindow.length*16);
+            res.setLength(speechWindow.length*16);
             resultBytes = res.getData();
-
-            for (int q = 0; q < one.length; q++) {
-                resultBytes[q] = one[q];
-                resultBytes[q + one.length] = two[q];
-            }
+            
+            framesCount=speechWindow.length/10;
+            for(int q=0;q<framesCount;q++)
+            {
+            	transcodedBytes=process(subFrames[q]);
+            	for(int k=0;k<transcodedBytes.length;k++)
+            		resultBytes[q*160 + k] = transcodedBytes[k];            	
+            }                        
         } else {
             res = Memory.allocate(frame.getLength());
             res.setLength(0);

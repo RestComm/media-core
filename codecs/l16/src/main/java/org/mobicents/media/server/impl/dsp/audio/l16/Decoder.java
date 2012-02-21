@@ -38,11 +38,11 @@ public class Decoder implements Codec {
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
     public Frame process(Frame frame) {
-	Frame res = Memory.allocate(320);
-        System.arraycopy( frame.getData(), 0, res.getData(), 0, 320 );	
+	Frame res = Memory.allocate(frame.getData().length);
+        System.arraycopy( frame.getData(), 0, res.getData(), 0, frame.getData().length );	
             
         res.setOffset(0);
-        res.setLength(320);
+        res.setLength(frame.getData().length);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());
         res.setSequenceNumber(frame.getSequenceNumber());
