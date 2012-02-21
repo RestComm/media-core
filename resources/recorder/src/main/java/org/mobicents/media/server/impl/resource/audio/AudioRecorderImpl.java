@@ -331,13 +331,16 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
         headerBuffer.put((byte) (size >> 24));
         
         headerBuffer.rewind();
-        FileChannel outChannel=fout.getChannel();
+        
+        //lets write header
+        FileChannel outChannel=fout.getChannel();        
         outChannel.write(headerBuffer);
+        outChannel.force(true);
         
-        if(outChannel.position()!=44)
-        	System.out.println("WARNING!INVALID POSITION:" + outChannel.position());
-        
-        copyData(fin.getChannel(), 0, outChannel);
+        //lets write data
+        FileChannel inChannel=fin.getChannel();
+        outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());        
+        System.out.println("Was copied " + inChannel.size()  + " bytes");
         
         fout.flush();
         fout.close();
@@ -356,8 +359,7 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
     private void copySamples(File src, FileOutputStream out) throws IOException {
         FileInputStream in = new FileInputStream(src);
         FileChannel inChannel = in.getChannel();
-    	FileChannel outChannel = out.getChannel();
-    	
+    	FileChannel outChannel = out.getChannel();    	
     	
         try {
             this.copyData(inChannel, 44, outChannel);
