@@ -12,7 +12,7 @@
     <properties>
 		<!-- RELEASE CONFIGURATION -->
         <release.name>
-			${release.name.prefix}${project.parent.version}${release.name.suffix}
+			${release.name.prefix}${parent.version}${release.name.suffix}
         </release.name>
 
         <mobicents.tools.mavenplugin.eclipse.version>

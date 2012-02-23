@@ -36,7 +36,6 @@ public class MgcpCommandException extends RuntimeException {
      * Creates a new instance of <code>MgcpCommandException</code> without detail message.
      */
     public MgcpCommandException(int code, Text message) {
-    		super(message.toString());
         this.code = code;
         this.message = message;
     }

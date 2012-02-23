@@ -234,7 +234,7 @@ public class JitterBufferTest {
         //160/2/16=5ms
         wallClock.tick(30000000L);
         jitterBuffer.write(p3);
-        assertEquals(5, jitterBuffer.getJitter(), 0.1);
+        assertEquals(0, jitterBuffer.getJitter(), 0.1);
     }
 
     private RtpPacket[] createStream(int size) {

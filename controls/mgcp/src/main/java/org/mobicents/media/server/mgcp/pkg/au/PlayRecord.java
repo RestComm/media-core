@@ -64,7 +64,6 @@ public class PlayRecord extends Signal {
     private Event of = new Event(new Text("of"));
     
     private volatile boolean isActive;
-    private Iterator<Text> prompt;
     
     private Player player;
     private Recorder recorder;
@@ -78,6 +77,9 @@ public class PlayRecord extends Signal {
     private PromptHandler promptHandler;
     
     private volatile boolean isPromptActive;
+    private Text[] prompt=new Text[10];
+    private int promptLength=0,promptIndex=0;
+    
     private boolean isCompleted;
     private final static Logger logger = Logger.getLogger(PlayRecord.class);
     private int segCount = 0;
@@ -102,6 +104,9 @@ public class PlayRecord extends Signal {
     		this.complete();
     		return;
     	}
+    	
+    	promptLength=0;
+    	promptIndex=0;
     	segCount = 0;
     	
     	isCompleted=false;
@@ -167,8 +172,9 @@ public class PlayRecord extends Signal {
         try {
             //assign listener
             player.addListener(promptHandler);
-            prompt = options.getPrompt().iterator();
-            player.setURL(prompt.next().toString());
+            promptLength=options.getPrompt().size();
+            prompt = options.getPrompt().toArray(prompt);            
+            player.setURL(prompt[0].toString());
             
           //specify URL to play
 //          player.setURL(options.getPrompt().toString());
@@ -187,11 +193,10 @@ public class PlayRecord extends Signal {
      */
     private void terminatePrompt() {
     	//jump to end of segments
-        if (prompt != null) {
-            while (prompt.hasNext()) {
-                prompt.next();
-            }
+    	if (promptLength>0) {
+        	promptIndex=promptLength-1;
         }
+    	
         if (player != null) {
             player.stop();
             player.removeListener(promptHandler);
@@ -359,9 +364,69 @@ public class PlayRecord extends Signal {
 
     private void next(long delay) {
     	segCount++;
+    	promptIndex++;
         try {
-        	String url = prompt.next().toString(); 
+        	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player next with url - %s", getEndpoint().getLocalName(), url));
+            player.setURL(url);
+            player.setInitialDelay(delay * 1000000L);
+            //start playback
+            player.start();
+        } catch (Exception e) {
+            of.fire(this, new Text(e.getMessage()));
+        }
+    }
+    
+    private void prev(long delay) {
+    	segCount++;
+    	promptIndex--;
+        try {
+        	String url = prompt[promptIndex].toString(); 
+        	logger.info(String.format("(%s) Processing player prev with url - %s", getEndpoint().getLocalName(), url));
+            player.setURL(url);
+            player.setInitialDelay(delay * 1000000L);
+            //start playback
+            player.start();
+        } catch (Exception e) {
+            of.fire(this, new Text(e.getMessage()));
+        }
+    }
+    
+    private void curr(long delay) {
+    	segCount++;
+    	try {
+        	String url = prompt[promptIndex].toString(); 
+        	logger.info(String.format("(%s) Processing player curr with url - %s", getEndpoint().getLocalName(), url));
+            player.setURL(url);
+            player.setInitialDelay(delay * 1000000L);
+            //start playback
+            player.start();
+        } catch (Exception e) {
+            of.fire(this, new Text(e.getMessage()));
+        }
+    }
+    
+    private void first(long delay) {
+    	segCount++;
+    	promptIndex=0;
+        try {
+        	String url = prompt[promptIndex].toString(); 
+        	logger.info(String.format("(%s) Processing player first with url - %s", getEndpoint().getLocalName(), url));
+            player.setURL(url);
+            player.setInitialDelay(delay * 1000000L);
+            //start playback
+            player.start();
+        } catch (Exception e) {
+            of.fire(this, new Text(e.getMessage()));
+        }
+    }
+    
+    private void last(long delay) {
+    	segCount++;
+    	promptIndex=promptLength-1;
+        try {
+        	String url = prompt[promptIndex].toString(); 
+        	logger.info(String.format("(%s) Processing player last with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
             player.setInitialDelay(delay * 1000000L);
             //start playback
@@ -395,7 +460,7 @@ public class PlayRecord extends Signal {
                 	}
                     break;
                 case PlayerEvent.STOP :
-                	if (prompt.hasNext()) {
+                	if (promptIndex<promptLength-1) {
                         next(options.getInterval());
                         return;
                     }                	
@@ -492,8 +557,37 @@ public class PlayRecord extends Signal {
          * 
          * @see BufferListener#tone(java.lang.String)  
          */
-        public boolean tone(String s) {
+        public boolean tone(String s) {        	
         	logger.info(String.format("(%s) Tone '%s' has been detected", getEndpoint().getLocalName(), s));
+        	if(isPromptActive)
+        	{
+        		if(options.prevKeyValid() && options.getPrevKey()==s.charAt(0))
+        		{
+        			prev(options.getInterval());
+        			return false;
+        		}
+        		else if(options.firstKeyValid() && options.getFirstKey()==s.charAt(0))
+        		{
+        			first(options.getInterval());
+        			return false;
+        		}
+        		else if(options.currKeyValid() && options.getCurrKey()==s.charAt(0))
+        		{
+        			curr(options.getInterval());
+        			return false;
+        		}
+        		else if(options.nextKeyValid() && options.getNextKey()==s.charAt(0))
+        		{
+        			first(options.getInterval());
+        			return false;
+        		}
+        		else if(options.lastKeyValid() && options.getLastKey()==s.charAt(0))
+        		{
+        			curr(options.getInterval());
+        			return false;
+        		}
+        	}
+        	
             if (!options.isNonInterruptable()) {
                 if (isPromptActive) {
                     logger.info(String.format("(%s) Tone '%s' has been detected: prompt phase interrupted", getEndpoint().getLocalName(), s));

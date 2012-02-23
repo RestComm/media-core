@@ -80,13 +80,9 @@ public class JitterBuffer implements Serializable {
     //initial value equals to infinity
     private long droppedInRaw = 0;
     
-    private long r, s;
-    private double j, jm;
-
     //The number of dropped packets
     private int dropCount;
 
-    private int readCount=0,acceptedCount=0;
     //known duration of media wich contains in this buffer.
     private volatile long duration;
 
@@ -127,7 +123,7 @@ public class JitterBuffer implements Serializable {
      * @return the current jitter value.
      */
     public double getJitter() {
-        return j;
+        return jitter;
     }
 
     /**
@@ -136,7 +132,7 @@ public class JitterBuffer implements Serializable {
      * @return the jitter value.
      */
     public double getMaxJitter() {
-        return jm;
+        return 0;
     }
 
     /**
@@ -234,11 +230,12 @@ public class JitterBuffer implements Serializable {
     	{    
     		droppedInRaw=0;
     		
-    		//find correct position to insert a packet    			
-    		int currIndex=queue.size()-1;
-    		while (currIndex>=0 && queue.get(currIndex).getSequenceNumber() > f.getSequenceNumber())
+    		//find correct position to insert a packet 
+    		//use timestamp since its always positive
+    		int currIndex=queue.size()-1;    		    		
+    		while (currIndex>=0 && queue.get(currIndex).getTimestamp() > f.getTimestamp())
     			currIndex--;
-    			    		
+    		
     		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
     		{
     			//duplicate packet
@@ -278,16 +275,7 @@ public class JitterBuffer implements Serializable {
     			dropCount++;        			
     			queue.remove(0).recycle();    				
     		}    		
-    			
-    		//compute interarrival jitter.
-    		//@see RFC1889
-    		j += (double)(Math.abs((r - s) - (rtpClock.getTime() - packet.getTimestamp())) - j)/16D;
-    		r = rtpClock.getTime();
-    		s = packet.getTimestamp();
-
-    		//find max jitter value
-    		if (j > jm) jm = j;
-        
+    			    		       
     		//check if this buffer already full
     		if (!ready) {    			
     			ready = duration >= jitter && queue.size() > 1;
@@ -296,7 +284,7 @@ public class JitterBuffer implements Serializable {
     					listener.onFill();
     				}
     			}
-    		}    		    		
+    		}
     	}
     }
     
@@ -350,9 +338,10 @@ public class JitterBuffer implements Serializable {
      */
     public Frame read(long timestamp) {
     	if (queue.size()==0) {
+    		this.ready = false;
     		return null;
     	}
-    		
+    	
     	//extract packet
     	Frame frame = queue.remove(0);
     		

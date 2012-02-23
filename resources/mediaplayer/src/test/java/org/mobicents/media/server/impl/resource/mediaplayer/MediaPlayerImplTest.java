@@ -43,12 +43,10 @@ import org.mobicents.media.server.impl.PipeImpl;
  * @author kulikov
  */
 public class MediaPlayerImplTest {
-
-    //
+	//
     private MediaPlayerImpl mediaPlayer;
     
     private Scheduler scheduler;
-    
     public MediaPlayerImplTest() {
     }
 
@@ -84,9 +82,10 @@ public class MediaPlayerImplTest {
      * Test of getMediaTypes method, of class MediaPlayerImpl.
      */
     @Test
-    public void testAudio() {
-    	Player player = (Player) mediaPlayer.getMediaSource(MediaType.AUDIO);
-//        assertTrue("AudioPlayerImpl expected", player instanceof AudioPlayerImpl);
+    public void testAudio() throws Exception {
+    	
+    	Player player = (Player) mediaPlayer.getMediaSource(MediaType.AUDIO);    	
+    	//assertTrue("AudioPlayerImpl expected", player instanceof AudioPlayerImpl);
     }
 
     /**

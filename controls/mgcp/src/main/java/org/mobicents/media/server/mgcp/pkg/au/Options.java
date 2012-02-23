@@ -51,6 +51,12 @@ public class Options {
     private final static Text na= new Text("na");
     private final static Text eik = new Text("eik");
     private final static Text iek = new Text("iek");
+    private final static Text psk = new Text("psk");
+    private final static Text fst = new Text("fst");
+    private final static Text lst = new Text("lst");
+    private final static Text prv = new Text("prv");
+    private final static Text nxt = new Text("nxt");
+    private final static Text cur = new Text("cur");
     private final static Text x_md= new Text("x-md");
     
     private final static Text TRUE = new Text("true");
@@ -100,6 +106,19 @@ public class Options {
     private long interDigitTimer=0;
     private long maxDuration=0;
     private int numberOfAttempts=0;
+    
+    private Text tempSequence;
+    private char tempChar;
+    private boolean hasNextKey=false;
+    private char nextKey=' ';
+    private boolean hasPrevKey=false;
+    private char prevKey=' ';
+    private boolean hasFirstKey=false;
+    private char firstKey=' ';
+    private boolean hasLastKey=false;
+    private char lastKey=' ';
+    private boolean hasCurrKey=false;
+    private char currKey=' ';
     
     /**
      * Creates options.
@@ -161,6 +180,34 @@ public class Options {
                 this.clearDigits = value.equals(TRUE);
             } else if (name.equals(eik) && value.length()==1) {
                 this.endInputKey = value.charAt(0);
+            } else if (name.equals(psk) && value.length()==5) {
+            	tempChar=value.charAt(0);
+            	tempSequence=(Text)value.subSequence(2,5);
+            	if (tempSequence.equals(fst))
+            	{
+            		this.firstKey=tempChar;
+            		this.hasFirstKey=true;
+            	}                
+            	else if (tempSequence.equals(lst))
+            	{
+            		this.lastKey=tempChar;
+            		this.hasLastKey=true;
+            	}
+            	else if (tempSequence.equals(prv))
+                {
+                	this.prevKey=tempChar;
+                	this.hasPrevKey=true;
+                }
+            	else if (tempSequence.equals(nxt))
+                {
+                   	this.nextKey=tempChar;
+                   	this.hasNextKey=true;
+                }
+            	else if (tempSequence.equals(cur))
+                {
+                   	this.currKey=tempChar;
+                   	this.hasCurrKey=true;
+                }
             } else if (name.equals(iek)) {
                 this.includeEndInput = value.equals(TRUE);
             }
@@ -253,5 +300,45 @@ public class Options {
     
     public boolean isIncludeEndInputKey() {
         return includeEndInput;
+    }
+    
+    public boolean prevKeyValid() {
+        return this.hasPrevKey;
+    }
+    
+    public char getPrevKey() {
+        return this.prevKey;
+    }
+    
+    public boolean firstKeyValid() {
+        return this.hasFirstKey;
+    }
+    
+    public char getFirstKey() {
+        return this.firstKey;
+    }
+    
+    public boolean currKeyValid() {
+        return this.hasCurrKey;
+    }
+    
+    public char getCurrKey() {
+        return this.currKey;
+    }
+    
+    public boolean nextKeyValid() {
+        return this.hasNextKey;
+    }
+    
+    public char getNextKey() {
+        return this.nextKey;
+    }
+    
+    public boolean lastKeyValid() {
+        return this.hasLastKey;
+    }
+    
+    public char getLastKey() {
+        return this.lastKey;
     }
 }

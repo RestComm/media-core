@@ -65,6 +65,8 @@ public class RTPInput extends AbstractSource implements BufferListener {
 	//digital signaling processor
     private Processor dsp;
            
+    private Integer preEvolveCount=0;
+    private Integer evolveCount=0;
 	/**
      * Creates new receiver.
      */
@@ -108,7 +110,7 @@ public class RTPInput extends AbstractSource implements BufferListener {
     	
     	if(currFrame!=null)
         {
-        	//do the transcoding job
+    		//do the transcoding job
         	if (dsp != null) {
         		try
         		{
@@ -119,9 +121,9 @@ public class RTPInput extends AbstractSource implements BufferListener {
         			//transcoding error , print error and try to move to next frame
         			e.printStackTrace();
         		}
-        	}
+        	}        	
         }
-        
+    	
     	return currFrame; 
     }    
     
@@ -133,5 +135,5 @@ public class RTPInput extends AbstractSource implements BufferListener {
      */
     public void onFill() {
     	this.wakeup();
-    }
+    }    
 }

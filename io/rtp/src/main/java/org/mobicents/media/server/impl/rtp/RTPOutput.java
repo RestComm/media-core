@@ -65,7 +65,7 @@ public class RTPOutput extends AbstractSink {
     
     //signaling processor
     private Processor dsp;                               
-    
+        
     /**
      * Creates new transmitter
      */

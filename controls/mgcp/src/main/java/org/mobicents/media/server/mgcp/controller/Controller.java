@@ -135,12 +135,11 @@ public class Controller implements MgcpListener, ServerManager {
         try {
             if (url != null) {            	
                 //getting the full path to the configuration file
-
-            		String home = getHomeDir();
-            		
-            		if (home == null) {
-            			throw new IOException(HOME_DIR + " not set");
-            		}
+            	String home = getHomeDir();
+                
+                if (home == null) {
+                	throw new IOException(HOME_DIR + " not set");
+                }
         
                 String path = home + "/conf/" + url;        
                 FileInputStream stream = new FileInputStream(path);
@@ -153,19 +152,19 @@ public class Controller implements MgcpListener, ServerManager {
     }
     
     /**
-     * Gets the Media Server Home directory.
-     * 
-     * @TODO This method duplicates the logic in org.mobicents.media.server.bootstrap.Main
-     * 
-     * @return the path to the home directory.
-     */
+    * Gets the Media Server Home directory.
+    * 
+    * @TODO This method duplicates the logic in org.mobicents.media.server.bootstrap.Main
+    * 
+    * @return the path to the home directory.
+    */
     private static String getHomeDir() {
-    		String mmsHomeDir = System.getProperty(HOME_DIR);
-    		if (mmsHomeDir == null) {
-    			mmsHomeDir = System.getenv(HOME_DIR);
-    		};
-    		return mmsHomeDir;
-    }    
+    	String mmsHomeDir = System.getProperty(HOME_DIR);
+    	if (mmsHomeDir == null) {
+    		mmsHomeDir = System.getenv(HOME_DIR);
+    	};
+    	return mmsHomeDir;
+    }
     
     /**
      * Starts controller.
@@ -202,7 +201,7 @@ public class Controller implements MgcpListener, ServerManager {
 
     public void process(MgcpEvent event) {
         //get the transaction identifier
-    		int txID = event.getMessage().getTxID();
+    	int txID = event.getMessage().getTxID();
         Transaction tx = txManager.find(txID);
         
         if (tx != null) {
