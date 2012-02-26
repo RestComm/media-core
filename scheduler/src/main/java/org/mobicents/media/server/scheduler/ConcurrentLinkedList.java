@@ -140,7 +140,7 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 		while(tempNode.element!=null && !value.equals(tempNode.element))
 			tempNode=tempNode.next;
 		
-		if(tempNode.element==null)
+		if(tempNode.element!=null)
 		{
 			releaseAccess();
 			return false;

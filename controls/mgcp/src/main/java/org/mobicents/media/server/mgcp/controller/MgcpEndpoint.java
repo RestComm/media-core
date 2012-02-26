@@ -283,5 +283,11 @@ public class MgcpEndpoint {
         
         //back to pool
         connections.offer(mgcpConnection);
+        
+        if (activeConnections.isEmpty()) {
+    		int oldValue=this.state.getAndSet(STATE_FREE);
+    		if(oldValue!=STATE_FREE && this.stateListener!=null)
+    				this.stateListener.onFreed(this);    		
+    	}
     }
 }

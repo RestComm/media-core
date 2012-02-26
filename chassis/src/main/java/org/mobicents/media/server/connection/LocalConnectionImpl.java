@@ -132,6 +132,14 @@ public class LocalConnectionImpl extends BaseConnection {
 
     @Override
     protected void onFailed() {
+    	try {
+            setMode(ConnectionMode.INACTIVE);
+        } catch (ModeNotSupportedException e) {
+        }
+        
+        this.audioChannel.disconnect();
+        //release connection
+        connections.releaseConnection(this,ConnectionType.LOCAL);        
     }
 
     @Override

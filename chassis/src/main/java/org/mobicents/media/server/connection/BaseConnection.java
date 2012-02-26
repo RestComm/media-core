@@ -319,6 +319,15 @@ public abstract class BaseConnection implements Connection {
         }
     }
 
+    private void fail() {
+        synchronized (stateMonitor) {
+            if (this.state != ConnectionState.NULL) {
+                this.onFailed();
+                setState(ConnectionState.NULL);
+            }
+        }
+    }
+    
     /**
      * Sets connection failure listener.
      * 
@@ -388,7 +397,7 @@ public abstract class BaseConnection implements Connection {
                 	ttl--;
                     if (ttl == 0) {
                         //setState(ConnectionState.NULL);
-                        close();
+                        fail();
                     } else {
                         //setDeadLine(scheduler.getClock().getTime() +  1000000000L);
                         scheduler.submitHeatbeat(this);

@@ -261,6 +261,7 @@ public class RTPDataChannel {
             controlChannel.socket().close();
         }
         
+        //System.out.println("RX COUNT:" + rxCount + ",TX COUNT:" + txCount);
         rxCount=0;
         txCount=0;
         input.stop();

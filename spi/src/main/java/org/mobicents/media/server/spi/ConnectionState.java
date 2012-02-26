@@ -34,7 +34,8 @@ public enum ConnectionState {
     //but connection should be created when invite received.
     HALF_OPEN(2, "HALF_OPEN", 300),
     OPENING(3, "OPENING", 5),
-    OPEN(4, "OPEN", 30 * 60),
+    //calls can be longer then 30 minutes
+    OPEN(4, "OPEN", 240 * 60),
     CLOSING(5, "CLOSING", 5);
 
     private int code;
