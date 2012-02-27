@@ -87,7 +87,7 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     public void deleteConnection(Connection connection) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 
     public void deleteAllConnections() {

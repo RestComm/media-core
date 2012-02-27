@@ -95,15 +95,15 @@ public class MgcpEndpointTest {
      * Test of poll method, of class MgcpEndpoint.
      */
     @Test
-    public void testPollAndOffer() {    	
-        MgcpCall call = callManager.getCall(new Text("1"), true);
+    public void testPollAndOffer() {
+    	MgcpCall call = callManager.getCall(new Text("1"), true);
         for (int i = 0; i < 1000; i++) {
             MgcpConnection mgcpConnection = mgcpEndpoint.poll(call);            
             assertEquals(1, call.size());
             
             mgcpEndpoint.offer(mgcpConnection);
             assertEquals(0, call.size());            
-        }
+        }    	
     }
 
 }

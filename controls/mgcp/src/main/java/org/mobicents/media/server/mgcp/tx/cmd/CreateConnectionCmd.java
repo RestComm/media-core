@@ -269,8 +269,7 @@ public class CreateConnectionCmd extends Action {
                 //extract found endpoint
                 endpoint = endpoints[0];
             } catch (Exception e) { 
-            	e.printStackTrace();
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
+            	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
             }
             
             Parameter z2 = request.getParameter(Parameter.SECOND_ENDPOINT);

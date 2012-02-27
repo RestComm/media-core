@@ -281,6 +281,8 @@ public class MgcpEndpoint {
         //reclaim
         mgcpConnection.release();
         
+        endpoint.deleteConnection(mgcpConnection.connection);
+        
         //back to pool
         connections.offer(mgcpConnection);
         
