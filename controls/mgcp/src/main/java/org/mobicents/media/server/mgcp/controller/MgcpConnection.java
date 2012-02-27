@@ -117,7 +117,7 @@ public class MgcpConnection implements ConnectionFailureListener {
      */
     public void release() {
         //notify call about this activity termination
-        call.exclude(this);
+    	call.exclude(this);    	       
     }
     
     public int getPacketsTransmitted() {
@@ -129,6 +129,8 @@ public class MgcpConnection implements ConnectionFailureListener {
     }
     
     public void onFailure() {
+    	mgcpEndpoint.offer(this);
+    	
     	MgcpEvent evt = (MgcpEvent) mgcpEndpoint.mgcpProvider.createEvent(MgcpEvent.REQUEST, callAgent);
 		MgcpRequest msg = (MgcpRequest) evt.getMessage();        
 		msg.setCommand(new Text("DLCX"));
@@ -136,8 +138,6 @@ public class MgcpConnection implements ConnectionFailureListener {
 		msg.setParameter(Parameter.CONNECTION_ID, id);
 		msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
 		msg.setParameter(Parameter.REASON_CODE,this.REASON_CODE);
-		mgcpEndpoint.send(evt, callAgent);
-		
-        release();
+		mgcpEndpoint.send(evt, callAgent);		
     }
 }
