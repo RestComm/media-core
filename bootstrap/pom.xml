@@ -24,6 +24,16 @@
             <artifactId>rtp</artifactId>
             <version>${project.version}</version>
         </dependency>
+	      <!--<dependency>
+            <groupId>org.mobicents.media.hardware</groupId>
+            <artifactId>mobicents-dahdi</artifactId>
+            <version>${project.version}</version>
+        </dependency>-->
+	      <dependency>
+            <groupId>org.mobicents.media.io</groupId>
+            <artifactId>ss7</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.mobicents.media.resources</groupId>
             <artifactId>dtmf</artifactId>
@@ -64,7 +74,7 @@
             <artifactId>soundcard</artifactId>
             <version>${project.version}</version>
         </dependency>
-	<dependency>
+	      <dependency>
             <groupId>org.mobicents.media.endpoints</groupId>
             <artifactId>local-to-remote-bridge</artifactId>
             <version>${project.version}</version>
@@ -107,7 +117,6 @@
             <version>${version.jboss.microcontainer}</version>
         </dependency>
     </dependencies>
-
 	<!--  -->
     <build>
         <finalName>run</finalName>
@@ -137,7 +146,43 @@
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
+	                       <!--<plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-dependency-plugin</artifactId>
+                                <executions>
+                                        <execution>
+                                                <id>copy</id>
+                                                <phase>package</phase>
+                                                <goals>
+                                                        <goal>copy</goal>
+                                                </goals>
+                                                <configuration>
+                                                        <artifactItems>
+                                                                <artifactItem>
+                                                                        <groupId>
+                                                                                org.mobicents.media.hardware
+                                                                        </groupId>
+                                                                        <artifactId>
+                                                                                libmobicents-dahdi-linux
+                                                                        </artifactId>
+                                                                        <version>
+                                                                                ${pom.version}
+                                                                        </version>
+                                                                        <type>so</type>
+                                                                        <overWrite>true</overWrite>
+                                                                        <outputDirectory>
+                                                                                ${project.build.directory}/mms-server/native
+                                                                        </outputDirectory>
+                                                                        <destFileName>
+                                                                                libmobicents-dahdi-linux.so
+                                                                        </destFileName>
+                                                                </artifactItem>
+                                                        </artifactItems>
+                                                </configuration>
+                                        </execution>
+                                </executions>
+                        </plugin>-->
+	</plugins>
     </build>
 
 </project>

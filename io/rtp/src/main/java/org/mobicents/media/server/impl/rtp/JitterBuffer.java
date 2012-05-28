@@ -60,7 +60,7 @@ public class JitterBuffer implements Serializable {
         dtmf.setOptions(new Text("0-15"));
     }
     //The underlying buffer size
-    private static final int QUEUE_SIZE = 10;
+    private static final int QUEUE_SIZE = 4;
     //the underlying buffer
     private ArrayList<Frame> queue = new ArrayList(QUEUE_SIZE);
     

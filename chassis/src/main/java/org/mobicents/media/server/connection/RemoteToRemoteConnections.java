@@ -54,8 +54,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  */
 public class RemoteToRemoteConnections extends Connections {
     public RemoteToRemoteConnections(BaseEndpointImpl endpoint, int localPoolSize, int rtpPoolSize) throws Exception {
-    	super(endpoint,localPoolSize,rtpPoolSize,true);  
-    	
+    	super(endpoint,localPoolSize,rtpPoolSize,true);
     }    
 
     String key;
@@ -79,7 +78,7 @@ public class RemoteToRemoteConnections extends Connections {
     }   
     
     public void updateMode(MediaType mediaType)
-    {
+    {    	
     	//only channels should be modified
     }
 }

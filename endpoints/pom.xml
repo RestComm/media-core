@@ -20,6 +20,7 @@
         <module>cnf</module>
 	<module>bridge</module>
         <module>packet-relay</module>
+	<module>ds0</module>
     </modules>
 	
 

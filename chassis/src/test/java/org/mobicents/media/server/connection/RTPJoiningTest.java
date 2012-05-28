@@ -47,7 +47,7 @@ import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class RTPJoiningTest extends RTPEnvironment {
 
@@ -123,8 +123,8 @@ public class RTPJoiningTest extends RTPEnvironment {
     	{
     	long s = System.nanoTime();
 
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
@@ -165,8 +165,8 @@ public class RTPJoiningTest extends RTPEnvironment {
     public void testNetworkLoop() throws Exception {
     	long s = System.nanoTime();
 
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
@@ -201,8 +201,8 @@ public class RTPJoiningTest extends RTPEnvironment {
     public void testSendOnly() throws Exception {
     	long s = System.nanoTime();
 
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
@@ -236,8 +236,8 @@ public class RTPJoiningTest extends RTPEnvironment {
     public void testRecvOnly() throws Exception {
     	long s = System.nanoTime();
 
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
@@ -276,8 +276,8 @@ public class RTPJoiningTest extends RTPEnvironment {
 
     @Test
     public void testRxTxChangeMode() throws Exception {
-    	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP);
+    	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
         connection1.setOtherParty(sd2);        
@@ -318,8 +318,8 @@ public class RTPJoiningTest extends RTPEnvironment {
     	long s = System.nanoTime();
 
         //first leg
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
-        Connection connection2 = endpoint3.createConnection(ConnectionType.RTP);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
+        Connection connection2 = endpoint3.createConnection(ConnectionType.RTP,false);
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
@@ -331,8 +331,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         connection1.setMode(ConnectionMode.SEND_RECV);
         
         //second leg
-        Connection connection3 = endpoint2.createConnection(ConnectionType.RTP);
-        Connection connection4 = endpoint3.createConnection(ConnectionType.RTP);
+        Connection connection3 = endpoint2.createConnection(ConnectionType.RTP,false);
+        Connection connection4 = endpoint3.createConnection(ConnectionType.RTP,false);
 
         Text sd3 = new Text(connection3.getDescriptor());
         Text sd4 = new Text(connection4.getDescriptor());

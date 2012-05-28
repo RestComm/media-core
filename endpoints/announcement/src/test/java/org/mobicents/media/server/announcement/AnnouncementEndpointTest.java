@@ -98,7 +98,7 @@ public class AnnouncementEndpointTest {
     public void testRTPConnection() throws Exception {
     	try
     	{
-        Connection connection = aap.createConnection(ConnectionType.RTP);
+        Connection connection = aap.createConnection(ConnectionType.RTP,false);
         assertTrue("Connection should not be null", connection != null);
         
         System.out.println(connection.getDescriptor());

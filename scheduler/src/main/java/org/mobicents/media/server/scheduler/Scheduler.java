@@ -49,20 +49,22 @@ import org.apache.log4j.Logger;
  * @author kulikov
  */
 public class Scheduler  {
+	public static final Integer RECEIVER_QUEUE=0;
 	//MANAGEMENT QUEUE SHOULD CONTAIN ONLY TASKS THAT ARE NOT TIME DEPENDENT , FOR
 	//EXAMPLE MGCP COMMANDS 
-	public static final Integer MANAGEMENT_QUEUE=1;
-	public static final Integer UDP_MANAGER_QUEUE=2;
-	public static final Integer RX_TASK_QUEUE=3;
-	public static final Integer INPUT_QUEUE=4;
-	public static final Integer SPLITTER_INPUT_QUEUE=5;
-	public static final Integer SPLITTER_OUTPUT_QUEUE=6;
-	public static final Integer MIXER_INPUT_QUEUE=7;
-	public static final Integer MIXER_MIX_QUEUE=8;
-	public static final Integer MIXER_OUTPUT_QUEUE=9;
+	public static final Integer MANAGEMENT_QUEUE=2;
+	public static final Integer UDP_MANAGER_QUEUE=3;
+	public static final Integer RX_TASK_QUEUE=4;
+	public static final Integer INPUT_QUEUE=5;
+	public static final Integer SPLITTER_INPUT_QUEUE=6;
+	public static final Integer SPLITTER_OUTPUT_QUEUE=7;
+	public static final Integer MIXER_INPUT_QUEUE=8;
+	public static final Integer MIXER_MIX_QUEUE=9;
+	public static final Integer MIXER_OUTPUT_QUEUE=10;
+	public static final Integer SENDER_QUEUE=11;
 	
 	//OUTPUT QUEUE IS SET AS ZERO QUEUE TO ALLOW MORE CORRECTLY GENERATE 20MS DELAY
-	public static final Integer OUTPUT_QUEUE=0;
+	public static final Integer OUTPUT_QUEUE=1;
 	//TX Task is called from OUTPUT AND NOT ADDED TO SCHEDULER THEREFORE NOT NEEDED HERE
 	
 	public static final Integer HEARTBEAT_QUEUE=-1;
@@ -70,7 +72,7 @@ public class Scheduler  {
     private Clock clock;
 
     //priority queue
-    protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[10];
+    protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[12];
 
     protected OrderedTaskQueue heartBeatQueue;
     //CPU bound threads
@@ -208,10 +210,10 @@ public class Scheduler  {
      */
     private class CpuThread extends Thread {        
         private volatile boolean active;
-        private int currQueue=MANAGEMENT_QUEUE;        
+        private int currQueue=RECEIVER_QUEUE;        
         private AtomicInteger activeTasksCount=new AtomicInteger();
         private long cycleStart=0;
-        private int runIndex=0;
+        private int runIndex=0,runIndex2=0;
         private ExecutorService eservice;
         private Object LOCK=new Object();
         
@@ -242,22 +244,48 @@ public class Scheduler  {
         	
         	while(active)
         	{
-        		while(currQueue<=MIXER_OUTPUT_QUEUE)
-    			{    				    				
-    				synchronized(LOCK) {    					
-    					if(executeQueue(taskQueues[currQueue]))
-    						try {
-    							LOCK.wait();
-    						}
-    						catch(InterruptedException e)  {                                               
-    							//lets continue
-    						}
-    				}
+        		//running sender queue each 4ms
+        		synchronized(LOCK) {    					
+					if(executeQueue(taskQueues[currQueue]))
+						try {
+							LOCK.wait();
+						}
+						catch(InterruptedException e)  {                                               
+							//lets continue
+						}
+				}
+        		
+        		runIndex2=(runIndex2+1)%5;
+        		if(runIndex2==0)
+        		{
+        			while(currQueue<=MIXER_OUTPUT_QUEUE)
+        			{    				    				
+        				synchronized(LOCK) {    					
+        					if(executeQueue(taskQueues[currQueue]))
+        						try {
+        							LOCK.wait();
+        						}
+    							catch(InterruptedException e)  {                                               
+    								//lets continue
+    							}
+        				}
     				
-    				currQueue++;
-    			}        		        		        		
+        				currQueue++;
+        			}
+        		}
 				
-        		runIndex=(runIndex+1)%5;
+        		//running sender queue each 4ms
+        		synchronized(LOCK) {    					
+					if(executeQueue(taskQueues[currQueue]))
+						try {
+							LOCK.wait();
+						}
+						catch(InterruptedException e)  {                                               
+							//lets continue
+						}
+				}
+        		
+        		runIndex=(runIndex+1)%25;        		
     			if(runIndex==0)    				    				
     				synchronized(LOCK) {
     					if(executeQueue(heartBeatQueue))
@@ -271,17 +299,17 @@ public class Scheduler  {
     			
     			//sleep till next cycle
         		cycleDuration=clock.getTime() - cycleStart;
-        		if(cycleDuration<20000000L)
+        		if(cycleDuration<4000000L)
         			try  {                                               
-        				sleep(20L-cycleDuration/1000000L,(int)((20000000L-cycleDuration)%1000000L));
+        				sleep(4L-cycleDuration/1000000L,(int)((4000000L-cycleDuration)%1000000L));
         			}
                 	catch(InterruptedException e)  {                                               
                 		//lets continue
                 	}
     		
-                //new cycle starts , updating cycle start time by 20ms
-                cycleStart = cycleStart + 20000000L;
-                currQueue=OUTPUT_QUEUE;                                               
+                //new cycle starts , updating cycle start time by 4ms
+                cycleStart = cycleStart + 4000000L;
+                currQueue=RECEIVER_QUEUE;                                               
         	}
         }
         

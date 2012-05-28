@@ -40,7 +40,6 @@
             <artifactId>gsm</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>

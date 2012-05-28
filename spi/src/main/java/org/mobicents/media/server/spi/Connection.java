@@ -40,6 +40,21 @@ public interface Connection {
      */
     public String getId();
     
+    
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    public boolean getIsLocal();
+    
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    public void setIsLocal(boolean isLocal);
+    
     /**
      * Returns state of this connection
      * @return

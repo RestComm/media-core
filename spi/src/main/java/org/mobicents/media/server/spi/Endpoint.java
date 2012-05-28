@@ -80,7 +80,7 @@ public interface Endpoint {
      *
      * @param type transport type
      */
-    public Connection createConnection(ConnectionType type)
+    public Connection createConnection(ConnectionType type,boolean isLocal)
             throws TooManyConnectionsException, ResourceUnavailableException;
 
     /**

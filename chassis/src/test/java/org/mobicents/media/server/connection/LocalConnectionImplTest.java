@@ -88,7 +88,7 @@ public class LocalConnectionImplTest {
         endpoint.setRtpManager(rtpManager);
         endpoint.start();
 
-        connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL);
+        connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL,false);
     }
 
     @After
@@ -113,7 +113,7 @@ public class LocalConnectionImplTest {
     public void testDuration() throws Exception {
         long s = System.nanoTime();
         for (int i = 0; i < 9; i++) {
-            connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL);
+            connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL,false);
 //            connection.bind();
         }
         System.out.println("Duration=" + (System.nanoTime() - s));

@@ -93,7 +93,7 @@ public class BaseConnectionFSMTest1 {
         endpoint.setRtpManager(rtpManager);
         endpoint.start();
 
-        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL);
+        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
 
     }
 

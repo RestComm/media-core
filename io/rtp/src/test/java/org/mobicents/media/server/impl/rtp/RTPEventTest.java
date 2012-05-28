@@ -57,7 +57,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class RTPEventTest implements DtmfDetectorListener {
 
@@ -123,7 +123,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         detector.addListener(this);
         
         channel = rtpManager.getChannel();
-        channel.bind();
+        channel.bind(false);
 
         sender = new Sender(channel.getLocalPort());
         

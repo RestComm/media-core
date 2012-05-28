@@ -36,6 +36,7 @@
     </properties>
 
     <modules>
+	<module>hardware</module>
         <module>spi</module>
         <module>scheduler</module>
         <module>codecs</module>

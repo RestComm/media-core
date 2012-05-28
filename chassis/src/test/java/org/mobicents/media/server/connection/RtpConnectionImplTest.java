@@ -105,7 +105,7 @@ public class RtpConnectionImplTest {
      */
     @Test
     public void testDescription() throws Exception {
-        connection = (RtpConnectionImpl) endpoint.createConnection(ConnectionType.RTP);
+        connection = (RtpConnectionImpl) endpoint.createConnection(ConnectionType.RTP,false);
 //        connection.bind();
         Thread.sleep(1000);
 

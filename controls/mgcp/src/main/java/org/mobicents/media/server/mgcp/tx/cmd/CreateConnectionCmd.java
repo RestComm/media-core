@@ -269,7 +269,8 @@ public class CreateConnectionCmd extends Action {
                 //extract found endpoint
                 endpoint = endpoints[0];
             } catch (Exception e) { 
-            	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
+            	e.printStackTrace();
+                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
             }
             
             Parameter z2 = request.getParameter(Parameter.SECOND_ENDPOINT);
@@ -317,9 +318,9 @@ public class CreateConnectionCmd extends Action {
         @Override
         public long perform() {
             try {
-                connections[0] = endpoint.createConnection(call, ConnectionType.RTP);
+                connections[0] = endpoint.createConnection(call, ConnectionType.RTP,lcOptions.getIsLocal());
                 connections[0].setCallAgent(getEvent().getAddress());                
-            } catch (Exception e) {
+            } catch (Exception e) {            	
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection" + e.getMessage()));
             }
             
@@ -358,13 +359,13 @@ public class CreateConnectionCmd extends Action {
         @Override
         public long perform() {
             try {
-                connections[0] = endpoint.createConnection(call, ConnectionType.LOCAL);
+                connections[0] = endpoint.createConnection(call, ConnectionType.LOCAL,false);
             } catch (Exception e) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection"));
             }
 
             try {
-                connections[1] = endpoint2.createConnection(call, ConnectionType.LOCAL);
+                connections[1] = endpoint2.createConnection(call, ConnectionType.LOCAL,false);
             } catch (Exception e) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection"));
             }

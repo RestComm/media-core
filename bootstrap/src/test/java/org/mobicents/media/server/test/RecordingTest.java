@@ -56,7 +56,7 @@ import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class RecordingTest {
 
@@ -146,13 +146,13 @@ public class RecordingTest {
         long s = System.nanoTime();
         
         //create user connection
-        Connection userConnection = user.createConnection(ConnectionType.RTP);        
+        Connection userConnection = user.createConnection(ConnectionType.RTP,false);        
         Text sd2 = new Text(userConnection.getDescriptor());
         userConnection.setMode(ConnectionMode.INACTIVE);
         Thread.sleep(50);
         
         //create server connection
-        Connection ivrConnection = ivr.createConnection(ConnectionType.RTP);        
+        Connection ivrConnection = ivr.createConnection(ConnectionType.RTP,false);        
         Text sd1 = new Text(ivrConnection.getDescriptor());
         
         ivrConnection.setOtherParty(sd2);

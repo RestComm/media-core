@@ -165,9 +165,9 @@ public class MgcpEndpoint {
      * 
      * @return connection activity.
      */
-    public MgcpConnection createConnection(MgcpCall call, ConnectionType type) throws TooManyConnectionsException, ResourceUnavailableException {
+    public MgcpConnection createConnection(MgcpCall call, ConnectionType type,boolean isLocal) throws TooManyConnectionsException, ResourceUnavailableException {
     	//create connection
-    	Connection connection = endpoint.createConnection(type);
+    	Connection connection = endpoint.createConnection(type,isLocal);
     	//wrap connection with relative activity
     	MgcpConnection mgcpConnection = connections.poll();
     	mgcpConnection.wrap(this, call, connection);

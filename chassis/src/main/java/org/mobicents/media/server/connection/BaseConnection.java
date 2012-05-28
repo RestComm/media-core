@@ -380,6 +380,26 @@ public abstract class BaseConnection implements Connection {
         }
     }
 
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    public boolean getIsLocal()
+    {
+    	return false;
+    }
+    
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    public void setIsLocal(boolean isLocal)
+    {
+    	//do nothing
+    }
+    
     private class HeartBeat extends Task {
 
         public HeartBeat(Scheduler scheduler) {
@@ -405,6 +425,5 @@ public abstract class BaseConnection implements Connection {
                 }            
             return 0;
         }
-
-    }
+    }    
 }

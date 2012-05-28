@@ -41,6 +41,11 @@
             <version>${project.version}</version>
         </dependency>
 	<dependency>
+            <groupId>org.mobicents.media.io</groupId>
+            <artifactId>rtp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+	<dependency>
 	  <groupId>org.mobicents.external.tritonus</groupId> 
 	  <artifactId>tritonus_share</artifactId> 
 	  <version>0.3.6</version> 

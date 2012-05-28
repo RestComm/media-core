@@ -47,7 +47,7 @@ import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class BridgeTest extends RTPEnvironment {
 
@@ -133,10 +133,10 @@ public class BridgeTest extends RTPEnvironment {
     public void testTransmission() throws Exception {
         long s = System.nanoTime();
 
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         connection1.setMode(ConnectionMode.SEND_ONLY);
         
-        Connection connection3 = endpoint3.createConnection(ConnectionType.RTP);
+        Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection3.getDescriptor());
@@ -149,8 +149,8 @@ public class BridgeTest extends RTPEnvironment {
         connection3.setMode(ConnectionMode.CONFERENCE);
         connection1.setMode(ConnectionMode.CONFERENCE);
         
-        Connection connection12 = endpoint1.createConnection(ConnectionType.LOCAL);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL);
+        Connection connection12 = endpoint1.createConnection(ConnectionType.LOCAL,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL,false);
         
         connection12.setOtherParty(connection2);
         //initial mode
@@ -160,8 +160,8 @@ public class BridgeTest extends RTPEnvironment {
         
         connection2.setMode(ConnectionMode.SEND_RECV);
 
-        Connection connection32 = endpoint3.createConnection(ConnectionType.LOCAL);
-        Connection connection4 = endpoint4.createConnection(ConnectionType.LOCAL);
+        Connection connection32 = endpoint3.createConnection(ConnectionType.LOCAL,false);
+        Connection connection4 = endpoint4.createConnection(ConnectionType.LOCAL,false);
 
         connection32.setOtherParty(connection4);
         connection32.setMode(ConnectionMode.CONFERENCE);

@@ -55,7 +55,7 @@ public class MgcpRequest extends MgcpMessage {
     private Text msg = new Text();
     
     public MgcpRequest() {
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 30; i++) {
             parameters.add(new Parameter());
         }
         count = 0;

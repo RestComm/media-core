@@ -55,6 +55,7 @@ import org.mobicents.media.server.spi.recorder.RecorderListener;
  * @author Oleg Kulikov
  * @author amit bhayani
  * @author baranowb
+ * @author Oifa Yulian
  */
 public class RecorderImpl extends AbstractSink implements Recorder {
 
@@ -294,6 +295,10 @@ public class RecorderImpl extends AbstractSink implements Recorder {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public void setPreSpeechTimer(long value) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
     private class RecorderRunnable implements Runnable {
 
         public RecorderRunnable() {

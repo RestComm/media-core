@@ -55,7 +55,7 @@ import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class RelayTest {
 
@@ -159,13 +159,13 @@ public class RelayTest {
         long s = System.nanoTime();
         
         //create client
-        Connection connection2 = soundcard.createConnection(ConnectionType.RTP);        
+        Connection connection2 = soundcard.createConnection(ConnectionType.RTP,false);        
         Text sd2 = new Text(connection2.getDescriptor());
         connection2.setMode(ConnectionMode.SEND_RECV);
         Thread.sleep(50);
         
         //create server with known sdp in cnf mode
-        Connection connection02 = cnfBridge.createConnection(ConnectionType.RTP);        
+        Connection connection02 = cnfBridge.createConnection(ConnectionType.RTP,false);        
         Text sd1 = new Text(connection02.getDescriptor());
         
         connection02.setOtherParty(sd2);
@@ -178,8 +178,8 @@ public class RelayTest {
         Thread.sleep(50);
         
         //create local connection
-        Connection connection1 = ivr.createConnection(ConnectionType.LOCAL);        
-        Connection connection01 = cnfBridge.createConnection(ConnectionType.LOCAL);
+        Connection connection1 = ivr.createConnection(ConnectionType.LOCAL,false);        
+        Connection connection01 = cnfBridge.createConnection(ConnectionType.LOCAL,false);
         Thread.sleep(50);
         
         //create in send_recv mode initially

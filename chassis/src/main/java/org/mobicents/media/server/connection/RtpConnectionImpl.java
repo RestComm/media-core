@@ -74,7 +74,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     
     //negotiated sdp
     private String descriptor2;
-        
+    private boolean isLocal=false;
     private ConnectionFailureListener connectionFailureListener;
     
     public RtpConnectionImpl(String id, Connections connections,Boolean isLocalToRemote) throws Exception {
@@ -107,6 +107,28 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         template = new SdpTemplate(audioFormats, videoFormats);
     }
 
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    @Override
+    public boolean getIsLocal()
+    {
+    	return this.isLocal;
+    }
+    
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    @Override
+    public void setIsLocal(boolean isLocal)
+    {
+    	this.isLocal=isLocal;
+    }
+    
     /**
      * Constructs RTP payloads for given channel.
      *
@@ -217,11 +239,18 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         }
         
 
-        descriptor2 = new SdpTemplate(audio, video).getSDP(connections.rtpManager.getBindAddress(),
+        if(!isLocal)
+        	descriptor2 = new SdpTemplate(audio, video).getSDP(connections.rtpManager.getBindAddress(),
                 "IN", "IP4",
                 connections.rtpManager.getBindAddress(),
                 rtpAudioChannel.getLocalPort(),
                 rtpVideoChannel.getLocalPort());
+        else
+        	descriptor2 = new SdpTemplate(audio, video).getSDP(connections.rtpManager.getLocalBindAddress(),
+                    "IN", "IP4",
+                    connections.rtpManager.getLocalBindAddress(),
+                    rtpAudioChannel.getLocalPort(),
+                    rtpVideoChannel.getLocalPort());
         try {
             this.join();
         } catch (Exception e) {
@@ -283,12 +312,18 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
             rtpVideoChannel.setPeer(new InetSocketAddress(address,sdp.getVideoDescriptor().getPort()));
         }
 
-        descriptor2 = new SdpTemplate(audio, video).getSDP(connections.rtpManager.getBindAddress(),
+        if(!isLocal)
+        	descriptor2 = new SdpTemplate(audio, video).getSDP(connections.rtpManager.getBindAddress(),
                 "IN", "IP4",
                 connections.rtpManager.getBindAddress(),
                 rtpAudioChannel.getLocalPort(),
                 rtpVideoChannel.getLocalPort());
-        
+        else
+        	descriptor2 = new SdpTemplate(audio, video).getSDP(connections.rtpManager.getLocalBindAddress(),
+                    "IN", "IP4",
+                    connections.rtpManager.getLocalBindAddress(),
+                    rtpAudioChannel.getLocalPort(),
+                    rtpVideoChannel.getLocalPort());
         try {
             this.join();
         } catch (Exception e) {
@@ -308,7 +343,15 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     
     @Override
     public long getPacketsReceived(MediaType media) {
-        return 0;
+    	switch(media)
+    	{
+    		case AUDIO:
+    			return rtpAudioChannel.getPacketsReceived();    			
+    		case VIDEO:
+    			return rtpVideoChannel.getPacketsReceived();    			
+    	}
+    	
+    	return 0;
     }
 
     @Override
@@ -328,7 +371,15 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
      */
     @Override
     public long getPacketsTransmitted(MediaType media) {
-        return 0;
+    	switch(media)
+    	{
+    		case AUDIO:
+    			return rtpAudioChannel.getPacketsTransmitted();    			
+    		case VIDEO:
+    			return rtpVideoChannel.getPacketsTransmitted();    			
+    	}
+    	
+    	return 0;
     }
 
     /**
@@ -384,20 +435,27 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     @Override
     protected void onCreated() throws Exception {
         if (this.isAudioCapabale) {
-            rtpAudioChannel.bind();
+            rtpAudioChannel.bind(isLocal);
             audioChannel.connect(rtpAudioChannel);
         }
 
         if (this.isVideoCapable) {
-            rtpVideoChannel.bind();
+            rtpVideoChannel.bind(isLocal);
             videoChannel.connect(rtpVideoChannel);
         }
 
-        descriptor = template.getSDP(connections.rtpManager.getBindAddress(),
+        if(!isLocal)
+        	descriptor = template.getSDP(connections.rtpManager.getBindAddress(),
                 "IN", "IP4",
                 connections.rtpManager.getBindAddress(),
                 rtpAudioChannel.getLocalPort(),
                 rtpVideoChannel.getLocalPort());
+        else
+        	descriptor = template.getSDP(connections.rtpManager.getLocalBindAddress(),
+                    "IN", "IP4",
+                    connections.rtpManager.getLocalBindAddress(),
+                    rtpAudioChannel.getLocalPort(),
+                    rtpVideoChannel.getLocalPort());
     }    
     
     @Override

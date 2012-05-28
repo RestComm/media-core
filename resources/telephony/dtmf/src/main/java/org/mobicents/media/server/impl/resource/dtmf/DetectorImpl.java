@@ -164,7 +164,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
      * @see org.mobicents.media.protocol.BufferTransferHandler.transferData().
      */
     public void onMediaTransfer(Frame buffer) throws IOException {
-        byte[] data = buffer.getData();
+    	byte[] data = buffer.getData();
 
         int M = buffer.getLength();
         int k = 0;

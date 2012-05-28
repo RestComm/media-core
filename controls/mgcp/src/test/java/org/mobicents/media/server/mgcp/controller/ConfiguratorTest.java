@@ -121,7 +121,7 @@ public class ConfiguratorTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public Connection createConnection(ConnectionType type) throws TooManyConnectionsException, ResourceUnavailableException {
+        public Connection createConnection(ConnectionType type,boolean isLocal) throws TooManyConnectionsException, ResourceUnavailableException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 

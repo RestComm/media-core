@@ -33,7 +33,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mobicents-gsm-${project.version}</finalName>
+        <finalName>mobicents-l16-${project.version}</finalName>
     </build>
 
 </project>

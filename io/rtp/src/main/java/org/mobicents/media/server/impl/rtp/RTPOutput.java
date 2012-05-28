@@ -115,6 +115,7 @@ public class RTPOutput extends AbstractSink {
     		catch(Exception e)
     		{
     			//transcoding error , print error and try to move to next frame
+    			System.out.println(e.getMessage());
     			e.printStackTrace();
     			return;
     		} 

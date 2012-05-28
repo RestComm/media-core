@@ -281,8 +281,9 @@ public abstract class BaseEndpointImpl implements Endpoint {
      * 
      * @see org.mobicents.media.server.spi.Endpoint#createConnection(org.mobicents.media.server.spi.ConnectionMode);
      */
-    public Connection createConnection(ConnectionType type) throws TooManyConnectionsException, ResourceUnavailableException {
+    public Connection createConnection(ConnectionType type,boolean isLocal) throws TooManyConnectionsException, ResourceUnavailableException {
         BaseConnection connection = (BaseConnection) connections.createConnection(type);
+        connection.setIsLocal(isLocal);
         
         try {
             connection.bind();

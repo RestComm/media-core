@@ -22,7 +22,9 @@
 
 package org.mobicents.media.server.mgcp.pkg.au;
 
+import java.io.File;
 import java.util.Iterator;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
@@ -56,7 +58,7 @@ import org.mobicents.media.server.utils.Text;
  * the PlayCollect operation.
  * 
  * 
- * @author kulikov
+ * @author oifa yulian
  */
 public class PlayRecord extends Signal {
     
@@ -78,11 +80,16 @@ public class PlayRecord extends Signal {
     
     private volatile boolean isPromptActive;
     private Text[] prompt=new Text[10];
-    private int promptLength=0,promptIndex=0;
+    private Text[] deletePersistentAudio=new Text[100];
+    private int promptLength=0,promptIndex=0,deletePersistentAudioLength=0;
+    private int numberOfAttempts=1;
     
     private boolean isCompleted;
     private final static Logger logger = Logger.getLogger(PlayRecord.class);
     private int segCount = 0;
+    
+    private PlayerMode playerMode=PlayerMode.PROMPT;
+    private Text eventContent;
     
     public PlayRecord(String name) {
         super(name);
@@ -115,6 +122,48 @@ public class PlayRecord extends Signal {
         //get options of the request
         options = new Options(getTrigger().getParams());        
         
+        //check if has delete persistent audio , if yes verify all files and delete
+    	if(options.hasDeletePresistentAudio())
+    	{
+    		deletePersistentAudioLength=options.getDeletePersistentAudio().size();    		
+    		deletePersistentAudio = options.getDeletePersistentAudio().toArray(deletePersistentAudio);
+    		File f;
+    		for(int i=0;i<deletePersistentAudioLength;i++)
+    		{
+    			try
+    			{
+    				f = new File(deletePersistentAudio[i].toString());    				
+    				if(!f.exists())
+    				{
+    		    		oc.fire(this, new Text("rc=320 ri=" + deletePersistentAudio[i].toString()));        		
+    		    		isCompleted=true;
+    		    		complete();
+    		    		return;
+    				}	    				    				
+    			}
+    			catch(Exception ex)
+    			{}
+    		}
+    		
+    		for(int i=0;i<deletePersistentAudioLength;i++)
+    		{
+    			f = new File(deletePersistentAudio[i].toString());
+    			f.delete();
+				
+    		}
+    		oc.fire(this, new Text("rc=100"));        		
+    		isCompleted=true;
+    		complete();
+    		return;
+    	}    	
+    	
+    	playerMode=PlayerMode.PROMPT;
+    	
+    	if(options.getNumberOfAttempts()>1)
+        	this.numberOfAttempts=options.getNumberOfAttempts();
+        else
+        	this.numberOfAttempts=1;
+    	
         //start digits collect phase
         logger.info(String.format("(%s) Prepare digit collect phase", getEndpoint().getLocalName()));
         //Initializes resources for DTMF detection
@@ -127,7 +176,7 @@ public class PlayRecord extends Signal {
             logger.info(String.format("(%s) Start prompt phase", getEndpoint().getLocalName()));
 
             this.isPromptActive = true;
-            startPromptPhase(options);
+            startPromptPhase(options.getPrompt());
             
             return;
         }                
@@ -167,13 +216,13 @@ public class PlayRecord extends Signal {
      * 
      * @param options requested options.
      */
-    private void startPromptPhase(Options options) {
+    private void startPromptPhase(Collection<Text> promptList) {
         player = this.getPlayer();        
         try {
             //assign listener
             player.addListener(promptHandler);
-            promptLength=options.getPrompt().size();
-            prompt = options.getPrompt().toArray(prompt);            
+            promptLength=promptList.size();
+            prompt = promptList.toArray(prompt);            
             player.setURL(prompt[0].toString());
             
           //specify URL to play
@@ -215,6 +264,10 @@ public class PlayRecord extends Signal {
         recorder.setMaxRecordTime(options.getRecordDuration());
         //post speech timer
         recorder.setPostSpeechTimer(options.getPostSpeechTimer());
+        if(options.getPreSpeechTimer()>0)
+        	recorder.setPreSpeechTimer(options.getPreSpeechTimer());
+        else
+        	recorder.setPreSpeechTimer(options.getPostSpeechTimer());
         
         try {
         	recorder.addListener(recordingHandler);
@@ -301,6 +354,22 @@ public class PlayRecord extends Signal {
         this.terminatePrompt();
         this.terminateRecordPhase();
         this.terminateCollectPhase();
+    }
+    
+    private void decreaseNa()
+    {
+    	numberOfAttempts--;
+    	if (options.hasReprompt()) {
+			buffer.passivate();
+			isPromptActive = true;
+			startPromptPhase(options.getReprompt());	        
+							}
+    	else if (options.hasPrompt()) {
+			buffer.passivate();
+			isPromptActive = true;
+			startPromptPhase(options.getPrompt());					
+		} else
+			startCollectPhase();		
     }
     
     private Player getPlayer() {
@@ -463,18 +532,43 @@ public class PlayRecord extends Signal {
                 	if (promptIndex<promptLength-1) {
                         next(options.getInterval());
                         return;
-                    }                	
-                    //start collect phase when prompted has finished
-                    if (isPromptActive) {
-                        isPromptActive = false;
+                    }           
+                	
+                	switch(playerMode)
+                	{
+                		case PROMPT:
+                			//start collect phase when prompted has finished
+                			if (isPromptActive) {
+                				isPromptActive = false;
                         
-                        logger.info(String.format("(%s) Prompt phase terminated, start collect/record phase", getEndpoint().getLocalName()));
-                        startCollectPhase();
-                        //should not start record phase if completed by collect
-                        if(!isCompleted)
-                        	startRecordPhase(options);
-                    }
-                    break;
+                				logger.info(String.format("(%s) Prompt phase terminated, start collect/record phase", getEndpoint().getLocalName()));
+                				startCollectPhase();
+                        
+                				//should not start record phase if completed by collect
+                				if(!isCompleted)
+                					startRecordPhase(options);
+                			}
+                			break;
+                		case SUCCESS:
+                			oc.fire(signal, eventContent);
+                			reset();
+                			isCompleted=true;
+                    		complete();
+                			break;
+                		case FAILURE:
+                			if(numberOfAttempts==1)
+                			{
+                				oc.fire(signal, eventContent);                				
+                				reset();
+                				isCompleted=true;
+                        		complete();
+                			}
+                			else
+                				decreaseNa();
+                			
+                			break;
+                	}
+            		break;
                 case PlayerEvent.FAILED :
                     of.fire(signal, null);
                     complete();
@@ -500,10 +594,34 @@ public class PlayRecord extends Signal {
                 case RecorderEvent.STOP :
                     switch (event.getQualifier()) {
                         case RecorderEvent.MAX_DURATION_EXCEEDED :
-                            oc.fire(signal, new Text("rc=328"));                            
+                        	if(numberOfAttempts==1)                        	
+                        		oc.fire(signal, new Text("rc=328"));                            
+                        	else if(options.hasFailureAnnouncement())
+                			{
+                				eventContent=new Text("rc=328");
+                				playerMode=PlayerMode.FAILURE;
+                				startPromptPhase(options.getFailureAnnouncement());
+                			}
+            				else
+            					oc.fire(signal, new Text("rc=328"));
                             break;
                         case RecorderEvent.NO_SPEECH :
-                            oc.fire(signal, new Text("rc=327"));                            
+                        	if(numberOfAttempts==1)
+                        		oc.fire(signal, new Text("rc=327"));
+                        	else if(options.hasNoSpeechReprompt())
+            				{
+            					eventContent=new Text("rc=327");
+            					playerMode=PlayerMode.FAILURE;
+            					startPromptPhase(options.getNoSpeechReprompt());
+            				}
+            				else if(options.hasFailureAnnouncement())
+                			{
+                				eventContent=new Text("rc=327");
+                				playerMode=PlayerMode.FAILURE;
+                				startPromptPhase(options.getFailureAnnouncement());
+                			}
+            				else
+            					oc.fire(signal, new Text("rc=327"));
                             break;
                     }
                     break;
@@ -534,10 +652,19 @@ public class PlayRecord extends Signal {
          * @see BufferListener#patternMatches(int, java.lang.String) 
          */
         public void patternMatches(int index, String s) {
-        		oc.fire(signal, new Text("rc=100 dc=" + s + " pi=" + index));        		
-        		reset();
-        		isCompleted=true;
-        		complete();        	
+        	if(options.hasSuccessAnnouncement())
+			{
+				eventContent=new Text("rc=100 dc=" + s + " pi=" + index);
+				playerMode=PlayerMode.SUCCESS;
+				startPromptPhase(options.getSuccessAnnouncement());				
+			}
+			else
+			{
+				oc.fire(signal, new Text("rc=100 dc=" + s + " pi=" + index));
+				reset();
+				isCompleted=true;
+	            complete();
+			}        	        
         }
         
         /**
@@ -546,10 +673,19 @@ public class PlayRecord extends Signal {
          * @see BufferListener#countMatches(java.lang.String) 
          */
         public void countMatches(String s) {
-        		oc.fire(signal, new Text("rc=100 dc=" + s));        		
-        		reset();
+        	if(options.hasSuccessAnnouncement())
+			{
+				eventContent=new Text("rc=100 dc=" + s);
+				playerMode=PlayerMode.SUCCESS;
+				startPromptPhase(options.getSuccessAnnouncement());				
+			}
+			else
+			{
+				oc.fire(signal, new Text("rc=100 dc=" + s));
+	            reset();
         		isCompleted=true;
-        		complete();        	
+        		complete();             				
+			}           		     
         }
 
         /**
@@ -607,6 +743,5 @@ public class PlayRecord extends Signal {
             
             return true;
         }
-        
     }
 }

@@ -161,7 +161,11 @@ public class RTPDataChannel {
         		break;
     	}
     	
-    	if(rtpManager.udpManager.getRtpTimeout()>0 && this.remotePeer!=null) {
+    	boolean connectImmediately=false;
+    	if(this.remotePeer!=null)
+    		connectImmediately=rtpManager.udpManager.connectImmediately((InetSocketAddress)this.remotePeer);
+    	
+    	if(rtpManager.udpManager.getRtpTimeout()>0 && this.remotePeer!=null && !connectImmediately) {
     		if(shouldReceive) {
     			lastPacketReceived=rtpManager.scheduler.getClock().getTime();
     			rtpManager.scheduler.submitHeatbeat(heartBeat);
@@ -186,7 +190,7 @@ public class RTPDataChannel {
      *
      * @throws SocketException
      */
-    public void bind() throws SocketException {
+    public void bind(boolean isLocal) throws SocketException {
     	try {
             dataChannel = rtpManager.udpManager.open(rtpHandler);
             
@@ -198,11 +202,17 @@ public class RTPDataChannel {
             throw new SocketException(e.getMessage());
         }
         //bind data channel
-        rtpManager.udpManager.bind(dataChannel, PORT_ANY);
-
+    	if(!isLocal)
+    		rtpManager.udpManager.bind(dataChannel, PORT_ANY);
+    	else
+    		rtpManager.udpManager.bindLocal(dataChannel, PORT_ANY);
+    	
         //if control enabled open rtcp channel as well
         if (rtpManager.isControlEnabled) {
-            rtpManager.udpManager.bind(controlChannel, dataChannel.socket().getLocalPort() + 1);
+        	if(!isLocal)
+        		rtpManager.udpManager.bind(controlChannel, dataChannel.socket().getLocalPort() + 1);
+        	else
+        		rtpManager.udpManager.bindLocal(controlChannel, dataChannel.socket().getLocalPort() + 1);
         }
     }
 
@@ -222,14 +232,26 @@ public class RTPDataChannel {
      */
     public void setPeer(SocketAddress address) {
     	this.remotePeer = address;
-        if(dataChannel!=null && !dataChannel.isConnected() && rtpManager.udpManager.connectImmediately((InetSocketAddress)address))
-        	try {
-        		dataChannel.connect(address);        		
-        	}
-        	catch (IOException e) {           		
-        	}
-        	
-        if(rtpManager.udpManager.getRtpTimeout()>0) {        	
+    	boolean connectImmediately=false;
+        if(dataChannel!=null)
+        {
+        	if(dataChannel.isConnected())
+        		try {
+        			dataChannel.disconnect();
+        		}
+    			catch (IOException e) {           		
+    			}
+    		
+    		connectImmediately=rtpManager.udpManager.connectImmediately((InetSocketAddress)address);
+        	if(connectImmediately)
+        		try {
+        			dataChannel.connect(address);        		
+        		}
+        		catch (IOException e) {           		
+        		}
+        }
+        
+        if(rtpManager.udpManager.getRtpTimeout()>0 && !connectImmediately) {        	
         	if(shouldReceive) {
         		lastPacketReceived=rtpManager.scheduler.getClock().getTime();
         		rtpManager.scheduler.submitHeatbeat(heartBeat);
@@ -372,7 +394,6 @@ public class RTPDataChannel {
 
         public void setKey(SelectionKey key) {
         }
-
     }
 
     /**

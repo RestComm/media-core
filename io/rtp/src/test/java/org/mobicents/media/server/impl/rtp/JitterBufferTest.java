@@ -104,7 +104,6 @@ public class JitterBufferTest {
         jitterBuffer.write(p2);
         jitterBuffer.write(p4);
         jitterBuffer.write(p3);
-        jitterBuffer.write(p5);
 
         Frame buffer = jitterBuffer.read(wallClock.getTime());
         assertEquals(1, buffer.getSequenceNumber());
@@ -118,8 +117,6 @@ public class JitterBufferTest {
         buffer = jitterBuffer.read(wallClock.getTime());
         assertEquals(4, buffer.getSequenceNumber());
 
-        buffer = jitterBuffer.read(wallClock.getTime());
-        assertEquals(5, buffer.getSequenceNumber());
     }
 
     @Test
@@ -198,7 +195,7 @@ public class JitterBufferTest {
 
     @Test
     public void testOverflow() {
-        RtpPacket[] stream = createStream(11);
+        RtpPacket[] stream = createStream(5);
         for (int i = 0; i < stream.length; i++) {
             jitterBuffer.write(stream[i]);
         }

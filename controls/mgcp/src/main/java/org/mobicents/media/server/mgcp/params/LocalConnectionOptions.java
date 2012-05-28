@@ -40,6 +40,9 @@ public class LocalConnectionOptions {
     public final static Text RESOURCE_RESERVATION = new Text("r");
     public final static Text ENCRYPTION_KEY = new Text("k");
     public final static Text DTMF_CLAMP = new Text("x-dc");
+    public final static Text IS_LOCAL = new Text("x-islocal");
+    
+    public final static Text TRUE = new Text("true");
     
     private Text codecs = new Text(),
             gain = new Text(),
@@ -57,18 +60,21 @@ public class LocalConnectionOptions {
     private Text[] option = new Text[] {keyword, value};
     
     private boolean isValid = false;
+    private boolean isLocal = false;
+    
     /**
      * Modifies the value of this parameter.
      * 
      * @param text the text view of this parameter
      */
     public void setValue(Text text) {
+    	this.isLocal=false;
         if (text == null) {
             this.isValid = false;
             return;
         }
         
-        this.isValid = true;
+        this.isValid = true;        
         
         Collection<Text> tokens = text.split(',');
         for (Text token: tokens) {
@@ -94,6 +100,8 @@ public class LocalConnectionOptions {
                 value.copy(this.encryptionKey);
             } else if (keyword.equals(DTMF_CLAMP)) {
             	value.copy(this.dtmfclamp);
+            } else if (keyword.equals(IS_LOCAL)) {
+            	isLocal=true;
             }
         }
     }
@@ -102,11 +110,15 @@ public class LocalConnectionOptions {
         return this.isValid ? gain.toInteger() : 0;
     }
     
+    public boolean getIsLocal() {
+    	return this.isLocal;
+    }
+    
     public boolean getDtmfClamp() {
     	if(!this.isValid)
     		return false;
     	
-    	if(this.dtmfclamp.toString().equals("true"))
+    	if(this.dtmfclamp.equals(TRUE))
     		return true;
     	
     	return false;

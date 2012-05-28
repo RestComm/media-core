@@ -127,8 +127,8 @@ public class LocalJoiningTest {
     public void testFullduplex() throws Exception {
         long s = System.nanoTime();
 
-        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL,false);
         
         connection1.setOtherParty(connection2);
 
@@ -192,8 +192,8 @@ public class LocalJoiningTest {
     public void testHalfDuplex() throws Exception {
         long s = System.nanoTime();
 
-        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL,false);
         
         connection1.setOtherParty(connection2);
 

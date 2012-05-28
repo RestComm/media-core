@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class MgcpProviderTest {
     
@@ -55,12 +55,14 @@ public class MgcpProviderTest {
     private Scheduler scheduler;
     private UdpManager udpInterface;
 
-    private MgcpProvider provider1, provider2;
+    private MgcpProvider provider1, provider2, provider3, provider4;
     
     private RequestTester reqTester;
     private ResponseTester respTester;
     
-    public MgcpProviderTest() {
+    InetSocketAddress destination,destination2;
+    
+    public MgcpProviderTest() {    	
     }
 
     @BeforeClass
@@ -73,19 +75,24 @@ public class MgcpProviderTest {
     
     @Before
     public void setUp() throws IOException, TooManyListenersException {
-        scheduler = new Scheduler();
+    	scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
         
         udpInterface = new UdpManager(scheduler);
-        udpInterface.setBindAddress("localhost");
+        udpInterface.setLocalBindAddress("127.0.0.1");
+        udpInterface.setBindAddress("127.0.0.1");
         udpInterface.start();
         
-        provider1 = new MgcpProvider(udpInterface, 1024, scheduler);
-        provider2 = new MgcpProvider(udpInterface, 1025, scheduler);
+        destination = new InetSocketAddress("127.0.0.1", 1029);
+        
+        provider1 = new MgcpProvider(udpInterface, 1027, scheduler);
+        provider2 = new MgcpProvider(udpInterface, 1029, scheduler);
         
         provider1.activate();
         provider2.activate();
+        
+        destination2 = new InetSocketAddress("127.0.0.1", 1033);
         
         reqTester = new RequestTester();
         respTester = new ResponseTester();
@@ -94,7 +101,7 @@ public class MgcpProviderTest {
     @After
     public void tearDown() {
         if (provider1 != null) provider1.shutdown();
-        if (provider2 != null) provider2.shutdown();
+        if (provider2 != null) provider2.shutdown();        
         
         udpInterface.stop();
         scheduler.stop();
@@ -107,30 +114,27 @@ public class MgcpProviderTest {
     public void testRequest() throws Exception {
         provider2.addListener(reqTester);
         
-        InetSocketAddress destination = new InetSocketAddress("localhost", 1025);
         MgcpEvent evt = provider1.createEvent(MgcpEvent.REQUEST, destination);
         MgcpRequest req = (MgcpRequest) evt.getMessage();
         
         req.setCommand(new Text("CRCX"));
         req.setTxID(1);
-        req.setEndpoint(new Text("test@localhost"));
+        req.setEndpoint(new Text("test@127.0.0.1"));
         req.setParameter(new Text("c"), new Text("abcd"));
         
         provider1.send(evt, destination);
         
-        Thread.sleep(100);
-        
+        Thread.sleep(100);        
         assertTrue("Problems", reqTester.success);
     }
 
     public void doSendReceive() throws Exception {
-        InetSocketAddress destination = new InetSocketAddress("localhost", 1025);
         MgcpEvent evt = provider1.createEvent(MgcpEvent.REQUEST, destination);
         MgcpRequest req = (MgcpRequest) evt.getMessage();
         
         req.setCommand(new Text("CRCX"));
         req.setTxID(1);
-        req.setEndpoint(new Text("test@localhost"));
+        req.setEndpoint(new Text("test@127.0.0.1"));
         req.setParameter(new Text("c"), new Text("abcd"));
         
         provider1.send(evt);
@@ -151,21 +155,29 @@ public class MgcpProviderTest {
     
     @Test
     public void testResponse() throws Exception {
-        provider2.addListener(respTester);
+    	provider3 = new MgcpProvider(udpInterface, 1031, scheduler);
+        provider4 = new MgcpProvider(udpInterface, 1033, scheduler);
         
-        InetSocketAddress destination = new InetSocketAddress("localhost", 1025);
-        MgcpEvent evt = provider1.createEvent(MgcpEvent.RESPONSE, destination);
+        provider3.activate();
+        provider4.activate();
+        
+        provider4.addListener(respTester);
+        
+        MgcpEvent evt = provider3.createEvent(MgcpEvent.RESPONSE, destination2);
         MgcpResponse resp = (MgcpResponse) evt.getMessage();
         
         resp.setResponseCode(200);
         resp.setTxID(1);
         resp.setResponseString(new Text("Success"));
         
-        provider1.send(evt, destination);
+        provider3.send(evt, destination2);
         
         Thread.sleep(100);
         
         assertTrue("Problems", respTester.success);
+        
+        if (provider3 != null) provider3.shutdown();
+        if (provider4 != null) provider4.shutdown();
         
     }
     
@@ -181,7 +193,7 @@ public class MgcpProviderTest {
                 
                 success &= req.getCommand().toString().equalsIgnoreCase("crcx");
                 success &= req.getTxID() == 1;
-                success &= req.getEndpoint().toString().equalsIgnoreCase("test@localhost");
+                success &= req.getEndpoint().toString().equalsIgnoreCase("test@127.0.0.1");
                 success &= req.getParameter(Parameter.CALL_ID).getValue().toString().equals("abcd");
                 
             } finally {
@@ -197,14 +209,13 @@ public class MgcpProviderTest {
         
         public void process(MgcpEvent event) {
             try {
-                success = event.getEventID() == MgcpEvent.RESPONSE;
-                
+            	success = event.getEventID() == MgcpEvent.RESPONSE;
                 MgcpResponse resp = (MgcpResponse) event.getMessage();
-                
                 success &= resp.getResponseCode() == 200;
-                success &= resp.getTxID() == 1;
-                
-            } finally {
+                success &= resp.getTxID() == 1;                
+            }
+            
+            finally {
                 event.recycle();
             }
         }

@@ -98,7 +98,7 @@ public class BaseConnectionTest implements ConnectionListener {
         endpoint.setRtpManager(rtpManager);
         endpoint.start();
 
-        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL);
+        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
         connection.addListener(this);
     }
 

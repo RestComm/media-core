@@ -30,7 +30,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class NotifiedEntity {
     //fully qualified name
-    private Text fqn = new Text(new byte[50], 0, 50);
+    private Text fqn = new Text(new byte[100], 0, 100);
     
     //the name partitions
     private Text localName = new Text();        

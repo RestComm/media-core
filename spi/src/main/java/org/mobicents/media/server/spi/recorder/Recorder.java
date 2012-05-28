@@ -30,6 +30,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 /**
  * 
  * @author amit bhayani
+ * @author Oifa Yulian
  * 
  */
 public interface Recorder extends MediaSink {
@@ -63,6 +64,13 @@ public interface Recorder extends MediaSink {
      */
     public void setMaxRecordTime(long maxRecordTime);
 
+    /**
+     * Changes post-speech timer value.
+     * 
+     * @param value the time expressed in nanoseconds.
+     */
+    public void setPreSpeechTimer(long value);
+    
     /**
      * Changes post-speech timer value.
      * 

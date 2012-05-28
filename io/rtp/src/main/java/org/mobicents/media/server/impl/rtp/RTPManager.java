@@ -79,7 +79,26 @@ public class RTPManager {
      * @deprecated 
      */
     public void setBindAddress(String bindAddress) {
-        this.bindAddress = bindAddress;
+        this.udpManager.setBindAddress(bindAddress);
+    }
+    
+    /**
+     * Gets the IP address to which RTP is bound.
+     *
+     * @return the IP address as character string
+     */
+    public String getLocalBindAddress() {
+        return udpManager.getLocalBindAddress();
+    }
+
+    /**
+     * Modify the bind address.
+     *
+     * @param bindAddress the IP address as string or host name.
+     * @deprecated 
+     */
+    public void setLocalBindAddress(String bindAddress) {
+        this.udpManager.setLocalBindAddress(bindAddress);
     }
 
     /**

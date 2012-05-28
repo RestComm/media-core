@@ -26,7 +26,7 @@ import org.mobicents.media.server.spi.listener.Event;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public interface RecorderEvent extends Event<Recorder> {
     public static final int START = 1;

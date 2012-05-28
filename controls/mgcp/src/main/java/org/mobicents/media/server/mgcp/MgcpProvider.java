@@ -221,8 +221,8 @@ public class MgcpProvider {
         }
         
         try {
-            logger.info("Binding channel to "+ transport.getBindAddress() + ":" + port);
-            transport.bind(channel, port);
+            logger.info("Binding channel to "+ transport.getLocalBindAddress() + ":" + port);
+            transport.bindLocal(channel, port);
         } catch (IOException e) {
             try {
                 channel.close();
@@ -236,7 +236,7 @@ public class MgcpProvider {
     public void shutdown() {
         if (channel != null) {
             try {
-                channel.close();
+            	channel.close();
             } catch (IOException e) {
             }
         }        

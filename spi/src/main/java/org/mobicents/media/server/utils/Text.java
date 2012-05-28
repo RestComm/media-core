@@ -270,16 +270,23 @@ public class Text implements CharSequence {
      * 
      */
     public void trim() {
-        //cut white spaces from the head
-        while (chars[pos] == ' ') {
-            pos++;
-            len--;
-        }
-
+    	try
+    	{
+    	//cut white spaces from the head
+		while (len>0 && chars[pos] == ' ') {
+			pos++;
+			len--;
+		}
+    	
         //cut from the end
-        while (chars[pos + len - 1] == ' ' || chars[pos + len - 1] == '\n' || chars[pos + len - 1] == '\r') {
+        while (len>0 && (chars[pos + len - 1] == ' ' || chars[pos + len - 1] == '\n' || chars[pos + len - 1] == '\r')) {
             len--;
         }
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println("len:" + len + ",pos:" + pos);
+    	}
     }
 
     /**

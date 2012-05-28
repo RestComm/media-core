@@ -119,6 +119,7 @@ public class RTPInput extends AbstractSource implements BufferListener {
         		catch(Exception e)
         		{
         			//transcoding error , print error and try to move to next frame
+        			System.out.println(e.getMessage());
         			e.printStackTrace();
         		}
         	}        	

@@ -17,6 +17,7 @@
         <module>rtp</module>
         <module>local</module>
         <module>network</module>
+	      <module>ss7</module>
     </modules>
 	
 

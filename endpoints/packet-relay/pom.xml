@@ -45,6 +45,11 @@
             <artifactId>l16</artifactId>
             <version>${project.version}</version>
         </dependency>
+	<dependency>
+            <groupId>org.mobicents.servers.media.codecs</groupId>
+            <artifactId>ilbc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.mobicents.media.endpoints</groupId>
             <artifactId>conference-bridge</artifactId>

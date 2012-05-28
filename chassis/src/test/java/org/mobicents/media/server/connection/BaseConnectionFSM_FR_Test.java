@@ -123,7 +123,7 @@ public class BaseConnectionFSM_FR_Test {
      */
     private void doTestCreate() throws Exception {
         //step #1: create connection;
-        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL);
+        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
 
         //step #2: check state, expected state is NULL;
 //        if (connection.getState() != ConnectionState.NULL) {

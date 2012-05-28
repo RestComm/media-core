@@ -50,6 +50,7 @@ public class UdpManager {
 
     /** bind address */
     private String bindAddress = "127.0.0.1";
+    private String localBindAddress="127.0.0.1";
     
     /** local network address and subnet*/
     private byte[] localNetwork;
@@ -65,7 +66,8 @@ public class UdpManager {
     
     //port manager
     private PortManager portManager = new PortManager();
-
+    private PortManager localPortManager=new PortManager();
+    
     //poll task
     private PollTask pollTask;
 
@@ -95,6 +97,7 @@ public class UdpManager {
     public int getCount() {
         return count;
     }
+    
     /**
      * Modify bind address.
      * 
@@ -111,6 +114,24 @@ public class UdpManager {
      */
     public String getBindAddress() {
         return bindAddress;
+    }
+    
+    /**
+     * Modify bind address.
+     * 
+     * @param address the IP address as character string.
+     */
+    public void setLocalBindAddress(String address) {
+        this.localBindAddress = address;
+    }
+
+    /**
+     * Gets the bind address.
+     *
+     * @return the IP address as character string.
+     */
+    public String getLocalBindAddress() {
+        return localBindAddress;
     }
     
     /**
@@ -269,6 +290,35 @@ public class UdpManager {
         if(ex != null) throw ex;
     }
 
+    /**
+     * Binds socket to global bind address and specified port.
+     *
+     * @param channel the channel
+     * @param port the port to bind to
+     * @throws SocketException
+     */
+    public void bindLocal(DatagramChannel channel, int port) throws SocketException {
+        //select port if wildcarded
+        if (port == PORT_ANY) {
+            port = localPortManager.next();
+        }
+        //try bind
+        SocketException ex = null;
+        for(int q=0;q<100;q++) {
+        	try {
+        		channel.socket().bind(new InetSocketAddress(localBindAddress, port));
+        		port = localPortManager.next();
+        		ex = null;
+        		break;
+        	} catch (SocketException e) {        		
+        		ex = e;
+        		logger.info("Failed trying to bind " + localBindAddress + ":" + port);
+        		port = localPortManager.next();
+        	}
+        }
+        if(ex != null) throw ex;
+    }
+    
     /**
      * Starts polling the network.
      */

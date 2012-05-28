@@ -212,7 +212,7 @@ public class Controller implements MgcpListener, ServerManager {
      
     public void onStarted(Endpoint endpoint) {
         try {
-            MgcpEndpoint mgcpEndpoint = configurator.activate(endpoint, mgcpProvider, udpInterface.getBindAddress(), port);
+            MgcpEndpoint mgcpEndpoint = configurator.activate(endpoint, mgcpProvider, udpInterface.getLocalBindAddress(), port);
             mgcpEndpoint.setMgcpListener(this);
             endpoints.register(mgcpEndpoint);
             logger.info("Endpoint restarted: " + endpoint.getLocalName());

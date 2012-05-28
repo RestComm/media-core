@@ -49,7 +49,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class RTPChannelTest {
 
@@ -130,8 +130,8 @@ public class RTPChannelTest {
         channel2.getOutput().setFormats(fmts);
         channel2.getInput().setDsp(dsp22);        
         
-        channel1.bind();
-        channel2.bind();
+        channel1.bind(false);
+        channel2.bind(false);
 
         channel1.setPeer(new InetSocketAddress("127.0.0.1", channel2.getLocalPort()));
         channel2.setPeer(new InetSocketAddress("127.0.0.1", channel1.getLocalPort()));

@@ -45,7 +45,7 @@ import org.mobicents.media.server.spi.recorder.RecorderListener;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
@@ -68,6 +68,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     
     //if set ti true the record will terminate recording when silence detected
     private long postSpeechTimer = -1L;
+    private long preSpeechTimer = -1L;
     
     //samples
     private ByteBuffer byteBuffer=ByteBuffer.allocateDirect(8192);
@@ -100,6 +101,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     //event qualifier
     private int qualifier;
     
+    private boolean speechDetected=false;
+    
     public AudioRecorderImpl(Scheduler scheduler) {
         super("recorder", scheduler,scheduler.MIXER_INPUT_QUEUE);
         this.scheduler = scheduler;
@@ -124,7 +127,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     	
         super.start();
         
-        if(this.postSpeechTimer>0 || this.maxRecordTime>0)
+        if(this.postSpeechTimer>0 || this.preSpeechTimer>0 || this.maxRecordTime>0)
         	scheduler.submitHeatbeat(this.heartbeat);
         
         //send event
@@ -157,6 +160,18 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         this.qualifier = 0;
         this.maxRecordTime = -1L;
         this.postSpeechTimer = -1L;
+        this.preSpeechTimer = -1L;
+        this.speechDetected=false;
+        
+    }
+    
+    /**
+     * (Non Java-doc.)
+     * 
+     * @see org.mobicents.media.server.spi.resource.Recorder;
+     */
+    public void setPreSpeechTimer(long value) {
+        this.preSpeechTimer = value;
     }
     
     /**
@@ -200,10 +215,11 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         byteBuffer.rewind();
         fout.getChannel().write(byteBuffer);
         
-        if (this.postSpeechTimer > 0) {
+        if (this.postSpeechTimer > 0 || this.preSpeechTimer>0) {
             //detecting silence
             if (!this.checkForSilence(data, offset, len)) {
                 this.lastPacketData=scheduler.getClock().getTime();
+                this.speechDetected=true;
             }
         }
         else
@@ -484,7 +500,12 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
         @Override
         public long perform() {
         	long currTime=scheduler.getClock().getTime();
-        	if(postSpeechTimer>0 && currTime-lastPacketData>postSpeechTimer) {
+        	if(preSpeechTimer>0 && !speechDetected && currTime-lastPacketData>preSpeechTimer) {
+        		qualifier = RecorderEvent.NO_SPEECH;                    
+                scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+                return 0;
+        	}
+        	if(postSpeechTimer>0 && speechDetected && currTime-lastPacketData>postSpeechTimer) {
         	    qualifier = RecorderEvent.NO_SPEECH;                    
                 scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
                 return 0;

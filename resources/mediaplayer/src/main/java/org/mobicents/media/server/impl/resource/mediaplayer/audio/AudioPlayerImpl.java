@@ -34,6 +34,7 @@ import org.mobicents.media.server.impl.resource.mediaplayer.audio.mpeg.AMRTrackI
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.TtsTrackImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoicesCache;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.wav.WavTrackImpl;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.tone.ToneTrackImpl;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -114,36 +115,38 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         if (!this.isConnected()) {
             throw new IllegalStateException("Component should be connected");
         }
+        URL targetURL;
+     // now using extension we have to determne the suitable stream parser
+    	int pos = passedURI.lastIndexOf('.');
 
-        // now using extension we have to determne the suitable stream parser
-        int pos = passedURI.lastIndexOf('.');
+    	// extension is not specified?
+    	if (pos == -1) {
+    		throw new MalformedURLException("Unknow file type: " + passedURI);
+    	}
 
-        // extension is not specified?
-        if (pos == -1) {
-            throw new MalformedURLException("Unknow file type: " + passedURI);
-        }
-
-        String ext = passedURI.substring(pos + 1).toLowerCase();
-        URL targetURL = new URL(passedURI);
-        
-        // creating required extension
-        try {
-            //check scheme, if its file, we should try to create dirs
-            if (ext.matches(Extension.WAV)) {       
-            	track = new WavTrackImpl(targetURL);            	
-            } else if (ext.matches(Extension.GSM)) {
-                track = new GsmTrackImpl(targetURL);
-            } else if (ext.matches(Extension.TXT)) {
-                track = new TtsTrackImpl(targetURL, voiceName, this.voicesCache);
-            } else if (ext.matches(Extension.MOV) || ext.matches(Extension.MP4) || ext.matches(Extension.THREE_GP)) {
-                track = new AMRTrackImpl(targetURL);
-            } else {
-            	throw new ResourceUnavailableException("Unknown extension: " + passedURI);
-            }
-        } catch (Exception e) {        	
-            throw new ResourceUnavailableException(e);
-        }
-        
+    	String ext = passedURI.substring(pos + 1).toLowerCase();
+    	targetURL = new URL(passedURI);
+    
+    	// creating required extension
+    	try {
+    		//check scheme, if its file, we should try to create dirs
+    		if (ext.matches(Extension.WAV)) {       
+    			track = new WavTrackImpl(targetURL);            	
+    		} else if (ext.matches(Extension.GSM)) {
+    			track = new GsmTrackImpl(targetURL);
+    		} else if (ext.matches(Extension.TONE)) {
+    			track = new ToneTrackImpl(targetURL);
+    		} else if (ext.matches(Extension.TXT)) {
+    			track = new TtsTrackImpl(targetURL, voiceName, this.voicesCache);
+    		} else if (ext.matches(Extension.MOV) || ext.matches(Extension.MP4) || ext.matches(Extension.THREE_GP)) {
+    			track = new AMRTrackImpl(targetURL);
+    		} else {
+    			throw new ResourceUnavailableException("Unknown extension: " + passedURI);
+    		}
+    	} catch (Exception e) {        	
+    		throw new ResourceUnavailableException(e);
+    	}
+    	
         //update duration
         this.duration = track.getDuration();
     }

@@ -51,7 +51,7 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class ReclaimingTest {
 
@@ -124,12 +124,12 @@ public class ReclaimingTest {
      * Test of setOtherParty method, of class LocalConnectionImpl.
      */
     public void testForLocalConnections() throws Exception {
-        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
         endpoint1.deleteConnection(connection1);
     }
 
     public void testForRTPConnections() throws Exception {
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         endpoint1.deleteConnection(connection1);
     }
     

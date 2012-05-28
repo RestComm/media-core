@@ -103,9 +103,6 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         //return first free if ANY endpoint requested
         if (name.equals(ANY)) {        	        	
         	MgcpEndpoint endp=queue.poll();
-        	System.out.println("ENDPOINT PULLED , ENDPOINTS LEFT:" + queue.size());
-        	if(endp==null)
-        		System.out.println("ENDPOINT IS NOT NULL");
         	
         	if(endp!=null) {
         		endp.lock();
@@ -136,8 +133,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     
     public void onFreed(MgcpEndpoint endpoint)
     {
-    	queue.offer(endpoint);   
-    	System.out.println("ENDPOINTS RETURNED , ENDPOINTS SIZE:" + queue.size());
+    	queue.offer(endpoint);    	
     }
     
     private class Holder {

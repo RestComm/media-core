@@ -28,7 +28,7 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Represents parameters supplied with command.
  * 
- * @author kulikov
+ * @author oifa yulian
  */
 public class Options {
     private final static Text ann = new Text("an");
@@ -36,6 +36,7 @@ public class Options {
     private final static Text of = new Text("of");
     private final static Text it = new Text("it");
     private final static Text ip = new Text("ip");
+    private final static Text rp = new Text("rp");    
     private final static Text iv = new Text("iv");
     private final static Text mn = new Text("mn");
     private final static Text mx = new Text("mx");
@@ -44,6 +45,11 @@ public class Options {
     private final static Text ri = new Text("ri");
     private final static Text rlt = new Text("rlt");
     private final static Text oa = new Text("oa");
+    private final static Text nd = new Text("nd");
+    private final static Text ns = new Text("ns");
+    private final static Text fa = new Text("fa");
+    private final static Text sa = new Text("sa");
+    private final static Text prt = new Text("pst");
     private final static Text pst = new Text("pst");
     private final static Text cb = new Text("cb");
     private final static Text fdt= new Text("fdt");
@@ -57,6 +63,7 @@ public class Options {
     private final static Text prv = new Text("prv");
     private final static Text nxt = new Text("nxt");
     private final static Text cur = new Text("cur");
+    private final static Text dpa = new Text("dpa");
     private final static Text x_md= new Text("x-md");
     
     private final static Text TRUE = new Text("true");
@@ -65,11 +72,17 @@ public class Options {
     //private Text prompt = new Text(new byte[150], 0, 150);
     private Text recordID = new Text(new byte[150], 0, 150);
     
-    private boolean isPrompt;
+    private boolean isPrompt,isReprompt,isDeletePersistentAudio=false,isFailureAnnouncement=false,isSuccessAnnouncement=false,isNoSpeechReprompt=false,isNoDigitsReprompt=false;
     private boolean override = true;
     
     private Collection<Text> segments;
     private Collection<Text> prompt;
+    private Collection<Text> reprompt;
+    private Collection<Text> failureAnnouncement;
+    private Collection<Text> successAnnouncement;
+    private Collection<Text> noSpeechReprompt;
+    private Collection<Text> noDigitsReprompt;
+    private Collection<Text> deletePersistentAudio;
     
     private int cursor;
     
@@ -85,7 +98,7 @@ public class Options {
     private int interval;
     
     private int digitsNumber,maxDigitsNumber;
-    private long postSpeechTimer = -1;
+    private long postSpeechTimer = -1,preSpeechTimer = -1;
     
     private Text digitPattern = new Text(new byte[150], 0, 150);
     private Collection digitPatterns;
@@ -150,6 +163,24 @@ public class Options {
             } else if (name.equals(ip)) {
             	this.prompt = value.split(';');
                 this.isPrompt = true;
+            } else if (name.equals(rp)) {
+            	this.reprompt = value.split(';');
+                this.isReprompt = true;
+            } else if (name.equals(dpa)) {
+            	this.deletePersistentAudio = value.split(';');
+            	this.isDeletePersistentAudio = true;                
+            } else if (name.equals(nd)) {
+            	this.noDigitsReprompt = value.split(';');
+            	this.isNoDigitsReprompt = true;                
+            } else if (name.equals(ns)) {
+            	this.noSpeechReprompt = value.split(';');
+            	this.isNoSpeechReprompt = true;                
+            } else if (name.equals(fa)) {
+            	this.failureAnnouncement = value.split(';');
+            	this.isFailureAnnouncement = true;                
+            } else if (name.equals(sa)) {
+            	this.successAnnouncement = value.split(';');
+            	this.isSuccessAnnouncement = true;                
             } else if (name.equals(mn)) {
                 this.digitsNumber = value.toInteger();
             } else if (name.equals(mx)) {
@@ -168,6 +199,8 @@ public class Options {
                 this.override = value.equals(TRUE);
             } else if (name.equals(pst)) {
                 this.postSpeechTimer = value.toInteger() * 100000000L;
+            } else if (name.equals(prt)) {
+                this.preSpeechTimer = value.toInteger() * 100000000L;
             } else if (name.equals(fdt)) {
                 this.firstDigitTimer = value.toInteger() * 100000000L;
             } else if (name.equals(idt)) {
@@ -226,6 +259,54 @@ public class Options {
         return prompt;
     }
     
+    public boolean hasReprompt() {
+        return this.isReprompt;
+    }
+    
+    public Collection<Text> getReprompt() {
+        return reprompt;
+    }
+    
+    public boolean hasDeletePresistentAudio() {
+        return this.isDeletePersistentAudio;
+    }
+    
+    public Collection<Text> getDeletePersistentAudio() {
+        return this.deletePersistentAudio;
+    }
+    
+    public boolean hasNoSpeechReprompt() {
+        return this.isNoSpeechReprompt;
+    }
+    
+    public Collection<Text> getNoSpeechReprompt() {
+        return this.noSpeechReprompt;
+    }
+    
+    public boolean hasNoDigitsReprompt() {
+        return this.isNoDigitsReprompt;
+    }
+    
+    public Collection<Text> getNoDigitsReprompt() {
+        return this.noDigitsReprompt;
+    }
+    
+    public boolean hasSuccessAnnouncement() {
+        return this.isSuccessAnnouncement;
+    }
+    
+    public Collection<Text> getSuccessAnnouncement() {
+        return this.successAnnouncement;
+    }
+    
+    public boolean hasFailureAnnouncement() {
+        return this.isFailureAnnouncement;
+    }
+    
+    public Collection<Text> getFailureAnnouncement() {
+        return this.failureAnnouncement;
+    }
+    
     public int getDuration() {
         return duration;
     }
@@ -272,6 +353,10 @@ public class Options {
     
     public long getPostSpeechTimer() {
         return this.postSpeechTimer;
+    }
+    
+    public long getPreSpeechTimer() {
+        return this.preSpeechTimer;
     }
     
     public long getFirstDigitTimer() {

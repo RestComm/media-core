@@ -87,7 +87,8 @@ public class MgcpProviderLoadTest {
         scheduler.start();
         
         udpInterface = new UdpManager(scheduler);
-        udpInterface.setBindAddress("localhost");
+        udpInterface.setLocalBindAddress("127.0.0.1");
+        udpInterface.setBindAddress("127.0.0.1");
         udpInterface.start();
         
         provider1 = new MgcpProvider("provider1", udpInterface, 1024, scheduler);
@@ -177,14 +178,14 @@ public class MgcpProviderLoadTest {
             MgcpEvent evt = null;
 
             try {
-                InetSocketAddress destination = new InetSocketAddress("localhost", 1024);
+                InetSocketAddress destination = new InetSocketAddress("127.0.0.1", 1024);
 
                 evt = provider1.createEvent(MgcpEvent.REQUEST, destination);
                 MgcpRequest req = (MgcpRequest) evt.getMessage();
 
                 req.setCommand(new Text("CRCX"));
                 req.setTxID(txID.getAndIncrement());
-                req.setEndpoint(new Text("test@localhost"));
+                req.setEndpoint(new Text("test@127.0.0.1"));
                 req.setParameter(new Text("c"), new Text("abcd"));
 
                 try {

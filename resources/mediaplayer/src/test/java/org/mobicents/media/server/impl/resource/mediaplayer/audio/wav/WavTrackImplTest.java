@@ -62,7 +62,7 @@ public class WavTrackImplTest {
      */
     @Test
     public void testDurationd() throws Exception {
-        URL url = WavTrackImplTest.class.getClassLoader().getResource(
+        /*URL url = WavTrackImplTest.class.getClassLoader().getResource(
                 "org/mobicents/media/server/impl/addf8-Alaw-GW.wav");
         URL url1 = WavTrackImplTest.class.getClassLoader().getResource(
                 "org/mobicents/media/server/impl/8kulaw.wav");
@@ -74,7 +74,7 @@ public class WavTrackImplTest {
         track = new WavTrackImpl(url1);
         
         long f = System.nanoTime();
-        System.out.println(f-s);
+        System.out.println(f-s);*/
     }
 
 
