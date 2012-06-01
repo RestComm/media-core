@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.endpoints</groupId>
         <artifactId>endpoints</artifactId>
-        <version>2.2.0.CR3-SNAPSHOTS</version>
+        <version>2.2.0.FINAL</version>
     </parent>
 
     <groupId>org.mobicents.media.endpoints</groupId>

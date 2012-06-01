@@ -374,10 +374,11 @@ public class AudioMixer implements Mixer {
         private volatile long priority;
         private volatile long duration = -100;
         private Frame frame;
-        private int count;
+        private int count,maxValue,minValue;
         private int k;
         private byte[] data;
-        private short[] s=new short[packetSize/2];
+        private double currGain;
+        private int[] s=new int[packetSize/2];
         
         //frames for mixing
         private ArrayList<Frame> frames=new ArrayList(POOL_SIZE);
@@ -434,6 +435,8 @@ public class AudioMixer implements Mixer {
             	s[k]=0;
             }
             
+            minValue=0;
+            maxValue=0;
             //do mixing            
         	for (int i = 0; i < count; i++) {
         		data=frames.get(i).getData();
@@ -443,14 +446,29 @@ public class AudioMixer implements Mixer {
         		}
         	}
         	
+        	for (int k = 0; k < s.length;k++) {
+        		if(s[k]>maxValue)
+        			maxValue=s[k];
+        		else if(s[k]<minValue)
+        			minValue=s[k];
+        	}
+        	
+        	minValue=0-minValue;        	
+        	if(minValue>maxValue)
+        		maxValue=minValue;
+        	
+        	currGain=gain;
+        	if(maxValue>Short.MAX_VALUE)
+        		currGain=(currGain*Short.MAX_VALUE)/maxValue;
+        		
         	data = frame.getData();
         	k=0;
-            for (int j = 0; j < s.length; j++) {
-        		s[j] = (short)Math.round((double) s[j] * gain);
-            
-        		data[k++] = (byte) (s[j]);
-        		data[k++] = (byte) (s[j] >> 8);
-        	}
+        	for (int j = 0; j < s.length; j++) {
+    			s[j] = (short)Math.round((double) s[j] * currGain);
+        
+    			data[k++] = (byte) (s[j]);
+    			data[k++] = (byte) (s[j] >> 8);
+    		}
         	
             //recycle received frames
             while(frames.size()>0)

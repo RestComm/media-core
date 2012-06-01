@@ -1,7 +1,7 @@
-=========================================================================
+﻿=========================================================================
 ! Welcome to Mobicents Media server (MMS) - The Open Source Media server !
 =========================================================================
-This mms-standalone-2.2.0.CR2 binary is standalone Mobicents Media Server     
+This mms-standalone-2.2.0.FINAL binary is standalone Mobicents Media Server     
 This MMS binary is having
     * Standalone Mobicents Media Server
     * Admin and Configuration guide
@@ -18,7 +18,7 @@ Mobicents Media Server is open source media server aimed to:
 
 Mobicents Media Server Home Page: http://www.mobicents.org/mms/mms-main.html
 Mobicents documentation page: http://www.mobicents.org/mms/mms-docs.html
-Version information: mms-standalone-2.1.0.BETA2
+Version information: mms-standalone-2.2.0-FINAL
 
 
 To install media server
@@ -27,11 +27,12 @@ To install media server
 
 
 
-Highlights of 2.2.0.CR2
+Highlights of 2.2.0.FINAL
 ----------------------------------------------------------------------
-1. Improved DTMF tones handling
-2. Added GSM And L16 codecs implementation
-3. Wirring with media control API (JSR-309)
+1. Implemented most of mgcp au package parameters
+2. Stabilized core components
+3. Initial SS7 Implementation
+4. Optimized memory usage and gc work.
 
 Download the nightly SNAPSHOT from http://hudson.qa.jboss.com/hudson/view/Mobicents/job/MobicentsMediaServerRelease/
 

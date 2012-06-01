@@ -142,7 +142,8 @@ public class PlayRecord extends Signal {
     				}	    				    				
     			}
     			catch(Exception ex)
-    			{}
+    			{    				
+    			}
     		}
     		
     		for(int i=0;i<deletePersistentAudioLength;i++)

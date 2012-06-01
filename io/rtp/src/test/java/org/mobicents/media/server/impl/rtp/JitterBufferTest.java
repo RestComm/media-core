@@ -201,7 +201,7 @@ public class JitterBufferTest {
         }
 
         Frame data = jitterBuffer.read(wallClock.getTime());
-        assertEquals(2, data.getSequenceNumber());
+        assertEquals(1, data.getSequenceNumber());
     }
 
     @Test
