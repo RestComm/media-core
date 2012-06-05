@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media</groupId>
         <artifactId>server</artifactId>
-        <version>2.2.0.FINAL</version>
+        <version>6.1.0-TelScale-SNAPSHOT</version>
     </parent>
 
     <groupId>org.mobicents.media.endpoints</groupId>
