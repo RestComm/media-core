@@ -3,11 +3,11 @@
 
 	<parent>
                 <groupId>org.mobicents.media.hardware</groupId>
-                <artifactId>mobicents-media-hardware</artifactId>
+                <artifactId>mobicents-dahdi-parent</artifactId>
                 <version>2.2.0.FINAL</version>
         </parent>
 
-	<artifactId>mobicents-dahdi-native</artifactId>
+	<artifactId>mobicents-dahdi-native</artifactId>       
 
 	<packaging>pom</packaging>
 
@@ -57,7 +57,7 @@
 				<module>linux</module>
 			</modules>
 		</profile>
-		<profile>
+		<!--profile>
 			<id>maven-release</id>
 			<modules>
 				<module>linux</module>
@@ -68,7 +68,7 @@
 			<modules>
 				<module>linux</module>
 			</modules>
-		</profile>
+		</profile-->
 	</profiles>
 
 </project>
