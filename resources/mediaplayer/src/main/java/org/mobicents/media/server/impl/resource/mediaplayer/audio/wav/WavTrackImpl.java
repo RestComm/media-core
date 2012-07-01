@@ -23,6 +23,7 @@
 package org.mobicents.media.server.impl.resource.mediaplayer.audio.wav;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -45,6 +46,7 @@ public class WavTrackImpl implements Track {
 
     /** audio stream */
     private transient AudioInputStream stream = null;
+    private InputStream inStream;
     private AudioFormat format;
     private int period = 20;
     private int frameSize;
@@ -53,10 +55,10 @@ public class WavTrackImpl implements Track {
     private long duration;
     
     private boolean first = true;
-    private SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss,SSS");
-
-    public WavTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {
-        stream = AudioSystem.getAudioInputStream(url);
+    private SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss,SSS");    
+    public WavTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {   
+    	inStream=url.openStream();
+        stream = AudioSystem.getAudioInputStream(inStream);
         
         //measure in nanoseconds
         duration = (long)(stream.getFrameLength()/stream.getFormat().getFrameRate() * 1000L) * 1000000L;
@@ -191,7 +193,8 @@ public class WavTrackImpl implements Track {
 
     public void close() {
         try {
-            stream.close();
+        	stream.close();
+        	inStream.close();
         } catch (Exception e) {
         }
     }

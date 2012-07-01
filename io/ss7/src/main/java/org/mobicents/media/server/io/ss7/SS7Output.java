@@ -29,6 +29,8 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.text.Format;
+import java.util.ArrayList;
+
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.Channel;
@@ -45,6 +47,12 @@ import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 /**
  *
  * @author Oifa Yulian
@@ -67,18 +75,21 @@ public class SS7Output extends AbstractSink {
     //signaling processor
     private Processor dsp;                               
         
-    private byte[] buffer=new byte[800];
-    private int readIndex=0;
-    private int writeIndex=0;
+    //The underlying buffer size
+    private static final int QUEUE_SIZE = 10;
+    //the underlying buffer
+    private ArrayList<Frame> queue = new ArrayList(QUEUE_SIZE);
+    
+    //number of bytes to send in single cycle
+    private static final int SEND_SIZE=32;
     
     /**
      * Creates new transmitter
      */
-    protected SS7Output(Scheduler scheduler,Channel channel,AudioFormat destionationFormat) {
+    protected SS7Output(Scheduler scheduler,Channel channel,AudioFormat destinationFormat) {
         super("Output", scheduler,scheduler.OUTPUT_QUEUE);
         this.channel=channel;        
         this.destinationFormat=destinationFormat;
-        
         this.sender=new Sender(scheduler);
     }
     
@@ -102,9 +113,9 @@ public class SS7Output extends AbstractSink {
         return this.dsp;
     }
 
-    public void start() {
-    	super.stop();
-    	sender.submit();
+    public void start() {    	
+    	super.start();
+    	sender.submit();    	    	
     }
     
     public void stop() {
@@ -122,13 +133,18 @@ public class SS7Output extends AbstractSink {
     		
     }       
 
+    public void setDestinationFormat(AudioFormat destinationFormat)
+    {
+    	this.destinationFormat=destinationFormat;    	
+    }
+    
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
     	//do transcoding
-    	if (dsp != null && formats!=null && !formats.isEmpty()) {
+    	if (dsp != null && destinationFormat!=null) {
     		try
     		{
-    			frame = dsp.process(frame,format,formats.get(0));            			
+    			frame = dsp.process(frame,format,destinationFormat);            			
     		}
     		catch(Exception e)
     		{
@@ -138,17 +154,14 @@ public class SS7Output extends AbstractSink {
     			return;
     		} 
     	}
-    	    	
-    	byte[] data=frame.getData();
-    	for(int i=0;i<data.length;i++)
-    	{
-    		buffer[writeIndex]=data[i];
-    		writeIndex=(writeIndex+1)%buffer.length;
-    	}    	    	
+    	
+    	queue.add(frame);    	    	  
     }
     
     private class Sender extends Task {
-    	byte[] smallBuffer=new byte[32];
+    	private Frame currFrame=null;
+    	private byte[] smallBuffer=new byte[SEND_SIZE];
+    	int framePosition=0;
     	int readCount=0;
     	
         public Sender(Scheduler scheduler) {
@@ -168,27 +181,45 @@ public class SS7Output extends AbstractSink {
         
         @Override
         public long perform() {
+        	if(currFrame==null && queue.size()>0)
+        	{
+        		currFrame=queue.remove(0);
+        		framePosition=0;
+        	}
+        	
         	readCount=0;
-            while(readIndex!=writeIndex && readCount<smallBuffer.length)
-            {
-            	smallBuffer[readCount++]=buffer[readIndex];
-            	readIndex=(readIndex+1)%buffer.length;
-            }
-            
+        	if(currFrame!=null)
+        	{
+        		byte[] data=currFrame.getData(); 
+        		if(framePosition+SEND_SIZE<data.length)
+        		{
+        			System.arraycopy(data, framePosition, smallBuffer, 0, 32);
+        			readCount=SEND_SIZE;
+        			framePosition+=SEND_SIZE;        			
+        		}
+        		else if(framePosition<data.length-1)
+        		{
+        			System.arraycopy(data, framePosition, smallBuffer, 0, data.length-framePosition);
+        			readCount=data.length-framePosition;
+        			currFrame.recycle();
+        			currFrame=null;
+        			framePosition=0;
+        		}    		
+        	}
+        	
             while(readCount<smallBuffer.length)
             	smallBuffer[readCount++]=(byte)0;
             
             try
             {
-            	channel.write(smallBuffer,readCount);
+            	channel.write(smallBuffer,readCount);            	            
             }
             catch(IOException e)
-            {
-            	
+            {            	            
             }
             
             scheduler.submit(this,scheduler.SENDER_QUEUE);
             return 0;
-        }
+        }                
     }
 }

@@ -110,12 +110,17 @@ public class SS7Input extends AbstractSource {
     }    
 
     @Override
-    public Frame evolve(long timestamp) {    	    	    
+    public Frame evolve(long timestamp) {
     	if(framesBuffer.size()>0)
     		return framesBuffer.remove(0);
     	
     	return null;
     }    
+    
+    public void setSourceFormat(AudioFormat sourceFormat)
+    {
+    	this.sourceFormat=sourceFormat;
+    }
     
     public void readData()
     {
@@ -125,16 +130,25 @@ public class SS7Input extends AbstractSource {
     		readBytes=channel.read(smallBuffer);
     	}
     	catch(IOException e)
-    	{
-    		
+    	{    		    	
     	}
     	
     	if(readBytes==0)
     		return;
     	
     	currIndex=0;
-    	while(currIndex<readBytes && currPosition<tempBuffer.length)
-    		tempBuffer[currPosition++]=smallBuffer[currIndex++];
+    	if(currPosition+readBytes<=tempBuffer.length)
+    	{
+    		System.arraycopy(smallBuffer, 0, tempBuffer, currPosition, readBytes);
+    		currPosition+=readBytes;
+    		currIndex=readBytes;
+    	}
+    	else
+    	{
+    		System.arraycopy(smallBuffer, 0, tempBuffer, currPosition, tempBuffer.length-currPosition);
+    		currPosition+=tempBuffer.length-currPosition;
+    		currIndex=tempBuffer.length-currPosition;
+    	}
     	
     	if(currPosition==tempBuffer.length)
     	{
@@ -152,10 +166,10 @@ public class SS7Input extends AbstractSource {
     		currFrame.setFormat(this.sourceFormat);
     		
     		//do the transcoding job
-			if (dsp != null) {
+			if (dsp != null && this.sourceFormat!=null) {
 				try
 				{
-					currFrame = dsp.process(currFrame,currFrame.getFormat(),format);
+					currFrame = dsp.process(currFrame,this.sourceFormat,format);
 				}
 				catch(Exception e)
 				{
@@ -166,10 +180,11 @@ public class SS7Input extends AbstractSource {
     		}   
     		
     		currPosition=0;
-    		while(currIndex<readBytes && currPosition<tempBuffer.length)
-        		tempBuffer[currPosition++]=smallBuffer[currIndex++];
-        	
+    		if(currIndex<readBytes)
+    			System.arraycopy(smallBuffer, currIndex, tempBuffer, currPosition, readBytes-currIndex);
+        	    		
     		framesBuffer.add(currFrame);
+    		onFill();
     	}
     }
     

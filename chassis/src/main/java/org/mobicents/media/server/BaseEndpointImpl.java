@@ -63,7 +63,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
     private EndpointState state = EndpointState.READY;
 
     //connections subsytem
-    private Connections connections;
+    protected Connections connections;
 
     //rtp protocol manager
     private RTPManager rtpManager;
@@ -323,6 +323,11 @@ public abstract class BaseEndpointImpl implements Endpoint {
     	return connections.getActiveConnectionsCount();
     }
 
+    public void configure(boolean isALaw)
+    {
+    	
+    }
+    
     public abstract void unblock();
     public abstract void block();
     

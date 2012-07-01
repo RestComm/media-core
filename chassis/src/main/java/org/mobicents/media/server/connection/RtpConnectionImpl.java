@@ -203,7 +203,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         if ((audio.isEmpty() || !audio.hasNonDTMF()) && video.isEmpty()) {
             throw new IOException("Codecs are not negotiated");
         }
-
+        
         if (!audio.isEmpty()) {
         	rtpAudioChannel.setFormatMap(audioFormats);
             try {
@@ -274,7 +274,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         if ((audio.isEmpty() || !audio.hasNonDTMF()) && video.isEmpty()) {
             throw new IOException("Codecs are not negotiated");
         }
-
+        
         if (!audio.isEmpty()) {
         	rtpAudioChannel.setFormatMap(audioFormats);
             try {

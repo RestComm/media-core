@@ -88,7 +88,7 @@ public class SS7Manager {
      */
     public Channel open(int channelID) throws IOException {
         Channel channel=new Channel();
-        channel.setChannelID(channelID);
+        channel.setChannelID(channelID);        
         return channel;
     }
 
@@ -100,12 +100,14 @@ public class SS7Manager {
      * @throws SocketException
      */
     public SelectorKeyImpl bind(Channel channel,ProtocolHandler protocolHandler) {
-        SelectorKeyImpl selectorKey=(SelectorKeyImpl)selector.register(channel);
+    	channel.open();
+    	SelectorKeyImpl selectorKey=(SelectorKeyImpl)selector.register(channel);
         selectorKey.attach(protocolHandler);
         return selectorKey;
     }
 
     public void unbind(Channel channel) {
+    	channel.close();
     	selector.unregister(channel);
     }
     /**
@@ -159,14 +161,14 @@ public class SS7Manager {
 
             //select channels ready for IO and ignore error
             try {
-            	FastList<SelectorKey> it=selector.selectNow(Selector.READ,20);
+            	FastList<SelectorKey> it=selector.selectNow(Selector.READ,1);
             	for (FastList.Node<SelectorKey> n = it.head(), end = it
                         .tail(); (n = n.getNext()) != end;) {
             		SelectorKeyImpl key = (SelectorKeyImpl) n.getValue();
             		((ProtocolHandler)key.attachment()).receive((Channel)key.getStream());
                 }            	            	
                 
-            } catch (IOException e) {            	
+            } catch (IOException e) {              	
                 return 0;
             } finally {
                 scheduler.submit(this,scheduler.RECEIVER_QUEUE);

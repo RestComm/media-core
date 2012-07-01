@@ -99,9 +99,23 @@ public class SignalDetectorImpl implements SignalDetector, JainMgcpListener {
         Options params = new Options();
         params.setDigitsNumber(numSignals);
         params.setDigitPattern(patterns);
-
+        
         if (options != null && options.containsKey(SignalDetectorImpl.PROMPT)) {
-            params.setPrompt(((URI) options.get(SignalDetectorImpl.PROMPT)).toString());
+        	if(options.get(SignalDetectorImpl.PROMPT) instanceof URI)
+        		params.setPrompt(((URI) options.get(SignalDetectorImpl.PROMPT)).toString());
+        	else if(options.get(SignalDetectorImpl.PROMPT) instanceof URI[])
+        	{
+        		URI[] list=(URI[])options.get(SignalDetectorImpl.PROMPT);
+        		String result=new String();
+        		for(int i=0;i<list.length;i++)
+        			result+=list[i].toString() + ";";
+        		
+        		if(result.length()>0)
+        		{
+        			result=result.substring(0,result.length()-1);
+        			params.setPrompt(result);
+        		}
+        	}
         }
         
         if (options != null && options.containsKey(SignalDetectorImpl.INITIAL_TIMEOUT)) {

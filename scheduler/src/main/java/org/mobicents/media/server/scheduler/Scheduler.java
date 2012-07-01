@@ -246,7 +246,7 @@ public class Scheduler  {
         	{
         		//running sender queue each 4ms
         		synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[currQueue]))
+					if(executeQueue(taskQueues[RECEIVER_QUEUE]))
 						try {
 							LOCK.wait();
 						}
@@ -255,6 +255,7 @@ public class Scheduler  {
 						}
 				}
         		
+        		currQueue++;        		
         		runIndex2=(runIndex2+1)%5;
         		if(runIndex2==0)
         		{
@@ -276,7 +277,7 @@ public class Scheduler  {
 				
         		//running sender queue each 4ms
         		synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[currQueue]))
+					if(executeQueue(taskQueues[SENDER_QUEUE]))
 						try {
 							LOCK.wait();
 						}
@@ -285,6 +286,7 @@ public class Scheduler  {
 						}
 				}
         		
+        		currQueue++;
         		runIndex=(runIndex+1)%25;        		
     			if(runIndex==0)    				    				
     				synchronized(LOCK) {
@@ -306,8 +308,8 @@ public class Scheduler  {
                 	catch(InterruptedException e)  {                                               
                 		//lets continue
                 	}
-    		
-                //new cycle starts , updating cycle start time by 4ms
+        		
+        		//new cycle starts , updating cycle start time by 4ms
                 cycleStart = cycleStart + 4000000L;
                 currQueue=RECEIVER_QUEUE;                                               
         	}

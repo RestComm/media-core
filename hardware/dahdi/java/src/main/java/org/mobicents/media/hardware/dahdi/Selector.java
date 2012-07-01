@@ -80,7 +80,6 @@ public class Selector implements StreamSelector {
         // perform actual registration
         logger.info("Registering file descriptor:" + ((Channel) channel).fd);
         doRegister(((Channel) channel).fd);
-
         SelectorKeyImpl key = new SelectorKeyImpl(channel, this);
         channel.selectorKey = key;
         return key;
@@ -127,8 +126,8 @@ public class Selector implements StreamSelector {
 
     public FastList<SelectorKey> selectNow(int ops, int timeout)
             throws IOException {
-    	int count = doPoll(fds, ops, 20);
-        selected.clear();
+    	int count = doPoll(fds, ops, 1);
+    	selected.clear();
         for (int i = 0; i < count; i++) {
             for (FastList.Node<Channel> n = registered.head(), end = registered
                     .tail(); (n = n.getNext()) != end;) {

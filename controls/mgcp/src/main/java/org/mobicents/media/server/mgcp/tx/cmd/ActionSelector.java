@@ -40,6 +40,7 @@ public class ActionSelector  {
     private final static Text DELETE_CONNECTION = new Text("DLCX");
     private final static Text REQUEST_NOTIFICATION = new Text("RQNT");
     private final static Text REQUEST_NOTIFY = new Text("NTFY");
+    private final static Text ENDPOINT_CONFIGURATION = new Text("EPCF");
     
     private Text command;
     private MgcpRequest request;
@@ -49,6 +50,7 @@ public class ActionSelector  {
     private ModifyConnectionCmd mdcx;
     private DeleteConnectionCmd dlcx;
     private NotificationRequestCmd rqnt;
+    private EndpointConfigurationCmd epcf;
     private NotifyCmd ntfy;
     
     /**
@@ -62,6 +64,7 @@ public class ActionSelector  {
         dlcx = new DeleteConnectionCmd(scheduler);
         rqnt = new NotificationRequestCmd(scheduler);
         ntfy = new NotifyCmd(scheduler);
+        epcf = new EndpointConfigurationCmd(scheduler);
     }
     
     public Action getAction(MgcpEvent event) {
@@ -75,6 +78,8 @@ public class ActionSelector  {
                     return crcx;
                 } else if (command.equals(MODIFY_CONNECTION)) {
                     return mdcx;
+                } else if (command.equals(ENDPOINT_CONFIGURATION)) {
+                    return epcf;
                 } else if (command.equals(DELETE_CONNECTION)) {
                 	if(request.getParameter(Parameter.REASON_CODE)!=null) {
                 		//its connection deletion from ms

@@ -100,6 +100,8 @@ public class JitterBuffer implements Serializable {
     //RTP dtmf event converter
     private DtmfConverter dtmfConverter;
     
+    private Boolean useBuffer=true;
+    
     private final static Logger logger = Logger.getLogger(JitterBuffer.class);
     /**
      * Creates new instance of jitter.
@@ -134,7 +136,7 @@ public class JitterBuffer implements Serializable {
     public double getMaxJitter() {
         return 0;
     }
-
+    
     /**
      * Get the number of dropped packets.
      * 
@@ -142,6 +144,16 @@ public class JitterBuffer implements Serializable {
      */
     public int getDropped() {
         return dropCount;
+    }
+    
+    public boolean bufferInUse()
+    {
+    	return this.useBuffer;
+    }
+    
+    public void setBufferInUse(boolean useBuffer)
+    {
+    	this.useBuffer=useBuffer;
     }
     
     /**
@@ -278,7 +290,7 @@ public class JitterBuffer implements Serializable {
     			    		       
     		//check if this buffer already full
     		if (!ready) {    			
-    			ready = duration >= jitter && queue.size() > 1;
+    			ready = !useBuffer || (duration >= jitter && queue.size() > 1);
     			if (ready) {    				
     				if (listener != null) {
     					listener.onFill();

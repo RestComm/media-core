@@ -133,6 +133,10 @@ public class ConfiguratorTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        public void configure(boolean isALaw) {
+        	throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
         public String describe(MediaType mediaType) throws ResourceUnavailableException {
             throw new UnsupportedOperationException("Not supported yet.");
         }

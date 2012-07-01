@@ -223,7 +223,7 @@ public class Channel {
     public void connect(RTPDataChannel other) {
     	this.isRTP = true;
 
-        txPipe.connect(mixer.getOutput());
+    	txPipe.connect(mixer.getOutput());
         txPipe.connect(other.getOutput());
 
         rxPipe.connect(splitter.getInput());

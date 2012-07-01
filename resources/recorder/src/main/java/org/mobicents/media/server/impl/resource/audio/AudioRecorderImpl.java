@@ -161,8 +161,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         this.maxRecordTime = -1L;
         this.postSpeechTimer = -1L;
         this.preSpeechTimer = -1L;
-        this.speechDetected=false;
-        
+        this.speechDetected=false;       
     }
     
     /**
@@ -362,8 +361,7 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
         fout.close();
         
         fin.close();
-        temp.delete();
-               
+        temp.delete();              
     }
     
     /**

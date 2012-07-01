@@ -101,6 +101,11 @@ public interface Endpoint {
     public int getActiveConnectionsCount();
     
     /**
+     * Configure Endpoint.
+     */
+    public void configure(boolean isALaw);
+    
+    /**
      * Gets the scheduler
      */
     public Scheduler getScheduler();

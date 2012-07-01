@@ -65,8 +65,8 @@ public class RTPInput extends AbstractSource implements BufferListener {
 	//digital signaling processor
     private Processor dsp;
            
-    private Integer preEvolveCount=0;
-    private Integer evolveCount=0;
+    protected Integer preEvolveCount=0;
+    protected Integer evolveCount=0;
 	/**
      * Creates new receiver.
      */
@@ -122,7 +122,8 @@ public class RTPInput extends AbstractSource implements BufferListener {
         			System.out.println(e.getMessage());
         			e.printStackTrace();
         		}
-        	}        	
+        	}
+        	
         }
     	
     	return currFrame; 

@@ -35,54 +35,18 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * Endpoint installer is used for automatic creation and instalation of endpoints.
  *
  * It uses three parameters: the name pattern, class name and configuration
- * @author kulikov
+ * @author oifa yulian
  */
-public class VirtualSS7EndpointInstaller implements EndpointInstaller {
+public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
 
-    private String namePattern;
-    private EndpointNameGenerator nameParser;
-    private String endpointClass;
-    private DspFactory dspFactory;
     private SS7Manager ss7Manager;
-    private int localConnections;
-    private int rtpConnections;
     private int startChannelID=1;
     private boolean isALaw=true;
     
-    private Server server;
-
     /**
      * Creates new endpoint installer.
      */
-    public VirtualSS7EndpointInstaller() {
-        nameParser = new EndpointNameGenerator();
-    }
-
-    /**
-     * Creates relation with server instance.
-     * 
-     * @param server the server instance.
-     */
-    public void setServer(Server server) {
-        this.server = server;
-    }
-
-    /**
-     * Gets the pattern used for generating endpoint name.
-     *
-     * @return text pattern
-     */
-    public String getNamePattern() {
-        return namePattern;
-    }
-
-    /**
-     * Sets the pattern used for generating endpoint name.
-     *
-     * @param namePattern the pattern text.
-     */
-    public void setNamePattern(String namePattern) {
-        this.namePattern = namePattern;
+    public VirtualSS7EndpointInstaller() {        
     }
 
     /**
@@ -138,82 +102,25 @@ public class VirtualSS7EndpointInstaller implements EndpointInstaller {
     public void setSS7Manager(SS7Manager ss7Manager) {
         this.ss7Manager = ss7Manager;
     }
-    
-    /**
-     * Gets the name of the class implementing endpoint.
-     * 
-     * @return the fully qualified class name.
-     */
-    public String getEndpointClass() {
-        return this.endpointClass;
-    }
-
-    /**
-     * Sets the name of the class implementing endpoint.
-     *
-     * @param endpointClass the fully qualified class name.
-     */
-    public void setEndpointClass(String endpointClass) {
-        this.endpointClass = endpointClass;
-    }
-
-    public void setDspFactory(DspFactory dspFactory) {
-        this.dspFactory = dspFactory;
-    }
-    
-    /**
-     * Gets the number of local connections allowed per endpoint
-     * 
-     * @return the number of local connections.
-     */
-    public int getLocalConnections() {
-        return this.localConnections;
-    }
-
-    /**
-     * Sets the number of local connections allowed per endpoint
-     *
-     * @param localConnections the number of local connections.
-     */
-    public void setLocalConnections(int localConnections) {
-        this.localConnections = localConnections;
-    }
-    
-    /**
-     * Gets the number of local connections allowed per endpoint
-     * 
-     * @return the number of local connections.
-     */
-    public int getRtpConnections() {
-        return this.rtpConnections;
-    }
-
-    /**
-     * Sets the number of local connections allowed per endpoint
-     *
-     * @param localConnections the number of local connections.
-     */
-    public void setRtpConnections(int rtpConnections) {
-        this.rtpConnections = rtpConnections;
-    }
-    
+        
     /**
      * (Non Java-doc.)
      *
      * @throws ResourceUnavailableException
      */
+    @Override
     public void install() {
-        ClassLoader loader = Server.class.getClassLoader();
-        nameParser.setPattern(namePattern);
+    	ClassLoader loader = Server.class.getClassLoader();
+        nameParser.setPattern(getNamePattern());
         int index=startChannelID;
         while (nameParser.hasMore()) {
             String name = nameParser.next();
-            try {
-                Constructor constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
+            try {            	
+                Constructor constructor = loader.loadClass(this.getEndpointClass()).getConstructor(String.class,SS7Manager.class,int.class,boolean.class);
                 BaseSS7EndpointImpl endpoint = (BaseSS7EndpointImpl) constructor.newInstance(name,ss7Manager,index++,isALaw);
                 endpoint.setDspFactory(dspFactory);
-                endpoint.setLocalConnections(localConnections);
-                endpoint.setRtpConnections(rtpConnections);
+                endpoint.setLocalConnections(getLocalConnections());
+                endpoint.setRtpConnections(getRtpConnections());
                 server.install(endpoint);
             } catch (Exception e) {
                 server.logger.error("Couldn't instantiate endpoint", e);

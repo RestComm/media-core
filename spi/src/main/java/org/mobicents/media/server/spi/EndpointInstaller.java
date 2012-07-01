@@ -38,5 +38,5 @@ public interface EndpointInstaller {
     /**
      * Uninstalls endpoint.
      */
-    public void uninstall();
+    public void uninstall();    
 }

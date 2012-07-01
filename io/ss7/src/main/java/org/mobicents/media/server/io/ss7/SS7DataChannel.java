@@ -74,6 +74,8 @@ public class SS7DataChannel {
     private Formats formats = new Formats();
     
     private Logger logger = Logger.getLogger(SS7DataChannel.class) ;
+    
+    private boolean isALaw=false;
     /**
      * Create SS7 channel instance.
      *
@@ -82,8 +84,10 @@ public class SS7DataChannel {
      */
     public SS7DataChannel(SS7Manager ss7Manager,int channelID,boolean isALaw) throws IOException {
     	this.ss7Manager=ss7Manager;
-    	this.channelID=channelID;    	
-    	channel=ss7Manager.open(channelID);
+    	this.ss7Handler=new SS7Handler();
+    	this.channelID=channelID;
+    	this.channel=ss7Manager.open(channelID);
+    	this.isALaw=isALaw;
     	
     	if(isALaw)
     	{
@@ -101,16 +105,33 @@ public class SS7DataChannel {
     	}
     }
     
+    public void setCodec(boolean isALaw)
+    {
+    	this.isALaw=isALaw;
+    	channel.setCodec(isALaw);
+    	if(isALaw)
+    	{
+    		input.setSourceFormat(g711a);
+    		output.setDestinationFormat(g711a);
+    	}
+    	else
+    	{
+    		input.setSourceFormat(g711u);
+    		output.setDestinationFormat(g711u);
+    	}
+    }
+    
     /**
      * Binds channel to the first available port.
      *
      * @throws SocketException
      */
-    public void bind() {    	
+    public void bind() {      		
     	//bind data channel
-    	ss7Manager.bind(channel,ss7Handler);      
-    	input.start();
-    	output.start();
+    	ss7Manager.bind(channel,ss7Handler);
+    	channel.setCodec(isALaw);    		
+        input.start();
+    	output.start();    	
     }
 
     /**

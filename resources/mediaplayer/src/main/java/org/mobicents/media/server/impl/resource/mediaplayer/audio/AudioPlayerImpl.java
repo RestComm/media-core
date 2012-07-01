@@ -111,6 +111,13 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
      * @see org.mobicents.media.server.spi.resource.AudioPlayer#setURL(java.lang.String)
      */
     public void setURL(String passedURI) throws ResourceUnavailableException, MalformedURLException {
+    	//close previous track if was opened
+    	if(this.track!=null)
+    	{
+    		track.close();
+            track = null;
+    	}
+    	
         // let's disallow to assign file is player is not connected
         if (!this.isConnected()) {
             throw new IllegalStateException("Component should be connected");
@@ -126,7 +133,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
 
     	String ext = passedURI.substring(pos + 1).toLowerCase();
     	targetURL = new URL(passedURI);
-    
+    	
     	// creating required extension
     	try {
     		//check scheme, if its file, we should try to create dirs
@@ -141,9 +148,11 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
     		} else if (ext.matches(Extension.MOV) || ext.matches(Extension.MP4) || ext.matches(Extension.THREE_GP)) {
     			track = new AMRTrackImpl(targetURL);
     		} else {
+    			logger.info("unknown extension:" + passedURI);
     			throw new ResourceUnavailableException("Unknown extension: " + passedURI);
     		}
     	} catch (Exception e) {        	
+    		logger.error("error occured",e);
     		throw new ResourceUnavailableException(e);
     	}
     	

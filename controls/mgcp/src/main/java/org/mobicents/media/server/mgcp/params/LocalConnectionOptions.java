@@ -40,7 +40,7 @@ public class LocalConnectionOptions {
     public final static Text RESOURCE_RESERVATION = new Text("r");
     public final static Text ENCRYPTION_KEY = new Text("k");
     public final static Text DTMF_CLAMP = new Text("x-dc");
-    public final static Text IS_LOCAL = new Text("x-islocal");
+    public final static Text IS_LOCAL = new Text("x-lo");
     
     public final static Text TRUE = new Text("true");
     

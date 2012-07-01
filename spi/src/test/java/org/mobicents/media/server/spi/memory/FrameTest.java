@@ -87,14 +87,13 @@ public class FrameTest {
         assertEquals(frame2.getTimestamp(), frame1.getTimestamp());
         assertEquals("LINEAR", frame2.getFormat().getName().toString());
 
-        assertEquals(1, frame2.getData()[0]);
-        assertEquals(2, frame2.getData()[1]);
-        assertEquals(3, frame2.getData()[2]);
+        assertEquals(frame1.getData()[0], frame2.getData()[0]);
+        assertEquals(frame1.getData()[1], frame2.getData()[1]);
+        assertEquals(frame1.getData()[2], frame2.getData()[2]);
 
         //change frame2 and check that frame1 remains constant
         frame2.getData()[1] = 100;
-        assertEquals(2, frame1.getData()[1]);
-
+        assertEquals(2, (int)(frame1.getData()[1]));
     }
 
 }

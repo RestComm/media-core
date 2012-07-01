@@ -102,6 +102,10 @@ public class MyTestEndpoint implements Endpoint {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public void configure(boolean isALaw) {
+    	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public Component getResource(MediaType mediaType, Class intf) {
         return null;
     }

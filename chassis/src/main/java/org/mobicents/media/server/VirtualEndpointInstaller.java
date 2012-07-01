@@ -38,14 +38,14 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  */
 public class VirtualEndpointInstaller implements EndpointInstaller {
 
-    private String namePattern;
-    private EndpointNameGenerator nameParser;
+    private String namePattern;    
     private String endpointClass;
-    private DspFactory dspFactory;
+    protected DspFactory dspFactory;
     private int localConnections;
     private int rtpConnections;
     
-    private Server server;
+    protected EndpointNameGenerator nameParser;
+    protected Server server;
 
     /**
      * Creates new endpoint installer.

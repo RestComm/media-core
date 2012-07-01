@@ -202,10 +202,13 @@ public class RTPDataChannel {
             throw new SocketException(e.getMessage());
         }
         //bind data channel
-    	if(!isLocal)
+    	if(!isLocal) {
+    		this.rxBuffer.setBufferInUse(true);
     		rtpManager.udpManager.bind(dataChannel, PORT_ANY);
-    	else
+    	} else {
+    		this.rxBuffer.setBufferInUse(false);
     		rtpManager.udpManager.bindLocal(dataChannel, PORT_ANY);
+    	}
     	
         //if control enabled open rtcp channel as well
         if (rtpManager.isControlEnabled) {

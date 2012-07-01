@@ -80,6 +80,5 @@ public class RecorderEventImpl implements RecorderEvent {
      */
     protected void setQualifier(int qualifier) {
         this.qualifier = qualifier;
-    }
-    
+    }    
 }

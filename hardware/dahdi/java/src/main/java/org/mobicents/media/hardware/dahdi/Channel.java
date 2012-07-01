@@ -61,6 +61,9 @@ public class Channel implements Stream {
 
     protected SelectorKey selectorKey;
 
+    protected int aLawCodec=2;
+    protected int muLawCodec=1;
+    
     public Channel() {
     }
 
@@ -112,6 +115,22 @@ public class Channel implements Stream {
      */
     public native int openChannel(int id, int bufferSize);
 
+    public boolean setCodec(boolean isALaw)
+    {
+    	int result;
+    	if(isALaw)
+    		result=configureChannel(fd, aLawCodec);
+    	else
+    		result=configureChannel(fd, muLawCodec);
+    	
+    	return result>=0;
+    }
+    
+    /**
+     * 
+     */
+    public native int configureChannel(int fd, int codec);
+    
     /**
      * Reads data from this pipe.
      * 

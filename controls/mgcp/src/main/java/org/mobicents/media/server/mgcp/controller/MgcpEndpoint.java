@@ -252,7 +252,7 @@ public class MgcpEndpoint {
     protected void send(MgcpEvent message, SocketAddress address) {
     	listener.process(message);
     }
-    
+        
     /**
      * Asks mgcp connection object from pool.
      * 
@@ -291,5 +291,10 @@ public class MgcpEndpoint {
     		if(oldValue!=STATE_FREE && this.stateListener!=null)
     				this.stateListener.onFreed(this);    		
     	}
+    }
+    
+    public void configure(boolean isALaw)
+    {
+    	endpoint.configure(isALaw);
     }
 }

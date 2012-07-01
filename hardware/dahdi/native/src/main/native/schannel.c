@@ -40,15 +40,14 @@ static int openFileChannel(jint zapid,jint ioBufferSize) {
     int res;
     int fd;
 
-    sprintf(devname,"/dev/dahdi/%d",zapid );
-
-
-
-    fd = open(devname, O_RDWR);
+    fd = open("/dev/dahdi/channel", O_RDWR);	
     if (fd < 0) {
         return -1;
-    }
-
+    }	
+	res = ioctl(fd, DAHDI_SPECIFY, &zapid);
+	if(res<0) {
+		return -1;
+	}
 
     bi.txbufpolicy = DAHDI_POLICY_IMMEDIATE;
     bi.rxbufpolicy = DAHDI_POLICY_IMMEDIATE;
@@ -62,7 +61,27 @@ static int openFileChannel(jint zapid,jint ioBufferSize) {
         return -1;
     }
     
+	res = ioctl(fd, DAHDI_SET_BLOCKSIZE, &ioBufferSize);
+	if (res < 0) {
+        return -1;
+    }
+
+	int z = 1;
+	res = ioctl(fd, DAHDI_AUDIOMODE, &z);
+	if (res < 0) {
+        return -1;
+    }
+
     return fd;    	
+}
+
+static int configureChannel(jint fd,jint codec) {
+	int res = ioctl(fd, DAHDI_SETLAW, &codec);
+	if(res < 0) {
+		return -1;
+	}
+
+	return 0;
 }
 
 JNIEXPORT void JNICALL Java_org_mobicents_media_hardware_dahdi_Selector_doRegister (JNIEnv *env, jobject obj, jint fd) {
@@ -155,7 +174,10 @@ JNIEXPORT jint JNICALL Java_org_mobicents_media_hardware_dahdi_Channel_openChann
     return openFileChannel(zapid,ioBufferSize);
 }
 
-
+JNIEXPORT jint JNICALL Java_org_mobicents_media_hardware_dahdi_Channel_configureChannel
+  (JNIEnv *env, jobject obj, jint fd, jint codec) {
+    return configureChannel(fd,codec);
+}
 
 /*
  * Class:     org_mobicents_media_server_impl_resource_zap_Schannel
@@ -266,6 +288,9 @@ JNIEXPORT void JNICALL Java_org_mobicents_media_hardware_dahdi_Channel_writeData
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_org_mobicents_media_hardware_dahdi_Channel_closeChannel (JNIEnv *env, jobject obj, jint fd) {
+	int z = 0;
+	ioctl(fd, DAHDI_AUDIOMODE, &z);
+
     close(fd);
 }
 

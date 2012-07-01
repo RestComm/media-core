@@ -23,6 +23,7 @@
 package org.mobicents.media.server.impl.resource.mediaplayer.audio.gsm;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
@@ -46,6 +47,8 @@ public class GsmTrackImpl implements Track {
     
     /** audio stream */
     private transient AudioInputStream stream = null;
+    private InputStream inStream;
+    
     private AudioFormat format;
     private int period = 20;
     private int frameSize;
@@ -54,9 +57,13 @@ public class GsmTrackImpl implements Track {
     private long timestamp;
     
     public GsmTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {
-        stream = AudioSystem.getAudioInputStream(url);
+    	inStream=url.openStream();
+        stream = AudioSystem.getAudioInputStream(inStream);
+        
         format = getFormat(stream);
         if (format == null) {
+        	stream.close();
+        	inStream.close();
             throw new UnsupportedAudioFileException();
         }
 
@@ -157,6 +164,7 @@ public class GsmTrackImpl implements Track {
     public void close() {
         try {
             stream.close();
+            inStream.close();
         } catch (Exception e) {
         }
     }

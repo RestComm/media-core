@@ -27,10 +27,14 @@ import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.component.Splitter;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.impl.PipeImpl;
+import org.mobicents.media.server.BaseEndpointImpl;
 import org.mobicents.media.server.BaseSS7EndpointImpl;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 /**
@@ -46,8 +50,8 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     
     private ArrayList<MediaSource> components = new ArrayList();
     
-    public DS0Endpoint(String name,int endpointType,SS7Manager ss7Manager,int channelID,boolean isALaw) {
-        super(name,endpointType,ss7Manager,channelID,isALaw);
+    public DS0Endpoint(String name,SS7Manager ss7Manager,int channelID,boolean isALaw) {
+        super(name,BaseEndpointImpl.ENDPOINT_NORMAL,ss7Manager,channelID,isALaw);
         
         try
         {
@@ -55,7 +59,6 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
         }
         catch(Exception e)
         {
-        	
         }
     }
     
@@ -73,7 +76,7 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     public MediaSource getSource(MediaType media) {
         switch (media) {
             case AUDIO:
-                return audioMixer.getOutput();
+            	return audioMixer.getOutput();
             default:
                 return null;
         }
@@ -85,17 +88,20 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     		audioMixer = new AudioMixer(getScheduler());
         	MediaSink sink = audioMixer.newInput();
             MediaSource source=ss7DataChannel.getInput();
+            ss7DataChannel.getInput().setDsp(getDspFactory().newProcessor());
             PipeImpl p = new PipeImpl();
             p.connect(sink);
-            p.connect(source);
-            
+            p.connect(source);            
             components.add(source);                           
             sink.start();
             
             audioSplitter = new Splitter(getScheduler());
-            PipeImpl p1 = new PipeImpl();            
-            p1.connect(audioSplitter.getInput());
-            p1.connect(ss7DataChannel.getOutput());                
+            PipeImpl p1 = new PipeImpl();
+            source=audioSplitter.newOutput();            
+            p1.connect(source);
+            p1.connect(ss7DataChannel.getOutput());
+            ss7DataChannel.getOutput().setDsp(getDspFactory().newProcessor());
+            source.start();
             
         } catch (Exception e) {
             throw new ResourceUnavailableException(e);
@@ -119,10 +125,42 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     }
     
     @Override
+    public void configure(boolean isALaw)
+    {
+    	ss7DataChannel.setCodec(isALaw);
+    }
+    
+    @Override
     public void unblock() {
     }
 
     @Override
     public void block() {
+    }
+    
+    @Override
+    public Connection createConnection(ConnectionType type,boolean isLocal) throws TooManyConnectionsException, ResourceUnavailableException {
+    	Connection connection=super.createConnection(type,isLocal);
+    	
+    	if(getActiveConnectionsCount()==1)
+    		ss7DataChannel.bind();
+    	
+    	return connection;
+    }
+    
+    @Override
+    public void deleteConnection(Connection connection) {
+    	super.deleteConnection(connection);
+    	
+    	if(getActiveConnectionsCount()==0)
+    		ss7DataChannel.close();    	
+    }
+    
+    @Override
+    public void deleteAllConnections() {
+    	super.deleteAllConnections();
+    	
+    	if(getActiveConnectionsCount()==0)
+    		ss7DataChannel.close();    	
     }
 }

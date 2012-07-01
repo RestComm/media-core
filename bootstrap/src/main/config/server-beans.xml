@@ -104,4 +104,16 @@
 	<property name="localConnections">5</property>
     </bean>
 
+	<!-- DS0 Endpoints configuration sample -->
+	<!--<bean name="DS0" class="org.mobicents.media.server.VirtualSS7EndpointInstaller">
+        <property name="namePattern">mobicents/ds0/[1..15]</property>
+        <property name="dspFactory"><inject bean="DSP"/></property>
+        <property name="SS7Manager"><inject bean="SS7"/></property>
+        <property name="endpointClass">org.mobicents.media.server.ds0.DS0Endpoint</property>
+        <property name="rtpConnections">1</property>
+        <property name="localConnections">1</property>
+        <property name="startChannelID">125</property>
+        <property name="isALaw">true</property>
+    </bean>-->
+	
 </deployment>

@@ -123,9 +123,9 @@ public class Server implements MediaServer {
      * @param installer the endpoints installer
      */
     public void addInstaller(EndpointInstaller installer) {
-        ((VirtualEndpointInstaller)installer).setServer(this);
-        installers.add(installer);
-        installer.install();
+    	((VirtualEndpointInstaller)installer).setServer(this);
+    	installers.add(installer);
+        installer.install();        
     }
 
     /**
