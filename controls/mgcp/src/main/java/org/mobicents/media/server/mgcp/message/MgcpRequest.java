@@ -179,8 +179,7 @@ public class MgcpRequest extends MgcpMessage {
             parameters.get(count).trim();
             
             count++;
-        }
-        
+        }       
     }
 
     @Override

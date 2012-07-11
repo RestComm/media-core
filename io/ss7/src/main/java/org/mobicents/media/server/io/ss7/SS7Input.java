@@ -69,7 +69,7 @@ public class SS7Input extends AbstractSource {
     private int readBytes=0;
     private int currIndex=0;
     
-    private ArrayList<Frame> framesBuffer=new ArrayList(5);
+    private ArrayList<Frame> framesBuffer=new ArrayList(2);
     
     /**
      * Creates new receiver.
@@ -160,6 +160,7 @@ public class SS7Input extends AbstractSource {
     		currFrame.setTimestamp(System.currentTimeMillis());
     		currFrame.setOffset(0);
     		currFrame.setLength(tempBuffer.length);
+    		currFrame.setDuration(20000000L);
     		System.arraycopy(tempBuffer, 0, currFrame.getData(), 0, tempBuffer.length);
 
     		//set format
@@ -182,7 +183,11 @@ public class SS7Input extends AbstractSource {
     		currPosition=0;
     		if(currIndex<readBytes)
     			System.arraycopy(smallBuffer, currIndex, tempBuffer, currPosition, readBytes-currIndex);
-        	    		
+        	
+    		//lets keep 2 last packets all the time,there is no reason to keep more
+    		if(framesBuffer.size()>2)
+    			framesBuffer.remove(0);
+    		
     		framesBuffer.add(currFrame);
     		onFill();
     	}

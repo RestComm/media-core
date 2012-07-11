@@ -95,19 +95,25 @@ JNIEXPORT void JNICALL Java_org_mobicents_media_hardware_dahdi_Selector_doUnregi
     struct pollfd temp[480];
     
     int i;
-    int k;
+    int k=0;
     
+    int found=0;
     for (i = 0; i < channel_count; i++) {
 	if (fds[i].fd != fd) {
 	    temp[k++] = fds[i];
 	}
+	else
+ 	    found=1;
     }
     
+    if(found==0)
+       return;
+
     channel_count = channel_count - 1;
     
     for (i = 0; i < channel_count; i++) {
 	fds[i] = temp[i];
-    }    
+    }
 }
 
 JNIEXPORT void JNICALL Java_org_mobicents_media_hardware_dahdi_Channel_doRegister (JNIEnv *env, jobject obj, jint fd) {

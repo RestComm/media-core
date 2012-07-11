@@ -129,9 +129,9 @@ public class Event {
      * Executes action associated with this event
      */
     public void fire(Signal s, Text options) {
-    	if (this.isActive) {
+    	if (this.isActive) {    		
             this.requestedAction.perform(s, this, options);
-        }
+        }    	
     }
     
     public void reset() {

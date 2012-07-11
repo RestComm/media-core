@@ -132,7 +132,7 @@ fi
 
 # Setup MMS specific properties
 JAVA_OPTS="-Dprogram.name=$PROGNAME $JAVA_OPTS"
-JAVA_OPTS="$JAVA_OPTS -Xms256m -Xmx512m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"
+#JAVA_OPTS="$JAVA_OPTS -Xms256m -Xmx512m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"
 #JAVA_OPTS="$JAVA_OPTS -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"
 # Setup the java endorsed dirs
 MMS_ENDORSED_DIRS="$MMS_HOME/lib"

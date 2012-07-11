@@ -33,15 +33,15 @@ public class LocalConnectionOptions {
     public final static Text CODECS = new Text("a");
     public final static Text BANDWIDTH = new Text("b");
     public final static Text PACKETIZATION_PERIOD = new Text("p");
+    public final static Text TYPE_OF_NETWORK = new Text("nt");
     public final static Text TYPE_OF_SERVICE = new Text("t");
     public final static Text ECHO_CANCELATION = new Text("e");
     public final static Text GAIN_CONTROL = new Text("gc");
     public final static Text SILENCE_SUPPRESSION = new Text("s");
     public final static Text RESOURCE_RESERVATION = new Text("r");
     public final static Text ENCRYPTION_KEY = new Text("k");
-    public final static Text DTMF_CLAMP = new Text("x-dc");
-    public final static Text IS_LOCAL = new Text("x-lo");
-    
+    public final static Text DTMF_CLAMP = new Text("x-dc");    
+    public final static Text LOCAL_NETWORK = new Text("LOCAL");
     public final static Text TRUE = new Text("true");
     
     private Text codecs = new Text(),
@@ -100,8 +100,9 @@ public class LocalConnectionOptions {
                 value.copy(this.encryptionKey);
             } else if (keyword.equals(DTMF_CLAMP)) {
             	value.copy(this.dtmfclamp);
-            } else if (keyword.equals(IS_LOCAL)) {
-            	isLocal=true;
+            } else if (keyword.equals(TYPE_OF_NETWORK)) {
+            	if(value.equals(LOCAL_NETWORK))
+            		isLocal=true;
             }
         }
     }

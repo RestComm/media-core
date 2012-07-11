@@ -1,216 +1,48 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.jboss.project</groupId>
-	<artifactId>${docname}-${translation}</artifactId>
-	<version>1.0</version>
-	<packaging>jdocbook</packaging>
-	<name>${bookname}-(${translation})</name>
 
-  <properties>
-    <translation>en-US</translation>
-    <docname>Media_Server_User_Guide</docname>
-    <bookname>Media_Server_User_Guide</bookname>
-  </properties> 
+  <parent>
+    <groupId>org.mobicents.media</groupId>
+    <artifactId>server</artifactId>
+    <version>2.4.0.FINAL</version>
+  </parent>
 
-  <repositories>
-      <repository>
-          <id>repository.jboss.org</id>
-          <name>JBoss Repository</name>
-          <layout>default</layout>
-          <url>http://repository.jboss.org/maven2/</url>
-          <snapshots>
-              <enabled>false</enabled>
-          </snapshots>
-      </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>repository.jboss.org</id>
-      <name>JBoss Repository</name>
-      <layout>default</layout>
-      <url>http://repository.jboss.org/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
+	<artifactId>mobicents-mms-docs</artifactId>
+	<groupId>org.mobicents.media.docs</groupId>	
+	<packaging>pom</packaging>
+  <name>
+    Mobicents Media :: Docs :: Parent :: ${pom.artifactId}
+  </name>
   
-  
-  <profiles>
+	<properties>
+		<docs.application.name>Mobicents Media Server</docs.application.name>
+		<docs.application.dirname>mms</docs.application.dirname>
+		<docs.bookid>MediaServer</docs.bookid>
+	</properties>
 
-    <!-- mvn compile -->
-    <profile>
-      <id>all</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <build>
-    		<plugins>
-    			<plugin>
-    				<groupId>org.jboss.maven.plugins</groupId>
-    				<artifactId>maven-jdocbook-plugin</artifactId>
-    				<version>2.2.0</version>
-    				<extensions>true</extensions>
-    				<configuration>
-    				  <formats>
-        				<format>
-        				  <formatName>pdf</formatName>
-        					<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-        					<finalName>${docname}.pdf</finalName>
-        				</format>
-    					  <format>
-    					    <formatName>html</formatName>
-    						  <stylesheetResource>classpath:/xslt/org/jboss/xhtml.xsl</stylesheetResource>
-    						  <finalName>index.html</finalName>
-    					  </format>
-        				<format>
-        				  <formatName>html_single</formatName>
-        					<stylesheetResource>classpath:/xslt/org/jboss/xhtml-single.xsl</stylesheetResource>
-        					<finalName>index.html</finalName>
-        				</format>
-    					</formats>
-  					</configuration>
-  				</plugin>
-				</plugins>
-			</build>
+	<modules>
+		<module>sources</module>
+	</modules>
+
+	<profiles>
+		<profile>
+			<id>mobicents</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>sources-mobicents</module>
+				<module>jdocbook-mobicents</module>
+			</modules>
 		</profile>
-
-    <!-- mvn compile -Phtml -->
-    <profile>
-      <id>html</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-    		<plugins>
-    			<plugin>
-    				<groupId>org.jboss.maven.plugins</groupId>
-    				<artifactId>maven-jdocbook-plugin</artifactId>
-    				<version>2.2.0</version>
-    				<extensions>true</extensions>
-    				<configuration>
-    				  <formats>
-    					  <format>
-    					    <formatName>html</formatName>
-    						  <stylesheetResource>classpath:/xslt/org/jboss/xhtml.xsl</stylesheetResource>
-    						  <finalName>index.html</finalName>
-    					  </format>
-    					</formats>
-  					</configuration>
-  				</plugin>
-				</plugins>
-			</build>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>sources-mobicents</module>
+				<module>jdocbook-mobicents</module>
+			</modules>
 		</profile>
-
-    <!-- mvn compile -Phtml-single -->
-    <profile>
-      <id>html-single</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-    		<plugins>
-    			<plugin>
-    				<groupId>org.jboss.maven.plugins</groupId>
-    				<artifactId>maven-jdocbook-plugin</artifactId>
-    				<version>2.2.0</version>
-    				<extensions>true</extensions>
-    				<configuration>
-    				  <formats>
-        				<format>
-        				  <formatName>html_single</formatName>
-        					<stylesheetResource>classpath:/xslt/org/jboss/xhtml-single.xsl</stylesheetResource>
-        					<finalName>index.html</finalName>
-        				</format>
-    					</formats>
-  					</configuration>
-  				</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-    <!-- mvn compile -Ppdf -->
-    <profile>
-      <id>pdf</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-    		<plugins>
-    			<plugin>
-    				<groupId>org.jboss.maven.plugins</groupId>
-    				<artifactId>maven-jdocbook-plugin</artifactId>
-    				<version>2.2.0</version>
-    				<extensions>true</extensions>
-    				<configuration>
-    				  <formats>
-        				<format>
-        				  <formatName>pdf</formatName>
-        					<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-        					<finalName>${docname}.pdf</finalName>
-        				</format>
-    					</formats>
-  					</configuration>
-  				</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-  </profiles>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.jboss.maven.plugins</groupId>
-				<artifactId>maven-jdocbook-plugin</artifactId>
-				<version>2.2.0</version>
-				<extensions>true</extensions>
-				<dependencies>
-					<dependency>
-						<groupId>org.jboss</groupId>
-						<artifactId>jbossorg-docbook-xslt</artifactId>
-						<version>1.1.0</version>
-					</dependency>
-					<dependency>
-						<groupId>org.jboss</groupId>
-						<artifactId>jbossorg-jdocbook-style</artifactId>
-						<version>1.1.0</version>
-						<type>jdocbook-style</type>
-					</dependency>
-				</dependencies>
-				<configuration>
-		      <sourceDocumentName>${docname}.xml</sourceDocumentName>
-				  <sourceDirectory>.</sourceDirectory>
-				  <imageResource>
-					  <directory>${translation}</directory>
-					  <includes>
-						  <include>images/*</include>
-					  </includes>
-				  </imageResource>
-				  <options>
-					  <xincludeSupported>true</xincludeSupported>
-					  <xmlTransformerType>saxon</xmlTransformerType>
-					  <!-- needed for uri-resolvers; can be ommitted if using 'current' uri scheme -->
-					  <!--     could also locate the docbook dependency and inspect its version... -->
-					  <docbookVersion>1.72.0</docbookVersion>
-    				<transformerParameters>
-    				  <property>
-    					  <name>javax.xml.parsers.DocumentBuilderFactory</name>
-    						<value>org.apache.xerces.jaxp.DocumentBuilderFactoryImpl</value>
-    					</property>
-    					<property>
-    						<name>javax.xml.parsers.SAXParserFactory</name>
-    						<value>org.apache.xerces.jaxp.SAXParserFactoryImpl</value>
-    					</property>
-    				</transformerParameters>
-    			</options>
-			  </configuration>
-		  </plugin>
-		  
-	  </plugins>
-  </build>
-
+	</profiles>
 </project>

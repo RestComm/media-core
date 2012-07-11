@@ -17,27 +17,26 @@
  */
 package org.mobicents.media.server.impl.resource.phone;
 
-import org.mobicents.media.Buffer;
-import org.mobicents.media.Format;
-import org.mobicents.media.format.AudioFormat;
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.memory.Memory;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.impl.AbstractSource;
+
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.Task;
 
 /**
  * Generates sine wave signal with specified Amplitude and frequence.
  *
  * The format of output signal is Linear, 16bit, 8kHz.
  * 
- * @author Oleg Kulikov
+ * @author Oifa Yulian
  */
 public class PhoneSignalGenerator extends AbstractSource  {
-
-    
-    private final static AudioFormat LINEAR_AUDIO = new AudioFormat(
-            AudioFormat.LINEAR, 8000, 16, 1,
-            AudioFormat.LITTLE_ENDIAN,
-            AudioFormat.SIGNED);
-    private final static Format FORMAT[] = new Format[] {LINEAR_AUDIO};
-    
+	private AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);    
+	int frameSize = (int)(20.0f*LINEAR_AUDIO.getSampleRate()/1000.0);
+	
     private int[] f;
     private short A = Short.MAX_VALUE;
     
@@ -48,18 +47,19 @@ public class PhoneSignalGenerator extends AbstractSource  {
     private double elapsed;
     private double duration;
     private double value = 1;
+    private int seqNumber=1;
     
-    private int[] T;
+    private int[] T=new int[] {1,1};
     
-    public PhoneSignalGenerator(String name) {
-        super(name);
+    public PhoneSignalGenerator(String name,Scheduler scheduler) {
+        super(name,scheduler,scheduler.INPUT_QUEUE);
         init();
     }
     
 
     private void init() {
         //number of seconds covered by one sample
-        dt = 1/LINEAR_AUDIO.getSampleRate();
+        dt = 1.0f/(float)LINEAR_AUDIO.getSampleRate();
     }
     
     public void setAmplitude(short A) {
@@ -105,18 +105,17 @@ public class PhoneSignalGenerator extends AbstractSource  {
         
         double v = 0;
         for (int i = 0; i < f.length; i++) {
-            v += Math.sin(2 * Math.PI * f[i] * t);
+            v += Math.sin(2.0f * Math.PI * ((double)f[i]) * t);
         }
         return (short)(v * A);
     }
 
-    public void evolve(Buffer buffer, long timestamp) {
-        int frameSize = (int)((double)20/1000.0/dt);        
+    public Frame evolve(long timestamp) {
+    		Frame currFrame=Memory.allocate(frameSize*2);
+            byte[] data = currFrame.getData();
         
-            byte[] data = new byte[2* frameSize];
-        
-            int k = 0;
-        
+            int k = 0;            
+            
             //packet size in samples
             pSize = (int)((double)20/1000.0/dt);
             for (int i = 0; i < frameSize; i++) {
@@ -124,20 +123,30 @@ public class PhoneSignalGenerator extends AbstractSource  {
                 data[k++] = (byte) v;
                 data[k++] = (byte) (v >> 8);
             }
+                        
             
-            buffer.setData(data);
-            buffer.setOffset(0);
-            buffer.setLength(frameSize);
-            buffer.setDuration(20);
-        
-        buffer.setFormat(LINEAR_AUDIO);
-        buffer.setTimeStamp(timestamp);
-        
-        time += ((double)20)/1000.0;
+            //put packet into buffer irrespective of its sequence number
+    		currFrame.setHeader(null);
+    		currFrame.setSequenceNumber(seqNumber++);
+    		//here time is in milliseconds
+    		currFrame.setTimestamp(System.currentTimeMillis());
+    		currFrame.setOffset(0);
+    		currFrame.setLength(data.length);
+    		currFrame.setDuration(20000000L);
+    		
+    		//set format
+    		currFrame.setFormat(this.LINEAR_AUDIO);    		                    
+    		time += ((double)20)/1000.0;
+    		
+    		return currFrame;
     }
-
-    public Format[] getFormats() {
-        return FORMAT;
+    
+    @Override
+    public <T> T getInterface(Class<T> interfaceType) {
+        if (interfaceType.equals(PhoneSignalGenerator.class)) {
+            return (T) this;
+        } else {
+            return null;
+        }
     }
-
 }

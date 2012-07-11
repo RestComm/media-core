@@ -217,6 +217,8 @@ public class Controller implements MgcpListener, ServerManager {
             endpoints.register(mgcpEndpoint);
             logger.info("Endpoint restarted: " + endpoint.getLocalName());
         } catch (Exception e) {
+        	logger.info("Error message: " + e.getMessage());
+        	e.printStackTrace();
             logger.error("Could not register endpoint: " + endpoint.getLocalName());
         }
     }

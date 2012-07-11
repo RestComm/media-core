@@ -18,29 +18,39 @@
 package org.mobicents.media.server.impl.resource.phone;
 
 import java.io.IOException;
-import org.mobicents.media.Buffer;
-import org.mobicents.media.Format;
+import java.util.ArrayList;
+
+import org.mobicents.media.MediaSource;
+
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.Formats;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.FormatNotSupportedException;
+
+import org.mobicents.media.server.spi.listener.Event;
+import org.mobicents.media.server.spi.listener.Listeners;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
+
+import org.mobicents.media.server.spi.tone.ToneEvent;
+import org.mobicents.media.server.spi.tone.ToneDetector;
+import org.mobicents.media.server.spi.tone.ToneDetectorListener;
+
+import org.mobicents.media.server.component.audio.GoertzelFilter;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.NotifyEventImpl;
-import org.mobicents.media.server.impl.resource.GoertzelFilter;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.events.NotifyEvent;
+
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.Task;
 
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
-public class PhoneSignalDetector extends AbstractSink {
+public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
 
-    private final static int STATE_IDLE = 0;
-    private final static int STATE_SIGNAL = 1;
-    private final static int STATE_SILENCE = 2;
-    private int POWER = 10000;
-    private int state = STATE_IDLE;
-    private final static double E = 100;
+    private double POWER = 100000;
     private final static int PACKET_DURATION = 50;
-    private final static Format[] FORMATS = new Format[]{Codec.LINEAR_AUDIO};
-    private int[] T;
+    private AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);    
     private int[] f;
     private int offset;
     private int toneDuration = PACKET_DURATION;
@@ -53,28 +63,16 @@ public class PhoneSignalDetector extends AbstractSink {
     private int level;
     private double p[];
     private long startTime;
-    private int count;
-    private NotifyEvent event;
+    private int count;    
 
-    public PhoneSignalDetector(String name) {
-        super(name);
-        signal = new double[N];
-    }
-
-    public int getEventID() {
-        return event != null ? event.getEventID() : 0;
-    }
-
-    public void setEventID(int eventID) {
-        event = new NotifyEventImpl(this, eventID);
-    }
-
-    public void setPeriods(int[] T) {
-        this.T = T;
-    }
-
-    public int[] getPeriods() {
-        return T;
+    private MediaSource source;
+    
+    private Listeners<ToneDetectorListener> listeners = new Listeners();    
+    
+    public PhoneSignalDetector(String name,Scheduler scheduler,MediaSource source) {
+        super(name,scheduler,scheduler.OUTPUT_QUEUE);
+        signal = new double[N];  
+        this.source=source;    
     }
 
     public void setFrequency(int[] f) {
@@ -101,8 +99,14 @@ public class PhoneSignalDetector extends AbstractSink {
     }
 
     @Override
-    public void onMediaTransfer(Buffer buffer) throws IOException {
-        byte[] data = buffer.getData();
+    public void start() {
+    	source.start();
+    	super.start();
+    }
+    
+    @Override
+    public void onMediaTransfer(Frame frame) throws IOException {
+    	byte[] data = frame.getData();
 
         int M = data.length;
         int k = 0;
@@ -121,93 +125,63 @@ public class PhoneSignalDetector extends AbstractSink {
                 offset = 0;
                 //and if max amplitude of signal is greater theshold
                 //try to detect tone.
-                if (maxAmpl >= threshold) {
+                if (maxAmpl >= threshold) {                	
                     maxAmpl = 0;
                     getPower(freqFilters, signal, 0, p);
-                    if (isDetected()) {
-                        notifySignal();
-                    } else {
-                        notifyNoSignal();
-                    }
-                } else {
-                    notifySilence();
-                }
+                    int detectedValue=isDetected();
+                    if (detectedValue>=0)
+                    	sendEvent(new ToneEventImpl(this,getFrequency()[detectedValue]));
+                }                
             }
         }
-    }
+    }    
 
-    private void notifySignal() {
-        switch (state) {
-            case STATE_IDLE:
-                startTime = System.currentTimeMillis();
-                state = STATE_SIGNAL;
-                break;
-            case STATE_SILENCE:
-                long now = System.currentTimeMillis();
-                long duration = now - startTime;
-                if (Math.abs(duration - T[1] * 1000) < E) {
-                    state = STATE_SIGNAL;
-                    startTime = now;
-                } else {
-                    count = 0;
-                    state = STATE_IDLE;
-                }
-                break;
-        }
-    }
-
-    private void notifySilence() {
-        switch (state) {
-            case STATE_SIGNAL:
-                long now = System.currentTimeMillis();
-                long duration = now - startTime;
-                if (Math.abs(duration - T[0] * 1000) < E) {
-                    count++;
-                    if (count == 3) {
-                        state = STATE_IDLE;
-                        count = 0;
-                        sendEvent(event);
-                    } else {
-                        state = STATE_SILENCE;
-                        startTime = now;
-                    }
-                } else {
-                    count = 0;
-                    state = STATE_IDLE;
-                }
-                break;
-        }
-    }
-
-    private void notifyNoSignal() {
-        switch (state) {
-            case STATE_SIGNAL:
-                count = 0;
-                state = STATE_IDLE;
-                break;
-        }
-    }
-
-    private boolean isDetected() {
-        for (double P : p) {
-            if (P <= POWER) {
-                return false;
+    private int isDetected() {
+    	for (int i = 0; i < p.length; i++) {
+            if (p[i] >= POWER) {
+                return i;
             }
         }
-        return true;
+        return -1;
     }
 
     private void getPower(GoertzelFilter[] filters, double[] data, int offset, double[] power) {
         for (int i = 0; i < filters.length; i++) {
-            power[i] = filters[i].getPower(data, offset);
+            power[i] = filters[i].getPower(data, offset);            
         }
     }
 
-    public Format[] getFormats() {
-        return FORMATS;
+    /**
+     * (Non Java-doc.)
+     *
+     *
+     * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
+     */
+    public void setFormats(Formats formats) throws FormatNotSupportedException {
+    		
     }
-
-    public boolean isAcceptable(Format format) {
-        return format.matches(Codec.LINEAR_AUDIO);
+    
+    public void addListener(ToneDetectorListener listener) throws TooManyListenersException
+    {
+    	listeners.add(listener);
+    }
+    
+    public void removeListener(ToneDetectorListener listener)
+    {    	
+    	listeners.remove(listener);
+    }
+    
+    private void sendEvent(Event event)
+    {
+    	listeners.dispatch(event);    	
+    }
+    
+    @Override
+    public <T> T getInterface(Class<T> interfaceType) {
+        if (interfaceType.equals(PhoneSignalDetector.class)) {
+            return (T) this;
+        } else {
+            return null;
+        }
     }
 }

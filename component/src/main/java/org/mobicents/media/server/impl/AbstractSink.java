@@ -133,7 +133,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
     		this.rxBytes = 0;
     		this.rxPackets = 0;
-        
+
     		//schedule read task with highest possible priority
     		scheduler.submit(worker,worker.getQueueNumber());
 

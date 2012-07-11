@@ -37,6 +37,8 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 /**
  *
  * @author oifa yulian
@@ -48,7 +50,10 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     private AudioMixer audioMixer;    
     private Splitter audioSplitter;
     
-    private ArrayList<MediaSource> components = new ArrayList();
+    private ArrayList<Component> components = new ArrayList();
+    
+    private MediaSink sink;
+    private MediaSource source;
     
     public DS0Endpoint(String name,SS7Manager ss7Manager,int channelID,boolean isALaw) {
         super(name,BaseEndpointImpl.ENDPOINT_NORMAL,ss7Manager,channelID,isALaw);
@@ -66,7 +71,7 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     public MediaSink getSink(MediaType media) {
         switch(media) {
             case AUDIO : 
-            	return audioSplitter.getInput();
+            	return sink;
             default : 
             	return null;
         }
@@ -76,7 +81,7 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     public MediaSource getSource(MediaType media) {
         switch (media) {
             case AUDIO:
-            	return audioMixer.getOutput();
+            	return source;
             default:
                 return null;
         }
@@ -86,23 +91,44 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     public void start() throws ResourceUnavailableException {
     	try {
     		audioMixer = new AudioMixer(getScheduler());
-        	MediaSink sink = audioMixer.newInput();
-            MediaSource source=ss7DataChannel.getInput();
-            ss7DataChannel.getInput().setDsp(getDspFactory().newProcessor());
-            PipeImpl p = new PipeImpl();
-            p.connect(sink);
-            p.connect(source);            
-            components.add(source);                           
-            sink.start();
-            
-            audioSplitter = new Splitter(getScheduler());
-            PipeImpl p1 = new PipeImpl();
-            source=audioSplitter.newOutput();            
-            p1.connect(source);
-            p1.connect(ss7DataChannel.getOutput());
-            ss7DataChannel.getOutput().setDsp(getDspFactory().newProcessor());
-            source.start();
-            
+    		sink = audioMixer.newInput();
+    		
+    		//connect phone signal generator
+    		PhoneSignalGenerator phoneGenerator=new PhoneSignalGenerator("phone generator",getScheduler());
+    		PipeImpl p = new PipeImpl();
+    		p.connect(phoneGenerator);
+    		p.connect(audioMixer.newInput());
+    		components.add(phoneGenerator);
+    		
+    		p = new PipeImpl();
+    		p.connect(audioMixer.getOutput());
+    		p.connect(ss7DataChannel.getOutput());
+    		
+    		audioSplitter = new Splitter(getScheduler());    		
+    		
+    		//connect phone signal detector
+    		source=audioSplitter.newOutput();
+    		PhoneSignalDetector phoneDetector=new PhoneSignalDetector("phone detector",getScheduler(),source);
+    		PipeImpl p1 = new PipeImpl();
+    		p1.connect(phoneDetector);
+    		p1.connect(source);    		
+    		components.add(phoneDetector);
+    		
+    		source=audioSplitter.newOutput();
+    		p1 = new PipeImpl();
+    		p1.connect(ss7DataChannel.getInput());
+    		p1.connect(audioSplitter.getInput());    		
+    		
+    		
+    		audioMixer.getOutput().start();
+    		audioSplitter.getInput().start();
+    		
+        	ss7DataChannel.getInput().setDsp(getDspFactory().newProcessor());
+            ss7DataChannel.getOutput().setDsp(getDspFactory().newProcessor());            
+
+            components.add(ss7DataChannel.getInput());
+            components.add(ss7DataChannel.getOutput());
+            //create player , connect it with pipe to output            
         } catch (Exception e) {
             throw new ResourceUnavailableException(e);
         }
@@ -111,7 +137,7 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     }
     
     @Override
-    public Component getResource(MediaType mediaType, Class intf) {
+    public Component getResource(MediaType mediaType, Class intf) {    
         switch (mediaType) {
             case AUDIO:
             	for (int i = 0; i < components.size(); i++) {

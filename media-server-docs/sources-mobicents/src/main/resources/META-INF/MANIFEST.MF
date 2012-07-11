@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven Bundle Plugin
+Built-By: sipme yulian
+Build-Jdk: 1.7.0_04
+Implementation-Title: org.mobicents.media.docs:mobicents-mms-docs-sour
+ ces
+Implementation-Version: 2.4.0.FINAL
+Tool: Bnd-1.15.0
+Bundle-Name: Mobicents Media :: Docs :: Sources :: mobicents-mms-docs-
+ sources
+Implementation-URL: http://www.mobicents.org
+Bundle-Vendor: TeleStax, Inc.
+Implementation-Vendor-Id: TeleStax, Inc.
+Bundle-Version: 2.4.0.FINAL
+Bnd-LastModified: 1342023136734
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.gnu.org/licenses/lgpl-2.1.html
+Bundle-Description: Mobicents :: Parent pom for 2.x releases
+Bundle-SymbolicName: org.mobicents.media.docs.mobicents-mms-docs-sources
+Bundle-DocURL: http://www.telestax.com
+
