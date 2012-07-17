@@ -185,7 +185,7 @@ public class SS7Input extends AbstractSource {
     			System.arraycopy(smallBuffer, currIndex, tempBuffer, currPosition, readBytes-currIndex);
         	
     		//lets keep 2 last packets all the time,there is no reason to keep more
-    		if(framesBuffer.size()>2)
+    		if(framesBuffer.size()>1)
     			framesBuffer.remove(0);
     		
     		framesBuffer.add(currFrame);

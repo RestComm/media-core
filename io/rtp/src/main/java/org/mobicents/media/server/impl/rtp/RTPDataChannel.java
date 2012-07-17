@@ -242,7 +242,8 @@ public class RTPDataChannel {
         		try {
         			dataChannel.disconnect();
         		}
-    			catch (IOException e) {           		
+    			catch (IOException e) {
+    				logger.error(e);
     			}
     		
     		connectImmediately=rtpManager.udpManager.connectImmediately((InetSocketAddress)address);
@@ -250,7 +251,8 @@ public class RTPDataChannel {
         		try {
         			dataChannel.connect(address);        		
         		}
-        		catch (IOException e) {           		
+        		catch (IOException e) {    
+        			logger.error(e);
         		}
         }
         
@@ -273,13 +275,15 @@ public class RTPDataChannel {
         	try {        
         		dataChannel.disconnect();        		
         	}
-        	catch(IOException e) {        		
+        	catch(IOException e) {
+        		logger.error(e);
         	}        	        	        
         
         try {   
         	dataChannel.socket().close();
         	dataChannel.close();
-        } catch(IOException e) {        	
+        } catch(IOException e) {
+        	logger.error(e);
         }  
         	
         if (controlChannel != null) {
@@ -477,7 +481,7 @@ public class RTPDataChannel {
         		}
         	}
         	catch (Exception e) {
-            	//TODO: handle error
+        		logger.error(e);
             }
         }
         
@@ -503,7 +507,8 @@ public class RTPDataChannel {
                 	else if(currAddress!=null && rxCount==0)
                 		rxBuffer.restart();
                 }
-                catch (IOException e) {            
+                catch (IOException e) {     
+                	logger.error(e);
                 }
                                 	
                 while (currAddress != null) {
@@ -526,7 +531,7 @@ public class RTPDataChannel {
                     currAddress=dataChannel.receive(rtpPacket.getBuffer());
                 }
             } catch (Exception e) {
-            	//TODO: handle error
+            	logger.error(e);
             }
             
             rtpHandler.isReading = false;
@@ -592,7 +597,7 @@ public class RTPDataChannel {
                 	txCount++;
                 }
             } catch (Exception e) {
-            	//TODO : handle IO problems
+            	logger.error(e);
             }
         }
     }

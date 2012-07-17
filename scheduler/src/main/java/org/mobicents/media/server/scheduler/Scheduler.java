@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
  * and other parameters.
  *
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class Scheduler  {
 	public static final Integer RECEIVER_QUEUE=0;

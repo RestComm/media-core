@@ -24,10 +24,12 @@ package org.mobicents.media.server.scheduler;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.log4j.Logger;
+
 /**
  * Scheduling task.
  * 
- * @author kulikov
+ * @author Oifa Yulian
  */
 public abstract class Task implements Runnable {
     protected Scheduler scheduler;
@@ -44,6 +46,8 @@ public abstract class Task implements Runnable {
     
     private AtomicBoolean inQueue0=new AtomicBoolean(false);
     private AtomicBoolean inQueue1=new AtomicBoolean(false);
+    
+    private Logger logger = Logger.getLogger(Scheduler.class) ;
     
     public Task(Scheduler scheduler) {
         this.scheduler = scheduler;        
@@ -136,7 +140,10 @@ public abstract class Task implements Runnable {
     				//submit next partition
 //                	if (chain != null) chain.continueExecution();
     			} catch (Exception e) {
-    				if (this.listener != null) listener.handlerError(e);
+    				if (this.listener != null) 
+    					listener.handlerError(e);
+    				else
+    					logger.error(e);
     			}
     		}  
     		

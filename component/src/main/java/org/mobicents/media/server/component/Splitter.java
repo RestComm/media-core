@@ -176,10 +176,11 @@ public class Splitter {
                 while(activeOutputs.hasNext())
                 {
                 	Output output=activeOutputs.next();
-                	if (output.buffer.size() < Output.limit) {
-                        output.buffer.offer((Frame)currFrame.clone());
-                        output.wakeup();
-                    }
+                	if (output.buffer.size() > Output.limit) 
+                		output.buffer.poll().recycle();
+                	
+                	output.buffer.offer((Frame)currFrame.clone());
+                    output.wakeup();
                 }
                 
                 //recycle original frame
@@ -194,7 +195,7 @@ public class Splitter {
      */
     private class Output extends AbstractSource {
         //buffer limit
-        private final static int limit = 5;
+        private final static int limit = 1;
         private int outputId;
         
         //transmission buffer

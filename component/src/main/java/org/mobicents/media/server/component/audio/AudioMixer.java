@@ -230,8 +230,8 @@ public class AudioMixer implements Mixer {
      */
     private class Input extends AbstractSink {
         private int inputId;
-        //50 frames is too much , 5 frames equals 100ms
-        private int limit=5;
+        //50 frames is too much , 2 frames is more then enough
+        private int limit=3;
         private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
         private Frame activeFrame=null;
         private byte[] activeData;
@@ -257,9 +257,6 @@ public class AudioMixer implements Mixer {
         public void onMediaTransfer(Frame frame) throws IOException {
         	//generate frames with correct size here , aggregate frames if needed.
         	//allows to accept several sources with different ptime ( packet time ) 
-        	if (buffer.size() >= limit) 
-        		buffer.poll().recycle();
-            
         	oldData=frame.getData();       	
         	for(int i=0;i<oldData.length;i++)        	
         	{
@@ -276,7 +273,10 @@ public class AudioMixer implements Mixer {
         		
         		if(byteIndex>=activeData.length)
         		{
-        			buffer.offer(activeFrame);
+        			if (buffer.size() >= limit) 
+                		buffer.poll().recycle();
+                    
+                	buffer.offer(activeFrame);
         			activeFrame=null;
         			activeData=null;
         		}
@@ -480,7 +480,10 @@ public class AudioMixer implements Mixer {
             frame.setDuration(period);
             frame.setFormat(format);
 
-            //finita la comedia
+            //lets remove packet if we have too much
+            if(output.buffer.size()>1)
+            	output.buffer.poll().recycle();
+            
             output.buffer.offer(frame);
             scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             output.wakeup();

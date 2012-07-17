@@ -1,0 +1,15 @@
+/.project
+
+# ignore .svn metadata files
+.svn
+# ignore Maven generated target folders
+~
+target
+classes
+*.zip
+
+# temp files
+*~
+
+# Ignore Maven target/ dirs
+/**/target/**/* 
