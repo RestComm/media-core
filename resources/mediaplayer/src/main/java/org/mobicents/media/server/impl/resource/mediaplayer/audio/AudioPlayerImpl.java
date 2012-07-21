@@ -214,7 +214,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         		catch(Exception e)
         		{
         			//transcoding error , print error and try to move to next frame
-        			e.printStackTrace();
+        			logger.error(e);        			
         		}                	
         	}  
         	
@@ -222,7 +222,8 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
                 track.close();
             }
             return frame;
-        } catch (IOException e) {        	
+        } catch (IOException e) {   
+        	logger.error(e);
             track.close();            
         }
         return null;

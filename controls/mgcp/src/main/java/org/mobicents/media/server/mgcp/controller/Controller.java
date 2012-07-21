@@ -180,6 +180,7 @@ public class Controller implements MgcpListener, ServerManager {
         try {
             mgcpProvider.addListener(this);
         } catch (TooManyListenersException e) {
+        	logger.error(e);
         }
         
         //initialize transaction subsystem                
@@ -217,9 +218,7 @@ public class Controller implements MgcpListener, ServerManager {
             endpoints.register(mgcpEndpoint);
             logger.info("Endpoint restarted: " + endpoint.getLocalName());
         } catch (Exception e) {
-        	logger.info("Error message: " + e.getMessage());
-        	e.printStackTrace();
-            logger.error("Could not register endpoint: " + endpoint.getLocalName());
+        	logger.error("Could not register endpoint: " + endpoint.getLocalName());
         }
     }
 

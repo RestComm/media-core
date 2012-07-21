@@ -38,9 +38,11 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
+import org.apache.log4j.Logger;
+
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class WavTrackImpl implements Track {
 
@@ -55,7 +57,10 @@ public class WavTrackImpl implements Track {
     private long duration;
     
     private boolean first = true;
-    private SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss,SSS");    
+    private SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss,SSS");
+    
+    private static final Logger logger = Logger.getLogger(WavTrackImpl.class);
+    
     public WavTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {   
     	inStream=url.openStream();
         stream = AudioSystem.getAudioInputStream(inStream);
@@ -106,6 +111,7 @@ public class WavTrackImpl implements Track {
             byte[] skip = new byte[(int)offset];
             stream.read(skip);
         } catch (IOException e) {
+        	logger.error(e);
         }
     }
     
@@ -146,7 +152,7 @@ public class WavTrackImpl implements Track {
             }
             return length;
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error(e);
         }
         return length;
     }

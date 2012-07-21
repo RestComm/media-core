@@ -30,6 +30,7 @@ import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.spi.memory.Frame;
 
+import org.apache.log4j.Logger;
 /**
  * The base implementation of the media sink.
  * 
@@ -58,6 +59,8 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
     //receiver and transcoding task
     private final Worker worker;        
+    
+    private static final Logger logger = Logger.getLogger(AbstractSink.class);
     
     /**
      * Creates new instance of sink with specified name.
@@ -302,7 +305,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
             	try {
             		onMediaTransfer(frame);
             	} catch (IOException e) {  
-            		e.printStackTrace();
+            		logger.error(e);
             		started = false;
                 	failed(e);
             	}

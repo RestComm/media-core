@@ -43,7 +43,7 @@ import org.mobicents.media.server.impl.Version;
  * directoty. The HDScanner corresponding to the root directory is triggered periodicaly by local timer and in it order
  * starts nested scanners recursively.
  * 
- * @author kulikov
+ * @author Oifa Yulian
  * @author amit bhayani
  */
 public class MainDeployer {
@@ -126,7 +126,7 @@ public class MainDeployer {
             deployment = kernelDeployer.deploy(url);
             kernelDeployer.validate();
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.error(e);
         }
         
         logger.info("Calling Garbage collector to clear init data");

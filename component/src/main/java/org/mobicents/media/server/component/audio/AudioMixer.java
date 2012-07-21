@@ -47,10 +47,11 @@ import org.mobicents.media.server.spi.memory.Memory;
 
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 
+import org.apache.log4j.Logger;
 /**
  * Implements audio mixer.
  * 
- * @author kulikov
+ * @author Yulian Oifa
  */
 public class AudioMixer implements Mixer {
     private final static int POOL_SIZE = 5;
@@ -83,6 +84,8 @@ public class AudioMixer implements Mixer {
     
     //stores last id used for input
     private AtomicInteger currentKey=new AtomicInteger(1);
+    
+    private static final Logger logger = Logger.getLogger(AudioMixer.class);
     
     public AudioMixer(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -492,7 +495,7 @@ public class AudioMixer implements Mixer {
             
             return 0;
             } catch (Exception e) {
-                e.printStackTrace();
+            	logger.error(e);
             }
             return 0;
         }

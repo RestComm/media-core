@@ -110,6 +110,9 @@ public class UdpPeripheryTest {
             return true;
         }
 
+        public void onClosed() {
+        	
+        }
     }
 
 }

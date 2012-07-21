@@ -36,9 +36,10 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
+import org.apache.log4j.Logger;
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class GsmTrackImpl implements Track {
 
@@ -55,6 +56,8 @@ public class GsmTrackImpl implements Track {
     private boolean eom;
     private long duration;
     private long timestamp;
+    
+    private static final Logger logger = Logger.getLogger(GsmTrackImpl.class);
     
     public GsmTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {
     	inStream=url.openStream();
@@ -98,6 +101,7 @@ public class GsmTrackImpl implements Track {
             long offset = frameSize * (timestamp / period);
             stream.skip(offset);
         } catch (IOException e) {
+        	logger.error(e);
         }
     }
     
@@ -127,7 +131,7 @@ public class GsmTrackImpl implements Track {
             }
             return length;
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error(e);
         }
         return length;
     }
@@ -166,6 +170,7 @@ public class GsmTrackImpl implements Track {
             stream.close();
             inStream.close();
         } catch (Exception e) {
+        	logger.error(e);
         }
     }
 

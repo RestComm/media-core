@@ -37,6 +37,8 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 
+import org.apache.log4j.Logger;
+
 /**
  * PlayerImpl is to play audio to hardware
  * 
@@ -49,6 +51,8 @@ public class PlayerImpl extends AbstractSink {
     private SourceDataLine sourceDataLine = null;
     private javax.sound.sampled.AudioFormat audioFormat = null;
 
+    private static final Logger logger = Logger.getLogger(PlayerImpl.class);
+    
     public PlayerImpl(String name, Scheduler scheduler) {
         super(name, scheduler,scheduler.MIXER_INPUT_QUEUE);
     }
@@ -97,12 +101,9 @@ public class PlayerImpl extends AbstractSink {
                 sourceDataLine.open(audioFormat);
                 sourceDataLine.start();
 
-            } catch (LineUnavailableException e) {
+            } catch (Exception e) {
                 this.stop();
-
-            } catch (IllegalArgumentException e) {
-                this.stop();
-
+                logger.error(e);
             }
         }
 

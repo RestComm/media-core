@@ -74,6 +74,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     //media transmission pipe
     protected PipeImpl pipe;        
 
+    private static final Logger logger = Logger.getLogger(AbstractSource.class);
     /**
      * Creates new instance of source with specified name.
      * 
@@ -174,6 +175,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     		} catch (Exception e) {
     			started = false;
     			failed(e);
+    			logger.error(e);
     		}
     	}
     }

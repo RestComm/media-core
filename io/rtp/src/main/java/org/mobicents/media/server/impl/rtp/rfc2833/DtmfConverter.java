@@ -29,12 +29,12 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-
+import org.apache.log4j.Logger;
 import java.util.ArrayList;
 
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class DtmfConverter {
    
@@ -55,9 +55,12 @@ public class DtmfConverter {
     
     private RtpClock clock;    
     private JitterBuffer jitterBuffer;
+    
     public final static String[] TONE = new String[] {
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#", "A", "B", "C", "D"
     };
+    
+    private static final Logger logger = Logger.getLogger(DtmfConverter.class);
     
     public DtmfConverter(JitterBuffer jitterBuffer)
     {
@@ -137,7 +140,7 @@ public class DtmfConverter {
         }
         
         //lets send signal inband
-        System.out.println("Convert: " + TONE[data[0]]);
+        logger.info("Convert: " + TONE[data[0]]);
         
         int offset=0;
         time=(toneLength-frameBuffer.size())*20;

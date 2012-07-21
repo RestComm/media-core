@@ -22,6 +22,7 @@
 
 package org.mobicents.media.server.connection;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.*;
 import java.util.Collection;
 import org.mobicents.media.CheckPoint;
@@ -51,7 +52,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 /**
  * Implements connection's FSM.
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public abstract class BaseConnection implements Connection {
 
@@ -82,6 +83,8 @@ public abstract class BaseConnection implements Connection {
     private volatile long ttl;
     private HeartBeat heartBeat;
 
+    private static final Logger logger = Logger.getLogger(BaseConnection.class);
+    
     /**
      * Creates basic connection implementation.
      *
@@ -155,6 +158,7 @@ public abstract class BaseConnection implements Connection {
         try {
             listeners.dispatch(stateEvent);
         } catch (Exception e) {
+        	logger.error(e);
         }
     }
 
@@ -222,6 +226,7 @@ public abstract class BaseConnection implements Connection {
     			connections.updateMode(mediaType);    			
     		} catch (ModeNotSupportedException e) {    			
     			//rollback to previous mode
+    			logger.warn(e);
     			channel(mediaType).setMode(currentMode);    			
     			connections.updateMode(mediaType);
     		}    	
@@ -255,6 +260,7 @@ public abstract class BaseConnection implements Connection {
         try {
             listeners.add(listener);
         } catch (TooManyListenersException e) {
+        	logger.error(e);
         }
     }
 

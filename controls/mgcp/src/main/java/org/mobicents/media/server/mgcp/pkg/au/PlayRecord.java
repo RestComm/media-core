@@ -23,8 +23,10 @@
 package org.mobicents.media.server.mgcp.pkg.au;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Collection;
+import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
@@ -39,6 +41,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
@@ -142,7 +145,9 @@ public class PlayRecord extends Signal {
     				}	    				    				
     			}
     			catch(Exception ex)
-    			{    				
+    			{    
+    				//should not occure
+    				logger.error("OPERATION FAILURE", ex);
     			}
     		}
     		
@@ -233,9 +238,18 @@ public class PlayRecord extends Signal {
             player.start();
         } catch (TooManyListenersException e) {
             of.fire(this, new Text("Too many listeners"));
-        } catch (Exception e) {
-            of.fire(this, new Text(e.getMessage()));
-        }
+            logger.error("OPERATION FAILURE", e);
+        } 
+        catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
+        	of.fire(this, new Text(e.getMessage()));
+            return;
+        } 
+        catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
+        	of.fire(this, new Text(e.getMessage()));
+            return;
+        }   
     }
 
     /**
@@ -275,7 +289,13 @@ public class PlayRecord extends Signal {
             
             recorder.setRecordFile(options.getRecordID().toString(), !options.isOverride());
             recorder.start();
-        } catch (Exception e) {
+        } 
+        catch (TooManyListenersException e) {
+            of.fire(this, new Text("Too many listeners"));
+            logger.error("OPERATION FAILURE", e);
+        } 
+        catch (IOException e) {
+        	logger.info("Received Recording URL can not be found , firing of");
             of.fire(this, new Text(e.getMessage()));
         }
     }
@@ -340,6 +360,7 @@ public class PlayRecord extends Signal {
             dtmfDetector.flushBuffer();
         } catch (TooManyListenersException e) {
             of.fire(this, new Text("Too many listeners for DTMF detector"));
+            logger.error("OPERATION FAILURE", e);
         }        
     }
     
@@ -442,9 +463,17 @@ public class PlayRecord extends Signal {
             player.setInitialDelay(delay * 1000000L);
             //start playback
             player.start();
-        } catch (Exception e) {
-            of.fire(this, new Text(e.getMessage()));
-        }
+        } 
+        catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
+        	of.fire(this, new Text(e.getMessage()));            
+            return;
+        } 
+        catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
+        	of.fire(this, new Text(e.getMessage()));
+            return;
+        }   
     }
     
     private void prev(long delay) {
@@ -457,9 +486,17 @@ public class PlayRecord extends Signal {
             player.setInitialDelay(delay * 1000000L);
             //start playback
             player.start();
-        } catch (Exception e) {
-            of.fire(this, new Text(e.getMessage()));
-        }
+        } 
+        catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
+        	of.fire(this, new Text(e.getMessage()));            
+            return;
+        } 
+        catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
+        	of.fire(this, new Text(e.getMessage()));
+            return;
+        }   
     }
     
     private void curr(long delay) {
@@ -471,9 +508,17 @@ public class PlayRecord extends Signal {
             player.setInitialDelay(delay * 1000000L);
             //start playback
             player.start();
-        } catch (Exception e) {
-            of.fire(this, new Text(e.getMessage()));
-        }
+        } 
+    	catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
+        	of.fire(this, new Text(e.getMessage()));            
+            return;
+        } 
+        catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
+        	of.fire(this, new Text(e.getMessage()));
+            return;
+        }   
     }
     
     private void first(long delay) {
@@ -486,9 +531,17 @@ public class PlayRecord extends Signal {
             player.setInitialDelay(delay * 1000000L);
             //start playback
             player.start();
-        } catch (Exception e) {
-            of.fire(this, new Text(e.getMessage()));
-        }
+        } 
+        catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
+        	of.fire(this, new Text(e.getMessage()));            
+            return;
+        } 
+        catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
+        	of.fire(this, new Text(e.getMessage()));
+            return;
+        }   
     }
     
     private void last(long delay) {
@@ -501,9 +554,17 @@ public class PlayRecord extends Signal {
             player.setInitialDelay(delay * 1000000L);
             //start playback
             player.start();
-        } catch (Exception e) {
-            of.fire(this, new Text(e.getMessage()));
-        }
+        } 
+        catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
+        	of.fire(this, new Text(e.getMessage()));            
+            return;
+        } 
+        catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
+        	of.fire(this, new Text(e.getMessage()));
+            return;
+        }   
     }
     
     /**

@@ -40,6 +40,8 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
+import org.apache.log4j.Logger;
+
 /**
  * 
  * @author kulikov
@@ -61,6 +63,9 @@ public class TtsTrackImpl implements Track {
     private long duration;
     private long timestamp;
     private VoicesCache voiceCache;
+    
+    private static final Logger logger = Logger.getLogger(TtsTrackImpl.class);
+    
     public TtsTrackImpl(URL url, String voiceName,VoicesCache vc) throws IOException {
     	this.voiceCache = vc;
 
@@ -133,6 +138,7 @@ public class TtsTrackImpl implements Track {
             long offset = frameSize * (timestamp / period);
             stream.skip(offset);
         } catch (IOException e) {
+        	logger.error(e);
         }
     }
 
@@ -163,7 +169,7 @@ public class TtsTrackImpl implements Track {
             }
             return length;
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error(e);
         }
         return length;
     }

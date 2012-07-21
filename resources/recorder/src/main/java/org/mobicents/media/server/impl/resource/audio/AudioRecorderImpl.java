@@ -43,6 +43,8 @@ import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
 
+import org.apache.log4j.Logger;
+
 /**
  *
  * @author oifa yulian
@@ -103,6 +105,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     
     private boolean speechDetected=false;
     
+    private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
+    
     public AudioRecorderImpl(Scheduler scheduler) {
         super("recorder", scheduler,scheduler.MIXER_INPUT_QUEUE);
         this.scheduler = scheduler;
@@ -149,7 +153,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         
         try {
             writeToWaveFile();
-        } catch (IOException e) {        	
+        } catch (IOException e) {
+        	logger.error(e);
         }
         
         //send event
@@ -246,7 +251,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         //if append specified and file really exist copy data from the current
         //file to temp
         if (append && file.exists()) {
-        	System.out.println("..............>>>>>Copying samples from " + file);
+        	logger.info("..............>>>>>Copying samples from " + file);
             copySamples(file, fout);                       
         }
     }
@@ -257,7 +262,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
      * @throws IOException 
      */
     private void writeToWaveFile() throws IOException {
-System.out.println("!!!!!!!!!! Writting to file......................")        ;
+		logger.info("!!!!!!!!!! Writting to file......................");
         //stop called on inactive recorder
         if (fout == null) {
             return;
@@ -270,7 +275,7 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
         fout = new FileOutputStream(file);
         
         int size = fin.available();
-        System.out.println("!!!!!!!!!! Size=" + size)        ;
+        logger.info("!!!!!!!!!! Size=" + size);
         
 		headerBuffer.clear();		
         //RIFF
@@ -355,7 +360,7 @@ System.out.println("!!!!!!!!!! Writting to file......................")        ;
         //lets write data
         FileChannel inChannel=fin.getChannel();
         outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());        
-        System.out.println("Was copied " + inChannel.size()  + " bytes");
+        logger.info("Was copied " + inChannel.size()  + " bytes");
         
         fout.flush();
         fout.close();

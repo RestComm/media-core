@@ -48,7 +48,7 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class CreateConnectionCmd extends Action {
     //response strings
@@ -269,8 +269,7 @@ public class CreateConnectionCmd extends Action {
                 //extract found endpoint
                 endpoint = endpoints[0];
             } catch (Exception e) { 
-            	e.printStackTrace();
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
+            	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
             }
             
             Parameter z2 = request.getParameter(Parameter.SECOND_ENDPOINT);
@@ -437,6 +436,7 @@ public class CreateConnectionCmd extends Action {
 
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
+            	logger.error(e);
             } finally {
                 evt.recycle();
             }
@@ -484,7 +484,8 @@ public class CreateConnectionCmd extends Action {
                 response.setTxID(transaction().getId());
 
                 transaction().getProvider().send(evt);
-            } catch (IOException e) {            	
+            } catch (IOException e) {    
+            	logger.error(e);
             } finally {            	
                 evt.recycle();
             }

@@ -43,7 +43,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class MgcpProvider {
     
@@ -290,6 +290,12 @@ public class MgcpProvider {
         public void setKey(SelectionKey key) {
         }
         
+        public void onClosed()
+        {
+        	//try to reopen mgcp port
+        	shutdown();
+        	activate();
+        }
     }
     
     /**
@@ -337,6 +343,10 @@ public class MgcpProvider {
                     MgcpEvent evt = createEvent(msgType, address);
                     
                     //parse message
+                    if (logger.isDebugEnabled()) {
+                    	final byte[] data = rxBuffer.array();
+                    	logger.debug("Parsing message: " + new String(data));
+                    }
                     MgcpMessage msg = evt.getMessage();
                     msg.read(rxBuffer);
                     
@@ -353,8 +363,7 @@ public class MgcpProvider {
                 logger.error("Could not process message", e);
             }
             return 0;
-        }
-        
+        }       
     }
 
     /**

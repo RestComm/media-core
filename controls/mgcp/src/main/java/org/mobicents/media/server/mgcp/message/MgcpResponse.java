@@ -26,11 +26,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.mobicents.media.server.utils.Text;
+import org.apache.log4j.Logger;
 
 /**
  * MGCP response message.
  * 
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class MgcpResponse extends MgcpMessage {
     private int responseCode;
@@ -46,6 +47,8 @@ public class MgcpResponse extends MgcpMessage {
     private Text sdp;
     
     private Text msg = new Text();
+    
+    private static final Logger logger = Logger.getLogger(MgcpResponse.class);
     
     public MgcpResponse() {
         for (int i = 0; i < 15; i++) {
@@ -168,7 +171,7 @@ public class MgcpResponse extends MgcpMessage {
         try {
             this.strain(buff, offset, len);
         } catch (Exception e) {
-            e.printStackTrace();
+        	logger.error(e);
         }
     }
     

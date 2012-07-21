@@ -66,6 +66,8 @@ public class RTPOutput extends AbstractSink {
     //signaling processor
     private Processor dsp;                               
         
+    private static final Logger logger = Logger.getLogger(RTPOutput.class);
+    
     /**
      * Creates new transmitter
      */
@@ -115,8 +117,7 @@ public class RTPOutput extends AbstractSink {
     		catch(Exception e)
     		{
     			//transcoding error , print error and try to move to next frame
-    			System.out.println(e.getMessage());
-    			e.printStackTrace();
+    			logger.error(e);
     			return;
     		} 
     	}

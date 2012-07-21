@@ -36,11 +36,11 @@ import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
-
+import org.apache.log4j.Logger;
 /**
  * Modify connection command.
  * 
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class ModifyConnectionCmd extends Action {
     //response strings
@@ -63,6 +63,8 @@ public class ModifyConnectionCmd extends Action {
     private MgcpConnection mgcpConnection = null;    
     //local connection options
     private LocalConnectionOptions lcOptions = new LocalConnectionOptions();
+    
+    private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);    
     
     public ModifyConnectionCmd(Scheduler scheduler) {
         handler = new TaskChain(1);
@@ -163,6 +165,7 @@ public class ModifyConnectionCmd extends Action {
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
+            	logger.error(e);
             } finally {
                 evt.recycle();
             }
@@ -200,6 +203,7 @@ public class ModifyConnectionCmd extends Action {
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
+            	logger.error(e);
             } finally {
                 evt.recycle();
             } 

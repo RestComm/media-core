@@ -23,6 +23,7 @@
 package org.mobicents.media.server.mgcp.pkg.ann;
 
 import java.util.ArrayList;
+import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -33,6 +34,7 @@ import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -62,24 +64,30 @@ public class Play extends Signal implements PlayerListener {
         
         try {
             player.addListener(this);
-        } catch (TooManyListenersException e) {
-            this.sendEvent(of);
-            this.complete();
-            return;
-        }
+            
+          //get options of the request
+            this.uri =getTrigger().getParams().toString();
         
-        //get options of the request
-        this.uri =getTrigger().getParams().toString();
-        
-        try {
             player.setURL(uri);
             logger.info("Assigned url " + player);
-        } catch (Exception e) {
+        }
+        catch (TooManyListenersException e) {
+        	this.sendEvent(of);    
+            this.complete();                       
             logger.error("OPERATION FAILURE", e);
-            this.sendEvent(of);    
+            return;
+        } 
+        catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
+        	this.sendEvent(of);    
+            this.complete();           
+            return;
+        } catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
+        	this.sendEvent(of);    
             this.complete();
             return;
-        }
+        } 
         
         player.start();
     }

@@ -106,7 +106,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     private EventSender eventSender;
     private Scheduler scheduler;
         
-    private Logger logger = Logger.getLogger(DetectorImpl.class) ;
+    private static final Logger logger = Logger.getLogger(DetectorImpl.class) ;
     
     private String lastTone=null;
     private Boolean toneSequence=false;

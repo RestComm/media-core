@@ -383,6 +383,12 @@ public class UdpManager {
                     	continue;
                     }
                     
+                    if(!channel.isOpen())
+                    {
+                    	handler.onClosed();
+                    	continue;
+                    }
+                    
                     //do read
                     if (key.isReadable()) {
                         handler.receive(channel);
@@ -396,7 +402,8 @@ public class UdpManager {
 
                 }
                 selector.selectedKeys().clear();
-            } catch (IOException e) {            	
+            } catch (IOException e) {
+            	logger.error(e);
                 return 0;
             } finally {
                 scheduler.submit(this,scheduler.UDP_MANAGER_QUEUE);

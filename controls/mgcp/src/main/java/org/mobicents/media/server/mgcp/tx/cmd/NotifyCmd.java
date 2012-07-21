@@ -26,14 +26,17 @@ import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
+import org.apache.log4j.Logger;
 
 /**
  *
- * @author kulikov
+ * @author Yulian Oifa
  */
 public class NotifyCmd extends Action {
     
     private TaskChain handler;
+    
+    private final static Logger logger = Logger.getLogger(NotifyCmd.class);    
     
     public NotifyCmd(Scheduler scheduler) {
         handler = new TaskChain(1);
@@ -58,6 +61,7 @@ public class NotifyCmd extends Action {
             try {
                 transaction().getProvider().send(getEvent());
             } catch (IOException e) {
+            	logger.error(e);
             } 
             return 0;
         }

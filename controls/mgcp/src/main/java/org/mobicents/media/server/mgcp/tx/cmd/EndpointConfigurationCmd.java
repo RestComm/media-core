@@ -36,7 +36,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.utils.Text;
-
+import org.apache.log4j.Logger;
 /**
  * Endpoint configuration command
  * 
@@ -67,6 +67,8 @@ public class EndpointConfigurationCmd extends Action {
 
     private int code;
     private Text message;
+    
+    private final static Logger logger = Logger.getLogger(EndpointConfigurationCmd.class);    
     
     public EndpointConfigurationCmd(Scheduler scheduler) {
         handler = new TaskChain(2);
@@ -156,6 +158,7 @@ public class EndpointConfigurationCmd extends Action {
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
+            	logger.error(e);
             } finally {
                 evt.recycle();
             }
@@ -190,6 +193,7 @@ public class EndpointConfigurationCmd extends Action {
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
+            	logger.error(e);
             } finally {
                 evt.recycle();
             } 

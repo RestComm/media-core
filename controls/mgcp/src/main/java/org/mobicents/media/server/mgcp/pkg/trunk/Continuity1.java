@@ -194,7 +194,7 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     	}
     	catch(Exception ex)
     	{
-    		
+    		logger.error("OPERATION FAILURE", ex);
     	}
     }    
     

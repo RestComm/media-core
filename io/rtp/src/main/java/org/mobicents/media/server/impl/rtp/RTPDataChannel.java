@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.PortUnreachableException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.text.Format;
@@ -190,7 +191,7 @@ public class RTPDataChannel {
      *
      * @throws SocketException
      */
-    public void bind(boolean isLocal) throws SocketException {
+    public void bind(boolean isLocal) throws IOException, SocketException {
     	try {
             dataChannel = rtpManager.udpManager.open(rtpHandler);
             
@@ -391,6 +392,12 @@ public class RTPDataChannel {
         	rx.flush();
         }
         
+        public void onClosed()
+        {
+        	if(rtpChannelListener!=null)
+        		rtpChannelListener.onRtpFailure();
+        }
+        
         /**
          * (Non Java-doc.)
          *
@@ -427,6 +434,10 @@ public class RTPDataChannel {
 
         public boolean isWriteable() {
             throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
+        public void onClosed() {
+        
         }
     }
     
@@ -507,7 +518,18 @@ public class RTPDataChannel {
                 	else if(currAddress!=null && rxCount==0)
                 		rxBuffer.restart();
                 }
-                catch (IOException e) {     
+                catch(PortUnreachableException e) {
+                	//icmp unreachable received
+                	//disconnect and wait for new packet
+                	try
+                	{
+                		dataChannel.disconnect();
+                	}
+                	catch(IOException ex) {
+                		logger.error(ex);
+                	}
+                }
+                catch (IOException e) {  
                 	logger.error(e);
                 }
                                 	
@@ -530,7 +552,19 @@ public class RTPDataChannel {
                     rtpPacket.getBuffer().clear();
                     currAddress=dataChannel.receive(rtpPacket.getBuffer());
                 }
-            } catch (Exception e) {
+            }
+        	catch(PortUnreachableException e) {
+            	//icmp unreachable received
+            	//disconnect and wait for new packet
+            	try
+            	{
+            		dataChannel.disconnect();
+            	}
+            	catch(IOException ex) {
+            		logger.error(ex);
+            	}
+            }
+        	catch (Exception e) {
             	logger.error(e);
             }
             
@@ -596,7 +630,19 @@ public class RTPDataChannel {
                 	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
                 	txCount++;
                 }
-            } catch (Exception e) {
+            }
+            catch(PortUnreachableException e) {
+            	//icmp unreachable received
+            	//disconnect and wait for new packet
+            	try
+            	{
+            		dataChannel.disconnect();
+            	}
+            	catch(IOException ex) {
+            		logger.error(ex);
+            	}
+            }
+            catch (Exception e) {
             	logger.error(e);
             }
         }

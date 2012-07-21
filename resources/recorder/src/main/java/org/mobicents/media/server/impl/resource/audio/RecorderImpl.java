@@ -47,6 +47,8 @@ import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
 
+import org.apache.log4j.Logger;
+
 /**
  * Implements Audio recorder.
  * Audio recorder supports WAV, GSM and speeex media types.
@@ -82,6 +84,8 @@ public class RecorderImpl extends AbstractSink implements Recorder {
     
     private boolean isAcceptable = false;
     private Format fmt;
+    
+    private static final Logger logger = Logger.getLogger(RecorderImpl.class);
     
     static {
         formats.add(LINEAR);
@@ -158,10 +162,10 @@ public class RecorderImpl extends AbstractSink implements Recorder {
         		this.outputStream = urlConnection.getOutputStream();
         	}
         	
-        }catch(URISyntaxException e )
-       {
-        	//damn IOException
-        	e.printStackTrace();
+        }
+        catch(URISyntaxException e ){
+           //damn IOException
+           logger.error(e);
     	   throw new IOException(e.getMessage());
        }
     }

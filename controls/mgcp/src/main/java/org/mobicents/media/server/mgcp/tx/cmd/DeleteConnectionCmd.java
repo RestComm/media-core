@@ -36,11 +36,11 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.utils.Text;
-
+import org.apache.log4j.Logger;
 /**
  * Modify connection command.
  * 
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class DeleteConnectionCmd extends Action {
     //response strings
@@ -70,6 +70,8 @@ public class DeleteConnectionCmd extends Action {
     private Text message;
     
     private int tx,rx;
+    
+    private final static Logger logger = Logger.getLogger(DeleteConnectionCmd.class);    
     
     public DeleteConnectionCmd(Scheduler scheduler) {
         handler = new TaskChain(2);
@@ -251,6 +253,7 @@ public class DeleteConnectionCmd extends Action {
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
+            	logger.error(e);
             } finally {
                 evt.recycle();
             }
@@ -289,6 +292,7 @@ public class DeleteConnectionCmd extends Action {
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
+            	logger.error(e);
             } finally {
                 evt.recycle();
             } 

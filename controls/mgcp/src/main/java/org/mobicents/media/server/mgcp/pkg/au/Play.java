@@ -85,7 +85,8 @@ public class Play extends Signal implements PlayerListener {
         try {
             player.addListener(this);
         } catch (TooManyListenersException e) {
-        }
+            logger.error("OPERATION FAILURE", e);
+        } 
         
         //get options of the request
         options = new Options(getTrigger().getParams());        
@@ -109,10 +110,12 @@ public class Play extends Signal implements PlayerListener {
         try {
             player.setURL(uri);
         } catch (MalformedURLException e) {
+        	logger.info("Received URL in invalid format , firing of");
             of.fire(this, new Text("rc=301"));
-            complete();
+            complete();            
             return;
         } catch (ResourceUnavailableException e) {
+        	logger.info("Received URL can not be found , firing of");
             of.fire(this, new Text("rc=312"));
             complete();
             return;

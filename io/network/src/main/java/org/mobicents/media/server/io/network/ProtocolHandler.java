@@ -48,4 +48,12 @@ public interface ProtocolHandler {
     public boolean isWriteable();
     
     public void setKey(SelectionKey key);
+    
+    /**
+     * Allows udp manager to notify that channel that exists in list
+     * was closed for some reason 
+     *
+     * @param channel the channel used for sending.
+     */
+    public void onClosed();    
 }

@@ -34,6 +34,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 
+import org.apache.log4j.Logger;
 /**
  *
  * @author kulikov
@@ -52,6 +53,8 @@ public class SoundCard extends AbstractSink {
     private boolean first;
     private SourceDataLine sourceDataLine = null;
     private javax.sound.sampled.AudioFormat audioFormat = null;
+    
+    private static final Logger logger = Logger.getLogger(SoundCard.class);
     
     public SoundCard(Scheduler scheduler) {
         super("soundcard",scheduler,scheduler.MIXER_INPUT_QUEUE);
@@ -100,12 +103,9 @@ public class SoundCard extends AbstractSink {
                 sourceDataLine.open(audioFormat);
                 sourceDataLine.start();
 
-            } catch (LineUnavailableException e) {
+            } catch (Exception e) {
                 this.stop();
-
-            } catch (IllegalArgumentException e) {
-                this.stop();
-
+                logger.error(e);
             }
         }
 
@@ -113,10 +113,9 @@ public class SoundCard extends AbstractSink {
         byte[] data = frame.getData();
         try {
             sourceDataLine.write(data, frame.getOffset(), frame.getLength());
-        } catch (IllegalArgumentException e) {
-        } catch (ArrayIndexOutOfBoundsException e) {
-        }
-            
+        } catch (RuntimeException e) {
+        	logger.error(e);
+        }           
     }    
     
     private javax.sound.sampled.AudioFormat.Encoding getEncoding(String encodingName) {

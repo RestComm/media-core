@@ -39,7 +39,7 @@ import org.mobicents.media.server.spi.ServerManager;
 
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class Server implements MediaServer {
 
@@ -214,7 +214,7 @@ public class Server implements MediaServer {
                 namingService.unregister(endpoint);
             }
         } catch (Exception e) {
-
+        	logger.error(e);
         }
         
     }

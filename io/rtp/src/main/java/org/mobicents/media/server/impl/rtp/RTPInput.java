@@ -67,6 +67,8 @@ public class RTPInput extends AbstractSource implements BufferListener {
            
     protected Integer preEvolveCount=0;
     protected Integer evolveCount=0;
+    
+    private static final Logger logger = Logger.getLogger(RTPInput.class);
 	/**
      * Creates new receiver.
      */
@@ -119,8 +121,7 @@ public class RTPInput extends AbstractSource implements BufferListener {
         		catch(Exception e)
         		{
         			//transcoding error , print error and try to move to next frame
-        			System.out.println(e.getMessage());
-        			e.printStackTrace();
+        			logger.error(e);
         		}
         	}
         	

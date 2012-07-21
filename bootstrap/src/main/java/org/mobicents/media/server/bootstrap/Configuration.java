@@ -26,7 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +34,7 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 /**
  *
- * @author kulikov
+ * @author Oifa Yulian
  */
 public class Configuration {
 
@@ -112,11 +111,7 @@ public class Configuration {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         
         //opening file
-        FileInputStream fin = null;        
-        try {
-            fin = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-        }
+        FileInputStream fin = new FileInputStream(file);   
         
         //fetching data from file to local buffer
         try {
