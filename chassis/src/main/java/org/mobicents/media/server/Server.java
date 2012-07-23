@@ -31,6 +31,7 @@ import org.mobicents.media.server.impl.rtp.RTPManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.MediaServer;
@@ -67,8 +68,12 @@ public class Server implements MediaServer {
     //managers
     private ArrayList<ServerManager> managers = new ArrayList();
     
+    private HeartBeat heartbeat;
+    private int heartbeatTime=0;
+    private volatile long ttl;
+    
     public  Logger logger = Logger.getLogger(Server.class);
-
+    
     public Server() {
         namingService = new NamingService();
     }
@@ -105,6 +110,15 @@ public class Server implements MediaServer {
         this.scheduler = scheduler;
     }
     
+    /**
+     * Assigns the heartbeat time in minutes
+     *
+     * @param minutes
+     */
+    public void setHeartBeatTime(int heartbeatTime) {
+        this.heartbeatTime = heartbeatTime;
+    }
+
     /**
      * Gets the access to the RTP manager
      * @return
@@ -241,7 +255,12 @@ public class Server implements MediaServer {
         rtpManager = new RTPManager(udpManager);
         rtpManager.setScheduler(scheduler);
         rtpManager.start();
-
+        
+        if(heartbeatTime>0)
+        {
+        	heartbeat=new HeartBeat(scheduler);
+        	heartbeat.restart();
+        }
     }
 
     /**
@@ -252,9 +271,12 @@ public class Server implements MediaServer {
         logger.info("Stopping UDP Manager");
         udpManager.stop();
 
+        if(heartbeat!=null)
+        	heartbeat.cancel();
+        
         logger.info("Stopping scheduler");
         scheduler.stop();
-        logger.info("Stopped media server instance ");
+        logger.info("Stopped media server instance ");                
     }
 
     public Endpoint lookup(String name, boolean bussy) throws ResourceUnavailableException {
@@ -289,5 +311,35 @@ public class Server implements MediaServer {
      */
     public void removeManager(ServerManager manager) {
         managers.remove(manager);
+    }
+    
+    private class HeartBeat extends Task {
+
+        public HeartBeat(Scheduler scheduler) {
+            super(scheduler);
+        }        
+
+        public int getQueueNumber()
+        {
+        	return scheduler.HEARTBEAT_QUEUE;
+        }   
+        
+        public void restart()
+        {
+        	ttl=heartbeatTime*600;
+        	scheduler.submitHeatbeat(this);
+        }
+        
+        @Override
+        public long perform() {
+        	ttl--;
+            if (ttl == 0) {
+            	logger.info("Global hearbeat is still alive");
+            	restart();
+            } else {
+                scheduler.submitHeatbeat(this);
+            }            
+            return 0;
+        }
     }
 }

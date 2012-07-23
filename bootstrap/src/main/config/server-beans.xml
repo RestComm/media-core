@@ -47,6 +47,7 @@
         <property name="scheduler"><inject bean="Scheduler"/></property>
         <property name="interface"><inject bean="localhost"/></property>
         <property name="bindAddress">127.0.0.1</property>
+        <property name="heartBeatTime">0</property>
         <incallback method="addInstaller"/>
         <uncallback method="removeInstaller"/>
     </bean>
