@@ -101,7 +101,7 @@ public class MgcpPackage {
         eventName.trim();
 */        
         for (Signal signal : signals) {
-            accepted |= signal.accept(event);
+            accepted |= signal.accept(event);                        
         }
         if (!accepted) {
             throw new UnknownEventException(event.toString());

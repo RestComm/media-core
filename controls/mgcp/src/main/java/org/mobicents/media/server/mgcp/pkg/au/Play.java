@@ -60,13 +60,12 @@ public class Play extends Signal implements PlayerListener {
     private String uri;
     
     private Iterator<Text> segments;
-    
     private final static Logger logger = Logger.getLogger(Play.class);
     
     public Play(String name) {
         super(name);
         oc.add(new NotifyImmediately("N"));
-        of.add(new NotifyImmediately("N"));
+        of.add(new NotifyImmediately("N"));                
     }
     
     @Override
@@ -136,7 +135,7 @@ public class Play extends Signal implements PlayerListener {
 
         //starting
         player.start();
-    }
+    }    
     
     @Override
     public boolean doAccept(Text event) {
@@ -153,10 +152,7 @@ public class Play extends Signal implements PlayerListener {
 
     @Override
     public void cancel() {
-        if (player != null) {
-            player.removeListener(this);
-            player.stop();
-        }
+    	terminate();                
     }
 
     private Player getPlayer() {
@@ -180,18 +176,22 @@ public class Play extends Signal implements PlayerListener {
 //        return source.getInterface(Player.class);
         return null;
     }
-    
+        
     @Override
     public void reset() {
         super.reset();
-        if (player != null) {
-            player.removeListener(this);
-            player.stop();
-        }
+        terminate();
         
         oc.reset();
         of.reset();
         
+    }
+    
+    private void terminate() {
+    	if (player != null) {
+            player.removeListener(this);
+            player.stop();
+        }                
     }
     
     private void repeat(long delay) {
@@ -223,15 +223,15 @@ public class Play extends Signal implements PlayerListener {
                     return;
                 }
                 
-                player.removeListener(this);
+                terminate();
                 oc.fire(this, new Text("rc=100"));
                 this.complete();
                 
                 break;
             case PlayerEvent.FAILED :
-                player.removeListener(this);
+            	terminate();
                 oc.fire(this, null);
                 this.complete();
         }
-    }
+    }        
 }

@@ -47,13 +47,12 @@ import org.apache.log4j.Logger;
 public class WavTrackImpl implements Track {
 
     /** audio stream */
-    private transient AudioInputStream stream = null;
     private InputStream inStream;
     private AudioFormat format;
     private int period = 20;
     private int frameSize;
     private boolean eom;
-//    private long timestamp;
+    //private long timestamp;
     private long duration;
     
     private boolean first = true;
@@ -63,18 +62,11 @@ public class WavTrackImpl implements Track {
     
     public WavTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {   
     	inStream=url.openStream();
-        stream = AudioSystem.getAudioInputStream(inStream);
-        
-        //measure in nanoseconds
-        duration = (long)(stream.getFrameLength()/stream.getFormat().getFrameRate() * 1000L) * 1000000L;
-        
-        format = getFormat(stream);
+    	
+        getFormat(inStream);
         if (format == null) {
             throw new UnsupportedAudioFileException();
-        }
-
-        frameSize = (int) (period * format.getChannels() * format.getSampleSize() *
-                format.getSampleRate() / 8000);
+        }        
     }
 
     public void setPeriod(int period) {
@@ -109,25 +101,57 @@ public class WavTrackImpl implements Track {
         try {
             long offset = frameSize * (timestamp / period/ 1000000L);
             byte[] skip = new byte[(int)offset];
-            stream.read(skip);
+            inStream.read(skip);
         } catch (IOException e) {
         	logger.error(e);
         }
     }
     
-    private AudioFormat getFormat(AudioInputStream stream) {
-        Encoding encoding = stream.getFormat().getEncoding();
-        if (encoding == Encoding.ALAW) {
-            return FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
-        } else if (encoding == Encoding.ULAW) {
-            return FormatFactory.createAudioFormat("pcmu", 8000, 8, 1);
-        } else if (encoding == Encoding.PCM_SIGNED) {
-            int sampleSize = stream.getFormat().getSampleSizeInBits();
-            int sampleRate = (int) stream.getFormat().getSampleRate();
-            int channels = stream.getFormat().getChannels();
-            return FormatFactory.createAudioFormat("linear", sampleRate, sampleSize, channels);
+    private void getFormat(InputStream stream) throws IOException {
+    	byte[] header=new byte[44];
+    	int bytesRead=0;
+    	while (bytesRead < 44) {
+            int len = stream.read(header, bytesRead, 44 - bytesRead);
+            if (len == -1) {                	
+                return;
+            }
+            bytesRead += len;
         }
-        return null;
+    	
+    	//format 20,21
+    	int formatValue=(header[20]&0xFF) | ((header[21]&0xFF)<<8);
+    	//channels 22,23
+    	int channels=(header[22]&0xFF) | ((header[23]&0xFF)<<8);
+    	//bits per sample 34,35
+    	int bitsPerSample=(header[34]&0xFF) | ((header[35]&0xFF)<<8);
+    	//sample rate 24,25,26,27
+    	int sampleRate=(header[24]&0xFF) | ((header[25]&0xFF)<<8) | ((header[26]&0xFF)<<16) | ((header[27]&0xFF)<<24);
+    	//size of data bytes 4,5,6,7
+    	int sizeOfData=(header[4]&0xFF) | ((header[5]&0xFF)<<8) | ((header[6]&0xFF)<<16) | ((header[7]&0xFF)<<24);
+    	sizeOfData-=36;
+    	
+    	format=null;
+    	switch(formatValue)
+    	{
+    		case 1:
+    			//PCM
+    			format=FormatFactory.createAudioFormat("linear", sampleRate, bitsPerSample, channels);
+    			break;
+    		case 6:
+    			//ALAW
+    			format=FormatFactory.createAudioFormat("pcma", sampleRate, bitsPerSample, channels);
+    			break;
+    		case 7:
+    			//ULAW
+    			format=FormatFactory.createAudioFormat("pcmu", sampleRate, bitsPerSample, channels);
+    			break;
+    	}
+    	
+    	if(format!=null)
+    	{
+    		frameSize = (int) (period * format.getChannels() * format.getSampleSize() * format.getSampleRate() / 8000);
+    		duration=sizeOfData*period*1000000L/frameSize;    		
+    	}    	
     }
 
     /**
@@ -144,9 +168,9 @@ public class WavTrackImpl implements Track {
         int length = 0;
         try {
             while (length < psize) {
-                int len = stream.read(packet, offset + length, psize - length);
-                if (len == -1) {                	
-                    return length;
+                int len = inStream.read(packet, offset + length, psize - length);
+                if (len == -1) {
+                	return length;
                 }
                 length += len;
             }
@@ -180,11 +204,11 @@ public class WavTrackImpl implements Track {
         
         int len = readPacket(data, 0, frameSize);
         if (len == 0) {
-            eom = true;
+        	eom = true;
         }
 
         if (len < frameSize) {
-            padding(data, frameSize - len);
+        	padding(data, frameSize - len);
             eom = true;
         }
 
@@ -199,7 +223,6 @@ public class WavTrackImpl implements Track {
 
     public void close() {
         try {
-        	stream.close();
         	inStream.close();
         } catch (Exception e) {
         }
