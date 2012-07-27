@@ -108,7 +108,9 @@ public class SessionDescription {
                     }
                     break;
                 case 'a':
-                    md.addAttribute(line);
+                	if (md != null) {
+                		md.addAttribute(line);
+                	}
                     break;
             }
         }
@@ -162,7 +164,9 @@ public class SessionDescription {
                     }
                     break;
                 case 'a':
-                    md.addAttribute(line);
+                	if (md != null) {
+                		md.addAttribute(line);
+                	}
                     break;
             }
         }
