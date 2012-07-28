@@ -78,12 +78,16 @@ public class MgcpCall {
         return connections.size();
     }
     
-    public void deleteConnections() {        
-        ArrayList<MgcpConnection> temp = new ArrayList(20);
-        for (MgcpConnection connection : temp) {
-            connection.mgcpEndpoint.deleteConnection(connection.getID());
+    public void deleteConnections() { 
+    	MgcpConnection currConnection;
+    	for (Enumeration<Text> e = connections.keys() ; e.hasMoreElements() ;) {
+    		currConnection=connections.remove(e.nextElement());
+    		currConnection.mgcpEndpoint.deleteConnection(currConnection.getID());    
+        }   
+    	
+    	if (connections.isEmpty()) {
+            callManager.terminate(this);
         }
-        temp.clear();
     }
     
     @Override
