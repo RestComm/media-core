@@ -5,15 +5,15 @@ Built-By: jean
 Build-Jdk: 1.6.0_30
 Implementation-Title: org.mobicents.media.docs:mobicents-mms-docs-sour
  ces
-Implementation-Version: 2.4.0.FINAL
+Implementation-Version: 3.0.0-SNAPSHOT
 Tool: Bnd-1.15.0
 Bundle-Name: Mobicents Media :: Docs :: Sources :: mobicents-mms-docs-
  sources
 Implementation-URL: http://www.mobicents.org
 Bundle-Vendor: TeleStax, Inc.
 Implementation-Vendor-Id: TeleStax, Inc.
-Bundle-Version: 2.4.0.FINAL
-Bnd-LastModified: 1344458342447
+Bundle-Version: 3.0.0.SNAPSHOT
+Bnd-LastModified: 1344462428614
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.gnu.org/licenses/lgpl-2.1.html
 Bundle-Description: Mobicents :: Parent pom for 2.x releases

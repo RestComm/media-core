@@ -57,7 +57,7 @@
 				<module>linux</module>
 			</modules>
 		</profile>
-		<profile>
+		<!--profile>
 			<id>maven-release</id>
 			<modules>
 				<module>linux</module>
@@ -68,7 +68,7 @@
 			<modules>
 				<module>linux</module>
 			</modules>
-		</profile>
+		</profile-->
 	</profiles>
 
 </project>
