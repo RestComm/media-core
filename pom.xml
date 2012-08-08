@@ -104,19 +104,26 @@
     </dependencies>
 
 
-
 	<!-- RELEASE STUFF -->
 
     <profiles>
         <profile>
-            <id>maven-release</id>
-            <!-- modules>
-                <module>bootstrap</module>
-                <module>server-spi</module>
-                <module>server-impl</module>
-                <module>server-standalone</module>
-                <module>controllers</module>
-            </modules -->
+            <id>maven-release</id>            
+	    <modules>
+		<module>hardware</module>
+		<module>spi</module>
+		<module>scheduler</module>
+		<module>codecs</module>
+		<module>component</module>
+		<module>io</module>
+		<module>resources</module>
+		<module>chassis</module>
+		<module>endpoints</module>
+		<module>controls</module>
+		<module>media-server-docs</module>
+		<module>bootstrap</module>        
+		<module>jsr-309</module>    
+	    </modules>
             <build>
                 <plugins>
                     <plugin>
