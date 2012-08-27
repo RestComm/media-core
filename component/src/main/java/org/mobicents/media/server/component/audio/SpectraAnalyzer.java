@@ -55,8 +55,8 @@ public class SpectraAnalyzer extends AbstractSink {
         formats.add(LINEAR_AUDIO);
     }
 
-    public SpectraAnalyzer(String name, Scheduler scheduler) {
-        super(name, scheduler,scheduler.MIXER_INPUT_QUEUE);
+    public SpectraAnalyzer(String name) {
+        super(name);
     }
 
     @Override

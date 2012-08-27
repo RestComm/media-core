@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author oifa yulian
+ * @author yulian oifa
  */
 public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
@@ -108,7 +108,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
     
     public AudioRecorderImpl(Scheduler scheduler) {
-        super("recorder", scheduler,scheduler.MIXER_INPUT_QUEUE);
+        super("recorder");
         this.scheduler = scheduler;
         
         
@@ -203,7 +203,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
      */
     private void fireEvent(RecorderEventImpl event) {
         eventSender.event = event;
-        scheduler.submit(eventSender,scheduler.SPLITTER_OUTPUT_QUEUE);
+        scheduler.submit(eventSender,scheduler.INPUT_QUEUE);
     }
     
     @Override
@@ -418,19 +418,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
             }
         }
         return true;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.mobicents.media.server.impl.AbstractSink#getInterface(java.lang.Class)
-     */
-    @Override
-    public <T> T getInterface(Class<T> interfaceType) {
-        if (interfaceType.equals(Recorder.class)) {
-            return (T) this;
-        } else {
-            return null;
-        }
-    }
+    }    
 
     /**
      * (Non Java-doc.)
@@ -466,7 +454,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         }
     
         public int getQueueNumber() {
-            return scheduler.MANAGEMENT_QUEUE;
+            return scheduler.INPUT_QUEUE;
         }
     }
     
@@ -488,7 +476,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         }
     
         public int getQueueNumber() {
-            return scheduler.MANAGEMENT_QUEUE;
+            return scheduler.INPUT_QUEUE;
         }
     }
     
@@ -505,12 +493,12 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         	long currTime=scheduler.getClock().getTime();
         	if(preSpeechTimer>0 && !speechDetected && currTime-lastPacketData>preSpeechTimer) {
         		qualifier = RecorderEvent.NO_SPEECH;                    
-                scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+                scheduler.submit(killRecording,scheduler.INPUT_QUEUE);
                 return 0;
         	}
         	if(postSpeechTimer>0 && speechDetected && currTime-lastPacketData>postSpeechTimer) {
         	    qualifier = RecorderEvent.NO_SPEECH;                    
-                scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+                scheduler.submit(killRecording,scheduler.INPUT_QUEUE);
                 return 0;
             }
         	
@@ -518,7 +506,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
             if (maxRecordTime > 0 && currTime-startTime >= maxRecordTime) {
                 //set qualifier
                 qualifier = RecorderEvent.MAX_DURATION_EXCEEDED;            
-                scheduler.submit(killRecording,scheduler.SPLITTER_OUTPUT_QUEUE);
+                scheduler.submit(killRecording,scheduler.INPUT_QUEUE);
                 return 0;
             }
             

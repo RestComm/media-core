@@ -139,14 +139,5 @@ public class PhoneSignalGenerator extends AbstractSource  {
     		time += ((double)20)/1000.0;
     		
     		return currFrame;
-    }
-    
-    @Override
-    public <T> T getInterface(Class<T> interfaceType) {
-        if (interfaceType.equals(PhoneSignalGenerator.class)) {
-            return (T) this;
-        } else {
-            return null;
-        }
-    }
+    }    
 }

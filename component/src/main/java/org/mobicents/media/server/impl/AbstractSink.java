@@ -27,7 +27,6 @@ import java.io.IOException;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.spi.memory.Frame;
 
 import org.apache.log4j.Logger;
@@ -44,21 +43,10 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
     //shows if component is started or not.
     private volatile boolean started = false;
-    //synchronization flag
-    private volatile boolean isSynchronized = false;
-
+    
     //transmission statisctics
     private volatile long rxPackets;
     private volatile long rxBytes;    
-    
-    //media transmission pipe
-    private PipeImpl pipe;    
-    
-    //scheduler instance
-    private final Scheduler scheduler;
-
-    //receiver and transcoding task
-    private final Worker worker;        
     
     private static final Logger logger = Logger.getLogger(AbstractSink.class);
     
@@ -67,40 +55,9 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * 
      * @param name the name of the sink to be created.
      */
-    public AbstractSink(String name, Scheduler scheduler,int queueNumber) {
-        super(name);
-        this.scheduler = scheduler;
-        this.worker = new Worker(scheduler,queueNumber);        
+    public AbstractSink(String name) {
+        super(name);               
     }        
-
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.MediaSink#connect(org.mobicents.media.server.spi.io.Pipe)
-     */
-    public void connect(Pipe pipe) {
-        this.pipe = (PipeImpl) pipe;
-        this.pipe.sink.set(this);
-    }
-
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.MediaSink#disconnect(org.mobicents.media.server.spi.io.Pipe)
-     */
-    public void disconnect(Pipe pipe) {
-        ((PipeImpl)pipe).sink.set(null);
-        this.pipe = null;
-    }
-
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSink#isConnected().
-     */
-    public boolean isConnected() {
-        return pipe != null;
-    }
 
     /**
      * (Non Java-doc).
@@ -124,42 +81,19 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * @see org.mobicents.media.MediaSink#start().
      */
     public void start() {
-    	synchronized(worker) {
-    		//silently ignore this call if sink already started
-    		if (started) {
-    			return;
-    		}
+    	if (started) {
+			return;
+		}
 
-    		//change state flag
-    		started = true;
-    		this.isSynchronized = true;
+		//change state flag
+		started = true;
+		
+		this.rxBytes = 0;
+		this.rxPackets = 0;
 
-    		this.rxBytes = 0;
-    		this.rxPackets = 0;
-
-    		//schedule read task with highest possible priority
-    		scheduler.submit(worker,worker.getQueueNumber());
-
-    		//send notification to component's listener
-    		started();
-    	}
-    }
-
-    /**
-     * Restores synchronization
-     */
-    protected void wakeup() {
-        synchronized(worker) {
-            if (!started) {
-                return;
-            }
-
-            if (!this.isSynchronized) {
-                this.isSynchronized = true;
-                scheduler.submit(worker,worker.getQueueNumber());
-            }
-        }
-    }
+		//send notification to component's listener
+		started();		    	
+    }    
     
     /**
      * (Non Java-doc).
@@ -167,11 +101,8 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * @see org.mobicents.media.MediaSink#stop().
      */
     public void stop() {
-    	synchronized(worker) {
-    		started = false;
-    		worker.cancel();
-    		stopped();
-    	}
+    	started = false;
+		stopped();    	
     }
 
     /**
@@ -218,113 +149,29 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * 
      */
     protected void stopped() {
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.media.MediaSink#getInterface(java.lang.Class)
-     */
-    @Override
-    public <T> T getInterface(Class<T> interfaceType) {
-        //should we check default?
-        return null;
-    }
+    }    
 
     public String report() {
     	return "";
     }
     
-    /**
-     * Receiver and transcoding task
-     */
-    private class Worker extends Task {
+    public void perform(Frame frame) {
+    	if(!started)
+    		return;
+    	
+    	if(frame==null)
+    		return;
+    	
+    	rxPackets++;
+    	rxBytes += frame.getLength();
 
-        /**
-         * Creates new instance of task.
-         *
-         * @param scheduler scheduler.
-         */
-    	private int queueNumber;
-    	int frameCount=0;  
-        long overallDelay=0;
-        long frameDuration;
-        
-        public Worker(Scheduler scheduler,int queueNumber) {
-        	super(scheduler);
-        	this.queueNumber=queueNumber;            
-        }
-
-        public int getQueueNumber()
-        {
-        	return queueNumber;
-        }
-        
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.scheduler.Task#perform()
-         */
-        public long perform() {
-            if (pipe == null) {
-                //no source of data
-            	isSynchronized = false;
-            	return 0;
-            }                        
-            
-            frameCount=0;  
-            overallDelay=0;
-            while(overallDelay<20000000L)
-            {
-            	frameCount++;
-            	
-            	//Reading next frame
-            	Frame frame = pipe.read();
-
-            	if (frame == null) {
-            		if(frameCount==1)
-            		{
-            			//los of synchronization
-            			isSynchronized = false;
-            			return 0;
-            		}
-            		else
-            		{
-            			//got all packets but did not lost a sync
-            			scheduler.submit(this,queueNumber);             
-                        return 0;
-            		}
-            	}            	
-            	
-            	//buffer.offer(frame);
-            	frameDuration = frame.getDuration();
-            	overallDelay+=frameDuration;
-            	
-            	rxPackets++;
-            	rxBytes += frame.getLength();
-
-            	//frame is not null, let's handle it
-            	try {
-            		onMediaTransfer(frame);
-            	} catch (IOException e) {  
-            		logger.error(e);
-            		started = false;
-                	failed(e);
-            	}
-            
-            	//check synchronization
-            	if (frameDuration == 0 || frameDuration == Long.MAX_VALUE) {
-            		//los of synchronization
-            		isSynchronized = false;
-                	return 0;
-            	}                        
-            }
-            
-            scheduler.submit(this,queueNumber);             
-            return 0;
-        }
-
-        @Override
-        public String toString() {
-            return getName();
-        }
+    	//frame is not null, let's handle it
+    	try {
+    		onMediaTransfer(frame);
+    	} catch (IOException e) {  
+    		logger.error(e);
+    		started = false;
+        	failed(e);
+    	}
     }    
 }

@@ -49,8 +49,8 @@ import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.resource.TTSEngine;
 
 /**
- * @author baranowb
- * @author Oleg Kulikov
+ * @author
+ * @author yulian oifa
  */
 public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine {
 
@@ -218,8 +218,8 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         		}                	
         	}  
         	
-            if (frame.isEOM()) {
-                track.close();
+        	if (frame.isEOM()) {
+            	track.close();                
             }
             return frame;
         } catch (IOException e) {   
@@ -247,19 +247,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
 
     public void setText(String text) {
         track = new TtsTrackImpl(text, voiceName, this.voicesCache);
-    }
-
-    @Override
-    public <T> T getInterface(Class<T> interfaceType) {
-        if (interfaceType.equals(Player.class)) {
-            return (T) this;
-        }
-        if (interfaceType.equals(TTSEngine.class)) {
-            return (T) this;
-        } else {
-            return null;
-        }
-    }
+    }    
 
     public void addListener(PlayerListener listener) throws TooManyListenersException {
         listeners.add(listener);

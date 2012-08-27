@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.Iterator;
 import org.apache.log4j.Logger;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -42,7 +43,7 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Implements play announcement signal.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class Play extends Signal implements PlayerListener {
     
@@ -156,25 +157,8 @@ public class Play extends Signal implements PlayerListener {
     }
 
     private Player getPlayer() {
-        if (getTrigger().getConnectionID() == null) {
-            Endpoint endpoint = getEndpoint();
-            return (Player) getEndpoint().getResource(MediaType.AUDIO, Player.class); 
-        }
-        
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-        
-        if (connection == null) {
-            return null;
-        }
-        
-//        MediaSource source = (MediaSource) connection.getComponent(MediaType.AUDIO, Player.class);
-//        if (source == null) {
-//            return null;
-//        }
-                
-//        return source.getInterface(Player.class);
-        return null;
+    	Endpoint endpoint = getEndpoint();
+        return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
     }
         
     @Override

@@ -278,7 +278,6 @@ public class UdpManager {
         for(int q=0;q<100;q++) {
         	try {
         		channel.socket().bind(new InetSocketAddress(bindAddress, port));
-        		port = portManager.next();
         		ex = null;
         		break;
         	} catch (SocketException e) {        		
@@ -307,7 +306,6 @@ public class UdpManager {
         for(int q=0;q<100;q++) {
         	try {
         		channel.socket().bind(new InetSocketAddress(localBindAddress, port));
-        		port = localPortManager.next();
         		ex = null;
         		break;
         	} catch (SocketException e) {        		

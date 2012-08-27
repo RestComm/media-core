@@ -37,10 +37,9 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 
-import org.mobicents.media.server.impl.PipeImpl;
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class MediaPlayerImplTest {
 	//

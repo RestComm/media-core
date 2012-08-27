@@ -35,7 +35,6 @@ import org.mobicents.media.server.component.Mixer;
 import org.mobicents.media.server.component.Splitter;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.video.VideoMixer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.rtp.RTPManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
@@ -54,7 +53,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * connection objects gives better result.
  *
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class Connections {
     //endpoint running connections
@@ -520,8 +519,7 @@ public class Connections {
         private MediaSource source;
         
         //pipe for joining endpoint and connections
-        private PipeImpl pipe = new PipeImpl();
-
+        
         /**
          * Creates new mode switch.
          *
@@ -533,8 +531,12 @@ public class Connections {
 
         @Override
         protected void off() {
-            pipe.stop();
-            pipe.disconnect();
+        	if(source!=null)
+        	{
+        		source.stop();
+        		source.disconnect();
+        	}         
+        	
             mediaTime = source.getMediaTime();
         }
 
@@ -550,9 +552,8 @@ public class Connections {
             }            
 
             //join source with channel
-            pipe.connect(source);
-            pipe.connect(channel.splitter.getInput());
-            pipe.start();
+            source.connect(channel.splitter.getInput());
+            source.start();
         }
 
         @Override
@@ -562,7 +563,7 @@ public class Connections {
 
         @Override
         protected int txPackets() {
-            return pipe.getTxPackets();
+            return 0;
         }
     }
 
@@ -570,9 +571,7 @@ public class Connections {
      * This mode defines the transmission to the endpoint
      */
     private class RecvOnly extends Mode {
-        //transmission pipe
-        private PipeImpl pipe = new PipeImpl();
-
+    	MediaSink sink;
         /**
          * Creates this switch
          * @param channel the transmission channel
@@ -584,14 +583,14 @@ public class Connections {
         @Override
         protected void off() {
             channel.mixer.stop();
-            pipe.stop();
-            pipe.disconnect();
+            channel.mixer.getOutput().stop();
+            channel.mixer.getOutput().disconnect();
         }
 
         @Override
         protected void on() throws ModeNotSupportedException {
             //get the sink at the endpoint side
-            MediaSink sink = endpoint.getSink(channel.getMediaType());
+        	sink = endpoint.getSink(channel.getMediaType());
             
             //check that sink is present
             if (sink == null) {
@@ -599,16 +598,14 @@ public class Connections {
             }            
 
             //join sink with channel and start transmission
-            pipe.connect(sink);
-            pipe.connect(channel.mixer.getOutput());
-            
+            channel.mixer.getOutput().connect(sink);            
             channel.mixer.start();
-            pipe.start();
+            channel.mixer.getOutput().start();
         }
 
         @Override
         protected int rxPackets() {
-            return pipe.getRxPackets();
+            return 0;
         }
 
         @Override
@@ -664,8 +661,8 @@ public class Connections {
      * In this mode the endpoint transmits media to itself.
      */
     private class Loopback extends Mode {
-        private PipeImpl pipe = new PipeImpl();
-
+    	MediaSink sink;
+    	MediaSource source;
         /**
          * Creates switch.
          *
@@ -677,17 +674,20 @@ public class Connections {
 
         @Override
         protected void off() {
-            pipe.stop();
-            pipe.disconnect();
+        	if(source!=null)
+        	{
+        		source.stop();
+        		source.disconnect();
+            }
         }
 
         @Override
         protected void on() throws ModeNotSupportedException {
             //get the sink from endpoint
-            MediaSink sink = endpoint.getSink(channel.getMediaType());
+            sink = endpoint.getSink(channel.getMediaType());
 
             //get the source from endpoint
-            MediaSource source = endpoint.getSource(channel.getMediaType());
+            source = endpoint.getSource(channel.getMediaType());
 
             //check that both are present
             if (sink == null || source == null) {
@@ -695,19 +695,18 @@ public class Connections {
             }
 
             //join sink and source and start transmission
-            pipe.connect(sink);
-            pipe.connect(source);
-            pipe.start();
+            source.connect(sink);
+            source.start();
         }
 
         @Override
         protected int rxPackets() {
-            return pipe.getRxPackets();
+            return 0;
         }
 
         @Override
         protected int txPackets() {
-            return pipe.getRxPackets();
+            return 0;
         }
 
     }
@@ -760,9 +759,6 @@ public class Connections {
     	private Party party1 = new Party();
         private Party party2 = new Party();
 
-        private PipeImpl audioRxPipe = new PipeImpl();
-        private PipeImpl audioTxPipe = new PipeImpl();
-        
         public LocalChannel()
         {        	
         }
@@ -810,8 +806,7 @@ public class Connections {
             party1.source = connection1.audioChannel.splitter.newOutput();
             party2.sink = connection2.audioChannel.mixer.newInput();
 
-            audioRxPipe.connect(party2.sink);
-        	audioRxPipe.connect(party1.source);
+            party1.source.connect(party2.sink);
         	
         	//logging details
         	Boolean firstLocal=false,secondLocal=false;
@@ -821,16 +816,15 @@ public class Connections {
         		secondLocal=true;
         	
         	if(c2Send && c1Recv)
-            	audioRxPipe.start();
+        		party1.source.start();
             
             party2.source = connection2.audioChannel.splitter.newOutput();
             party1.sink = connection1.audioChannel.mixer.newInput();
 
-            audioTxPipe.connect(party1.sink);
-        	audioTxPipe.connect(party2.source);
+            party2.source.connect(party1.sink);
         	
             if(c1Send && c2Recv)
-            	audioTxPipe.start();            
+            	party2.source.start();            
         }  
         
         protected void update() {
@@ -872,14 +866,14 @@ public class Connections {
         		secondLocal=true;
         	
         	if(c2Send && c1Recv && !(party2.send && party1.recv))
-        		audioRxPipe.start();
+        		party1.source.start();
             else if(!(c2Send && c1Recv) && party2.send && party1.recv)
-            	audioRxPipe.stop();
+            	party1.source.stop();
             
             if(c1Send && c2Recv && !(party1.send && party2.recv))
-            	audioTxPipe.start();
+            	party2.source.start();
             else if(!(c1Send && c2Recv) && party1.send && party2.recv)
-            	audioTxPipe.stop();
+            	party2.source.stop();
             
             party1.send=c1Send;
         	party1.recv=c1Recv;
@@ -892,17 +886,16 @@ public class Connections {
         }
 
         public void unjoin() {
-            audioTxPipe.stop();
-            audioTxPipe.disconnect();
-            audioRxPipe.stop();
-            audioRxPipe.disconnect();
+        	party1.source.stop();
+        	party1.source.disconnect();
+        	party2.source.stop();
+        	party2.source.disconnect();
             
             party1.release();
             party2.release();
         }
         
-        public void setDebug(boolean isDebug) {
-            audioRxPipe.setDebug(isDebug);
+        public void setDebug(boolean isDebug) {            
         }
 
         private class Party {

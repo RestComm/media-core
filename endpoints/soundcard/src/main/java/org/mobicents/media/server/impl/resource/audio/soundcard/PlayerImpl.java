@@ -53,8 +53,8 @@ public class PlayerImpl extends AbstractSink {
 
     private static final Logger logger = Logger.getLogger(PlayerImpl.class);
     
-    public PlayerImpl(String name, Scheduler scheduler) {
-        super(name, scheduler,scheduler.MIXER_INPUT_QUEUE);
+    public PlayerImpl(String name) {
+        super(name);
     }
 
     private javax.sound.sampled.AudioFormat.Encoding getEncoding(String encodingName) {

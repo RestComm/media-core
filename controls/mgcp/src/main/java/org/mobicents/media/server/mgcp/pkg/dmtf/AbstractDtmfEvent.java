@@ -21,6 +21,7 @@
  */
 package org.mobicents.media.server.mgcp.pkg.dtmf;
 
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -35,7 +36,7 @@ import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public abstract class AbstractDtmfEvent extends Signal implements DtmfDetectorListener{
 
@@ -95,19 +96,7 @@ public abstract class AbstractDtmfEvent extends Signal implements DtmfDetectorLi
     protected abstract Event getTone();
     
     private DtmfDetector getDetector() {
-        if (getTrigger().getConnectionID() == null) {
-            Endpoint endpoint = getEndpoint();
-            return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, DtmfDetector.class);
-        }
-
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-
-        if (connection == null) {
-            return null;
-        }
-
-        return null;
+    	Endpoint endpoint = getEndpoint();
+        return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
     }
-
 }

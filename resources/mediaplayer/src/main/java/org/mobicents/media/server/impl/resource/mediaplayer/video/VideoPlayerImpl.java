@@ -37,7 +37,7 @@ import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * @author baranowb
- * @author Oleg Kulikov
+ * @author yulian oifa
  */
 public class VideoPlayerImpl extends AbstractSource implements Player {
 
@@ -175,17 +175,6 @@ public class VideoPlayerImpl extends AbstractSource implements Player {
         return frame;
     }    
     
-    @Override
-	public <T> T getInterface(Class<T> interfaceType) {
-		if(interfaceType.equals(Player.class))
-		{
-			return (T) this;
-		}
-		{
-			return null;
-		}
-	}
-
     public void setInitialDelay(long delay) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

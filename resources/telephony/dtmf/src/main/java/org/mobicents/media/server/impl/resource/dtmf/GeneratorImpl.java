@@ -89,6 +89,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     
     public void setDigit(String digit) {
         this.digit = digit;
+        this.time=0;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (events[i][j].equalsIgnoreCase(digit)) {
@@ -136,6 +137,9 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
 
     @Override
     public Frame evolve(long timestamp) {
+    	if(time > (double) duration / 1000.0)
+    		return null;
+    	
         int k = 0;
         int frameSize = (int) ((double) 20 / 1000.0 / dt);
         Frame frame = Memory.allocate(2* frameSize);
@@ -156,28 +160,12 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         }
         
         time += ((double) 20) / 1000.0;
-        frame.setEOM(time > (double) duration / 1000.0);
         return frame;
     }
 
     @Override
     public void stop() {
         super.stop();
-    }
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.media.server.impl.AbstractSource#getInterface(java.lang.Class)
-	 */
-	@Override
-	public <T> T getInterface(Class<T> interfaceType) {
-		if(interfaceType.equals(DtmfGenerator.class))
-		{
-			return (T) this;
-		}else
-		{
-			return null;
-		}
-	}
-	
+    }    
 }
 

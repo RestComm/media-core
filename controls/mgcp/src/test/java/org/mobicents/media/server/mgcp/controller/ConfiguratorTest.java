@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
@@ -29,7 +30,7 @@ import org.mobicents.media.server.scheduler.DefaultClock;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class ConfiguratorTest {
     
@@ -145,7 +146,7 @@ public class ConfiguratorTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public Component getResource(MediaType mediaType, Class intf) {
+        public Component getResource(MediaType mediaType, ComponentType componentType) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     

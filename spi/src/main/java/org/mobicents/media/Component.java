@@ -32,10 +32,9 @@ import java.io.Serializable;
  * DTMF detector, etc. The <code>Component</code> is a supper class for all 
  * media processing components.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
-public interface Component extends Serializable {
-    
+public interface Component extends Serializable {    		
     /**
      * Gets the unique identifier of this component.
      * 
@@ -55,16 +54,5 @@ public interface Component extends Serializable {
      * Resets component to its original state.
      * This methods cleans transmission statistics and any assigned formats
      */
-    public void reset();
-    
-    /**
-     * This method returns proper interface. Returns concrete object if
-     * implementing this interface if this sink supports interface contract. In
-     * general case it may return <b>this</b>
-     *
-     * @param <T>
-     * @param interfaceType
-     * @return
-     */
-    public <T> T getInterface(Class<T> interfaceType);
+    public void reset();    
 }

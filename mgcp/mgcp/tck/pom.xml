@@ -1,0 +1,169 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-parent</artifactId>
+		<version>2.2-SNAPSHOT</version>
+	</parent>
+	
+	<groupId>org.mobicents.protocols.mgcp</groupId>
+	<artifactId>tck</artifactId>
+	<version>2.0.0.RC2-SNAPSHOT</version>
+
+	<name>Mobicents MGCP TCK</name>
+
+	<properties>	
+		<mobicents.tools.mavenplugin.eclipse.version>
+			1.0.0.BETA2
+		</mobicents.tools.mavenplugin.eclipse.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.protocols.mgcp</groupId>
+			<artifactId>mgcp-impl</artifactId>
+			<version>2.0.0.RC5-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>jain</groupId>
+			<artifactId>jain-mgcp-tck</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>jain</groupId>
+			<artifactId>jain-mgcp-ri</artifactId>
+		</dependency>		
+		
+	</dependencies>
+	<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/jain-mgcp/mobicents-mgcp-impl-2.0.0.RC1</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/jain-mgcp/mobicents-mgcp-impl-2.0.0.RC1</developerConnection>
+		<url>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/jain-mgcp/mobicents-mgcp-impl-2.0.0.RC1</url>
+	</scm>
+
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules />
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<configuration>
+							<autoVersionSubmodules>
+								true
+							</autoVersionSubmodules>
+							<tagBase>
+								https://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/jain-mgcp
+							</tagBase>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		
+		<profile>
+			<id>CA</id>			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>java</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<executable>java</executable>				
+							<arguments>				
+								<argument>-classpath</argument>
+								<!-- automatically creates the classpath using all project dependencies,
+								     also adding the project build directory -->
+								<classpath/>
+								<argument>TCK</argument>
+								<argument>CA</argument>
+								<argument>org.mobicents.protocols.mgcp.stack</argument>
+								<argument>127.0.0.1:2427</argument>
+								<argument>verbose</argument>
+							</arguments>
+							
+						</configuration>		
+					</plugin>		
+					
+				</plugins>
+			</build>			
+		</profile>
+		
+		
+		<profile>
+			<id>RGW</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>java</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<executable>java</executable>				
+							<arguments>				
+								<argument>-classpath</argument>
+								<!-- automatically creates the classpath using all project dependencies,
+								     also adding the project build directory -->
+								<classpath/>
+								<argument>TCK</argument>
+								<argument>RGW</argument>
+								<argument>org.mobicents.protocols.mgcp.stack</argument>
+								<argument>127.0.0.1:2727</argument>
+								<argument>verbose</argument>
+							</arguments>
+							
+						</configuration>		
+					</plugin>		
+					
+				</plugins>
+			</build>			
+		</profile>		
+		
+		
+	</profiles>
+
+
+
+	<repositories>
+		<repository>
+			<id>jboss</id>
+			<name>JBoss Repository</name>
+			<url>http://repository.jboss.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>jboss-snapshots</id>
+			<name>JBoss Snapshot Repository</name>
+			<url>http://snapshots.jboss.org/maven2</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+</project>

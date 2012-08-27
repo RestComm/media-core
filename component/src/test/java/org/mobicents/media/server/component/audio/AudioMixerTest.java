@@ -35,17 +35,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mobicents.media.MediaSink;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.io.Pipe;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class AudioMixerTest {
 
@@ -64,8 +62,6 @@ public class AudioMixerTest {
     private MediaSink input2;
     private MediaSink input3;
 
-    private Pipe pipe1, pipe2, pipe3;
-            
     public AudioMixerTest() {
     }
 
@@ -88,7 +84,7 @@ public class AudioMixerTest {
         sine1 = new Sine(scheduler);
         sine2 = new Sine(scheduler);
         sine3 = new Sine(scheduler);
-        analyzer = new SpectraAnalyzer("analyzer", scheduler);
+        analyzer = new SpectraAnalyzer("analyzer");
         
         mixer = new AudioMixer(scheduler);
         
@@ -100,23 +96,12 @@ public class AudioMixerTest {
         input2 = mixer.newInput();
         input3 = mixer.newInput();
 
-        pipe1 = new PipeImpl();
-        pipe1.connect(sine1);
-        pipe1.connect(input1);
-
-        pipe2 = new PipeImpl();
-        pipe2.connect(sine2);
-        pipe2.connect(input2);
-
-        pipe3 = new PipeImpl();
-        pipe3.connect(sine3);
-        pipe3.connect(input3);
-
-        Pipe pipe4 = new PipeImpl();
-        pipe4.connect(analyzer);
-        pipe4.connect(mixer.getOutput());
-
-
+        sine1.connect(input1);        
+        sine2.connect(input2);
+        sine3.connect(input3);
+        
+        mixer.getOutput().connect(analyzer);
+        
         sine1.setAmplitude((short)(Short.MAX_VALUE / 4));
         sine2.setAmplitude((short)(Short.MAX_VALUE / 4));
         sine3.setAmplitude((short)(Short.MAX_VALUE / 4));
@@ -151,8 +136,7 @@ public class AudioMixerTest {
 
 
         mixer.getOutput().start();
-        analyzer.start();
-
+        
 //        mixer.start();
         Thread.sleep(5000);
 
@@ -162,8 +146,7 @@ public class AudioMixerTest {
         sine3.stop();
 
         mixer.getOutput().stop();
-        analyzer.stop();
-
+        
         System.out.println(mixer.report());
         System.out.println("mix execution count: " + mixer.mixCount);
 //        System.out.println("IO count: " + network.getCount());
@@ -187,8 +170,7 @@ public class AudioMixerTest {
         mixer.setGain(-10);
                 
         mixer.getOutput().start();
-        analyzer.start();
-
+        
         Thread.sleep(5000);
 
         mixer.stop();
@@ -197,7 +179,6 @@ public class AudioMixerTest {
         sine3.stop();
 
         mixer.getOutput().stop();
-        analyzer.stop();
         
         int res[] = analyzer.getSpectra();
         assertEquals(0, res.length);
@@ -216,14 +197,11 @@ public class AudioMixerTest {
     public void testRecycle() throws InterruptedException {
     	testMixing();
         
-        pipe1.stop();
-        pipe1.disconnect();
+    	sine1.disconnect();
         mixer.release(input1);
         
-        input1 = mixer.newInput();    
-        
-        pipe1.connect(sine1);
-        pipe1.connect(input1);
+        input1 = mixer.newInput();            
+        sine1.connect(input1);
         
         input1.start();
         testMixing();    	

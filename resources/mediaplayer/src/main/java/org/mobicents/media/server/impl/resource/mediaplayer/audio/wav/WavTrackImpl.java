@@ -189,7 +189,7 @@ public class WavTrackImpl implements Track {
     }
     
     public Frame process(long timestamp) throws IOException {
-        if (first) {
+    	if (first) {
             if (timestamp > 0) {
                 skip(timestamp);
             }

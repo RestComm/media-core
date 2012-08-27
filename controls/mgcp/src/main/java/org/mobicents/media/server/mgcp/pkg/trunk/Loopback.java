@@ -23,10 +23,10 @@
 package org.mobicents.media.server.mgcp.pkg.trunk;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.io.ss7.SS7Input;
 import org.mobicents.media.server.io.ss7.SS7Output;
 import org.mobicents.media.server.spi.Endpoint;
@@ -42,8 +42,6 @@ public class Loopback extends Signal {
 	private Event of = new Event(new Text("of"));
 	
     private volatile Options options;
-    
-    private PipeImpl pipe=new PipeImpl();
     
     private SS7Input ss7Input;
     private SS7Output ss7Output;
@@ -74,15 +72,14 @@ public class Loopback extends Signal {
         if(options.isDeactivation())
         {
         	//deactivate pipe
-        	 pipe.stop();
-             pipe.disconnect();
+        	ss7Input.stop();
+        	ss7Input.disconnect();
         }
         else
         {
         	//activate pipe
-        	pipe.connect(ss7Input);
-        	pipe.connect(ss7Output);
-        	pipe.start();
+        	ss7Input.connect(ss7Output);
+        	ss7Input.start();
         }
         
         //signal does not have anything else , only looping ss7 channel
@@ -101,24 +98,29 @@ public class Loopback extends Signal {
     public void reset() {
         super.reset();
         
-        pipe.stop();
-        pipe.disconnect();
+        if(ss7Input!=null)
+        {
+        	ss7Input.stop();
+        	ss7Input.disconnect();
+        }
         
         of.reset();        
     }
     
     @Override
     public void cancel() {    
-    	//deactivate pipe
-   	 	pipe.stop();
-        pipe.disconnect();
+    	if(ss7Input!=null)
+        {
+        	ss7Input.stop();
+        	ss7Input.disconnect();
+        }
     }
     
     private SS7Input getSS7Input() {
-    	return (SS7Input) getEndpoint().getResource(MediaType.AUDIO, SS7Input.class); 
+    	return (SS7Input) getEndpoint().getResource(MediaType.AUDIO, ComponentType.SS7_INPUT); 
     }
     
     private SS7Output getSS7Output() {
-    	return (SS7Output) getEndpoint().getResource(MediaType.AUDIO, SS7Output.class); 
+    	return (SS7Output) getEndpoint().getResource(MediaType.AUDIO, ComponentType.SS7_OUTPUT); 
     }
 }

@@ -33,7 +33,6 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.PipeImpl;
 import java.net.InetSocketAddress;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -64,8 +63,7 @@ public class RTPChannelTest {
     private Sine source1, source2;
 
     private RTPDataChannel channel1, channel2;
-    private PipeImpl txPipe1, txPipe2, rxPipe1, rxPipe2;
-
+    
     private int fcount;
 
     private DspFactoryImpl dspFactory = new DspFactoryImpl();
@@ -115,8 +113,8 @@ public class RTPChannelTest {
         source2 = new Sine(scheduler);
         source2.setFrequency(50);
         
-        analyzer1 = new SpectraAnalyzer("analyzer", scheduler);        
-        analyzer2 = new SpectraAnalyzer("analyzer", scheduler);
+        analyzer1 = new SpectraAnalyzer("analyzer");        
+        analyzer2 = new SpectraAnalyzer("analyzer");
         
         channel1 = rtpManager.getChannel();
         channel1.updateMode(ConnectionMode.SEND_RECV);
@@ -139,32 +137,20 @@ public class RTPChannelTest {
         channel1.setFormatMap(AVProfile.audio);
         channel2.setFormatMap(AVProfile.audio);
 
-        txPipe1 = new PipeImpl();
-        rxPipe1 = new PipeImpl();
-
-        txPipe2 = new PipeImpl();
-        rxPipe2 = new PipeImpl();
-
-        txPipe1.connect(source1);
-        txPipe1.connect(channel1.getOutput());
-
-        rxPipe1.connect(analyzer1);
-        rxPipe1.connect(channel1.getInput());
-
-        txPipe2.connect(source2);
-        txPipe2.connect(channel2.getOutput());
-
-        rxPipe2.connect(analyzer2);
-        rxPipe2.connect(channel2.getInput());    	
+        source1.connect(channel1.getOutput());
+        channel1.getInput().connect(analyzer1);
+        
+        source2.connect(channel2.getOutput());
+        channel2.getInput().connect(analyzer2);            
     }
 
     @After
     public void tearDown() {
-        txPipe1.stop();
-        rxPipe1.stop();
+    	source1.stop();
+    	channel1.getInput().stop();
 
-        txPipe2.stop();
-        rxPipe2.stop();
+    	source2.stop();
+    	channel2.getInput().stop();
 
         channel1.close();
         channel2.close();
@@ -175,16 +161,16 @@ public class RTPChannelTest {
 
     @Test
     public void testTransmission() throws Exception {
-        txPipe1.start();
-        rxPipe1.start();
+    	source1.start();
+    	channel1.getInput().start();
 
-        txPipe2.start();
-        rxPipe2.start();
+    	source2.start();
+    	channel2.getInput().start();
         
         Thread.sleep(5000);
         
-        txPipe1.stop();
-        txPipe2.stop();
+        source1.stop();
+        source2.stop();
 
 //        Thread.sleep(5000);
 
@@ -210,13 +196,13 @@ public class RTPChannelTest {
 
     @Test
     public void testHalfDuplex() throws Exception {
-        txPipe1.start();
-        rxPipe2.start();
+    	source1.start();
+    	channel2.getInput().start();
 //        txPipe2.start();
         Thread.sleep(5000);
         
-        txPipe1.stop();
-        txPipe2.stop();
+        source1.stop();
+        channel2.getInput().stop();
 
         int s1[] = analyzer1.getSpectra();
         int s2[] = analyzer2.getSpectra();

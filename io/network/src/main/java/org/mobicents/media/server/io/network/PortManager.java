@@ -22,6 +22,7 @@
 
 package org.mobicents.media.server.io.network;
 
+import java.util.concurrent.atomic.AtomicInteger;
 /**
  * The utility class that helps to accuire port for converstion.
  *
@@ -29,14 +30,14 @@ package org.mobicents.media.server.io.network;
  * Method <code>next</code> consiquently peeks up even port either from beginning or
  * from the end of range.
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class PortManager {
     //the available range
     private int low = 1024, high=65534;
-
+    private int step=(high-low)/2;
     //pointers
-    private int l = low, r = high, p;
+    private AtomicInteger currPort = new AtomicInteger(0);
 
     /**
      * Creates new instance.
@@ -50,7 +51,7 @@ public class PortManager {
      */
     public void setLowestPort(int low) {
         this.low = low % 2 == 0 ? low : low + 1;
-        this.l = this.low;
+        step=(high-low)/2;
     }
 
     /**
@@ -67,8 +68,7 @@ public class PortManager {
      */
     public void setHighestPort(int high) {
         this.high = high % 2 == 0 ? high : high - 1;
-        this.r = this.high;
-        this.p = this.r;
+        step=(high-low)/2 + 1;
     }
 
     /**
@@ -85,20 +85,6 @@ public class PortManager {
      * @return even port number
      */
     public int next() {
-        if ((r - l) == 4) {
-            l = low;
-            r = high;
-            p = r;
-        }
-
-        if (p == l) {
-            p = r - 2;
-            r = p;
-        } else {
-            p = l + 2;
-            l = p;
-        }
-
-        return p;
+    	return high-(currPort.getAndAdd(1)%step)*2;        
     }
 }

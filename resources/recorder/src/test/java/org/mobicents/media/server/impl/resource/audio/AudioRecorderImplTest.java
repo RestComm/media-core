@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.component.audio.Sine;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -27,8 +26,6 @@ public class AudioRecorderImplTest {
 
     private Sine sine;
     private AudioRecorderImpl recorder;
-    
-    private PipeImpl pipe = new PipeImpl();
     
     public AudioRecorderImplTest() {
     }
@@ -53,9 +50,7 @@ public class AudioRecorderImplTest {
         sine.setFrequency(250);
         recorder = new AudioRecorderImpl(scheduler);
         
-        pipe.connect(recorder);
-        pipe.connect(sine);
-        
+        sine.connect(recorder);        
     }
     
     @After
@@ -78,12 +73,12 @@ public class AudioRecorderImplTest {
     public void testRecording() throws InterruptedException, IOException {
         recorder.setRecordFile("file:///home/kulikov/record-test.wav", false);
         recorder.setPostSpeechTimer(5000000000L);
-        pipe.start();        
+        sine.start();        
         Thread.sleep(5000);        
         sine.setAmplitude((short)0);
         
         Thread.sleep(7000);
-        pipe.stop();
+        sine.stop();
     }
 
 }

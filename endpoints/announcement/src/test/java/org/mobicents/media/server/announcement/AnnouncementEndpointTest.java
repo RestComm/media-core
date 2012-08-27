@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.RTPManager;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -25,7 +26,7 @@ import org.mobicents.media.server.spi.player.Player;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class AnnouncementEndpointTest {
     
@@ -111,7 +112,7 @@ public class AnnouncementEndpointTest {
 
     @Test
     public void testGetResource() {
-        Player p = (Player) aap.getResource(MediaType.AUDIO, Player.class);
-        assertTrue(p != null);
+    	Player p = (Player) aap.getResource(MediaType.AUDIO, ComponentType.PLAYER);
+        assertTrue(p != null);    	
     }
 }

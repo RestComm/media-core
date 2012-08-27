@@ -32,7 +32,6 @@ import org.mobicents.media.server.spi.format.EncodingName;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.spi.memory.Frame;
 
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -49,8 +48,7 @@ public class AbstractComponentTest {
 
     private TestSource src;
     private TestSink sink;
-    private Pipe pipe = new PipeImpl();
-
+    
     private Clock clock;
     private Scheduler scheduler;
     
@@ -74,7 +72,7 @@ public class AbstractComponentTest {
         scheduler.start();    
         
         src = new TestSource("source",scheduler);
-        sink = new TestSink("sink",scheduler);
+        sink = new TestSink("sink");
     }
 
     @After
@@ -82,58 +80,13 @@ public class AbstractComponentTest {
     }
 
     @Test
-    public void testSourceToPipe() {
-    	src.connect(pipe);                
+    public void testSource() {
+    	src.connect(sink);                
         assertTrue("Source still not connected", src.isConnected());
 
-        src.disconnect(pipe);
+        src.disconnect();
         assertFalse("Source remains connected", src.isConnected());
-    }
-
-    @Test
-    public void testPipeToSource() {
-        pipe.connect(src);
-        assertTrue("Source still not connected", src.isConnected());
-
-        pipe.disconnect(Pipe.INPUT);
-        assertFalse("Source remains connected", src.isConnected());
-    }
-
-    @Test
-    public void testPipeAndSourceCrossConnection() {
-        src.connect(pipe);
-        assertTrue("Source still not connected", src.isConnected());
-
-        pipe.disconnect(Pipe.INPUT);
-        assertFalse("Source remains connected", src.isConnected());
-    }
-
-    @Test
-    public void testSinkToPipe() {
-        sink.connect(pipe);
-        assertTrue("Sink still not connected", sink.isConnected());
-
-        sink.disconnect(pipe);
-        assertFalse("Sink remains connected", sink.isConnected());
-    }
-
-    @Test
-    public void testPipeToSink() {
-        pipe.connect(sink);
-        assertTrue("Sink still not connected", sink.isConnected());
-
-        pipe.disconnect(Pipe.OUTPUT);
-        assertFalse("Sink remains connected", sink.isConnected());
-    }
-
-    @Test
-    public void testPipeAndSinkCrossConnection() {
-        sink.connect(pipe);
-        assertTrue("Sink still not connected", sink.isConnected());
-
-        pipe.disconnect(Pipe.OUTPUT);
-        assertFalse("Sink remains connected", sink.isConnected());
-    }
+    }    
 
     private class TestSource extends AbstractSource {
 
@@ -152,8 +105,8 @@ public class AbstractComponentTest {
     }
 
     private class TestSink extends AbstractSink {
-    	public TestSink(String name,Scheduler scheduler) {
-            super(name, scheduler,scheduler.MIXER_INPUT_QUEUE);
+    	public TestSink(String name) {
+            super(name);
         }
 
         public Formats getNativeFormats() {

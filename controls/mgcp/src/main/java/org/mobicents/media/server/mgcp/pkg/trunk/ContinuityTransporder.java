@@ -23,6 +23,8 @@
 package org.mobicents.media.server.mgcp.pkg.trunk;
 
 import org.apache.log4j.Logger;
+
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -154,11 +156,11 @@ public class ContinuityTransporder extends Signal implements ToneDetectorListene
     }
     
     private PhoneSignalGenerator getPhoneGenerator() {
-    	return (PhoneSignalGenerator) getEndpoint().getResource(MediaType.AUDIO, PhoneSignalGenerator.class); 
+    	return (PhoneSignalGenerator) getEndpoint().getResource(MediaType.AUDIO, ComponentType.SIGNAL_GENERATOR); 
     }
     
     private PhoneSignalDetector getPhoneDetector() {
-    	return (PhoneSignalDetector) getEndpoint().getResource(MediaType.AUDIO, PhoneSignalDetector.class); 
+    	return (PhoneSignalDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.SIGNAL_DETECTOR); 
     }
     
     private void prepareToneReceiving()

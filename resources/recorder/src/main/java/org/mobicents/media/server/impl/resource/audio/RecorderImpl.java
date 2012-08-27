@@ -54,10 +54,9 @@ import org.apache.log4j.Logger;
  * Audio recorder supports WAV, GSM and speeex media types.
  * Supported formats are: G711(a-law,u-law), Linear PCM
  * 
- * @author Oleg Kulikov
  * @author amit bhayani
  * @author baranowb
- * @author Oifa Yulian
+ * @author Yulian Oifa
  */
 public class RecorderImpl extends AbstractSink implements Recorder {
 
@@ -97,7 +96,7 @@ public class RecorderImpl extends AbstractSink implements Recorder {
      * @param name the name of the recorder to be created.
      */
     public RecorderImpl(String name, Scheduler scheduler) {
-        super(name, scheduler,scheduler.SPLITTER_INPUT_QUEUE);
+        super(name);
     }
 
     /**
@@ -208,20 +207,7 @@ public class RecorderImpl extends AbstractSink implements Recorder {
    
     public Formats getNativeFormats() {
         return formats;
-    }
-
-   
-    @Override
-	public <T> T getInterface(Class<T> interfaceType) {
-		if(interfaceType.equals(Recorder.class))
-		{
-			return (T) this;
-		}else
-		{
-			return null;
-		}
-	}
-    
+    }    
     
     /**
      * Converts format encoding.

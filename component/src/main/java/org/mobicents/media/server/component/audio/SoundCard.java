@@ -56,8 +56,8 @@ public class SoundCard extends AbstractSink {
     
     private static final Logger logger = Logger.getLogger(SoundCard.class);
     
-    public SoundCard(Scheduler scheduler) {
-        super("soundcard",scheduler,scheduler.MIXER_INPUT_QUEUE);
+    public SoundCard() {
+        super("soundcard");
     }
 
     @Override

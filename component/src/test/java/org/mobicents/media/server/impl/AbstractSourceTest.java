@@ -40,8 +40,6 @@ public class AbstractSourceTest {
     private MyTestSource source;
     private MyTestSink sink;
     
-    private PipeImpl pipe;
-    
     private Semaphore semaphore = new Semaphore(0);
     
     private long[] timestamp = new long[1000];
@@ -67,25 +65,22 @@ public class AbstractSourceTest {
         scheduler.start();
         
         source = new MyTestSource(scheduler);
-        sink = new MyTestSink(scheduler);   
+        sink = new MyTestSink();   
         
-        pipe = new PipeImpl();
-        
-        pipe.connect(source);
-        pipe.connect(sink);
-        
+        source.connect(sink);
         count = 0;
     }
     
     @After
     public void tearDown() {
-        pipe.stop();
-        scheduler.stop();
+    	source.stop();
+    	source.disconnect();
+        scheduler.stop();    	
     }
 
     @Test
     public void testDuration() throws InterruptedException {
-        //originaly infinite stream: duration unknown
+    	//originaly infinite stream: duration unknown
         assertEquals(-1, source.getDuration());
         
         //apply max duration and check value
@@ -93,7 +88,7 @@ public class AbstractSourceTest {
         assertEquals(3000000000L, source.getDuration());
         
         //start transmission
-        pipe.start();
+        source.start();
         
         //block for 5 seconds max
         long s = System.currentTimeMillis();
@@ -103,7 +98,7 @@ public class AbstractSourceTest {
         //check results
         long duration = System.currentTimeMillis() - s;
         assertFalse("Source still working", source.isStarted());
-        assertEquals(3000, duration, 500);
+        assertEquals(3000, duration, 500);    	
     }
     
     /**
@@ -117,7 +112,7 @@ public class AbstractSourceTest {
         assertEquals(3000000000L, source.getDuration());
         
         //start transmission
-        pipe.start();
+        source.start();
         
         //block for 5 seconds max
         long s = System.currentTimeMillis();
@@ -137,7 +132,7 @@ public class AbstractSourceTest {
     @Test
     public void testMediaTime() throws InterruptedException {
         //start transmission
-        pipe.start();
+        source.start();
         
         Thread.sleep(1000);
         
@@ -148,7 +143,7 @@ public class AbstractSourceTest {
         
         System.out.println("Time=" + time);
         source.setMediaTime(time);
-        pipe.start();
+        source.start();
         
         Thread.sleep(1000);
         
@@ -190,8 +185,8 @@ public class AbstractSourceTest {
     
     private class MyTestSink extends AbstractSink {
         
-        public MyTestSink(Scheduler scheduler) {
-            super("", scheduler,scheduler.MIXER_INPUT_QUEUE);
+        public MyTestSink() {
+            super("");
         }
 
         @Override

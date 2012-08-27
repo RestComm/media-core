@@ -88,12 +88,12 @@ public class LocalConnectionImplTest {
         endpoint.setRtpManager(rtpManager);
         endpoint.start();
 
-        connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL,false);
+        connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL,false);        
     }
 
     @After
     public void tearDown() {
-        endpoint.deleteAllConnections();
+    	endpoint.deleteAllConnections();
         endpoint.stop();
         scheduler.stop();
     }
@@ -106,7 +106,7 @@ public class LocalConnectionImplTest {
 //        connection.bind();
         Thread.sleep(1000);
 
-        System.out.println(connection.getDescriptor());
+        System.out.println(connection.getDescriptor());        
     }
 
     @Test

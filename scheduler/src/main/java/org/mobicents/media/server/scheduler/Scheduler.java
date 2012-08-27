@@ -49,30 +49,27 @@ import org.apache.log4j.Logger;
  * @author Oifa Yulian
  */
 public class Scheduler  {
+	//ss7 queues
 	public static final Integer RECEIVER_QUEUE=0;
+	public static final Integer SENDER_QUEUE=1;
+	
 	//MANAGEMENT QUEUE SHOULD CONTAIN ONLY TASKS THAT ARE NOT TIME DEPENDENT , FOR
 	//EXAMPLE MGCP COMMANDS 
-	public static final Integer MANAGEMENT_QUEUE=2;
 	public static final Integer UDP_MANAGER_QUEUE=3;
-	public static final Integer RX_TASK_QUEUE=4;
+	public static final Integer MANAGEMENT_QUEUE=4;	
 	public static final Integer INPUT_QUEUE=5;
-	public static final Integer SPLITTER_INPUT_QUEUE=6;
-	public static final Integer SPLITTER_OUTPUT_QUEUE=7;
-	public static final Integer MIXER_INPUT_QUEUE=8;
-	public static final Integer MIXER_MIX_QUEUE=9;
-	public static final Integer MIXER_OUTPUT_QUEUE=10;
-	public static final Integer SENDER_QUEUE=11;
+	public static final Integer SPLITTER_OUTPUT_QUEUE=6;
+	public static final Integer MIXER_MIX_QUEUE=7;
 	
 	//OUTPUT QUEUE IS SET AS ZERO QUEUE TO ALLOW MORE CORRECTLY GENERATE 20MS DELAY
-	public static final Integer OUTPUT_QUEUE=1;
-	//TX Task is called from OUTPUT AND NOT ADDED TO SCHEDULER THEREFORE NOT NEEDED HERE
+	public static final Integer MIXER_OUTPUT_QUEUE=2;
 	
 	public static final Integer HEARTBEAT_QUEUE=-1;
     //The clock for time measurement
     private Clock clock;
 
     //priority queue
-    protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[12];
+    protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[8];
 
     protected OrderedTaskQueue heartBeatQueue;
     //CPU bound threads
@@ -255,11 +252,21 @@ public class Scheduler  {
 						}
 				}
         		
-        		currQueue++;        		
+        		synchronized(LOCK) {    					
+					if(executeQueue(taskQueues[SENDER_QUEUE]))
+						try {
+							LOCK.wait();
+						}
+						catch(InterruptedException e)  {                                               
+							//lets continue
+						}
+				}
+        		
+        		currQueue=MIXER_OUTPUT_QUEUE;
         		runIndex2=(runIndex2+1)%5;
         		if(runIndex2==0)
         		{
-        			while(currQueue<=MIXER_OUTPUT_QUEUE)
+        			while(currQueue<=MIXER_MIX_QUEUE)
         			{    				    				
         				synchronized(LOCK) {    					
         					if(executeQueue(taskQueues[currQueue]))
@@ -273,20 +280,8 @@ public class Scheduler  {
     				
         				currQueue++;
         			}
-        		}
-				
-        		//running sender queue each 4ms
-        		synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[SENDER_QUEUE]))
-						try {
-							LOCK.wait();
-						}
-						catch(InterruptedException e)  {                                               
-							//lets continue
-						}
-				}
+        		}				        		
         		
-        		currQueue++;
         		runIndex=(runIndex+1)%25;        		
     			if(runIndex==0)    				    				
     				synchronized(LOCK) {
@@ -310,8 +305,7 @@ public class Scheduler  {
                 	}
         		
         		//new cycle starts , updating cycle start time by 4ms
-                cycleStart = cycleStart + 4000000L;
-                currQueue=RECEIVER_QUEUE;                                               
+                cycleStart = cycleStart + 4000000L;                                              
         	}
         }
         

@@ -28,6 +28,7 @@
 package org.mobicents.media.server;
 
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.component.audio.Sine;
@@ -59,7 +60,7 @@ public class MyTestEndpoint extends BaseEndpointImpl implements Endpoint {
         sine = new Sine(this.getScheduler());
         sine.setFrequency(f);
         sine.setAmplitude((short)(Short.MAX_VALUE / 3));
-        analyzer = new SpectraAnalyzer("analyzer",this.getScheduler());
+        analyzer = new SpectraAnalyzer("analyzer");
         
         super.start();
     }
@@ -90,7 +91,7 @@ public class MyTestEndpoint extends BaseEndpointImpl implements Endpoint {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public Component getResource(MediaType mediaType, Class intf) {
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

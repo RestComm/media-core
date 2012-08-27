@@ -67,23 +67,5 @@ public abstract class BaseComponent implements Component {
      * @see org.mobicents.media.Component#reserStats();
      */
     public void reset() {
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.media.Component#getInterface(java.lang.Class)
-     */
-    public <T> T getInterface(Class<T> interfaceType) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
-     * Cyclic increment function.
-     *
-     * @param v the value to be incremented.
-     * @return the v + 1 or 0 if max value has been reached.
-     */
-    protected long inc(long v) {
-        return v == Long.MAX_VALUE ? 0 : v+1;
-    }
+    }    
 }

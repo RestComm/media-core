@@ -9,14 +9,13 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  *
- * @author kulikov
+ * @author oifa yulian
  */
 public class SoundCardTest {
     
@@ -25,8 +24,6 @@ public class SoundCardTest {
     
     private Sine sine;
     private SoundCard soundCard;
-    
-    private PipeImpl pipe = new PipeImpl();
     
     public SoundCardTest() {
     }
@@ -50,14 +47,15 @@ public class SoundCardTest {
         sine = new Sine(scheduler);
         sine.setFrequency(200);
         
-        soundCard = new SoundCard(scheduler);
+        soundCard = new SoundCard();
         
-        sine.connect(pipe);
-        soundCard.connect(pipe);
+        sine.connect(soundCard);        
     }
     
     @After
     public void tearDown() {
+    	sine.stop();
+    	sine.disconnect();
         scheduler.stop();
     }
 
@@ -66,9 +64,9 @@ public class SoundCardTest {
      */
     @Test
     public void testSignal() throws InterruptedException {
-        pipe.start();        
+    	sine.start();        
         Thread.sleep(3000);        
-        pipe.stop();
+        sine.stop();
     }
 
 }

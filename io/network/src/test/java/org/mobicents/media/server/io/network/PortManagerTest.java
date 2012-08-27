@@ -98,11 +98,11 @@ public class PortManagerTest {
     public void testNext() {
         portManager.setLowestPort(2);
         portManager.setHighestPort(10);
-
-        assertEquals(4, portManager.next());
+        
+        assertEquals(10, portManager.next());
         assertEquals(8, portManager.next());
+        assertEquals(6, portManager.next());
         assertEquals(4, portManager.next());
-        assertEquals(8, portManager.next());
     }
 
 }

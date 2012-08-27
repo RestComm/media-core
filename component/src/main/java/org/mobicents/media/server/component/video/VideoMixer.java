@@ -78,8 +78,8 @@ public class VideoMixer implements Mixer {
 
     private class Input extends AbstractSink {
 
-        public Input(Scheduler scheduler) {
-            super("video.mixer.input", scheduler,scheduler.MIXER_INPUT_QUEUE);
+        public Input() {
+            super("video.mixer.input");
         }
 
         @Override

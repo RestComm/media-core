@@ -38,11 +38,10 @@ import static org.junit.Assert.*;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.io.Pipe;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class SynchrinizationTest {
 
@@ -72,13 +71,9 @@ public class SynchrinizationTest {
         scheduler.start();
 
         sine = new Sine(scheduler);
-        analyzer = new SpectraAnalyzer("analyzer", scheduler);
-
-
-        Pipe pipe = new PipeImpl();
-
-        pipe.connect(sine);
-        pipe.connect(analyzer);
+        analyzer = new SpectraAnalyzer("analyzer");
+        
+        sine.connect(analyzer);
 
         sine.setFrequency(50);
     }
@@ -93,21 +88,17 @@ public class SynchrinizationTest {
      */
     @Test
     public void testSync() throws InterruptedException {
-        analyzer.start();
-        //generator not started but trying to synchornize
+        sine.start();
         sine.wakeup();
-
         Thread.sleep(5000);
-
         sine.stop();
-        analyzer.stop();
-
+        
+        sine.setAmplitude((short)0);        
+        sine.start();
         Thread.sleep(1000);
-
+        sine.stop();
+        
         int[] spectra = analyzer.getSpectra();
-
         assertEquals(0, spectra.length);
     }
-
-
 }

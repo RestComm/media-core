@@ -106,6 +106,7 @@ public class RTPDataChannel {
     private long lastPacketReceived;
     
     private RTPChannelListener rtpChannelListener;
+    private Scheduler scheduler;
     
     private Logger logger = Logger.getLogger(RTPDataChannel.class) ;
     /**
@@ -126,14 +127,15 @@ public class RTPDataChannel {
 
         rxBuffer = new JitterBuffer(rtpClock, jitter);
         
+        scheduler=rtpManager.scheduler;
         //receiver
-        input = new RTPInput(rtpManager.scheduler,rxBuffer);
+        input = new RTPInput(scheduler,rxBuffer);
         rxBuffer.setListener(input);
         
         //transmittor
-        output = new RTPOutput(rtpManager.scheduler,this);               
+        output = new RTPOutput(this);               
 
-        heartBeat=new HeartBeat(rtpManager.scheduler);
+        heartBeat=new HeartBeat(scheduler);
         
         //add RFC2833 dtmf event formats
         if (rtpManager.dtmf > 0) {
@@ -356,7 +358,7 @@ public class RTPDataChannel {
      */
     private class RTPHandler implements ProtocolHandler {
         //The schedulable task for read operation
-        private RxTask rx = new RxTask(rtpManager.scheduler);
+        private RxTask rx = new RxTask();
         
         private volatile boolean isReading = false;
         private volatile boolean isWritting;
@@ -372,7 +374,7 @@ public class RTPDataChannel {
          */
         public void receive(DatagramChannel channel) {
         		count++;
-        		rtpManager.scheduler.submit(rx,rtpManager.scheduler.RX_TASK_QUEUE);        	
+        		rx.perform();        		        	
         }
 
         public boolean isReadable() {
@@ -445,39 +447,15 @@ public class RTPDataChannel {
      * Implements scheduled rx job.
      *
      */
-    private class RxTask extends Task {
+    private class RxTask {
 
         //RTP packet representation
         private RtpPacket rtpPacket = new RtpPacket(8192, true);        
         private SocketAddress currAddress;
         
-        private RxTask(Scheduler scheduler) {
-            super(scheduler);
+        private RxTask() {            
         }
 
-        public int getQueueNumber()
-        {
-        	return scheduler.RX_TASK_QUEUE;
-        }
-        
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.scheduler.Task#getPriority()
-         */
-        public long getPriority() {
-            return 0;
-        }
-
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.scheduler.Task#getDuration()
-         */
-        public long getDuration() {
-            return 0;
-        }
-        
         private void flush()
         {
         	try {

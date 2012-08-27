@@ -35,6 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.cnf.CnfEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -195,7 +196,7 @@ public class RelayTest {
         
         Thread.sleep(350);
         
-        Player player = (Player) ivr.getResource(MediaType.AUDIO, Player.class);
+        Player player = (Player) ivr.getResource(MediaType.AUDIO, ComponentType.PLAYER);
         player.setURL("file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav");
         player.start();
         

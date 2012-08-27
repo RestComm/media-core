@@ -54,7 +54,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  * InbandDetector and hence Inband detection for codecs like SPEEX, GSM, G729
  * may completely stop
  * 
- * @author Oleg Kulikov
+ * @author yulian oifa
  * @author amit bhayani
  */
 public class DetectorImpl extends AbstractSink implements DtmfDetector {
@@ -114,7 +114,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
      * Creates new instance of Detector.
      */
     public DetectorImpl(String name, Scheduler scheduler) {
-        super(name, scheduler,scheduler.MIXER_INPUT_QUEUE);
+        super(name);
         
         this.scheduler = scheduler;
         
@@ -290,19 +290,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
 
     public Formats getNativeFormats() {
         return formats;
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.media.server.impl.AbstractSink#getInterface(java.lang.Class)
-     */
-    @Override
-    public <T> T getInterface(Class<T> interfaceType) {
-        if (interfaceType.equals(DtmfDetector.class)) {
-            return (T) this;
-        } else {
-            return null;
-        }
-    }
+    }    
 
     public String getMask() {
         return null;
@@ -322,20 +310,20 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     protected void fireEvent(String tone) {
         eventSender.events.add(new DtmfEventImpl(this, tone, 0));        
         //schedule event delivery
-        scheduler.submit(eventSender,scheduler.MIXER_OUTPUT_QUEUE);
+        scheduler.submit(eventSender,scheduler.INPUT_QUEUE);
     }
     
     protected void fireEvent(DtmfEventImpl evt) {
         eventSender.events.add(evt);        
         //schedule event delivery
-        scheduler.submit(eventSender,scheduler.MIXER_OUTPUT_QUEUE);
+        scheduler.submit(eventSender,scheduler.INPUT_QUEUE);
     }
 
     protected void fireEvent(Collection<DtmfEventImpl> evts) {
         eventSender.events.addAll(evts);                
         
         //schedule event delivery
-        scheduler.submit(eventSender,scheduler.MIXER_OUTPUT_QUEUE);
+        scheduler.submit(eventSender,scheduler.INPUT_QUEUE);
     }
     
     public void flushBuffer() {
@@ -373,7 +361,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         
         public int getQueueNumber()
         {
-        	return scheduler.MIXER_OUTPUT_QUEUE;
+        	return scheduler.INPUT_QUEUE;
         }       
 
         @Override

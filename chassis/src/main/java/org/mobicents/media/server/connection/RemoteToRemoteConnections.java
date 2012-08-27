@@ -32,7 +32,6 @@ import org.mobicents.media.server.component.Mixer;
 import org.mobicents.media.server.component.Splitter;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.video.VideoMixer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.rtp.RTPManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -50,7 +49,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * connection objects gives better result.
  *
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class RemoteToRemoteConnections extends Connections {
     public RemoteToRemoteConnections(BaseEndpointImpl endpoint, int localPoolSize, int rtpPoolSize) throws Exception {

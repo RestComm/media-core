@@ -39,9 +39,6 @@ import org.mobicents.media.server.spi.tone.ToneDetectorListener;
 import org.mobicents.media.server.component.audio.GoertzelFilter;
 import org.mobicents.media.server.impl.AbstractSink;
 
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
-
 /**
  *
  * @author Oifa Yulian
@@ -69,8 +66,8 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
     
     private Listeners<ToneDetectorListener> listeners = new Listeners();    
     
-    public PhoneSignalDetector(String name,Scheduler scheduler,MediaSource source) {
-        super(name,scheduler,scheduler.OUTPUT_QUEUE);
+    public PhoneSignalDetector(String name,MediaSource source) {
+        super(name);
         signal = new double[N];  
         this.source=source;    
     }
@@ -174,14 +171,5 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
     private void sendEvent(Event event)
     {
     	listeners.dispatch(event);    	
-    }
-    
-    @Override
-    public <T> T getInterface(Class<T> interfaceType) {
-        if (interfaceType.equals(PhoneSignalDetector.class)) {
-            return (T) this;
-        } else {
-            return null;
-        }
-    }
+    }    
 }

@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -395,53 +396,19 @@ public class PlayRecord extends Signal {
     }
     
     private Player getPlayer() {
-        if (getTrigger().getConnectionID() == null) {
-            Endpoint endpoint = getEndpoint();
-            return (Player) getEndpoint().getResource(MediaType.AUDIO, Player.class); 
-        }
-        
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-        
-        if (connection == null) {
-        	   return null;
-        }
-        
-        return null;
+    	Endpoint endpoint = getEndpoint();
+        return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
     }
 
-    
-    private Recorder getRecorder() {
-        if (getTrigger().getConnectionID() == null) {
-            Endpoint endpoint = getEndpoint();
-            return (Recorder) getEndpoint().getResource(MediaType.AUDIO, Recorder.class); 
-        }
-        
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-        
-        if (connection == null) {
-            return null;
-        }
-        
-        return null;
-    }
-    
     private DtmfDetector getDetector() {
-        if (getTrigger().getConnectionID() == null) {
-            Endpoint endpoint = getEndpoint();
-            return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, DtmfDetector.class); 
-        }
-        
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-        
-        if (connection == null) {
-            return null;
-        }
-        
-        return null;
-    }
+    	Endpoint endpoint = getEndpoint();
+        return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+    }  
+
+    private Recorder getRecorder() {
+    	Endpoint endpoint = getEndpoint();
+        return (Recorder) getEndpoint().getResource(MediaType.AUDIO, ComponentType.RECORDER);
+    }    
     
     @Override
     public void reset() {

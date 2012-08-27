@@ -71,8 +71,8 @@ public class RTPOutput extends AbstractSink {
     /**
      * Creates new transmitter
      */
-    protected RTPOutput(Scheduler scheduler,RTPDataChannel channel) {
-        super("Output", scheduler,scheduler.OUTPUT_QUEUE);
+    protected RTPOutput(RTPDataChannel channel) {
+        super("Output");
         this.channel=channel;               
     }
     

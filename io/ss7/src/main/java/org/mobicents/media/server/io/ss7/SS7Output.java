@@ -87,7 +87,7 @@ public class SS7Output extends AbstractSink {
      * Creates new transmitter
      */
     protected SS7Output(Scheduler scheduler,Channel channel,AudioFormat destinationFormat) {
-        super("Output", scheduler,scheduler.OUTPUT_QUEUE);
+        super("Output");
         this.channel=channel;        
         this.destinationFormat=destinationFormat;
         this.sender=new Sender(scheduler);

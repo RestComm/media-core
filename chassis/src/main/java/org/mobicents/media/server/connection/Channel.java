@@ -28,7 +28,6 @@ import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.component.Mixer;
 import org.mobicents.media.server.component.Splitter;
 import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.MediaType;
@@ -43,7 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Represents the bi-directional transition path for a particular media type stream.
  *
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class Channel {
     protected BaseConnection connection;
@@ -52,11 +51,8 @@ public class Channel {
     protected Mixer mixer;
     protected Splitter splitter;
     
-    protected PipeImpl txPipe = new PipeImpl();
-    protected PipeImpl rxPipe = new PipeImpl();
-    protected PipeImpl localPipe = new PipeImpl();
-    
-    protected Channel otherChannel=null;
+    private Channel otherChannel=null;
+    private RTPDataChannel otherRtpChannel=null;
     protected Connections connections;
     
     private boolean isRTP = false;
@@ -223,11 +219,10 @@ public class Channel {
     public void connect(RTPDataChannel other) {
     	this.isRTP = true;
 
-    	txPipe.connect(mixer.getOutput());
-        txPipe.connect(other.getOutput());
-
-        rxPipe.connect(splitter.getInput());
-        rxPipe.connect(other.getInput());
+    	mixer.getOutput().connect(other.getOutput());
+    	other.getInput().connect(splitter.getInput());
+    	
+    	otherRtpChannel=other;
     }
 
     /**
@@ -236,13 +231,13 @@ public class Channel {
      * @param other the other channel
      */
     public void connect(Channel other) {
-    	localPipe.connect(mixer.getOutput());
-    	localPipe.connect(other.splitter.getInput());
-    	localPipe.start();
+    	this.isRTP = false;
+
+    	mixer.getOutput().connect(other.splitter.getInput());
+    	mixer.getOutput().start();
     	
-    	other.localPipe.connect(other.mixer.getOutput());
-        other.localPipe.connect(splitter.getInput());        
-        other.localPipe.start();
+    	other.mixer.getOutput().connect(splitter.getInput());
+    	other.mixer.getOutput().start();
         
         otherChannel=other;
     }
@@ -251,19 +246,20 @@ public class Channel {
      * Disconnects this channel from another if it was connected previously
      */
     public void disconnect() {
-    	rxPipe.stop();
-    	rxPipe.disconnect();
+    	mixer.getOutput().stop();
+    	mixer.getOutput().disconnect();
     	
-        txPipe.stop();
-        txPipe.disconnect();
-        
-        localPipe.stop();
-        localPipe.disconnect();
+        if(otherRtpChannel!=null)
+        {
+    		otherRtpChannel.getInput().stop();
+    		otherRtpChannel.getInput().disconnect();
+    		otherRtpChannel=null;
+        }
         
         if(otherChannel!=null)
         {
-        	otherChannel.localPipe.stop();
-        	otherChannel.localPipe.disconnect();
+        	otherChannel.mixer.getOutput().stop();
+        	otherChannel.mixer.getOutput().disconnect();
         	otherChannel=null;
         }
     }
@@ -302,9 +298,7 @@ public class Channel {
         private MediaSource source;
         //endpoint's mixer input
         private MediaSink sink;
-        //pipe for joining
-        private PipeImpl pipe = new PipeImpl();
-
+        
         public RecvOnlyMode(Connections connections) {
             this.connections = connections;
         }
@@ -316,22 +310,25 @@ public class Channel {
             sink = connections.getMixer(mediaType).newInput();
 
             //join
-            pipe.connect(source);
-            pipe.connect(sink);
-
+            source.connect(sink);
+            
             //enable transmission
-            pipe.start();
-            rxPipe.start();                        
+            source.start();
+            
+            if(otherRtpChannel!=null)
+            	otherRtpChannel.getInput().start();            
         }
 
         @Override
         public void deactivate() {
             //break transmission
-            rxPipe.stop();
-            pipe.stop();                       
+            source.stop();
+            
+            if(otherRtpChannel!=null)
+            	otherRtpChannel.getInput().stop();
             
             //drop connection
-            pipe.disconnect();            
+            source.disconnect();            
             
             //release input/output
             splitter.release(source);
@@ -372,9 +369,7 @@ public class Channel {
         private MediaSource source;
         //endpoint's mixer input
         private MediaSink sink;
-        //pipe for joining
-        private PipeImpl pipe = new PipeImpl();
-
+        
         private long mediaTime;
         
         public SendOnlyMode(Connections connections) {
@@ -388,15 +383,13 @@ public class Channel {
             sink = mixer.newInput();
 
             //join
-            pipe.connect(source);
-            pipe.connect(sink);
+            source.connect(sink);
 
             //start transmission
             mixer.getOutput().setMediaTime(mediaTime);
             mixer.start();            
-            pipe.start();
-            txPipe.start(); 
-            localPipe.start();
+            source.start();
+            mixer.getOutput().start();            
             	            
         }
 
@@ -406,14 +399,13 @@ public class Channel {
             this.mediaTime = mixer.getOutput().getMediaTime();
             
             //break transmission
-            txPipe.stop();
             mixer.stop();
-            pipe.stop();
-            localPipe.stop();            
+            source.stop();
+            mixer.getOutput().stop();            
             	
             
             //unjoin
-            pipe.disconnect();
+            source.disconnect();
 
             //release input/output
             connections.getSplitter(mediaType).release(source);
@@ -486,9 +478,7 @@ public class Channel {
         private MediaSource tx;
         //endpoint's mixer input
         private MediaSink rx;
-        //pipe for joining
-        private PipeImpl pipe = new PipeImpl();
-
+        
         public NetworkLoopMode(Connections connections) {
             this.connections = connections;
         }
@@ -500,17 +490,16 @@ public class Channel {
             rx = mixer.newInput();
             
             //join
-            pipe.connect(tx);
-            pipe.connect(rx);
+            tx.connect(rx);
             
             //start transmission
             //pipe.setDebug(true);
-            pipe.start();
+            tx.start();
             
             //start RTP
             if (isRTP) {
-                rxPipe.start();
-                txPipe.start();
+            	mixer.getOutput().start();
+                otherRtpChannel.getInput().start();
             }
         }
 
@@ -518,14 +507,14 @@ public class Channel {
         public void deactivate() {
             //start RTP
             if (isRTP) {
-                rxPipe.stop();
-                txPipe.stop();
+            	mixer.getOutput().stop();
+                otherRtpChannel.getInput().stop();
             }
             
-            pipe.stop();
+            tx.stop();
             
             //unjoin
-            pipe.disconnect();
+            tx.disconnect();
 
             //release input/output
             splitter.release(tx);

@@ -24,6 +24,7 @@ package org.mobicents.media.server.mgcp.pkg.au;
 
 import java.net.MalformedURLException;
 import org.apache.log4j.Logger;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -328,36 +329,14 @@ public class PlayCollect extends Signal {
     }
 
     private Player getPlayer() {
-        if (getTrigger().getConnectionID() == null) {
-            Endpoint endpoint = getEndpoint();
-            return (Player) getEndpoint().getResource(MediaType.AUDIO, Player.class); 
-        }
-        
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-        
-        if (connection == null) {
-        	return null;
-        }
-        
-        return null;
+    	Endpoint endpoint = getEndpoint();
+        return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
     }
 
     private DtmfDetector getDetector() {
-        if (getTrigger().getConnectionID() == null) {
-        	Endpoint endpoint = getEndpoint();
-        	return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, DtmfDetector.class); 
-        }
-        
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-        
-        if (connection == null) {
-            return null;
-        }
-         
-        return null;
-    }
+    	Endpoint endpoint = getEndpoint();
+        return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+    }    
     
     @Override
     public void reset() {

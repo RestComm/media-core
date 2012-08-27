@@ -23,11 +23,11 @@ package org.mobicents.media.server.announcement;
 
 import java.util.ArrayList;
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.BaseEndpointImpl;
 import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.MediaPlayerImpl;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -38,14 +38,12 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 /**
  * Implements announcement access point.
  * 
- * @author oifa yulian
+ * @author yulian oifa
  */
 public class AnnouncementEndpoint extends BaseEndpointImpl {
 
 	private MediaPlayerImpl mediaPlayer;
     private AudioMixer audioMixer;
-    
-    private ArrayList<MediaSource> components = new ArrayList();
     
     public AnnouncementEndpoint(String name) {
         super(name,BaseEndpointImpl.ENDPOINT_NORMAL);                
@@ -89,13 +87,9 @@ public class AnnouncementEndpoint extends BaseEndpointImpl {
         try {
         	MediaSink sink = audioMixer.newInput();
             MediaSource source=mediaPlayer.getMediaSource(MediaType.AUDIO);
-            PipeImpl p = new PipeImpl();
-            p.connect(sink);
-            p.connect(source);
+            source.connect(sink);
             
-            components.add(source);            
-            mediaPlayer.setDsp(getDspFactory().newProcessor(),MediaType.AUDIO);                
-            sink.start();
+            mediaPlayer.setDsp(getDspFactory().newProcessor(),MediaType.AUDIO);            
         } catch (Exception e) {
             throw new ResourceUnavailableException(e);
         }
@@ -103,14 +97,14 @@ public class AnnouncementEndpoint extends BaseEndpointImpl {
         super.start();
     }
 
-    public Component getResource(MediaType mediaType, Class intf) {
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
         switch (mediaType) {
             case AUDIO:
-            	for (int i = 0; i < components.size(); i++) {
-                    if (components.get(i).getInterface(intf) != null) {
-                        return components.get(i);
-                    }
-                }
+            	switch(componentType)
+            	{
+            		case PLAYER:
+            			return mediaPlayer.getMediaSource(mediaType.AUDIO);            			
+            	}
                 return null;
             default:
                 return null;

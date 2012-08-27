@@ -28,6 +28,7 @@
 package org.mobicents.media.server.test;
 
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.BaseEndpointImpl;
@@ -39,7 +40,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class SoundSystem extends BaseEndpointImpl implements Endpoint {
 
@@ -60,7 +61,7 @@ public class SoundSystem extends BaseEndpointImpl implements Endpoint {
         sine = new Sine(this.getScheduler());
         sine.setFrequency(f);
         sine.setAmplitude((short)(Short.MAX_VALUE / 3));
-        soundcard = new SoundCard(this.getScheduler());
+        soundcard = new SoundCard();
         
         super.start();
     }
@@ -91,7 +92,7 @@ public class SoundSystem extends BaseEndpointImpl implements Endpoint {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public Component getResource(MediaType mediaType, Class intf) {
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

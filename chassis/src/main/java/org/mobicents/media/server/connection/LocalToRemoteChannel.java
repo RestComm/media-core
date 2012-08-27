@@ -28,7 +28,6 @@ import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.component.Mixer;
 import org.mobicents.media.server.component.Splitter;
 import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.MediaType;
@@ -41,7 +40,7 @@ import org.apache.log4j.Logger;
  * Represents the bi-directional transition path for a particular media type stream.
  *
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class LocalToRemoteChannel extends Channel {		
     public LocalToRemoteChannel(BaseConnection connection, Connections connections, MediaType mediaType, Mixer mixer, Splitter splitter) throws Exception {

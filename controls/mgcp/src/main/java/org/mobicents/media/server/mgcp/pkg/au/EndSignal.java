@@ -23,6 +23,7 @@
 package org.mobicents.media.server.mgcp.pkg.au;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
@@ -34,7 +35,7 @@ import org.mobicents.media.server.utils.Text;
  * Gracefully terminates Play, PlayRecord or PlayCollect signal.
  * 
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class EndSignal extends Signal {
     
@@ -75,19 +76,7 @@ public class EndSignal extends Signal {
     }
     
     private DtmfDetector getDetector() {
-        if (getTrigger().getConnectionID() == null) {
-            Endpoint endpoint = getEndpoint();
-            return (DtmfDetector) endpoint.getResource(MediaType.AUDIO, DtmfDetector.class); 
-        }
-        
-        String connectionID = getTrigger().getConnectionID().toString();
-        Connection connection = getConnection(connectionID);
-        
-        if (connection == null) {
-            return null;
-        }
-        
-        return null;
-    }
-    
+    	Endpoint endpoint = getEndpoint();
+        return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+    }     
 }

@@ -56,6 +56,8 @@
     <bean name="DSP" class="org.mobicents.media.server.component.DspFactoryImpl">
         <property name="codecs">
             <list value-type="java.lang.String">
+		<value>org.mobicents.media.server.impl.dsp.audio.l16.Encoder</value>
+                <value>org.mobicents.media.server.impl.dsp.audio.l16.Decoder</value>
                 <value>org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder</value>
                 <value>org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder</value>
                 <value>org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder</value>

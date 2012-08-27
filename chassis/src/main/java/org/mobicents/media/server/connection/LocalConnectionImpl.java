@@ -23,26 +23,21 @@
 package org.mobicents.media.server.connection;
 
 import java.io.IOException;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class LocalConnectionImpl extends BaseConnection {
 
     private LocalConnectionImpl otherConnection;
-    private Pipe audioPipe = new PipeImpl();
-
-    
     public LocalConnectionImpl(String id, Connections connections,Boolean isLocalToRemote) throws Exception {
         super(id, connections,isLocalToRemote);
     }

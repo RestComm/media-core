@@ -22,8 +22,7 @@
 
 package org.mobicents.media;
 
-import org.mobicents.media.server.spi.io.Pipe;
-
+import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * Implements the media consumer.
@@ -42,32 +41,7 @@ public interface MediaSink extends Component {
      * Terminates media processing.
      */
     public void stop();
-    
-    
-    /**
-     * Joins this media sink with media source.
-     * The concrete media sink can allow to join with multiple sources
-     * 
-     * @param source the media source to join with.
-     */
-    public void connect(Pipe pipe);
-    
-    /**
-     * Breaks connection with media source.
-     * The concrete media sink can allow to join with multiple sources so
-     * this method requires the explicit source for disconnection.
-     * 
-     * @param source the source to disconnect from.
-     */
-    public void disconnect(Pipe pipe);
-    
-    /**
-     * Gets the state of the component.
-     * 
-     * @return  true if component is connected to other component.
-     */
-    public boolean isConnected();
-    
+        
     /**
      * Gets true if component is able to receive media.
      * 
@@ -86,8 +60,13 @@ public interface MediaSink extends Component {
      * Shows the number of bytes received by this sink since last start;
      * 
      * @return the number of bytes.
-     */
+     */    
     public long getBytesReceived();
     
-	
+    /**
+     * Allows to transfer frame from media source to media sink
+     * 
+     * @return the number of bytes.
+     */
+	public void perform(Frame frame);
 }

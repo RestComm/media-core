@@ -24,9 +24,9 @@ package org.mobicents.media.server.impl;
 
 
 import org.mobicents.media.MediaSource;
+import org.mobicents.media.MediaSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.io.Pipe;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.apache.log4j.Logger;
 
@@ -72,7 +72,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     private long initialDelay = 0;
     
     //media transmission pipe
-    protected PipeImpl pipe;        
+    protected MediaSink mediaSink;        
 
     private static final Logger logger = Logger.getLogger(AbstractSource.class);
     /**
@@ -165,11 +165,14 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
 
     			//just started component always synchronized as well
     			this.isSynchronized = true;
-
+    			
+    			if(mediaSink!=null)
+    				mediaSink.start();
+    			
     			//scheduler worker    
     			worker.reinit();
     			scheduler.submit(worker,worker.getQueueNumber());
-
+    			
     			//started!
     			started();
     		} catch (Exception e) {
@@ -209,17 +212,23 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         if (worker != null) {
             worker.cancel();
         }
+        
+        if(mediaSink!=null) {
+        	mediaSink.stop();
+        }
+        	
         timestamp = 0;
     }
 
     /**
      * (Non Java-doc).
      *
-     * @see org.mobicents.media.MediaSource#connect(org.mobicents.media.server.spi.io.Pipe)
+     * @see org.mobicents.media.MediaSource#connect(org.mobicents.media.MediaSink)
      */
-    public void connect(Pipe pipe) {
-        this.pipe = (PipeImpl) pipe;
-        this.pipe.source.set(this);
+    public void connect(MediaSink sink) {
+        this.mediaSink = sink;
+        if(started)
+        	this.mediaSink.start();
     }
 
     /**
@@ -227,9 +236,12 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      *
      * @see org.mobicents.media.MediaSource#disconnect(org.mobicents.media.server.spi.io.Pipe)
      */
-    public void disconnect(Pipe pipe) {
-    	((PipeImpl)pipe).source.set(null);
-        this.pipe = null;
+    public void disconnect() {
+    	if(this.mediaSink!=null)
+    	{
+    		this.mediaSink.stop();
+    		this.mediaSink=null;
+    	}
     }
 
     /**
@@ -238,7 +250,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      * @see org.mobicents.media.MediaSink#isConnected().
      */
     public boolean isConnected() {
-        return pipe != null;
+        return mediaSink != null;
     }
 
     /**
@@ -316,17 +328,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     
     public String report() {
         return "";
-    }
-    
-    
-    /* (non-Javadoc)
-     * @see org.mobicents.media.MediaSink#getInterface(java.lang.Class)
-     */
-    @Override
-    public <T> T getInterface(Class<T> interfaceType) {
-        //should we check default?
-        return null;
-    }
+    }    
 
     /**
      * Media generator task
@@ -339,10 +341,11 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
          */
     	private int queueNumber;    	
     	private long initialTime;
-    	int readCount=0;
+    	int readCount=0,length;
     	long overallDelay=0;
     	Frame frame;
     	long frameDuration;
+    	Boolean isEOM;
     	
     	public Worker(Scheduler scheduler,int queueNumber) {
             super(scheduler);
@@ -401,7 +404,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
             	//update media time and sequence number for the next frame
             	timestamp += frame.getDuration();
             	overallDelay += frame.getDuration();
-            	sn = inc(sn);
+            	sn= (sn==Long.MAX_VALUE) ? 0: sn+1;
 
             	//set end_of_media flag if stream has reached the end
             	if (duration > 0 && timestamp >= duration) {
@@ -409,22 +412,24 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
             	}
 
             	frameDuration = frame.getDuration();            	            	            	          
+            	isEOM=frame.isEOM();
+            	length=frame.getLength();
             	
             	//delivering data to the other party.
-            	if (pipe != null) {
-            		pipe.write(frame);
+            	if (mediaSink != null) {
+            		mediaSink.perform(frame);
             	}
             	
             	//update transmission statistics
             	txPackets++;
-            	txBytes += frame.getLength();
+            	txBytes += length;
             
             	//send notifications about media termination
             	//and do not resubmit this task again if stream has bee ended
-            	if (frame.isEOM()) { 
-            		started = false;
+            	if (isEOM) { 
+            		started=false;
         			completed();
-        			return -1;
+            		return -1;
             	}
 
             	//check synchronization

@@ -22,24 +22,20 @@
 package org.mobicents.media.server.ivr;
 
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.server.announcement.AnnouncementEndpoint;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
-import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.recorder.Recorder;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class IVREndpoint extends AnnouncementEndpoint {
 
-    private Recorder recorder;
     private AudioSink audioSink;
-    
-    private DetectorImpl dtmfDetector;
     
     public IVREndpoint(String name) {
         super(name);
@@ -60,22 +56,17 @@ public class IVREndpoint extends AnnouncementEndpoint {
    
     @Override
     public void start() throws ResourceUnavailableException {
-        //construct audio recorder
-        recorder = new AudioRecorderImpl(getScheduler());
-        
         //construct audio sink
         audioSink = new AudioSink(getScheduler(), getLocalName());
-        audioSink.add(recorder);
-        
         super.start();
     }
     
     @Override
-    public Component getResource(MediaType mediaType, Class intf) {
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
         switch (mediaType) {
             case AUDIO:
-                Component c = super.getResource(mediaType, intf);
-                return c != null ? c : audioSink.getComponent(intf);
+                Component c = super.getResource(mediaType, componentType);
+                return c != null ? c : audioSink.getComponent(componentType);
             default:
                 return null;
         }

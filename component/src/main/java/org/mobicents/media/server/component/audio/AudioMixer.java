@@ -94,7 +94,7 @@ public class AudioMixer implements Mixer {
         output = new Output(scheduler);
         
         for (int i = 0; i < POOL_SIZE; i++) {
-            pool.offer(new Input(scheduler, currentKey.getAndIncrement()));
+            pool.offer(new Input(currentKey.getAndIncrement()));
         }
     }    
 
@@ -105,7 +105,7 @@ public class AudioMixer implements Mixer {
      */
     public MediaSink newInput() {  
     	if(pool.isEmpty())
-    		pool.offer(new Input(scheduler, currentKey.getAndIncrement()));
+    		pool.offer(new Input(currentKey.getAndIncrement()));
     	
     	Input input = pool.poll();
     	input.buffer.clear();
@@ -240,14 +240,14 @@ public class AudioMixer implements Mixer {
         private byte[] activeData;
         private byte[] oldData;
         private int byteIndex=0;
-        
+        private int count=0;
         //private ElasticBuffer buffer = new ElasticBuffer(3, 10);
 
         /**
          * Creates new stream
          */
-        public Input(Scheduler scheduler,int inputId) {
-            super("mixer.input", scheduler,scheduler.MIXER_INPUT_QUEUE);
+        public Input(int inputId) {
+            super("mixer.input");
             this.inputId=inputId;
         }
         
@@ -260,8 +260,9 @@ public class AudioMixer implements Mixer {
         public void onMediaTransfer(Frame frame) throws IOException {
         	//generate frames with correct size here , aggregate frames if needed.
         	//allows to accept several sources with different ptime ( packet time ) 
-        	oldData=frame.getData();       	
-        	for(int i=0;i<oldData.length;i++)        	
+        	oldData=frame.getData();
+        	count=0;
+        	while(count<oldData.length)
         	{
         		if(activeData==null)
         		{
@@ -272,10 +273,16 @@ public class AudioMixer implements Mixer {
         			byteIndex=0;
         		}
         		
-        		activeData[byteIndex++]=oldData[i];
-        		
-        		if(byteIndex>=activeData.length)
+        		if(oldData.length-count<activeData.length-byteIndex)
         		{
+        			System.arraycopy(oldData, count, activeData, byteIndex, oldData.length-count);
+        			count=oldData.length;
+        		}
+        		else
+        		{
+        			System.arraycopy(oldData, count, activeData, byteIndex, activeData.length-byteIndex);
+        			count+=activeData.length-byteIndex;
+        			
         			if (buffer.size() >= limit) 
                 		buffer.poll().recycle();
                     

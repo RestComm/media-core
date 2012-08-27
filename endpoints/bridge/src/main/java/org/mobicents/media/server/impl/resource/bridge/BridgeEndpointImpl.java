@@ -23,6 +23,7 @@
 package org.mobicents.media.server.impl.resource.bridge;
 
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.BaseEndpointImpl;
@@ -58,8 +59,8 @@ public class BridgeEndpointImpl extends BaseEndpointImpl {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public Component getResource(MediaType mediaType, Class intf) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    @Override
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
+    	throw new UnsupportedOperationException("Not supported yet.");
+    }        
 }

@@ -25,6 +25,7 @@ package org.mobicents.media.server.spi;
 
 import java.util.Collection;
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.scheduler.Scheduler;
 
@@ -39,7 +40,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
  * is an example of a physical Endpoint. An audio source in an audio-content
  * server is an example of a virtual Endpoint.
  *
- * @author Oleg Kulikov.
+ * @author Yulian Oifa
  * @author amit.bhayani
  */
 public interface Endpoint {
@@ -129,8 +130,8 @@ public interface Endpoint {
     /**
      * Provides access to the specific resource of the endpoint.
      * 
-     * @param intf the interface of the requested resource
+     * @param component type of the requested resource
      * @return The component implementing resource.
      */
-    public Component getResource(MediaType mediaType, Class intf);
+    public Component getResource(MediaType mediaType, ComponentType componentType);
 }

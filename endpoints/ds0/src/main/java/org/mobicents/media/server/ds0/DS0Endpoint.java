@@ -23,6 +23,7 @@ package org.mobicents.media.server.ds0;
 
 import java.util.ArrayList;
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.spi.MediaType;
@@ -30,7 +31,6 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.component.Splitter;
 import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.BaseEndpointImpl;
 import org.mobicents.media.server.BaseSS7EndpointImpl;
 import org.mobicents.media.server.spi.Connection;
@@ -41,7 +41,7 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 /**
  *
- * @author oifa yulian
+ * @author yulian oifa
  */
 public class DS0Endpoint extends BaseSS7EndpointImpl {
 
@@ -50,11 +50,11 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     private AudioMixer audioMixer;    
     private Splitter audioSplitter;
     
-    private ArrayList<Component> components = new ArrayList();
-    
     private MediaSink sink;
     private MediaSource source;
     
+    private PhoneSignalGenerator phoneGenerator;
+    private PhoneSignalDetector phoneDetector;
     public DS0Endpoint(String name,SS7Manager ss7Manager,int channelID,boolean isALaw) {
         super(name,BaseEndpointImpl.ENDPOINT_NORMAL,ss7Manager,channelID,isALaw);
         
@@ -94,30 +94,20 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     		sink = audioMixer.newInput();
     		
     		//connect phone signal generator
-    		PhoneSignalGenerator phoneGenerator=new PhoneSignalGenerator("phone generator",getScheduler());
-    		PipeImpl p = new PipeImpl();
-    		p.connect(phoneGenerator);
-    		p.connect(audioMixer.newInput());
-    		components.add(phoneGenerator);
+    		phoneGenerator=new PhoneSignalGenerator("phone generator",getScheduler());
+    		phoneGenerator.connect(audioMixer.newInput());
     		
-    		p = new PipeImpl();
-    		p.connect(audioMixer.getOutput());
-    		p.connect(ss7DataChannel.getOutput());
+    		audioMixer.getOutput().connect(ss7DataChannel.getOutput());
     		
     		audioSplitter = new Splitter(getScheduler());    		
     		
     		//connect phone signal detector
     		source=audioSplitter.newOutput();
-    		PhoneSignalDetector phoneDetector=new PhoneSignalDetector("phone detector",getScheduler(),source);
-    		PipeImpl p1 = new PipeImpl();
-    		p1.connect(phoneDetector);
-    		p1.connect(source);    		
-    		components.add(phoneDetector);
+    		phoneDetector=new PhoneSignalDetector("phone detector",source);
+    		source.connect(phoneDetector);
     		
     		source=audioSplitter.newOutput();
-    		p1 = new PipeImpl();
-    		p1.connect(ss7DataChannel.getInput());
-    		p1.connect(audioSplitter.getInput());    		
+    		ss7DataChannel.getInput().connect(audioSplitter.getInput());    		
     		
     		
     		audioMixer.getOutput().start();
@@ -126,8 +116,6 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
         	ss7DataChannel.getInput().setDsp(getDspFactory().newProcessor());
             ss7DataChannel.getOutput().setDsp(getDspFactory().newProcessor());            
 
-            components.add(ss7DataChannel.getInput());
-            components.add(ss7DataChannel.getOutput());
             //create player , connect it with pipe to output            
         } catch (Exception e) {
             throw new ResourceUnavailableException(e);
@@ -137,14 +125,20 @@ public class DS0Endpoint extends BaseSS7EndpointImpl {
     }
     
     @Override
-    public Component getResource(MediaType mediaType, Class intf) {    
+    public Component getResource(MediaType mediaType, ComponentType componentType) {    
         switch (mediaType) {
             case AUDIO:
-            	for (int i = 0; i < components.size(); i++) {
-                    if (components.get(i).getInterface(intf) != null) {
-                        return components.get(i);
-                    }
-                }
+            	switch(componentType)
+            	{
+            		case SIGNAL_DETECTOR:
+            			return phoneDetector;            			
+            		case SIGNAL_GENERATOR:
+            			return phoneGenerator;   
+            		case SS7_INPUT:
+            			return ss7DataChannel.getInput();
+            		case SS7_OUTPUT:
+            			return ss7DataChannel.getOutput();
+            	}
             default:
                 return null;
         }

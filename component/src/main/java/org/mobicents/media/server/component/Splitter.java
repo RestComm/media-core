@@ -69,7 +69,7 @@ public class Splitter {
      */
     public Splitter(Scheduler scheduler) {
     	this.scheduler=scheduler;
-    	input = new Input(scheduler);
+    	input = new Input();
         for (int i = 0; i < POOL_SIZE; i++) {
             pool.offer(new Output(scheduler,currentKey.getAndIncrement()));
         }
@@ -148,8 +148,8 @@ public class Splitter {
     	/**
          * Creates new stream.
          */
-        public Input(Scheduler scheduler) {        	
-            super("splitter.input", scheduler,scheduler.SPLITTER_INPUT_QUEUE);            
+        public Input() {
+        	super("splitter.input");
         }
 
         @Override

@@ -41,7 +41,6 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.PipeImpl;
 import java.net.InetSocketAddress;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -72,8 +71,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     private DetectorImpl detector;
     
     private RTPDataChannel channel;
-    private PipeImpl txPipe, rxPipe;
-
+    
     private DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     private Dsp dsp11, dsp12;
@@ -131,18 +129,13 @@ public class RTPEventTest implements DtmfDetectorListener {
         channel.getInput().setDsp(dsp11);
         channel.setFormatMap(AVProfile.audio);
 
-        txPipe = new PipeImpl();
-        rxPipe = new PipeImpl();
-
-        rxPipe.connect(detector);
-        rxPipe.connect(channel.getInput());
+        channel.getInput().connect(detector);        
     }
 
     @After
     public void tearDown() {
-        txPipe.stop();
-        rxPipe.stop();
-
+    	channel.getInput().stop();
+        
         channel.close();
 
         udpManager.stop();
@@ -152,13 +145,13 @@ public class RTPEventTest implements DtmfDetectorListener {
 
     @Test
     public void testTransmission() throws Exception {
-        rxPipe.start();
+    	channel.getInput().start();
 
         new Thread(sender).start();
 
         Thread.sleep(5000);
         
-        rxPipe.stop();
+        channel.getInput().stop();
     }
 
     public void process(DtmfEvent event) {

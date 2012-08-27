@@ -13,7 +13,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -57,9 +56,7 @@ public class AudioSinkTest {
         sink = new AudioSink(scheduler, "test");
         
         
-        PipeImpl pipe = new PipeImpl();
-        pipe.connect(sine);
-        pipe.connect(sink);
+        sine.connect(sink);
     }
     
     @After
@@ -69,20 +66,18 @@ public class AudioSinkTest {
 
     @Test
     public void testSilence() throws InterruptedException {
-        analyzer = new SpectraAnalyzer("fft", scheduler);
+    	analyzer = new SpectraAnalyzer("fft");
         sink.add(analyzer);
         
         sink.start();
-        analyzer.start();
         
         Thread.sleep(3000);
         
         sink.stop();
-        analyzer.stop();
         
         int[] s = analyzer.getSpectra();
         
-        assertEquals(0, s.length);
+        assertEquals(0, s.length);    	
     }
     
     /**
@@ -90,11 +85,10 @@ public class AudioSinkTest {
      */
     @Test
     public void testSignal() throws InterruptedException {
-        analyzer = new SpectraAnalyzer("fft", scheduler);
+        analyzer = new SpectraAnalyzer("fft");
         sink.add(analyzer);
         
         sink.start();
-        analyzer.start();
         
         //MediaSource generator = (MediaSource) aap.getComponent(Sine.class);
         //generator.start();
@@ -105,7 +99,6 @@ public class AudioSinkTest {
 //        generator.stop();
         sine.stop();
         sink.stop();
-        analyzer.stop();
         
         int[] s = analyzer.getSpectra();
         
@@ -130,13 +123,5 @@ public class AudioSinkTest {
         sink.stop();
         
         recorder.stop();
-    }
-    
-    @Test
-    public void testGetComponent() {
-        analyzer = new SpectraAnalyzer("fft", scheduler);
-        sink.add(analyzer);
-        
-        assertTrue(sink.getComponent(SpectraAnalyzer.class) != null);
-    }
+    }    
 }

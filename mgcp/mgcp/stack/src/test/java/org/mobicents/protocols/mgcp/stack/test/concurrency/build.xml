@@ -1,0 +1,51 @@
+<project basedir="." default="mgw">
+	<property name="packageprefix" value="org.mobicents.protocols.mgcp.stack.test.concurrency" />
+	<property name="root" value="../../../../../../../../../.." />
+	<property file="${root}/ant-build-config.properties" />
+	<property name="classes" value="${root}/target/classes" />
+	<property name="javac.source" value="1.5" />
+	<property name="test-classes" value="${root}/target/test-classes" />
+	<property name="srcroot" value="${root}/src" />
+	<property name="log4j_jar" value="${log4j}" />
+	<property name="junit_jar" value="${junit}" />
+	<property name="jain_mgcp_ri_jar" value="${jain-mgcp-ri}" />
+	<path id="project.class.path">
+		<pathelement location="${jain_mgcp_ri_jar}" />
+		<pathelement location="${test-classes}" />
+		<pathelement location="${classes}" />
+		<pathelement location="${log4j_jar}" />
+		<pathelement location="${junit_jar}" />
+		<pathelement location="${root}/src/test/resources/log4j.properties"/>
+	</path>
+	<target name="make">
+		<javac debug="true" source="${javac.source}" deprecation="${javac.deprecation}" debuglevel="${javac.debuglevel}" srcdir="${srcroot}" includes="test/java/org/mobicents/protocols/mgcp/stack/test/concurrency/**/*.java" classpathref="project.class.path" destdir="${test-classes}">
+		</javac>
+	</target>
+
+
+	<target name="mgw" depends="make" description="run the example UAs.">
+		<echo message="${log4j_jar}"/>
+		<delete file="log4j-mgw.log" />
+		<java classname="${packageprefix}.MGW" fork="true" maxmemory="128m" classpathref="project.class.path" >
+			<jvmarg value="-Dfile.name=log4j-mgw.log"/>
+			<jvmarg value="-XX:+PrintGCDetails" />
+			<jvmarg value="-XX:+PrintGCTimeStamps" />
+		</java>
+	</target>
+	<target name="ca" depends="make" description="run the example UAs.">
+		<delete file="log4j-ca.log" />
+		<java classname="${packageprefix}.CA" fork="true" maxmemory="128m" classpathref="project.class.path">
+			<jvmarg value="-Dfile.name=log4j-ca.log"/>
+			<arg value="10000" />
+			<arg value="100" />
+		</java>
+	</target>
+
+	<target name="clean" description="clean the logs">
+		<delete failonerror="0">
+			<fileset file="*.log" />
+		</delete>
+	</target>
+
+
+</project>

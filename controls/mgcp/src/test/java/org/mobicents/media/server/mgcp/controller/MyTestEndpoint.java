@@ -22,6 +22,7 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import java.util.Collection;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.Component;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -35,7 +36,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class MyTestEndpoint implements Endpoint {
     
@@ -106,7 +107,7 @@ public class MyTestEndpoint implements Endpoint {
     	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public Component getResource(MediaType mediaType, Class intf) {
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
         return null;
     }
     

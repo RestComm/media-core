@@ -24,13 +24,14 @@ package org.mobicents.media.server.ivr;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.component.Splitter;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
@@ -38,7 +39,7 @@ import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class AudioSink extends AbstractSink {
 
@@ -46,11 +47,12 @@ public class AudioSink extends AbstractSink {
     private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
     
     private SignalSplitter signalSplitter;
-    private ArrayList<Component> components = new ArrayList();
     
-    //build-in dtmf detector and pipe for connection
+    private MediaSource dtmfSource;
+    //build-in dtmf detector
     private DetectorImpl dtmfDetector;
-    private PipeImpl dtmfPipe;
+    //build-in recorder
+    private AudioRecorderImpl recorder;
     
     /**
      * Creates new audio announcement source.
@@ -58,7 +60,7 @@ public class AudioSink extends AbstractSink {
      * @param scheduler the scheduler instance.
      */
     public AudioSink(Scheduler scheduler, String name) {
-        super("aap", scheduler,scheduler.RX_TASK_QUEUE);
+        super("aap");
         
         //prepare signal mixer
         signalSplitter = new SignalSplitter(scheduler);
@@ -68,46 +70,45 @@ public class AudioSink extends AbstractSink {
         dtmfDetector = new DetectorImpl(name, scheduler);
         dtmfDetector.setVolume(-35);
         dtmfDetector.setDuration(40);
-        
-        //attach DTMF detector
-        dtmfPipe = new PipeImpl();
 
         //fork new output for DTMF
-        MediaSource dtmfSource = signalSplitter.audioSplitter.newOutput();
+        dtmfSource = signalSplitter.audioSplitter.newOutput();
         
         //join with detector
-        dtmfPipe.connect(dtmfSource);
-        dtmfPipe.connect(dtmfDetector);
+        dtmfSource.connect(dtmfDetector);
+        
+        //construct audio recorder
+        recorder = new AudioRecorderImpl(scheduler);        
+        signalSplitter.add(recorder);                
     }
     
     @Override
     public void start() {
         signalSplitter.start();
-        dtmfPipe.start();
+        dtmfSource.start();
         super.start();
     }
     
     @Override
     public void stop() {
-        dtmfPipe.stop();
+    	dtmfSource.stop();
         signalSplitter.stop();
         super.stop();
     }
     
-    public void add(MediaSink detector) {
-        signalSplitter.add(detector);
-    }
-        
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         buffer.offer(frame);
         signalSplitter.wakeup();
     }
     
+    public void add(MediaSink detector) {
+        signalSplitter.add(detector);                
+    }
+    
     private class SignalSplitter extends AbstractSource {
         
         private Splitter audioSplitter;
-        private PipeImpl pipe1;
         private Scheduler scheduler;
         
         public SignalSplitter(Scheduler scheduler) {
@@ -116,35 +117,26 @@ public class AudioSink extends AbstractSink {
         }
         
         private void init() {
-            pipe1 = new PipeImpl();            
-            audioSplitter = new Splitter(scheduler);
-            
-            pipe1.connect(audioSplitter.getInput());
-            pipe1.connect(this);
+            audioSplitter = new Splitter(scheduler);            
+            this.connect(audioSplitter.getInput());            
             
         }
         
         @Override
         public void start() {
-            audioSplitter.getInput().start();
             super.start();
         }
         
         @Override
         public void stop() {
-            audioSplitter.getInput().stop();
             super.stop();
         }                
         
         public void add(MediaSink detector) {
             MediaSource source = audioSplitter.newOutput();
             
-            PipeImpl p = new PipeImpl();
-            p.connect(source);
-            p.connect(detector);
-            
-            source.start();
-            components.add(detector);
+            source.connect(detector);            
+            source.start();            
         }
 
         @Override
@@ -154,17 +146,15 @@ public class AudioSink extends AbstractSink {
 
     }
 
-    public Component getComponent(Class intf) {
-        if (intf.equals(DtmfDetector.class)) {
-            return dtmfDetector;            
-        }
+    public Component getComponent(ComponentType componentType) {
+    	switch(componentType)
+    	{
+    		case DTMF_DETECTOR:
+    			return dtmfDetector; 
+    		case RECORDER:
+    			return recorder;
+    	}
         
-        for (int i = 0; i < components.size(); i++) {
-            if ((components.get(i).getClass() == intf) ||
-                (components.get(i).getInterface(intf) != null)) {
-                return components.get(i);
-            }
-        }
         return null;
     }
 }

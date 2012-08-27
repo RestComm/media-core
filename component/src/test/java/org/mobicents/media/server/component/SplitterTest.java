@@ -37,15 +37,13 @@ import static org.junit.Assert.*;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.io.Pipe;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class SplitterTest {
 
@@ -58,6 +56,10 @@ public class SplitterTest {
     private SpectraAnalyzer analyzer2;
     private SpectraAnalyzer analyzer3;
 
+    private MediaSource output1;
+    private MediaSource output2;
+    private MediaSource output3;
+    
     private Splitter splitter;
 //    private NetworkChannel network;
 
@@ -86,31 +88,20 @@ public class SplitterTest {
 //        network = new NetworkChannel(scheduler, 9201);
 //        scheduler.submit(network, 0);
 
-        analyzer1 = new SpectraAnalyzer("analyzer-1", scheduler);
-        analyzer2 = new SpectraAnalyzer("analyzer-1", scheduler);
-        analyzer3 = new SpectraAnalyzer("analyzer-1", scheduler);
+        analyzer1 = new SpectraAnalyzer("analyzer-1");
+        analyzer2 = new SpectraAnalyzer("analyzer-1");
+        analyzer3 = new SpectraAnalyzer("analyzer-1");
 
 
-        MediaSource output1 = splitter.newOutput();
-        MediaSource output2 = splitter.newOutput();
-        MediaSource output3 = splitter.newOutput();
+        output1 = splitter.newOutput();
+        output2 = splitter.newOutput();
+        output3 = splitter.newOutput();
 
-        Pipe pipe1 = new PipeImpl();
-        pipe1.connect(analyzer1);
-        pipe1.connect(output1);
-
-        Pipe pipe2 = new PipeImpl();
-        pipe2.connect(analyzer2);
-        pipe2.connect(output2);
-
-        Pipe pipe3 = new PipeImpl();
-        pipe3.connect(analyzer3);
-        pipe3.connect(output3);
-
-        Pipe pipe4 = new PipeImpl();
-        pipe4.connect(sine);
-        pipe4.connect(splitter.getInput());
-
+        output1.connect(analyzer1);
+        output2.connect(analyzer2);
+        output3.connect(analyzer3);
+        sine.connect(splitter.getInput());
+        
         sine.setFrequency(50);
 
         output1.start();
@@ -128,21 +119,17 @@ public class SplitterTest {
     public void testTransfer() throws InterruptedException {
         sine.start();
 
-        splitter.getInput().start();
-
-        analyzer1.start();
-        analyzer2.start();
-        analyzer3.start();
+        output1.start();
+        output2.start();
+        output3.start();
 
         Thread.sleep(5000);
 
         sine.stop();
 
-        splitter.getInput().stop();
-
-        analyzer1.stop();
-        analyzer2.stop();
-        analyzer3.stop();
+        output1.stop();
+        output2.stop();
+        output3.stop();
 
         System.out.println("Splitter: " + splitter.report());
         

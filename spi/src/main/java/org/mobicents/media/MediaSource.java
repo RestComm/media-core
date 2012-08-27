@@ -22,8 +22,6 @@
 
 package org.mobicents.media;
 
-import org.mobicents.media.server.spi.io.Pipe;
-
 /**
  * Abstracts a read interface that pushes data in the form of Buffer objects.
  *  
@@ -90,13 +88,13 @@ public interface MediaSource extends Component {
      * 
      * @param pipe the pipe to connect to
      */
-    public void connect(Pipe pipe);
+    public void connect(MediaSink sink);
     /**
      * Disconnects this source from pipe.
      * 
      * @param pipe the pipe to be disconnected.
      */
-    public void disconnect(Pipe pipe);
+    public void disconnect();
         
     /**
      * Gets the state of the component.

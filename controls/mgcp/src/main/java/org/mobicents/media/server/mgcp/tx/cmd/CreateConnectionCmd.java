@@ -258,14 +258,6 @@ public class CreateConnectionCmd extends Action {
                 	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
                 }
                 
-                if(!endpoints[0].getName().equals(localName.toString()))
-                {
-                	Endpoint endpoint = endpoints[0].getEndpoint();
-                    DtmfDetector detector=(DtmfDetector) endpoint.getResource(MediaType.AUDIO, DtmfDetector.class);
-                    if(detector!=null)
-                    	detector.clearDigits();
-                }
-                
                 //extract found endpoint
                 endpoint = endpoints[0];
             } catch (Exception e) { 
@@ -281,14 +273,6 @@ public class CreateConnectionCmd extends Action {
                      
                      if (n == 0) {
                          throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
-                     }
-                     
-                     if(!endpoints[0].getName().equals(localName2.toString()))
-                     {
-                     	Endpoint endpoint = endpoints[0].getEndpoint();
-                         DtmfDetector detector=(DtmfDetector) endpoint.getResource(MediaType.AUDIO, DtmfDetector.class);
-                         if(detector!=null)
-                         	detector.clearDigits();
                      }
                      
                      //extract found endpoint

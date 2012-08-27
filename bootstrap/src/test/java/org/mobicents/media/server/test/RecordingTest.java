@@ -35,6 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.cnf.CnfEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -164,11 +165,11 @@ public class RecordingTest {
         userConnection.setMode(ConnectionMode.SEND_RECV);
         Thread.sleep(50);
 
-        Recorder recorder = (Recorder) ivr.getResource(MediaType.AUDIO, Recorder.class);
+        Recorder recorder = (Recorder) ivr.getResource(MediaType.AUDIO, ComponentType.RECORDER);
         recorder.setRecordFile("file:///home/kulikov/test-recording.wav", false);
         recorder.start();
         
-        Player player = (Player) user.getResource(MediaType.AUDIO, Player.class);        
+        Player player = (Player) user.getResource(MediaType.AUDIO, ComponentType.PLAYER);        
         player.setURL("file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav");
         player.start();
         

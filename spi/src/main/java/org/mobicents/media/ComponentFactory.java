@@ -28,7 +28,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 /**
  * Acts as a factory of any media components.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public interface ComponentFactory {
     /**
@@ -37,5 +37,5 @@ public interface ComponentFactory {
      * @param endpoint the endpoint which creates this component.
      * @return new instance of the component.
      */
-    public Component newInstance(Endpoint endpoint) throws ResourceUnavailableException;
+    public Component newAudioComponent(int componentType) throws ResourceUnavailableException;
 }

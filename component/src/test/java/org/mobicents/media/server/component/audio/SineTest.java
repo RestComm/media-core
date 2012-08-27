@@ -34,15 +34,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.io.Pipe;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class SineTest {
 
@@ -72,19 +70,16 @@ public class SineTest {
         scheduler.start();
 
         sine = new Sine(scheduler);
-        analyzer = new SpectraAnalyzer("analyzer", scheduler);
+        analyzer = new SpectraAnalyzer("analyzer");
 
 
-        Pipe pipe = new PipeImpl();
-
-        pipe.connect(sine);
-        pipe.connect(analyzer);
-
+        sine.connect(analyzer);        
         sine.setFrequency(50);
     }
 
     @After
     public void tearDown() {
+    	sine.disconnect();
         scheduler.stop();
     }
 
@@ -93,14 +88,12 @@ public class SineTest {
      */
     @Test
     public void testSignal() throws Exception {
-        analyzer.start();
         sine.start();
 
         Thread.sleep(2000);
 
         sine.stop();
-        analyzer.stop();
-
+        
         Thread.sleep(1000);
 
         int[] spectra = analyzer.getSpectra();

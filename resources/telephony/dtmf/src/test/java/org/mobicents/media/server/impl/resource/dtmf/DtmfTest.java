@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.mobicents.media.server.impl.PipeImpl;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -20,7 +19,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class DtmfTest implements DtmfDetectorListener {
     
@@ -30,7 +29,6 @@ public class DtmfTest implements DtmfDetectorListener {
     private DetectorImpl detector;
     private GeneratorImpl generator;
     
-    private PipeImpl pipe = new PipeImpl();
     private String tone;
     
     public DtmfTest() {
@@ -60,16 +58,13 @@ public class DtmfTest implements DtmfDetectorListener {
         detector.setVolume(-35);
         detector.setDuration(40);
         
-        generator.connect(pipe);
-        detector.connect(pipe);
-        
-        detector.addListener(this);
-        detector.start();
+        generator.connect(detector);        
+        detector.addListener(this);        
     }
     
     @After
     public void tearDown() {
-        pipe.stop();
+    	generator.stop();
         scheduler.stop();
     }
 
@@ -127,7 +122,7 @@ public class DtmfTest implements DtmfDetectorListener {
         generator.start();
         
         Thread.sleep(1000);
-        assertEquals("6", tone);
+        assertEquals("6", tone);        
     }
     
     @Test
