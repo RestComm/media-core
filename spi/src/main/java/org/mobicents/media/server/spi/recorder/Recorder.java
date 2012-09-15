@@ -92,4 +92,5 @@ public interface Recorder extends MediaSink {
      * @param listener the listener to be unregistered
      */
     public void removeListener(RecorderListener listener);
+    public void clearAllListeners();
 }

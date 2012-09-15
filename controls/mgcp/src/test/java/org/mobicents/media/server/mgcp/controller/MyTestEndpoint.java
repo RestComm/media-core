@@ -26,6 +26,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.Component;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
@@ -63,6 +64,10 @@ public class MyTestEndpoint implements Endpoint {
     {        	
     }
     
+    public void setScheduler(Scheduler scheduler) {
+    	throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
     public Scheduler getScheduler() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -83,11 +88,15 @@ public class MyTestEndpoint implements Endpoint {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public Connection createConnection(ConnectionType type,boolean isLocal) throws TooManyConnectionsException, ResourceUnavailableException {
+    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void deleteConnection(Connection connection) {
+        
+    }
+
+    public void deleteConnection(Connection connection,ConnectionType type) {
         
     }
 
@@ -107,8 +116,17 @@ public class MyTestEndpoint implements Endpoint {
     	throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode) {    
+    }
+    
     public Component getResource(MediaType mediaType, ComponentType componentType) {
         return null;
     }
     
+    public boolean hasResource(MediaType mediaType, ComponentType componentType) {
+    	return false;
+    }
+    
+    public void releaseResource(MediaType mediaType, ComponentType componentType) {    
+    }
 }

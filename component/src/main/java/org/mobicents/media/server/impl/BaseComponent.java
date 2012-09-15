@@ -23,7 +23,7 @@
 package org.mobicents.media.server.impl;
 
 import org.mobicents.media.Component;
-
+import org.mobicents.media.server.spi.Endpoint;
 /**
  *
  * @author kulikov
@@ -36,6 +36,8 @@ public abstract class BaseComponent implements Component {
     //the name of the component. 
     //name of the component might be same accros many components of same type
     private String name = null;
+    
+    private Endpoint endpoint;
     
     /**
      * Creates new instance of the component.
@@ -67,5 +69,20 @@ public abstract class BaseComponent implements Component {
      * @see org.mobicents.media.Component#reserStats();
      */
     public void reset() {
-    }    
+    }  
+    
+    public void setEndpoint(Endpoint endpoint)
+    {
+    	this.endpoint=endpoint;
+    }
+    
+    public void clearEndpoint()
+    {
+    	this.endpoint=null;
+    }
+    
+    public Endpoint getEndpoint()
+    {
+    	return this.endpoint;
+    }
 }

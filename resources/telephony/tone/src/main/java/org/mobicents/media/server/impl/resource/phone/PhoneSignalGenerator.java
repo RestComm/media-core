@@ -17,6 +17,8 @@
  */
 package org.mobicents.media.server.impl.resource.phone;
 
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.audio.CompoundInput;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -51,12 +53,21 @@ public class PhoneSignalGenerator extends AbstractSource  {
     
     private int[] T=new int[] {1,1};
     
+    private CompoundInput input;
+    
     public PhoneSignalGenerator(String name,Scheduler scheduler) {
         super(name,scheduler,scheduler.INPUT_QUEUE);
         init();
+        
+        this.input=new CompoundInput(ComponentType.SIGNAL_GENERATOR.getType(),frameSize);
+        this.connect(this.input);   
     }
     
-
+    public CompoundInput getCompoundInput()
+    {
+    	return this.input;
+    }
+    
     private void init() {
         //number of seconds covered by one sample
         dt = 1.0f/(float)LINEAR_AUDIO.getSampleRate();

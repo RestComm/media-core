@@ -84,19 +84,6 @@ public interface MediaSource extends Component {
     public void setDuration(long duration);
     
     /**
-     * Joins this source with pipe.
-     * 
-     * @param pipe the pipe to connect to
-     */
-    public void connect(MediaSink sink);
-    /**
-     * Disconnects this source from pipe.
-     * 
-     * @param pipe the pipe to be disconnected.
-     */
-    public void disconnect();
-        
-    /**
      * Gets the state of the component.
      * 
      * @return  true if component is connected to other component.

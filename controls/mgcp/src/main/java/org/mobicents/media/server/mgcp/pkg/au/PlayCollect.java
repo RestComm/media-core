@@ -185,7 +185,7 @@ public class PlayCollect extends Signal {
             //player.setURL(options.getPrompt().toString());
             
             //start playback
-            player.start();
+            player.activate();
         } catch (TooManyListenersException e) {
             of.fire(this, new Text("Too many listeners"));
             logger.error("OPERATION FAILURE", e);
@@ -211,8 +211,9 @@ public class PlayCollect extends Signal {
         	promptIndex=promptLength-1;
         }
         if (player != null) {
-            player.stop();
+            player.deactivate();
             player.removeListener(promptHandler);
+            player=null;
         }
     }
     
@@ -235,13 +236,13 @@ public class PlayCollect extends Signal {
         //clear local buffer
         buffer.reset();
         buffer.setListener(dtmfHandler);
-
+        
         //assign requested parameters
         buffer.setPatterns(options.getDigitPattern());
         if(options.getMaxDigitsNumber()>0)
         	buffer.setCount(options.getMaxDigitsNumber());
         else
-        	buffer.setCount(options.getDigitsNumber());
+        	buffer.setCount(options.getDigitsNumber());               
     }
     
     /**
@@ -249,7 +250,7 @@ public class PlayCollect extends Signal {
      */
     private void flushBuffer() {        
         try {
-            //attach local buffer to DTMF detector
+        	//attach local buffer to DTMF detector
             //but do not flush
         	dtmfDetector.addListener(buffer);
             dtmfDetector.flushBuffer();            
@@ -276,7 +277,7 @@ public class PlayCollect extends Signal {
     		getEndpoint().getScheduler().submitHeatbeat(heartbeat);
     	}    	
     	
-        buffer.activate();
+    	buffer.activate();        
         buffer.flush();
     }
     
@@ -290,7 +291,8 @@ public class PlayCollect extends Signal {
            //dtmfDetector.clearDigits();
             
             buffer.passivate();
-            buffer.clear();
+            buffer.clear();      
+            dtmfDetector=null;
         }
     }
     
@@ -298,6 +300,7 @@ public class PlayCollect extends Signal {
      * Terminates any activity. 
      */
     private void terminate() {
+    	this.isPromptActive=false;
     	this.terminatePrompt();
         this.terminateCollectPhase();
         

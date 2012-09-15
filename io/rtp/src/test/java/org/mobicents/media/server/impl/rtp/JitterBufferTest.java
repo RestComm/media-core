@@ -75,7 +75,7 @@ public class JitterBufferTest {
         Frame[] media = new Frame[stream.length];
         for (int i = 0; i < stream.length; i++) {
             wallClock.tick(20000000L);
-            jitterBuffer.write(stream[i]);
+            jitterBuffer.write(stream[i],AVProfile.audio.find(8));
             media[i] = jitterBuffer.read(wallClock.getTime());
         }
 
@@ -100,10 +100,10 @@ public class JitterBufferTest {
         RtpPacket p5 = new RtpPacket(172, false);
         p5.wrap(false, 8, 5, 160 * 5, 123, new byte[160], 0, 160);
 
-        jitterBuffer.write(p1);
-        jitterBuffer.write(p2);
-        jitterBuffer.write(p4);
-        jitterBuffer.write(p3);
+        jitterBuffer.write(p1,AVProfile.audio.find(8));
+        jitterBuffer.write(p2,AVProfile.audio.find(8));
+        jitterBuffer.write(p4,AVProfile.audio.find(8));
+        jitterBuffer.write(p3,AVProfile.audio.find(8));
 
         Frame buffer = jitterBuffer.read(wallClock.getTime());
         assertEquals(1, buffer.getSequenceNumber());
@@ -136,9 +136,9 @@ public class JitterBufferTest {
         RtpPacket p5 = new RtpPacket(172, false);
         p5.wrap(false, 8, 5, 160 * 5, 123, new byte[160], 0, 160);
 
-        jitterBuffer.write(p1);
-        jitterBuffer.write(p3);
-        jitterBuffer.write(p5);
+        jitterBuffer.write(p1,AVProfile.audio.find(8));
+        jitterBuffer.write(p3,AVProfile.audio.find(8));
+        jitterBuffer.write(p5,AVProfile.audio.find(8));
 
         assertEquals(0, jitterBuffer.getDropped());
 
@@ -151,7 +151,7 @@ public class JitterBufferTest {
         buffer = jitterBuffer.read(wallClock.getTime());
         assertEquals(3, buffer.getSequenceNumber());
 
-        jitterBuffer.write(p2);
+        jitterBuffer.write(p2,AVProfile.audio.find(8));
         assertEquals(1, jitterBuffer.getDropped());
 
 
@@ -175,9 +175,9 @@ public class JitterBufferTest {
         RtpPacket p3 = new RtpPacket(172, false);
         p3.wrap(false, 8, 3, 160 * 3, 123, new byte[160], 0, 160);
 
-        jitterBuffer.write(p1);
-        jitterBuffer.write(p2);
-        jitterBuffer.write(p3);
+        jitterBuffer.write(p1,AVProfile.audio.find(8));
+        jitterBuffer.write(p2,AVProfile.audio.find(8));
+        jitterBuffer.write(p3,AVProfile.audio.find(8));
 
         Frame buffer = jitterBuffer.read(wallClock.getTime());
         assertEquals(1, buffer.getSequenceNumber());
@@ -197,7 +197,7 @@ public class JitterBufferTest {
     public void testOverflow() {
         RtpPacket[] stream = createStream(5);
         for (int i = 0; i < stream.length; i++) {
-            jitterBuffer.write(stream[i]);
+            jitterBuffer.write(stream[i],AVProfile.audio.find(8));
         }
 
         Frame data = jitterBuffer.read(wallClock.getTime());
@@ -216,13 +216,13 @@ public class JitterBufferTest {
         p3.wrap(false, 8, 3, 160 * 3, 123, new byte[160], 0, 160);
 
         //write first packet, expected jitter = 0
-        jitterBuffer.write(p1);
+        jitterBuffer.write(p1,AVProfile.audio.find(8));
         assertEquals(0, jitterBuffer.getJitter(), 0.1);
 
         //move time forward on 20ms and write second packet
         //expected jitter = 0;
         wallClock.tick(20000000L);
-        jitterBuffer.write(p2);
+        jitterBuffer.write(p2,AVProfile.audio.find(8));
 
         assertEquals(0, jitterBuffer.getJitter(), 0.1);
 
@@ -230,7 +230,7 @@ public class JitterBufferTest {
         //packet was delayed on 10ms and expected jitter equals
         //160/2/16=5ms
         wallClock.tick(30000000L);
-        jitterBuffer.write(p3);
+        jitterBuffer.write(p3,AVProfile.audio.find(8));
         assertEquals(0, jitterBuffer.getJitter(), 0.1);
     }
 

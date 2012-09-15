@@ -44,9 +44,11 @@ public class SdpComparator {
         Collection<MediaDescriptorField> mds = sdp.getMedia();
         for (MediaDescriptorField md : mds) {
             if (md.getMediaType().equals(AUDIO)) {
-                md.getFormats().intersection(audio, this.audio);
+            	if(audio!=null)
+            		md.getFormats().intersection(audio, this.audio);
             } else {
-                md.getFormats().intersection(video, this.video);
+            	if(video!=null)
+            		md.getFormats().intersection(video, this.video);
             }
         }
     }

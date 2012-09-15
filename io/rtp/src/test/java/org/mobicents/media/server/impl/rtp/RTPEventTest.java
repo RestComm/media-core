@@ -29,12 +29,16 @@ package org.mobicents.media.server.impl.rtp;
 
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.CompoundMixer;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -64,7 +68,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     private Clock clock;
     private Scheduler scheduler;
 
-    private RTPManager rtpManager;
+    private ChannelsManager channelsManager;
     private UdpManager udpManager;
 
 //    private SpectraAnalyzer analyzer;
@@ -78,6 +82,9 @@ public class RTPEventTest implements DtmfDetectorListener {
     private Dsp dsp21, dsp22;
 
     private Sender sender;
+    
+    private CompoundMixer compoundMixer;
+    private CompoundComponent detectorComponent;
     
     public RTPEventTest() {
     }
@@ -110,34 +117,37 @@ public class RTPEventTest implements DtmfDetectorListener {
 
         udpManager = new UdpManager(scheduler);
         udpManager.start();
-
-        rtpManager = new RTPManager(udpManager);
-        rtpManager.setBindAddress("127.0.0.1");
-        rtpManager.setScheduler(scheduler);
+        
+        channelsManager = new ChannelsManager(udpManager);
+        channelsManager.setScheduler(scheduler);
         
         detector = new DetectorImpl("dtmf", scheduler);
         detector.setVolume(-35);
         detector.setDuration(40);
         detector.addListener(this);
         
-        channel = rtpManager.getChannel();
+        channel = channelsManager.getChannel();
         channel.bind(false);
 
         sender = new Sender(channel.getLocalPort());
         
         channel.setPeer(new InetSocketAddress("127.0.0.1", 9200));
-        channel.getInput().setDsp(dsp11);
+        channel.setInputDsp(dsp11);
         channel.setFormatMap(AVProfile.audio);
 
-        channel.getInput().connect(detector);        
+        compoundMixer=new CompoundMixer(scheduler);
+        compoundMixer.addComponent(channel.getCompoundComponent());
+        
+        detectorComponent=new CompoundComponent(1);
+        detectorComponent.addOutput(detector.getCompoundOutput());
+        detectorComponent.updateMode(true,true);
+        compoundMixer.addComponent(detectorComponent);               
     }
 
     @After
     public void tearDown() {
-    	channel.getInput().stop();
-        
-        channel.close();
-
+    	channel.close();
+    	compoundMixer.stop();
         udpManager.stop();
         scheduler.stop();
         sender.close();
@@ -145,13 +155,17 @@ public class RTPEventTest implements DtmfDetectorListener {
 
     @Test
     public void testTransmission() throws Exception {
-    	channel.getInput().start();
-
+    	channel.updateMode(ConnectionMode.SEND_RECV);
+    	compoundMixer.start();
+    	detector.activate();
+    	
         new Thread(sender).start();
 
         Thread.sleep(5000);
         
-        channel.getInput().stop();
+        channel.updateMode(ConnectionMode.INACTIVE);
+    	compoundMixer.stop();
+    	detector.deactivate();
     }
 
     public void process(DtmfEvent event) {

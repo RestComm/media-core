@@ -33,10 +33,13 @@ import java.nio.channels.SelectionKey;
 import java.text.Format;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
+import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.impl.rtp.rfc2833.DtmfConverter;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.io.network.ProtocolHandler;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
@@ -47,6 +50,8 @@ import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.dsp.Processor;
+import org.mobicents.media.server.utils.Text;
+
 import org.apache.log4j.Logger;
 /**
  *
@@ -55,13 +60,16 @@ import org.apache.log4j.Logger;
 public class RTPDataChannel {
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
 	
-    private final static AudioFormat dtmfFormat = FormatFactory.createAudioFormat("telephony-event", 8000);
-    
     private final static int PORT_ANY = -1;
     private final long ssrc = System.currentTimeMillis();
 
+    private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
+    static {
+        dtmf.setOptions(new Text("0-15"));
+    }
+    
     //RTP Manager instance
-    private RTPManager rtpManager;
+    private ChannelsManager channelsManager;
 
     //UDP channels
     private DatagramChannel dataChannel;
@@ -70,7 +78,9 @@ public class RTPDataChannel {
     //Receiver and transmitter
     private RTPInput input;
     private RTPOutput output;
-
+    //RTP dtmf event converter
+    private DtmfConverter dtmfConverter;    
+    
     //tx task - sender
     private TxTask tx = new TxTask();
     
@@ -98,57 +108,84 @@ public class RTPDataChannel {
 
     private Formats formats = new Formats();
     
-    //Formats for RTP events
-    private RTPFormats eventFormats = new RTPFormats();
-    
     private Boolean shouldReceive=false;
+    private Boolean shouldLoop=false;
+    
     private HeartBeat heartBeat;
     private long lastPacketReceived;
     
     private RTPChannelListener rtpChannelListener;
     private Scheduler scheduler;
+    private UdpManager udpManager;
     
     private Logger logger = Logger.getLogger(RTPDataChannel.class) ;
+        
+    private CompoundComponent compoundComponent;
     /**
      * Create RTP channel instance.
      *
-     * @param rtpManager RTP manager
-     * @throws IOException
+     * @param channelManager Channel manager
+     * 
      */
-    protected RTPDataChannel(RTPManager rtpManager) throws IOException {    	
-        this.rtpManager = rtpManager;
-        this.jitter = rtpManager.jitter;
+    protected RTPDataChannel(ChannelsManager channelsManager,int channelId) {    	
+        this.channelsManager = channelsManager;
+        this.jitter = channelsManager.getJitter();
 
         //open data channel
         rtpHandler = new RTPHandler();
 
         //create clock with RTP units
-        rtpClock = new RtpClock(rtpManager.getClock());
+        rtpClock = new RtpClock(channelsManager.getClock());
 
         rxBuffer = new JitterBuffer(rtpClock, jitter);
         
-        scheduler=rtpManager.scheduler;
+        scheduler=channelsManager.getScheduler();
+        udpManager=channelsManager.getUdpManager();
         //receiver
         input = new RTPInput(scheduler,rxBuffer);
         rxBuffer.setListener(input);
         
         //transmittor
-        output = new RTPOutput(this);               
+        output = new RTPOutput(scheduler,this);               
 
+        dtmfConverter=new DtmfConverter(scheduler,rtpClock);
+        
         heartBeat=new HeartBeat(scheduler);
         
-        //add RFC2833 dtmf event formats
-        if (rtpManager.dtmf > 0) {
-            RTPFormat f = new RTPFormat(rtpManager.dtmf, dtmfFormat);
-            f.setClockRate(8000);
-            eventFormats.add(f);
-        }
-        
         formats.add(format);
+        
+        compoundComponent=new CompoundComponent(channelId); 
+        compoundComponent.addInput(dtmfConverter.getCompoundInput());
+        compoundComponent.addInput(input.getCompoundInput());
+        compoundComponent.addOutput(output.getCompoundOutput());
     }
     
-    public void setRtpChannelListener(RTPChannelListener rtpChannelListener)
+    public CompoundComponent getCompoundComponent()
     {
+    	return this.compoundComponent;
+    }
+    
+    public void setInputDsp(Processor dsp) {
+    	input.setDsp(dsp);
+    }
+    
+    public Processor getInputDsp() {
+    	return input.getDsp();
+    }
+    
+    public void setOutputDsp(Processor dsp) {
+    	output.setDsp(dsp);
+    }
+    
+    public Processor getOutputDsp() {
+    	return output.getDsp();
+    }
+    
+    public void setOutputFormats(Formats fmts) throws FormatNotSupportedException {
+    	output.setFormats(fmts);
+    }
+    
+    public void setRtpChannelListener(RTPChannelListener rtpChannelListener) {
     	this.rtpChannelListener=rtpChannelListener;
     }
     
@@ -156,22 +193,56 @@ public class RTPDataChannel {
     {
     	switch (connectionMode) {
         	case SEND_ONLY:
+        		shouldReceive=false;
+        		shouldLoop=false;
+        		compoundComponent.updateMode(false,true);
+        		dtmfConverter.deactivate();
+        		input.deactivate();
+        		output.activate();
+        		break;
+        	case RECV_ONLY:
+        		shouldReceive=true;
+        		shouldLoop=false;
+        		compoundComponent.updateMode(true,false);
+        		dtmfConverter.activate();
+        		input.activate();
+        		output.deactivate();
+        		break;
         	case INACTIVE:
         		shouldReceive=false;
+        		shouldLoop=false;
+        		compoundComponent.updateMode(false,false);
+        		dtmfConverter.deactivate();
+        		input.deactivate();
+        		output.deactivate();
         		break;
-        	default:
+        	case SEND_RECV:
+        	case CONFERENCE:
         		shouldReceive=true;
+        		shouldLoop=false;
+        		compoundComponent.updateMode(true,true);
+        		dtmfConverter.activate();
+        		input.activate();
+        		output.activate();
+        		break;
+        	case NETWORK_LOOPBACK:
+        		shouldReceive=false;
+        		shouldLoop=true;
+        		compoundComponent.updateMode(false,false);
+        		dtmfConverter.deactivate();
+        		input.deactivate();
+        		output.deactivate();
         		break;
     	}
     	
     	boolean connectImmediately=false;
     	if(this.remotePeer!=null)
-    		connectImmediately=rtpManager.udpManager.connectImmediately((InetSocketAddress)this.remotePeer);
+    		connectImmediately=udpManager.connectImmediately((InetSocketAddress)this.remotePeer);
     	
-    	if(rtpManager.udpManager.getRtpTimeout()>0 && this.remotePeer!=null && !connectImmediately) {
+    	if(udpManager.getRtpTimeout()>0 && this.remotePeer!=null && !connectImmediately) {
     		if(shouldReceive) {
-    			lastPacketReceived=rtpManager.scheduler.getClock().getTime();
-    			rtpManager.scheduler.submitHeatbeat(heartBeat);
+    			lastPacketReceived=scheduler.getClock().getTime();
+    			scheduler.submitHeatbeat(heartBeat);
     		}
     		else {
     			heartBeat.cancel();
@@ -180,26 +251,17 @@ public class RTPDataChannel {
     }
 
     /**
-     * Gets the formats for RTP events.
-     * 
-     * @return collection of formats used for RTP events.
-     */
-    public RTPFormats getEventFormats() {
-        return this.eventFormats;
-    }
-    
-    /**
      * Binds channel to the first available port.
      *
      * @throws SocketException
      */
     public void bind(boolean isLocal) throws IOException, SocketException {
     	try {
-            dataChannel = rtpManager.udpManager.open(rtpHandler);
+            dataChannel = udpManager.open(rtpHandler);
             
             //if control enabled open rtcp channel as well
-            if (rtpManager.isControlEnabled) {
-                controlChannel = rtpManager.udpManager.open(new RTCPHandler());
+            if (channelsManager.getIsControlEnabled()) {
+                controlChannel = udpManager.open(new RTCPHandler());
             }
         } catch (IOException e) {
             throw new SocketException(e.getMessage());
@@ -207,18 +269,18 @@ public class RTPDataChannel {
         //bind data channel
     	if(!isLocal) {
     		this.rxBuffer.setBufferInUse(true);
-    		rtpManager.udpManager.bind(dataChannel, PORT_ANY);
+    		udpManager.bind(dataChannel, PORT_ANY);
     	} else {
     		this.rxBuffer.setBufferInUse(false);
-    		rtpManager.udpManager.bindLocal(dataChannel, PORT_ANY);
+    		udpManager.bindLocal(dataChannel, PORT_ANY);
     	}
     	
         //if control enabled open rtcp channel as well
-        if (rtpManager.isControlEnabled) {
+        if (channelsManager.getIsControlEnabled()) {
         	if(!isLocal)
-        		rtpManager.udpManager.bind(controlChannel, dataChannel.socket().getLocalPort() + 1);
+        		udpManager.bind(controlChannel, dataChannel.socket().getLocalPort() + 1);
         	else
-        		rtpManager.udpManager.bindLocal(controlChannel, dataChannel.socket().getLocalPort() + 1);
+        		udpManager.bindLocal(controlChannel, dataChannel.socket().getLocalPort() + 1);
         }
     }
 
@@ -249,7 +311,7 @@ public class RTPDataChannel {
     				logger.error(e);
     			}
     		
-    		connectImmediately=rtpManager.udpManager.connectImmediately((InetSocketAddress)address);
+    		connectImmediately=udpManager.connectImmediately((InetSocketAddress)address);
         	if(connectImmediately)
         		try {
         			dataChannel.connect(address);        		
@@ -259,10 +321,10 @@ public class RTPDataChannel {
         		}
         }
         
-        if(rtpManager.udpManager.getRtpTimeout()>0 && !connectImmediately) {        	
+        if(udpManager.getRtpTimeout()>0 && !connectImmediately) {        	
         	if(shouldReceive) {
-        		lastPacketReceived=rtpManager.scheduler.getClock().getTime();
-        		rtpManager.scheduler.submitHeatbeat(heartBeat);
+        		lastPacketReceived=scheduler.getClock().getTime();
+        		scheduler.submitHeatbeat(heartBeat);
         	}
         	else {
         		heartBeat.cancel();
@@ -296,30 +358,13 @@ public class RTPDataChannel {
         //System.out.println("RX COUNT:" + rxCount + ",TX COUNT:" + txCount);
         rxCount=0;
         txCount=0;
-        input.stop();
-        output.stop();        
+        input.deactivate();
+        dtmfConverter.deactivate();
+        output.deactivate();        
         this.tx.clear();    	
         
         heartBeat.cancel();        
-    }
-
-    /**
-     * Gets the receiver stream.
-     *
-     * @return receiver as media source
-     */
-    public RTPInput getInput() {
-        return input;
-    }
-
-    /**
-     * Gets the transmitter stream.
-     *
-     * @return transceiver as media sink.
-     */
-    public RTPOutput getOutput() {
-        return output;
-    }
+    }    
 
     public int getPacketsLost() {
         return input.getPacketsLost();
@@ -450,7 +495,8 @@ public class RTPDataChannel {
     private class RxTask {
 
         //RTP packet representation
-        private RtpPacket rtpPacket = new RtpPacket(8192, true);        
+        private RtpPacket rtpPacket = new RtpPacket(8192, true);
+        private RTPFormat format;
         private SocketAddress currAddress;
         
         private RxTask() {            
@@ -516,15 +562,27 @@ public class RTPDataChannel {
                     //put pointer to the begining of the buffer
                     rtpPacket.getBuffer().flip();
 
-                    if(rtpPacket.getVersion()!=0 && shouldReceive)
+                    if(rtpPacket.getVersion()!=0 && (shouldReceive || shouldLoop))
                     {
                     	//rpt version 0 packets is used in some application ,
                     	//discarding since we do not handle them
                     	//queue packet into the receiver's jitter buffer
                     	if (rtpPacket.getBuffer().limit() > 0) {
-                    		rxBuffer.write(rtpPacket);
-                    		rxCount++;                        
-                    	} 
+                    		if(shouldLoop && dataChannel.isConnected()) {                    			
+                            	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                            	rxCount++;
+                            	txCount++;
+                            }
+                    		else if(!shouldLoop) {
+                    			format = rtpFormats.find(rtpPacket.getPayloadType());
+                    			if (format != null && format.getFormat().matches(dtmf))
+                    				dtmfConverter.write(rtpPacket);
+                    			else
+                    				rxBuffer.write(rtpPacket,format);	
+                        			
+                    			rxCount++;                    			
+                    		}                    			
+                    	}
                     }
                     
                     rtpPacket.getBuffer().clear();
@@ -572,8 +630,7 @@ public class RTPDataChannel {
         }
         
         public void perform(Frame frame) {
-            //TODO: add key frame flag
-        	//discard frame if format is unknown
+            //discard frame if format is unknown
             if (frame.getFormat() == null) {
             	return;
             }
@@ -639,7 +696,7 @@ public class RTPDataChannel {
         
         @Override
         public long perform() {        	
-            if (scheduler.getClock().getTime()-lastPacketReceived>rtpManager.udpManager.getRtpTimeout()*1000000000L) {
+            if (scheduler.getClock().getTime()-lastPacketReceived>udpManager.getRtpTimeout()*1000000000L) {
             	if(rtpChannelListener!=null)
             		rtpChannelListener.onRtpFailure();
             } else {

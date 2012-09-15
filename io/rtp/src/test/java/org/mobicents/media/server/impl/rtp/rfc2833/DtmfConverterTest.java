@@ -35,8 +35,8 @@ public class DtmfConverterTest {
     private int jitter = 40;
 
     private DtmfConverter dtmfConverter;
-    private JitterBuffer jitterBuffer;
-
+    private Scheduler scheduler;
+    
     private RtpPacket[] packets = new RtpPacket[] {
         new RtpPacket(16, false), new RtpPacket(16, false), new RtpPacket(16, false)
     };
@@ -66,9 +66,12 @@ public class DtmfConverterTest {
     @Before
     public void setUp() {
         rtpClock.setClockRate(8000);
-        jitterBuffer = new JitterBuffer(rtpClock, jitter);        
-        dtmfConverter = new DtmfConverter(jitterBuffer);
-        dtmfConverter.setClock(rtpClock);
+        
+        scheduler = new Scheduler();
+        scheduler.setClock(clock);
+        scheduler.start();
+        
+        dtmfConverter = new DtmfConverter(scheduler, rtpClock);
         
         packets[0].wrap(true, 101, 1, 160, 1, event1, 0, 4);
         packets[1].wrap(false, 101, 2, 160, 1, event2, 0, 4);
@@ -83,17 +86,24 @@ public class DtmfConverterTest {
      * Test of process method, of class DtmfConverter.
      */
 //    @Test
-    public void testProcess() {
-        dtmfConverter.push(packets[0]);
-        dtmfConverter.push(packets[1]);
+    public void testProcess() throws Exception {
+    	dtmfConverter.activate();
+    	
+    	long start = System.nanoTime();
+    	
+        dtmfConverter.write(packets[0]);
+        Thread.sleep(20);
+        dtmfConverter.write(packets[1]);
+        Thread.sleep(20);
+        dtmfConverter.write(packets[2]);
+        Thread.sleep(50);
+        dtmfConverter.deactivate();
         
-        long start = System.nanoTime();
-        dtmfConverter.push(packets[2]);
-        long finish = System.nanoTime();
+        long finish = System.nanoTime();                
         
-        Frame frame0 = jitterBuffer.read(0);
-        Frame frame1 = jitterBuffer.read(0); 
-        Frame frame2 = jitterBuffer.read(0);
+        Frame frame0 = dtmfConverter.getCompoundInput().poll();
+        Frame frame1 = dtmfConverter.getCompoundInput().poll(); 
+        Frame frame2 = dtmfConverter.getCompoundInput().poll();
         		
         for (int i = 0; i < 320; i++) {
             assertEquals("Pos " + i, DtmfTonesData.buffer[3][i], frame0.getData()[i]);
@@ -112,10 +122,17 @@ public class DtmfConverterTest {
     
     @Test
     public void testRepeat() {
+    	try
+    	{
         for (int i = 0; i < 10; i++) {
-            System.out.println("Test #" + i);
+            System.out.println("Test #" + i);         
             this.testProcess();            
         }
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
     }
     
 }

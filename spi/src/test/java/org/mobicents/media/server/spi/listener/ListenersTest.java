@@ -67,9 +67,9 @@ public class ListenersTest {
      */
     @Test
     public void testAdd() throws Exception {
-        listeners.add(new TestListener());
+    	listeners.add(new TestListener());
         listeners.dispatch(new TestEvent("test"));
-        assertEquals("test", event.getName());
+        assertEquals("test", event.getName());        
     }
 
     /**
@@ -77,11 +77,11 @@ public class ListenersTest {
      */
     @Test
     public void testRemove() throws Exception {
-        TestListener l = new TestListener();
+    	TestListener l = new TestListener();
         listeners.add(l);
         listeners.remove(l);
         listeners.dispatch(new TestEvent("test"));
-        assertEquals(null, event);
+        assertEquals(null, event);        
     }
 
     /**
@@ -89,13 +89,13 @@ public class ListenersTest {
      */
     @Test
     public void testConcurrentRemove() throws Exception {
-        TestListener l = new TestListener();
+    	TestListener l = new TestListener();
         listeners.add(l);
         listeners.dispatch(new TestEvent("test"));
         assertEquals("test", event.getName());
         event = null;
         listeners.dispatch(new TestEvent("test"));
-        assertEquals(null, event);
+        assertEquals(null, event);        
     }
     
     private class TestListener implements Listener {

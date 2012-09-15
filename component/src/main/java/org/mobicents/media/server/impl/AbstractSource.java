@@ -72,7 +72,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     private long initialDelay = 0;
     
     //media transmission pipe
-    protected MediaSink mediaSink;        
+    protected AbstractSink mediaSink;        
 
     private static final Logger logger = Logger.getLogger(AbstractSource.class);
     /**
@@ -220,12 +220,22 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         timestamp = 0;
     }
 
+    public void activate()
+    {
+    	start();
+    }
+    
+    public void deactivate()
+    {
+    	stop();
+    }
+    
     /**
      * (Non Java-doc).
      *
      * @see org.mobicents.media.MediaSource#connect(org.mobicents.media.MediaSink)
      */
-    public void connect(MediaSink sink) {
+    protected void connect(AbstractSink sink) {
         this.mediaSink = sink;
         if(started)
         	this.mediaSink.start();
@@ -236,7 +246,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      *
      * @see org.mobicents.media.MediaSource#disconnect(org.mobicents.media.server.spi.io.Pipe)
      */
-    public void disconnect() {
+    protected void disconnect() {
     	if(this.mediaSink!=null)
     	{
     		this.mediaSink.stop();

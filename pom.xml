@@ -10,7 +10,7 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0.CR1</version>
 
     <name>Mobicents Media Server</name>
     <url>http://code.google.com/p/mediaserver/</url>
@@ -59,8 +59,7 @@
         <module>component</module>
         <module>io</module>
         <module>resources</module>
-        <module>chassis</module>
-        <module>endpoints</module>
+        <module>core</module>
         <module>controls</module>
         <module>media-server-docs</module>
         <module>bootstrap</module>        
@@ -117,8 +116,7 @@
 		<module>component</module>
 		<module>io</module>
 		<module>resources</module>
-		<module>chassis</module>
-		<module>endpoints</module>
+		<module>core</module>
 		<module>controls</module>
 		<module>media-server-docs</module>
 		<module>bootstrap</module>        

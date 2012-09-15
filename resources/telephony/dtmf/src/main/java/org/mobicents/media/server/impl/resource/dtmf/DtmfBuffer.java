@@ -94,7 +94,9 @@ public class DtmfBuffer implements Serializable {
             lastSymbol = symbol;
             
             detector.fireEvent(symbol);
-        }        
+        }
+        else
+        	lastActivity=now;
     }
     
     public void updateTime()

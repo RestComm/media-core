@@ -22,6 +22,7 @@
 
 package org.mobicents.media.server.component.audio;
 
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -32,7 +33,7 @@ import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class Sine extends AbstractSource {
 
@@ -48,6 +49,8 @@ public class Sine extends AbstractSource {
     private double dt;
     private double time;
 
+    private CompoundInput input;
+    
     static {
         formats.add(LINEAR_AUDIO);
     }
@@ -56,8 +59,16 @@ public class Sine extends AbstractSource {
         super("sine.generator", scheduler,scheduler.INPUT_QUEUE);
         //number of seconds covered by one sample
         dt = 1. / LINEAR_AUDIO.getSampleRate();
+        
+        this.input=new CompoundInput(ComponentType.SINE.getType(),packetSize);
+        this.connect(this.input); 
     }
 
+    public CompoundInput getCompoundInput()
+    {
+    	return this.input;
+    }
+    
     public void setAmplitude(short A) {
         this.A = A;
     }

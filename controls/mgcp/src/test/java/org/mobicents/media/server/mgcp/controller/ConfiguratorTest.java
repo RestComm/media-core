@@ -17,6 +17,7 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
@@ -89,6 +90,10 @@ public class ConfiguratorTest {
             return name;
         }
 
+        public void setScheduler(Scheduler scheduler) {
+        	throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
         public Scheduler getScheduler() {
             return scheduler;
         }
@@ -96,14 +101,6 @@ public class ConfiguratorTest {
         public int getActiveConnectionsCount()
         {
         	return 0;
-        }
-        
-        public void setRtpConnections(int rtpConnections)
-        {        	
-        }
-        
-        public void setLocalConnections(int localConnections)
-        {        	
         }
         
         public EndpointState getState() {
@@ -122,12 +119,16 @@ public class ConfiguratorTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public Connection createConnection(ConnectionType type,boolean isLocal) throws TooManyConnectionsException, ResourceUnavailableException {
+        public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
         public void deleteConnection(Connection connection) {
             throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
+        public void deleteConnection(Connection connection,ConnectionType type) {
+            
         }
 
         public void deleteAllConnections() {
@@ -146,9 +147,18 @@ public class ConfiguratorTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
+        public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode) {    
+        }
+        
         public Component getResource(MediaType mediaType, ComponentType componentType) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     
+        public boolean hasResource(MediaType mediaType, ComponentType componentType) {
+        	return false;
+        }
+        
+        public void releaseResource(MediaType mediaType, ComponentType componentType) {    
+        }
     }
 }

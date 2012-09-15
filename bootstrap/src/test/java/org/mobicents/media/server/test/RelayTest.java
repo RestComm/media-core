@@ -36,12 +36,13 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.cnf.CnfEndpoint;
+import org.mobicents.media.core.ResourcesPool;
+import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
+import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.impl.rtp.RTPManager;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.ivr.IVREndpoint;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -64,18 +65,20 @@ public class RelayTest {
     protected Clock clock;
     protected Scheduler scheduler;
 
-    protected RTPManager rtpManager;
+    protected ChannelsManager channelsManager;
 
+    private ResourcesPool resourcesPool;
+    
     protected UdpManager udpManager;
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     //ivr endpoint
-    private IVREndpoint ivr;    
+    private IvrEndpoint ivr;    
     //analyzer
     private SoundSystem soundcard;
     
     //packet relay bridge
-    private CnfEndpoint cnfBridge;
+    private ConferenceEndpoint cnfBridge;
     
     public RelayTest() {
     }
@@ -108,27 +111,25 @@ public class RelayTest {
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 
-        rtpManager = new RTPManager(udpManager);
-        rtpManager.setBindAddress("127.0.0.1");
-        rtpManager.setScheduler(scheduler);
+        channelsManager = new ChannelsManager(udpManager);
+        channelsManager.setScheduler(scheduler);
+        
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         
         //assign scheduler to the endpoint
-        ivr = new IVREndpoint("test-1");
+        ivr = new IvrEndpoint("test-1");
         ivr.setScheduler(scheduler);
-        ivr.setRtpManager(rtpManager);
-        ivr.setDspFactory(dspFactory);
+        ivr.setResourcesPool(resourcesPool);
         ivr.start();
 
         soundcard = new SoundSystem("test-2");
         soundcard.setScheduler(scheduler);
-        soundcard.setRtpManager(rtpManager);
-        soundcard.setDspFactory(dspFactory);
+        soundcard.setResourcesPool(resourcesPool);
         soundcard.start();
 
-        cnfBridge = new CnfEndpoint("test-3");
+        cnfBridge = new ConferenceEndpoint("test-3");
         cnfBridge.setScheduler(scheduler);
-        cnfBridge.setRtpManager(rtpManager);
-        cnfBridge.setDspFactory(dspFactory);
+        cnfBridge.setResourcesPool(resourcesPool);
         cnfBridge.start();
 
     }

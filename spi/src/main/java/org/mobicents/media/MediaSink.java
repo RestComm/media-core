@@ -33,16 +33,6 @@ import org.mobicents.media.server.spi.memory.Frame;
 public interface MediaSink extends Component {
 
     /**
-     * Starts media processing.
-     */
-    public void start();
-    
-    /**
-     * Terminates media processing.
-     */
-    public void stop();
-        
-    /**
      * Gets true if component is able to receive media.
      * 
      * @return true if component is able to receive media.

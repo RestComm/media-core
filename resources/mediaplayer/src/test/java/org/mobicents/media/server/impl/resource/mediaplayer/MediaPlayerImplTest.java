@@ -43,7 +43,7 @@ import org.mobicents.media.server.scheduler.DefaultClock;
  */
 public class MediaPlayerImplTest {
 	//
-    private MediaPlayerImpl mediaPlayer;
+    private AudioPlayerImpl audioPlayer;
     
     private Scheduler scheduler;
     public MediaPlayerImplTest() {
@@ -58,22 +58,19 @@ public class MediaPlayerImplTest {
     }
 
     @Before
-    public void setUp() throws Exception {
-    	
-//        server = new Server();
-//        server.start();
+    public void setUp() throws Exception {    	
     	scheduler = new Scheduler();
     	scheduler.setClock(new DefaultClock());
         scheduler.start();
         
-    	mediaPlayer = new MediaPlayerImpl("test", scheduler);
+        audioPlayer = new AudioPlayerImpl("test", scheduler);
     }
 
     @After
     public void tearDown() {    	
 //        server.stop();
-    	scheduler.stop();
-    	mediaPlayer = null;
+    	scheduler.stop();    	
+    	audioPlayer = null;
     	
     }
 
@@ -81,18 +78,13 @@ public class MediaPlayerImplTest {
      * Test of getMediaTypes method, of class MediaPlayerImpl.
      */
     @Test
-    public void testAudio() throws Exception {
-    	
-    	Player player = (Player) mediaPlayer.getMediaSource(MediaType.AUDIO);    	
-    	//assertTrue("AudioPlayerImpl expected", player instanceof AudioPlayerImpl);
+    public void testAudio() throws Exception {    	
     }
 
     /**
      * Test of getMediaTypes method, of class MediaPlayerImpl.
      */
 //    @Test
-//    public void testVideo() {
-//        Player player = (Player) mediaPlayer.getMediaSource(MediaType.VIDEO);
-//        assertTrue("AudioPlayerImpl expected", player instanceof VideoPlayerImpl);
+//    public void testVideo() {        
 //    }
 }

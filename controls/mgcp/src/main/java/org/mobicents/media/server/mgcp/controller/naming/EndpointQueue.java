@@ -27,11 +27,13 @@ import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpointStateListener;
 import org.mobicents.media.server.utils.Text;
+import org.apache.log4j.Logger;
+
 
 /**
  * Storage for endpoints of same type with search and reordering functions.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class EndpointQueue implements MgcpEndpointStateListener {
     //reserved space for endpoint queue
@@ -51,6 +53,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     //index
     private int k;
     
+    public  Logger logger = Logger.getLogger(EndpointQueue.class);
     /**
      * Adds new endpoint to the queue.
      * 
@@ -107,6 +110,11 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         	if(endp!=null) {
         		endp.lock();
         		endpoints[0] = endp;
+        		if(logger.isDebugEnabled())    	
+            	{
+            		logger.debug("Endpoint " + endp.getName() + " taken");
+            		logger.debug("Free endpoints " + queue.size());
+            	}
         		return 1;        		            
         	}
         	        	
@@ -133,7 +141,12 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     
     public void onFreed(MgcpEndpoint endpoint)
     {
-    	queue.offer(endpoint);    	
+    	queue.offer(endpoint);    
+    	if(logger.isDebugEnabled())    	
+    	{
+    		logger.debug("Endpoint " + endpoint.getName() + " released");
+    		logger.debug("Free endpoints " + queue.size());
+    	}
     }
     
     private class Holder {

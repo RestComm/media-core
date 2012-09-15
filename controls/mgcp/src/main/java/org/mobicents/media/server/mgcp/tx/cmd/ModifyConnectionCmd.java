@@ -145,7 +145,6 @@ public class ModifyConnectionCmd extends Action {
                 }
             }
             
-            mgcpConnection.setGain(lcOptions.getGain());
             mgcpConnection.setDtmfClamp(lcOptions.getDtmfClamp());
             
             MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());

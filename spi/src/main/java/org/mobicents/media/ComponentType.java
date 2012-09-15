@@ -31,7 +31,8 @@ package org.mobicents.media;
  * @author yulian oifa
  */
 public enum ComponentType {
-	DTMF_DETECTOR(0), PLAYER(1), RECORDER(2), SIGNAL_DETECTOR(3), SIGNAL_GENERATOR(4), SS7_INPUT(5), SS7_OUTPUT(6);
+	DTMF_DETECTOR(0), DTMF_GENERATOR(1), PLAYER(2), RECORDER(3), 
+	SIGNAL_DETECTOR(4), SIGNAL_GENERATOR(5), SINE(6), SPECTRA_ANALYZER(7), SOUND_CARD(8);
 	
 	private int type;
 	 

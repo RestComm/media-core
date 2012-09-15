@@ -1,0 +1,312 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0xb6f62bac, pid=22196, tid=2075233136
+#
+# JRE version: 6.0_18-b18
+# Java VM: OpenJDK Server VM (14.0-b16 mixed mode linux-x86 )
+# Derivative: IcedTea6 1.8.13
+# Distribution: Debian GNU/Linux 6.0.3 (squeeze), package 6b18-1.8.13-0+squeeze1
+# Problematic frame:
+# V  [libjvm.so+0x47fbac]
+#
+# If you would like to submit a bug report, please include
+# instructions how to reproduce the bug and visit:
+#   http://icedtea.classpath.org/bugzilla
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x09cee400):  VMThread [stack: 0x7ba98000,0x7bb19000] [id=22201]
+
+siginfo:si_signo=SIGSEGV: si_errno=0, si_code=1 (SEGV_MAPERR), si_addr=0x64016465
+
+Registers:
+EAX=0x64016401, EBX=0xb7167c58, ECX=0x00000001, EDX=0x64016401
+ESP=0x7bb17c30, EBP=0x7bb17c58, ESI=0x7c8370d0, EDI=0x09c6bc00
+EIP=0xb6f62bac, CR2=0x64016465, EFLAGS=0x00010297
+
+Top of Stack: (sp=0x7bb17c30)
+0x7bb17c30:   09f89900 09f898d0 09f90fec 7c8370d0
+0x7bb17c40:   b717cfdc b7591f58 00000000 b7167c58
+0x7bb17c50:   b717cfa0 09c6bc00 7bb17c78 b6f4956a
+0x7bb17c60:   7c130d38 7ca37148 b717cfdc b6f4953a
+0x7bb17c70:   b7167c58 b717cfdc 7bb17cd8 b6fd1d6b
+0x7bb17c80:   b717cfdc 00000000 50546fef b6ddd28e
+0x7bb17c90:   09c68000 09c6bc00 7bb17c00 7bb17ca0
+0x7bb17ca0:   0a010100 00000000 00000000 b6fd20bf 
+
+Instructions: (pc=0xb6f62bac)
+0xb6f62b9c:   07 83 f9 05 0f 84 ba fe ff ff 8b 75 e4 8b 56 04
+0xb6f62bac:   8b 52 64 83 e2 07 83 fa 05 0f 84 96 fe ff ff 49 
+
+Stack: [0x7ba98000,0x7bb19000],  sp=0x7bb17c30,  free space=511k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0x47fbac]
+V  [libjvm.so+0x46656a]
+V  [libjvm.so+0x4eed6b]
+V  [libjvm.so+0x4ef6d9]
+V  [libjvm.so+0x4f0133]
+V  [libjvm.so+0x5cb85b]
+V  [libjvm.so+0x5d1361]
+V  [libjvm.so+0x5cfe3a]
+V  [libjvm.so+0x5d044b]
+V  [libjvm.so+0x5d0801]
+V  [libjvm.so+0x4b15b1]
+C  [libpthread.so.0+0x5955]
+
+VM_Operation (0xb6abb840): ParallelGCSystemGC, mode: safepoint, requested by thread 0x09c68000
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x7b789c00 JavaThread "pool-1-thread-5" [_thread_blocked, id=22217, stack(0x7b35c000,0x7b3ad000)]
+  0x7b7be000 JavaThread "pool-1-thread-4" [_thread_blocked, id=22216, stack(0x7b3ad000,0x7b3fe000)]
+  0x7b753800 JavaThread "pool-1-thread-3" [_thread_blocked, id=22215, stack(0x7b3fe000,0x7b44f000)]
+  0x7b7ce400 JavaThread "pool-1-thread-2" [_thread_blocked, id=22214, stack(0x7b44f000,0x7b4a0000)]
+  0x7b783c00 JavaThread "pool-1-thread-1" [_thread_blocked, id=22213, stack(0x7b4a0000,0x7b4f1000)]
+  0x7b704800 JavaThread "Low Memory Detector" daemon [_thread_blocked, id=22207, stack(0x7b5ad000,0x7b5fe000)]
+  0x7b702400 JavaThread "CompilerThread1" daemon [_thread_blocked, id=22206, stack(0x7b5fe000,0x7b67f000)]
+  0x7b700800 JavaThread "CompilerThread0" daemon [_thread_blocked, id=22205, stack(0x7b67f000,0x7b700000)]
+  0x09d07800 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=22204, stack(0x7b830000,0x7b881000)]
+  0x09cf4400 JavaThread "Finalizer" daemon [_thread_blocked, id=22203, stack(0x7b9f6000,0x7ba47000)]
+  0x09cf2c00 JavaThread "Reference Handler" daemon [_thread_blocked, id=22202, stack(0x7ba47000,0x7ba98000)]
+  0x09c68000 JavaThread "main" [_thread_blocked, id=22198, stack(0xb6a6c000,0xb6abd000)]
+
+Other Threads:
+=>0x09cee400 VMThread [stack: 0x7ba98000,0x7bb19000] [id=22201]
+  0x7b706800 WatcherThread [stack: 0x7b52c000,0x7b5ad000] [id=22208]
+
+VM state:at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x09c65fc0] Threads_lock - owner thread: 0x09cee400
+[0x09c663d0] Heap_lock - owner thread: 0x09c68000
+
+Heap
+ PSYoungGen      total 80704K, used 1683K [0xae4c0000, 0xb3930000, 0xb3930000)
+  eden space 74944K, 0% used [0xae4c0000,0xae4c0000,0xb2df0000)
+  from space 5760K, 29% used [0xb2df0000,0xb2f94e98,0xb3390000)
+  to   space 5568K, 0% used [0xb33c0000,0xb33c0000,0xb3930000)
+ PSOldGen        total 43200K, used 21538K [0x84130000, 0x86b60000, 0xae4c0000)
+  object space 43200K, 49% used [0x84130000,0x85638ac0,0x86b60000)
+ PSPermGen       total 16384K, used 14081K [0x7c130000, 0x7d130000, 0x84130000)
+  object space 16384K, 85% used [0x7c130000,0x7cef06f0,0x7d130000)
+
+Dynamic libraries:
+08048000-08050000 r-xp 00000000 08:01 5275691    /usr/lib/jvm/java-6-openjdk/jre/bin/java
+08050000-08051000 rw-p 00008000 08:01 5275691    /usr/lib/jvm/java-6-openjdk/jre/bin/java
+09c62000-0aa94000 rw-p 00000000 00:00 0          [heap]
+7af5e000-7af61000 rwxp 00000000 00:00 0 
+7af61000-7afaf000 rw-p 00000000 00:00 0 
+7afaf000-7afb2000 rwxp 00000000 00:00 0 
+7afb2000-7b000000 rw-p 00000000 00:00 0 
+7b000000-7b0dd000 rw-p 00000000 00:00 0 
+7b0dd000-7b100000 ---p 00000000 00:00 0 
+7b128000-7b12f000 r--s 00102000 08:01 5267468    /usr/lib/jvm/java-6-openjdk/jre/lib/resources.jar
+7b131000-7b134000 rwxp 00000000 00:00 0 
+7b134000-7b182000 rw-p 00000000 00:00 0 
+7b182000-7b184000 r--s 00007000 08:01 18678421   /root/.m2/repository/org/apache/maven/shared/maven-dependency-tree/1.2/maven-dependency-tree-1.2.jar
+7b184000-7b187000 r--s 00020000 08:01 18670359   /root/.m2/repository/org/codehaus/plexus/plexus-archiver/1.0-alpha-7/plexus-archiver-1.0-alpha-7.jar
+7b187000-7b188000 r--s 00002000 08:01 18678401   /root/.m2/repository/org/apache/maven/maven-archiver/2.2/maven-archiver-2.2.jar
+7b188000-7b18b000 r--s 0002f000 08:01 18678398   /root/.m2/repository/org/codehaus/plexus/plexus-utils/1.4.7/plexus-utils-1.4.7.jar
+7b18b000-7b18c000 r--s 00002000 08:01 18678429   /root/.m2/repository/org/apache/felix/org.osgi.service.obr/1.0.1/org.osgi.service.obr-1.0.1.jar
+7b18c000-7b18e000 r--s 0000d000 08:01 18678426   /root/.m2/repository/org/apache/felix/org.osgi.core/1.0.0/org.osgi.core-1.0.0.jar
+7b18e000-7b190000 r--s 00012000 08:01 18678404   /root/.m2/repository/org/easymock/easymock/2.4/easymock-2.4.jar
+7b190000-7b194000 r--s 00024000 08:01 18678415   /root/.m2/repository/org/osgi/org.osgi.core/4.1.0/org.osgi.core-4.1.0.jar
+7b194000-7b197000 r--s 00022000 08:01 18686141   /root/.m2/repository/org/apache/felix/org.apache.felix.bundlerepository/1.6.2/org.apache.felix.bundlerepository-1.6.2.jar
+7b197000-7b198000 r--s 00001000 08:01 18678400   /root/.m2/repository/xmlpull/xmlpull/1.1.3.1/xmlpull-1.1.3.1.jar
+7b198000-7b199000 r--s 0000a000 08:01 18678414   /root/.m2/repository/net/sf/kxml/kxml2/2.2.2/kxml2-2.2.2.jar
+7b199000-7b19f000 r--s 00080000 08:01 18686135   /root/.m2/repository/biz/aQute/bndlib/1.15.0/bndlib-1.15.0.jar
+7b19f000-7b200000 r--s 00db8000 08:01 5227364    /usr/lib/jvm/java-6-openjdk/lib/tools.jar
+7b200000-7b300000 rw-p 00000000 00:00 0 
+7b33b000-7b33c000 r--s 00002000 08:01 18670422   /root/.m2/repository/org/codehaus/plexus/plexus-digest/1.0/plexus-digest-1.0.jar
+7b33c000-7b340000 r--s 0002f000 08:01 18669938   /root/.m2/repository/commons-lang/commons-lang/2.1/commons-lang-2.1.jar
+7b340000-7b342000 r--s 0000d000 08:01 18686277   /root/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.13/plexus-interpolation-1.13.jar
+7b342000-7b345000 r--s 0000a000 08:01 18686274   /root/.m2/repository/org/codehaus/plexus/plexus-io/1.0/plexus-io-1.0.jar
+7b345000-7b349000 r--s 00028000 08:01 18686271   /root/.m2/repository/org/codehaus/plexus/plexus-archiver/1.0/plexus-archiver-1.0.jar
+7b349000-7b34d000 r--s 00030000 08:01 18670328   /root/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.1/plexus-utils-1.5.1.jar
+7b34d000-7b356000 r--s 00075000 08:01 18670755   /root/.m2/repository/org/apache/maven/surefire/surefire-api/2.4.3/surefire-api-2.4.3.jar
+7b356000-7b35c000 r--s 0003c000 08:01 18670752   /root/.m2/repository/org/apache/maven/surefire/surefire-booter/2.4.3/surefire-booter-2.4.3.jar
+7b35c000-7b35f000 ---p 00000000 00:00 0 
+7b35f000-7b3ad000 rw-p 00000000 00:00 0 
+7b3ad000-7b3b0000 ---p 00000000 00:00 0 
+7b3b0000-7b3fe000 rw-p 00000000 00:00 0 
+7b3fe000-7b401000 ---p 00000000 00:00 0 
+7b401000-7b44f000 rw-p 00000000 00:00 0 
+7b44f000-7b452000 ---p 00000000 00:00 0 
+7b452000-7b4a0000 rw-p 00000000 00:00 0 
+7b4a0000-7b4a3000 ---p 00000000 00:00 0 
+7b4a3000-7b4f1000 rw-p 00000000 00:00 0 
+7b4f1000-7b52c000 r--s 002c7000 08:01 16072952   /opt/maven/apache-maven-2.2.1/lib/maven-2.2.1-uber.jar
+7b52c000-7b52d000 ---p 00000000 00:00 0 
+7b52d000-7b5ad000 rw-p 00000000 00:00 0 
+7b5ad000-7b5b0000 ---p 00000000 00:00 0 
+7b5b0000-7b5fe000 rw-p 00000000 00:00 0 
+7b5fe000-7b601000 ---p 00000000 00:00 0 
+7b601000-7b67f000 rw-p 00000000 00:00 0 
+7b67f000-7b682000 ---p 00000000 00:00 0 
+7b682000-7b700000 rw-p 00000000 00:00 0 
+7b700000-7b800000 rw-p 00000000 00:00 0 
+7b800000-7b801000 r--s 00004000 08:01 18671015   /root/.m2/repository/org/apache/maven/maven-archiver/2.4.1/maven-archiver-2.4.1.jar
+7b801000-7b805000 r--s 00033000 08:01 18670943   /root/.m2/repository/org/codehaus/plexus/plexus-utils/2.0.5/plexus-utils-2.0.5.jar
+7b805000-7b806000 r--s 00003000 08:01 18703414   /root/.m2/repository/org/codehaus/plexus/plexus-compiler-javac/1.9.1/plexus-compiler-javac-1.9.1.jar
+7b806000-7b808000 r--s 00000000 08:01 18703411   /root/.m2/repository/org/codehaus/plexus/plexus-compiler-manager/1.9.1/plexus-compiler-manager-1.9.1.jar
+7b808000-7b80a000 r--s 00004000 08:01 18703408   /root/.m2/repository/org/codehaus/plexus/plexus-compiler-api/1.9.1/plexus-compiler-api-1.9.1.jar
+7b80a000-7b80e000 r--s 00034000 08:01 18703405   /root/.m2/repository/org/codehaus/plexus/plexus-utils/3.0/plexus-utils-3.0.jar
+7b80e000-7b810000 r--s 0000b000 08:01 18670517   /root/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.6/plexus-interpolation-1.6.jar
+7b810000-7b812000 r--s 00007000 08:01 18670511   /root/.m2/repository/org/apache/maven/shared/maven-filtering/1.0-beta-2/maven-filtering-1.0-beta-2.jar
+7b812000-7b817000 r--s 00039000 08:01 18670512   /root/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.6/plexus-utils-1.5.6.jar
+7b817000-7b818000 r--s 00003000 08:01 18670125   /root/.m2/repository/org/apache/maven/plugins/maven-install-plugin/2.2/maven-install-plugin-2.2.jar
+7b818000-7b819000 r--s 00005000 08:01 18670458   /root/.m2/repository/org/apache/maven/plugins/maven-surefire-plugin/2.4.3/maven-surefire-plugin-2.4.3.jar
+7b819000-7b81b000 r--s 00004000 08:01 18702613   /root/.m2/repository/org/apache/maven/plugins/maven-resources-plugin/2.3/maven-resources-plugin-2.3.jar
+7b81b000-7b81d000 r--s 00008000 08:01 18670101   /root/.m2/repository/org/apache/maven/shared/maven-shared-io/1.1/maven-shared-io-1.1.jar
+7b81d000-7b81f000 r--s 00008000 08:01 18670096   /root/.m2/repository/org/apache/maven/shared/file-management/1.2/file-management-1.2.jar
+7b81f000-7b822000 r--s 00027000 08:01 18670095   /root/.m2/repository/org/codehaus/plexus/plexus-utils/1.1/plexus-utils-1.1.jar
+7b822000-7b824000 r--s 0001b000 08:01 18686086   /root/.m2/repository/org/apache/felix/maven-bundle-plugin/2.3.4/maven-bundle-plugin-2.3.4.jar
+7b824000-7b825000 r--s 00007000 08:01 18670761   /root/.m2/repository/org/apache/maven/plugins/maven-jar-plugin/2.3.1/maven-jar-plugin-2.3.1.jar
+7b825000-7b826000 r--s 00007000 08:01 18703342   /root/.m2/repository/org/apache/maven/plugins/maven-compiler-plugin/2.5.1/maven-compiler-plugin-2.5.1.jar
+7b826000-7b828000 r--s 00006000 08:01 18703323   /root/.m2/repository/org/apache/maven/plugins/maven-release-plugin/2.0-beta-8/maven-release-plugin-2.0-beta-8.jar
+7b828000-7b830000 r--s 00066000 08:01 5138215    /usr/share/java/gnome-java-bridge.jar
+7b830000-7b833000 ---p 00000000 00:00 0 
+7b833000-7b881000 rw-p 00000000 00:00 0 
+7b881000-7b9f6000 r--p 00000000 08:01 5087804    /usr/lib/locale/locale-archive
+7b9f6000-7b9f9000 ---p 00000000 00:00 0 
+7b9f9000-7ba47000 rw-p 00000000 00:00 0 
+7ba47000-7ba4a000 ---p 00000000 00:00 0 
+7ba4a000-7ba98000 rw-p 00000000 00:00 0 
+7ba98000-7ba99000 ---p 00000000 00:00 0 
+7ba99000-7bb4c000 rw-p 00000000 00:00 0 
+7bb4c000-7bcdf000 r--s 0392f000 08:01 5267482    /usr/lib/jvm/java-6-openjdk/jre/lib/rt.jar
+7bcdf000-7bce0000 ---p 00000000 00:00 0 
+7bce0000-7bd60000 rw-p 00000000 00:00 0 
+7bd60000-7bd61000 ---p 00000000 00:00 0 
+7bd61000-7bde1000 rw-p 00000000 00:00 0 
+7bde1000-7bde9000 rwxp 00000000 00:00 0 
+7bde9000-7be21000 rwxp 00000000 00:00 0 
+7be21000-7be37000 rwxp 00000000 00:00 0 
+7be37000-7bf73000 rwxp 00000000 00:00 0 
+7bf73000-7bf7b000 rwxp 00000000 00:00 0 
+7bf7b000-7bfb3000 rwxp 00000000 00:00 0 
+7bfb3000-7bfc9000 rwxp 00000000 00:00 0 
+7bfc9000-7c104000 rwxp 00000000 00:00 0 
+7c104000-7c12f000 rwxp 00000000 00:00 0 
+7c12f000-7d130000 rwxp 00000000 00:00 0 
+7d130000-84130000 rwxp 00000000 00:00 0 
+84130000-86b60000 rwxp 00000000 00:00 0 
+86b60000-ae4c0000 rwxp 00000000 00:00 0 
+ae4c0000-b3930000 rwxp 00000000 00:00 0 
+b3930000-b3933000 r--s 0007d000 08:01 5267473    /usr/lib/jvm/java-6-openjdk/jre/lib/jsse.jar
+b3933000-b393c000 rwxp 00000000 00:00 0 
+b393c000-b39f3000 rwxp 00000000 00:00 0 
+b39f3000-b3c33000 rwxp 00000000 00:00 0 
+b3c33000-b69f3000 rwxp 00000000 00:00 0 
+b69f3000-b69fd000 r-xp 00000000 08:01 5603702    /lib/i686/cmov/libnss_files-2.11.3.so
+b69fd000-b69fe000 r--p 00009000 08:01 5603702    /lib/i686/cmov/libnss_files-2.11.3.so
+b69fe000-b69ff000 rw-p 0000a000 08:01 5603702    /lib/i686/cmov/libnss_files-2.11.3.so
+b69ff000-b6a07000 r-xp 00000000 08:01 5603691    /lib/i686/cmov/libnss_nis-2.11.3.so
+b6a07000-b6a08000 r--p 00008000 08:01 5603691    /lib/i686/cmov/libnss_nis-2.11.3.so
+b6a08000-b6a09000 rw-p 00009000 08:01 5603691    /lib/i686/cmov/libnss_nis-2.11.3.so
+b6a09000-b6a0f000 r-xp 00000000 08:01 5605553    /lib/i686/cmov/libnss_compat-2.11.3.so
+b6a0f000-b6a10000 r--p 00006000 08:01 5605553    /lib/i686/cmov/libnss_compat-2.11.3.so
+b6a10000-b6a11000 rw-p 00007000 08:01 5605553    /lib/i686/cmov/libnss_compat-2.11.3.so
+b6a11000-b6a24000 r-xp 00000000 08:01 5603695    /lib/i686/cmov/libnsl-2.11.3.so
+b6a24000-b6a25000 r--p 00012000 08:01 5603695    /lib/i686/cmov/libnsl-2.11.3.so
+b6a25000-b6a26000 rw-p 00013000 08:01 5603695    /lib/i686/cmov/libnsl-2.11.3.so
+b6a26000-b6a28000 rw-p 00000000 00:00 0 
+b6a28000-b6a29000 r--s 00002000 08:01 18669970   /root/.m2/repository/org/apache/maven/plugins/maven-clean-plugin/2.2/maven-clean-plugin-2.2.jar
+b6a29000-b6a2a000 r--p 00000000 00:00 0 
+b6a2a000-b6a2c000 r--s 00008000 08:01 16072773   /opt/maven/apache-maven-2.2.1/boot/classworlds-1.1.jar
+b6a2c000-b6a2f000 r--s 0000f000 08:01 5267989    /usr/lib/jvm/java-6-openjdk/jre/lib/ext/pulse-java.jar
+b6a2f000-b6a35000 r-xp 00000000 08:01 5275698    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/libzip.so
+b6a35000-b6a36000 rw-p 00006000 08:01 5275698    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/libzip.so
+b6a36000-b6a3e000 rw-s 00000000 08:01 2711642    /tmp/hsperfdata_root/22196
+b6a3e000-b6a61000 r-xp 00000000 08:01 5275723    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/libjava.so
+b6a61000-b6a63000 rw-p 00023000 08:01 5275723    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/libjava.so
+b6a63000-b6a6a000 r-xp 00000000 08:01 5605550    /lib/i686/cmov/librt-2.11.3.so
+b6a6a000-b6a6b000 r--p 00006000 08:01 5605550    /lib/i686/cmov/librt-2.11.3.so
+b6a6b000-b6a6c000 rw-p 00007000 08:01 5605550    /lib/i686/cmov/librt-2.11.3.so
+b6a6c000-b6a6f000 ---p 00000000 00:00 0 
+b6a6f000-b6abd000 rw-p 00000000 00:00 0 
+b6abd000-b6ae1000 r-xp 00000000 08:01 5603693    /lib/i686/cmov/libm-2.11.3.so
+b6ae1000-b6ae2000 r--p 00023000 08:01 5603693    /lib/i686/cmov/libm-2.11.3.so
+b6ae2000-b6ae3000 rw-p 00024000 08:01 5603693    /lib/i686/cmov/libm-2.11.3.so
+b6ae3000-b7126000 r-xp 00000000 08:01 5316841    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/server/libjvm.so
+b7126000-b7176000 rw-p 00642000 08:01 5316841    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/server/libjvm.so
+b7176000-b759a000 rw-p 00000000 00:00 0 
+b759a000-b76da000 r-xp 00000000 08:01 5605551    /lib/i686/cmov/libc-2.11.3.so
+b76da000-b76db000 ---p 00140000 08:01 5605551    /lib/i686/cmov/libc-2.11.3.so
+b76db000-b76dd000 r--p 00140000 08:01 5605551    /lib/i686/cmov/libc-2.11.3.so
+b76dd000-b76de000 rw-p 00142000 08:01 5605551    /lib/i686/cmov/libc-2.11.3.so
+b76de000-b76e1000 rw-p 00000000 00:00 0 
+b76e1000-b76e3000 r-xp 00000000 08:01 5603692    /lib/i686/cmov/libdl-2.11.3.so
+b76e3000-b76e4000 r--p 00001000 08:01 5603692    /lib/i686/cmov/libdl-2.11.3.so
+b76e4000-b76e5000 rw-p 00002000 08:01 5603692    /lib/i686/cmov/libdl-2.11.3.so
+b76e5000-b76e8000 r-xp 00000000 08:01 5316844    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/jli/libjli.so
+b76e8000-b76e9000 rw-p 00002000 08:01 5316844    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/jli/libjli.so
+b76e9000-b76fe000 r-xp 00000000 08:01 5603710    /lib/i686/cmov/libpthread-2.11.3.so
+b76fe000-b76ff000 r--p 00014000 08:01 5603710    /lib/i686/cmov/libpthread-2.11.3.so
+b76ff000-b7700000 rw-p 00015000 08:01 5603710    /lib/i686/cmov/libpthread-2.11.3.so
+b7700000-b7703000 rw-p 00000000 00:00 0 
+b7703000-b7716000 r-xp 00000000 08:01 5075032    /usr/lib/libz.so.1.2.3.4
+b7716000-b7717000 rw-p 00013000 08:01 5075032    /usr/lib/libz.so.1.2.3.4
+b7717000-b771e000 r-xp 00000000 08:01 5284008    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/native_threads/libhpi.so
+b771e000-b771f000 rw-p 00006000 08:01 5284008    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/native_threads/libhpi.so
+b771f000-b7720000 rw-p 00000000 00:00 0 
+b7720000-b7721000 ---p 00000000 00:00 0 
+b7721000-b772c000 r-xp 00000000 08:01 5275719    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/libverify.so
+b772c000-b772d000 rw-p 0000b000 08:01 5275719    /usr/lib/jvm/java-6-openjdk/jre/lib/i386/libverify.so
+b772d000-b772f000 rw-p 00000000 00:00 0 
+b772f000-b7730000 r-xp 00000000 00:00 0          [vdso]
+b7730000-b774b000 r-xp 00000000 08:01 5587204    /lib/ld-2.11.3.so
+b774b000-b774c000 r--p 0001b000 08:01 5587204    /lib/ld-2.11.3.so
+b774c000-b774d000 rw-p 0001c000 08:01 5587204    /lib/ld-2.11.3.so
+bf868000-bf87d000 rw-p 00000000 00:00 0          [stack]
+
+VM Arguments:
+jvm_args: -Dclassworlds.conf=/opt/maven/apache-maven-2.2.1/bin/m2.conf -Dmaven.home=/opt/maven/apache-maven-2.2.1 
+java_command: org.codehaus.classworlds.Launcher "clean" "install"
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=/usr
+PATH=/opt/maven/apache-maven-2.2.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+USERNAME=yulian
+LD_LIBRARY_PATH=/usr/lib/jvm/java-6-openjdk/jre/lib/i386/server:/usr/lib/jvm/java-6-openjdk/jre/lib/i386:/usr/lib/jvm/java-6-openjdk/jre/../lib/i386
+SHELL=/bin/bash
+DISPLAY=:0.0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0x5ca9f0], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGBUS: [libjvm.so+0x5ca9f0], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGFPE: [libjvm.so+0x4ae060], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGPIPE: [libjvm.so+0x4ae060], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGXFSZ: [libjvm.so+0x4ae060], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGILL: [libjvm.so+0x4ae060], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGUSR1: SIG_DFL, sa_mask[0]=0x00000000, sa_flags=0x00000000
+SIGUSR2: [libjvm.so+0x4ad7b0], sa_mask[0]=0x00000000, sa_flags=0x10000004
+SIGHUP: [libjvm.so+0x4afd10], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGINT: [libjvm.so+0x4afd10], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGTERM: [libjvm.so+0x4afd10], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGQUIT: [libjvm.so+0x4afd10], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+
+
+---------------  S Y S T E M  ---------------
+
+OS:6.0.5
+
+uname:Linux 2.6.32-5-686 #1 SMP Mon Mar 26 05:20:33 UTC 2012 i686
+libc:glibc 2.11.3 NPTL 2.11.3 
+rlimit: STACK 8192k, CORE 0k, NPROC infinity, NOFILE 1024, AS infinity
+load average:0.49 0.26 0.10
+
+CPU:total 2 (2 cores per cpu, 1 threads per core) family 6 model 23 stepping 10, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1
+
+Memory: 4k page, physical 3104784k(189672k free), swap 2650684k(2375420k free)
+
+vm_info: OpenJDK Server VM (14.0-b16) for linux-x86 JRE (1.6.0_18-b18), built on Feb 27 2012 19:42:29 by "buildd" with gcc 4.4.5
+
+time: Sat Sep 15 15:09:19 2012
+elapsed time: 75 seconds
+

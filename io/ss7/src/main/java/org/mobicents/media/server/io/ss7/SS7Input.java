@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.text.Format;
 import java.util.ArrayList;
 
+import org.mobicents.media.server.component.audio.CompoundInput;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.Channel;
@@ -55,7 +56,10 @@ import org.apache.log4j.Logger;
  */
 public class SS7Input extends AbstractSource {
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);	
-	private AudioFormat sourceFormat;
+	private long period = 20000000L;
+    private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;
+    
+    private AudioFormat sourceFormat;
 	
     //digital signaling processor
     private Processor dsp;
@@ -71,6 +75,7 @@ public class SS7Input extends AbstractSource {
     
     private ArrayList<Frame> framesBuffer=new ArrayList(2);
     
+    private CompoundInput input;
     /**
      * Creates new receiver.
      */
@@ -78,8 +83,16 @@ public class SS7Input extends AbstractSource {
         super("input", scheduler,scheduler.INPUT_QUEUE);               
         this.channel=channel;
         this.sourceFormat=sourceFormat;
+        
+        input=new CompoundInput(1,packetSize);
+        this.connect(input);
     }
 
+    public CompoundInput getCompoundInput()
+    {
+    	return this.input;
+    }
+    
     @Override
     public void reset() {
         super.reset();        

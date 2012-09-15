@@ -22,9 +22,11 @@
 
 package org.mobicents.media.server.impl.rtp.rfc2833;
 
-import org.mobicents.media.server.impl.rtp.JitterBuffer;
+import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
+import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -34,131 +36,94 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Oifa Yulian
+ * @author yulian oifa
  */
-public class DtmfConverter {
+public class DtmfConverter extends AbstractSource {
    
     private final static AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     private final static double dt = 1.0 / LINEAR_AUDIO.getSampleRate();
-
+    private long period = 20000000L;
+    private int packetSize = (int)(period / 1000000) * LINEAR_AUDIO.getSampleRate()/1000 * LINEAR_AUDIO.getSampleSize() / 8;
     
-    private ArrayList<Frame> frameBuffer=new ArrayList(5);
+    private ArrayList<Frame> frameBuffer=new ArrayList(2);
     private Frame currFrame;
-    private int toneLength=0;
     
-    private final static short A = Short.MAX_VALUE / 2;
-    private long time = 0;
     private byte currTone=(byte)0xFF;
-    
+    private int offset=0;
     byte[] data = new byte[4];
-    byte[] tempData = new byte[4];
     
     private RtpClock clock;    
-    private JitterBuffer jitterBuffer;
     
-    public final static String[] TONE = new String[] {
-        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#", "A", "B", "C", "D"
-    };
-    
+    private CompoundInput input;
+	
     private static final Logger logger = Logger.getLogger(DtmfConverter.class);
     
-    public DtmfConverter(JitterBuffer jitterBuffer)
+    public DtmfConverter(Scheduler scheduler,RtpClock clock)
     {
-    	this.jitterBuffer=jitterBuffer;
+    	super("dtmfconverter", scheduler,scheduler.INPUT_QUEUE);
+    	this.clock=clock;
+    	input=new CompoundInput(2,packetSize);
+        this.connect(input);       
+    }
+    
+    public CompoundInput getCompoundInput()
+    {
+    	return this.input;
     }
     
     public void setClock(RtpClock clock) {
         this.clock = clock;
     }
     
-    public void push(RtpPacket event) {
+    public void write(RtpPacket event) {
     	//obtain payload        
         event.getPyalod(data, 0);
         
         //check that same tone
         if(data.length==0)
-        	return;
+        	return;                
         
-        if(frameBuffer.size()>0)
+        if(currTone!=data[0])
         {
-        	if(currTone!=data[0])
-        	{
-        		//different tone detected
-        		while(frameBuffer.size()>0)
-        		{
-        			currFrame=frameBuffer.remove(0);
-        			currFrame.recycle();
-        			toneLength=0;
-        		}        		
-        	}
-        	
-        	for(int i=0;i<frameBuffer.size();i++)
-        		if(frameBuffer.get(i).getSequenceNumber()==event.getSeqNumber())
-        			return;        		
-        }
+        	currTone=data[0];
+        	offset=0;
+        }               
         
-        toneLength++;
-        currTone=data[0];        
-        currFrame = Memory.allocate(320);
+        boolean endOfEvent=false;
+        if(data.length>1)
+            endOfEvent=(data[1] & 0X80)!=0;
+                
+        currFrame = Memory.allocate(packetSize);
     	
     	//update time
         currFrame.setSequenceNumber(event.getSeqNumber());
     	
         currFrame.setOffset(0);
-        currFrame.setLength(320);
+        currFrame.setLength(packetSize);
         currFrame.setFormat(LINEAR_AUDIO);
         currFrame.setDuration(20);
+        System.arraycopy(DtmfTonesData.buffer[data[0]], offset, currFrame.getData(), 0, packetSize);
+        currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp()));
+        offset+=packetSize;
+        if(offset>=DtmfTonesData.buffer[data[0]].length)
+        	offset=0;
+        
+        if(endOfEvent)
+    		offset=0;
+        
+    	if(frameBuffer.size()>1)
+    		//lets not store too much data
+    		frameBuffer.remove(0);
     	
-        //not storing too much data , 100ms(5 frames) is enough for single tone
     	frameBuffer.add(currFrame);
+    	wakeup();
+    }
+    
+    @Override
+    public Frame evolve(long timestamp) {
+    	if (frameBuffer.size()==0)
+    		return null;    	
     	
-        if(frameBuffer.size()>5)
-        {
-        	currFrame=frameBuffer.remove(0);
-			currFrame.recycle();
-        }
-        
-        //check here if its end of event
-        boolean endOfEvent=false;
-        if(data.length>1)
-        	endOfEvent=(data[1] & 0X80)!=0;
-        
-        if(!endOfEvent)
-        	//not time to send event yet
-        	return;
-        
-        if(frameBuffer.size()<3)               
-        {
-        	while(frameBuffer.size()>0)
-    		{
-    			currFrame=frameBuffer.remove(0);
-    			currFrame.recycle();
-    		} 
-        	
-        	toneLength=0;
-        	return;
-        }
-        
-        //lets send signal inband
-        logger.info("Convert: " + TONE[data[0]]);
-        
-        int offset=0;
-        time=(toneLength-frameBuffer.size())*20;
-        while(frameBuffer.size()>0)
-        {
-        	currFrame=frameBuffer.remove(0);
-        	//allocate memory for the frame
-        	
-        	//copy data
-            System.arraycopy(DtmfTonesData.buffer[data[0]], offset, currFrame.getData(), 0, 320);
-            
-            //since rtp packets arrives with same timestamps , need to add small number , otherwise will be discarded by pipe
-            currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp()) + time);
-            offset+=320;
-        	time+=20;
-        	jitterBuffer.pushFrame(currFrame);        	        	
-        }
-        
-        toneLength=0;
+    	return frameBuffer.remove(0);    	
     }
 }

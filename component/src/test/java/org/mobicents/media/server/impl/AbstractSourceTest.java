@@ -24,7 +24,7 @@ import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class AbstractSourceTest {
 
@@ -112,7 +112,7 @@ public class AbstractSourceTest {
         assertEquals(3000000000L, source.getDuration());
         
         //start transmission
-        source.start();
+        source.activate();
         
         //block for 5 seconds max
         long s = System.currentTimeMillis();
@@ -132,18 +132,18 @@ public class AbstractSourceTest {
     @Test
     public void testMediaTime() throws InterruptedException {
         //start transmission
-        source.start();
+        source.activate();
         
         Thread.sleep(1000);
         
         long time = source.getMediaTime();
-        source.stop();
+        source.deactivate();
         
         Thread.sleep(100);
         
         System.out.println("Time=" + time);
         source.setMediaTime(time);
-        source.start();
+        source.activate();
         
         Thread.sleep(1000);
         
@@ -162,7 +162,7 @@ public class AbstractSourceTest {
         private long seq = 0;
         
         public MyTestSource(Scheduler scheduler) {
-            super("", scheduler,scheduler.SPLITTER_OUTPUT_QUEUE);
+            super("", scheduler,scheduler.OUTPUT_QUEUE);
         }
 
         public Frame evolve(long timestamp) {
@@ -192,6 +192,16 @@ public class AbstractSourceTest {
         @Override
         public void onMediaTransfer(Frame frame) throws IOException {
             timestamp[count++] = frame.getTimestamp();
+        }
+        
+        public void deactivate()
+        {
+        	
+        }
+        
+        public void activate()
+        {
+        	
         }
     }
 }

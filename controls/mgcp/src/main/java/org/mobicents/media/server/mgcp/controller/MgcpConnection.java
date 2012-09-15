@@ -86,12 +86,8 @@ public class MgcpConnection implements ConnectionFailureListener {
         connection.setMode(mode);
     }
     
-    public void setGain(int gain) {
-        connection.setGain(gain);
-    }
-    
     public void setDtmfClamp(boolean dtmfClamp) {
-        connection.setDtmfClamp(dtmfClamp);
+        //connection.setDtmfClamp(dtmfClamp);
     }
     
     public Text getDescriptor() {
@@ -121,11 +117,11 @@ public class MgcpConnection implements ConnectionFailureListener {
     }
     
     public int getPacketsTransmitted() {
-        return (int) connection.getPacketsTransmitted(MediaType.AUDIO);
+        return (int) connection.getPacketsTransmitted();
     }
     
     public int getPacketsReceived() {
-        return (int) connection.getPacketsReceived(MediaType.AUDIO);
+        return (int) connection.getPacketsReceived();
     }
     
     public void onFailure() {

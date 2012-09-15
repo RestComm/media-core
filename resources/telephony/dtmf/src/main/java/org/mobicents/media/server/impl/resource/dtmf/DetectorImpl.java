@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.log4j.Logger;
+
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.audio.CompoundOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.component.audio.GoertzelFilter;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -67,7 +70,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     /**
      * The default duration of the DTMF tone.
      */
-    private final static int TONE_DURATION = 50;
+    private final static int TONE_DURATION = 80;
     public final static String[][] events = new String[][]{
         {"1", "2", "3", "A"},
         {"4", "5", "6", "B"},
@@ -101,15 +104,15 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     private DtmfBuffer dtmfBuffer;
     
     
-    private Listeners<DtmfDetectorListener> listeners = new Listeners();
+    private Listeners<DtmfDetectorListener> listeners = new Listeners<DtmfDetectorListener>();
 
     private EventSender eventSender;
     private Scheduler scheduler;
         
+    private CompoundOutput output;
+    
     private static final Logger logger = Logger.getLogger(DetectorImpl.class) ;
     
-    private String lastTone=null;
-    private Boolean toneSequence=false;
     /**
      * Creates new instance of Detector.
      */
@@ -127,17 +130,30 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
             highFreqFilters[i] = new GoertzelFilter(highFreq[i], N, scale);
         }
         this.level = DEFAULT_SIGNAL_LEVEL;
+        
+        output=new CompoundOutput(scheduler,ComponentType.RECORDER.getType());
+        output.join(this);
     }
 
-    @Override
-    public void start() {
-        this.offset = 0;
+    public CompoundOutput getCompoundOutput()
+    {
+    	return this.output;
+    }
+    
+    public void activate()
+    {
+    	this.offset = 0;
         this.maxAmpl = 0;
         
-        toneSequence=false;
-        this.dtmfBuffer.clear();        
-        super.start();
+        this.dtmfBuffer.clear();  
+        output.start();
     }
+    
+    public void deactivate()
+    {
+    	output.stop();    	    
+    }
+    
     public void setDuration(int duartion) {
         this.toneDuration = duartion;        
     }
@@ -192,23 +208,8 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
                     String tone = getTone(p, P);
                     
                     if (tone != null)
-                    {            
-                    	if(!toneSequence || !tone.equals(lastTone))
-                    		dtmfBuffer.push(tone);
-                    	else
-                    	{
-                    		dtmfBuffer.updateTime();
-                    		logger.info(String.format("(%s) Tone '%s' detected,but is duplicated,skipping", getName(), tone));
-                    	}
-                    	
-                    	lastTone=tone;
-                    	toneSequence=true;
-                    }
-                    else
-                    	toneSequence=false;                    
-                }  
-                else
-                	toneSequence=false;                
+                    	dtmfBuffer.push(tone);               
+                }                               
             }            
         }
     }
@@ -340,13 +341,17 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
      * @see org.mobicents.media.Component#addListener(NotificationListener). 
      */
     public void addListener(DtmfDetectorListener listener) throws TooManyListenersException {
-        listeners.add(listener);
+    	listeners.add(listener);    	       
     }
 
     public void removeListener(DtmfDetectorListener listener) {
-        listeners.remove(listener);
+    	listeners.remove(listener);
     }
 
+    public void clearAllListeners() {
+    	listeners.clear();
+    }
+    
     public void clearDigits() {
         dtmfBuffer.clear();
     }
@@ -368,11 +373,17 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         public long perform() {
             for (DtmfEventImpl evt : events) {
                 //try to deliver or queue to buffer if not delivered
-                if (!listeners.dispatch(evt)) {
+            	if (!listeners.dispatch(evt)) {
                     dtmfBuffer.queue(evt);
-                    logger.info(String.format("(%s) Buffered '%s' tone", getName(), evt.getTone()));
+                    if(getEndpoint()==null)
+                    	logger.info(String.format("(%s) Buffered '%s' tone", getName(), evt.getTone()));
+                    else
+                    	logger.info(String.format("(" + getEndpoint().getLocalName() + ") (%s) Buffered '%s' tone", getName(), evt.getTone()));                    	
                 } else {
-                    logger.info(String.format("(%s) Delivered '%s' tone", getName(), evt.getTone()));
+                	if(getEndpoint()==null)
+                		logger.info(String.format("(%s) Delivered '%s' tone", getName(), evt.getTone()));
+                	else
+                		logger.info(String.format("(" + getEndpoint().getLocalName() + ") (%s) Delivered '%s' tone", getName(), evt.getTone()));
                 }
             }
             events.clear();

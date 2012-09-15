@@ -29,7 +29,7 @@ import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author Oleg Kulikov
+ * @author Yulian Oifa
  * @author amit bhayani
  */
 public interface Connection {
@@ -66,21 +66,21 @@ public interface Connection {
      *
      * @return integer constant indicating mode.
      */
-    public ConnectionMode getMode(MediaType mediaType);
+    public ConnectionMode getMode();
 
-    /**
-     * Modify mode of this connection.
-     *
-     * @param mode the new value of the mode.
-     */
-    public void setMode(ConnectionMode mode, MediaType mediaType) throws ModeNotSupportedException;
-    
     /**
      * Modify mode of this connection for all known media types.
      * 
      * @param mode the new mode of the connection.
      */
     public void setMode(ConnectionMode mode) throws ModeNotSupportedException;
+    
+    /**
+     * Sets the endpoint which executes this connection.
+     *
+     * @param the endpoint object.
+     */
+    public void setEndpoint(Endpoint endpoint);
     
     /**
      * Gets the endpoint which executes this connection.
@@ -94,23 +94,7 @@ public interface Connection {
      * 
      * @return SDP descriptor as text string.
      */
-    public String getDescriptor();
-
-    /**
-     * Gain control for the audio channel.
-     * 
-     * @param gain the value of the gain. value less then 1 increases gain 
-     * and value greater then 1 increases.
-     */
-    public void setGain(double gain);
-    
-    /**
-     * Dtmf Clamp for the audio channel.
-     * 
-     * @param dtmfClamp the value of the dtmfClamp 
-     * true activates dtmf clamp , false cancels it
-     */
-    public void setDtmfClamp(boolean dtmfClamp);
+    public String getDescriptor();    
     
     /**
      * Joins endpoint wich executes this connection with other party.
@@ -163,15 +147,7 @@ public interface Connection {
      * @param media the media type.
      * @return the number of packets.
      */
-    public long getPacketsReceived(MediaType media);
-    
-    /**
-     * The number of bytes of the specified media type received .
-     * 
-     * @param media the media type.
-     * @return the number of bytes.
-     */
-    public long getBytesReceived(MediaType media);
+    public long getPacketsReceived();
     
     /**
      * The total number of bytes  received .
@@ -186,31 +162,14 @@ public interface Connection {
      * @param media the media type 
      * @return the number of packets.
      */
-    public long getPacketsTransmitted(MediaType media);
+    public long getPacketsTransmitted();
 
-    /**
-     * The number of bytes of the specified media type transmitted.
-     * 
-     * @param media the media type 
-     * @return the number of bytes.
-     */
-    public long getBytesTransmitted(MediaType media);
-    
-    
     /**
      * The total number of bytes transmitted.
      * 
      * @return the number of bytes.
      */
     public long getBytesTransmitted();
-    
-    /**
-     * The interarrival jitter for the specific media type.
-     * 
-     * @param media the media type
-     * @return jitter value
-     */
-    public double getJitter(MediaType media);
     
     /**
      * The average jitter value accross all media types.

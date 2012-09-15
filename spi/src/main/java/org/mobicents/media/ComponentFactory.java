@@ -22,8 +22,7 @@
 
 package org.mobicents.media;
 
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.Connection;
 
 /**
  * Acts as a factory of any media components.
@@ -34,8 +33,33 @@ public interface ComponentFactory {
     /**
      * Constructs new component.
      * 
-     * @param endpoint the endpoint which creates this component.
+     * @param componentType - type of component to be created
      * @return new instance of the component.
      */
-    public Component newAudioComponent(int componentType) throws ResourceUnavailableException;
+    public Component newAudioComponent(ComponentType componentType);
+    
+    /**
+     * Frees previously allocated component component.
+     * 
+     * @param component - component to release
+     * @param componentType - type of component to be created
+     * 
+     */
+    public void releaseAudioComponent(Component component,ComponentType componentType);
+    
+    /**
+     * Constructs new connection.
+     * 
+     * @param isLocal - created connection should be local or remote
+     * @return new instance of the connection.
+     */
+    public Connection newConnection(boolean isLocal);
+    
+    /**
+     * Releases new connection.
+     * 
+     * @param connection - connection to release
+     * @param isLocal - created connection should be local or remote 
+     */
+    public void releaseConnection(Connection connection,boolean isLocal);
 }

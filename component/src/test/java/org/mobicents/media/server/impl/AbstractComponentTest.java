@@ -39,7 +39,7 @@ import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class AbstractComponentTest {
 
@@ -91,7 +91,7 @@ public class AbstractComponentTest {
     private class TestSource extends AbstractSource {
 
         public TestSource(String name,Scheduler scheduler) {
-            super(name, scheduler,scheduler.SPLITTER_OUTPUT_QUEUE);
+            super(name, scheduler,scheduler.OUTPUT_QUEUE);
         }
 
         public Formats getNativeFormats() {
@@ -115,6 +115,16 @@ public class AbstractComponentTest {
 
         @Override
         public void onMediaTransfer(Frame frame) {
+        }
+        
+        public void deactivate()
+        {
+        	
+        }
+        
+        public void activate()
+        {
+        	
         }
     }
 

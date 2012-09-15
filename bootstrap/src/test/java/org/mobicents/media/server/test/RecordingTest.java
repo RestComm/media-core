@@ -36,12 +36,15 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.cnf.CnfEndpoint;
+import org.mobicents.media.core.Server;
+import org.mobicents.media.core.ResourcesPool;
+import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
+import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.impl.rtp.RTPManager;
+import org.mobicents.media.server.mgcp.controller.Controller;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.ivr.IVREndpoint;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -65,13 +68,18 @@ public class RecordingTest {
     protected Clock clock;
     protected Scheduler scheduler;
 
-    protected RTPManager rtpManager;
+    protected ChannelsManager channelsManager;
 
     protected UdpManager udpManager;
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
+    private Controller controller;
+    private ResourcesPool resourcesPool;
+    
     //user and ivr endpoint
-    private IVREndpoint user, ivr;    
+    private IvrEndpoint user, ivr;    
+    
+    private Server server;
     
     public RecordingTest() {
     }
@@ -85,8 +93,8 @@ public class RecordingTest {
     }
 
     @Before
-    public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
-        //use default clock
+    public void setUp() throws Exception {
+    	//use default clock
         clock = new DefaultClock();
 
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
@@ -104,30 +112,37 @@ public class RecordingTest {
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 
-        rtpManager = new RTPManager(udpManager);
-        rtpManager.setBindAddress("127.0.0.1");
-        rtpManager.setScheduler(scheduler);
+        channelsManager = new ChannelsManager(udpManager);
+        channelsManager.setScheduler(scheduler);
         
-        //assign scheduler to the endpoint
-        user = new IVREndpoint("user");
-        user.setScheduler(scheduler);
-        user.setRtpManager(rtpManager);
-        user.setDspFactory(dspFactory);
-        user.start();
-
-        //assign scheduler to the endpoint
-        ivr = new IVREndpoint("user");
-        ivr.setScheduler(scheduler);
-        ivr.setRtpManager(rtpManager);
-        ivr.setDspFactory(dspFactory);
-        ivr.start();
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         
+        server=new Server();
+        server.setClock(clock);
+        server.setScheduler(scheduler);
+        server.setUdpManager(udpManager);
+        server.setResourcesPool(resourcesPool);        
+        
+        controller=new Controller();
+        controller.setUdpInterface(udpManager);
+        controller.setPort(2427);
+        controller.setScheduler(scheduler); 
+        controller.setServer(server);        
+        controller.setConfigurationByURL(this.getClass().getResource("/mgcp-conf.xml"));
+        
+        controller.start();
+        
+        user = new IvrEndpoint("/mobicents/ivr/1");
+        ivr = new IvrEndpoint("/mobicents/ivr/2");
+        
+        server.install(user);
+        server.install(ivr);      	
     }
 
     @After
     public void tearDown() {
-        udpManager.stop();
-        scheduler.stop();
+    	controller.stop();
+    	server.stop();    	       
         
         if (user != null) {
             user.stop();
@@ -135,8 +150,7 @@ public class RecordingTest {
 
         if (ivr != null) {
             ivr.stop();
-        }
-
+        }    	
     }
 
     /**
@@ -167,15 +181,16 @@ public class RecordingTest {
 
         Recorder recorder = (Recorder) ivr.getResource(MediaType.AUDIO, ComponentType.RECORDER);
         recorder.setRecordFile("file:///home/kulikov/test-recording.wav", false);
-        recorder.start();
+        recorder.activate();
         
         Player player = (Player) user.getResource(MediaType.AUDIO, ComponentType.PLAYER);        
         player.setURL("file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav");
-        player.start();
+        player.activate();
         
         Thread.sleep(10000);
         
-        recorder.stop();
+        player.deactivate();
+        recorder.deactivate();
         
         user.deleteConnection(userConnection);
         ivr.deleteConnection(ivrConnection);

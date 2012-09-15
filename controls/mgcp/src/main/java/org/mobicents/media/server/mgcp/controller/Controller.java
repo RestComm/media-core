@@ -22,6 +22,7 @@
 
 package org.mobicents.media.server.mgcp.controller;
 
+import java.net.URL;
 import java.io.FileInputStream;
 import java.io.IOException;
 import org.apache.log4j.Logger;
@@ -146,6 +147,15 @@ public class Controller implements MgcpListener, ServerManager {
                 configurator = new Configurator(stream);
             }
         } catch (Exception e) {
+            logger.error("Could not configure MGCP controller", e);
+            throw e;
+        }
+    }
+    
+    public void setConfigurationByURL(URL url) throws Exception {
+    	try {
+    		configurator = new Configurator(url.openStream());
+    	} catch (Exception e) {
             logger.error("Could not configure MGCP controller", e);
             throw e;
         }

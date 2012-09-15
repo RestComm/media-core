@@ -22,6 +22,10 @@ import java.util.ArrayList;
 
 import org.mobicents.media.MediaSource;
 
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.audio.CompoundOutput;
+import org.mobicents.media.server.scheduler.Scheduler;
+
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Formats;
@@ -62,16 +66,23 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
     private long startTime;
     private int count;    
 
-    private MediaSource source;
+    private CompoundOutput output;
+        
+    private Listeners<ToneDetectorListener> listeners = new Listeners<ToneDetectorListener>();    
     
-    private Listeners<ToneDetectorListener> listeners = new Listeners();    
-    
-    public PhoneSignalDetector(String name,MediaSource source) {
+    public PhoneSignalDetector(String name,Scheduler scheduler) {
         super(name);
         signal = new double[N];  
-        this.source=source;    
+
+        output=new CompoundOutput(scheduler,ComponentType.SIGNAL_DETECTOR.getType());
+        output.join(this);    
     }
 
+    public CompoundOutput getCompoundOutput()
+    {
+    	return this.output;
+    }
+    
     public void setFrequency(int[] f) {
         this.f = f;
         freqFilters = new GoertzelFilter[f.length];
@@ -95,10 +106,12 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
         return level;
     }
 
-    @Override
-    public void start() {
-    	source.start();
-    	super.start();
+    public void activate() {
+    	output.start();
+    }
+    
+    public void deactivate() {
+    	output.stop();
     }
     
     @Override
@@ -166,6 +179,10 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
     public void removeListener(ToneDetectorListener listener)
     {    	
     	listeners.remove(listener);
+    }
+    
+    public void clearAllListeners() {
+    	listeners.clear();
     }
     
     private void sendEvent(Event event)

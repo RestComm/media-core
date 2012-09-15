@@ -38,7 +38,7 @@ import org.mobicents.media.server.scheduler.Task;
  *
  * Important! Any CPU-bound action here are illegal!
  *
- * @author oifa yulian
+ * @author yulian oifa
  */
 public class SS7Manager {
 

@@ -30,6 +30,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.audio.CompoundOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -90,7 +93,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     private long maxRecordTime = -1;
     
     //listener
-    private Listeners<RecorderListener> listeners = new Listeners();
+    private Listeners<RecorderListener> listeners = new Listeners<RecorderListener>();
     
     //events
     private RecorderEventImpl recorderStarted;
@@ -104,6 +107,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     private int qualifier;
     
     private boolean speechDetected=false;
+    
+    private CompoundOutput output;
     
     private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
     
@@ -122,14 +127,22 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         //initialize event sender task
         eventSender = new EventSender(scheduler);
         heartbeat = new Heartbeat(scheduler);
+        
+        output=new CompoundOutput(scheduler,ComponentType.RECORDER.getType());
+        output.join(this);
     }
 
+    public CompoundOutput getCompoundOutput()
+    {
+    	return this.output;
+    }
+    
     @Override
-    public void start() {
+    public void activate() {
     	this.lastPacketData=scheduler.getClock().getTime();
     	this.startTime=scheduler.getClock().getTime();
     	
-        super.start();
+    	output.start();
         
         if(this.postSpeechTimer>0 || this.preSpeechTimer>0 || this.maxRecordTime>0)
         	scheduler.submitHeatbeat(this.heartbeat);
@@ -139,12 +152,12 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     }
     
     @Override
-    public void stop() {
+    public void deactivate() {
         if (!this.isStarted()) {
             return;
         }
         
-        super.stop();
+        output.stop();
         this.maxRecordTime = -1;
         this.lastPacketData=0;
         this.startTime=0;
@@ -154,7 +167,10 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         try {
             writeToWaveFile();
         } catch (IOException e) {
-        	logger.error(e);
+        	if(getEndpoint()==null)
+        		logger.error(e);
+        	else
+        		logger.error("(" + getEndpoint().getLocalName() + ")",e);        		
         }
         
         //send event
@@ -251,7 +267,10 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         //if append specified and file really exist copy data from the current
         //file to temp
         if (append && file.exists()) {
-        	logger.info("..............>>>>>Copying samples from " + file);
+        	if(getEndpoint()==null)
+        		logger.info("..............>>>>>Copying samples from " + file);
+        	else
+        		logger.info("(" + getEndpoint().getLocalName() + ") ..............>>>>>Copying samples from " + file);        		
             copySamples(file, fout);                       
         }
     }
@@ -262,7 +281,11 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
      * @throws IOException 
      */
     private void writeToWaveFile() throws IOException {
-		logger.info("!!!!!!!!!! Writting to file......................");
+    	if(getEndpoint()==null)
+    		logger.info("!!!!!!!!!! Writting to file......................");
+    	else
+    		logger.info("(" + getEndpoint().getLocalName() + ") !!!!!!!!!! Writting to file......................");
+    	
         //stop called on inactive recorder
         if (fout == null) {
             return;
@@ -275,7 +298,10 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         fout = new FileOutputStream(file);
         
         int size = fin.available();
-        logger.info("!!!!!!!!!! Size=" + size);
+        if(getEndpoint()==null)
+        	logger.info("!!!!!!!!!! Size=" + size);
+        else
+        	logger.info("(" + getEndpoint().getLocalName() + ") !!!!!!!!!! Size=" + size);
         
 		headerBuffer.clear();		
         //RIFF
@@ -359,8 +385,12 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         
         //lets write data
         FileChannel inChannel=fin.getChannel();
-        outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());        
-        logger.info("Was copied " + inChannel.size()  + " bytes");
+        outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());
+        if(getEndpoint()==null)
+        	logger.info("Was copied " + inChannel.size()  + " bytes");
+        else
+        	logger.info("(" + getEndpoint().getLocalName() + ") Was copied " + inChannel.size()  + " bytes");        
+        
         
         fout.flush();
         fout.close();
@@ -399,7 +429,10 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     	long count=inChannel.size()-(long)offset;
     	inChannel.transferTo(offset,count,outChannel);    	
                         
-        System.out.println("Was copied " + count  + " bytes");
+    	if(getEndpoint()==null)
+        	logger.info("Was copied " + count  + " bytes");
+        else
+        	logger.info("(" + getEndpoint().getLocalName() + ") Was copied " + count + " bytes");                    	        
     }
     
     /**
@@ -438,6 +471,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         listeners.remove(listener);
     }
     
+    public void clearAllListeners() {
+    	listeners.clear();
+    }
     /**
      * Asynchronous recorder stopper.
      */
@@ -449,7 +485,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
         @Override
         public long perform() {
-            stop();
+        	deactivate();
             return 0;
         }
     
@@ -471,7 +507,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
         @Override
         public long perform() {
-            listeners.dispatch(event);
+        	listeners.dispatch(event);        	
             return 0;
         }
     
@@ -490,18 +526,20 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
         @Override
         public long perform() {
-        	long currTime=scheduler.getClock().getTime();
+        	long currTime=scheduler.getClock().getTime();        	
+        	
         	if(preSpeechTimer>0 && !speechDetected && currTime-lastPacketData>preSpeechTimer) {
         		qualifier = RecorderEvent.NO_SPEECH;                    
                 scheduler.submit(killRecording,scheduler.INPUT_QUEUE);
                 return 0;
         	}
+        	
         	if(postSpeechTimer>0 && speechDetected && currTime-lastPacketData>postSpeechTimer) {
         	    qualifier = RecorderEvent.NO_SPEECH;                    
                 scheduler.submit(killRecording,scheduler.INPUT_QUEUE);
                 return 0;
-            }
-        	
+            }        	
+        		
         	//check max time and stop recording if exeeds limit
             if (maxRecordTime > 0 && currTime-startTime >= maxRecordTime) {
                 //set qualifier

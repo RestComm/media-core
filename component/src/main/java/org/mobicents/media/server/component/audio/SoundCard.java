@@ -22,6 +22,8 @@
 package org.mobicents.media.server.component.audio;
 
 import java.io.IOException;
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.scheduler.Scheduler;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -37,7 +39,7 @@ import org.mobicents.media.server.spi.memory.Frame;
 import org.apache.log4j.Logger;
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class SoundCard extends AbstractSink {
     
@@ -45,6 +47,8 @@ public class SoundCard extends AbstractSink {
     private final static Formats formats = new Formats();
 
     private final static Encoding GSM_ENCODING = new Encoding("GSM0610");
+    
+    private CompoundOutput output;
     
     static{
         formats.add(LINEAR);
@@ -56,16 +60,28 @@ public class SoundCard extends AbstractSink {
     
     private static final Logger logger = Logger.getLogger(SoundCard.class);
     
-    public SoundCard() {
+    public SoundCard(Scheduler scheduler) {
         super("soundcard");
+        output=new CompoundOutput(scheduler,ComponentType.SOUND_CARD.getType());
+        output.join(this);
     }
 
-    @Override
-    public void start() {
-        first = true;
-        super.start();
+    public CompoundOutput getCompoundOutput()
+    {
+    	return this.output;
     }
     
+    public void activate()
+    {
+    	first = true;
+    	output.start();
+    }
+    
+    public void deactivate()
+    {
+    	output.stop();
+    }
+        
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         System.out.println("Receive " + frame.getFormat() + ", len=" + frame.getLength() + ", header=" + frame.getHeader());

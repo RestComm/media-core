@@ -54,11 +54,7 @@ import org.apache.log4j.Logger;
  *
  * @author oifa yulian
  */
-public class JitterBuffer implements Serializable {
-    private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
-    static {
-        dtmf.setOptions(new Text("0-15"));
-    }
+public class JitterBuffer implements Serializable {    
     //The underlying buffer size
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
@@ -97,9 +93,6 @@ public class JitterBuffer implements Serializable {
     //currently used format
     private RTPFormat format;
     
-    //RTP dtmf event converter
-    private DtmfConverter dtmfConverter;
-    
     private Boolean useBuffer=true;
     
     private final static Logger logger = Logger.getLogger(JitterBuffer.class);
@@ -110,9 +103,7 @@ public class JitterBuffer implements Serializable {
      */
     public JitterBuffer(RtpClock clock, int jitter) {
         this.rtpClock = clock;
-        this.jitter = rtpClock.convertToRtpTime(jitter);
-        this.dtmfConverter = new DtmfConverter(this);
-        this.dtmfConverter.setClock(clock);
+        this.jitter = rtpClock.convertToRtpTime(jitter);        
     }
 
     public void setFormats(RTPFormats rtpFormats) {
@@ -170,28 +161,17 @@ public class JitterBuffer implements Serializable {
      *
      * @param packet the packet to accept
      */
-    public void write(RtpPacket packet) {    	
+    public void write(RtpPacket packet,RTPFormat format) {    	
     	//checking format
-    	if (this.format == null) {
-    		//if format is not known yet assign the format of this packet
-    		this.format = rtpFormats.find(packet.getPayloadType());
-    		
-    		if(this.format!=null)
-    			logger.info("Format has been changed: " + this.format.toString());    			
-    	} else if (this.format.getID() != packet.getPayloadType()) {
-    		//format has been changed 
-    		this.format = rtpFormats.find(packet.getPayloadType());
-    		
-    		if(this.format!=null)
-    			logger.info("Format has been changed: " + this.format.toString());    			
-    	}
-
-    	//ignore unknow packet
-    	if (this.format == null) {
-    		//unknown packet
+    	if(format==null)
     		return;
+    	
+    	if(this.format==null || this.format.getID() != format.getID())
+    	{
+    		this.format=format;
+    		logger.info("Format has been changed: " + this.format.toString()); 
     	}
-        
+    	    	
     	//if this is first packet then synchronize clock
     	if (isn == -1) {
     		rtpClock.synchronize(packet.getTimestamp());
@@ -202,40 +182,35 @@ public class JitterBuffer implements Serializable {
     	rtpClock.setClockRate(this.format.getClockRate());            		    		
         
     	Frame f=null;
-    	if (this.format != null && this.format.getFormat().matches(dtmf)) {
-    		dtmfConverter.push(packet);
-    		return;
-    	} else {
-    		//drop outstanding packets
-    		//packet is outstanding if its timestamp of arrived packet is less
-    		//then consumer media time
-    		if (packet.getTimestamp() < this.arrivalDeadLine) {
-    			System.out.println("drop packet: dead line=" + arrivalDeadLine
-                    + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber()
-                    + ", payload length=" + packet.getPayloadLength() + ", format=" + this.format.toString());
-    			dropCount++;
-    			
-    			//checking if not dropping too much  			
-    			droppedInRaw++;
-    			if(droppedInRaw==QUEUE_SIZE/2 || queue.size()==0)
-    				arrivalDeadLine=0;
-    			else
-    				return;
-    		}
-    			
-    		f=Memory.allocate(packet.getPayloadLength());
-    		//put packet into buffer irrespective of its sequence number
-    		f.setHeader(null);
-    		f.setSequenceNumber(packet.getSeqNumber());
-    		//here time is in milliseconds
-    		f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
-    		f.setOffset(0);
-    		f.setLength(packet.getPayloadLength());
-    		packet.getPyalod(f.getData(), 0);
+    	//drop outstanding packets
+		//packet is outstanding if its timestamp of arrived packet is less
+		//then consumer media time
+		if (packet.getTimestamp() < this.arrivalDeadLine) {
+			System.out.println("drop packet: dead line=" + arrivalDeadLine
+                + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber()
+                + ", payload length=" + packet.getPayloadLength() + ", format=" + this.format.toString());
+			dropCount++;
+			
+			//checking if not dropping too much  			
+			droppedInRaw++;
+			if(droppedInRaw==QUEUE_SIZE/2 || queue.size()==0)
+				arrivalDeadLine=0;
+			else
+				return;
+		}
+			
+		f=Memory.allocate(packet.getPayloadLength());
+		//put packet into buffer irrespective of its sequence number
+		f.setHeader(null);
+		f.setSequenceNumber(packet.getSeqNumber());
+		//here time is in milliseconds
+		f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
+		f.setOffset(0);
+		f.setLength(packet.getPayloadLength());
+		packet.getPyalod(f.getData(), 0);
 
-    		//set format
-    		f.setFormat(this.format.getFormat());
-    	}
+		//set format
+		f.setFormat(this.format.getFormat());
     		
     	//make checks only if have packet
     	if(f!=null)
@@ -298,49 +273,7 @@ public class JitterBuffer implements Serializable {
     			}
     		}
     	}
-    }
-    
-    public void pushFrame(Frame f)
-    {
-    	droppedInRaw=0;		
-		
-		//find correct position to insert a packet    			
-		int currIndex=queue.size()-1;
-		while (currIndex>=0 && queue.get(currIndex).getSequenceNumber() > f.getSequenceNumber())
-			currIndex--;
-			    		
-		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
-		{
-			//duplicate packet
-			return;
-		}
-				    			
-		queue.add(currIndex+1, f);
-			
-		//recalculate duration of each frame in queue and overall duration , since we could insert the
-		//frame in the middle of the queue    			
-		duration=0;    			
-		if(queue.size()>1)
-			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();				
-			
-		//overflow?
-		//only now remove packet if overflow , possibly the same packet we just received
-		if (queue.size()>QUEUE_SIZE) {
-			//System.out.println("Buffer overflow");    			
-			dropCount++;        			
-			queue.remove(0);    				
-		}    		
-			
-		//check if this buffer already full
-		if (!ready) {    			
-			ready = duration >= jitter && queue.size() > 1;
-			if (ready) {    				
-				if (listener != null) {
-					listener.onFill();
-				}
-			}
-		}				
-    }
+    }        
 
     /**
      * Polls packet from buffer's head.

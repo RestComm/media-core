@@ -99,9 +99,6 @@ public class CreateConnectionCmd extends Action {
     private MgcpRequest request;
     
     //subtasks
-    private EndpointLocator endpointLocator;
-    private RtpConnectionCreator rtpCreator;
-    private LocalConnector localConnector;
     private Responder responder;
     private ErrorHandle errorHandle;
     
@@ -127,14 +124,12 @@ public class CreateConnectionCmd extends Action {
         handler = new TaskChain(4);
         
         //intialize action's subtasks
-        endpointLocator = new EndpointLocator(scheduler);
-        rtpCreator = new RtpConnectionCreator(scheduler);
-        localConnector = new LocalConnector(scheduler);
         responder = new Responder(scheduler);
         errorHandle = new ErrorHandle(scheduler);
         
         preprocessor = new Preprocessor(scheduler);
         handler.add(preprocessor);
+        handler.add(responder);
         
         this.setActionHandler(handler);
         this.setRollbackHandler(errorHandle);
@@ -144,6 +139,7 @@ public class CreateConnectionCmd extends Action {
     public void start(Transaction tx) {
         handler.clean();
         handler.add(preprocessor);
+        handler.add(responder);
         
         super.start(tx);
     }
@@ -218,39 +214,7 @@ public class CreateConnectionCmd extends Action {
             connections[1]=null;
             
             call = transaction().getCall(callID.getValue(), true);
-            if (z2 != null) {            	
-                //create two local connections
-                handler.add(endpointLocator);
-                handler.add(localConnector);
-                handler.add(responder);
-            } else {            	
-                //create one RTP connection
-                handler.add(endpointLocator);
-                handler.add(rtpCreator);
-                handler.add(responder);
-            }
-            return 0;
-        }        
-    }
-    
-    /**
-     * Searches endpoint specified in message.
-     * 
-     * The result will be stored into variable endpoint.
-     */
-    private class EndpointLocator extends Task {
-
-        public EndpointLocator(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
+            
             try {
                 //searching endpoint
             	int n = transaction().find(localName, endpoints);
@@ -264,123 +228,86 @@ public class CreateConnectionCmd extends Action {
             	throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
             }
             
-            Parameter z2 = request.getParameter(Parameter.SECOND_ENDPOINT);
-            if(z2!=null)
-            {
-            	 try {
-                     //searching endpoint
-                     int n = transaction().find(localName2, endpoints);
-                     
-                     if (n == 0) {
-                         throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
-                     }
-                     
-                     //extract found endpoint
-                     endpoint2 = endpoints[0];
-                 } catch (Exception e) {
-                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
-                 }
-            }
-            
-            return 0;
-        }
-        
-    }   
-
-    private class RtpConnectionCreator extends Task {
-
-        public RtpConnectionCreator(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
-            try {
-                connections[0] = endpoint.createConnection(call, ConnectionType.RTP,lcOptions.getIsLocal());
-                connections[0].setCallAgent(getEvent().getAddress());                
-            } catch (Exception e) {            	
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection" + e.getMessage()));
-            }
-            
-            if (sdp != null) {
+            if (z2 != null) {            	
+                //create two local connections
                 try {
-                    connections[0].setOtherParty(sdp.getValue());
-                } catch (IOException e) {
-                	throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
+                    //searching endpoint
+                    int n = transaction().find(localName2, endpoints);
+                    
+                    if (n == 0) {
+                        throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
+                    }
+                    
+                    //extract found endpoint
+                    endpoint2 = endpoints[0];
+                } catch (Exception e) {
+                    throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ERROR_ENDPOINT_UNAVAILAVALE);
                 }
+                
+                try {
+                    connections[0] = endpoint.createConnection(call, ConnectionType.LOCAL,false);
+                } catch (Exception e) {
+                    throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection"));
+                }
+
+                try {
+                    connections[1] = endpoint2.createConnection(call, ConnectionType.LOCAL,false);
+                } catch (Exception e) {
+                    throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection"));
+                }
+                
+                
+                try {
+                    connections[0].setOtherParty(connections[1]);
+                } catch (Exception e) {
+                	System.out.println(e.getMessage());
+                	e.printStackTrace();
+                    throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with joining"));
+                }
+
+                if (mode == null) {
+                    throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, new Text("Mode was not specified"));
+                }
+                
+                ConnectionMode m = ConnectionMode.valueOf(mode.getValue());
+                
+                try {
+                    connections[0].setMode(m);
+                    //connections[1].setMode(ConnectionMode.SEND_RECV);
+                } catch (Exception e) {
+                    throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Unsupported mode"));
+                }
+                
+                connections[0].setDtmfClamp(lcOptions.getDtmfClamp());                
+            } else {            	
+                //create one RTP connection            	                             
+            	try {
+                    connections[0] = endpoint.createConnection(call, ConnectionType.RTP,lcOptions.getIsLocal());
+                    connections[0].setCallAgent(getEvent().getAddress());                
+                } catch (Exception e) {            	
+                    throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection" + e.getMessage()));
+                }
+                
+                if (sdp != null) {
+                    try {
+                        connections[0].setOtherParty(sdp.getValue());
+                    } catch (IOException e) {
+                    	throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
+                    }
+                }
+                
+                try {
+                    connections[0].setMode(mode.getValue());
+                } catch (ModeNotSupportedException e) {
+                    throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Not supported mode"));
+                }
+                
+                connections[0].setDtmfClamp(lcOptions.getDtmfClamp());                
             }
-            
-            try {
-                connections[0].setMode(mode.getValue());
-            } catch (ModeNotSupportedException e) {
-                throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Not supported mode"));
-            }
-            
-            connections[0].setGain(lcOptions.getGain());
-            connections[0].setDtmfClamp(lcOptions.getDtmfClamp());
             return 0;
-        }
+        }        
+    }
         
-    }    
-
-    private class LocalConnector extends Task {
-
-        public LocalConnector(Scheduler scheduler) {
-            super(scheduler);
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
-            try {
-                connections[0] = endpoint.createConnection(call, ConnectionType.LOCAL,false);
-            } catch (Exception e) {
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection"));
-            }
-
-            try {
-                connections[1] = endpoint2.createConnection(call, ConnectionType.LOCAL,false);
-            } catch (Exception e) {
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with connection"));
-            }
-            
-            
-            try {
-                connections[0].setOtherParty(connections[1]);
-            } catch (Exception e) {
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with joining"));
-            }
-
-            if (mode == null) {
-                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, new Text("Mode was not specified"));
-            }
-            
-            ConnectionMode m = ConnectionMode.valueOf(mode.getValue());
-            
-            try {
-                connections[0].setMode(m);
-                //connections[1].setMode(ConnectionMode.SEND_RECV);
-            } catch (Exception e) {
-                throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Unsupported mode"));
-            }
-            
-            connections[0].setGain(lcOptions.getGain());
-            connections[0].setDtmfClamp(lcOptions.getDtmfClamp());
-            
-            return 0;            
-        }
-        
-    }    
-
     private class Responder extends Task {
 
         public Responder(Scheduler scheduler) {

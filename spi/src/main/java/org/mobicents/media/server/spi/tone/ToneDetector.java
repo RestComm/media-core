@@ -61,13 +61,14 @@ public interface ToneDetector extends MediaSink {
     /**
      * Starts media processing.
      */
-    public void start();
+    public void activate();
     
     /**
      * Terminates media processing.
      */
-    public void stop();
+    public void deactivate();
     
     public void addListener(ToneDetectorListener listener) throws TooManyListenersException;
     public void removeListener(ToneDetectorListener listener);
+    public void clearAllListeners();
 }

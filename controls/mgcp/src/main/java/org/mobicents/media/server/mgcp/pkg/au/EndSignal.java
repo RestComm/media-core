@@ -52,13 +52,14 @@ public class EndSignal extends Signal {
     public void execute() {
     	logger.info("Terminating signals");
         //get options of the request
-        options = new Options(getTrigger().getParams()); 
+        options = new Options(getTrigger().getParams());
         
-        if (options.isClearDigits()) {
-            dtmfDetector = getDetector();
+        Endpoint endpoint = getEndpoint();        
+        if (options.isClearDigits() && endpoint.hasResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR)) {
+            dtmfDetector = (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
             dtmfDetector.clearDigits();
             logger.info("Clear digits");
-        }
+        }                
     }
 
     @Override
@@ -73,10 +74,5 @@ public class EndSignal extends Signal {
     @Override
     public void reset() {
         super.reset();
-    }
-    
-    private DtmfDetector getDetector() {
-    	Endpoint endpoint = getEndpoint();
-        return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
-    }     
+    }            
 }

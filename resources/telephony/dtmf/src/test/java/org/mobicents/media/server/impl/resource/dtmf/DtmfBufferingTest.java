@@ -10,6 +10,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.CompoundMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -28,6 +31,10 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     
     private DetectorImpl detector;
     private GeneratorImpl generator;
+    
+    private CompoundComponent detectorComponent;
+    private CompoundComponent generatorComponent;
+    private CompoundMixer compoundMixer;
     
     private String tone;
     
@@ -58,13 +65,26 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         detector.setVolume(-35);
         detector.setDuration(40);
         
-        generator.connect(detector);
+        compoundMixer=new CompoundMixer(scheduler);
+        
+        detectorComponent=new CompoundComponent(1);
+        detectorComponent.addOutput(detector.getCompoundOutput());
+        detectorComponent.updateMode(false,true);
+        
+        generatorComponent=new CompoundComponent(2);
+        generatorComponent.addInput(generator.getCompoundInput());
+        generatorComponent.updateMode(true,false);
+                
+        compoundMixer.addComponent(detectorComponent);
+        compoundMixer.addComponent(generatorComponent);
         tone="";
     }
     
     @After
     public void tearDown() {
-    	generator.stop();
+    	generator.deactivate();
+    	detector.deactivate();
+    	compoundMixer.stop();
         scheduler.stop();
     }
 
@@ -75,10 +95,15 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     public void testFlush() throws InterruptedException, TooManyListenersException {
         //queue "1" into detector's buffer
         generator.setDigit("1");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(200);        
-        generator.stop();
+
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
         
         //assign listener and flush digit
         detector.addListener(this);
@@ -94,7 +119,9 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     public void testBuffering() throws InterruptedException, TooManyListenersException {
         //queue "1" into detector's buffer
         generator.setDigit("1");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(200);          
         
@@ -103,7 +130,10 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.wakeup();
         
         Thread.sleep(200);          
-        generator.stop();
+
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
         
         //assign listener and flush digit
         detector.addListener(this);
@@ -122,17 +152,27 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         
         //queue "1" into detector's buffer
         generator.setDigit("1");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(200);          
-        generator.stop();
+
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();    	
 
         //queue "2" into detector's buffer
         generator.setDigit("2");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(200);          
-        generator.stop();
+
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
         
         assertEquals("12", tone);
         
@@ -149,17 +189,27 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     public void testClear() throws InterruptedException, TooManyListenersException {
         //queue "1" into detector's buffer
         generator.setDigit("1");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(200);          
-        generator.stop();
+
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
 
         //queue "2" into detector's buffer
         generator.setDigit("2");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(200);          
-        generator.stop();
+
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
         
         //assign listener and flush digit
         detector.addListener(this);

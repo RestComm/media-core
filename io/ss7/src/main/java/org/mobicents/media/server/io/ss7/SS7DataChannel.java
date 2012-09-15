@@ -27,6 +27,7 @@ import java.net.SocketAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.text.Format;
+import org.mobicents.media.server.component.audio.CompoundComponent;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.SelectorKeyImpl;
@@ -76,16 +77,20 @@ public class SS7DataChannel {
     private Logger logger = Logger.getLogger(SS7DataChannel.class) ;
     
     private boolean isALaw=false;
+    private boolean shouldLoop=false;
+    
+    private CompoundComponent compoundComponent;
+    
     /**
      * Create SS7 channel instance.
      *
      * @param SS7 manager , Dahdi Channel ID , Audio Format used on channel
      * @throws IOException
      */
-    public SS7DataChannel(SS7Manager ss7Manager,int channelID,boolean isALaw) throws IOException {
+    public SS7DataChannel(SS7Manager ss7Manager,int dahdiChannelID,int compoundChannelID,boolean isALaw) throws IOException {
     	this.ss7Manager=ss7Manager;
     	this.ss7Handler=new SS7Handler();
-    	this.channelID=channelID;
+    	this.channelID=dahdiChannelID;
     	this.channel=ss7Manager.open(channelID);
     	this.isALaw=isALaw;
     	
@@ -103,6 +108,15 @@ public class SS7DataChannel {
     		//transmittor
     		output = new SS7Output(ss7Manager.scheduler,channel,g711u);
     	}
+    	
+    	compoundComponent=new CompoundComponent(compoundChannelID); 
+        compoundComponent.addInput(input.getCompoundInput());
+        compoundComponent.addOutput(output.getCompoundOutput());
+    }
+    
+    public CompoundComponent getCompoundComponent()
+    {
+    	return this.compoundComponent;
     }
     
     public void setCodec(boolean isALaw)
@@ -130,8 +144,9 @@ public class SS7DataChannel {
     	//bind data channel
     	ss7Manager.bind(channel,ss7Handler);
     	channel.setCodec(isALaw);    		
-        input.start();
-    	output.start();    	
+        input.activate();
+    	output.activate();
+    	compoundComponent.updateMode(true,true);
     }
 
     /**
@@ -143,36 +158,37 @@ public class SS7DataChannel {
         return channelID;
     }    
 
+    public void activateLoop() {
+    	input.deactivate();
+        output.deactivate(); 
+        compoundComponent.updateMode(false,false);
+        shouldLoop=true;
+    }
+    
+    public void deactivateLoop() {
+    	input.activate();
+        output.activate(); 
+        compoundComponent.updateMode(true,true);
+        shouldLoop=false;
+    }
+    
+    public boolean inLoop()
+    {
+    	return shouldLoop;
+    }
+    
     /**
      * Closes this socket.
      */
     public void close() {
         ss7Manager.unbind(channel);
         	
-        //System.out.println("RX COUNT:" + rxCount + ",TX COUNT:" + txCount);
         rxCount=0;
         txCount=0;
-        input.stop();
-        output.stop();                       
-    }
-
-    /**
-     * Gets the receiver stream.
-     *
-     * @return receiver as media source
-     */
-    public SS7Input getInput() {
-        return input;
-    }
-
-    /**
-     * Gets the transmitter stream.
-     *
-     * @return transceiver as media sink.
-     */
-    public SS7Output getOutput() {
-        return output;
-    }
+        input.deactivate();
+        output.deactivate();  
+        compoundComponent.updateMode(false,false);        
+    }    
 
     public int getPacketsLost() {
         return input.getPacketsLost();
@@ -196,14 +212,42 @@ public class SS7DataChannel {
         //The schedulable task for read operation
         private volatile boolean isReading = false;
         private volatile boolean isWritting;
-
+        private int readBytes=0;
+        private byte[] smallBuffer=new byte[32];
+        
         /**
          * (Non Java-doc.)
          *
          * @see org.mobicents.media.server.io.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel)
          */
         public void receive(Channel channel) {
-        		input.readData();        	
+        		if(!shouldLoop)
+        			input.readData();
+        		else
+        		{
+        			readBytes=0;    
+        	    	try
+        	    	{
+        	    		readBytes=channel.read(smallBuffer);
+        	    	}
+        	    	catch(IOException e)
+        	    	{    		    	
+        	    	}
+        	    	
+        	    	if(readBytes==0)
+        	    		return;
+        	    	
+        	    	while(readBytes<smallBuffer.length)
+                    	smallBuffer[readBytes++]=(byte)0;
+                    
+                    try
+                    {
+                    	channel.write(smallBuffer,readBytes);            	            
+                    }
+                    catch(IOException e)
+                    {            	            
+                    }
+        		}
         }
 
         public boolean isReadable() {

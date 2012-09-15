@@ -22,73 +22,76 @@
 
 package org.mobicents.media.server.spi.listener;
 
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+import java.lang.InterruptedException;
+
 /**
  * Implements collection of listener.
  * 
  * Allows concurrently modify list.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
-public class Listeners<L extends Listener> {
-    
-    //the size of array reserved for listeners
-    private int size = 10;
+public class Listeners<L extends Listener> {    
     //list of registered listeners
-    private Listener[] list;
-
+    private ArrayList<Listener> list=new ArrayList<Listener>();
+    private ArrayList<Listener> processingList=new ArrayList<Listener>();
+    private Semaphore accessSemaphore=new Semaphore(1);    
+    
     /**
      * Creates list of listeners with default size of 10.
      */
-    public Listeners() {
-        list = new Listener[size];
+    public Listeners() {        
     }
-    
-    /**
-     * Creates list of listeners with specified size.
-     * 
-     * @param  size the size of list reserved for list.
-     */
-    public Listeners(int size) {
-        this.size = size;
-        list = new Listener[size];
-    }
-    
+        
     /**
      * Adds listener to the collection.
      * 
      * @param listener the listener to be added
      * @throws org.mobicents.media.server.spi.listener.TooManyListenersException
-     */
+     */    
     public void add(L listener) throws TooManyListenersException {
-        boolean res = false;
-        
-        for (int i = 0; i < list.length; i++) {
-            if (list[i] != null) continue;
-            list[i] = listener;
-            res = true;
-            break;
-        }
-        
-        if (!res) throw new TooManyListenersException();
+    	try {
+    		accessSemaphore.acquire();
+    	}
+    	catch(InterruptedException e) {
+    		
+    	}
+    	
+    	list.add(listener);
+    	accessSemaphore.release();
     }
     
     /**
      * Removes listener from the collection.
      * @param listener the listener to be removed.
      */
-    public void remove(Listener listener) {
-        for (int i = 0; i < list.length; i++) {
-            if (list[i] == listener) list[i] = null;
-        }
+    public void remove(L listener) {
+    	try {
+    		accessSemaphore.acquire();
+    	}
+    	catch(InterruptedException e) {
+    		
+    	}
+    	
+    	list.remove(listener);
+    	accessSemaphore.release();
     }
     
     /**
      * Removes all listeners.
      */
     public void clear() {
-        for (int i = 0; i < list.length; i++) {
-            list[i] = null;
-        }
+    	try {
+    		accessSemaphore.acquire();
+    	}
+    	catch(InterruptedException e) {
+    		
+    	}
+    	
+    	list.clear();
+    	accessSemaphore.release();
     }
     
     /**
@@ -98,16 +101,21 @@ public class Listeners<L extends Listener> {
      * @return true if event was delivered at least to one listener
      */
     public boolean dispatch(Event event) {
-        boolean res = false;
-        
-        for (int i = 0; i < list.length; i++) {            
-            if (list[i] != null) {
-                list[i].process(event);
-                res = true;
-            }
-        }
-        
-        return res;
-    }
-    
+    	try {
+    		accessSemaphore.acquire();
+    	}
+    	catch(InterruptedException e) {
+    		
+    	}
+    	    	
+    	processingList.clear();
+    	processingList.addAll(list);
+    	accessSemaphore.release();        	
+    	boolean res= (processingList.size()!=0);        
+    	
+    	for(int i=0;i<processingList.size();i++)
+    		processingList.get(i).process(event);        
+    	    
+    	return res;
+    }    
 }

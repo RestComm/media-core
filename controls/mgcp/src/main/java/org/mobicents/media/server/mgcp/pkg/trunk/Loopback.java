@@ -27,8 +27,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-import org.mobicents.media.server.io.ss7.SS7Input;
-import org.mobicents.media.server.io.ss7.SS7Output;
+import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.utils.Text;
@@ -43,9 +42,6 @@ public class Loopback extends Signal {
 	
     private volatile Options options;
     
-    private SS7Input ss7Input;
-    private SS7Output ss7Output;
-    
     private final static Logger logger = Logger.getLogger(Loopback.class);
     
     public Loopback(String name) {
@@ -55,12 +51,8 @@ public class Loopback extends Signal {
     
     @Override
     public void execute() {
-    	//get access to input and output
-        ss7Input = this.getSS7Input();
-        ss7Output = this.getSS7Output();
-        
-        //check result
-        if (ss7Input == null || ss7Output ==null) {
+    	//check result
+        if (!(getEndpoint() instanceof BaseSS7EndpointImpl)) {
             of.fire(this, new Text("Endpoint is not ss7 endpoint"));
             complete();
             return;
@@ -72,14 +64,12 @@ public class Loopback extends Signal {
         if(options.isDeactivation())
         {
         	//deactivate pipe
-        	ss7Input.stop();
-        	ss7Input.disconnect();
+        	((BaseSS7EndpointImpl) getEndpoint()).setLoop(false);
         }
         else
         {
         	//activate pipe
-        	ss7Input.connect(ss7Output);
-        	ss7Input.start();
+        	((BaseSS7EndpointImpl) getEndpoint()).setLoop(true);
         }
         
         //signal does not have anything else , only looping ss7 channel
@@ -98,29 +88,13 @@ public class Loopback extends Signal {
     public void reset() {
         super.reset();
         
-        if(ss7Input!=null)
-        {
-        	ss7Input.stop();
-        	ss7Input.disconnect();
-        }
+        ((BaseSS7EndpointImpl) getEndpoint()).setLoop(false);
         
         of.reset();        
     }
     
     @Override
     public void cancel() {    
-    	if(ss7Input!=null)
-        {
-        	ss7Input.stop();
-        	ss7Input.disconnect();
-        }
-    }
-    
-    private SS7Input getSS7Input() {
-    	return (SS7Input) getEndpoint().getResource(MediaType.AUDIO, ComponentType.SS7_INPUT); 
-    }
-    
-    private SS7Output getSS7Output() {
-    	return (SS7Output) getEndpoint().getResource(MediaType.AUDIO, ComponentType.SS7_OUTPUT); 
-    }
+    	((BaseSS7EndpointImpl) getEndpoint()).setLoop(false);
+    }    
 }

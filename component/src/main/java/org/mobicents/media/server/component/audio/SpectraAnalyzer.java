@@ -22,6 +22,8 @@
 
 package org.mobicents.media.server.component.audio;
 
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.scheduler.Scheduler;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,7 +37,7 @@ import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * 
- * @author Oleg Kulikov
+ * @author yulian oifa
  */
 public class SpectraAnalyzer extends AbstractSink {
 
@@ -55,17 +57,31 @@ public class SpectraAnalyzer extends AbstractSink {
         formats.add(LINEAR_AUDIO);
     }
 
-    public SpectraAnalyzer(String name) {
+    private CompoundOutput output;
+    
+    public SpectraAnalyzer(String name,Scheduler scheduler) {
         super(name);
+        output=new CompoundOutput(scheduler,ComponentType.SPECTRA_ANALYZER.getType());
+        output.join(this);
     }
 
-    @Override
-    public void start() {
-        this.len = 0;
+    public CompoundOutput getCompoundOutput()
+    {
+    	return this.output;
+    }
+    
+    public void activate()
+    {
+    	this.len = 0;
         System.out.println("start, len=" + len);
-        super.start();
+        output.start();
     }
-
+    
+    public void deactivate()
+    {
+    	output.stop();
+    }        
+    
     private double[] mod(Complex[] x) {
         double[] res = new double[x.length];
         for (int i = 0; i < res.length; i++) {

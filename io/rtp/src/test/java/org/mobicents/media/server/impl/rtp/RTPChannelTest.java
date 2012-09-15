@@ -34,6 +34,8 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import java.net.InetSocketAddress;
+import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.CompoundMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -56,7 +58,7 @@ public class RTPChannelTest {
     private Clock clock;
     private Scheduler scheduler;
 
-    private RTPManager rtpManager;
+    private ChannelsManager channelsManager;
     private UdpManager udpManager;
 
     private SpectraAnalyzer analyzer1, analyzer2;
@@ -70,6 +72,9 @@ public class RTPChannelTest {
     
     private Dsp dsp11, dsp12;
     private Dsp dsp21, dsp22;
+    
+    private CompoundMixer compoundMixer1,compoundMixer2;
+    private CompoundComponent component1,component2;
     
     public RTPChannelTest() {
     }
@@ -102,31 +107,30 @@ public class RTPChannelTest {
 
         udpManager = new UdpManager(scheduler);
         udpManager.start();
-
-        rtpManager = new RTPManager(udpManager);
-        rtpManager.setBindAddress("127.0.0.1");
-        rtpManager.setScheduler(scheduler);
+        
+        channelsManager = new ChannelsManager(udpManager);
+        channelsManager.setScheduler(scheduler);
 
         source1 = new Sine(scheduler);
-        source1.setFrequency(50);        
+        source1.setFrequency(100);        
         
         source2 = new Sine(scheduler);
         source2.setFrequency(50);
         
-        analyzer1 = new SpectraAnalyzer("analyzer");        
-        analyzer2 = new SpectraAnalyzer("analyzer");
+        analyzer1 = new SpectraAnalyzer("analyzer",scheduler);        
+        analyzer2 = new SpectraAnalyzer("analyzer",scheduler);
         
-        channel1 = rtpManager.getChannel();
+        channel1 = channelsManager.getChannel();
         channel1.updateMode(ConnectionMode.SEND_RECV);
-        channel1.getOutput().setDsp(dsp11);
-        channel1.getOutput().setFormats(fmts);        
-        channel1.getInput().setDsp(dsp12);
+        channel1.setOutputDsp(dsp11);
+        channel1.setOutputFormats(fmts);        
+        channel1.setInputDsp(dsp12);
         
-        channel2 = rtpManager.getChannel();
+        channel2 = channelsManager.getChannel();
         channel2.updateMode(ConnectionMode.SEND_RECV);
-        channel2.getOutput().setDsp(dsp21);
-        channel2.getOutput().setFormats(fmts);
-        channel2.getInput().setDsp(dsp22);        
+        channel2.setOutputDsp(dsp21);
+        channel2.setOutputFormats(fmts);
+        channel2.setInputDsp(dsp22);        
         
         channel1.bind(false);
         channel2.bind(false);
@@ -137,41 +141,60 @@ public class RTPChannelTest {
         channel1.setFormatMap(AVProfile.audio);
         channel2.setFormatMap(AVProfile.audio);
 
-        source1.connect(channel1.getOutput());
-        channel1.getInput().connect(analyzer1);
+        compoundMixer1=new CompoundMixer(scheduler);
+        compoundMixer2=new CompoundMixer(scheduler);
         
-        source2.connect(channel2.getOutput());
-        channel2.getInput().connect(analyzer2);            
+        component1=new CompoundComponent(1);
+        component1.addInput(source1.getCompoundInput());
+        component1.addOutput(analyzer1.getCompoundOutput());
+        component1.updateMode(true,true);
+        
+        compoundMixer1.addComponent(component1);
+        compoundMixer1.addComponent(channel1.getCompoundComponent());
+        
+        component2=new CompoundComponent(2);
+        component2.addInput(source2.getCompoundInput());
+        component2.addOutput(analyzer2.getCompoundOutput());
+        component2.updateMode(true,true);
+        
+        compoundMixer2.addComponent(component2);
+        compoundMixer2.addComponent(channel2.getCompoundComponent());           
     }
 
     @After
     public void tearDown() {
-    	source1.stop();
-    	channel1.getInput().stop();
+    	source1.deactivate();
+    	channel1.close();
 
-    	source2.stop();
-    	channel2.getInput().stop();
+    	source2.deactivate();
+    	channel2.close();
 
-        channel1.close();
-        channel2.close();
-
+    	compoundMixer1.stop();
+    	compoundMixer2.stop();
+    	
         udpManager.stop();
         scheduler.stop();
     }
 
     @Test
     public void testTransmission() throws Exception {
-    	source1.start();
-    	channel1.getInput().start();
+    	source1.activate();
+    	analyzer1.activate();
+    	compoundMixer1.start();
 
     	source2.start();
-    	channel2.getInput().start();
+    	analyzer2.activate();
+    	compoundMixer2.start();
         
         Thread.sleep(5000);
         
-        source1.stop();
-        source2.stop();
-
+        analyzer1.deactivate();
+        analyzer2.deactivate();
+        source1.deactivate();
+        source2.deactivate();
+        compoundMixer1.stop();        
+        compoundMixer2.stop();
+        
 //        Thread.sleep(5000);
 
         int s1[] = analyzer1.getSpectra();
@@ -190,20 +213,31 @@ public class RTPChannelTest {
             System.out.println("Failure ,s1:" + s1.length + ",s2:" + s2.length);
             fcount++;
         } else System.out.println("Passed");
-//        assertEquals(1, s1.length);
-//        assertEquals(1, s2.length);
+        
+        assertEquals(1, s1.length);
+        assertEquals(1, s2.length);
+        assertEquals(50, s1[0], 5);
+        assertEquals(100, s2[0], 5);
     }
 
     @Test
     public void testHalfDuplex() throws Exception {
-    	source1.start();
-    	channel2.getInput().start();
-//        txPipe2.start();
+    	channel1.updateMode(ConnectionMode.RECV_ONLY);    	
+    	channel2.updateMode(ConnectionMode.SEND_ONLY);
+    	source1.activate();
+    	source2.activate();
+    	analyzer1.activate();
+    	compoundMixer1.start();
+    	compoundMixer2.start();
+        
         Thread.sleep(5000);
         
-        source1.stop();
-        channel2.getInput().stop();
-
+        source1.deactivate();
+        source2.deactivate();
+        analyzer1.deactivate();
+        compoundMixer1.stop();
+        compoundMixer2.stop();
+        
         int s1[] = analyzer1.getSpectra();
         int s2[] = analyzer2.getSpectra();
 
@@ -213,12 +247,12 @@ public class RTPChannelTest {
         System.out.println("rx-channel2: " + channel2.getPacketsReceived());
         System.out.println("tx-channel2: " + channel2.getPacketsTransmitted());
 
-        if (s1.length != 0 || s2.length != 1) {
-            fcount++;
+        if (s2.length != 0 || s1.length != 1) {
+        	fcount++;
         } else System.out.println("Passed");
         
         assertEquals(0, fcount);
-        assertEquals(50, s2[0], 5);
+        assertEquals(50, s1[0], 5);
     }
     
     @Test
@@ -236,5 +270,4 @@ public class RTPChannelTest {
         }
         System.out.println();
     }
-
 }

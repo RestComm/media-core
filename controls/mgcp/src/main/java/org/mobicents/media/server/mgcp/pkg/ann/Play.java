@@ -90,7 +90,7 @@ public class Play extends Signal implements PlayerListener {
             return;
         } 
         
-        player.start();
+        player.activate();
     }
 
     @Override
@@ -108,10 +108,7 @@ public class Play extends Signal implements PlayerListener {
 
     @Override
     public void cancel() {
-        if (player != null) {
-            player.removeListener(this);
-            player.stop();
-        }
+    	terminate();
     }
 
     private Player getPlayer() {
@@ -119,24 +116,30 @@ public class Play extends Signal implements PlayerListener {
         return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
     }
     
+    private void terminate()
+    {
+    	if (player != null) {
+            player.removeListener(this);
+            player.deactivate();
+            player=null;
+        } 
+    }
+    
     @Override
     public void reset() {
         super.reset();
-        if (player != null) {
-            player.removeListener(this);
-            player.stop();
-        }
+        terminate();
     }
     
     public void process(PlayerEvent event) {
         switch (event.getID()) {
             case PlayerEvent.STOP :
-                player.removeListener(this);
+            	terminate();
                 this.sendEvent(oc);
                 this.complete();
                 break;
             case PlayerEvent.FAILED :
-                player.removeListener(this);
+            	terminate();
                 this.sendEvent(of);
                 this.complete();
                 break;

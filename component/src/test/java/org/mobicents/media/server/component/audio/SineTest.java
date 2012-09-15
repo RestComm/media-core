@@ -50,6 +50,11 @@ public class SineTest {
     private Sine sine;
     private SpectraAnalyzer analyzer;
     
+    private CompoundComponent sineComponent;
+    private CompoundComponent analyzerComponent;
+    
+    private CompoundMixer compoundMixer;
+    
     public SineTest() {
     }
 
@@ -70,16 +75,30 @@ public class SineTest {
         scheduler.start();
 
         sine = new Sine(scheduler);
-        analyzer = new SpectraAnalyzer("analyzer");
+        analyzer = new SpectraAnalyzer("analyzer",scheduler);
 
-
-        sine.connect(analyzer);        
+        sineComponent=new CompoundComponent(1);
+        sineComponent.addInput(sine.getCompoundInput());
+        sineComponent.updateMode(true,false);
+        
+        analyzerComponent=new CompoundComponent(2);
+        analyzerComponent.addOutput(analyzer.getCompoundOutput());
+        analyzerComponent.updateMode(false,true);
+        
+        compoundMixer=new CompoundMixer(scheduler);
+        compoundMixer.addComponent(sineComponent);
+        compoundMixer.addComponent(analyzerComponent); 
+        
         sine.setFrequency(50);
     }
 
     @After
     public void tearDown() {
-    	sine.disconnect();
+    	sine.stop();
+    	compoundMixer.stop();
+    	compoundMixer.release(sineComponent);
+    	compoundMixer.release(analyzerComponent);
+    	
         scheduler.stop();
     }
 
@@ -88,11 +107,15 @@ public class SineTest {
      */
     @Test
     public void testSignal() throws Exception {
-        sine.start();
-
+        sine.activate();
+        analyzer.activate();
+        compoundMixer.start();
+        
         Thread.sleep(2000);
 
-        sine.stop();
+        sine.deactivate();
+        analyzer.deactivate();
+        compoundMixer.stop();
         
         Thread.sleep(1000);
 
@@ -100,6 +123,19 @@ public class SineTest {
 
         assertEquals(1, spectra.length);
         assertEquals((double)50, (double)spectra[0], 5);
+        
+        sine.setAmplitude((short)0);        
+        sine.activate();
+        analyzer.activate();
+        compoundMixer.start();
+        
+        Thread.sleep(1000);
+        sine.deactivate();
+        analyzer.deactivate();
+        compoundMixer.stop();
+        
+        spectra = analyzer.getSpectra();
+        assertEquals(0, spectra.length);
     }
 
 //    @Test

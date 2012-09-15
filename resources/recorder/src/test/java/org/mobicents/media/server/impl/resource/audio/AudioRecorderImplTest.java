@@ -10,6 +10,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.component.audio.CompoundOutput;
+import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.CompoundMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -17,7 +21,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class AudioRecorderImplTest {
     
@@ -26,6 +30,11 @@ public class AudioRecorderImplTest {
 
     private Sine sine;
     private AudioRecorderImpl recorder;
+    
+    private CompoundComponent sineComponent;
+    private CompoundComponent recorderComponent;
+    
+    private CompoundMixer mixer;
     
     public AudioRecorderImplTest() {
     }
@@ -48,9 +57,21 @@ public class AudioRecorderImplTest {
 
         sine = new Sine(scheduler); 
         sine.setFrequency(250);
+        
         recorder = new AudioRecorderImpl(scheduler);
         
-        sine.connect(recorder);        
+        sineComponent=new CompoundComponent(1);
+        recorderComponent=new CompoundComponent(2);
+        
+        sineComponent.updateMode(true,true);
+        recorderComponent.updateMode(true,true);
+        
+        sineComponent.addInput(sine.getCompoundInput());
+        recorderComponent.addOutput(recorder.getCompoundOutput());
+        
+        mixer=new CompoundMixer(scheduler);
+        mixer.addComponent(sineComponent);
+        mixer.addComponent(recorderComponent);               
     }
     
     @After
@@ -73,12 +94,16 @@ public class AudioRecorderImplTest {
     public void testRecording() throws InterruptedException, IOException {
         recorder.setRecordFile("file:///home/kulikov/record-test.wav", false);
         recorder.setPostSpeechTimer(5000000000L);
-        sine.start();        
+        
+        sine.start();  
+        mixer.start();
+        
         Thread.sleep(5000);        
         sine.setAmplitude((short)0);
         
         Thread.sleep(7000);
         sine.stop();
+        mixer.stop();
     }
 
 }

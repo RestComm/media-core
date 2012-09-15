@@ -25,6 +25,11 @@ public class SoundCardTest {
     private Sine sine;
     private SoundCard soundCard;
     
+    private CompoundComponent sineComponent;
+    private CompoundComponent soundCardComponent;
+    
+    private CompoundMixer compoundMixer;
+    
     public SoundCardTest() {
     }
 
@@ -47,15 +52,28 @@ public class SoundCardTest {
         sine = new Sine(scheduler);
         sine.setFrequency(200);
         
-        soundCard = new SoundCard();
+        soundCard = new SoundCard(scheduler);
         
-        sine.connect(soundCard);        
+        sineComponent=new CompoundComponent(1);
+        sineComponent.addInput(sine.getCompoundInput());
+        sineComponent.updateMode(true,false);
+        
+        soundCardComponent=new CompoundComponent(2);
+        soundCardComponent.addOutput(soundCard.getCompoundOutput());
+        soundCardComponent.updateMode(false,true);
+        
+        compoundMixer=new CompoundMixer(scheduler);
+        compoundMixer.addComponent(soundCardComponent);
+        compoundMixer.addComponent(sineComponent);               
     }
     
     @After
     public void tearDown() {
     	sine.stop();
-    	sine.disconnect();
+    	compoundMixer.stop();
+    	compoundMixer.release(sineComponent);
+    	compoundMixer.release(soundCardComponent);
+    	
         scheduler.stop();
     }
 
@@ -65,8 +83,9 @@ public class SoundCardTest {
     @Test
     public void testSignal() throws InterruptedException {
     	sine.start();        
+    	compoundMixer.start();
         Thread.sleep(3000);        
         sine.stop();
+        compoundMixer.stop();
     }
-
 }

@@ -27,7 +27,7 @@ import org.mobicents.media.hardware.dahdi.SelectorKeyImpl;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public interface ProtocolHandler {
     /**

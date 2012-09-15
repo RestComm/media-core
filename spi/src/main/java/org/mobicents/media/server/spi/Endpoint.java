@@ -60,16 +60,9 @@ public interface Endpoint {
     public EndpointState getState();
     
     /**
-     * Gets the list of supported media types.
-     * 
-     * @return collection of media types.
-     */
-    public Collection<MediaType> getMediaTypes();
-    
-    /**
      * Starts endpoint.
      */
-    public void start() throws ResourceUnavailableException ;
+    public void start() throws ResourceUnavailableException;
     
     /**
      * Terminates endpoint's execution.
@@ -81,8 +74,8 @@ public interface Endpoint {
      *
      * @param type transport type
      */
-    public Connection createConnection(ConnectionType type,boolean isLocal)
-            throws TooManyConnectionsException, ResourceUnavailableException;
+    public Connection createConnection(ConnectionType type,Boolean isLocal)
+            throws ResourceUnavailableException;
 
     /**
      * Deletes specified connection.
@@ -91,6 +84,20 @@ public interface Endpoint {
      */
     public void deleteConnection(Connection connection);
 
+    /**
+     * Deletes specified connection.
+     *
+     * @param connection the connection to be deleted.
+     */
+    public void deleteConnection(Connection connection,ConnectionType type);
+    
+    /**
+     * Notifies that mode has been update on one of connections
+     *
+     * @param connection the connection to be deleted.
+     */
+    public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode);
+    
     /**
      * Deletes all connection associated with this Endpoint.
      */
@@ -112,20 +119,9 @@ public interface Endpoint {
     public Scheduler getScheduler();
     
     /**
-     * Generates media description for the specified media type.
-     * 
-     * @param mediaType the media type for which descriptor is requested.
-     * @return SDP media descriptor 
-     * @throws org.mobicents.media.server.spi.ResourceUnavailableException
+     * Sets the scheduler
      */
-    public String describe(MediaType mediaType) throws ResourceUnavailableException;
- 
-//    public void configure(Property config);
-    public void setDspFactory(DspFactory dspFactory);
-    
-    public void setLocalConnections(int localConnections);
-    
-    public void setRtpConnections(int rtpConnections);
+    public void setScheduler(Scheduler scheduler);
     
     /**
      * Provides access to the specific resource of the endpoint.
@@ -134,4 +130,20 @@ public interface Endpoint {
      * @return The component implementing resource.
      */
     public Component getResource(MediaType mediaType, ComponentType componentType);
+    
+    /**
+     * Provides access to the specific resource of the endpoint.
+     * 
+     * @param component type of the requested resource
+     * @return The component implementing resource.
+     */
+    public boolean hasResource(MediaType mediaType, ComponentType componentType);
+    
+    /**
+     * Allows to release resource when not needed anymore
+     * 
+     * @param component type of the requested resource
+     * @return The component implementing resource.
+     */
+    public void releaseResource(MediaType mediaType, ComponentType componentType);
 }

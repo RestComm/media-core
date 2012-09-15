@@ -72,12 +72,12 @@ public interface DtmfDetector extends MediaSink {
     /**
      * Starts media processing.
      */
-    public void start();
+    public void activate();
     
     /**
      * Terminates media processing.
      */
-    public void stop();
+    public void deactivate();
     
     /**
      * Flushes buffer.
@@ -91,4 +91,5 @@ public interface DtmfDetector extends MediaSink {
     
     public void addListener(DtmfDetectorListener listener) throws TooManyListenersException;
     public void removeListener(DtmfDetectorListener listener);
+    public void clearAllListeners();
 }

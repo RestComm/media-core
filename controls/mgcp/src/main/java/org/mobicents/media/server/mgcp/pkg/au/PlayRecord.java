@@ -236,7 +236,7 @@ public class PlayRecord extends Signal {
 //          player.setURL(options.getPrompt().toString());
             
             //start playback
-            player.start();
+            player.activate();
         } catch (TooManyListenersException e) {
             of.fire(this, new Text("Too many listeners"));
             logger.error("OPERATION FAILURE", e);
@@ -262,9 +262,10 @@ public class PlayRecord extends Signal {
         	promptIndex=promptLength-1;
         }
     	
-        if (player != null) {
-            player.stop();
+        if (player != null) {            
+            player.deactivate();
             player.removeListener(promptHandler);
+            player=null;
         }
     }
     
@@ -289,7 +290,7 @@ public class PlayRecord extends Signal {
         	recorder.addListener(recordingHandler);
             
             recorder.setRecordFile(options.getRecordID().toString(), !options.isOverride());
-            recorder.start();
+            recorder.activate();
         } 
         catch (TooManyListenersException e) {
             of.fire(this, new Text("Too many listeners"));
@@ -306,9 +307,10 @@ public class PlayRecord extends Signal {
      * Terminates prompt phase if it was started or do nothing otherwise.
      */
     private void terminateRecordPhase() {
-        if (recorder != null) {
-            recorder.stop();
+        if (recorder != null) {            
+            recorder.deactivate();
             recorder.removeListener(recordingHandler);
+            recorder=null;
         }
     }
     
@@ -333,7 +335,7 @@ public class PlayRecord extends Signal {
         
         //assign requested parameters
         buffer.setPatterns(options.getDigitPattern());
-        buffer.setCount(options.getDigitsNumber());        
+        buffer.setCount(options.getDigitsNumber());                    
     }
     
     /**
@@ -346,7 +348,8 @@ public class PlayRecord extends Signal {
            //dtmfDetector.clearDigits();
             
             buffer.passivate();
-            buffer.clear();
+            buffer.clear();        
+            dtmfDetector=null;
         }
     }
     
@@ -374,6 +377,7 @@ public class PlayRecord extends Signal {
      * Terminates any activity. 
      */
     private void terminate() {
+    	this.isPromptActive = false;
         this.terminatePrompt();
         this.terminateRecordPhase();
         this.terminateCollectPhase();

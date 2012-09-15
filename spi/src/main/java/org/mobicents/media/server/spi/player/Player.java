@@ -30,7 +30,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public interface Player extends MediaSource {
     /**
@@ -45,6 +45,5 @@ public interface Player extends MediaSource {
     
     public void addListener(PlayerListener listener) throws TooManyListenersException;
     public void removeListener(PlayerListener listener);
-    
-
+    public void clearAllListeners();
 }

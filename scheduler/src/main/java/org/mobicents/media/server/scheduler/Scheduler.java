@@ -49,27 +49,28 @@ import org.apache.log4j.Logger;
  * @author Oifa Yulian
  */
 public class Scheduler  {
-	//ss7 queues
+	//SS7 QUEUES
 	public static final Integer RECEIVER_QUEUE=0;
 	public static final Integer SENDER_QUEUE=1;
 	
+	public static final Integer UDP_MANAGER_QUEUE=2;
+	
 	//MANAGEMENT QUEUE SHOULD CONTAIN ONLY TASKS THAT ARE NOT TIME DEPENDENT , FOR
 	//EXAMPLE MGCP COMMANDS 
-	public static final Integer UDP_MANAGER_QUEUE=3;
-	public static final Integer MANAGEMENT_QUEUE=4;	
-	public static final Integer INPUT_QUEUE=5;
-	public static final Integer SPLITTER_OUTPUT_QUEUE=6;
-	public static final Integer MIXER_MIX_QUEUE=7;
+	public static final Integer MANAGEMENT_QUEUE=3;
 	
-	//OUTPUT QUEUE IS SET AS ZERO QUEUE TO ALLOW MORE CORRECTLY GENERATE 20MS DELAY
-	public static final Integer MIXER_OUTPUT_QUEUE=2;
+	//CORE QUEUES
+	public static final Integer INPUT_QUEUE=4;
+	public static final Integer MIXER_MIX_QUEUE=5;
+	public static final Integer OUTPUT_QUEUE=6;
 	
 	public static final Integer HEARTBEAT_QUEUE=-1;
+	
     //The clock for time measurement
     private Clock clock;
 
     //priority queue
-    protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[8];
+    protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[7];
 
     protected OrderedTaskQueue heartBeatQueue;
     //CPU bound threads
@@ -80,6 +81,9 @@ public class Scheduler  {
 
     private Logger logger = Logger.getLogger(Scheduler.class) ;
     
+    private ConcurrentLinkedList<Task> waitingTasks=new ConcurrentLinkedList<Task>();
+    
+    private WorkerThread[] workerThreads;
     /**
      * Creates new instance of scheduler.
      */
@@ -89,7 +93,11 @@ public class Scheduler  {
     	
     	heartBeatQueue=new OrderedTaskQueue();
     	
-        cpuThread = new CpuThread(String.format("Scheduler"));        
+        cpuThread = new CpuThread(String.format("Scheduler"));  
+        
+        workerThreads=new WorkerThread[Runtime.getRuntime().availableProcessors()*2];
+        for(int i=0;i<workerThreads.length;i++)
+        	workerThreads[i]=new WorkerThread();
     }    
 
     /**
@@ -156,6 +164,9 @@ public class Scheduler  {
         
         cpuThread.activate();
         
+        for(int i=0;i<workerThreads.length;i++)
+        	workerThreads[i].activate();
+        
         logger.info("Started ");
     }
 
@@ -168,6 +179,9 @@ public class Scheduler  {
         }
 
         cpuThread.shutdown();
+        
+        for(int i=0;i<workerThreads.length;i++)
+        	workerThreads[i].shutdown();
         
         try
         {
@@ -211,14 +225,10 @@ public class Scheduler  {
         private AtomicInteger activeTasksCount=new AtomicInteger();
         private long cycleStart=0;
         private int runIndex=0,runIndex2=0;
-        private ExecutorService eservice;
         private Object LOCK=new Object();
         
         public CpuThread(String name) {
-            super(name);
-            
-            int size=Runtime.getRuntime().availableProcessors()*2;
-            eservice =new ThreadPoolExecutor(size, size,0L, TimeUnit.MILLISECONDS,new ConcurrentLinkedList<Runnable>());                       
+            super(name);            
         }
         
         public void activate() {        	        	
@@ -262,11 +272,11 @@ public class Scheduler  {
 						}
 				}
         		
-        		currQueue=MIXER_OUTPUT_QUEUE;
+        		currQueue=UDP_MANAGER_QUEUE;
         		runIndex2=(runIndex2+1)%5;
         		if(runIndex2==0)
         		{
-        			while(currQueue<=MIXER_MIX_QUEUE)
+        			while(currQueue<=OUTPUT_QUEUE)
         			{    				    				
         				synchronized(LOCK) {    					
         					if(executeQueue(taskQueues[currQueue]))
@@ -319,7 +329,7 @@ public class Scheduler  {
             //submit all tasks in current queue
             while(t!=null)
             {            	
-            	eservice.execute(t);
+            	waitingTasks.offer(t);
             	t = currQueue.poll();
             }
             
@@ -333,4 +343,25 @@ public class Scheduler  {
             this.active = false;
         }
     }    
+    
+    private class WorkerThread extends Thread {
+    	private volatile boolean active;
+        
+    	public void run() {
+    		while(active)
+    			waitingTasks.take().run();    		
+    	}
+    	
+    	public void activate() {        	        	
+        	this.active = true;
+        	this.start();
+        }
+    	
+    	/**
+         * Terminates thread.
+         */
+        private void shutdown() {
+            this.active = false;
+        }
+    }
 }

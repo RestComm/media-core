@@ -80,7 +80,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * 
      * @see org.mobicents.media.MediaSink#start().
      */
-    public void start() {
+    protected void start() {
     	if (started) {
 			return;
 		}
@@ -100,11 +100,15 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      * 
      * @see org.mobicents.media.MediaSink#stop().
      */
-    public void stop() {
+    protected void stop() {
     	started = false;
 		stopped();    	
     }
 
+    public abstract void activate();
+    
+    public abstract void deactivate();
+    
     /**
      * Sends failure notification.
      * 

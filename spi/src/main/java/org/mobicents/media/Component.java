@@ -23,6 +23,7 @@
 package org.mobicents.media;
 
 import java.io.Serializable;
+import org.mobicents.media.server.spi.Endpoint;
 
 /**
  * <i>Component</i> is an Object that is responsible for any media 
@@ -55,4 +56,22 @@ public interface Component extends Serializable {
      * This methods cleans transmission statistics and any assigned formats
      */
     public void reset();    
+    
+    /**
+     * Activates component
+     * 
+     */
+    public void activate();
+    
+    /**
+     * Deactivates component
+     * 
+     */
+    public void deactivate();
+    
+    public void setEndpoint(Endpoint endpoint);
+    
+    public void clearEndpoint();
+    
+    public Endpoint getEndpoint();
 }

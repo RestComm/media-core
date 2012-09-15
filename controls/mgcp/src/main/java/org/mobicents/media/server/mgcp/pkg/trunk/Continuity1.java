@@ -94,9 +94,7 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
         if(options.isDeactivation())
         {
         	//deactivate pipe
-        	phoneDetector.removeListener(this);
-        	phoneGenerator.stop();
-        	phoneDetector.stop();
+        	endToneReceiving();
         }
         else
         {
@@ -133,14 +131,7 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     public void reset() {
         super.reset();
         
-        if(phoneDetector!=null)
-    	{
-    		phoneDetector.removeListener(this);
-    		phoneDetector.stop();    		
-    	}
-    	
-    	if(phoneGenerator!=null)
-    		phoneGenerator.stop();
+        endToneReceiving();
     	
     	if(heartbeat!=null)
     		heartbeat.disable();
@@ -154,14 +145,7 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     @Override
     public void cancel() {    
     	//deactivate pipe
-    	if(phoneDetector!=null)
-    	{
-    		phoneDetector.removeListener(this);
-    		phoneDetector.stop();    		
-    	}
-    	
-    	if(phoneGenerator!=null)
-    		phoneGenerator.stop();
+    	endToneReceiving();
     	
     	if(heartbeat!=null)
     		heartbeat.disable();
@@ -178,10 +162,10 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     private void prepareToneReceiving()
     {
     	phoneGenerator.setFrequency(new int[] {toneValues[0]});
-		phoneGenerator.start();
+		phoneGenerator.activate();
 		
     	phoneDetector.setFrequency(toneValues);
-    	phoneDetector.start();
+    	phoneDetector.activate();
     	
     	//set ttl to 2 seconds
     	heartbeat.setTtl((int)(40));
@@ -199,10 +183,25 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     	}
     }    
     
+    private void endToneReceiving()
+    {
+    	if(phoneDetector!=null)
+    	{
+    		phoneDetector.removeListener(this);
+    		phoneDetector.deactivate();
+    		phoneDetector=null;
+    	}
+    	
+    	if(phoneGenerator!=null)
+    	{
+    		phoneGenerator.deactivate();
+    		phoneGenerator=null;
+    	}
+    }
+    
     public void process(ToneEvent event) {
-    	phoneDetector.removeListener(this);
-    	phoneDetector.stop();
-    	phoneGenerator.stop();
+    	endToneReceiving();
+    	
     	heartbeat.disable();
     	
     	//tone detected
@@ -276,8 +275,7 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
         	}
         	
         	logger.info(String.format("(%s) Timeout expired waiting for tone", getEndpoint().getLocalName()));
-        	phoneDetector.stop();
-        	
+        	endToneReceiving();        	
         	oc.fire(signal, new Text("t/co2"));  
         	complete();
         	this.disable();

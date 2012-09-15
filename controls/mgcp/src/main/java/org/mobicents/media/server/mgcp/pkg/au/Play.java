@@ -135,7 +135,7 @@ public class Play extends Signal implements PlayerListener {
         player.setInitialDelay(delay * 1000000L);
 
         //starting
-        player.start();
+        player.activate();
     }    
     
     @Override
@@ -174,7 +174,8 @@ public class Play extends Signal implements PlayerListener {
     private void terminate() {
     	if (player != null) {
             player.removeListener(this);
-            player.stop();
+            player.deactivate();
+            player=null;
         }                
     }
     

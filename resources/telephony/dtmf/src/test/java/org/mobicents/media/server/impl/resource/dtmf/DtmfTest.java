@@ -10,6 +10,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.CompoundMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -29,6 +32,10 @@ public class DtmfTest implements DtmfDetectorListener {
     private DetectorImpl detector;
     private GeneratorImpl generator;
     
+    private CompoundComponent detectorComponent;
+    private CompoundComponent generatorComponent;
+    private CompoundMixer compoundMixer;
+    
     private String tone;
     
     public DtmfTest() {
@@ -44,7 +51,7 @@ public class DtmfTest implements DtmfDetectorListener {
     
     @Before
     public void setUp() throws TooManyListenersException {
-        clock = new DefaultClock();
+    	clock = new DefaultClock();
 
         scheduler = new Scheduler();
         scheduler.setClock(clock);
@@ -58,13 +65,27 @@ public class DtmfTest implements DtmfDetectorListener {
         detector.setVolume(-35);
         detector.setDuration(40);
         
-        generator.connect(detector);        
-        detector.addListener(this);        
+        detector.addListener(this);
+        
+        compoundMixer=new CompoundMixer(scheduler);
+        
+        detectorComponent=new CompoundComponent(1);
+        detectorComponent.addOutput(detector.getCompoundOutput());
+        detectorComponent.updateMode(false,true);
+        
+        generatorComponent=new CompoundComponent(2);
+        generatorComponent.addInput(generator.getCompoundInput());
+        generatorComponent.updateMode(true,false);
+        
+        compoundMixer.addComponent(detectorComponent);
+        compoundMixer.addComponent(generatorComponent);    	
     }
     
     @After
     public void tearDown() {
-    	generator.stop();
+    	generator.deactivate();
+    	detector.deactivate();
+    	compoundMixer.stop();
         scheduler.stop();
     }
 
@@ -73,91 +94,161 @@ public class DtmfTest implements DtmfDetectorListener {
      */
     @Test
     public void testDigit1() throws InterruptedException {
-        generator.setDigit("1");
-        generator.start();
+    	generator.setDigit("1");
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
-        assertEquals("1", tone);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+    	
+        assertEquals("1", tone);    	
     }
 
     @Test
     public void testDigit2() throws InterruptedException {
         generator.setDigit("2");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
-        assertEquals("2", tone);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+    	
+        assertEquals("2", tone);    
     }
     
     @Test
     public void testDigit3() throws InterruptedException {
         generator.setDigit("3");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+    	
         assertEquals("3", tone);
     }
 
     @Test
     public void testDigit4() throws InterruptedException {
         generator.setDigit("4");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+        
         assertEquals("4", tone);
     }
     
     @Test
     public void testDigit5() throws InterruptedException {
         generator.setDigit("5");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+        
         assertEquals("5", tone);
     }
     
     @Test
     public void testDigit6() throws InterruptedException {
         generator.setDigit("6");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+        
         assertEquals("6", tone);        
     }
     
     @Test
     public void testDigit7() throws InterruptedException {
         generator.setDigit("7");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+        
         assertEquals("7", tone);
     }
     
     @Test
     public void testDigit8() throws InterruptedException {
         generator.setDigit("8");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+        
         assertEquals("8", tone);
     }
     
     @Test
     public void testDigit9() throws InterruptedException {
         generator.setDigit("9");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+        
         assertEquals("9", tone);
     }
     
     @Test
     public void testDigit0() throws InterruptedException {
         generator.setDigit("0");
-        generator.start();
+        generator.activate();
+        detector.activate();
+    	compoundMixer.start();
         
         Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	compoundMixer.stop();
+        
         assertEquals("0", tone);
     }
     

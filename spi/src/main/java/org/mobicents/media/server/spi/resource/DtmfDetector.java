@@ -88,12 +88,12 @@ public interface DtmfDetector extends MediaSink {
     /**
      * Starts media processing.
      */
-    public void start();
+    public void activate();
     
     /**
      * Terminates media processing.
      */
-    public void stop();
+    public void deactivate();
     
     public void flushBuffer();
     
