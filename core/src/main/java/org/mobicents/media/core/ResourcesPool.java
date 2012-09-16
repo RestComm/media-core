@@ -110,6 +110,11 @@ public class ResourcesPool implements ComponentFactory {
 		remoteConnections=new ConcurrentLinkedList();
 	}
 	
+	public DspFactory getDspFactory()
+	{
+		return dspFactory;
+	}
+	
 	public void setDefaultPlayers(int value)
 	{
 		this.defaultPlayers=value;

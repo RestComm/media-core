@@ -26,17 +26,17 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.servers.media.codecs</groupId>
+            <groupId>org.mobicents.media.codecs</groupId>
             <artifactId>g711</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.servers.media.codecs</groupId>
+            <groupId>org.mobicents.media.codecs</groupId>
             <artifactId>g729</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.servers.media.codecs</groupId>
+            <groupId>org.mobicents.media.codecs</groupId>
             <artifactId>gsm</artifactId>
             <version>${project.version}</version>
         </dependency>

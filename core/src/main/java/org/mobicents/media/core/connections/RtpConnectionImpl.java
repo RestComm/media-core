@@ -224,7 +224,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         try {
             this.join();
         } catch (Exception e) {
-        	logger.error(e);
+        	//exception is possible here when already joined , should not log
         }
     }
 
@@ -277,7 +277,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         try {
             this.join();
         } catch (Exception e) {
-        	logger.error(e);
+        	//exception is possible here when already joined , should not log
         }                      
     }
     

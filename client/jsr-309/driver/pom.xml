@@ -23,9 +23,6 @@
 		<mobicents.tools.mavenplugin.eclipse.version>
 			1.0.0.BETA2
 		</mobicents.tools.mavenplugin.eclipse.version>
-		<mobicents.mgcp.impl.version>
-			2.0.0.GA
-		</mobicents.mgcp.impl.version>
 	</properties>
 
 	<dependencies>
@@ -54,9 +51,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.protocols.mgcp</groupId>
-			<artifactId>mgcp-impl</artifactId>
-			<version>${mobicents.mgcp.impl.version}</version>
+			<groupId>org.mobicents.media.client</groupId>
+			<artifactId>mgcp-driver</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

@@ -2,14 +2,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.mobicents</groupId>
-		<artifactId>mobicents-parent</artifactId>
-		<version>2.2-SNAPSHOT</version>
+  	   <groupId>org.mobicents.media.client</groupId>
+	   <artifactId>client</artifactId>
+	   <version>3.0.0.CR1</version>
 	</parent>
 	
-	<groupId>org.mobicents.protocols.mgcp</groupId>
-	<artifactId>tck</artifactId>
-	<version>2.0.0.RC2-SNAPSHOT</version>
+	<groupId>org.mobicents.media.client</groupId>
+	<artifactId>mgcp-tck</artifactId>
 
 	<name>Mobicents MGCP TCK</name>
 
@@ -21,9 +20,9 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.mobicents.protocols.mgcp</groupId>
-			<artifactId>mgcp-impl</artifactId>
-			<version>2.0.0.RC5-SNAPSHOT</version>
+			<groupId>org.mobicents.media.client</groupId>
+			<artifactId>mgcp-driver</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jain</groupId>

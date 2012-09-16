@@ -173,7 +173,7 @@ public class SS7Output extends AbstractSink {
     			return;
     		} 
     	}
-    	
+    	    	
     	queue.add(frame);    	    	  
     }
     

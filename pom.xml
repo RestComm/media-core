@@ -60,6 +60,7 @@
         <module>io</module>
         <module>resources</module>
         <module>core</module>
+	<module>client</module>
         <module>controls</module>
         <module>media-server-docs</module>
         <module>bootstrap</module>        
@@ -118,9 +119,9 @@
 		<module>resources</module>
 		<module>core</module>
 		<module>controls</module>
+		<module>client</module>
 		<module>media-server-docs</module>
 		<module>bootstrap</module>        
-		<module>jsr-309</module>    
 	    </modules>
             <build>
                 <plugins>

@@ -579,7 +579,7 @@ public class RTPDataChannel {
                     				dtmfConverter.write(rtpPacket);
                     			else
                     				rxBuffer.write(rtpPacket,format);	
-                        			
+                    			
                     			rxCount++;                    			
                     		}                    			
                     	}
@@ -704,5 +704,5 @@ public class RTPDataChannel {
             }
             return 0;
         }
-    }
+    }    
 }

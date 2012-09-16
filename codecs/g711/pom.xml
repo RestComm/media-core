@@ -4,12 +4,12 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.mobicents.servers.media.codecs</groupId>
+        <groupId>org.mobicents.media.codecs</groupId>
         <artifactId>codecs</artifactId>
         <version>3.0.0.CR1</version>
     </parent>
 
-    <groupId>org.mobicents.servers.media.codecs</groupId>
+    <groupId>org.mobicents.media.codecs</groupId>
     <artifactId>g711</artifactId>
     <name>G711</name>
     

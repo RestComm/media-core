@@ -90,6 +90,13 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     		throw new ResourceUnavailableException("Can not open dahdi channel");
     	}
     	
+    	try {
+    		ss7DataChannel.setInputDsp(resourcesPool.getDspFactory().newProcessor());
+    		ss7DataChannel.setOutputDsp(resourcesPool.getDspFactory().newProcessor());
+        }
+        catch(Exception e) {
+        	//exception may happen only if invalid classes have been set in config
+        }
     	compoundSplitter.addInsideComponent(ss7DataChannel.getCompoundComponent());
     }
 

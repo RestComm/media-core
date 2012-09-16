@@ -10,7 +10,7 @@
 		<relativePath>../../../parent/pom.xml</relativePath>	
 	</parent>
 
-	<groupId>org.mobicents.servers.media</groupId>
+	<groupId>org.mobicents.media</groupId>
 	<artifactId>mobicents-media-server-parent</artifactId>
 	<version></version>
 

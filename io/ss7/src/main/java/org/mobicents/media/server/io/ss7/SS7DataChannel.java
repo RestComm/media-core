@@ -119,6 +119,14 @@ public class SS7DataChannel {
     	return this.compoundComponent;
     }
     
+    public void setOutputDsp(Processor dsp) {
+    	output.setDsp(dsp);
+    }
+    
+    public void setInputDsp(Processor dsp) {
+    	input.setDsp(dsp);
+    }
+    
     public void setCodec(boolean isALaw)
     {
     	this.isALaw=isALaw;

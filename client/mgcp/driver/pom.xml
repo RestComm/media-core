@@ -3,7 +3,7 @@
 
     <parent>
         <groupId>org.mobicents.media.client</groupId>
-        <artifactId>jsr-309</artifactId>
+        <artifactId>mgcp</artifactId>
         <version>3.0.0.CR1</version>
     </parent>
 

@@ -159,7 +159,7 @@ public class SS7Input extends AbstractSource {
     	else
     	{
     		System.arraycopy(smallBuffer, 0, tempBuffer, currPosition, tempBuffer.length-currPosition);
-    		currPosition+=tempBuffer.length-currPosition;
+    		currPosition=tempBuffer.length;
     		currIndex=tempBuffer.length-currPosition;
     	}
     	
@@ -178,7 +178,6 @@ public class SS7Input extends AbstractSource {
 
     		//set format
     		currFrame.setFormat(this.sourceFormat);
-    		
     		//do the transcoding job
 			if (dsp != null && this.sourceFormat!=null) {
 				try

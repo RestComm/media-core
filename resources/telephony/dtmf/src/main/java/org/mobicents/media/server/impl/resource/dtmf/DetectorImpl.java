@@ -197,6 +197,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
             //if dtmf buffer full check signal
             if (offset == N) {
             	offset = 0;
+            	
             	//and if max amplitude of signal is greater theshold
                 //try to detect tone.
                 if (maxAmpl >= threshold) {
@@ -209,7 +210,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
                     
                     if (tone != null)
                     	dtmfBuffer.push(tone);               
-                }                               
+                }                            
             }            
         }
     }
