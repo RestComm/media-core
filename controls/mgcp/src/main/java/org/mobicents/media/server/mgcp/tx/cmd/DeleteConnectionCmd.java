@@ -65,6 +65,8 @@ public class DeleteConnectionCmd extends Action {
 
     private TaskChain handler;
 
+    private Scheduler scheduler;
+    
     //error code and message
     private int code;
     private Text message;
@@ -74,15 +76,16 @@ public class DeleteConnectionCmd extends Action {
     private final static Logger logger = Logger.getLogger(DeleteConnectionCmd.class);    
     
     public DeleteConnectionCmd(Scheduler scheduler) {
-        handler = new TaskChain(2);
+    	this.scheduler=scheduler;
+        handler = new TaskChain(2,scheduler);
         
-        Delete delete = new Delete(scheduler);
-        Responder responder = new Responder(scheduler);
+        Delete delete = new Delete();
+        Responder responder = new Responder();
         
         handler.add(delete);
         handler.add(responder);
         
-        ErrorHandler errorHandler = new ErrorHandler(scheduler);
+        ErrorHandler errorHandler = new ErrorHandler();
         
         this.setActionHandler(handler);
         this.setRollbackHandler(errorHandler);        
@@ -90,8 +93,8 @@ public class DeleteConnectionCmd extends Action {
     
     private class Delete extends Task {
         
-        public Delete(Scheduler scheduler) {
-            super(scheduler);
+        public Delete() {
+            super();
         }
 
         public int getQueueNumber()
@@ -190,8 +193,8 @@ public class DeleteConnectionCmd extends Action {
      */
     private class EndpointLocator extends Task {
 
-        public EndpointLocator(Scheduler scheduler) {
-            super(scheduler);
+        public EndpointLocator() {
+            super();
         }
         
         public int getQueueNumber()
@@ -228,8 +231,8 @@ public class DeleteConnectionCmd extends Action {
     
     private class Responder extends Task {
 
-        public Responder(Scheduler scheduler) {
-            super(scheduler);
+        public Responder() {
+            super();
         }
         
         public int getQueueNumber()
@@ -265,8 +268,8 @@ public class DeleteConnectionCmd extends Action {
 
     private class ErrorHandler extends Task {
 
-        public ErrorHandler(Scheduler scheduler) {
-            super(scheduler);
+        public ErrorHandler() {
+            super();
         }
         
         public int getQueueNumber()

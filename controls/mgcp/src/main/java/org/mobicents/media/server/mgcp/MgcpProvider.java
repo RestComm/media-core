@@ -68,7 +68,7 @@ public class MgcpProvider {
     private ConcurrentLinkedList<ByteBuffer> txBuffer = new ConcurrentLinkedList();
     
     //receiver buffer
-    private ByteBuffer rxBuffer = ByteBuffer.allocate(8192);
+    private ByteBuffer rxBuffer = ByteBuffer.allocateDirect(8192);
     
     //pool of events
     private ConcurrentLinkedList<MgcpEventImpl> events = new ConcurrentLinkedList();
@@ -92,7 +92,7 @@ public class MgcpProvider {
         }
         
         for(int i=0;i<100;i++)
-        	txBuffer.offer(ByteBuffer.allocate(8192));
+        	txBuffer.offer(ByteBuffer.allocateDirect(8192));
     }
 
     /**
@@ -115,7 +115,7 @@ public class MgcpProvider {
         }
         
         for(int i=0;i<100;i++)
-        	txBuffer.offer(ByteBuffer.allocate(8192));
+        	txBuffer.offer(ByteBuffer.allocateDirect(8192));
     }
     
     /**
@@ -147,7 +147,7 @@ public class MgcpProvider {
     	MgcpMessage msg = event.getMessage();
     	ByteBuffer currBuffer=txBuffer.poll();
     	if(currBuffer==null)
-    		currBuffer=ByteBuffer.allocate(8192);
+    		currBuffer=ByteBuffer.allocateDirect(8192);
     	
     	msg.write(currBuffer);
     	channel.send(currBuffer, destination);
@@ -165,7 +165,7 @@ public class MgcpProvider {
     	MgcpMessage msg = event.getMessage();
     	ByteBuffer currBuffer=txBuffer.poll();
     	if(currBuffer==null)
-    		currBuffer=ByteBuffer.allocate(8192);    		
+    		currBuffer=ByteBuffer.allocateDirect(8192);    		
     	
     	msg.write(currBuffer);
     	channel.send(currBuffer, event.getAddress());
@@ -183,7 +183,7 @@ public class MgcpProvider {
     public void send(MgcpMessage message, SocketAddress destination) throws IOException {
     	ByteBuffer currBuffer=txBuffer.poll();
     	if(currBuffer==null)
-    		currBuffer=ByteBuffer.allocate(8192);
+    		currBuffer=ByteBuffer.allocateDirect(8192);
     	
     	message.write(currBuffer);
     	channel.send(currBuffer, destination);
@@ -260,7 +260,7 @@ public class MgcpProvider {
     private class MGCPHandler implements ProtocolHandler {
         
         //mgcp message receiver.
-        private Receiver receiver = new Receiver(scheduler);
+        private Receiver receiver = new Receiver();
         
         /**
          * (Non Java-doc.)
@@ -268,7 +268,7 @@ public class MgcpProvider {
          * @see org.mobicents.media.server.io.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel) 
          */
         public void receive(DatagramChannel channel) {
-            scheduler.submit(receiver,scheduler.MANAGEMENT_QUEUE);
+        	receiver.perform();
         }
 
         /**
@@ -301,11 +301,11 @@ public class MgcpProvider {
     /**
      * Receiver of the MGCP packets.
      */
-    private class Receiver extends Task {
+    private class Receiver {
         private SocketAddress address;
         
-        public Receiver(Scheduler scheduler) {
-            super(scheduler);
+        public Receiver() {
+            super();
         }        
 
         public int getQueueNumber()
@@ -313,7 +313,6 @@ public class MgcpProvider {
         	return scheduler.MANAGEMENT_QUEUE;
         }
         
-        @Override
         public long perform() {
             rxBuffer.clear();
             try {
@@ -345,7 +344,7 @@ public class MgcpProvider {
                     //parse message
                     if (logger.isDebugEnabled()) {
                     	final byte[] data = rxBuffer.array();
-                    	logger.debug("Parsing message: " + new String(data));
+                    	logger.debug("Parsing message: " + new String(data,0,rxBuffer.limit()));
                     }
                     MgcpMessage msg = evt.getMessage();
                     msg.read(rxBuffer);

@@ -55,6 +55,8 @@ public class NotificationRequestCmd extends Action {
     private TaskChain handler;
     private ErrorHandler errorHandler;
     
+    private Scheduler scheduler;
+    
     //error code and message
     private int code;
     private Text message;
@@ -62,13 +64,14 @@ public class NotificationRequestCmd extends Action {
     private final static Logger logger = Logger.getLogger(NotificationRequestCmd.class);    
           
     public NotificationRequestCmd(Scheduler scheduler) {
-        handler = new TaskChain(3);
+    	this.scheduler=scheduler;
+        handler = new TaskChain(3,scheduler);
         
-        Request req = new Request(scheduler);
-        Responder responder = new Responder(scheduler);
-        Executor executor = new Executor(scheduler);
+        Request req = new Request();
+        Responder responder = new Responder();
+        Executor executor = new Executor();
         
-        errorHandler = new ErrorHandler(scheduler);
+        errorHandler = new ErrorHandler();
         
         handler.add(req);
         handler.add(responder);
@@ -80,8 +83,8 @@ public class NotificationRequestCmd extends Action {
     
     private class Request extends Task {
         
-        public Request(Scheduler scheduler) {
-            super(scheduler);
+        public Request() {
+            super();
         }
 
         public int getQueueNumber()
@@ -164,8 +167,8 @@ public class NotificationRequestCmd extends Action {
     
     private class Responder extends Task {
 
-        public Responder(Scheduler scheduler) {
-            super(scheduler);
+        public Responder() {
+            super();
         }
         
         public int getQueueNumber()
@@ -195,8 +198,8 @@ public class NotificationRequestCmd extends Action {
     
     private class Executor extends Task {
 
-        public Executor(Scheduler scheduler) {
-            super(scheduler);
+        public Executor() {
+            super();
         }
         
         public int getQueueNumber()
@@ -214,8 +217,8 @@ public class NotificationRequestCmd extends Action {
 
     private class ErrorHandler extends Task {
 
-        public ErrorHandler(Scheduler scheduler) {
-            super(scheduler);
+        public ErrorHandler() {
+            super();
         }
         
         public int getQueueNumber()

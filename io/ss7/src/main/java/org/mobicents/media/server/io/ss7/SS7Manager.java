@@ -71,7 +71,7 @@ public class SS7Manager {
     public SS7Manager(Scheduler scheduler) throws IOException {
     	this.scheduler=scheduler;
         this.selector = new Selector();
-        pollTask = new PollTask(scheduler);
+        pollTask = new PollTask();
     }
 
     public int getCount() {
@@ -146,8 +146,8 @@ public class SS7Manager {
          * Creates new instance of this task
          * @param scheduler
          */
-        public PollTask(Scheduler scheduler) {
-            super(scheduler);
+        public PollTask() {
+            super();
         }
 
         public int getQueueNumber() {

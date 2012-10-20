@@ -62,7 +62,7 @@ public class CompoundMixer {
     public CompoundMixer(Scheduler scheduler) {
         this.scheduler = scheduler;
         
-        mixer = new MixTask(scheduler);        
+        mixer = new MixTask();        
     }
 
     public void addComponent(CompoundComponent component)
@@ -112,8 +112,8 @@ public class CompoundMixer {
         private int[] total=new int[packetSize/2];
         private int[] current;
         
-        public MixTask(Scheduler scheduler) {
-            super(scheduler);
+        public MixTask() {
+            super();
         }
         
         public int getQueueNumber()

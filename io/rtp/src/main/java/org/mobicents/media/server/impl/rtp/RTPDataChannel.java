@@ -150,7 +150,7 @@ public class RTPDataChannel {
 
         dtmfConverter=new DtmfConverter(scheduler,rtpClock);
         
-        heartBeat=new HeartBeat(scheduler);
+        heartBeat=new HeartBeat();
         
         formats.add(format);
         
@@ -685,8 +685,8 @@ public class RTPDataChannel {
 
     private class HeartBeat extends Task {
 
-        public HeartBeat(Scheduler scheduler) {
-            super(scheduler);
+        public HeartBeat() {
+            super();
         }        
 
         public int getQueueNumber()

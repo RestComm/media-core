@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 /**
  * Represents MGCP message.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public abstract class MgcpMessage {
     public final static int CREATE_CONNECTION = 1;

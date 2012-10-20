@@ -27,6 +27,7 @@
 
 package org.mobicents.media.server.io.network;
 
+import org.mobicents.media.server.scheduler.Scheduler;
 import java.net.InetSocketAddress;
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
@@ -40,7 +41,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class UdpPeripheryTest {
 
@@ -59,7 +60,8 @@ public class UdpPeripheryTest {
 
     @Before
     public void setUp() throws IOException {
-        udpPeriphery = new UdpManager(null);
+    	Scheduler scheduler=new Scheduler();
+        udpPeriphery = new UdpManager(scheduler);
     }
 
     @After
@@ -71,9 +73,9 @@ public class UdpPeripheryTest {
      */
     @Test
     public void testOpen() throws Exception {
-        DatagramChannel channel = udpPeriphery.open(new TestHandler());
+    	DatagramChannel channel = udpPeriphery.open(new TestHandler());
         udpPeriphery.bind(channel, 1024);
-        assertTrue("Excepted bound socket", channel.socket().isBound());
+        assertTrue("Excepted bound socket", channel.socket().isBound());    	
     }
 
     /**

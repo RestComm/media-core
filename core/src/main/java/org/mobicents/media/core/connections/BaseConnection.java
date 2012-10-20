@@ -94,7 +94,7 @@ public abstract class BaseConnection implements Connection {
         this.id = id;
         this.scheduler = scheduler;
         
-        heartBeat = new HeartBeat(scheduler);
+        heartBeat = new HeartBeat();
 
         //initialize event objects
         this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
@@ -367,8 +367,8 @@ public abstract class BaseConnection implements Connection {
     
     private class HeartBeat extends Task {
 
-        public HeartBeat(Scheduler scheduler) {
-            super(scheduler);
+        public HeartBeat() {
+            super();
         }        
 
         public int getQueueNumber()

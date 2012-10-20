@@ -31,6 +31,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -40,13 +41,13 @@ import org.mobicents.media.server.scheduler.Task;
  *
  * Important! Any CPU-bound action here are illegal!
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class UdpManager {
     private final static int PORT_ANY = -1;
 
     /** Channel selector */
-    private Selector selector;
+    private Selector[] selectors;
 
     /** bind address */
     private String bindAddress = "127.0.0.1";
@@ -69,7 +70,7 @@ public class UdpManager {
     private PortManager localPortManager=new PortManager();
     
     //poll task
-    private PollTask pollTask;
+    private PollTask[] pollTasks;
 
     //state flag
     private volatile boolean isActive;
@@ -79,9 +80,12 @@ public class UdpManager {
     //name of the interface
     private String name = "unknown";
     
+    private Scheduler scheduler;
     //logger instance
     private final static Logger logger = Logger.getLogger(UdpManager.class);
     private final Object LOCK = new Object();
+    
+    private AtomicInteger currSelectorIndex=new AtomicInteger(0);
     /**
      * Creates UDP periphery.
      * 
@@ -90,8 +94,14 @@ public class UdpManager {
      * @throws IOException
      */
     public UdpManager(Scheduler scheduler) throws IOException {
-        this.selector = SelectorProvider.provider().openSelector();
-        pollTask = new PollTask(scheduler);
+    	this.scheduler=scheduler;
+        this.selectors =new Selector[scheduler.getPoolSize()];
+        this.pollTasks=new PollTask[scheduler.getPoolSize()];
+        for(int i=0;i<this.selectors.length;i++)
+        {        	
+        	this.selectors[i]=SelectorProvider.provider().openSelector();
+        	this.pollTasks[i]=new PollTask(this.selectors[i]);        	
+        }
     }
 
     public int getCount() {
@@ -255,7 +265,8 @@ public class UdpManager {
     public DatagramChannel open(ProtocolHandler handler) throws IOException {
         DatagramChannel channel = DatagramChannel.open();
         channel.configureBlocking(false);
-        SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+        int index=currSelectorIndex.getAndIncrement();
+        SelectionKey key = channel.register(selectors[index % selectors.length], SelectionKey.OP_READ);
         key.attach(handler);
         handler.setKey(key);        
         return channel;
@@ -325,7 +336,8 @@ public class UdpManager {
     		if (this.isActive) return;
 
     		this.isActive = true;
-    		this.pollTask.startNow();
+    		for(int i=0;i<this.pollTasks.length;i++)
+    			this.pollTasks[i].startNow();
         
     		logger.info(String.format("Initialized UDP interface[%s]: bind address=%s", name, bindAddress));
     	}
@@ -338,8 +350,10 @@ public class UdpManager {
     	synchronized(LOCK) {
     		if (!this.isActive) return;
 
-    		this.isActive = false;        
-    		this.pollTask.cancel();
+    		this.isActive = false;  
+    		for(int i=0;i<this.pollTasks.length;i++)
+    			this.pollTasks[i].cancel();
+    		
     		logger.info("Stopped");
     	}
     }
@@ -349,12 +363,14 @@ public class UdpManager {
      */
     private class PollTask extends Task {
 
+    	private Selector localSelector;
         /**
          * Creates new instance of this task
          * @param scheduler
          */
-        public PollTask(Scheduler scheduler) {
-            super(scheduler);
+        public PollTask(Selector selector) {
+            super();
+            this.localSelector=selector;
         }
 
         public int getQueueNumber() {
@@ -368,8 +384,8 @@ public class UdpManager {
 
             //select channels ready for IO and ignore error
             try {
-            	selector.selectNow();
-                Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+            	localSelector.selectNow();
+                Iterator<SelectionKey> it = localSelector.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
@@ -399,7 +415,7 @@ public class UdpManager {
 //                    }
 
                 }
-                selector.selectedKeys().clear();
+                localSelector.selectedKeys().clear();
             } catch (IOException e) {
             	logger.error(e);
                 return 0;

@@ -53,17 +53,18 @@ public class Scheduler  {
 	public static final Integer RECEIVER_QUEUE=0;
 	public static final Integer SENDER_QUEUE=1;
 	
-	public static final Integer UDP_MANAGER_QUEUE=2;
+	//MANAGEMENT QUEUE FOR CONTROL PROCESSING
+	public static final Integer MANAGEMENT_QUEUE=2;
 	
-	//MANAGEMENT QUEUE SHOULD CONTAIN ONLY TASKS THAT ARE NOT TIME DEPENDENT , FOR
-	//EXAMPLE MGCP COMMANDS 
-	public static final Integer MANAGEMENT_QUEUE=3;
+	//UDP MANAGER QUEUE FOR POOLING CHANNELS
+	public static final Integer UDP_MANAGER_QUEUE=3;	
 	
 	//CORE QUEUES
 	public static final Integer INPUT_QUEUE=4;
 	public static final Integer MIXER_MIX_QUEUE=5;
 	public static final Integer OUTPUT_QUEUE=6;
 	
+	//HEARTBEAT QUEUE
 	public static final Integer HEARTBEAT_QUEUE=-1;
 	
     //The clock for time measurement
@@ -100,6 +101,11 @@ public class Scheduler  {
         	workerThreads[i]=new WorkerThread();
     }    
 
+    public int getPoolSize()
+    {
+    	return workerThreads.length;
+    }
+    
     /**
      * Sets clock.
      *
@@ -238,8 +244,7 @@ public class Scheduler  {
         }
         
         public void notifyCompletion() {
-        	int newValue=activeTasksCount.decrementAndGet();
-        	if(newValue==0 && this.active)
+        	if(activeTasksCount.decrementAndGet()==0)
         		synchronized(LOCK) {
         			LOCK.notify();
         		}        	        	
@@ -251,7 +256,6 @@ public class Scheduler  {
         	
         	while(active)
         	{
-        		//running sender queue each 4ms
         		synchronized(LOCK) {    					
 					if(executeQueue(taskQueues[RECEIVER_QUEUE]))
 						try {
@@ -264,6 +268,16 @@ public class Scheduler  {
         		
         		synchronized(LOCK) {    					
 					if(executeQueue(taskQueues[SENDER_QUEUE]))
+						try {
+							LOCK.wait();
+						}
+						catch(InterruptedException e)  {                                               
+							//lets continue
+						}
+				}
+        		
+        		synchronized(LOCK) {    					
+					if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
 						try {
 							LOCK.wait();
 						}
@@ -323,17 +337,18 @@ public class Scheduler  {
         {
         	Task t;        	
         	currQueue.changePool();
-            int currQueueSize=currQueue.size();
-            activeTasksCount.set(currQueueSize);
             t = currQueue.poll();
+            activeTasksCount.incrementAndGet();
+            
             //submit all tasks in current queue
             while(t!=null)
-            {            	
+            {
+            	activeTasksCount.incrementAndGet();
             	waitingTasks.offer(t);
             	t = currQueue.poll();
             }
             
-            return currQueueSize!=0;
+            return activeTasksCount.decrementAndGet()!=0;
         }
 
         /**
@@ -349,7 +364,10 @@ public class Scheduler  {
         
     	public void run() {
     		while(active)
-    			waitingTasks.take().run();    		
+    		{
+    			waitingTasks.take().run();
+    			notifyCompletion();
+    		}
     	}
     	
     	public void activate() {        	        	

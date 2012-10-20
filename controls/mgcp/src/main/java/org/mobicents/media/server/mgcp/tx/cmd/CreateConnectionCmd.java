@@ -121,13 +121,14 @@ public class CreateConnectionCmd extends Action {
     public CreateConnectionCmd(Scheduler scheduler) {
         this.scheduler = scheduler;
 
-        handler = new TaskChain(4);
+        handler = new TaskChain(2,scheduler);
         
         //intialize action's subtasks
-        responder = new Responder(scheduler);
-        errorHandle = new ErrorHandle(scheduler);
+        responder = new Responder();
+        preprocessor = new Preprocessor();
         
-        preprocessor = new Preprocessor(scheduler);
+        errorHandle = new ErrorHandle();
+                
         handler.add(preprocessor);
         handler.add(responder);
         
@@ -149,8 +150,8 @@ public class CreateConnectionCmd extends Action {
      */
     private class Preprocessor extends Task {
 
-        public Preprocessor(Scheduler scheduler) {
-            super(scheduler);
+        public Preprocessor() {
+            super();
         }
         
         public int getQueueNumber()
@@ -310,8 +311,8 @@ public class CreateConnectionCmd extends Action {
         
     private class Responder extends Task {
 
-        public Responder(Scheduler scheduler) {
-            super(scheduler);
+        public Responder() {
+            super();
         }
         
         public int getQueueNumber()
@@ -359,8 +360,8 @@ public class CreateConnectionCmd extends Action {
     }
 
     private class ErrorHandle extends Task {
-    	public ErrorHandle(Scheduler scheduler) {
-            super(scheduler);
+    	public ErrorHandle() {
+            super();
         }
         
         public int getQueueNumber()

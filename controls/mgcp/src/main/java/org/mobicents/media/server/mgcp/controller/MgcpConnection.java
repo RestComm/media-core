@@ -35,12 +35,15 @@ import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
 
 import java.net.SocketAddress;
+import java.util.concurrent.atomic.AtomicLong;
 /**
  * Represents the connection activity.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class MgcpConnection implements ConnectionFailureListener {
+	public static AtomicLong connectionID=new AtomicLong(1L);
+    
 	public final static Text REASON_CODE = new Text("902 Loss of lower layer connectivity");
     protected Text id;
     protected MgcpCall call;
@@ -49,7 +52,7 @@ public class MgcpConnection implements ConnectionFailureListener {
     private SocketAddress callAgent;
     private Text descriptor = new Text();    
     public MgcpConnection() {
-        id = new Text(Long.toHexString(System.nanoTime()));
+        id = new Text(Long.toHexString(connectionID.getAndIncrement()));
     }
     
     public Text getID() {

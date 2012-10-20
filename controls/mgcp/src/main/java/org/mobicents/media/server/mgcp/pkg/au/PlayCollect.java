@@ -95,6 +95,8 @@ public class PlayCollect extends Signal {
     private PlayerMode playerMode=PlayerMode.PROMPT;
     private Text eventContent;
     
+    private Scheduler scheduler;
+    
     public PlayCollect(String name) {
         super(name);
         oc.add(new NotifyImmediately("N"));
@@ -118,7 +120,8 @@ public class PlayCollect extends Signal {
     	promptLength=0;
     	promptIndex=0;
     	segCount = 0;
-    	heartbeat=new Heartbeat(getEndpoint().getScheduler(),this);
+    	this.scheduler=getEndpoint().getScheduler();
+    	heartbeat=new Heartbeat(this);
     	
         //get options of the request
         options = new Options(getTrigger().getParams());
@@ -713,16 +716,14 @@ public class PlayCollect extends Signal {
     	private AtomicInteger overallTtl;
     	private AtomicBoolean active;
     	
-    	private Scheduler scheduler;
     	private Signal signal;
     	
-        public Heartbeat(Scheduler scheduler,Signal signal) {
-        	super(scheduler);
+        public Heartbeat(Signal signal) {
+        	super();
         	
         	ttl=new AtomicInteger(-1);
         	overallTtl=new AtomicInteger(-1);
         	active=new AtomicBoolean(false);
-            this.scheduler=scheduler;
             this.signal=signal;
         }
         

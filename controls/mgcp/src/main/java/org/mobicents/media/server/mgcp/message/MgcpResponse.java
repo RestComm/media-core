@@ -162,8 +162,7 @@ public class MgcpResponse extends MgcpMessage {
             parameters.get(count).trim();
             
             count++;
-        }
-        
+        }        
     }
 
     @Override

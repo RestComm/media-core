@@ -122,7 +122,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         this.scheduler = scheduler;
         
         dtmfBuffer = new DtmfBuffer(this);
-        eventSender = new EventSender(scheduler);
+        eventSender = new EventSender();
         
         signal = new double[N];
         for (int i = 0; i < 4; i++) {
@@ -361,8 +361,8 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
 
         protected ArrayList<DtmfEventImpl> events = new ArrayList();
         
-        public EventSender(Scheduler scheduler) {
-            super(scheduler);
+        public EventSender() {
+            super();
         }
         
         public int getQueueNumber()

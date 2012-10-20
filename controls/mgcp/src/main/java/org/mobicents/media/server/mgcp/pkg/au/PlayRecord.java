@@ -726,7 +726,36 @@ public class PlayRecord extends Signal {
          * 
          * @see BufferListener#tone(java.lang.String)  
          */
-        public boolean tone(String s) {        	
+        public boolean tone(String s) {     
+        	if(options.getDigitsNumber()>0 && s.charAt(0)==options.getEndInputKey() && buffer.length()>=options.getDigitsNumber())
+        	{
+        		logger.info(String.format("(%s) End Input Tone '%s' has been detected", getEndpoint().getLocalName(), s));
+                //end input key still not included in sequence
+       		 	if(options.hasSuccessAnnouncement())
+       		 	{
+       		 		if(options.isIncludeEndInputKey())
+       		 			eventContent=new Text("rc=100 dc=" + buffer.getSequence() + s);
+       		 		else
+       		 			eventContent=new Text("rc=100 dc=" + buffer.getSequence());
+       			 
+    				 playerMode=PlayerMode.SUCCESS;
+    				 startPromptPhase(options.getSuccessAnnouncement()); 
+       		 	}
+       		 	else
+       		 	{
+       		 		if(options.isIncludeEndInputKey())
+       		 			oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence() + s));        			
+       		 		else
+       		 			oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence()));
+       			 
+       		 		reset();
+       		 		isCompleted=true;
+       		 		complete();
+       		 	}
+       		         		 
+       		 	return true;
+        	}
+        	
         	logger.info(String.format("(%s) Tone '%s' has been detected", getEndpoint().getLocalName(), s));
         	if(isPromptActive)
         	{

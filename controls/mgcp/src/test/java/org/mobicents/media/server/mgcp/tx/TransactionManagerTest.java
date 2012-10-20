@@ -68,9 +68,9 @@ public class TransactionManagerTest {
         txManager = new TransactionManager(scheduler, 3);        
         action = new Action();
         
-        TaskChain actionHandler = new TaskChain(2);
-        actionHandler.add(new MyTask(scheduler));
-        actionHandler.add(new MyTask(scheduler));
+        TaskChain actionHandler = new TaskChain(2,scheduler);
+        actionHandler.add(new MyTask());
+        actionHandler.add(new MyTask());
         
         action.setActionHandler(actionHandler);
     }
@@ -133,8 +133,8 @@ public class TransactionManagerTest {
     private class MyTask extends Task {
         private Random rnd = new Random();
         
-        public MyTask(Scheduler scheduler) {
-            super(scheduler);
+        public MyTask() {
+            super();
         }
 
         public int getQueueNumber()

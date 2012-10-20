@@ -24,7 +24,7 @@ package org.mobicents.media.server.scheduler;
 /**
  * Task set where each previous task after termination submits next task.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class TaskChain implements TaskListener {
     //the chain of tasks
@@ -40,12 +40,15 @@ public class TaskChain implements TaskListener {
     private TaskChainListener listener;
     private int queueIndex;  
     private final Object LOCK = new Object();
+    
+    private Scheduler scheduler;
     /**
      * Creates new chain.
      * 
      * @param length the length of the chain.
      */
-    public TaskChain(int length) {
+    public TaskChain(int length,Scheduler scheduler) {
+    	this.scheduler=scheduler;
         this.task = new Task[length];        
     }
     
@@ -67,7 +70,6 @@ public class TaskChain implements TaskListener {
     public void add(Task task) {
     	synchronized(LOCK) {
     		//terminated task will be selected immediately before start
-    		task.chain = this;
     		task.setListener(this);
         
     		this.task[wi] = task;        
@@ -84,7 +86,7 @@ public class TaskChain implements TaskListener {
         i = 0;
         //submit first task
         this.queueIndex=queueIndex;
-        task[0].scheduler.submit(task[0],queueIndex);
+        scheduler.submit(task[0],queueIndex);
     }
     
     /**
@@ -96,7 +98,7 @@ public class TaskChain implements TaskListener {
         
         //submit next if the end of the chain not reached yet
         if (i < task.length && task[i] != null) {
-        	task[i].scheduler.submit(task[i],queueIndex);            
+        	scheduler.submit(task[i],queueIndex);            
         } else if (listener != null) {
             listener.onTermination();
         }

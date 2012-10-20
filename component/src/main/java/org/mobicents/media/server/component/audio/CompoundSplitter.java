@@ -65,8 +65,8 @@ public class CompoundSplitter {
     public CompoundSplitter(Scheduler scheduler) {
         this.scheduler = scheduler;
         
-        insideMixer = new InsideMixTask(scheduler);        
-        outsideMixer = new OutsideMixTask(scheduler);
+        insideMixer = new InsideMixTask();        
+        outsideMixer = new OutsideMixTask();
     }
 
     public void addInsideComponent(CompoundComponent component)
@@ -132,8 +132,8 @@ public class CompoundSplitter {
         private int[] total=new int[packetSize/2];
         private int[] current;
         
-        public InsideMixTask(Scheduler scheduler) {
-            super(scheduler);
+        public InsideMixTask() {
+            super();
         }
         
         public int getQueueNumber()
@@ -216,8 +216,8 @@ public class CompoundSplitter {
         private int[] total=new int[packetSize/2];
         private int[] current;
         
-        public OutsideMixTask(Scheduler scheduler) {
-            super(scheduler);
+        public OutsideMixTask() {
+            super();
         }
         
         public int getQueueNumber()

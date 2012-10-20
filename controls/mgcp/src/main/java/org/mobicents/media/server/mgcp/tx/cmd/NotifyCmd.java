@@ -38,17 +38,21 @@ public class NotifyCmd extends Action {
     
     private final static Logger logger = Logger.getLogger(NotifyCmd.class);    
     
+    private Scheduler scheduler;
+    
     public NotifyCmd(Scheduler scheduler) {
-        handler = new TaskChain(1);
-        handler.add(new Sender(scheduler));
+    	this.scheduler=scheduler;
+    	
+        handler = new TaskChain(1,scheduler);
+        handler.add(new Sender());
         
         this.setActionHandler(handler);
     }
     
     private class Sender extends Task {
         
-        public Sender(Scheduler scheduler) {
-            super(scheduler);
+        public Sender() {
+            super();
         }
 
         public int getQueueNumber()

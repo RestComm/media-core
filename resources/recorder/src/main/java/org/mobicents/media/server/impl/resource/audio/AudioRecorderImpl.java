@@ -117,7 +117,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         this.scheduler = scheduler;
         
         
-        killRecording = new KillRecording(scheduler);
+        killRecording = new KillRecording();
         
         //initialize events
         recorderStarted = new RecorderEventImpl(RecorderEvent.START, this);
@@ -125,8 +125,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         recorderFailed = new RecorderEventImpl(RecorderEvent.FAILED, this);
         
         //initialize event sender task
-        eventSender = new EventSender(scheduler);
-        heartbeat = new Heartbeat(scheduler);
+        eventSender = new EventSender();
+        heartbeat = new Heartbeat();
         
         output=new CompoundOutput(scheduler,ComponentType.RECORDER.getType());
         output.join(this);
@@ -479,8 +479,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
      */
     private class KillRecording extends Task {
 
-        public KillRecording(Scheduler scheduler) {
-            super(scheduler);
+        public KillRecording() {
+            super();
         }        
 
         @Override
@@ -501,8 +501,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
         protected RecorderEventImpl event;
         
-        public EventSender(Scheduler scheduler) {
-            super(scheduler);
+        public EventSender() {
+            super();
         }        
 
         @Override
@@ -520,8 +520,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
      * Heartbeat
      */
     private class Heartbeat extends Task {
-    	public Heartbeat(Scheduler scheduler) {
-            super(scheduler);
+    	public Heartbeat() {
+            super();
         }        
 
         @Override

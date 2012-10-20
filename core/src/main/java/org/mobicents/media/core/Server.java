@@ -226,7 +226,7 @@ public class Server implements MediaServer {
 
         if(heartbeatTime>0)
         {
-        	heartbeat=new HeartBeat(scheduler);
+        	heartbeat=new HeartBeat();
         	heartbeat.restart();
         }
     }
@@ -283,8 +283,8 @@ public class Server implements MediaServer {
     
     private class HeartBeat extends Task {
 
-        public HeartBeat(Scheduler scheduler) {
-            super(scheduler);
+        public HeartBeat() {
+            super();
         }        
 
         public int getQueueNumber()

@@ -65,21 +65,24 @@ public class EndpointConfigurationCmd extends Action {
 
     private TaskChain handler;
 
+    private Scheduler scheduler;
+    
     private int code;
     private Text message;
     
     private final static Logger logger = Logger.getLogger(EndpointConfigurationCmd.class);    
     
     public EndpointConfigurationCmd(Scheduler scheduler) {
-        handler = new TaskChain(2);
+    	this.scheduler=scheduler;
+        handler = new TaskChain(2,scheduler);
         
-        Configurator configurator = new Configurator(scheduler);
-        Responder responder = new Responder(scheduler);
+        Configurator configurator = new Configurator();
+        Responder responder = new Responder();
         
         handler.add(configurator);
         handler.add(responder);
         
-        ErrorHandler errorHandler = new ErrorHandler(scheduler);
+        ErrorHandler errorHandler = new ErrorHandler();
         
         this.setActionHandler(handler);
         this.setRollbackHandler(errorHandler);        
@@ -87,8 +90,8 @@ public class EndpointConfigurationCmd extends Action {
     
     private class Configurator extends Task {
         
-        public Configurator(Scheduler scheduler) {
-            super(scheduler);
+        public Configurator() {
+            super();
         }
 
         public int getQueueNumber()
@@ -138,8 +141,8 @@ public class EndpointConfigurationCmd extends Action {
     
     private class Responder extends Task {
 
-        public Responder(Scheduler scheduler) {
-            super(scheduler);
+        public Responder() {
+            super();
         }
         
         public int getQueueNumber()
@@ -170,8 +173,8 @@ public class EndpointConfigurationCmd extends Action {
 
     private class ErrorHandler extends Task {
 
-        public ErrorHandler(Scheduler scheduler) {
-            super(scheduler);
+        public ErrorHandler() {
+            super();
         }
         
         public int getQueueNumber()

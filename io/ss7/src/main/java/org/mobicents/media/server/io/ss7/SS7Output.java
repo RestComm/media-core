@@ -75,6 +75,7 @@ public class SS7Output extends AbstractSink {
     //signaling processor
     private Processor dsp;                               
         
+    private Scheduler scheduler;
     //The underlying buffer size
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
@@ -91,8 +92,9 @@ public class SS7Output extends AbstractSink {
         super("Output");
         this.channel=channel;        
         this.destinationFormat=destinationFormat;
-        this.sender=new Sender(scheduler);
+        this.sender=new Sender();
         
+        this.scheduler=scheduler;
         output=new CompoundOutput(scheduler,1);
         output.join(this);    
     }
@@ -183,8 +185,8 @@ public class SS7Output extends AbstractSink {
     	int framePosition=0;
     	int readCount=0;
     	
-        public Sender(Scheduler scheduler) {
-            super(scheduler);
+        public Sender() {
+            super();
         }        
 
         public int getQueueNumber()

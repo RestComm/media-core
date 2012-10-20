@@ -64,6 +64,8 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     private final static Logger logger = Logger.getLogger(Continuity1.class);    
     private Heartbeat heartbeat;
     
+    private Scheduler scheduler;
+	
     public static final Text[] toneOptions={new Text("c01"),new Text("c02")};
     public static final int[] toneValues={2010,1780};
     
@@ -99,7 +101,10 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
         else
         {
         	if(heartbeat==null)
-        		heartbeat=new Heartbeat(getEndpoint().getScheduler(),this);
+        	{
+        		this.scheduler=getEndpoint().getScheduler();
+        		heartbeat=new Heartbeat(this);
+        	}
         	
         	prepareToneReceiving();        
         }
@@ -221,15 +226,13 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     	private AtomicInteger ttl;
     	private AtomicBoolean active;
     	
-    	private Scheduler scheduler;
     	private Signal signal;
     	
-    	public Heartbeat(Scheduler scheduler,Signal signal) {
-        	super(scheduler);
+    	public Heartbeat(Signal signal) {
+        	super();
         	
         	ttl=new AtomicInteger(-1);
         	active=new AtomicBoolean(false);
-            this.scheduler=scheduler;
             this.signal=signal;
         }
         

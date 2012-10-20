@@ -43,10 +43,10 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Represents media endpoint on MGCP controller side.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class MgcpEndpoint {
-    public static AtomicInteger txID = new AtomicInteger(1);
+	public static AtomicInteger txID = new AtomicInteger(1);
     
     //The size of the connection's pool
     private final static int N = 15;

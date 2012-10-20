@@ -67,6 +67,8 @@ public class Continuity2 extends Signal implements ToneDetectorListener {
     public static final Text[] toneOptions={new Text("c01"),new Text("c02")};
     public static final int[] toneValues={2010,1780};
     
+    private Scheduler scheduler;
+	
     public Continuity2(String name) {
         super(name);                   
         of.add(new NotifyImmediately("N"));
@@ -98,7 +100,8 @@ public class Continuity2 extends Signal implements ToneDetectorListener {
         }
         else
         {
-        	heartbeat=new Heartbeat(getEndpoint().getScheduler(),this);
+        	this.scheduler=getEndpoint().getScheduler();
+    		heartbeat=new Heartbeat(this);
         	prepareToneReceiving();
         }        	       
         
@@ -219,15 +222,13 @@ public class Continuity2 extends Signal implements ToneDetectorListener {
     	private AtomicInteger ttl;
     	private AtomicBoolean active;
     	
-    	private Scheduler scheduler;
     	private Signal signal;
     	
-    	public Heartbeat(Scheduler scheduler,Signal signal) {
-        	super(scheduler);
+    	public Heartbeat(Signal signal) {
+        	super();
         	
         	ttl=new AtomicInteger(-1);
         	active=new AtomicBoolean(false);
-            this.scheduler=scheduler;
             this.signal=signal;
         }
         

@@ -32,31 +32,21 @@ import org.apache.log4j.Logger;
  * @author Oifa Yulian
  */
 public abstract class Task implements Runnable {
-    protected Scheduler scheduler;
-
     private volatile boolean isActive = true;
     private volatile boolean isHeartbeat = true;
     //error handler instance
     protected TaskListener listener;
-    
-    //reference to the chain
-    protected TaskChain chain;
     
     private final Object LOCK = new Object();    
     
     private AtomicBoolean inQueue0=new AtomicBoolean(false);
     private AtomicBoolean inQueue1=new AtomicBoolean(false);
     
-    private Logger logger = Logger.getLogger(Scheduler.class) ;
+    private Logger logger = Logger.getLogger(Task.class);
     
-    public Task(Scheduler scheduler) {
-        this.scheduler = scheduler;        
+    public Task() {               
     }
 
-    public Scheduler scheduler() {
-        return this.scheduler;
-    }
-    
     public void storedInQueue0()
     {
     	inQueue0.set(true);
@@ -116,14 +106,7 @@ public abstract class Task implements Runnable {
      */
     public void cancel() {
     	synchronized(LOCK) {
-    		this.isActive = false;
-    		//no needs to remove , since it will not run anyway.
-    		//otherwise search on 2 queues is required
-    		
-    		/*if(isHeartbeat)
-    			scheduler.heartBeatQueue.remove(this);
-    		else
-    			scheduler.taskQueues[getQueueNumber()].remove(this);*/
+    		this.isActive = false;    		
     	}
     }
 
@@ -137,17 +120,14 @@ public abstract class Task implements Runnable {
     				if (this.listener != null) {
     					this.listener.onTerminate();
     				}
-    				//submit next partition
-//                	if (chain != null) chain.continueExecution();
+    				
     			} catch (Exception e) {
     				if (this.listener != null) 
     					listener.handlerError(e);
     				else
     					logger.error(e);
     			}
-    		}  
-    		
-    		scheduler.notifyCompletion();    		
+    		}      		    		    	
     }
 
     protected void activate(Boolean isHeartbeat) {

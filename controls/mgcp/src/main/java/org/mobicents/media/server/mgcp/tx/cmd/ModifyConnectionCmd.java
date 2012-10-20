@@ -56,6 +56,8 @@ public class ModifyConnectionCmd extends Action {
     private Parameter connectionID;
     private TaskChain handler;
 
+    private Scheduler scheduler;
+    
     //error code and message
     private int code;
     private Text message;
@@ -67,13 +69,15 @@ public class ModifyConnectionCmd extends Action {
     private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);    
     
     public ModifyConnectionCmd(Scheduler scheduler) {
-        handler = new TaskChain(1);
+        this.scheduler=scheduler;
         
-        Modifier modifier = new Modifier(scheduler);
+    	handler = new TaskChain(1,scheduler);
+        
+        Modifier modifier = new Modifier();
         
         handler.add(modifier);
         
-        ErrorHandler errorHandler = new ErrorHandler(scheduler);
+        ErrorHandler errorHandler = new ErrorHandler();
         
         this.setActionHandler(handler);
         this.setRollbackHandler(errorHandler);        
@@ -81,8 +85,8 @@ public class ModifyConnectionCmd extends Action {
     
     private class Modifier extends Task {
         
-        public Modifier(Scheduler scheduler) {
-            super(scheduler);
+        public Modifier() {
+            super();
         }
 
         public int getQueueNumber()
@@ -175,8 +179,8 @@ public class ModifyConnectionCmd extends Action {
 
     private class ErrorHandler extends Task {
 
-        public ErrorHandler(Scheduler scheduler) {
-            super(scheduler);
+        public ErrorHandler() {
+            super();
         }
         
         public int getQueueNumber()

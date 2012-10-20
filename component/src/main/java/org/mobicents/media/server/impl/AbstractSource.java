@@ -84,7 +84,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     public AbstractSource(String name, Scheduler scheduler,int queueNumber) {
         super(name);
         this.scheduler = scheduler;
-        this.worker = new Worker(scheduler,queueNumber);        
+        this.worker = new Worker(queueNumber);        
     }    
 
     /**
@@ -357,8 +357,8 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     	long frameDuration;
     	Boolean isEOM;
     	
-    	public Worker(Scheduler scheduler,int queueNumber) {
-            super(scheduler);
+    	public Worker(int queueNumber) {
+            super();
             this.queueNumber=queueNumber;
             initialTime=scheduler.getClock().getTime();            
         }
