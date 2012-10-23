@@ -36,12 +36,13 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Represents transaction.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class Transaction implements ActionListener {
     //unique identifier of this transaction
     protected int id;
-
+    protected int uniqueId; 
+    
     //Transaction manager instance
     private TransactionManager txManager;
     

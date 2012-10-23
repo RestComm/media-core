@@ -42,7 +42,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 /**
  * The MGCP access point.
  *  
- * @author kulikov
+ * @author yulian oifa
  */
 public class Controller implements MgcpListener, ServerManager {
 
@@ -213,11 +213,14 @@ public class Controller implements MgcpListener, ServerManager {
     public void process(MgcpEvent event) {
         //get the transaction identifier
     	int txID = event.getMessage().getTxID();
-        Transaction tx = txManager.find(txID);
+    	Transaction tx;
+    	if(event.getEventID()==MgcpEvent.REQUEST)
+    		tx = txManager.allocateNew(txID);
+    	else
+    		tx = txManager.find(txID);
         
-        if (tx != null) {
-            tx.process(event);
-        }
+    	if (tx != null)
+            tx.process(event);    	
     }
     
      

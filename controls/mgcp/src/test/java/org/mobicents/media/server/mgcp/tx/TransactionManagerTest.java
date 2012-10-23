@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class TransactionManagerTest {
     
@@ -85,22 +85,22 @@ public class TransactionManagerTest {
      */
     @Test
     public void testFind() {
-        Transaction tx = txManager.find(1);
+        Transaction tx = txManager.allocateNew(1);
         assertTrue("Transaction not found", tx != null);
 
-        tx = txManager.find(2);
+        tx = txManager.allocateNew(2);
         assertTrue("Transaction not found", tx != null);
         
-        tx = txManager.find(3);
+        tx = txManager.allocateNew(3);
         assertTrue("Transaction not found", tx != null);
         
-        tx = txManager.find(4);
+        tx = txManager.allocateNew(4);
         assertTrue("Transaction still in pool", tx == null);
     }
     
     @Test
     public void testTermination() {
-        Transaction tx = txManager.find(1);
+        Transaction tx = txManager.allocateNew(1);
         assertTrue("Transaction not found", tx != null);        
         assertEquals(2, txManager.remainder());
         
@@ -111,7 +111,7 @@ public class TransactionManagerTest {
     public void testTransaction(int id) throws InterruptedException {
     	try
     	{    		
-    		Transaction tx = txManager.find(id);
+    		Transaction tx = txManager.allocateNew(id);
         	tx.process(action);
         	Thread.sleep(1500);
         	assertEquals(3, txManager.remainder());

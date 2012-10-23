@@ -36,7 +36,7 @@ import java.util.Enumeration;
 /**
  * Implements pool of transactions.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class TransactionManager {
     //transaction identifier generator
@@ -122,10 +122,16 @@ public class TransactionManager {
      */
     public Transaction find(int id) {    
     	Transaction currTransaction=active.get(id);
-    	if(currTransaction!=null)
-    		return currTransaction;
+    	return currTransaction;    	  
+    }
+    
+    public Transaction allocateNew(int id)
+    {
+    	Transaction t=begin(ID.getAndIncrement());
+    	if(t!=null)
+    		t.id=id;
     	
-    	return begin(id);    	
+    	return t;
     }
     
     /**
@@ -141,8 +147,8 @@ public class TransactionManager {
             return t;
         }
         
-        t.id = id;
-        active.put(t.id,t);        
+        t.uniqueId = id;
+        active.put(t.uniqueId,t);        
         
         return t;
     }
@@ -153,8 +159,9 @@ public class TransactionManager {
      * @param t the transaction to be terminated
      */
     protected void terminate(Transaction t) {
-    	active.remove(t.id);
+    	active.remove(t.uniqueId);
     	t.id = 0;
+    	t.uniqueId=0;
     	pool.offer(t);    	    
     }   
     

@@ -68,7 +68,7 @@ public class MgcpProvider {
     private ConcurrentLinkedList<ByteBuffer> txBuffer = new ConcurrentLinkedList();
     
     //receiver buffer
-    private ByteBuffer rxBuffer = ByteBuffer.allocateDirect(8192);
+    private ByteBuffer rxBuffer = ByteBuffer.allocate(8192);
     
     //pool of events
     private ConcurrentLinkedList<MgcpEventImpl> events = new ConcurrentLinkedList();
@@ -92,7 +92,7 @@ public class MgcpProvider {
         }
         
         for(int i=0;i<100;i++)
-        	txBuffer.offer(ByteBuffer.allocateDirect(8192));
+        	txBuffer.offer(ByteBuffer.allocate(8192));
     }
 
     /**
@@ -115,7 +115,7 @@ public class MgcpProvider {
         }
         
         for(int i=0;i<100;i++)
-        	txBuffer.offer(ByteBuffer.allocateDirect(8192));
+        	txBuffer.offer(ByteBuffer.allocate(8192));
     }
     
     /**
@@ -147,7 +147,7 @@ public class MgcpProvider {
     	MgcpMessage msg = event.getMessage();
     	ByteBuffer currBuffer=txBuffer.poll();
     	if(currBuffer==null)
-    		currBuffer=ByteBuffer.allocateDirect(8192);
+    		currBuffer=ByteBuffer.allocate(8192);
     	
     	msg.write(currBuffer);
     	channel.send(currBuffer, destination);
@@ -165,7 +165,7 @@ public class MgcpProvider {
     	MgcpMessage msg = event.getMessage();
     	ByteBuffer currBuffer=txBuffer.poll();
     	if(currBuffer==null)
-    		currBuffer=ByteBuffer.allocateDirect(8192);    		
+    		currBuffer=ByteBuffer.allocate(8192);    		
     	
     	msg.write(currBuffer);
     	channel.send(currBuffer, event.getAddress());
@@ -183,7 +183,7 @@ public class MgcpProvider {
     public void send(MgcpMessage message, SocketAddress destination) throws IOException {
     	ByteBuffer currBuffer=txBuffer.poll();
     	if(currBuffer==null)
-    		currBuffer=ByteBuffer.allocateDirect(8192);
+    		currBuffer=ByteBuffer.allocate(8192);
     	
     	message.write(currBuffer);
     	channel.send(currBuffer, destination);
