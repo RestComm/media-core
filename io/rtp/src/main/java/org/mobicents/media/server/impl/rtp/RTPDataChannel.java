@@ -148,7 +148,7 @@ public class RTPDataChannel {
         //transmittor
         output = new RTPOutput(scheduler,this);               
 
-        dtmfConverter=new DtmfConverter(scheduler,rtpClock);
+        dtmfConverter=new DtmfConverter(scheduler,rtpClock,this.channelsManager.getRfc2833BufferSize());
         
         heartBeat=new HeartBeat();
         

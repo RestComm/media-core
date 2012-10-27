@@ -52,6 +52,8 @@ public class ChannelsManager {
     
     private int jitter=50;
     
+    private int rfc2833BufferSize=1;
+    
     //channel id generator
     private AtomicInteger channelIndex=new AtomicInteger(100);
     
@@ -93,6 +95,18 @@ public class ChannelsManager {
     
     public int getJitter() {
     	return this.jitter;
+    }
+    
+    public void setJitter(int jitter) {
+    	this.jitter=jitter;
+    }
+    
+    public int getRfc2833BufferSize() {
+    	return this.jitter;
+    }
+    
+    public void setRfc2833BufferSize(int bufferSize) {
+    	this.rfc2833BufferSize=bufferSize;
     }
     
     public UdpManager getUdpManager() {

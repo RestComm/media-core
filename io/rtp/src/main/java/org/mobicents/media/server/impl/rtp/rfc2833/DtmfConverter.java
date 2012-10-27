@@ -56,12 +56,15 @@ public class DtmfConverter extends AbstractSource {
     
     private CompoundInput input;
 	
+    private int bufferSize;
+    
     private static final Logger logger = Logger.getLogger(DtmfConverter.class);
     
-    public DtmfConverter(Scheduler scheduler,RtpClock clock)
+    public DtmfConverter(Scheduler scheduler,RtpClock clock,int bufferSize)
     {
     	super("dtmfconverter", scheduler,scheduler.INPUT_QUEUE);
     	this.clock=clock;
+    	this.bufferSize=bufferSize;
     	input=new CompoundInput(2,packetSize);
         this.connect(input);       
     }
@@ -111,12 +114,14 @@ public class DtmfConverter extends AbstractSource {
         if(endOfEvent)
     		offset=0;
         
-    	if(frameBuffer.size()>1)
+    	if(frameBuffer.size()>bufferSize)
     		//lets not store too much data
     		frameBuffer.remove(0);
     	
     	frameBuffer.add(currFrame);
-    	wakeup();
+    	
+    	if(frameBuffer.size()==bufferSize)
+    		wakeup();
     }
     
     @Override

@@ -71,7 +71,7 @@ public class DtmfConverterTest {
         scheduler.setClock(clock);
         scheduler.start();
         
-        dtmfConverter = new DtmfConverter(scheduler, rtpClock);
+        dtmfConverter = new DtmfConverter(scheduler, rtpClock, 1);
         
         packets[0].wrap(true, 101, 1, 160, 1, event1, 0, 4);
         packets[1].wrap(false, 101, 2, 160, 1, event2, 0, 4);
