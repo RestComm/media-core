@@ -122,7 +122,8 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	private DatagramSocket socket;
 
 	private long delay = 20;
-
+	private long threshold = delay/4;
+	
 	public void printStats() {
 		System.out.println("localTransactions size = " + localTransactions.size());
 		System.out.println("remoteTxToLocalTxMap size = " + remoteTxToLocalTxMap.size());
@@ -338,10 +339,8 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 					length = this.receiveBuffer.limit();
 					
 					if (length != 0) {
-						receiveBuffer.get(b, 0, length);
-
 						PacketRepresentation pr = this.prFactory.allocate();
-						pr.setRawData(b);
+						receiveBuffer.get(pr.getRawData(), 0, length);
 						pr.setLength(length);
 						pr.setRemoteAddress(address.getAddress());
 						pr.setRemotePort(address.getPort());
@@ -359,7 +358,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 				latency = delay - drift;
 
-				if (latency >= 5) {
+				if (latency >= threshold) {
 					try {
 						Thread.currentThread().sleep(latency);
 					} catch (InterruptedException e) {
@@ -453,5 +452,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	// Set the number of Transactions per second
 	public void setTransactionRate(int rate) {
 		delay = (1000 / rate);
+		threshold = delay/4;
 	}
 }

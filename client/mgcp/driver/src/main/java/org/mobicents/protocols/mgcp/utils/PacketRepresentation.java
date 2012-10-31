@@ -59,10 +59,6 @@ public class PacketRepresentation {
 		return rawData;
 	}
 
-	public void setRawData(byte[] rawData) {
-		this.rawData = rawData;
-	}
-
 	public int getLength() {
 		return this.length;
 	}
