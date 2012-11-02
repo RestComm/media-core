@@ -379,7 +379,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				
 				if (drift <= threshold) {
 					try {
-						Thread.currentThread().sleep(delay);
+						Thread.currentThread().sleep(latency);
 					} catch (InterruptedException e) {
 						return;
 					}
