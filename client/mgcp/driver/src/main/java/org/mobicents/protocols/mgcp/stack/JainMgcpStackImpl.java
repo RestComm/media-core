@@ -68,6 +68,7 @@ import org.mobicents.protocols.mgcp.utils.PacketRepresentationFactory;
  * 
  * @author Oleg Kulikov
  * @author Pavel Mitrenko
+ * @author Yulian Oifa
  */
 public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
@@ -118,11 +119,17 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 	private ConcurrentHashMap<Integer, TransactionHandler> completedTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
 
+	private ConcurrentLinkedList<PacketRepresentation> waitingQueue=new ConcurrentLinkedList<PacketRepresentation>();
+	
 	protected MessageHandler messageHandler = null;
 	private DatagramSocket socket;
 
-	private long delay = 20;
-	private long threshold = delay/4;
+	private long delay = 4;
+	private long threshold = 2;
+	
+	private int parserThreadPoolSize = 2;
+
+	private ParserThread[] parserThreads;
 	
 	public void printStats() {
 		System.out.println("localTransactions size = " + localTransactions.size());
@@ -179,6 +186,11 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 		this.messageHandler = new MessageHandler(this);
 		this.setPriority(this.messageReaderThreadPriority);
+		
+		parserThreads=new ParserThread[this.parserThreadPoolSize];
+		for(int i=0;i<parserThreads.length;i++)
+			parserThreads[i]=new ParserThread();
+		
 		// So stack does not die
 		this.setDaemon(false);
 		start();
@@ -200,10 +212,15 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 			val = props.getProperty(_MESSAGE_READER_THREAD_PRIORITY, "" + this.messageReaderThreadPriority);
 			this.messageReaderThreadPriority = Integer.parseInt(val);
+			val = props.getProperty(_EXECUTOR_QUEUE_SIZE, "" + this.parserThreadPoolSize);
+			this.parserThreadPoolSize = Integer.parseInt(val);			
 			val = null;
 
 			logger.info(this.propertiesFileName + " read successfully! \nmessageReaderThreadPriority = "
 					+ this.messageReaderThreadPriority);
+			
+			logger.info(this.propertiesFileName + " read successfully! \nexecutorQueueSize = "
+					+ this.parserThreadPoolSize);
 
 		} catch (Exception e) {
 			logger.warn("Failed to read properties file due to some error \"" + e.getMessage() + "\", using defualt values!!!!");
@@ -326,7 +343,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		long finish = 0;
 		long drift = 0;
 		long latency = 0;
-
+		for(int i=0;i<this.parserThreads.length;i++)
+			this.parserThreads[i].activate();
+		
 		while (!stopped) {
 
 			start = System.currentTimeMillis();
@@ -345,7 +364,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 						pr.setRemoteAddress(address.getAddress());
 						pr.setRemotePort(address.getPort());
 
-						messageHandler.scheduleMessages(pr);
+						waitingQueue.offer(pr);						
 					}
 				} while (this.address != null);
 
@@ -354,13 +373,13 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				
 				finish = System.currentTimeMillis();
 
-				drift = (finish - start);
+				drift = finish - start;
 
 				latency = delay - drift;
-
-				if (latency >= threshold) {
+				
+				if (drift <= threshold) {
 					try {
-						Thread.currentThread().sleep(latency);
+						Thread.currentThread().sleep(delay);
 					} catch (InterruptedException e) {
 						return;
 					}
@@ -390,6 +409,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 		}
 
+		for(int i=0;i<this.parserThreads.length;i++)
+			this.parserThreads[i].shutdown();
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("MGCP stack stopped gracefully on" + this.localAddress + ":" + this.port);
 		}
@@ -449,9 +471,25 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 	}
 
-	// Set the number of Transactions per second
-	public void setTransactionRate(int rate) {
-		delay = (1000 / rate);
-		threshold = delay/4;
+	private class ParserThread extends Thread
+	{
+		private volatile boolean active;
+        
+    	public void run() {
+    		while(active)
+    			messageHandler.scheduleMessages(waitingQueue.take());    		
+    	}
+    	
+    	public void activate() {        	        	
+        	this.active = true;
+        	this.start();
+        }
+    	
+    	/**
+         * Terminates thread.
+         */
+        private void shutdown() {
+            this.active = false;
+        }
 	}
 }
