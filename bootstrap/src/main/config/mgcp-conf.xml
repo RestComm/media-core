@@ -19,8 +19,8 @@
         </package>        
         
         <package name="T">
-            <signal name="c01" handler="org.mobicents.media.server.mgcp.pkg.trunk.Continuity1"/>
-            <signal name="c02" handler="org.mobicents.media.server.mgcp.pkg.trunk.Continuity2"/>
+            <signal name="co1" handler="org.mobicents.media.server.mgcp.pkg.trunk.Continuity1"/>
+            <signal name="co2" handler="org.mobicents.media.server.mgcp.pkg.trunk.Continuity2"/>
             <signal name="lp" handler="org.mobicents.media.server.mgcp.pkg.trunk.Loopback"/>
             <signal name="ct" handler="org.mobicents.media.server.mgcp.pkg.trunk.ContinuityTransporder"/>
         </package>
@@ -47,7 +47,7 @@
 
     <!-- Mapping packages to endpoints -->
     <endpoints>
-        <endpoint local-name="mobicents/aap/$" packages="A,AU,D"/>
+        <endpoint local-name="mobicents/aap/$" packages="A"/>
         <endpoint local-name="mobicents/ivr/$" packages="A,AU,D"/>
         <endpoint local-name="mobicents/ds0/$" packages="T"/>
     </endpoints>

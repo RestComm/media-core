@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>mgcp</artifactId>
-        <version>3.0.0.CR1</version>
+        <version>3.0.0.FINAL</version>
     </parent>
 
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>mgcp-driver</artifactId>
-        <version>3.0.0.CR1</version>
+        <version>3.0.0.FINAL</version>
         <name>Mobicents MGCP Impl</name>
         <url>http://www.mobicents.org/products_media_server.html</url>
 
@@ -47,6 +47,17 @@
 			</roles>
 			<timezone>+1</timezone>
 		</developer>
+		<developer>
+                        <id>yulian</id>
+                        <name>Yulian Oifa</name>
+                        <email>oifa.yulian@gmail.com</email>
+                        <organization>Sipme LTD</organization>
+                        <organizationUrl>http://www.sipme.me/</organizationUrl>
+                        <roles>
+                                <role>Active Developer</role>
+                        </roles>
+                        <timezone>+2</timezone>
+                </developer>
 	</developers>
 	<licenses>
 		<license>

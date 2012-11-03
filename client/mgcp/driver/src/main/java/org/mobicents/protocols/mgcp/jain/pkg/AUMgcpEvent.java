@@ -45,30 +45,26 @@ public class AUMgcpEvent {
 	 */
 	
 	
-	 public static final int PLAY_ANNOUNCEMENT = 200;
-	 public static final MgcpEvent aupa = MgcpEvent.factory("aupa",PLAY_ANNOUNCEMENT);
-	 
+	 public static final MgcpEvent aupa = MgcpEvent.pa;	 
 	 
 	 public static final int PLAY_COLLECT = 201;
-	 public static final MgcpEvent aupc = MgcpEvent.factory("aupc", PLAY_COLLECT);
+	 public static final MgcpEvent aupc = MgcpEvent.factory("pc", PLAY_COLLECT);
 	 
 
 	 public static final int PLAY_RECORD = 202;
-	 public static final MgcpEvent aupr = MgcpEvent.factory("aupr",PLAY_RECORD);
+	 public static final MgcpEvent aupr = MgcpEvent.factory("pr",PLAY_RECORD);
 	 
 	 public static final int END_SIGNAL = 203;
-	 public static final MgcpEvent aues = MgcpEvent.factory("aues",END_SIGNAL);
+	 public static final MgcpEvent aues = MgcpEvent.factory("es",END_SIGNAL);
 	 
-	 public static final int OPERATION_COMPLETE = 204;
-	 public static final MgcpEvent auoc = MgcpEvent.factory("auoc", OPERATION_COMPLETE);
+	 public static final MgcpEvent auoc = MgcpEvent.oc;
 	 
-	 public static final int OPERATION_FAIL = 205;
-	 public static final MgcpEvent auof = MgcpEvent.factory("auof", OPERATION_FAIL);
+	 public static final MgcpEvent auof = MgcpEvent.of;
 	 
 	 
 	public static void main(String args[]){
 		System.out.println("rfc2897pa = "+ aupa.toString());
-		System.out.println("PLAY_ANNOUNCEMENT = "+ PLAY_ANNOUNCEMENT);
+		System.out.println("PLAY_ANNOUNCEMENT = "+ MgcpEvent.PLAY_AN_ANNOUNCEMENT);
 		
 		
 		System.out.println("rfc2897pc = "+ aupc.toString());
@@ -76,7 +72,7 @@ public class AUMgcpEvent {
 		
 		
 		System.out.println("rfc2897of = "+ auof.toString());
-		System.out.println("OPERATION_FAIL = "+ OPERATION_FAIL);
+		System.out.println("OPERATION_FAIL = "+ MgcpEvent.REPORT_FAILURE);
 		
 		
 	}

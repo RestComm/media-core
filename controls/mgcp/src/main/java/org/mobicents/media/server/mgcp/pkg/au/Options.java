@@ -49,7 +49,7 @@ public class Options {
     private final static Text ns = new Text("ns");
     private final static Text fa = new Text("fa");
     private final static Text sa = new Text("sa");
-    private final static Text prt = new Text("pst");
+    private final static Text prt = new Text("prt");
     private final static Text pst = new Text("pst");
     private final static Text cb = new Text("cb");
     private final static Text fdt= new Text("fdt");
@@ -144,105 +144,234 @@ public class Options {
         }
         
         Collection<Text> params = options.split(' ');
+        int count;
         
         for (Text param : params) {
             param.trim();            
-            param.divide('=', parameter);
+            count=param.divide('=', parameter);
             
-            
-            if (name.equals(ann)) {
-                this.segments = value.split(';');
-            } else if (name.equals(du)) {
-                this.duration = value.toInteger();
-            } else if (name.equals(of)) {
-                this.offset = value.toInteger();
-            } else if (name.equals(it)) {
-                this.repeatCount = value.toInteger();
-            } else if (name.equals(iv)) {
-                this.interval = value.toInteger();
-            } else if (name.equals(ip)) {
-            	this.prompt = value.split(';');
-                this.isPrompt = true;
-            } else if (name.equals(rp)) {
-            	this.reprompt = value.split(';');
-                this.isReprompt = true;
-            } else if (name.equals(dpa)) {
-            	this.deletePersistentAudio = value.split(';');
-            	this.isDeletePersistentAudio = true;                
-            } else if (name.equals(nd)) {
-            	this.noDigitsReprompt = value.split(';');
-            	this.isNoDigitsReprompt = true;                
-            } else if (name.equals(ns)) {
-            	this.noSpeechReprompt = value.split(';');
-            	this.isNoSpeechReprompt = true;                
-            } else if (name.equals(fa)) {
-            	this.failureAnnouncement = value.split(';');
-            	this.isFailureAnnouncement = true;                
-            } else if (name.equals(sa)) {
-            	this.successAnnouncement = value.split(';');
-            	this.isSuccessAnnouncement = true;                
-            } else if (name.equals(mn)) {
-                this.digitsNumber = value.toInteger();
-            } else if (name.equals(mx)) {
-                this.maxDigitsNumber = value.toInteger();
-            }            
-            else if (name.equals(dp)) {                
-                value.duplicate(digitPattern);
-                digitPatterns = digitPattern.split('|');
-            } else if (name.equals(ni)) {
-                this.nonInterruptable = value.equals(TRUE);
-            } else if (name.equals(ri)) {
-                value.duplicate(recordID);
-            } else if (name.equals(rlt)) {
-                this.recordDuration = value.toInteger() * 1000000L;
-            } else if (name.equals(oa)) {
-                this.override = value.equals(TRUE);
-            } else if (name.equals(pst)) {
-                this.postSpeechTimer = value.toInteger() * 100000000L;
-            } else if (name.equals(prt)) {
-                this.preSpeechTimer = value.toInteger() * 100000000L;
-            } else if (name.equals(fdt)) {
-                this.firstDigitTimer = value.toInteger() * 100000000L;
-            } else if (name.equals(idt)) {
-                this.interDigitTimer = value.toInteger() * 100000000L;
-            } else if (name.equals(x_md)) {
-                this.maxDuration = value.toInteger() * 100000000L;
-            } else if (name.equals(na)) {
-                this.numberOfAttempts = value.toInteger();
-            } else if (name.equals(cb)) {
-                this.clearDigits = value.equals(TRUE);
-            } else if (name.equals(eik) && value.length()==1) {
-                this.endInputKey = value.charAt(0);
-            } else if (name.equals(psk) && value.length()==5) {
-            	tempChar=value.charAt(0);
-            	tempSequence=(Text)value.subSequence(2,5);
-            	if (tempSequence.equals(fst))
-            	{
-            		this.firstKey=tempChar;
-            		this.hasFirstKey=true;
-            	}                
-            	else if (tempSequence.equals(lst))
-            	{
-            		this.lastKey=tempChar;
-            		this.hasLastKey=true;
-            	}
-            	else if (tempSequence.equals(prv))
-                {
-                	this.prevKey=tempChar;
-                	this.hasPrevKey=true;
-                }
-            	else if (tempSequence.equals(nxt))
-                {
-                   	this.nextKey=tempChar;
-                   	this.hasNextKey=true;
-                }
-            	else if (tempSequence.equals(cur))
-                {
-                   	this.currKey=tempChar;
-                   	this.hasCurrKey=true;
-                }
-            } else if (name.equals(iek)) {
-                this.includeEndInput = value.equals(TRUE);
+            if(count==2)
+            {
+	            switch(name.charAt(0))
+	            {
+	            	case 'a':
+	            		if(name.length()==2 && name.charAt(1)=='n')
+	                        this.segments = value.split(';');
+	            		break;
+	            	case 'd':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 'u':
+	            				if (name.length()==2)
+	            					this.duration = value.toInteger();            		            
+	            				break;
+	            			case 'p':
+	            				if (name.length()==2) {                
+	            		            value.duplicate(digitPattern);
+	            		            digitPatterns = digitPattern.split('|');
+	            		        } 
+	            				else if(name.length()==3 && name.charAt(2)=='a') {
+	            		            this.deletePersistentAudio = value.split(';');
+	            		            this.isDeletePersistentAudio = true;                
+	            		        } 
+	            				break;
+	            		}
+	            		break;
+	            	case 'o':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 'f':
+	            				if (name.length()==2)
+	            	                this.offset = value.toInteger();            	            
+	            				break;
+	            			case 'a':
+	            				if (name.length()==2)
+	            					this.override = value.equals(TRUE);            		            
+	            				break;
+	            		}
+	            		break;
+	            	case 'i':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 't':
+	            				if (name.length()==2)
+	            					this.repeatCount = value.toInteger();            		            
+	            				break;
+	            			case 'p':
+	            				if (name.length()==2) {
+	            		            this.prompt = value.split(';');
+	            		            this.isPrompt = true;
+	            		        } 
+	            				break;
+	            			case 'v':
+	            				if (name.length()==2)
+	            					this.interval = value.toInteger();            		            
+	            				break;
+	            			case 'd':
+	            				if(name.length()==3 && name.charAt(2)=='t')
+	            					this.interDigitTimer = value.toInteger() * 100000000L;            		            
+	            				break;
+	            			case 'e':
+	            				if(name.length()==3 && name.charAt(2)=='k')
+	            					this.includeEndInput = value.equals(TRUE);            		            
+	                			break;
+	            		}
+	            		break;
+	            	case 'r':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 'p':
+	            				if (name.length()==2) {
+	            		           	this.reprompt = value.split(';');
+	            		            this.isReprompt = true;
+	            		        } 
+	            				break;
+	            			case 'i':
+	            				if (name.length()==2)
+	            					value.duplicate(recordID);            		                            		             
+	            				break;
+	            			case 'l':
+	            				if(name.length()==3 && name.charAt(2)=='t')
+	            					this.recordDuration = value.toInteger() * 1000000L;
+	            				break;
+	            		}
+	            		break;
+	            	case 'm':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 'n':
+	            				if (name.length()==2)
+	            					this.digitsNumber = value.toInteger();            		            
+	            				break;
+	            			case 'x':
+	            				if (name.length()==2)
+	            					this.maxDigitsNumber = value.toInteger();
+	            				break;
+	            		}
+	            		break;
+	            	case 'n':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 'i':
+	            				if (name.length()==2)
+	            					this.nonInterruptable = value.equals(TRUE); 
+	            				break;
+	            			case 'd':
+	            				if (name.length()==2) {
+	        		            	this.noDigitsReprompt = value.split(';');
+	        		            	this.isNoDigitsReprompt = true;                
+	        		            } 
+	            				break;
+	            			case 'a':
+	            				if (name.length()==2)
+	            					this.numberOfAttempts = value.toInteger();            		            
+	            					break;
+	            			case 's':
+	            				if (name.length()==2) {
+	        		            	this.noSpeechReprompt = value.split(';');
+	        		            	this.isNoSpeechReprompt = true;                
+	        		            } 
+	            				break;            			
+	            		}
+	            		break;
+	            	case 'f':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 'a':
+	            				if (name.length()==2) {
+	            					this.failureAnnouncement = value.split(';');
+	            					this.isFailureAnnouncement = true;                
+	            				}
+	            				break;
+	            			case 'd':
+	            				if(name.length()==3 && name.charAt(2)=='t')
+	            					this.firstDigitTimer = value.toInteger() * 100000000L;            		            
+	            				break;
+	            		}
+	            		break;
+	            	case 's':
+	            		if(name.length()==2 && name.charAt(1)=='a') {
+	            			this.successAnnouncement = value.split(';');
+	                    	this.isSuccessAnnouncement = true;                
+	                    } 
+	            		break;
+	            	case 'p':
+	            		switch(name.charAt(1))
+	            		{
+	            			case 's':
+	            				switch(name.charAt(2))
+	                    		{
+	            					case 't':
+	            						if(name.length()==3)
+	            			                this.postSpeechTimer = value.toInteger() * 100000000L; 
+	            						break;
+	            					case 'k':
+	            						if(name.length()==3 && value.length()==5) {
+	            							tempChar=value.charAt(0);
+	            			            	tempSequence=(Text)value.subSequence(2,5);
+	            			            	switch(tempSequence.charAt(0))
+	            			            	{
+	            			            		case 'f':
+	            			            			if (tempSequence.equals(fst))
+	                    			            	{
+	                    			            		this.firstKey=tempChar;
+	                    			            		this.hasFirstKey=true;
+	                    			            	}   
+	            			            			break;
+	            			            		case 'l':
+	            			            			if (tempSequence.equals(lst))
+	                    			            	{
+	                    			            		this.lastKey=tempChar;
+	                    			            		this.hasLastKey=true;
+	                    			            	}
+	            			            			break;
+	            			            		case 'n':
+	            			            			if (tempSequence.equals(nxt))
+	                    			                {
+	                    			                   	this.nextKey=tempChar;
+	                    			                   	this.hasNextKey=true;
+	                    			                }
+	            			            			break;
+	            			            		case 'c':
+	            			            			if (tempSequence.equals(cur))
+	                    			                {
+	                    			                   	this.currKey=tempChar;
+	                    			                   	this.hasCurrKey=true;
+	                    			                }
+	            			            			break;
+	            			            		case 'p':
+	            			            			if (tempSequence.equals(prv))
+	                    			                {
+	                    			                	this.prevKey=tempChar;
+	                    			                	this.hasPrevKey=true;
+	                    			                }
+	            			            			break;
+	            			            	}            			            	 
+	            						}
+	            						break;
+	                    		}
+	            			break;
+	            			case 'r':
+	            				if(name.length()==3 && name.charAt(2)=='t')
+	            					this.preSpeechTimer = value.toInteger() * 100000000L;            		            
+	            				break;
+	            		}
+	            		break;
+	            	case 'c':
+	            		if(name.length()==2 && name.charAt(1)=='b')
+	                        this.clearDigits = value.equals(TRUE);                    
+	            		break;
+	            	case 'e':
+	            		if (name.equals(eik) && value.length()==1)
+	                        this.endInputKey = value.charAt(0);                    
+	            		break;
+	            	case 'l':
+	            		break;
+	            	case 'x':
+	            		if (name.equals(x_md))
+	                        this.maxDuration = value.toInteger() * 100000000L;                    
+	            		break;
+	            }  
             }
         }
     }

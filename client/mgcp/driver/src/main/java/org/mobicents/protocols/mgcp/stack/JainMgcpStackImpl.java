@@ -477,7 +477,15 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
         
     	public void run() {
     		while(active)
-    			messageHandler.scheduleMessages(waitingQueue.take());    		
+    			try {
+    				messageHandler.scheduleMessages(waitingQueue.take());
+    			}
+    			catch(Exception e)
+    			{
+    				//catch everything, so worker wont die.
+    				if(logger.isEnabledFor(Level.ERROR))
+    					logger.error("Unexpected exception occured:", e);    				    		
+    			}
     	}
     	
     	public void activate() {        	        	

@@ -4,7 +4,7 @@
 	<parent>
   	   <groupId>org.mobicents.media.client</groupId>
 	   <artifactId>client</artifactId>
-	   <version>3.0.0.CR1</version>
+	   <version>3.0.0.FINAL</version>
 	</parent>
 	
 	<groupId>org.mobicents.media.client</groupId>

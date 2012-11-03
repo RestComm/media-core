@@ -142,6 +142,7 @@ public class MgcpResponse extends MgcpMessage {
         //parameters
         count = 0;
         
+        int subItemsCount;        
         while (msg.hasMoreLines()) {
             if (sdpDetected) {
                 sdp = new Text();
@@ -158,10 +159,12 @@ public class MgcpResponse extends MgcpMessage {
                 continue;
             }
             
-            line.divide(':', parameters.get(count).param);
-            parameters.get(count).trim();
-            
-            count++;
+            subItemsCount=line.divide(':', parameters.get(count).param);
+            if(subItemsCount==2)
+            {
+            	parameters.get(count).trim();            
+            	count++;
+            }
         }        
     }
 

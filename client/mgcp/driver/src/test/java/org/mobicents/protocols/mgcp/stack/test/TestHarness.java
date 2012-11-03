@@ -126,7 +126,7 @@ public class TestHarness extends TestCase {
 	}
 
 	public TestHarness(String name) {
-		this(name, false); // default: disable auto-dialog
+		this(name, false); // default: disable auto-dialog		
 	}
 
 	protected TestHarness(String name, boolean autoDialog) {

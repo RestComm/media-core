@@ -53,8 +53,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Continuity1 extends Signal implements ToneDetectorListener {    
 	private Event of = new Event(new Text("of"));
 	private Event oc = new Event(new Text("oc"));
-	private Event co1 = new Event(new Text("c01"));
-	private Event co2 = new Event(new Text("c02"));
+	private Event co1 = new Event(new Text("co1"));
+	private Event co2 = new Event(new Text("co2"));
 	
     private volatile Options options;
     
@@ -66,7 +66,7 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     
     private Scheduler scheduler;
 	
-    public static final Text[] toneOptions={new Text("c01"),new Text("c02")};
+    public static final Text[] toneOptions={new Text("co1"),new Text("co2")};
     public static final int[] toneValues={2010,1780};
     
     public Continuity1(String name) {

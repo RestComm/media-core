@@ -27,7 +27,7 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Represents local connection options parameter
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class LocalConnectionOptions {
     public final static Text CODECS = new Text("a");
@@ -75,35 +75,62 @@ public class LocalConnectionOptions {
         }
         
         this.isValid = true;        
-        
+        int count;
         Collection<Text> tokens = text.split(',');
         for (Text token: tokens) {
-            token.divide(':', option);
+        	count=token.divide(':', option);
             
-            if (keyword.equals(CODECS)) {
-                value.copy(this.codecs);
-            } else if (keyword.equals(BANDWIDTH)) {
-                value.copy(this.bandwidth);
-            } else if (keyword.equals(PACKETIZATION_PERIOD)) {
-                value.copy(this.packetizationPeriod);
-            } else if (keyword.equals(TYPE_OF_SERVICE)) {
-                value.copy(this.typeOfService);
-            } else if (keyword.equals(ECHO_CANCELATION)) {
-                value.copy(this.echoCancelation);
-            } else if (keyword.equals(GAIN_CONTROL)) {
-                value.copy(this.gain);
-            } else if (keyword.equals(SILENCE_SUPPRESSION)) {
-                value.copy(this.silenceSuppression);
-            } else if (keyword.equals(RESOURCE_RESERVATION)) {
-                value.copy(this.resourceReservation);
-            } else if (keyword.equals(ENCRYPTION_KEY)) {
-                value.copy(this.encryptionKey);
-            } else if (keyword.equals(DTMF_CLAMP)) {
-            	value.copy(this.dtmfclamp);
-            } else if (keyword.equals(TYPE_OF_NETWORK)) {
-            	if(value.equals(LOCAL_NETWORK))
-            		isLocal=true;
-            }
+            if(count==2)
+            {
+            	switch(keyword.charAt(0))
+                {
+            		case 'a':
+            			if(keyword.length()==1)
+            				value.copy(this.codecs);            		
+            			break;
+            		case 'b':
+            			if(keyword.length()==1)
+            				value.copy(this.bandwidth);
+            			break;
+            		case 'p':
+            			if(keyword.length()==1)
+            				value.copy(this.packetizationPeriod);
+            			break;
+            		case 't':
+            			if(keyword.length()==1)
+            				value.copy(this.typeOfService);
+            			break;
+            		case 'e':
+            			if(keyword.length()==1)
+            				value.copy(this.echoCancelation);
+            			break;
+            		case 's':
+            			if(keyword.length()==1)
+            				value.copy(this.silenceSuppression);
+            			break;
+            		case 'r':
+            			if(keyword.length()==1)
+            				value.copy(this.resourceReservation);
+            			break;
+            		case 'k':
+            			if(keyword.length()==1)
+            				value.copy(this.encryptionKey);
+            			break;
+            		case 'g':
+            			if(keyword.length()==2 && keyword.charAt(1)=='c')
+            				value.copy(this.gain);			            				
+            			break;
+            		case 'n':
+            			if(keyword.length()==2 && keyword.charAt(1)=='t')
+            				if(value.equals(LOCAL_NETWORK))
+                        		isLocal=true;
+                		break;
+            		case 'x':
+            			if (keyword.equals(DTMF_CLAMP))
+                        	value.copy(this.dtmfclamp);                        
+            			break;
+                }	
+            }                        
         }
     }
     

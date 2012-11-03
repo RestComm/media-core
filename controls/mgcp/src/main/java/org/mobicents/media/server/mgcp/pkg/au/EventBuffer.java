@@ -31,14 +31,14 @@ import org.mobicents.media.server.utils.Text;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class EventBuffer implements DtmfDetectorListener {
     //string representation of queue;
     private String sequence = "";
     
     //patterns for even detection
-    private Collection<Text> patterns;
+    private String[] patterns=new String[0];	
     
     //the number of events to detect.
     private int count;
@@ -93,7 +93,23 @@ public class EventBuffer implements DtmfDetectorListener {
     }
     
     public void setPatterns(Collection<Text> patterns) {
-        this.patterns = patterns;
+    	if(patterns==null)
+    	{
+    		this.patterns=new String[0];
+    		return;
+    	}
+    	
+    	this.patterns=new String[patterns.size()];
+    	int i = 0;            
+        for (Text pattern : patterns) {
+        	this.patterns[i]=pattern.toString();
+        	//replacing to comply with Megaco digitMap
+        	this.patterns[i]=this.patterns[i].replace(".", "+");
+        	this.patterns[i]=this.patterns[i].replace("x", "\\d");
+        	this.patterns[i]=this.patterns[i].replace("*", "\\*");
+        	i++;
+        }
+        
         this.sequence = "";
     }
     
@@ -126,22 +142,16 @@ public class EventBuffer implements DtmfDetectorListener {
         boolean sequenceFound=false;
         
         //check pattern matching for the entire sequence
-        if (patterns != null && sequence.length() > 0) {
-            int i = 0;            
-            for (Text pattern : patterns) {
-                //TODO: replace strings with text
-                if (sequence.matches(pattern.toString()) || tone.matches(pattern.toString()))
-                {
-                	listener.patternMatches(i, sequence);
-                	
-                	//count = -1;
-                	sequence = "";
-                	sequenceFound=true;
-                	break;
-                }                
-                
-                i++;
-            }
+        for (int i = 0;i<patterns.length;i++) {
+            if (sequence.matches(patterns[i]) || tone.matches(patterns[i]))
+            {
+            	listener.patternMatches(i, sequence);
+            	
+            	//count = -1;
+            	sequence = "";
+            	sequenceFound=true;
+            	break;
+            }                
         }
         
         //check the amount of detected event and notify listener

@@ -63,7 +63,7 @@ public class ContinuityTransporder extends Signal implements ToneDetectorListene
     private final static Logger logger = Logger.getLogger(ContinuityTransporder.class);    
     private Heartbeat heartbeat;
     
-    public static final Text[] toneOptions={new Text("c01"),new Text("c02")};
+    public static final Text[] toneOptions={new Text("co1"),new Text("co2")};
     public static final int[] toneValues={2010,1780};
     
     private Scheduler scheduler;
@@ -165,7 +165,7 @@ public class ContinuityTransporder extends Signal implements ToneDetectorListene
     		}    	
     	    	
     	if(!found) {
-            of.fire(this, new Text("t/c01"));
+            of.fire(this, new Text("t/co1"));
             complete();
             return;
         } 
@@ -226,7 +226,7 @@ public class ContinuityTransporder extends Signal implements ToneDetectorListene
     		}
     	
     	if(!found) {
-            of.fire(this, new Text("t/c02"));
+            of.fire(this, new Text("t/co2"));
             complete();
             return;
         }

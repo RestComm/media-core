@@ -58,23 +58,36 @@ public class Options {
         }
         
         Collection<Text> params = options.split(' ');
-        
+        int count;
         for (Text param : params) {
             param.trim();            
-            param.divide('=', parameter);
+            count=param.divide('=', parameter);
             
-            
-            if (name.equals(in)) {
-                this.inTone = value;
-            } else if (name.equals(out)) {
-                this.outTone = value;
-            } else if (name.equals(plus)) {
-                this.shouldActivate = true;
-                this.shouldDeactivate=false;
-            } else if (name.equals(minus)) {
-            	this.shouldActivate = false;
-                this.shouldDeactivate=true;
-            }
+            switch(name.charAt(0))
+            {
+            	case 'i':
+            		if (name.equals(in) && count==2) 
+            			this.inTone = value;
+            		break;
+            	case 'o':
+            		if (name.equals(out) && count==2)
+            			this.outTone = value;	
+            		break;
+            	case '+':
+            		if(name.length()==1)
+            		{
+            			this.shouldActivate = true;
+                        this.shouldDeactivate=false;
+            		}
+            		break;
+            	case '-':
+            		if(name.length()==1)
+            		{
+            			this.shouldActivate = false;
+                        this.shouldDeactivate=true;
+            		}
+            		break;            			
+            }            
         }
     }
 

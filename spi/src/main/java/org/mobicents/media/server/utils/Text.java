@@ -198,8 +198,11 @@ public class Text implements CharSequence {
             pointer++;
         }
         
-        parts[count].strain(chars, mark, limit - mark);
-        count++;
+        if(limit > mark)
+        {
+        	parts[count].strain(chars, mark, limit - mark);
+        	count++;
+        }
         
         return count;
     }
@@ -265,6 +268,45 @@ public class Text implements CharSequence {
         return tokens;
     }
 
+    /**
+     * Splits text into partitions.
+     * 
+     * @param separator character used for partitioning
+     * @return array of text strings.
+     */
+    public Collection<Text> split(Text separator) {
+    	ArrayList<Text> tokens = new ArrayList();
+    	int pointer = pos;
+        int limit = pos + len;
+        int mark = pointer;
+        
+        if(separator.length()==0)
+    	{
+        	tokens.add(new Text(chars, mark, pointer - mark));
+    		return tokens;
+    	}
+    	
+        int index=0;
+        while (pointer < limit) {
+            if (chars[pointer] == separator.charAt(index))
+                index++;
+            else 
+            	index=0;
+                        
+            if(index==separator.length())
+            {
+            	tokens.add(new Text(chars, mark, pointer - mark));
+                mark = pointer + 1;
+                index=0;
+            }
+            
+            pointer++;                    
+        }
+        
+        tokens.add(new Text(chars, mark, limit - mark));        
+        return tokens;
+    }
+    
     /**
      * Removes whitespace from the head and tail of the string.
      * 

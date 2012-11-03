@@ -407,7 +407,7 @@ public class ParserTest extends TestHarness {
 		assertEquals(text, encodedText);
 		
 		//Test 7
-		text = "AU/aupr";
+		text = "AU/pr";
 		eventName = parser.decodeEventName(text, "ip=22 ns=42 na=2");
 		
 		packageName = eventName.getPackageName();

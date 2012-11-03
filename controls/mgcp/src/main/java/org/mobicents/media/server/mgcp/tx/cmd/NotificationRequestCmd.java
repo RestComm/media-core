@@ -42,11 +42,12 @@ import org.mobicents.media.server.utils.Text;
 import org.apache.log4j.Logger;
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class NotificationRequestCmd extends Action {
 	private final static Text SUCCESS= new Text("Success");
-    
+	private final static Text eventsSplit= new Text("),");
+	
     private MgcpRequest request;
 
     private MgcpEndpoint endpoint;
@@ -138,11 +139,11 @@ public class NotificationRequestCmd extends Action {
             Collection<Text> signals = null;
             
             if (pe != null) {
-                events = pe.getValue().split(',');
+                events = pe.getValue().split(eventsSplit);
             }
             
             if (ps != null) {
-                signals = ps.getValue().split(',');
+                signals = ps.getValue().split(eventsSplit);
             }
             
             if (pe != null || ps != null) {
