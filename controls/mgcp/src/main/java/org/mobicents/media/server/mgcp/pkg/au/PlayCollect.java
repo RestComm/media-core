@@ -97,6 +97,8 @@ public class PlayCollect extends Signal {
     
     private Scheduler scheduler;
     
+    private Boolean listenerAdded=false;
+    
     public PlayCollect(String name) {
         super(name);
         oc.add(new NotifyImmediately("N"));
@@ -255,7 +257,12 @@ public class PlayCollect extends Signal {
         try {
         	//attach local buffer to DTMF detector
             //but do not flush
-        	dtmfDetector.addListener(buffer);
+        	if(!listenerAdded)
+        	{
+        		dtmfDetector.addListener(buffer);
+        		listenerAdded=true;
+        	}
+        	
             dtmfDetector.flushBuffer();            
         } catch (TooManyListenersException e) {
             of.fire(this, new Text("Too many listeners for DTMF detector"));
@@ -290,6 +297,7 @@ public class PlayCollect extends Signal {
     private void terminateCollectPhase() {
         if (dtmfDetector != null) {
             dtmfDetector.removeListener(buffer);
+            listenerAdded=false;
             
            //dtmfDetector.clearDigits();
             
@@ -862,7 +870,10 @@ public class PlayCollect extends Signal {
         		}        		        		        	
         	}
         	else
+        	{
+        		buffer.reset();
         		decreaseNa();
+        	}
         	
         	return 0;        	
         }

@@ -121,7 +121,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 	private ConcurrentLinkedList<PacketRepresentation> waitingQueue=new ConcurrentLinkedList<PacketRepresentation>();
 	
-	protected MessageHandler messageHandler = null;
 	private DatagramSocket socket;
 
 	private long delay = 4;
@@ -184,12 +183,11 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 		this.prFactory = new PacketRepresentationFactory(50, BUFFER_SIZE);
 
-		this.messageHandler = new MessageHandler(this);
 		this.setPriority(this.messageReaderThreadPriority);
 		
 		parserThreads=new ParserThread[this.parserThreadPoolSize];
 		for(int i=0;i<parserThreads.length;i++)
-			parserThreads[i]=new ParserThread();
+			parserThreads[i]=new ParserThread(this);
 		
 		// So stack does not die
 		this.setDaemon(false);
@@ -474,7 +472,15 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	private class ParserThread extends Thread
 	{
 		private volatile boolean active;
-        
+        private JainMgcpStackImpl stack;
+        protected MessageHandler messageHandler = null;
+    	
+		public ParserThread(JainMgcpStackImpl stack)
+		{
+			this.stack=stack;
+			messageHandler=new MessageHandler(stack);
+		}
+		
     	public void run() {
     		while(active)
     			try {
