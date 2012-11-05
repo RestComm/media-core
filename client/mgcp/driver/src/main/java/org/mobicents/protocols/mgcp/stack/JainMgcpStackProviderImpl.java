@@ -53,6 +53,7 @@ import java.util.TooManyListenersException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
@@ -75,13 +76,27 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 
 	protected NotifiedEntity notifiedEntity = null;
 
+	private ConcurrentLinkedList<EventWrapper> waitingQueue=new ConcurrentLinkedList<EventWrapper>();
+		
+	private DispatcherThread dispatcher;
 	public JainMgcpStackProviderImpl(JainMgcpStackImpl runningStack) {
 		super();
 		// eventQueue = new QueuedExecutor();
 		// pool = Executors.newCachedThreadPool(new ThreadFactoryImpl());
 		this.runningStack = runningStack;
+		dispatcher=new DispatcherThread();
 	}
 
+	protected void start()
+	{
+		dispatcher.activate();
+	}
+	
+	protected void stop()
+	{
+		dispatcher.shutdown();
+	}
+	
 	public void setNotifiedEntity(NotifiedEntity notifiedEntity) {
 		this.notifiedEntity = notifiedEntity;
 	}
@@ -248,94 +263,19 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 	}
 
 	public void processMgcpResponseEvent(JainMgcpResponseEvent response, JainMgcpEvent command) {
-		synchronized (this.jainListeners) {
-			for (JainMgcpListener listener : this.jainListeners) {
-				listener.processMgcpResponseEvent(response);
-			}
-		}
-
-		synchronized (this.jainMobicentsListeners) {
-			for (JainMgcpListener listener : this.jainMobicentsListeners) {
-				listener.processMgcpResponseEvent(response);
-			}
-		}
-
+		waitingQueue.offer(new EventWrapper(response,EventWrapper.response));				
 	}
 
 	public void processMgcpCommandEvent(JainMgcpCommandEvent command) {
-		synchronized (this.jainListeners) {
-			for (JainMgcpListener listener : this.jainListeners) {
-				listener.processMgcpCommandEvent(command);
-			}
-		}
-
-		synchronized (this.jainMobicentsListeners) {
-			for (JainMgcpListener listener : this.jainMobicentsListeners) {
-				listener.processMgcpCommandEvent(command);
-			}
-		}
+		waitingQueue.offer(new EventWrapper(command,EventWrapper.request));		
 	}
 
 	public void processTxTimeout(JainMgcpCommandEvent command) {
-		// notify RA
-		// ra.processTxTimeout(command);
-		synchronized (this.jainMobicentsListeners) {
-			for (JainMgcpExtendedListener listener : this.jainMobicentsListeners) {
-				listener.transactionTxTimedOut(command);
-			}
-		}
+		waitingQueue.offer(new EventWrapper(command,EventWrapper.txTimeout));		
 	}
 
 	public void processRxTimeout(JainMgcpCommandEvent command) {
-		// notify RA
-		// ra.processRxTimeout(command);
-		synchronized (this.jainMobicentsListeners) {
-			for (JainMgcpExtendedListener listener : this.jainMobicentsListeners) {
-				listener.transactionRxTimedOut(command);
-			}
-		}
-		// reply to server
-		JainMgcpResponseEvent response = null;
-		// FIXME - how to change o return code of transaction timeout?!?
-		switch (command.getObjectIdentifier()) {
-		case Constants.CMD_AUDIT_CONNECTION:
-			response = new AuditConnectionResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_AUDIT_ENDPOINT:
-			response = new AuditEndpointResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_CREATE_CONNECTION:
-			response = new CreateConnectionResponse(this, ReturnCode.Transient_Error, new ConnectionIdentifier(Long
-					.toHexString(new Random(System.currentTimeMillis()).nextLong())));
-			break;
-		case Constants.CMD_DELETE_CONNECTION:
-			response = new DeleteConnectionResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_ENDPOINT_CONFIGURATION:
-			response = new DeleteConnectionResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_MODIFY_CONNECTION:
-			response = new ModifyConnectionResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_NOTIFICATION_REQUEST:
-			response = new NotificationRequestResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_NOTIFY:
-			response = new NotifyResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_RESP_UNKNOWN:
-			// FIXME - what response?!?
-			response = new NotifyResponse(this, ReturnCode.Transient_Error);
-			break;
-		case Constants.CMD_RESTART_IN_PROGRESS:
-			response = new RestartInProgressResponse(this, ReturnCode.Transient_Error);
-			break;
-		default:
-			throw new IllegalArgumentException("Could not send type of the message yet");
-		}
-		response.setTransactionHandle(command.getTransactionHandle());
-		JainMgcpEvent[] events = { response };
-		sendMgcpEvents(events);
+		waitingQueue.offer(new EventWrapper(command,EventWrapper.rxTimeout));		
 	}
 
 	public CallIdentifier getUniqueCallIdentifier() {
@@ -391,4 +331,141 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 		}
 	}
 
+	private class EventWrapper
+	{
+		private static final int request=1;
+		private static final int response=2;
+		private static final int txTimeout=3;
+		private static final int rxTimeout=4;
+		
+		protected Object event;
+		protected int eventType;
+		
+		public EventWrapper(Object event,int eventType)
+		{
+			this.event=event;
+			this.eventType=eventType;
+		}			
+	}
+	
+	private class DispatcherThread extends Thread
+	{
+		private volatile boolean active;
+        JainMgcpCommandEvent command;
+		JainMgcpResponseEvent response;
+		
+		public void run() {
+    		while(active)
+    			try {    				
+    				EventWrapper currEvent=waitingQueue.take();
+    				switch(currEvent.eventType)
+    				{
+    					case EventWrapper.request:
+    						command=(JainMgcpCommandEvent)currEvent.event;
+    						synchronized (jainListeners) {
+    							for (JainMgcpListener listener : jainListeners) {
+    								listener.processMgcpCommandEvent(command);
+    							}
+    						}
+
+    						synchronized (jainMobicentsListeners) {
+    							for (JainMgcpListener listener : jainMobicentsListeners) {
+    								listener.processMgcpCommandEvent(command);
+    							}
+    						}
+    						break;
+    					case EventWrapper.response:
+    						response=(JainMgcpResponseEvent)currEvent.event;
+    						synchronized (jainListeners) {
+    							for (JainMgcpListener listener : jainListeners) {
+    								listener.processMgcpResponseEvent(response);
+    							}
+    						}
+
+    						synchronized (jainMobicentsListeners) {
+    							for (JainMgcpListener listener : jainMobicentsListeners) {
+    								listener.processMgcpResponseEvent(response);
+    							}
+    						}
+    						break;
+    					case EventWrapper.rxTimeout:
+    						command=(JainMgcpCommandEvent)currEvent.event;
+    						synchronized (jainMobicentsListeners) {
+    							for (JainMgcpExtendedListener listener : jainMobicentsListeners) {
+    								listener.transactionRxTimedOut(command);
+    							}
+    						}
+    						// reply to server
+    						response = null;
+    						// FIXME - how to change o return code of transaction timeout?!?
+    						switch (command.getObjectIdentifier()) {
+    						case Constants.CMD_AUDIT_CONNECTION:
+    							response = new AuditConnectionResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_AUDIT_ENDPOINT:
+    							response = new AuditEndpointResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_CREATE_CONNECTION:
+    							response = new CreateConnectionResponse(this, ReturnCode.Transient_Error, new ConnectionIdentifier(Long
+    									.toHexString(new Random(System.currentTimeMillis()).nextLong())));
+    							break;
+    						case Constants.CMD_DELETE_CONNECTION:
+    							response = new DeleteConnectionResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_ENDPOINT_CONFIGURATION:
+    							response = new DeleteConnectionResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_MODIFY_CONNECTION:
+    							response = new ModifyConnectionResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_NOTIFICATION_REQUEST:
+    							response = new NotificationRequestResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_NOTIFY:
+    							response = new NotifyResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_RESP_UNKNOWN:
+    							// FIXME - what response?!?
+    							response = new NotifyResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						case Constants.CMD_RESTART_IN_PROGRESS:
+    							response = new RestartInProgressResponse(this, ReturnCode.Transient_Error);
+    							break;
+    						default:
+    							throw new IllegalArgumentException("Could not send type of the message yet");
+    						}
+    						response.setTransactionHandle(command.getTransactionHandle());
+    						JainMgcpEvent[] events = { response };
+    						sendMgcpEvents(events);
+    						break;
+    					case EventWrapper.txTimeout:
+    						command=(JainMgcpCommandEvent)currEvent.event;
+    						synchronized (jainMobicentsListeners) {
+    							for (JainMgcpExtendedListener listener : jainMobicentsListeners) {
+    								listener.transactionTxTimedOut(command);
+    							}
+    						}
+    						break;
+    				}
+    			}
+    			catch(Exception e)
+    			{
+    				//catch everything, so worker wont die.
+    				if(logger.isEnabledFor(Level.ERROR))
+    					logger.error("Unexpected exception occured:", e);    				    		
+    			}
+    	}    
+		
+		public void activate() {        	        	
+        	this.active = true;
+        	this.start();
+        }
+    	
+    	/**
+         * Terminates thread.
+         */
+        private void shutdown() {
+            this.active = false;
+        }
+	}
 }

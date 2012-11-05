@@ -585,15 +585,19 @@ public class PlayCollect extends Signal {
          */
         public void patternMatches(int index, String s) {
             logger.info(String.format("(%s) Collect phase: pattern has been detected", getEndpoint().getLocalName()));
-            if(options.hasSuccessAnnouncement())
+            String naContent="";
+    		if(options.getNumberOfAttempts()>1)
+    			naContent=" na=" + options.getNumberOfAttempts();
+    		
+    		if(options.hasSuccessAnnouncement())
 			{
-				eventContent=new Text("rc=100 dc=" + s + " pi=" + index);
+				eventContent=new Text("rc=100 dc=" + s + " pi=" + index + naContent);
 				playerMode=PlayerMode.SUCCESS;
 				startPromptPhase(options.getSuccessAnnouncement());				
 			}
 			else
 			{
-				oc.fire(signal, new Text("rc=100 dc=" + s + " pi=" + index));
+				oc.fire(signal, new Text("rc=100 dc=" + s + " pi=" + index + naContent));
 				reset();
 	            complete();
 			}
@@ -606,15 +610,19 @@ public class PlayCollect extends Signal {
          */
         public void countMatches(String s) {
             logger.info(String.format("(%s) Collect phase: max number of digits has been detected", getEndpoint().getLocalName()));
-            if(options.hasSuccessAnnouncement())
+            String naContent="";
+    		if(options.getNumberOfAttempts()>1)
+    			naContent=" na=" + options.getNumberOfAttempts();
+    		
+    		if(options.hasSuccessAnnouncement())
 			{
-				eventContent=new Text("rc=100 dc=" + s);
+				eventContent=new Text("rc=100 dc=" + s + naContent);
 				playerMode=PlayerMode.SUCCESS;
 				startPromptPhase(options.getSuccessAnnouncement());				
 			}
 			else
 			{
-				oc.fire(signal, new Text("rc=100 dc=" + s));
+				oc.fire(signal, new Text("rc=100 dc=" + s + naContent));
 	            reset();
 	            complete();	            				
 			}            
@@ -628,14 +636,18 @@ public class PlayCollect extends Signal {
         public boolean tone(String s) {
         	if(options.getMaxDigitsNumber()>0 && s.charAt(0)==options.getEndInputKey() && buffer.length()>=options.getDigitsNumber())
         	{
+        		String naContent="";
+        		if(options.getNumberOfAttempts()>1)
+        			naContent=" na=" + options.getNumberOfAttempts();
+        		
         		 logger.info(String.format("(%s) End Input Tone '%s' has been detected", getEndpoint().getLocalName(), s));
                  //end input key still not included in sequence
         		 if(options.hasSuccessAnnouncement())
         		 {
         			 if(options.isIncludeEndInputKey())
-        				 eventContent=new Text("rc=100 dc=" + buffer.getSequence() + s);
+        				 eventContent=new Text("rc=100 dc=" + buffer.getSequence() + s + naContent);
         			 else
-        				 eventContent=new Text("rc=100 dc=" + buffer.getSequence());
+        				 eventContent=new Text("rc=100 dc=" + buffer.getSequence() + naContent);
         			 
      				 playerMode=PlayerMode.SUCCESS;
      				 startPromptPhase(options.getSuccessAnnouncement()); 
@@ -643,9 +655,9 @@ public class PlayCollect extends Signal {
         		 else
         		 {
         			 if(options.isIncludeEndInputKey())
-        				 oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence() + s));        			
+        				 oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence() + s + naContent));        			
         			 else
-        				 oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence()));
+        				 oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence() + naContent));
         			 
         			 heartbeat.disable();
             		 reset();
@@ -787,19 +799,23 @@ public class PlayCollect extends Signal {
         	logger.info(String.format("(%s) Timeout expired waiting for dtmf", getEndpoint().getLocalName()));
         	if(numberOfAttempts==1)
         	{
+        		String naContent="";
+        		if(options.getNumberOfAttempts()>1)
+        			naContent=" na=" + options.getNumberOfAttempts();
+        			
         		if(ttlValue==0) {
         			int length=buffer.getSequence().length();
         			if(length>=options.getDigitsNumber())
         			{
         				if(options.hasSuccessAnnouncement())
         				{
-        					eventContent=new Text("rc=100 dc=" + buffer.getSequence());
+        					eventContent=new Text("rc=100 dc=" + buffer.getSequence() + naContent);
         					playerMode=PlayerMode.SUCCESS;
         					startPromptPhase(options.getSuccessAnnouncement());
         				}
         				else
         				{
-        					oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence()));
+        					oc.fire(signal, new Text("rc=100 dc=" + buffer.getSequence() + naContent));
         					reset();
         		            complete();
         				}        					
@@ -808,19 +824,19 @@ public class PlayCollect extends Signal {
         			{
         				if(options.hasNoDigitsReprompt())
         				{
-        					eventContent=new Text("rc=326 dc=" + buffer.getSequence());
+        					eventContent=new Text("rc=326 dc=" + buffer.getSequence() + naContent);
         					playerMode=PlayerMode.FAILURE;
         					startPromptPhase(options.getNoDigitsReprompt());
         				}
         				else if(options.hasFailureAnnouncement())
         				{
-        					eventContent=new Text("rc=326 dc=" + buffer.getSequence());
+        					eventContent=new Text("rc=326 dc=" + buffer.getSequence() + naContent);
         					playerMode=PlayerMode.FAILURE;
         					startPromptPhase(options.getFailureAnnouncement());
         				}
         				else
         				{
-        					oc.fire(signal, new Text("rc=326 dc=" + buffer.getSequence()));
+        					oc.fire(signal, new Text("rc=326 dc=" + buffer.getSequence() + naContent));
         					reset();
         		            complete();
         				}        				
@@ -829,19 +845,19 @@ public class PlayCollect extends Signal {
         			{
         				if(options.hasNoDigitsReprompt())
         				{
-        					eventContent=new Text("rc=326");
+        					eventContent=new Text("rc=326" + naContent);
         					playerMode=PlayerMode.FAILURE;
         					startPromptPhase(options.getNoDigitsReprompt());
         				}
         				else if(options.hasFailureAnnouncement())
         				{
-        					eventContent=new Text("rc=326");
+        					eventContent=new Text("rc=326" + naContent);
         					playerMode=PlayerMode.FAILURE;
         					startPromptPhase(options.getFailureAnnouncement());
         				}
         				else
         				{
-        					oc.fire(signal, new Text("rc=326"));
+        					oc.fire(signal, new Text("rc=326" + naContent));
         					reset();
         		            complete();
         				}        					
@@ -851,19 +867,19 @@ public class PlayCollect extends Signal {
         		{
         			if(options.hasNoDigitsReprompt())
     				{
-    					eventContent=new Text("rc=330");
+    					eventContent=new Text("rc=330" + naContent);
     					playerMode=PlayerMode.FAILURE;
     					startPromptPhase(options.getNoDigitsReprompt());
     				}
     				else if(options.hasFailureAnnouncement())
     				{
-    					eventContent=new Text("rc=330");
+    					eventContent=new Text("rc=330" + naContent);
     					playerMode=PlayerMode.FAILURE;
     					startPromptPhase(options.getFailureAnnouncement());
     				}
     				else
     				{
-    					oc.fire(signal, new Text("rc=330"));
+    					oc.fire(signal, new Text("rc=330" + naContent));
     					reset();
     		            complete();
     				}

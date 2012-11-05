@@ -344,6 +344,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		for(int i=0;i<this.parserThreads.length;i++)
 			this.parserThreads[i].activate();
 		
+		if(this.provider!=null)
+			this.provider.start();
+				
 		while (!stopped) {
 
 			start = System.currentTimeMillis();
@@ -409,6 +412,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 		for(int i=0;i<this.parserThreads.length;i++)
 			this.parserThreads[i].shutdown();
+		
+		if(this.provider!=null)
+			this.provider.stop();
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("MGCP stack stopped gracefully on" + this.localAddress + ":" + this.port);

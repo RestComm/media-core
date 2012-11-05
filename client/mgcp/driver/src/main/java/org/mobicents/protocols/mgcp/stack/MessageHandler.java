@@ -50,6 +50,7 @@ import org.mobicents.protocols.mgcp.utils.PacketRepresentation;
 /**
  * 
  * @author Oleg Kulikov
+ * @author Yulian Oifa 
  */
 public class MessageHandler {
 
@@ -58,7 +59,7 @@ public class MessageHandler {
 
 	private Utils utils = null;
 
-	private static ArrayList<String> mList = new ArrayList<String>();
+	private ArrayList<String> mList = new ArrayList<String>();
 
 	/** Creates a new instance of MessageHandler */
 
@@ -76,7 +77,7 @@ public class MessageHandler {
 	 *            the packet to split
 	 * @return array of all separate messages
 	 */
-	public static String[] piggyDismount(byte[] msgBuffer, int length) {
+	public String[] piggyDismount(byte[] msgBuffer, int length) {
 		try {
 			int msgStart = 0;
 			int msgLength = 0;
