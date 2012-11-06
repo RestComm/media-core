@@ -97,7 +97,8 @@ public class PlayCollect extends Signal {
     
     private Scheduler scheduler;
     
-    private Boolean listenerAdded=false;
+    private Boolean dtmfListenerAdded=false;
+    private Boolean playerListenerAdded=false;
     
     public PlayCollect(String name) {
         super(name);
@@ -181,7 +182,12 @@ public class PlayCollect extends Signal {
         player = this.getPlayer();        
         try {
             //assign listener
-            player.addListener(promptHandler);
+        	if(!playerListenerAdded)
+        	{
+        		player.addListener(promptHandler);
+        		playerListenerAdded=true;
+        	}
+        	
             promptLength=promptList.size();
             prompt = promptList.toArray(prompt);            
             player.setURL(prompt[0].toString());
@@ -218,6 +224,7 @@ public class PlayCollect extends Signal {
         if (player != null) {
             player.deactivate();
             player.removeListener(promptHandler);
+            playerListenerAdded=false;
             player=null;
         }
     }
@@ -257,10 +264,10 @@ public class PlayCollect extends Signal {
         try {
         	//attach local buffer to DTMF detector
             //but do not flush
-        	if(!listenerAdded)
+        	if(!dtmfListenerAdded)
         	{
         		dtmfDetector.addListener(buffer);
-        		listenerAdded=true;
+        		dtmfListenerAdded=true;
         	}
         	
             dtmfDetector.flushBuffer();            
@@ -297,7 +304,7 @@ public class PlayCollect extends Signal {
     private void terminateCollectPhase() {
         if (dtmfDetector != null) {
             dtmfDetector.removeListener(buffer);
-            listenerAdded=false;
+            dtmfListenerAdded=false;
             
            //dtmfDetector.clearDigits();
             

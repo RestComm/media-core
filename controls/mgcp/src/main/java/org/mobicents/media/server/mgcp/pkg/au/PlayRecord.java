@@ -94,6 +94,7 @@ public class PlayRecord extends Signal {
     
     private PlayerMode playerMode=PlayerMode.PROMPT;
     private Text eventContent;
+    private Boolean playerListenerAdded=false;
     
     public PlayRecord(String name) {
         super(name);
@@ -227,7 +228,12 @@ public class PlayRecord extends Signal {
         player = this.getPlayer();        
         try {
             //assign listener
-            player.addListener(promptHandler);
+        	if(!playerListenerAdded)
+            {
+        		player.addListener(promptHandler);
+        		playerListenerAdded=true;
+            }
+        	
             promptLength=promptList.size();
             prompt = promptList.toArray(prompt);            
             player.setURL(prompt[0].toString());
@@ -265,6 +271,7 @@ public class PlayRecord extends Signal {
         if (player != null) {            
             player.deactivate();
             player.removeListener(promptHandler);
+            playerListenerAdded=false;
             player=null;
         }
     }
