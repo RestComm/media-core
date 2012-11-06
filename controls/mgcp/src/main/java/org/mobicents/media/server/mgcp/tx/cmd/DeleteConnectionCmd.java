@@ -174,13 +174,17 @@ public class DeleteConnectionCmd extends Action {
             }
             //extract found endpoint
             endpoint = endpoints[0];
-            
+                       
             MgcpConnection connection = endpoint.getConnection(connectionID.getValue());
             
-            rx = connection.getPacketsReceived();
-            tx = connection.getPacketsTransmitted();
+            if(connection!=null)
+            {
+            	rx = connection.getPacketsReceived();
+            	tx = connection.getPacketsTransmitted();
             
-            endpoint.deleteConnection(connectionID.getValue());
+            	endpoint.deleteConnection(connectionID.getValue());
+            }
+            
             return 0;
         }
         

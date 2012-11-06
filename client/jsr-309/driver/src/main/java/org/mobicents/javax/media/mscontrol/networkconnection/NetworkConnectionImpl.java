@@ -180,6 +180,9 @@ public final class NetworkConnectionImpl extends ContainerImpl implements Networ
         fsm.createTransition(ConnectionTransition.CREATED, 
                 ConnectionState.CANCELED, ConnectionState.CLOSING);
         
+        fsm.createTransition(ConnectionTransition.CLOSE, 
+                ConnectionState.CANCELED, ConnectionState.CANCELED);
+        
         //transition to CLOSING without signals
         fsm.createTimeoutTransition(
                 ConnectionState.CANCELED, ConnectionState.INVALID, 5000);
@@ -187,6 +190,9 @@ public final class NetworkConnectionImpl extends ContainerImpl implements Networ
         //******************************************************************/
         //               STATE CLOSING                                     /
         //******************************************************************/
+        fsm.createTransition(ConnectionTransition.CLOSE, 
+                ConnectionState.CLOSING, ConnectionState.CLOSING);
+        
         //signal from server
         fsm.createTransition(ConnectionTransition.CLOSED, 
                 ConnectionState.CLOSING, ConnectionState.INVALID);
