@@ -812,7 +812,7 @@ public class PlayCollect extends Signal {
         			
         		if(ttlValue==0) {
         			int length=buffer.getSequence().length();
-        			if(length>=options.getDigitsNumber())
+        			if(options.getDigitsNumber()>0 && length>=options.getDigitsNumber())
         			{
         				if(options.hasSuccessAnnouncement())
         				{
