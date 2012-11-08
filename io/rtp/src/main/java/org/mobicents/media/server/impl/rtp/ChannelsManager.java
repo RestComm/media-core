@@ -102,7 +102,7 @@ public class ChannelsManager {
     }
     
     public int getRfc2833BufferSize() {
-    	return this.jitter;
+    	return this.rfc2833BufferSize;
     }
     
     public void setRfc2833BufferSize(int bufferSize) {

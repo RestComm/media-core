@@ -594,7 +594,7 @@ public class PlayCollect extends Signal {
             logger.info(String.format("(%s) Collect phase: pattern has been detected", getEndpoint().getLocalName()));
             String naContent="";
     		if(options.getNumberOfAttempts()>1)
-    			naContent=" na=" + options.getNumberOfAttempts();
+    			naContent=" na=" + (options.getNumberOfAttempts()-numberOfAttempts+1);
     		
     		if(options.hasSuccessAnnouncement())
 			{
@@ -619,7 +619,7 @@ public class PlayCollect extends Signal {
             logger.info(String.format("(%s) Collect phase: max number of digits has been detected", getEndpoint().getLocalName()));
             String naContent="";
     		if(options.getNumberOfAttempts()>1)
-    			naContent=" na=" + options.getNumberOfAttempts();
+    			naContent=" na=" + (options.getNumberOfAttempts()-numberOfAttempts+1);
     		
     		if(options.hasSuccessAnnouncement())
 			{
@@ -645,7 +645,7 @@ public class PlayCollect extends Signal {
         	{
         		String naContent="";
         		if(options.getNumberOfAttempts()>1)
-        			naContent=" na=" + options.getNumberOfAttempts();
+        			naContent=" na=" + (options.getNumberOfAttempts()-numberOfAttempts+1);
         		
         		 logger.info(String.format("(%s) End Input Tone '%s' has been detected", getEndpoint().getLocalName(), s));
                  //end input key still not included in sequence
