@@ -266,7 +266,7 @@ public class Scheduler  {
         	
         	while(active)
         	{
-        		currQueue=UDP_MANAGER_QUEUE;
+        		currQueue=MANAGEMENT_QUEUE;
         		while(currQueue<=OUTPUT_QUEUE)
     			{    				    				
     				synchronized(LOCK) {    					
@@ -282,6 +282,16 @@ public class Scheduler  {
     				currQueue++;
     			}				        		
         		
+        		synchronized(LOCK) {    					
+					if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
+						try {
+							LOCK.wait();
+						}
+						catch(InterruptedException e)  {                                               
+							//lets continue
+						}
+				}
+        		
         		runIndex=(runIndex+1)%5;        		
     			if(runIndex==0)    				    				
     				synchronized(LOCK) {
@@ -294,7 +304,17 @@ public class Scheduler  {
     						}
     				}    
     			
-    			//sleep till next cycle
+    			synchronized(LOCK) {    					
+					if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
+						try {
+							LOCK.wait();
+						}
+						catch(InterruptedException e)  {                                               
+							//lets continue
+						}
+				}
+        		
+        		//sleep till next cycle
         		cycleDuration=clock.getTime() - cycleStart;
         		if(cycleDuration<20000000L)
         			try  {                                               
@@ -379,16 +399,6 @@ public class Scheduler  {
         		
         		synchronized(LOCK) {    					
 					if(executeQueue(taskQueues[SENDER_QUEUE]))
-						try {
-							LOCK.wait();
-						}
-						catch(InterruptedException e)  {                                               
-							//lets continue
-						}
-				}
-        		
-        		synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
 						try {
 							LOCK.wait();
 						}
