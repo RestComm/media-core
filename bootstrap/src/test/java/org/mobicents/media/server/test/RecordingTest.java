@@ -135,8 +135,8 @@ public class RecordingTest {
         user = new IvrEndpoint("/mobicents/ivr/1");
         ivr = new IvrEndpoint("/mobicents/ivr/2");
         
-        server.install(user);
-        server.install(ivr);      	
+        server.install(user,null);
+        server.install(ivr,null);      	
     }
 
     @After

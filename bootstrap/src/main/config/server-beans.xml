@@ -71,6 +71,7 @@
         <property name="defaultSignalGenerators">0</property>
         <property name="defaultLocalConnections">10</property>
         <property name="defaultRemoteConnections">10</property>
+	<property name="dtmfDetectorDbi">-35</property>
     </bean>
     
     <!-- MGCP Controller definition -->
@@ -96,36 +97,42 @@
     
     <!-- Endpoints -->
     <bean name="Announcement" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
-        <property name="namePattern">mobicents/aap/[1..1]</property>
+        <property name="namePattern">mobicents/aap/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.AnnouncementEndpoint</property>
+        <property name="initialSize">1</property>
     </bean>
 
     <bean name="IVR" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
-        <property name="namePattern">mobicents/ivr/[1..10]</property>
+        <property name="namePattern">mobicents/ivr/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.IvrEndpoint</property>
+        <property name="initialSize">5</property>
     </bean>
 
     <bean name="CNF" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
-        <property name="namePattern">mobicents/cnf/[1..10]</property>
+        <property name="namePattern">mobicents/cnf/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.ConferenceEndpoint</property>
+        <property name="initialSize">5</property>
     </bean>
 
     <bean name="Bridge" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
-        <property name="namePattern">mobicents/bridge/[1..15]</property>
+        <property name="namePattern">mobicents/bridge/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.BridgeEndpoint</property>
+        <property name="initialSize">5</property>
     </bean>
 
     <bean name="Relay" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
-        <property name="namePattern">mobicents/relay/[1..1]</property>
+        <property name="namePattern">mobicents/relay/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.PacketRelayEndpoint</property>
+        <property name="initialSize">1</property>
     </bean>
 
 	<!-- DS0 Endpoints configuration sample -->
 	<!--<bean name="DS0" class="org.mobicents.media.core.endpoints.VirtualSS7EndpointInstaller">
-        <property name="namePattern">mobicents/ds0/[1..15]</property>
+        <property name="namePattern">mobicents/ds0/</property>
         <property name="channelsManager"><inject bean="channelsManager"/></property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.Ds0Endpoint</property>
         <property name="startChannelID">125</property>
+        <property name="initialSize">15</property>
         <property name="isALaw">true</property>
     </bean>-->
 	

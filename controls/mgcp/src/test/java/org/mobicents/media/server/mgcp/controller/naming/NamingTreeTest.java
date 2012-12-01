@@ -65,9 +65,9 @@ public class NamingTreeTest {
     
     @Before
     public void setUp() {    
-        namingTree.register(ac1);
-        namingTree.register(ac2);
-        namingTree.register(ac3);
+        namingTree.register(ac1,null);
+        namingTree.register(ac2,null);
+        namingTree.register(ac3,null);
     }
     
     @After
@@ -99,6 +99,7 @@ public class NamingTreeTest {
     public void testFindDuration() throws UnknownEndpointException {
         long s = System.nanoTime();
         int n = namingTree.find(new Text("mobicents/aap/3"), res);
+        System.out.println("COUNT:" + n);
         assertEquals(1, n);
         long f = System.nanoTime();
         

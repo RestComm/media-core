@@ -74,6 +74,8 @@ public class ResourcesPool implements ComponentFactory {
 	private int defaultSignalDetectors;
 	private int defaultSignalGenerators;
 	
+	private int dtmfDetectorDbi=-35;
+	
 	private ConcurrentLinkedList<Connection> localConnections;
 	private ConcurrentLinkedList<Connection> remoteConnections;
 	
@@ -155,6 +157,11 @@ public class ResourcesPool implements ComponentFactory {
 		this.defaultRemoteConnections=value;
 	}
 	
+	public void setDtmfDetectorDbi(int value)
+	{
+		this.dtmfDetectorDbi=value;
+	}
+	
 	public void start()
 	{
 		for(int i=0;i<defaultPlayers;i++)
@@ -179,7 +186,7 @@ public class ResourcesPool implements ComponentFactory {
 		for(int i=0;i<defaultDtmfDetectors;i++)
 		{
 			DetectorImpl detector=new DetectorImpl("detector",scheduler);
-			detector.setVolume(-35);	        
+			detector.setVolume(dtmfDetectorDbi);	        
 			dtmfDetectors.offer(detector);
 		}
 		
@@ -226,7 +233,7 @@ public class ResourcesPool implements ComponentFactory {
 				if(result==null)
 				{
 					result=new DetectorImpl("detector",scheduler);
-					((DetectorImpl)result).setVolume(-35);	        
+					((DetectorImpl)result).setVolume(dtmfDetectorDbi);	        
 					dtmfDetectorsCount.incrementAndGet();
 				}
  

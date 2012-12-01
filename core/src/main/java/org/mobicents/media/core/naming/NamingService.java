@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import org.mobicents.media.core.endpoints.BaseEndpointImpl;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
+import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**

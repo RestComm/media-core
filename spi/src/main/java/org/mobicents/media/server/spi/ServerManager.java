@@ -31,7 +31,7 @@ public interface ServerManager {
      * 
      * @param endpoint the started endpoint.
      */
-    public void onStarted(Endpoint endpoint);
+    public void onStarted(Endpoint endpoint,EndpointInstaller installer);
     
     /**
      * Notifies manager that given endpoint has been stopped.

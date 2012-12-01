@@ -136,7 +136,7 @@ public class Server implements MediaServer {
      *
      * @param endpoint the endpoint to installed.
      */
-    public void install(Endpoint endpoint) {
+    public void install(Endpoint endpoint,EndpointInstaller installer) {
         //check endpoint first
         if (endpoint == null) {
             logger.error("Unknown endpoint");
@@ -180,7 +180,7 @@ public class Server implements MediaServer {
         
         //send notification to manager
         for (ServerManager manager : managers) {
-            manager.onStarted(endpoint);
+            manager.onStarted(endpoint,installer);
         }
     }
 
@@ -196,7 +196,7 @@ public class Server implements MediaServer {
 
         //send notification to manager
         for (ServerManager manager : managers) {
-            manager.onStarted(endpoint);
+            manager.onStopped(endpoint);
         }
         
         try {

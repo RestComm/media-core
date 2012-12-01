@@ -35,6 +35,7 @@ import org.mobicents.media.server.mgcp.tx.Transaction;
 import org.mobicents.media.server.mgcp.tx.TransactionManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Endpoint;
+import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.MediaServer;
 import org.mobicents.media.server.spi.ServerManager;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
@@ -224,11 +225,11 @@ public class Controller implements MgcpListener, ServerManager {
     }
     
      
-    public void onStarted(Endpoint endpoint) {
+    public void onStarted(Endpoint endpoint,EndpointInstaller installer) {
         try {
             MgcpEndpoint mgcpEndpoint = configurator.activate(endpoint, mgcpProvider, udpInterface.getLocalBindAddress(), port);
             mgcpEndpoint.setMgcpListener(this);
-            endpoints.register(mgcpEndpoint);
+            endpoints.register(mgcpEndpoint,installer);
             logger.info("Endpoint restarted: " + endpoint.getLocalName());
         } catch (Exception e) {
         	logger.error("Could not register endpoint: " + endpoint.getLocalName());

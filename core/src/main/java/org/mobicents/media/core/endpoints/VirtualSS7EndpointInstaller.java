@@ -112,21 +112,35 @@ public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
      */
     @Override
     public void install() {
-    	ClassLoader loader = Server.class.getClassLoader();
-        nameParser.setPattern(getNamePattern());
+        ClassLoader loader = Server.class.getClassLoader();
         int index=startChannelID;
-        while (nameParser.hasMore()) {
-            String name = nameParser.next();
-            try {            	
-                Constructor constructor = loader.loadClass(this.getEndpointClass()).getConstructor(String.class,ChannelsManager.class,int.class,boolean.class);
-                BaseSS7EndpointImpl endpoint = (BaseSS7EndpointImpl) constructor.newInstance(name,channelsManager,index++,isALaw);
-                server.install(endpoint);
-            } catch (Exception e) {
-                server.logger.error("Couldn't instantiate endpoint", e);
-            }
-        }
+        for(int i=0;i<initialSize;i++)
+        	newEndpoint(index++);                    
     }
 
+    @Override
+    public void newEndpoint()
+    {    	
+    }
+    
+    private void newEndpoint(int index)
+    {
+    	ClassLoader loader = Server.class.getClassLoader();
+        try {
+            Constructor constructor = loader.loadClass(getEndpointClass()).getConstructor(String.class,ChannelsManager.class,int.class,boolean.class);
+            BaseSS7EndpointImpl endpoint = (BaseSS7EndpointImpl) constructor.newInstance(getNamePattern() + lastEndpointID.getAndIncrement(),channelsManager,index,isALaw);
+            server.install(endpoint,this);
+        } catch (Exception e) {
+            server.logger.error("Couldn't instantiate endpoint", e);
+        }                
+    }
+    
+    @Override
+    public boolean canExpand() 
+    {
+    	return false;
+    }
+    
     public void uninstall() {
     }
 

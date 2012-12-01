@@ -22,6 +22,7 @@
 package org.mobicents.media.server.mgcp.controller.naming;
 
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
+import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.utils.Text;
 
 import org.mobicents.media.server.scheduler.Clock;
@@ -61,7 +62,7 @@ public class NamingTree {
      * 
      * @param endpoint the endpoint to be added.
      */
-    public synchronized void register(MgcpEndpoint endpoint) {    	
+    public synchronized void register(MgcpEndpoint endpoint,EndpointInstaller installer) {    	
     	//split name into tokens
     	String[] tokens = endpoint.getName().split("/");
         
@@ -87,7 +88,8 @@ public class NamingTree {
     	}
         
     	//finally add endpoint
-    	((EndpointQueue)currentNode.poll()).add(endpoint);    	
+    	((EndpointQueue)currentNode.poll()).add(endpoint);
+    	((EndpointQueue)currentNode.poll()).setInstaller(installer);
     }
     
     /**

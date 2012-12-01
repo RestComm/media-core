@@ -23,6 +23,7 @@ package org.mobicents.media.server.mgcp.controller.naming;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpointStateListener;
@@ -53,7 +54,15 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     //index
     private int k;
     
+    private EndpointInstaller installer;
+    
     public  Logger logger = Logger.getLogger(EndpointQueue.class);
+    
+    public void setInstaller(EndpointInstaller installer)
+    {
+    	this.installer=installer;
+    }
+    
     /**
      * Adds new endpoint to the queue.
      * 
@@ -106,7 +115,19 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         //return first free if ANY endpoint requested
         if (name.equals(ANY)) {        	        	
         	MgcpEndpoint endp=queue.poll();
-        	
+        	while(endp==null && installer!=null && installer.canExpand())
+        	{
+        		if(logger.isDebugEnabled())    	
+            		logger.debug("No free endpoints,expanding");            		
+            	
+        		synchronized(installer)
+        		{
+        			installer.newEndpoint();
+        		}
+        		
+        		endp=queue.poll();
+        	}
+        		
         	if(endp!=null) {
         		endp.lock();
         		endpoints[0] = endp;
@@ -122,18 +143,10 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         }
                
         int value=name.toInteger();
-        if(value>0 && value<completeList.size())
+        if(value>0 && value<=completeList.size())
         {
         	endpoints[0] = completeList.get(value-1).endpoint;
         	return 1;
-        }
-        
-        //search for exact matching
-        for (Holder h : completeList) {
-            if (h.name.equals(name)) {
-                endpoints[0] = h.endpoint;
-                return 1;
-            }
         }
         
         return 0;

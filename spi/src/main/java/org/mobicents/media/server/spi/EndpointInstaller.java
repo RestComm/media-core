@@ -26,11 +26,11 @@ package org.mobicents.media.server.spi;
  * Defines interface of endpoint installer/uninstaller.
  * 
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public interface EndpointInstaller {
     
-    /**
+	/**
      * Installs endpoints.
      */
     public void install();
@@ -38,5 +38,15 @@ public interface EndpointInstaller {
     /**
      * Uninstalls endpoint.
      */
-    public void uninstall();    
+    public void uninstall();
+    
+    /**
+     * Installs endpoints.
+     */
+	public boolean canExpand();
+	
+	/**
+     * Installs endpoints.
+     */
+	public void newEndpoint();
 }

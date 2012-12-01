@@ -23,6 +23,7 @@
 package org.mobicents.media.core.endpoints;
 
 import java.lang.reflect.Constructor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
@@ -35,16 +36,19 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * Endpoint installer is used for automatic creation and instalation of endpoints.
  *
  * It uses three parameters: the name pattern, class name and configuration
- * @author kulikov
+ * @author yulian oifa
  */
 public class VirtualEndpointInstaller implements EndpointInstaller {
 
     private String namePattern;    
     private String endpointClass;
+    protected Integer initialSize;
     
     protected EndpointNameGenerator nameParser;
     protected Server server;
 
+    protected AtomicInteger lastEndpointID=new AtomicInteger(1);
+    
     /**
      * Creates new endpoint installer.
      */
@@ -98,25 +102,52 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
     }    
     
     /**
+     * Gets the initial size of endpoints pool
+     * 
+     * @return initial size
+     */
+    public Integer getInitialSize() {
+        return this.initialSize;
+    }
+
+    /**
+     * Sets the initial size of endpoints pool
+     *
+     * @param initial size
+     */
+    public void setInitialSize(Integer initialSize) {
+        this.initialSize = initialSize;
+    }    
+    
+    /**
      * (Non Java-doc.)
      *
      * @throws ResourceUnavailableException
      */
     public void install() {
         ClassLoader loader = Server.class.getClassLoader();
-        nameParser.setPattern(namePattern);
-        while (nameParser.hasMore()) {
-            String name = nameParser.next();
-            try {
-                Constructor constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
-                Endpoint endpoint = (Endpoint) constructor.newInstance(name);
-                server.install(endpoint);
-            } catch (Exception e) {
-                server.logger.error("Couldn't instantiate endpoint", e);
-            }
-        }
+        for(int i=0;i<initialSize;i++)
+        	newEndpoint();                    
     }
 
+    public void newEndpoint()
+    {
+    	ClassLoader loader = Server.class.getClassLoader();
+        nameParser.setPattern(namePattern);
+        try {
+            Constructor constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
+            Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
+            server.install(endpoint,this);
+        } catch (Exception e) {
+            server.logger.error("Couldn't instantiate endpoint", e);
+        }                
+    }
+    
+    public boolean canExpand() 
+    {
+    	return true;
+    }
+    
     public void uninstall() {
     }
 
