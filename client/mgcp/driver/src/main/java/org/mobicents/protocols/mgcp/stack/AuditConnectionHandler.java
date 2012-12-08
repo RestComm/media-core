@@ -50,6 +50,7 @@ import org.mobicents.protocols.mgcp.parser.Utils;
 /**
  * 
  * @author amit bhayani
+ * @author yulian oifa
  * 
  */
 public class AuditConnectionHandler extends TransactionHandler {
@@ -246,21 +247,32 @@ public class AuditConnectionHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("I")) {
-				connectionIdentifier = new ConnectionIdentifier(value);
-			} else if (name.equalsIgnoreCase("F")) {
-
-				int RCindex = value.indexOf("RC");
-				int LCindex = value.indexOf("LC");
-
-				if (RCindex != -1 && RCindex < LCindex) {
-					RCfirst = true;
-				}
-
-				requestedInfo = utils.decodeInfoCodeList(value);
-			} else {
+			if(name.length()!=1)
 				logger.error("Unknown code while encoding AUCX Command name = " + name + " value = " + value);
-			}
+			else
+			{
+				switch(name.charAt(0))
+				{
+					case 'i':
+					case 'I':
+						connectionIdentifier = new ConnectionIdentifier(value);
+						break;
+					case 'f':
+					case 'F':
+						int RCindex = value.indexOf("RC");
+						int LCindex = value.indexOf("LC");
+
+						if (RCindex != -1 && RCindex < LCindex) {
+							RCfirst = true;
+						}
+
+						requestedInfo = utils.decodeInfoCodeList(value);
+						break;
+					default:
+						logger.error("Unknown code while encoding AUCX Command name = " + name + " value = " + value);
+						break;
+				}
+			}			
 		}
 
 		/**
@@ -308,23 +320,41 @@ public class AuditConnectionHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("C")) {
-				response.setCallIdentifier(new CallIdentifier(value));
-			} else if (name.equalsIgnoreCase("N")) {
-				NotifiedEntity n = utils.decodeNotifiedEntity(value, true);
-				response.setNotifiedEntity(n);
-			} else if (name.equalsIgnoreCase("L")) {
-				LocalOptionValue[] LocalOptionValueList = utils.decodeLocalOptionValueList(value);
-				response.setLocalConnectionOptions(LocalOptionValueList);
-			} else if (name.equalsIgnoreCase("M")) {
-				ConnectionMode connectionMode = utils.decodeConnectionMode(value);
-				response.setMode(connectionMode);
-			} else if (name.equalsIgnoreCase("P")) {
-				ConnectionParm[] connectionParms = utils.decodeConnectionParms(value);
-				response.setConnectionParms(connectionParms);
-			} else {
+			if(name.length()!=1)
 				logger.warn("Unidentified AUCX Response parameter " + name + " with value = " + value);
-			}
+			else
+			{
+				switch(name.charAt(0))
+				{
+					case 'c':
+					case 'C':
+						response.setCallIdentifier(new CallIdentifier(value));		
+						break;
+					case 'n':
+					case 'N':
+						NotifiedEntity n = utils.decodeNotifiedEntity(value, true);
+						response.setNotifiedEntity(n);
+						break;
+					case 'l':
+					case 'L':
+						LocalOptionValue[] LocalOptionValueList = utils.decodeLocalOptionValueList(value);
+						response.setLocalConnectionOptions(LocalOptionValueList);		
+						break;
+					case 'm':
+					case 'M':
+						ConnectionMode connectionMode = utils.decodeConnectionMode(value);
+						response.setMode(connectionMode);
+						break;
+					case 'p':
+					case 'P':
+						ConnectionParm[] connectionParms = utils.decodeConnectionParms(value);
+						response.setConnectionParms(connectionParms);
+						break;
+					default:
+						logger.warn("Unidentified AUCX Response parameter " + name + " with value = " + value);
+						break;
+				}
+			}						
 		}
 
 		/**
@@ -341,21 +371,20 @@ public class AuditConnectionHandler extends TransactionHandler {
 
 			String line = null;
 			boolean sdpPresent = false;
-			String sdp1 = "";
-			String sdp2 = "";
+			StringBuffer sdp1 = new StringBuffer();
+			StringBuffer sdp2 = new StringBuffer();
 			try {
 				while ((line = reader.readLine()) != null) {
 					line = line.trim();
 					sdpPresent = line.length() == 0;
 					if (sdpPresent)
 						break;
-					sdp1 = sdp1 + line.trim() + "\r\n";
-
+					sdp1.append(line.trim()).append(SDP_NEW_LINE);				
 				}
 
 				while ((line = reader.readLine()) != null) {
 					line = line.trim();
-					sdp2 = sdp2 + line.trim() + "\r\n";
+					sdp2.append(line.trim()).append(SDP_NEW_LINE);					
 				}
 
 			} catch (IOException e) {
@@ -363,15 +392,15 @@ public class AuditConnectionHandler extends TransactionHandler {
 			}
 
 			if (RCfirst) {
-				response.setRemoteConnectionDescriptor(new ConnectionDescriptor(sdp1));
-				if (!sdp2.equals("")) {
-					response.setLocalConnectionDescriptor(new ConnectionDescriptor(sdp2));
+				response.setRemoteConnectionDescriptor(new ConnectionDescriptor(sdp1.toString()));				
+				if (sdp2.length()!=0) {
+					response.setLocalConnectionDescriptor(new ConnectionDescriptor(sdp2.toString()));
 				}
 
 			} else {
-				response.setLocalConnectionDescriptor(new ConnectionDescriptor(sdp1));
-				if (!sdp2.equals("")) {
-					response.setRemoteConnectionDescriptor(new ConnectionDescriptor(sdp2));
+				response.setLocalConnectionDescriptor(new ConnectionDescriptor(sdp1.toString()));
+				if (sdp2.length()!=0) {
+					response.setRemoteConnectionDescriptor(new ConnectionDescriptor(sdp2.toString()));
 				}
 			}
 

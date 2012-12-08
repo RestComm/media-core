@@ -52,6 +52,8 @@ import java.text.ParseException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.mgcp.parser.UtilsFactory;
 
@@ -87,13 +89,15 @@ import org.mobicents.protocols.mgcp.parser.UtilsFactory;
  */
 // public abstract class TransactionHandler implements Runnable,
 // TransactionHandlerManagement {
-public abstract class TransactionHandler implements Runnable {
+public abstract class TransactionHandler {
 	/** Logger instance */
 	private static final Logger logger = Logger.getLogger(TransactionHandler.class);
 
-	private static int GENERATOR = (int) (System.currentTimeMillis() & 999999999);
-
+	private static long MAX_TRANSACTION_HANDLE_ID = 999999999L;
+	private static AtomicInteger GENERATOR = new AtomicInteger(1);			
+	
 	public static final String NEW_LINE = "\n";
+	public static final String SDP_NEW_LINE = "\r\n";
 	public static final String SINGLE_CHAR_SPACE = " ";
 	public static final String MGCP_VERSION = " MGCP 1.0"; // let the single
 	// char space prefix
@@ -165,8 +169,8 @@ public abstract class TransactionHandler implements Runnable {
 	 *            the reference to the MGCP stack.
 	 */
 	public TransactionHandler(JainMgcpStackImpl stack) {
-		this.stack = stack;
-		this.localTID = GENERATOR++;
+		this.stack = stack;		
+		this.localTID = (int) (((long)GENERATOR.incrementAndGet()-(long)Integer.MIN_VALUE)%MAX_TRANSACTION_HANDLE_ID + 1L);
 		// utils = new Utils();
 		utilsFactory = stack.getUtilsFactory();
 		stack.getLocalTransactions().put(Integer.valueOf(localTID), this);
@@ -362,7 +366,7 @@ public abstract class TransactionHandler implements Runnable {
 
 	public abstract JainMgcpResponseEvent getProvisionalResponse();
 
-	public void run() {
+	public void send() {
 		if (isCommand) {
 			this.send(this.getCommandEvent());
 		} else {

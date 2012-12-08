@@ -157,9 +157,15 @@ public class EndpointConfigurationHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("B")) {
-				command.setBearerInformation(utils.decodeBearerInformation(value));
-			}
+			if(name.length()==1)
+			{
+				if(name.charAt(0)=='b' || name.charAt(0)=='B')
+					command.setBearerInformation(utils.decodeBearerInformation(value));	
+				else
+					logger.error("Unknown code while encoding EPCF Command name = " + name + " value = " + value);				
+			}		
+			else
+				logger.error("Unknown code while encoding EPCF Command name = " + name + " value = " + value);
 		}
 
 		/**

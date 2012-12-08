@@ -65,6 +65,7 @@ import org.mobicents.protocols.mgcp.parser.Utils;
  * @author Oleg Kulikov
  * @author Pavel Mitrenko
  * @author amit bhayani
+ * @author yulian oifa
  */
 public class ModifyConnectionHandler extends TransactionHandler {
 	private ModifyConnection command = null;
@@ -201,27 +202,57 @@ public class ModifyConnectionHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("B")) {
-				command.setBearerInformation(utils.decodeBearerInformation(value));
-			} else if (name.equalsIgnoreCase("c")) {
-				command.setCallIdentifier(new CallIdentifier(value));
-			} else if (name.equalsIgnoreCase("I")) {
-				command.setConnectionIdentifier(new ConnectionIdentifier(value));
-			} else if (name.equalsIgnoreCase("m")) {
-				command.setMode(utils.decodeConnectionMode(value));
-			} else if (name.equalsIgnoreCase("L")) {
-				command.setLocalConnectionOptions(utils.decodeLocalOptionValueList(value));
-			} else if (name.equalsIgnoreCase("N")) {
-				command.setNotifiedEntity(utils.decodeNotifiedEntity(value, true));
-			} else if (name.equalsIgnoreCase("X")) {
-				command.setNotificationRequestParms(new NotificationRequestParms(new RequestIdentifier(value)));
-			} else if (name.equalsIgnoreCase("R")) {
-				command.getNotificationRequestParms().setRequestedEvents(utils.decodeRequestedEventList(value));
-			} else if (name.equalsIgnoreCase("S")) {
-				command.getNotificationRequestParms().setSignalRequests(utils.decodeEventNames(value));
-			} else if (name.equalsIgnoreCase("T")) {
-				command.getNotificationRequestParms().setDetectEvents(utils.decodeEventNames(value));
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'b':
+					case 'B':
+						command.setBearerInformation(utils.decodeBearerInformation(value));		
+						break;
+					case 'c':
+					case 'C':
+						command.setCallIdentifier(new CallIdentifier(value));
+						break;
+					case 'i':
+					case 'I':
+						command.setConnectionIdentifier(new ConnectionIdentifier(value));
+						break;
+					case 'm':
+					case 'M':
+						command.setMode(utils.decodeConnectionMode(value));
+						break;
+					case 'l':
+					case 'L':
+						command.setLocalConnectionOptions(utils.decodeLocalOptionValueList(value));		
+						break;
+					case 'n':
+					case 'N':
+						command.setNotifiedEntity(utils.decodeNotifiedEntity(value, true));		
+						break;
+					case 'x':
+					case 'X':
+						command.setNotificationRequestParms(new NotificationRequestParms(new RequestIdentifier(value)));		
+						break;
+					case 'r':
+					case 'R':
+						command.getNotificationRequestParms().setRequestedEvents(utils.decodeRequestedEventList(value));		
+						break;
+					case 's':
+					case 'S':
+						command.getNotificationRequestParms().setSignalRequests(utils.decodeEventNames(value));		
+						break;
+					case 't':
+					case 'T':
+						command.getNotificationRequestParms().setDetectEvents(utils.decodeEventNames(value));
+						break;
+					default:
+						logger.error("Unknown code while encoding MDCX Command name = " + name + " value = " + value);						
+						break;						
+				}
 			}
+			else
+				logger.error("Unknown code while encoding MDCX Command name = " + name + " value = " + value);
 		}
 
 		/**

@@ -167,7 +167,7 @@ public class MessageHandler {
 
 						// EndpointHandler eh = completedTxHandler.getEndpointHandler();
 						completedTxHandler.markRetransmision();
-						completedTxHandler.run();
+						completedTxHandler.send();
 						// eh.scheduleTransactionHandler(completedTxHandler);
 
 						if (logger.isDebugEnabled()) {
@@ -191,26 +191,81 @@ public class MessageHandler {
 					// If we are here, it means this is new TX, we have to
 					// create TxH and EH
 
-					TransactionHandler handler;
-					if (verb.equalsIgnoreCase("crcx")) {
-						handler = new CreateConnectionHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("mdcx")) {
-						handler = new ModifyConnectionHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("dlcx")) {
-						handler = new DeleteConnectionHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("epcf")) {
-						handler = new EndpointConfigurationHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("rqnt")) {
-						handler = new NotificationRequestHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("ntfy")) {
-						handler = new NotifyHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("rsip")) {
-						handler = new RestartInProgressHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("auep")) {
-						handler = new AuditEndpointHandler(stack, address, port);
-					} else if (verb.equalsIgnoreCase("aucx")) {
-						handler = new AuditConnectionHandler(stack, address, port);
-					} else {
+					TransactionHandler handler=null;
+					if(verb.length()==4)
+					{
+						switch(verb.charAt(0))
+						{
+							case 'c':
+							case 'C':
+								if (verb.equalsIgnoreCase("crcx")) {
+									handler = new CreateConnectionHandler(stack, address, port);
+								}
+								break;
+							case 'm':
+							case 'M':
+								if (verb.equalsIgnoreCase("mdcx")) {
+									handler = new ModifyConnectionHandler(stack, address, port);
+								}
+								break;
+							case 'd':
+							case 'D':
+								if (verb.equalsIgnoreCase("dlcx")) {
+									handler = new DeleteConnectionHandler(stack, address, port);
+								}
+								break;
+							case 'e':
+							case 'E':
+								if (verb.equalsIgnoreCase("epcf")) {
+									handler = new EndpointConfigurationHandler(stack, address, port);
+								}
+								break;
+							case 'n':
+							case 'N':
+								if (verb.equalsIgnoreCase("ntfy")) {
+									handler = new NotifyHandler(stack, address, port);
+								}
+								break;
+							case 'r':
+							case 'R':
+								switch(verb.charAt(1))
+								{
+									case 'q':
+									case 'Q':
+										if (verb.equalsIgnoreCase("rqnt")) {
+											handler = new NotificationRequestHandler(stack, address, port);
+										}
+										break;
+									case 's':
+									case 'S':
+										if (verb.equalsIgnoreCase("rsip")) {
+											handler = new RestartInProgressHandler(stack, address, port);
+										}
+										break;
+								}
+								break;
+							case 'a':
+							case 'A':
+								switch(verb.charAt(2))
+								{
+									case 'e':
+									case 'E':
+										if (verb.equalsIgnoreCase("auep")) {
+											handler = new AuditEndpointHandler(stack, address, port);
+										}
+										break;
+									case 'c':
+									case 'C':
+										if (verb.equalsIgnoreCase("aucx")) {
+											handler = new AuditConnectionHandler(stack, address, port);
+										}
+										break;
+								}
+								break;								
+						}
+					}
+					
+					if(handler==null) {
 						logger.warn("Unsupported message verbose " + verb);
 						return;
 					}

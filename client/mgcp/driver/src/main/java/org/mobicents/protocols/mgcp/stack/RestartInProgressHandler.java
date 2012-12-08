@@ -141,13 +141,44 @@ public class RestartInProgressHandler extends TransactionHandler {
 		}
 
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("RM")) {
-				command.setRestartMethod(utils.decodeRestartMethod(value));
-			} else if (name.equalsIgnoreCase("RD")) {
-				command.setRestartDelay(Integer.parseInt(value));
-			} else if (name.equalsIgnoreCase("E")) {
-				command.setReasonCode(utils.decodeReasonCode(value));
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'e':
+					case 'E':
+						command.setReasonCode(utils.decodeReasonCode(value));		
+						break;
+					default:
+						logger.error("Unknown code while encoding RSIP Command name = " + name + " value = " + value);
+						break;
+				}
 			}
+			else if(name.length()==2)
+			{
+				switch(name.charAt(1))
+				{
+					case 'm':
+					case 'M':
+						if(name.charAt(0)=='r' || name.charAt(0)=='R')
+							command.setRestartMethod(utils.decodeRestartMethod(value));
+						else
+							logger.error("Unknown code while encoding RSIP Command name = " + name + " value = " + value);
+						break;
+					case 'd':
+					case 'D':
+						if(name.charAt(0)=='r' || name.charAt(0)=='R')
+							command.setRestartDelay(Integer.parseInt(value));
+						else
+							logger.error("Unknown code while encoding RSIP Command name = " + name + " value = " + value);
+						break;
+					default:
+						logger.error("Unknown code while encoding RSIP Command name = " + name + " value = " + value);
+						break;
+				}
+			}
+			else 
+				logger.error("Unknown code while encoding RSIP Command name = " + name + " value = " + value);			
 		}
 
 		public void sessionDescription(String sd) throws ParseException {
@@ -172,12 +203,21 @@ public class RestartInProgressHandler extends TransactionHandler {
 		}
 
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("N")) {
-				NotifiedEntity n = utils.decodeNotifiedEntity(value, true);
-				response.setNotifiedEntity(n);
-			} else {
-				logger.warn("Unidentified AUCX Response parameter " + name + " with value = " + value);
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'n':
+					case 'N':
+						NotifiedEntity n = utils.decodeNotifiedEntity(value, true);
+						response.setNotifiedEntity(n);		
+						break;
+					default:
+						logger.warn("Unidentified RSIP Response parameter " + name + " with value = " + value);		
+				}
 			}
+			else
+				logger.warn("Unidentified RSIP Response parameter " + name + " with value = " + value);				
 		}
 
 		public void sessionDescription(String sd) throws ParseException {

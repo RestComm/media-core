@@ -63,31 +63,40 @@ public class Options {
             param.trim();            
             count=param.divide('=', parameter);
             
-            switch(name.charAt(0))
-            {
-            	case 'i':
-            		if (name.equals(in) && count==2) 
-            			this.inTone = value;
-            		break;
-            	case 'o':
-            		if (name.equals(out) && count==2)
-            			this.outTone = value;	
-            		break;
-            	case '+':
-            		if(name.length()==1)
-            		{
-            			this.shouldActivate = true;
-                        this.shouldDeactivate=false;
-            		}
-            		break;
-            	case '-':
-            		if(name.length()==1)
-            		{
-            			this.shouldActivate = false;
-                        this.shouldDeactivate=true;
-            		}
-            		break;            			
-            }            
+            if(count==2) {
+            	switch(name.charAt(0))
+                {
+                	case 'i':
+                	case 'I':
+                		if (name.equals(in)) 
+                			this.inTone = value;
+                		break;
+                	case 'o':
+                	case 'O':
+                		if (name.equals(out))
+                			this.outTone = value;	
+                		break;                	            		
+                }	
+            }   
+            else if(name.length()==1) {
+            	switch(name.charAt(0))
+                {
+                	case '+':
+                		if(name.length()==1)
+                		{
+                			this.shouldActivate = true;
+                            this.shouldDeactivate=false;
+                		}
+                		break;
+                	case '-':
+                		if(name.length()==1)
+                		{
+                			this.shouldActivate = false;
+                            this.shouldDeactivate=true;
+                		}
+                		break;            			
+                }	
+            }
         }
     }
 

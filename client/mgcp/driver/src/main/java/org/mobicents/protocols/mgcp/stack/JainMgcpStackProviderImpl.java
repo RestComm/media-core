@@ -62,12 +62,10 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 	private final JainMgcpStackImpl runningStack;
 
 	// a tx handle id must be between 1 and 999999999
-	private static int MIN_TRANSACTION_HANDLE_ID = 1;
-	private static int MAX_TRANSACTION_HANDLE_ID = 999999999;
-	private static AtomicInteger transactionHandleCounter = new AtomicInteger(
-			(int) (System.currentTimeMillis() & 999999999));
-	private static AtomicLong callIdentifierCounter = new AtomicLong(1);
-	private static AtomicLong requestIdentifierCounter = new AtomicLong(1);
+	private static long MAX_TRANSACTION_HANDLE_ID = 999999999L;
+	private static AtomicInteger transactionHandleCounter = new AtomicInteger(Integer.MIN_VALUE);			
+	private static AtomicInteger callIdentifierCounter = new AtomicInteger(Integer.MIN_VALUE);
+	private static AtomicInteger requestIdentifierCounter = new AtomicInteger(Integer.MIN_VALUE);
 	// For now provider is only holder of listeners
 	protected Set<JainMgcpListener> jainListeners = new HashSet<JainMgcpListener>();
 	// This set contains upgraded listeners - one that allow to notify when tx
@@ -77,24 +75,38 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 	protected NotifiedEntity notifiedEntity = null;
 
 	private ConcurrentLinkedList<EventWrapper> waitingQueue=new ConcurrentLinkedList<EventWrapper>();
-		
+	private ConcurrentLinkedList<TransactionHandler> sendingQueue=new ConcurrentLinkedList<TransactionHandler>();
+	
 	private DispatcherThread dispatcher;
+	
+	private EncodingThread[] encodingThreads;
+	
 	public JainMgcpStackProviderImpl(JainMgcpStackImpl runningStack) {
 		super();
 		// eventQueue = new QueuedExecutor();
 		// pool = Executors.newCachedThreadPool(new ThreadFactoryImpl());
 		this.runningStack = runningStack;
 		dispatcher=new DispatcherThread();
+		
+		this.encodingThreads=new EncodingThread[this.runningStack.parserThreadPoolSize];
+		for(int i=0;i<this.encodingThreads.length;i++)
+			this.encodingThreads[i]=new EncodingThread();
 	}
 
 	protected void start()
 	{
 		dispatcher.activate();
+		
+		for(int i=0;i<this.encodingThreads.length;i++)
+			this.encodingThreads[i].activate();
 	}
 	
 	protected void stop()
 	{
 		dispatcher.shutdown();
+		
+		for(int i=0;i<this.encodingThreads.length;i++)
+			this.encodingThreads[i].shutdown();
 	}
 	
 	public void setNotifiedEntity(NotifiedEntity notifiedEntity) {
@@ -133,7 +145,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 		}
 	}
 
-	public synchronized void sendMgcpEvents(JainMgcpEvent[] events) throws IllegalArgumentException {
+	public void sendMgcpEvents(JainMgcpEvent[] events) throws IllegalArgumentException {
 		for (JainMgcpEvent event : events) {
 
 			// For any onther than CRCX wildcard does not count?
@@ -226,19 +238,19 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 				handle.setCommand(true);
 				handle.setCommandEvent(commandEvent);
 
-				handle.run();
+				sendingQueue.offer(handle);				
 
 			} else {
 
 				// SENDING RESPONSE
 				int tid = event.getTransactionHandle();
-				TransactionHandler handler = (TransactionHandler) runningStack.getLocalTransactions().get(
+				TransactionHandler handle = (TransactionHandler) runningStack.getLocalTransactions().get(
 						Integer.valueOf(tid));
 
-				if (handler != null) {
-					handler.setCommand(false);
-					handler.setResponseEvent((JainMgcpResponseEvent) event);
-					handler.run();
+				if (handle != null) {
+					handle.setCommand(false);
+					handle.setResponseEvent((JainMgcpResponseEvent) event);
+					sendingQueue.offer(handle);					
 
 				} else {
 					logger.error("The TransactionHandler not found for TransactionHandle " + tid
@@ -252,14 +264,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 
 	public int getUniqueTransactionHandler() {
 		// retreives current counter value and sets next one
-		int current;
-		int next;
-		do {
-			current = transactionHandleCounter.get();
-			next = (current == MAX_TRANSACTION_HANDLE_ID ? MIN_TRANSACTION_HANDLE_ID : current + 1);
-		} while (!transactionHandleCounter.compareAndSet(current, next));
-
-		return current;
+		return (int) (((long)transactionHandleCounter.incrementAndGet()-(long)Integer.MIN_VALUE)%MAX_TRANSACTION_HANDLE_ID + 1L);		
 	}
 
 	public void processMgcpResponseEvent(JainMgcpResponseEvent response, JainMgcpEvent command) {
@@ -279,36 +284,12 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 	}
 
 	public CallIdentifier getUniqueCallIdentifier() {
-		long current = -1;
-		boolean b = true;
-		while (b) {
-			current = callIdentifierCounter.get();
-			if (current == Long.MAX_VALUE) {
-				b = !callIdentifierCounter.compareAndSet(current, 1);
-			} else {
-				b = !callIdentifierCounter.compareAndSet(current, current + 1);
-			}
-		}
-		return new CallIdentifier(Long.toHexString(current));
+		return new CallIdentifier(Long.toHexString((long)callIdentifierCounter.incrementAndGet() - (long)Integer.MIN_VALUE));
 	}
 
-	public RequestIdentifier getUniqueRequestIdentifier() {
-		long current = -1;
-		boolean b = true;
-		while (b) {
-			current = requestIdentifierCounter.get();
-			if (current == Long.MAX_VALUE) {
-				b = !requestIdentifierCounter.compareAndSet(current, 1);
-			} else {
-				b = !requestIdentifierCounter.compareAndSet(current, current + 1);
-			}
-		}
-		return new RequestIdentifier(Long.toHexString(current));
+	public RequestIdentifier getUniqueRequestIdentifier() {		
+		return new RequestIdentifier(Long.toHexString((long)requestIdentifierCounter.incrementAndGet()-(long)Integer.MIN_VALUE));
 	}
-
-
-
-
 
 	//Async part
 	private LinkedList<JainMgcpEvent[]> asyncBuffer = new LinkedList<JainMgcpEvent[]>();
@@ -457,6 +438,40 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
     	}    
 		
 		public void activate() {        	        	
+        	this.active = true;
+        	this.start();
+        }
+    	
+    	/**
+         * Terminates thread.
+         */
+        private void shutdown() {
+            this.active = false;
+        }
+	}
+	
+	private class EncodingThread extends Thread
+	{
+		private volatile boolean active;
+        
+		public EncodingThread()
+		{
+		}
+		
+    	public void run() {
+    		while(active)
+    			try {
+    				sendingQueue.take().send();
+    			}
+    			catch(Exception e)
+    			{
+    				//catch everything, so worker wont die.
+    				if(logger.isEnabledFor(Level.ERROR))
+    					logger.error("Unexpected exception occured:", e);    				    		
+    			}
+    	}
+    	
+    	public void activate() {        	        	
         	this.active = true;
         	this.start();
         }

@@ -31,6 +31,7 @@
 package org.mobicents.protocols.mgcp.utils;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 
 /**
@@ -44,8 +45,7 @@ import java.net.InetAddress;
 public class PacketRepresentation {	
 
 	private byte[] rawData = null;
-	private int remotePort = -1;
-	private InetAddress remoteAddress = null;
+	private InetSocketAddress remoteAddress = null;
 	private int length = 0;
 
 	private PacketRepresentationFactory prFactory = null;
@@ -64,27 +64,29 @@ public class PacketRepresentation {
 	}
 
 	public int getRemotePort() {
-		return remotePort;
+		return remoteAddress.getPort();
 	}
 
 	public void setLength(int length) {
 		this.length = length;
 	}
 
-	public void setRemotePort(int remotePort) {
-		this.remotePort = remotePort;
+	public InetAddress getRemoteAddress() {
+		return remoteAddress.getAddress();
 	}
 
-	public InetAddress getRemoteAddress() {
+	public InetSocketAddress getInetAddress() {
 		return remoteAddress;
 	}
-
-	public void setRemoteAddress(InetAddress remoteAddress) {
+	
+	public void setRemoteAddress(InetSocketAddress remoteAddress) {
 		this.remoteAddress = remoteAddress;
 	}
 
 	public void release() {
 		this.prFactory.deallocate(this);
+		this.remoteAddress=null;
+		this.length=0;
 	}
 
 }

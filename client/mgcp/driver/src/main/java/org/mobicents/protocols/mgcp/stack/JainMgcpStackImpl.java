@@ -119,16 +119,17 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 	private ConcurrentHashMap<Integer, TransactionHandler> completedTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
 
-	private ConcurrentLinkedList<PacketRepresentation> waitingQueue=new ConcurrentLinkedList<PacketRepresentation>();
+	private ConcurrentLinkedList<PacketRepresentation> inputQueue=new ConcurrentLinkedList<PacketRepresentation>();	
+	private ConcurrentLinkedList<PacketRepresentation> outputQueue=new ConcurrentLinkedList<PacketRepresentation>();
 	
 	private DatagramSocket socket;
 
 	private long delay = 4;
 	private long threshold = 2;
 	
-	private int parserThreadPoolSize = 2;
+	protected int parserThreadPoolSize = 2;
 
-	private ParserThread[] parserThreads;
+	private DecodingThread[] decodingThreads;
 	
 	public void printStats() {
 		System.out.println("localTransactions size = " + localTransactions.size());
@@ -185,9 +186,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 		this.setPriority(this.messageReaderThreadPriority);
 		
-		parserThreads=new ParserThread[this.parserThreadPoolSize];
-		for(int i=0;i<parserThreads.length;i++)
-			parserThreads[i]=new ParserThread(this);
+		decodingThreads=new DecodingThread[this.parserThreadPoolSize];
+		for(int i=0;i<decodingThreads.length;i++)
+			decodingThreads[i]=new DecodingThread(this);
 		
 		// So stack does not die
 		this.setDaemon(false);
@@ -223,7 +224,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		} catch (Exception e) {
 			logger.warn("Failed to read properties file due to some error \"" + e.getMessage() + "\", using defualt values!!!!");
 		}
-
 	}
 
 	/**
@@ -310,20 +310,13 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		this.protocolVersion = protocolVersion;
 	}
 
-	protected synchronized void send(byte[] data, SocketAddress address) {
-		try {
+	protected void send(byte[] data, SocketAddress address) {
+		PacketRepresentation pr = this.prFactory.allocate();
+		System.arraycopy(data, 0, pr.getRawData(), 0, data.length);
+		pr.setLength(data.length);						
+		pr.setRemoteAddress((InetSocketAddress)address);						
 
-			this.sendBuffer.clear();
-			this.sendBuffer.put(data);
-			this.sendBuffer.flip();
-
-			this.channel.send(this.sendBuffer, address);
-		} catch (IOException e) {
-			if(logger.isEnabledFor(Level.ERROR))
-			{
-				logger.error("I/O Exception uccured, caused by", e);
-			}
-		}
+		outputQueue.offer(pr);		
 	}
 
 	public boolean isRequest(String header) {
@@ -341,8 +334,8 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		long finish = 0;
 		long drift = 0;
 		long latency = 0;
-		for(int i=0;i<this.parserThreads.length;i++)
-			this.parserThreads[i].activate();
+		for(int i=0;i<this.decodingThreads.length;i++)
+			this.decodingThreads[i].activate();
 		
 		if(this.provider!=null)
 			this.provider.start();
@@ -351,7 +344,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 			start = System.currentTimeMillis();
 			try {
-
+				PacketRepresentation pr;
 				do {
 					this.receiveBuffer.clear();
 					address = (InetSocketAddress) this.channel.receive(this.receiveBuffer);
@@ -359,18 +352,33 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 					length = this.receiveBuffer.limit();
 					
 					if (length != 0) {
-						PacketRepresentation pr = this.prFactory.allocate();
+						pr = this.prFactory.allocate();
 						receiveBuffer.get(pr.getRawData(), 0, length);
-						pr.setLength(length);
-						pr.setRemoteAddress(address.getAddress());
-						pr.setRemotePort(address.getPort());
+						pr.setLength(length);						
+						pr.setRemoteAddress(address);						
 
-						waitingQueue.offer(pr);						
+						inputQueue.offer(pr);						
 					}
 				} while (this.address != null);
 
 				//this is for async send
 				this.provider.flush();
+				
+				while((pr=outputQueue.poll())!=null)
+				{
+					try {
+						this.sendBuffer.clear();
+						this.sendBuffer.put(pr.getRawData(),0,pr.getLength());
+						this.sendBuffer.flip();
+
+						this.channel.send(this.sendBuffer, pr.getInetAddress());
+					} catch (IOException e) {
+						if(logger.isEnabledFor(Level.ERROR))
+						{							
+							logger.error("I/O Exception occured, caused by", e);
+						}
+					}
+				}
 				
 				finish = System.currentTimeMillis();
 
@@ -407,11 +415,10 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				}
 				continue;
 			}
-
 		}
 
-		for(int i=0;i<this.parserThreads.length;i++)
-			this.parserThreads[i].shutdown();
+		for(int i=0;i<this.decodingThreads.length;i++)
+			this.decodingThreads[i].shutdown();
 		
 		if(this.provider!=null)
 			this.provider.stop();
@@ -433,55 +440,13 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		return completedTransactions;
 	}
 
-	static class ThreadFactoryImpl implements ThreadFactory {
-
-		final ThreadGroup group;
-		final AtomicInteger threadNumber = new AtomicInteger(1);
-		final String namePrefix;
-		protected int priority = Thread.NORM_PRIORITY;
-		protected boolean isDaemonFactory = false;
-
-		ThreadFactoryImpl() {
-			SecurityManager s = System.getSecurityManager();
-			group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-			namePrefix = "JainMgcpStackImpl-FixedThreadPool-" + "thread-";
-		}
-
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 5);
-
-			t.setDaemon(this.isDaemonFactory);
-			// if (t.getPriority() != Thread.NORM_PRIORITY)
-			// t.setPriority(Thread.NORM_PRIORITY);
-			t.setPriority(priority);
-			return t;
-		}
-
-		public int getPriority() {
-			return priority;
-		}
-
-		public void setPriority(int priority) {
-			this.priority = priority;
-		}
-
-		public boolean isDaemonFactory() {
-			return isDaemonFactory;
-		}
-
-		public void setDaemonFactory(boolean isDaemonFactory) {
-			this.isDaemonFactory = isDaemonFactory;
-		}
-
-	}
-
-	private class ParserThread extends Thread
+	private class DecodingThread extends Thread
 	{
 		private volatile boolean active;
         private JainMgcpStackImpl stack;
         protected MessageHandler messageHandler = null;
     	
-		public ParserThread(JainMgcpStackImpl stack)
+		public DecodingThread(JainMgcpStackImpl stack)
 		{
 			this.stack=stack;
 			messageHandler=new MessageHandler(stack);
@@ -490,7 +455,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
     	public void run() {
     		while(active)
     			try {
-    				messageHandler.scheduleMessages(waitingQueue.take());
+    				messageHandler.scheduleMessages(inputQueue.take());
     			}
     			catch(Exception e)
     			{

@@ -40,6 +40,13 @@ import org.mobicents.protocols.mgcp.parser.MgcpContentHandler;
 import org.mobicents.protocols.mgcp.parser.MgcpMessageParser;
 import org.mobicents.protocols.mgcp.parser.Utils;
 
+/**
+ * @author Oleg Kulikov
+ * @author Amit Bhayani
+ * @author Yulian Oifa
+ * 
+ */
+
 public class NotifyHandler extends TransactionHandler {
 
 	private Notify command;
@@ -132,13 +139,29 @@ public class NotifyHandler extends TransactionHandler {
 		}
 
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("N")) {
-				command.setNotifiedEntity(utils.decodeNotifiedEntity(value, false));
-			} else if (name.equalsIgnoreCase("X")) {
-				command.setRequestIdentifier(new RequestIdentifier(value));
-			} else if (name.equalsIgnoreCase("O")) {
-				command.setObservedEvents(utils.decodeEventNames(value));
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'n':
+					case 'N':
+						command.setNotifiedEntity(utils.decodeNotifiedEntity(value, false));
+						break;
+					case 'x':
+					case 'X':
+						command.setRequestIdentifier(new RequestIdentifier(value));
+						break;
+					case 'o':
+					case 'O':
+						command.setObservedEvents(utils.decodeEventNames(value));
+						break;
+					default:
+						logger.error("Unknown code while encoding NTFY Command name = " + name + " value = " + value);
+						break;
+				}
 			}
+			else
+				logger.error("Unknown code while encoding NTFY Command name = " + name + " value = " + value);			
 		}
 
 		public void sessionDescription(String sd) throws ParseException {

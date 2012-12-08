@@ -82,54 +82,66 @@ public class LocalConnectionOptions {
             
             if(count==2)
             {
-            	switch(keyword.charAt(0))
-                {
-            		case 'a':
-            			if(keyword.length()==1)
-            				value.copy(this.codecs);            		
-            			break;
-            		case 'b':
-            			if(keyword.length()==1)
-            				value.copy(this.bandwidth);
-            			break;
-            		case 'p':
-            			if(keyword.length()==1)
-            				value.copy(this.packetizationPeriod);
-            			break;
-            		case 't':
-            			if(keyword.length()==1)
-            				value.copy(this.typeOfService);
-            			break;
-            		case 'e':
-            			if(keyword.length()==1)
-            				value.copy(this.echoCancelation);
-            			break;
-            		case 's':
-            			if(keyword.length()==1)
-            				value.copy(this.silenceSuppression);
-            			break;
-            		case 'r':
-            			if(keyword.length()==1)
-            				value.copy(this.resourceReservation);
-            			break;
-            		case 'k':
-            			if(keyword.length()==1)
-            				value.copy(this.encryptionKey);
-            			break;
-            		case 'g':
-            			if(keyword.length()==2 && keyword.charAt(1)=='c')
-            				value.copy(this.gain);			            				
-            			break;
-            		case 'n':
-            			if(keyword.length()==2 && keyword.charAt(1)=='t')
-            				if(value.equals(LOCAL_NETWORK))
-                        		isLocal=true;
-                		break;
-            		case 'x':
-            			if (keyword.equals(DTMF_CLAMP))
-                        	value.copy(this.dtmfclamp);                        
-            			break;
-                }	
+            	if(keyword.length()==1)
+            	{
+            		switch(keyword.charAt(0))
+                    {
+                		case 'a':
+                		case 'A':
+                			break;
+                		case 'b':
+                		case 'B':
+                			value.copy(this.bandwidth);
+                			break;
+                		case 'p':
+                		case 'P':
+                			value.copy(this.packetizationPeriod);
+                			break;
+                		case 't':
+                		case 'T':
+                			value.copy(this.typeOfService);
+                			break;
+                		case 'e':
+                		case 'E':
+                			value.copy(this.echoCancelation);
+                			break;
+                		case 's':
+                		case 'S':
+                			value.copy(this.silenceSuppression);
+                			break;
+                		case 'r':
+                		case 'R':
+                			value.copy(this.resourceReservation);
+                			break;
+                		case 'k':
+                		case 'K':
+                			value.copy(this.encryptionKey);
+                			break;
+                		case 'x':
+                			if (keyword.equals(DTMF_CLAMP))
+                            	value.copy(this.dtmfclamp);                        
+                			break;
+                    }		
+            	}    
+            	else if(keyword.length()==2)
+            	{
+            		switch(keyword.charAt(0))
+                    {
+                		case 'g':
+                		case 'G':
+                			if(keyword.charAt(1)=='c' || keyword.charAt(1)=='C')
+                				value.copy(this.gain);			            				
+                			break;
+                		case 'n':
+                		case 'N':
+                			if(keyword.charAt(1)=='t' || keyword.charAt(1)=='T')
+                				if(value.equals(LOCAL_NETWORK))
+                            		isLocal=true;
+                    		break;                		
+                    }	
+            	}
+            	else if (keyword.equals(DTMF_CLAMP))
+                	value.copy(this.dtmfclamp);                            			
             }                        
         }
     }

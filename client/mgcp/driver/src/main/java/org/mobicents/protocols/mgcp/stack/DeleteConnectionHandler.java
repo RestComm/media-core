@@ -61,6 +61,7 @@ import org.mobicents.protocols.mgcp.parser.Utils;
  * 
  * @author Oleg Kulikov
  * @author Pavel Mitrenko
+ * @author Yulian Oifa
  */
 public class DeleteConnectionHandler extends TransactionHandler {
 
@@ -197,25 +198,53 @@ public class DeleteConnectionHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("B")) {
-				command.setBearerInformation(utils.decodeBearerInformation(value));
-			} else if (name.equalsIgnoreCase("c")) {
-				command.setCallIdentifier(new CallIdentifier(value));
-			} else if (name.equalsIgnoreCase("I")) {
-				command.setConnectionIdentifier(new ConnectionIdentifier(value));
-			} else if (name.equalsIgnoreCase("X")) {
-				command.setNotificationRequestParms(new NotificationRequestParms(new RequestIdentifier(value)));
-			} else if (name.equalsIgnoreCase("R")) {
-				command.getNotificationRequestParms().setRequestedEvents(utils.decodeRequestedEventList(value));
-			} else if (name.equalsIgnoreCase("S")) {
-				command.getNotificationRequestParms().setSignalRequests(utils.decodeEventNames(value));
-			} else if (name.equalsIgnoreCase("T")) {
-				command.getNotificationRequestParms().setDetectEvents(utils.decodeEventNames(value));
-			} else if (name.equalsIgnoreCase("P")) {
-				command.setConnectionParms(utils.decodeConnectionParms(value));
-			} else if (name.equalsIgnoreCase("E")) {
-				command.setReasonCode(utils.decodeReasonCode(value));
-			}
+			if(name.length()!=1)
+				logger.error("Unknown code while encoding DLCX Command name = " + name + " value = " + value);
+			else
+			{
+				switch(name.charAt(0))
+				{
+					case 'b':
+					case 'B':
+						command.setBearerInformation(utils.decodeBearerInformation(value));		
+						break;
+					case 'c':
+					case 'C':
+						command.setCallIdentifier(new CallIdentifier(value));		
+						break;
+					case 'i':
+					case 'I':
+						command.setConnectionIdentifier(new ConnectionIdentifier(value));		
+						break;
+					case 'x':
+					case 'X':
+						command.setNotificationRequestParms(new NotificationRequestParms(new RequestIdentifier(value)));
+						break;
+					case 'r':
+					case 'R':
+						command.getNotificationRequestParms().setRequestedEvents(utils.decodeRequestedEventList(value));
+						break;
+					case 's':
+					case 'S':
+						command.getNotificationRequestParms().setSignalRequests(utils.decodeEventNames(value));		
+						break;
+					case 't':
+					case 'T':
+						command.getNotificationRequestParms().setDetectEvents(utils.decodeEventNames(value));		
+						break;
+					case 'p':
+					case 'P':
+						command.setConnectionParms(utils.decodeConnectionParms(value));		
+						break;
+					case 'e':
+					case 'E':
+						command.setReasonCode(utils.decodeReasonCode(value));		
+						break;
+					default:
+						logger.error("Unknown code while encoding DLCX Command name = " + name + " value = " + value);
+						break;
+				}
+			}					
 		}
 
 		/**
@@ -262,9 +291,14 @@ public class DeleteConnectionHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("P")) {
-				response.setConnectionParms(utils.decodeConnectionParms(value));
+			if(name.length()==1) {
+				if(name.charAt(0)=='p' || name.charAt(0)=='P')
+					response.setConnectionParms(utils.decodeConnectionParms(value));
+				else
+					logger.warn("Unidentified DLCX Response parameter " + name + " with value = " + value);				
 			}
+			else
+				logger.warn("Unidentified DLCX Response parameter " + name + " with value = " + value);
 		}
 
 		/**

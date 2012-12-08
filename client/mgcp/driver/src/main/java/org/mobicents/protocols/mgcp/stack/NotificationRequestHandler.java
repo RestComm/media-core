@@ -44,6 +44,7 @@ import org.mobicents.protocols.mgcp.parser.Utils;
 /**
  * @author Oleg Kulikov
  * @author Amit Bhayani
+ * @author Yulian Oifa
  * 
  */
 
@@ -156,19 +157,39 @@ public class NotificationRequestHandler extends TransactionHandler {
 		}
 
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("N")) {
-				command.setNotifiedEntity(utils.decodeNotifiedEntity(value, true));
-			} else if (name.equalsIgnoreCase("X")) {
-				command.setRequestIdentifier(new RequestIdentifier(value));
-			} else if (name.equalsIgnoreCase("R")) {
-				command.setRequestedEvents(utils.decodeRequestedEventList(value));
-			} else if (name.equalsIgnoreCase("S")) {
-				command.setSignalRequests(utils.decodeEventNames(value));
-			} else if (name.equalsIgnoreCase("T")) {
-				command.setDetectEvents(utils.decodeEventNames(value));
-			} else if (name.equalsIgnoreCase("D")) {
-				command.setDigitMap(new DigitMap(value));
-			}
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'n':
+					case 'N':
+						command.setNotifiedEntity(utils.decodeNotifiedEntity(value, true));
+						break;
+					case 'x':
+					case 'X':
+						command.setRequestIdentifier(new RequestIdentifier(value));
+						break;
+					case 'r':
+					case 'R':
+						command.setRequestedEvents(utils.decodeRequestedEventList(value));
+						break;
+					case 's':
+					case 'S':
+						command.setSignalRequests(utils.decodeEventNames(value));
+						break;
+					case 't':
+					case 'T':
+						command.setDetectEvents(utils.decodeEventNames(value));
+						break;
+					case 'd':
+					case 'D':
+						command.setDigitMap(new DigitMap(value));
+						break;
+					default:
+						logger.error("Unknown code while encoding RQNT Command name = " + name + " value = " + value);						
+						break;
+				}
+			}			
 		}
 
 		public void sessionDescription(String sd) throws ParseException {

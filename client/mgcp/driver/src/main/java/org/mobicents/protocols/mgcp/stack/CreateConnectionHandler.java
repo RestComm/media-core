@@ -67,6 +67,7 @@ import org.mobicents.protocols.mgcp.parser.Utils;
  * @author Oleg Kulikov
  * @author Pavel Mitrenko
  * @author amit bhayani
+ * @author yulian oifa
  */
 public class CreateConnectionHandler extends TransactionHandler {
 
@@ -222,33 +223,78 @@ public class CreateConnectionHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("B")) {
-				command.setBearerInformation(utils.decodeBearerInformation(value));
-			} else if (name.equalsIgnoreCase("c")) {
-				command.setCallIdentifier(new CallIdentifier(value));
-			}
-			if (name.equalsIgnoreCase("L")) {
-				command.setLocalConnectionOptions(utils.decodeLocalOptionValueList(value));
-			} else if (name.equalsIgnoreCase("m")) {
-				command.setMode(utils.decodeConnectionMode(value));
-			} else if (name.equalsIgnoreCase("N")) {
-				command.setNotifiedEntity(utils.decodeNotifiedEntity(value, true));
-			} else if (name.equalsIgnoreCase("X")) {
-				command.setNotificationRequestParms(new NotificationRequestParms(new RequestIdentifier(value)));
-			} else if (name.equalsIgnoreCase("D")) {
-				command.getNotificationRequestParms().setDigitMap(new DigitMap(value));
-			} else if (name.equalsIgnoreCase("R")) {
-				command.getNotificationRequestParms().setRequestedEvents(utils.decodeRequestedEventList(value));
-			} else if (name.equalsIgnoreCase("S")) {
-				command.getNotificationRequestParms().setSignalRequests(utils.decodeEventNames(value));
-			} else if (name.equalsIgnoreCase("T")) {
-				command.getNotificationRequestParms().setDetectEvents(utils.decodeEventNames(value));
-			} else if (name.equalsIgnoreCase("Z2")) {
-				try {
-					command.setSecondEndpointIdentifier(utils.decodeEndpointIdentifier(value));
-				} catch (ConflictingParameterException e) {
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'b':
+					case 'B':
+						command.setBearerInformation(utils.decodeBearerInformation(value));		
+						break;
+					case 'c':
+					case 'C':
+						command.setCallIdentifier(new CallIdentifier(value));		
+						break;
+					case 'l':
+					case 'L':
+						command.setLocalConnectionOptions(utils.decodeLocalOptionValueList(value));
+						break;
+					case 'm':
+					case 'M':
+						command.setMode(utils.decodeConnectionMode(value));
+						break;
+					case 'n':
+					case 'N':
+						command.setNotifiedEntity(utils.decodeNotifiedEntity(value, true));
+						break;
+					case 'x':
+					case 'X':
+						command.setNotificationRequestParms(new NotificationRequestParms(new RequestIdentifier(value)));		
+						break;
+					case 'd':
+					case 'D':
+						command.getNotificationRequestParms().setDigitMap(new DigitMap(value));		
+						break;
+					case 'r':
+					case 'R':
+						command.getNotificationRequestParms().setRequestedEvents(utils.decodeRequestedEventList(value));
+						break;
+					case 's':
+					case 'S':
+						command.getNotificationRequestParms().setSignalRequests(utils.decodeEventNames(value));		
+						break;
+					case 't':
+					case 'T':
+						command.getNotificationRequestParms().setDetectEvents(utils.decodeEventNames(value));		
+						break;
+					default:
+						logger.error("Unknown code while encoding CRCX Command name = " + name + " value = " + value);
+						break;
 				}
 			}
+			else if(name.length()==2)
+			{
+				switch(name.charAt(0))
+				{
+					case 'z':
+					case 'Z':
+						if(name.charAt(1)=='2')
+						{
+							try {
+								command.setSecondEndpointIdentifier(utils.decodeEndpointIdentifier(value));
+							} catch (ConflictingParameterException e) {
+							}
+						}
+						else
+							logger.error("Unknown code while encoding CRCX Command name = " + name + " value = " + value);						
+						break;
+					default:
+						logger.error("Unknown code while encoding CRCX Command name = " + name + " value = " + value);
+						break;
+				}
+			}
+			else
+				logger.error("Unknown code while encoding CRCX Command name = " + name + " value = " + value);
 		}
 
 		/**
@@ -301,15 +347,44 @@ public class CreateConnectionHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("I")) {
-				response.setConnectionIdentifier(new ConnectionIdentifier(value));
-			} else if (name.equalsIgnoreCase("I2")) {
-				response.setSecondConnectionIdentifier(new ConnectionIdentifier(value));
-			} else if (name.equalsIgnoreCase("Z")) {
-				response.setSpecificEndpointIdentifier(utils.decodeEndpointIdentifier(value));
-			} else if (name.equalsIgnoreCase("Z2")) {
-				response.setSecondEndpointIdentifier(utils.decodeEndpointIdentifier(value));
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'i':
+					case 'I':
+						response.setConnectionIdentifier(new ConnectionIdentifier(value));		
+						break;
+					case 'z':
+					case 'Z':
+						response.setSpecificEndpointIdentifier(utils.decodeEndpointIdentifier(value));		
+						break;
+					default:
+						logger.warn("Unidentified CRCX Response parameter " + name + " with value = " + value);
+						break;
+				}
 			}
+			else if(name.length()==2)
+			{
+				switch(name.charAt(0))
+				{
+					case 'i':
+					case 'I':
+						if(name.charAt(1)=='2')
+							response.setSecondConnectionIdentifier(new ConnectionIdentifier(value));		
+						break;
+					case 'z':
+					case 'Z':
+						if(name.charAt(1)=='2')
+							response.setSecondEndpointIdentifier(utils.decodeEndpointIdentifier(value));								
+						break;
+					default:
+						logger.warn("Unidentified CRCX Response parameter " + name + " with value = " + value);
+						break;
+				}
+			}
+			else
+				logger.warn("Unidentified CRCX Response parameter " + name + " with value = " + value);			
 		}
 
 		/**
@@ -342,5 +417,4 @@ public class CreateConnectionHandler extends TransactionHandler {
 
 		return provisionalResponse;
 	}
-
 }

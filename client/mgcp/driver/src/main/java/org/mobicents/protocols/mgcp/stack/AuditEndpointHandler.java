@@ -248,11 +248,21 @@ public class AuditEndpointHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equalsIgnoreCase("F")) {
-				command.setRequestedInfo(utils.decodeInfoCodeList(value));
-			} else {
+			if(name.length()!=1)
 				logger.error("Unknown code " + name);
-			}
+			else
+			{
+				switch(name.charAt(0))
+				{
+					case 'f':
+					case 'F':
+						command.setRequestedInfo(utils.decodeInfoCodeList(value));
+						break;
+					default:
+						logger.error("Unknown code " + name);
+						break;
+				}
+			}			
 		}
 
 		/**
@@ -300,93 +310,144 @@ public class AuditEndpointHandler extends TransactionHandler {
 		 *            the value of the parameter.
 		 */
 		public void param(String name, String value) throws ParseException {
-			if (name.equals("Z")) {
-				EndpointIdentifier[] endpointIdentifierList = utils.decodeEndpointIdentifiers(value);
-				response.setEndpointIdentifierList(endpointIdentifierList);
+			
+			if(name.length()==1)
+			{
+				switch(name.charAt(0))
+				{
+					case 'z':
+					case 'Z':
+						EndpointIdentifier[] endpointIdentifierList = utils.decodeEndpointIdentifiers(value);
+						response.setEndpointIdentifierList(endpointIdentifierList);
+						break;
+					case 'b':
+					case 'B':
+						BearerInformation b = utils.decodeBearerInformation(value);
+						response.setBearerInformation(b);
+						break;
+					case 'i':
+					case 'I':
+						ConnectionIdentifier[] is = response.getConnectionIdentifiers();
+						if (is == null) {
+							ConnectionIdentifier i = new ConnectionIdentifier(value);
+							response.setConnectionIdentifiers(new ConnectionIdentifier[] { i });
+						} else {
+							ArrayList<ConnectionIdentifier> arrayList = new ArrayList<ConnectionIdentifier>();
+							Collections.addAll(arrayList, is);
+							arrayList.add(new ConnectionIdentifier(value));
+
+							ConnectionIdentifier[] temp = new ConnectionIdentifier[arrayList.size()];
+							response.setConnectionIdentifiers(arrayList.toArray(temp));
+						}
+						break;
+					case 'n':
+					case 'N':
+						NotifiedEntity n = utils.decodeNotifiedEntity(value, true);
+						response.setNotifiedEntity(n);
+						break;
+					case 'x':
+					case 'X':
+						RequestIdentifier ri = new RequestIdentifier(value);
+						response.setRequestIdentifier(ri);
+						break;
+					case 'r':
+					case 'R':
+						RequestedEvent[] r = utils.decodeRequestedEventList(value);
+						response.setRequestedEvents(r);
+						break;
+					case 's':
+					case 'S':
+						EventName[] s = utils.decodeEventNames(value);
+						response.setSignalRequests(s);
+						break;
+					case 'd':
+					case 'D':
+						DigitMap d = new DigitMap(value);
+						response.setDigitMap(d);
+						break;
+					case 'o':
+					case 'O':
+						EventName[] o = utils.decodeEventNames(value);
+						response.setObservedEvents(o);
+						break;
+					case 'e':
+					case 'E':
+						ReasonCode e = utils.decodeReasonCode(value);
+						response.setReasonCode(e);
+						break;
+					case 't':
+					case 'T':
+						EventName[] t = utils.decodeEventNames(value);
+						response.setDetectEvents(t);
+						break;
+					case 'a':
+					case 'A':
+						CapabilityValue[] capabilities = response.getCapabilities();
+						if (capabilities == null) {
+							response.setCapabilities(utils.decodeCapabilityList(value));
+						} else {
+							CapabilityValue[] newCapability = utils.decodeCapabilityList(value);
+							int size = capabilities.length + newCapability.length;
+							CapabilityValue[] temp = new CapabilityValue[size];
+							int count = 0;
+							for (int i = 0; i < capabilities.length; i++) {
+								temp[count] = capabilities[i];
+								count++;
+							}
+
+							for (int j = 0; j < newCapability.length; j++) {
+								temp[count] = newCapability[j];
+								count++;
+							}
+							response.setCapabilities(temp);
+						}
+						break;
+					default:
+						logger.warn("Unidentified AUEP Response parameter " + name + " with value = " + value);
+						break;
+				}
 			}
-			if (name.equalsIgnoreCase("B")) {
-				BearerInformation b = utils.decodeBearerInformation(value);
-				response.setBearerInformation(b);
-			} else if (name.equalsIgnoreCase("I")) {
-				ConnectionIdentifier[] is = response.getConnectionIdentifiers();
-				if (is == null) {
-					ConnectionIdentifier i = new ConnectionIdentifier(value);
-					response.setConnectionIdentifiers(new ConnectionIdentifier[] { i });
-				} else {
-					ArrayList<ConnectionIdentifier> arrayList = new ArrayList<ConnectionIdentifier>();
-					Collections.addAll(arrayList, is);
-					arrayList.add(new ConnectionIdentifier(value));
-
-					ConnectionIdentifier[] temp = new ConnectionIdentifier[arrayList.size()];
-					response.setConnectionIdentifiers(arrayList.toArray(temp));
+			else if(name.length()==2)
+			{
+				switch(name.charAt(1))
+				{
+					case 's':
+					case 'S':
+						if(name.charAt(0)=='e' || name.charAt(0)=='E')
+						{
+							EventName[] es = utils.decodeEventNames(value);
+							response.setEventStates(es);
+						}
+						else							
+							logger.warn("Unidentified AUEP Response parameter " + name + " with value = " + value);
+						break;
+					case 'd':
+					case 'D':
+						if(name.charAt(0)=='r' || name.charAt(0)=='R')
+						{
+							int restartDelay = 0;
+							try {
+								restartDelay = Integer.parseInt(value);
+							} catch (NumberFormatException nfe) {
+								logger.error("RD throws error " + value, nfe);
+							}
+							response.setRestartDelay(restartDelay);
+						}
+						else							
+							logger.warn("Unidentified AUEP Response parameter " + name + " with value = " + value);
+						break;
+					case 'm':
+					case 'M':
+						RestartMethod rm = utils.decodeRestartMethod(value);
+						response.setRestartMethod(rm);		
+						break;
+					default:
+						logger.warn("Unidentified AUEP Response parameter " + name + " with value = " + value);
+						break;
 				}
-			} else if (name.equalsIgnoreCase("N")) {
-				NotifiedEntity n = utils.decodeNotifiedEntity(value, true);
-				response.setNotifiedEntity(n);
-			} else if (name.equalsIgnoreCase("X")) {
-				RequestIdentifier r = new RequestIdentifier(value);
-				response.setRequestIdentifier(r);
-			} else if (name.equalsIgnoreCase("R")) {
-				RequestedEvent[] r = utils.decodeRequestedEventList(value);
-				response.setRequestedEvents(r);
-
-			} else if (name.equalsIgnoreCase("S")) {
-				EventName[] s = utils.decodeEventNames(value);
-				response.setSignalRequests(s);
-			} else if (name.equalsIgnoreCase("D")) {
-				DigitMap d = new DigitMap(value);
-				response.setDigitMap(d);
-			} else if (name.equalsIgnoreCase("O")) {
-				EventName[] o = utils.decodeEventNames(value);
-				response.setObservedEvents(o);
-			} else if (name.equalsIgnoreCase("E")) {
-				ReasonCode e = utils.decodeReasonCode(value);
-				response.setReasonCode(e);
-			} else if (name.equalsIgnoreCase("Q")) {
-				// response.set
-
-			} else if (name.equalsIgnoreCase("T")) {
-				EventName[] t = utils.decodeEventNames(value);
-				response.setDetectEvents(t);
-			} else if (name.equalsIgnoreCase("A")) {
-
-				CapabilityValue[] capabilities = response.getCapabilities();
-				if (capabilities == null) {
-					response.setCapabilities(utils.decodeCapabilityList(value));
-				} else {
-					CapabilityValue[] newCapability = utils.decodeCapabilityList(value);
-					int size = capabilities.length + newCapability.length;
-					CapabilityValue[] temp = new CapabilityValue[size];
-					int count = 0;
-					for (int i = 0; i < capabilities.length; i++) {
-						temp[count] = capabilities[i];
-						count++;
-					}
-
-					for (int j = 0; j < newCapability.length; j++) {
-						temp[count] = newCapability[j];
-						count++;
-					}
-					response.setCapabilities(temp);
-
-				}
-
-			} else if (name.equalsIgnoreCase("ES")) {
-				EventName[] es = utils.decodeEventNames(value);
-				response.setEventStates(es);
-
-			} else if (name.equalsIgnoreCase("RM")) {
-				RestartMethod rm = utils.decodeRestartMethod(value);
-				response.setRestartMethod(rm);
-			} else if (name.equalsIgnoreCase("RD")) {
-				int restartDelay = 0;
-				try {
-					restartDelay = Integer.parseInt(value);
-				} catch (NumberFormatException nfe) {
-					logger.error("RD throws error " + value, nfe);
-				}
-				response.setRestartDelay(restartDelay);
 			}
+			else
+				logger.warn("Unidentified AUEP Response parameter " + name + " with value = " + value);			
 		}
 
 		/**
