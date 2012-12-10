@@ -49,14 +49,13 @@ import org.apache.log4j.Logger;
 /**
  * Provides processing of the MGCP message.
  *
- * @author Oleg Kulikov
- * @author Pavel Mitrenko
+ * @author Yulian Oifa
  */
 public class MgcpMessageParser {
   
     private MgcpContentHandler contentHandler;
     private static final Logger logger = Logger.getLogger(MgcpMessageParser.class);
-    
+    private long totalTime=0;
     /** Creates a new instance of MgcpMessageParser */
     public MgcpMessageParser(MgcpContentHandler contentHandler) {
         if (contentHandler == null) {
@@ -66,60 +65,221 @@ public class MgcpMessageParser {
     }
     
     public void parse(String message) throws IOException, ParseException {
-        StringReader stringReader = new StringReader(message);
-        BufferedReader reader = new BufferedReader(stringReader);
-        
-        String header = reader.readLine();
-        
-//        if (logger.isDebugEnabled()) {
-//            logger.debug("Read header: " + header);
-//        }
-        contentHandler.header(header);
+    	int currIndex=0;
+    	ParamLineValue paramOutput=new ParamLineValue();
+    	LineValue output=new LineValue();
+    	readLineWithTrim(message,currIndex,output);
+    	String header=output.output;
+    	currIndex=output.newIndex;
+    	contentHandler.header(header);
 
-        boolean sdpPresent = false;
-        String line = null;
-        
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
-//            if (logger.isDebugEnabled()) {
-//                logger.debug("Read line: " + line);
-//            }
-            
-            sdpPresent = line.length() == 0;
+        boolean sdpPresent = false;               
+    	String line=null;
+    	while (currIndex<message.length()) {
+        	readParamLineWithTrim(message,currIndex,paramOutput);
+        	currIndex=paramOutput.newIndex;
+        	
+        	sdpPresent = (paramOutput.name==null || paramOutput.name.length()==0);
             if (sdpPresent) break;
             
-            int pos = line.indexOf(':');
-            
-            if (pos < 0) {
+            if (paramOutput.value==null) {
                 logger.warn("Unrecognized parameter: " + line);
                 continue;
             }
-            
-            
-            String parmName = line.substring(0, pos).trim();
-            String parmValue = line.substring(pos + 1).trim();
-            
-            contentHandler.param(parmName, parmValue);
+                        
+            contentHandler.param(paramOutput.name, paramOutput.value);                       
         }
         
-        boolean hasMore = false;
-        String ss = null;
-        try {
-            ss = reader.readLine();
-        } catch (IOException e) {
-            
-        }
-        hasMore = ss != null;
-        
-        if (sdpPresent || hasMore) {
-            String sdp = ss + "\n";
-            while ((line = reader.readLine()) != null) {
-                sdp = sdp + line.trim() + "\r\n";
+        if(sdpPresent)
+        {
+        	long startTime=System.nanoTime();
+        	StringBuilder sdp=new StringBuilder();
+        	while (currIndex<message.length()) {
+        		readLineWithTrim(message,currIndex,output);
+            	line=output.output;
+            	currIndex=output.newIndex;
+            	sdp.append(line);
+        	}
+        	
+        	if (logger.isDebugEnabled()) {
+                logger.debug("Read session description: " + sdp.toString());
             }
-            if (logger.isDebugEnabled()) {
-                logger.debug("Read session description: " + sdp);
-            }
-            contentHandler.sessionDescription(sdp);
+        	
+        	contentHandler.sessionDescription(sdp.toString());                
         }
+    }
+    
+    private void readParamLineWithTrim(String source,int startIndex,ParamLineValue result)
+    {
+    	result.name=null;
+    	result.value=null;
+    	char currChar;
+    	int i=startIndex;    	
+    	for(;i<source.length();i++)
+    	{
+    		currChar=source.charAt(i);
+    		if(currChar!=' ' && currChar!='\t')
+    			break;
+    		
+    		startIndex++;
+    	}
+    	
+    	int endIndex=i;
+    	for(;i<source.length();i++)
+    	{    		
+    		currChar=source.charAt(i);
+    		if(currChar==':')
+    		{
+    			i++;
+    	    	break;	
+    		}
+    		
+    		switch(currChar)
+    		{
+    			case ' ':
+    			case '\t':
+    				break;
+    			case '\n':
+    				result.name=source.substring(startIndex,endIndex);
+        			result.newIndex=i+1;
+        			return;
+    			case '\r':
+    				result.name=source.substring(startIndex,endIndex);
+        			if(source.length()>i+1 && source.charAt(i+1)=='\n')
+        				result.newIndex=i+1;    				
+        			else 
+        				result.newIndex=i+2;        			
+        			return;
+    			default:
+        			endIndex=i+1;        			        			
+        			break;
+    		}
+    	}
+    	
+    	if(i==source.length())
+    	{
+        	result.name=source.substring(startIndex);
+        	result.newIndex=source.length();
+        	return;
+    	}
+    	else
+        	result.name=source.substring(startIndex,endIndex);
+
+        startIndex=i;  
+    	for(;i<source.length();i++)
+    	{
+    		currChar=source.charAt(i);
+    		if(currChar!=' ' && currChar!='\t')
+    			break;
+    		
+    		startIndex++;
+    	}
+    	
+    	endIndex=i;
+    	for(;i<source.length();i++)
+    	{    		
+    		currChar=source.charAt(i);
+    		switch(currChar)
+    		{
+    			case ' ':
+    			case '\t':
+    				break;
+    			case '\n':
+    				result.value=source.substring(startIndex,endIndex);
+        			result.newIndex=i+1;
+        			return;
+    			case '\r':
+    				result.value=source.substring(startIndex,endIndex);
+        			if(source.length()>i+1 && source.charAt(i+1)=='\n')
+        				result.newIndex=i+1;    				
+        			else 
+        				result.newIndex=i+2;        			
+        			return;
+        		default:
+        			endIndex=i+1;
+        			break;
+    		}
+    	}
+    	
+    	if(result.name==null)
+    	{
+    		if(endIndex==source.length())
+				result.name=source.substring(startIndex);
+			else
+				result.name=source.substring(startIndex,endIndex);
+    	}
+    	else
+    	{
+    		if(endIndex==source.length())
+    			result.value=source.substring(startIndex);
+    		else
+    			result.value=source.substring(startIndex,endIndex);
+    	}
+    	
+    	result.newIndex=source.length();    	
+    }
+    
+    private void readLineWithTrim(String source,int startIndex,LineValue result)
+    {
+    	char currChar;
+    	int i=startIndex;    	
+    	for(;i<source.length();i++)
+    	{
+    		currChar=source.charAt(i);
+    		if(currChar!=' ' && currChar!='\t')
+    			break;
+    		
+    		startIndex++;
+    	}
+    	
+    	int endIndex=i;
+    	for(;i<source.length();i++)
+    	{    		
+    		currChar=source.charAt(i);
+    		switch(currChar)
+    		{
+    			case ':':
+    				
+    				break;
+    			case ' ':
+    			case '\t':
+    				break;
+    			case '\n':
+    				result.output=source.substring(startIndex,endIndex);
+        			result.newIndex=i+1;
+        			return;
+    			case '\r':
+    				result.output=source.substring(startIndex,endIndex);
+        			if(source.length()>i+1 && source.charAt(i+1)=='\n')
+        				result.newIndex=i+1;    				
+        			else 
+        				result.newIndex=i+2;
+        			
+        			return;
+        		default:
+        			endIndex=i+1;
+        			break;
+    		}    		
+    	}
+    	
+    	if(endIndex==source.length())
+    		result.output=source.substring(startIndex);
+    	else
+    		result.output=source.substring(startIndex,endIndex);
+    	
+    	result.newIndex=source.length();    	    
+    }
+    
+    private class ParamLineValue
+    {
+    	protected int newIndex;    	
+    	protected String name;
+    	protected String value;
+    }
+    
+    private class LineValue
+    {
+    	protected int newIndex;
+    	protected String output;
     }
 }

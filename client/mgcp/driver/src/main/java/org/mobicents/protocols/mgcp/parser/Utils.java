@@ -79,6 +79,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
@@ -123,18 +124,33 @@ public class Utils {
 	}
 
 	public String[] splitStringBySpace(String value) {
-		// return spacePattern.split(value, 0);
-		try {
-			String[] token = null;
-			this.split(' ', value, decdEventName);
-			token = new String[decdEventName.size()];
-			decdEventName.toArray(token);
-			return token;
-		} finally {
-			decdEventName.clear();
-		}
-	}
-
+		long startTime=System.nanoTime();
+		decdEventName.clear();
+		int startIndex=0;
+		boolean hasData=false;
+		for(int i=0;i<value.length();i++)
+			if(value.charAt(i)==' ')
+			{
+				if(hasData)
+				{
+					decdEventName.add(value.substring(startIndex,i));
+					startIndex=i+1;
+					hasData=false;
+				}
+				else
+					startIndex++;
+			}
+			else
+				hasData=true;				
+		
+		if(startIndex<value.length()-1)
+			decdEventName.add(value.substring(startIndex));
+		
+		String[] token = new String[decdEventName.size()];
+		decdEventName.toArray(token);
+		return token;		
+	}	
+	
 	/**
 	 * Create ConnectionMode object from given text value.
 	 * 
