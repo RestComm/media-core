@@ -74,32 +74,22 @@
 			</plugin>
 			<plugin>
 				<groupId>org.jboss.maven.plugins</groupId>
-				<artifactId>maven-jdocbook-plugin</artifactId>
-				<version>2.3.0</version>
-				<extensions>true</extensions>
-				<dependencies>
-					<dependency>
-						<groupId>org.mobicents.jdocbook</groupId>
-						<artifactId>telestax-xslt-ns</artifactId>
-						<version>1.0.0.FINAL</version>
-					</dependency>
-					<dependency>
-						<groupId>org.mobicents.jdocbook</groupId>
-						<artifactId>telestax-community-style</artifactId>
-						<type>jdocbook-style</type>
-						<version>1.0.0.FINAL</version>
-					</dependency>
-					<dependency>
-						<groupId>xml-resolver</groupId>
-						<artifactId>xml-resolver</artifactId>
-						<version>1.1</version>
-					</dependency>
-					<dependency>
-						<groupId>saxon</groupId>
-						<artifactId>saxon</artifactId>
-						<version>6.5.3</version>
-					</dependency>
-				</dependencies>
+                                <artifactId>maven-jdocbook-plugin</artifactId>
+                                <version>2.3.5</version>
+                                <extensions>true</extensions>
+                                <dependencies>
+                                        <dependency>
+                                                <groupId>org.mobicents.jdocbook</groupId>
+                                                <artifactId>telestax-xslt-ns</artifactId>
+                                                <version>1.2.0</version>
+                                        </dependency>
+                                        <dependency>
+                                                <groupId>org.mobicents.jdocbook</groupId>
+                                                <artifactId>telestax-community-style</artifactId>
+                                                <type>jdocbook-style</type>
+                                                <version>1.2.0</version>
+                                        </dependency>
+                                </dependencies>
 				<configuration>
 					<sourceDocumentName>all-Media_Server_User_Guide.xml</sourceDocumentName>
 					<sourceDirectory>${project.build.directory}/docbook/resources</sourceDirectory>
@@ -127,6 +117,8 @@
 						</format>
 					</formats>
 					<options>
+						<xmlTransformerType>saxon</xmlTransformerType>                                                
+                                                <useRelativeImageUris>true</useRelativeImageUris>
 						<xincludeSupported>true</xincludeSupported>
 						<!-- needed for uri-resolvers; can be ommitted if using 'current' uri 
 							scheme -->
