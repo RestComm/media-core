@@ -25,13 +25,15 @@ package org.mobicents.protocols.mgcp.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.protocols.mgcp.stack.ConcurrentLinkedList;
+
 import org.apache.log4j.Logger;
 
 public class UtilsFactory {
 
 	private static final Logger logger = Logger.getLogger(UtilsFactory.class);
 
-	private List<Utils> list = new ArrayList<Utils>();
+	private ConcurrentLinkedList<Utils> list = new ConcurrentLinkedList<Utils>();
 	private int size = 0;
 	private int count = 0;
 
@@ -39,18 +41,15 @@ public class UtilsFactory {
 		this.size = size;
 		for (int i = 0; i < size; i++) {
 			Utils utils = new Utils();
-			list.add(utils);
+			list.offer(utils);
 		}
 	}
 
 	public Utils allocate() {
-		Utils utils = null;
+		Utils utils = list.poll();
 
-		if (!list.isEmpty()) {
-			utils = list.remove(0);
-			if (utils != null) {
-				return utils;
-			}
+		if (utils != null) {
+			return utils;
 		}
 
 		utils = new Utils();
@@ -63,9 +62,8 @@ public class UtilsFactory {
 	}
 
 	public void deallocate(Utils utils) {
-		if (list.size() < size && utils != null) {
-			list.add(utils);
-		}
+		//lets not discard will cause gc
+		list.offer(utils);
 	}
 
 	public int getSize() {

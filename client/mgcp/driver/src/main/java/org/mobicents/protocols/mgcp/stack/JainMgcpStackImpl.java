@@ -370,14 +370,14 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 						this.sendBuffer.clear();
 						this.sendBuffer.put(pr.getRawData(),0,pr.getLength());
 						this.sendBuffer.flip();
-
-						this.channel.send(this.sendBuffer, pr.getInetAddress());
+						this.channel.send(this.sendBuffer, pr.getInetAddress());											
 					} catch (IOException e) {
 						if(logger.isEnabledFor(Level.ERROR))
 						{							
 							logger.error("I/O Exception occured, caused by", e);
 						}
 					}
+					this.prFactory.deallocate(pr);
 				}
 				
 				finish = System.currentTimeMillis();

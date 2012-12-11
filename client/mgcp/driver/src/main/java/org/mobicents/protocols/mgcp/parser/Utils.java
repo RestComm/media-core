@@ -836,47 +836,43 @@ public class Utils {
 		// (eventId /"all"/eventRange
 		// /"*"/"#");for DTMF
 		// ["@"(ConnectionId /"$"/"*")]
+		decdEventName.clear();
 		this.split('/', value, this.decdEventName);
 
 		// String tokens[] = forwardSlashPattern.split(value, 0);
-		try {
-			int size = decdEventName.size();
-			if (size == 1) {
-				return new EventName(PackageName.AllPackages, MgcpEvent.factory(decdEventName.get(0)).withParm(param));
-			} else if (size == 2) {
-				int pos = decdEventName.get(1).indexOf(AMPERSAND);
-				if (pos > 0) {
-					String cid = (decdEventName.get(1).substring(pos + 1)).trim();
-					ConnectionIdentifier connectionIdentifier = null;
-					if ((ConnectionIdentifier.AnyConnection).toString().equals(cid)) {
-						connectionIdentifier = ConnectionIdentifier.AnyConnection;
-					} else if ((ConnectionIdentifier.AllConnections).toString().equals(cid)) {
-						connectionIdentifier = ConnectionIdentifier.AllConnections;
-					} else {
-						connectionIdentifier = new ConnectionIdentifier(cid);
-					}
-					return new EventName(PackageName.factory(decdEventName.get(0)), MgcpEvent.factory(
-							(decdEventName.get(1)).substring(0, pos)).withParm(param), connectionIdentifier);
+		int size = decdEventName.size();
+		if (size == 1) {
+			return new EventName(PackageName.AllPackages, MgcpEvent.factory(decdEventName.get(0)).withParm(param));
+		} else if (size == 2) {
+			int pos = decdEventName.get(1).indexOf(AMPERSAND);
+			if (pos > 0) {
+				String cid = (decdEventName.get(1).substring(pos + 1)).trim();
+				ConnectionIdentifier connectionIdentifier = null;
+				if ((ConnectionIdentifier.AnyConnection).toString().equals(cid)) {
+					connectionIdentifier = ConnectionIdentifier.AnyConnection;
+				} else if ((ConnectionIdentifier.AllConnections).toString().equals(cid)) {
+					connectionIdentifier = ConnectionIdentifier.AllConnections;
 				} else {
-					return new EventName(PackageName.factory(decdEventName.get(0)), MgcpEvent.factory(
-							decdEventName.get(1)).withParm(param));
+					connectionIdentifier = new ConnectionIdentifier(cid);
 				}
-			} else if (size == 3) {
-				int pos = decdEventName.get(2).indexOf(AMPERSAND);
-				if (pos < 0) {
-					throw new ParseException("Invalid token " + decdEventName.get(2), 0);
-				}
-
-				String cid = (decdEventName.get(1)).substring(pos + 1);
 				return new EventName(PackageName.factory(decdEventName.get(0)), MgcpEvent.factory(
-						(decdEventName.get(1)).substring(0, pos)).withParm(param), new ConnectionIdentifier(cid));
+						(decdEventName.get(1)).substring(0, pos)).withParm(param), connectionIdentifier);
 			} else {
-				throw new ParseException("Unexpected event name " + value, 0);
+				return new EventName(PackageName.factory(decdEventName.get(0)), MgcpEvent.factory(
+						decdEventName.get(1)).withParm(param));
 			}
-		} finally {
-			decdEventName.clear();
-		}
+		} else if (size == 3) {
+			int pos = decdEventName.get(2).indexOf(AMPERSAND);
+			if (pos < 0) {
+				throw new ParseException("Invalid token " + decdEventName.get(2), 0);
+			}
 
+			String cid = (decdEventName.get(1)).substring(pos + 1);
+			return new EventName(PackageName.factory(decdEventName.get(0)), MgcpEvent.factory(
+					(decdEventName.get(1)).substring(0, pos)).withParm(param), new ConnectionIdentifier(cid));
+		} else {
+			throw new ParseException("Unexpected event name " + value, 0);
+		}
 	}
 
 	public String encodeInfoCodeList(InfoCode[] infoCodes) {

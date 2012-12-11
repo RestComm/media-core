@@ -99,6 +99,8 @@ public class MgcpMessageParser {
             	line=output.output;
             	currIndex=output.newIndex;
             	sdp.append(line);
+            	if(currIndex<message.length())
+            		sdp.append("\r\n");
         	}
         	
         	if (logger.isDebugEnabled()) {

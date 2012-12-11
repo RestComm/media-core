@@ -292,10 +292,19 @@ public class DeleteConnectionHandler extends TransactionHandler {
 		 */
 		public void param(String name, String value) throws ParseException {
 			if(name.length()==1) {
-				if(name.charAt(0)=='p' || name.charAt(0)=='P')
-					response.setConnectionParms(utils.decodeConnectionParms(value));
-				else
-					logger.warn("Unidentified DLCX Response parameter " + name + " with value = " + value);				
+				switch(name.charAt(0))
+				{
+					case 'i':
+					case 'I':
+						//do nothing, should not be here , but sent by mms
+						break;
+					case 'p':
+					case 'P':
+						response.setConnectionParms(utils.decodeConnectionParms(value));
+						break;
+					default:				
+						logger.warn("Unidentified DLCX Response parameter " + name + " with value = " + value);
+				}
 			}
 			else
 				logger.warn("Unidentified DLCX Response parameter " + name + " with value = " + value);

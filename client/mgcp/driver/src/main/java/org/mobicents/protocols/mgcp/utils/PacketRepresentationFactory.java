@@ -27,11 +27,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import org.mobicents.protocols.mgcp.stack.ConcurrentLinkedList;
+
 public class PacketRepresentationFactory {
 
 	private static final Logger logger = Logger.getLogger(PacketRepresentationFactory.class);
 
-	private List<PacketRepresentation> list = new ArrayList<PacketRepresentation>();
+	private ConcurrentLinkedList<PacketRepresentation> list = new ConcurrentLinkedList<PacketRepresentation>();
 	private int size = 0;
 	private int dataArrSize = 0;
 	private int count = 0;
@@ -41,18 +43,13 @@ public class PacketRepresentationFactory {
 		this.dataArrSize = dataArrSize;
 		for (int i = 0; i < size; i++) {
 			PacketRepresentation pr = new PacketRepresentation(dataArrSize, this); 
-			list.add(pr);
-		}
+			list.offer(pr);
+		}				
 	}
 
 	public PacketRepresentation allocate() {
-		PacketRepresentation pr = null;
+		PacketRepresentation pr = list.poll();
 
-		if (!list.isEmpty()) {
-			pr = list.remove(0);
-			
-		}
-		
 		if(pr!=null){
 			pr.setLength(0);
 			return pr;
@@ -62,20 +59,17 @@ public class PacketRepresentationFactory {
 		count++;
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("UtilsFactory underflow. Count = " + count);			
+			logger.debug("PRFactory underflow. Count = " + count);			
 		}
 		
-		logger.error("UtilsFactory underflow. Count = " + count);
+		logger.error("PRFactory underflow. Count = " + count);
 		
 		return pr;
 	}
 
 	public void deallocate(PacketRepresentation pr) {
-		if (list.size() < size && pr != null) {
-			list.add(pr);
-		} else{
-			System.out.println("Discarding the PR "+pr);
-		}
+		//lets not discard will cause gc
+		list.offer(pr);
 	}
 
 	public int getSize() {
