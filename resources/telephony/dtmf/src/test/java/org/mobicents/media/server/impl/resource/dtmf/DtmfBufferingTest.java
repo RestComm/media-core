@@ -4,6 +4,8 @@
  */
 package org.mobicents.media.server.impl.resource.dtmf;
 
+import java.io.*;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -11,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.component.audio.CompoundComponent;
 import org.mobicents.media.server.component.audio.CompoundMixer;
 import org.mobicents.media.server.scheduler.Clock;
@@ -222,6 +225,114 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         assertEquals("", tone);
     }
     
+    /*@Test
+    public void testGenerateFile()
+   	{
+    	try
+    	{
+    		java.io.File currFile=new File("testOutput.txt");
+    		java.io.FileOutputStream fout = new FileOutputStream(currFile);
+    		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fout));
+    		String currString;
+    		
+    		generator.setToneDuration(100);    		
+    		generator.setVolume(-20);
+			
+    		for(int i=0;i<=9;i++)
+    		{    		
+    			writer.write("buffer[" + i + "]=new byte[] {");
+    			
+    			generator.setDigit(String.valueOf((char)(i+'0')));
+    			for(int j=0;j<5;j++)
+    			{
+    				Frame currFrame=generator.evolve(0L);
+    				byte[] data=currFrame.getData();
+    				for(int k=0;k<data.length;k++)
+    				{    					
+    					currString="(byte) 0X" + String.format("%02X", data[k]);
+    					if(k<data.length-1 || j<4)
+    						 currString+= ",";
+    					
+    					writer.write(currString);
+    				}
+    			}
+    			    			
+    			writer.write("};");    			
+    			writer.newLine();    			
+    		}
+    		
+    		writer.write("buffer[10]=new byte[] {");
+			
+			generator.setDigit("*");
+			for(int j=0;j<5;j++)
+			{
+				Frame currFrame=generator.evolve(0L);
+				byte[] data=currFrame.getData();
+				for(int k=0;k<data.length;k++)
+				{
+					currString="(byte) 0X" + String.format("%02X", data[k]);
+					if(k<data.length-1 || j<4)
+						 currString+= ",";
+					
+					writer.write(currString);
+				}
+			}
+			    			
+			writer.write("};");    			
+			writer.newLine();  
+			
+			writer.write("buffer[11]=new byte[] {");
+			
+			generator.setDigit("#");
+			for(int j=0;j<5;j++)
+			{
+				Frame currFrame=generator.evolve(0L);
+				byte[] data=currFrame.getData();
+				for(int k=0;k<data.length;k++)
+				{
+					currString="(byte) 0X" + String.format("%02X", data[k]);
+					if(k<data.length-1 || j<4)
+						 currString+= ",";
+					
+					writer.write(currString);
+				}
+			}
+			    			
+			writer.write("};");    			
+			writer.newLine(); 
+			
+    		for(int i=0;i<4;i++)
+    		{    		
+    			writer.write("buffer[" + (i+12) + "]=new byte[] {");
+    			
+    			generator.setDigit(String.valueOf((char)(i+'A')));
+    			for(int j=0;j<5;j++)
+    			{
+    				Frame currFrame=generator.evolve(0L);
+    				byte[] data=currFrame.getData();
+    				for(int k=0;k<data.length;k++)
+    				{
+    					currString="(byte) 0X" + String.format("%02X", data[k]);
+    					if(k<data.length-1 || j<4)
+    						 currString+= ",";
+    					
+    					writer.write(currString);
+    				}
+    			}
+    			    			
+    			writer.write("};");    			
+    			writer.newLine();    			
+    		}
+    		
+    		writer.flush();
+    		fout.close();  
+    	}
+    	catch(Exception e)
+    	{
+    		e.printStackTrace();
+    	}
+   	}*/
+    	
     public void process(DtmfEvent event) {
         tone += event.getTone();
     }

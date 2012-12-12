@@ -10,7 +10,7 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>3.0.0.FINAL</version>
+    <version>3.0.0.FINAL-SNAPSHOT</version>
 
     <name>Mobicents Media Server</name>
     <url>http://code.google.com/p/mediaserver/</url>
@@ -224,37 +224,7 @@
 		without user configuration
 	-->
 
-<<<<<<< HEAD
-    <repositories>        
-=======
     <repositories>
-        	<repository>
-		  <id>telscale-releases-repository</id>
-		  <name>TelScale Releases Repository</name>
-		  <url>http://telestax.artifactoryonline.com/telestax/releases</url>
-		  <releases>
-		    <enabled>true</enabled>
-		    <updatePolicy>never</updatePolicy>
-		  </releases>
-		  <snapshots>
-		    <enabled>false</enabled>
-		    <updatePolicy>never</updatePolicy>
-		  </snapshots>		  		  
-		</repository>
-		<repository>
-		  <id>telscale-snapshots-repository</id>
-		  <name>TelScale Snapshots Repository</name>
-		  <url>http://telestax.artifactoryonline.com/telestax/snapshots</url>
-		  <releases>
-		    <enabled>false</enabled>
-		    <updatePolicy>never</updatePolicy>
-		  </releases>
-		  <snapshots>
-		    <enabled>true</enabled>
-		    <updatePolicy>never</updatePolicy>
-		  </snapshots>		  		  
-		</repository>
->>>>>>> origin/ts1
         	<repository>
 			  <id>mobicents-public-repository-group</id>
 			  <name>Mobicens Public Maven Repository Group</name>

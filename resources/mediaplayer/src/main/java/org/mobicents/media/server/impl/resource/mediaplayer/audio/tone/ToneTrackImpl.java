@@ -69,13 +69,13 @@ public class ToneTrackImpl implements Track {
     	if(currTone>='0' && currTone<='9')
     		source=DtmfTonesData.buffer[currTone-'0'];
     	else if(currTone=='*')
-    		source=DtmfTonesData.buffer[9];
-    	else if(currTone=='#')
     		source=DtmfTonesData.buffer[10];
+    	else if(currTone=='#')
+    		source=DtmfTonesData.buffer[11];
     	else if(currTone>='A' && currTone<='D')
-    		source=DtmfTonesData.buffer[currTone-'A'];
+    		source=DtmfTonesData.buffer[currTone-'A' + 12];
     	else if(currTone>='a' && currTone<='d')
-    		source=DtmfTonesData.buffer[currTone-'a'];
+    		source=DtmfTonesData.buffer[currTone-'a' + 12];
     	else
     		throw new UnsupportedAudioFileException("Invalid tone");
     	
