@@ -23,7 +23,7 @@
 package org.mobicents.media.server.impl.resource.dtmf;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -76,17 +76,17 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     private int pSize;
     private double time = 0;
 
-    private CompoundInput input;
+    private AudioInput input;
     
     public GeneratorImpl(String name, Scheduler scheduler) {
         super(name, scheduler,scheduler.INPUT_QUEUE);
         dt = 1.0 / linear.getSampleRate();
         
-        this.input=new CompoundInput(ComponentType.DTMF_GENERATOR.getType(),packetSize);
+        this.input=new AudioInput(ComponentType.DTMF_GENERATOR.getType(),packetSize);
         this.connect(this.input);   
     }
 
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }

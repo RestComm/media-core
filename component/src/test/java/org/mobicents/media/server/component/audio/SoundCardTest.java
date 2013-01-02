@@ -25,10 +25,10 @@ public class SoundCardTest {
     private Sine sine;
     private SoundCard soundCard;
     
-    private CompoundComponent sineComponent;
-    private CompoundComponent soundCardComponent;
+    private AudioComponent sineComponent;
+    private AudioComponent soundCardComponent;
     
-    private CompoundMixer compoundMixer;
+    private AudioMixer audioMixer;
     
     public SoundCardTest() {
     }
@@ -54,25 +54,25 @@ public class SoundCardTest {
         
         soundCard = new SoundCard(scheduler);
         
-        sineComponent=new CompoundComponent(1);
-        sineComponent.addInput(sine.getCompoundInput());
+        sineComponent=new AudioComponent(1);
+        sineComponent.addInput(sine.getAudioInput());
         sineComponent.updateMode(true,false);
         
-        soundCardComponent=new CompoundComponent(2);
-        soundCardComponent.addOutput(soundCard.getCompoundOutput());
+        soundCardComponent=new AudioComponent(2);
+        soundCardComponent.addOutput(soundCard.getAudioOutput());
         soundCardComponent.updateMode(false,true);
         
-        compoundMixer=new CompoundMixer(scheduler);
-        compoundMixer.addComponent(soundCardComponent);
-        compoundMixer.addComponent(sineComponent);               
+        audioMixer=new AudioMixer(scheduler);
+        audioMixer.addComponent(soundCardComponent);
+        audioMixer.addComponent(sineComponent);               
     }
     
     @After
     public void tearDown() {
     	sine.stop();
-    	compoundMixer.stop();
-    	compoundMixer.release(sineComponent);
-    	compoundMixer.release(soundCardComponent);
+    	audioMixer.stop();
+    	audioMixer.release(sineComponent);
+    	audioMixer.release(soundCardComponent);
     	
         scheduler.stop();
     }
@@ -83,9 +83,9 @@ public class SoundCardTest {
     @Test
     public void testSignal() throws InterruptedException {
     	sine.start();        
-    	compoundMixer.start();
+    	audioMixer.start();
         Thread.sleep(3000);        
         sine.stop();
-        compoundMixer.stop();
+        audioMixer.stop();
     }
 }

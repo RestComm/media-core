@@ -29,8 +29,8 @@ package org.mobicents.media.server.impl.rtp;
 
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
-import org.mobicents.media.server.component.audio.CompoundComponent;
-import org.mobicents.media.server.component.audio.CompoundMixer;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.AudioMixer;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -83,8 +83,8 @@ public class RTPEventTest implements DtmfDetectorListener {
 
     private Sender sender;
     
-    private CompoundMixer compoundMixer;
-    private CompoundComponent detectorComponent;
+    private AudioMixer audioMixer;
+    private AudioComponent detectorComponent;
     
     public RTPEventTest() {
     }
@@ -135,19 +135,19 @@ public class RTPEventTest implements DtmfDetectorListener {
         channel.setInputDsp(dsp11);
         channel.setFormatMap(AVProfile.audio);
 
-        compoundMixer=new CompoundMixer(scheduler);
-        compoundMixer.addComponent(channel.getCompoundComponent());
+        audioMixer=new AudioMixer(scheduler);
+        audioMixer.addComponent(channel.getAudioComponent());
         
-        detectorComponent=new CompoundComponent(1);
-        detectorComponent.addOutput(detector.getCompoundOutput());
+        detectorComponent=new AudioComponent(1);
+        detectorComponent.addOutput(detector.getAudioOutput());
         detectorComponent.updateMode(true,true);
-        compoundMixer.addComponent(detectorComponent);               
+        audioMixer.addComponent(detectorComponent);               
     }
 
     @After
     public void tearDown() {
     	channel.close();
-    	compoundMixer.stop();
+    	audioMixer.stop();
         udpManager.stop();
         scheduler.stop();
         sender.close();
@@ -156,7 +156,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     @Test
     public void testTransmission() throws Exception {
     	channel.updateMode(ConnectionMode.SEND_RECV);
-    	compoundMixer.start();
+    	audioMixer.start();
     	detector.activate();
     	
         new Thread(sender).start();
@@ -164,7 +164,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         Thread.sleep(5000);
         
         channel.updateMode(ConnectionMode.INACTIVE);
-    	compoundMixer.stop();
+    	audioMixer.stop();
     	detector.deactivate();
     }
 
@@ -200,7 +200,13 @@ public class RTPEventTest implements DtmfDetectorListener {
             new byte[] {0x0b, (byte)0x8a, 0x05, (byte)0xa0}
         };
         
+        //lets make empty content for alaw
+        private byte[] zeroContent=new byte[160];
+        
         public Sender(int port) throws SocketException {
+        	for(int i=0;i<zeroContent.length;i++)
+        		zeroContent[i]=(byte)0xD5;
+        	
             this.port = port;
             dst = new InetSocketAddress("127.0.0.1", port);
             socket = new DatagramSocket(new InetSocketAddress("127.0.0.1", 9200));
@@ -231,7 +237,7 @@ public class RTPEventTest implements DtmfDetectorListener {
                         event = false;
                     }
                 } else {
-                    p.wrap(marker, 8, i + 1, 160 * (i + 1) + it, 123, new byte[160], 0, 160);
+                    p.wrap(marker, 8, i + 1, 160 * (i + 1) + it, 123, zeroContent, 0, 160);
                 }
                 
                 byte[] data = new byte[p.getBuffer().limit()];

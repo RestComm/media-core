@@ -57,15 +57,15 @@ public class SpectraAnalyzer extends AbstractSink {
         formats.add(LINEAR_AUDIO);
     }
 
-    private CompoundOutput output;
+    private AudioOutput output;
     
     public SpectraAnalyzer(String name,Scheduler scheduler) {
         super(name);
-        output=new CompoundOutput(scheduler,ComponentType.SPECTRA_ANALYZER.getType());
+        output=new AudioOutput(scheduler,ComponentType.SPECTRA_ANALYZER.getType());
         output.join(this);
     }
 
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }

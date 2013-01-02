@@ -37,8 +37,7 @@
             <parameter><inject bean="localhost"/></parameter>
         </constructor>
         <property name="scheduler"><inject bean="Scheduler" /></property>
-        <property name="rfc2833BufferSize">1</property>
-        <property name="jitter">50</property>
+        <property name="jitterBufferSize">50</property>
         <!--<property name="SS7Manager"><inject bean="SS7" /></property>-->
     </bean>
 

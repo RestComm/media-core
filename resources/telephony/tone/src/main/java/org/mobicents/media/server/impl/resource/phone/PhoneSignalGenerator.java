@@ -18,7 +18,7 @@
 package org.mobicents.media.server.impl.resource.phone;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -53,17 +53,17 @@ public class PhoneSignalGenerator extends AbstractSource  {
     
     private int[] T=new int[] {1,1};
     
-    private CompoundInput input;
+    private AudioInput input;
     
     public PhoneSignalGenerator(String name,Scheduler scheduler) {
         super(name,scheduler,scheduler.INPUT_QUEUE);
         init();
         
-        this.input=new CompoundInput(ComponentType.SIGNAL_GENERATOR.getType(),frameSize);
+        this.input=new AudioInput(ComponentType.SIGNAL_GENERATOR.getType(),frameSize);
         this.connect(this.input);   
     }
     
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }

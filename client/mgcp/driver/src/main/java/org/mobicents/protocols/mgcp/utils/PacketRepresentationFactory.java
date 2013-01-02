@@ -22,12 +22,7 @@
 
 package org.mobicents.protocols.mgcp.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
-
-import org.mobicents.protocols.mgcp.stack.ConcurrentLinkedList;
 
 public class PacketRepresentationFactory {
 

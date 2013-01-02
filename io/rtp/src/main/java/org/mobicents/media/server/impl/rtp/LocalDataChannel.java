@@ -24,9 +24,9 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.component.audio.CompoundInput;
-import org.mobicents.media.server.component.audio.CompoundOutput;
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioInput;
+import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -45,9 +45,9 @@ public class LocalDataChannel {
 	private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;
     
-    private CompoundComponent compoundComponent;
-	private CompoundInput input;
-	private CompoundOutput output;
+    private AudioComponent audioComponent;
+	private AudioInput input;
+	private AudioOutput output;
 	
 	private LocalDataChannel otherChannel=null;
 	
@@ -55,26 +55,26 @@ public class LocalDataChannel {
      * Creates new local channel.
      */
     protected LocalDataChannel(ChannelsManager channelsManager,int channelId) {
-    	compoundComponent=new CompoundComponent(channelId); 
-    	input=new CompoundInput(1,packetSize);
-    	output=new CompoundOutput(channelsManager.getScheduler(),2);
-    	compoundComponent.addInput(input);
-    	compoundComponent.addOutput(output);
+    	audioComponent=new AudioComponent(channelId); 
+    	input=new AudioInput(1,packetSize);
+    	output=new AudioOutput(channelsManager.getScheduler(),2);
+    	audioComponent.addInput(input);
+    	audioComponent.addOutput(output);
     }
 
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }
     
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }
     
-    public CompoundComponent getCompoundComponent()
+    public AudioComponent getAudioComponent()
     {
-    	return this.compoundComponent;
+    	return this.audioComponent;
     }
     
     public void join(LocalDataChannel otherChannel) throws IOException
@@ -84,8 +84,8 @@ public class LocalDataChannel {
     	
     	this.otherChannel=otherChannel;
     	otherChannel.otherChannel=this;
-    	this.otherChannel.getCompoundOutput().join(input);
-    	output.join(this.otherChannel.getCompoundInput());
+    	this.otherChannel.getAudioOutput().join(input);
+    	output.join(this.otherChannel.getAudioInput());
     }
     
     public void unjoin()
@@ -105,20 +105,20 @@ public class LocalDataChannel {
     	
     	switch (connectionMode) {
         	case SEND_ONLY:
-        		compoundComponent.updateMode(false,true);
+        		audioComponent.updateMode(false,true);
         		output.activate();        		
         		break;
         	case RECV_ONLY:
-        		compoundComponent.updateMode(true,false);
+        		audioComponent.updateMode(true,false);
         		output.deactivate();        		
         		break;
         	case INACTIVE:
-        		compoundComponent.updateMode(false,false);
+        		audioComponent.updateMode(false,false);
         		output.deactivate();        		
         		break;
         	case SEND_RECV:
         	case CONFERENCE:
-        		compoundComponent.updateMode(true,true);
+        		audioComponent.updateMode(true,true);
         		output.activate();        		
         		break;
         	case NETWORK_LOOPBACK:

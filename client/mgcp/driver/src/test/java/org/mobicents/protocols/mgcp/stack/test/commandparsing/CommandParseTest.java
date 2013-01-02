@@ -41,11 +41,17 @@ import jain.protocol.ip.mgcp.pkg.PackageName;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.ParseException;
+import java.util.ArrayList;
 
-import org.mobicents.protocols.mgcp.stack.CreateConnectionHandler;
-import org.mobicents.protocols.mgcp.stack.DeleteConnectionHandler;
+import org.mobicents.protocols.mgcp.parser.commands.CreateConnectionHandler;
+import org.mobicents.protocols.mgcp.parser.commands.DeleteConnectionHandler;
+import org.mobicents.protocols.mgcp.parser.commands.NotificationRequestHandler;
+import org.mobicents.protocols.mgcp.parser.params.ReturnCodeHandler;
+
+import org.mobicents.protocols.mgcp.parser.StringFunctions;
+import org.mobicents.protocols.mgcp.parser.SplitDetails;
+
 import org.mobicents.protocols.mgcp.stack.JainMgcpStackImpl;
-import org.mobicents.protocols.mgcp.stack.NotificationRequestHandler;
 import org.mobicents.protocols.mgcp.stack.test.TestHarness;
 
 public class CommandParseTest extends TestHarness {
@@ -170,7 +176,9 @@ public class CommandParseTest extends TestHarness {
 		notificationRequest.setTransactionHandle(155);
 
 		NotificationRequestHandler rqntHandler = new NotificationRequestHandler(jainMgcpStack, inetAddress, port);
-		String command = rqntHandler.encode(notificationRequest);
+		byte[] array=new byte[5000];
+		int length=rqntHandler.encode(notificationRequest,array);
+		String command =new String(array,0,length); 
 
 		// assertEquals(originalCommand, command);
 
@@ -330,11 +338,25 @@ public class CommandParseTest extends TestHarness {
 
 	public void testCreateConnectionResponseDecode() {
 		String response = "200 1204 OK\nI: FDE234C8\n\nv=0\no=- 25678 753849 IN IP4 128.96.41.1\ns=-\nc=IN IP4 128.96.41.1\nt=0 0\nm=audio 3456 RTP/AVP 0";
-
+		byte[] rawByte = response.getBytes();
+		ArrayList<SplitDetails[]> result=StringFunctions.splitLinesWithTrim(rawByte,0,rawByte.length);
+		
 		CreateConnectionResponse createConnectionResponse = null;
 		CreateConnectionHandler crcxHandler = new CreateConnectionHandler(jainMgcpStack, inetAddress, port);
 		try {
-			createConnectionResponse = (CreateConnectionResponse) crcxHandler.decodeResponse(response);
+			SplitDetails[] tokens = StringFunctions.split(rawByte,result.get(0)[0].getOffset(),result.get(0)[0].getLength(),StringFunctions.SPACE_BYTE);
+			Integer remoteTxIdIntegere = new Integer(0);
+			int currIndex=tokens[1].getOffset();
+			for(int j=0;j<tokens[1].getLength();j++,currIndex++)
+			{
+				if(rawByte[currIndex]>=StringFunctions.ZERO_BYTE && rawByte[currIndex]<=StringFunctions.NINE_BYTE)
+					remoteTxIdIntegere=remoteTxIdIntegere*10+(rawByte[currIndex]-StringFunctions.ZERO_BYTE);
+				else 
+					throw new ParseException("Invalid tx:" + new String(rawByte,tokens[1].getOffset(),tokens[1].getLength()), 0);
+			}
+			
+			ReturnCode returnCode = ReturnCodeHandler.decode(rawByte,tokens[0].getOffset(),tokens[0].getLength());
+			createConnectionResponse = (CreateConnectionResponse) crcxHandler.decodeResponse(rawByte,result.get(0),remoteTxIdIntegere,returnCode);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -362,11 +384,25 @@ public class CommandParseTest extends TestHarness {
 
 	public void testCreateConnectionProvisionalResponseDecode() {
 		String response = "100 1206 Pending\nI: DFE233D1\nv=0\no=- 4723891 7428910 IN IP4 128.96.63.25\ns=-\nc=IN IP4 128.96.63.25\nt=0 0\nm=audio 3456 RTP/AVP 0";
-
+		byte[] rawByte = response.getBytes();
+		ArrayList<SplitDetails[]> result=StringFunctions.splitLinesWithTrim(rawByte,0,rawByte.length);
+		
 		CreateConnectionResponse createConnectionProvisionalResponse = null;
 		CreateConnectionHandler crcxHandler = new CreateConnectionHandler(jainMgcpStack, inetAddress, port);
 		try {
-			createConnectionProvisionalResponse = (CreateConnectionResponse) crcxHandler.decodeResponse(response);
+			SplitDetails[] tokens = StringFunctions.split(rawByte,result.get(0)[0].getOffset(),result.get(0)[0].getLength(),StringFunctions.SPACE_BYTE);
+			Integer remoteTxIdIntegere = new Integer(0);
+			int currIndex=tokens[1].getOffset();
+			for(int j=0;j<tokens[1].getLength();j++,currIndex++)
+			{
+				if(rawByte[currIndex]>=StringFunctions.ZERO_BYTE && rawByte[currIndex]<=StringFunctions.NINE_BYTE)
+					remoteTxIdIntegere=remoteTxIdIntegere*10+(rawByte[currIndex]-StringFunctions.ZERO_BYTE);
+				else 
+					throw new ParseException("Invalid tx:" + new String(rawByte,tokens[1].getOffset(),tokens[1].getLength()), 0);
+			}
+			
+			ReturnCode returnCode = ReturnCodeHandler.decode(rawByte,tokens[0].getOffset(),tokens[0].getLength());
+			createConnectionProvisionalResponse = (CreateConnectionResponse) crcxHandler.decodeResponse(rawByte,result.get(0),remoteTxIdIntegere,returnCode);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -462,11 +498,25 @@ public class CommandParseTest extends TestHarness {
 	
 	public void testDeleteConnectionResponseDecode() {
 		String response = "250 1210 OK\nP: PS=1245, OS=62345, PR=780, OR=45123, PL=10, JI=27, LA=48";
-
+		byte[] rawByte = response.getBytes();
+		ArrayList<SplitDetails[]> result=StringFunctions.splitLinesWithTrim(rawByte,0,rawByte.length);
+		
 		DeleteConnectionResponse deleteConnectionResponse = null;
 		DeleteConnectionHandler dlcxHandler = new DeleteConnectionHandler(jainMgcpStack, inetAddress, port);
 		try {
-			deleteConnectionResponse = (DeleteConnectionResponse) dlcxHandler.decodeResponse(response);
+			SplitDetails[] tokens = StringFunctions.split(rawByte,result.get(0)[0].getOffset(),result.get(0)[0].getLength(),StringFunctions.SPACE_BYTE);
+			Integer remoteTxIdIntegere = new Integer(0);
+			int currIndex=tokens[1].getOffset();
+			for(int j=0;j<tokens[1].getLength();j++,currIndex++)
+			{
+				if(rawByte[currIndex]>=StringFunctions.ZERO_BYTE && rawByte[currIndex]<=StringFunctions.NINE_BYTE)
+					remoteTxIdIntegere=remoteTxIdIntegere*10+(rawByte[currIndex]-StringFunctions.ZERO_BYTE);
+				else 
+					throw new ParseException("Invalid tx:" + new String(rawByte,tokens[1].getOffset(),tokens[1].getLength()), 0);
+			}
+			
+			ReturnCode returnCode = ReturnCodeHandler.decode(rawByte,tokens[0].getOffset(),tokens[0].getLength());
+			deleteConnectionResponse = (DeleteConnectionResponse) dlcxHandler.decodeResponse(rawByte,result.get(0),remoteTxIdIntegere,returnCode);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -56,13 +56,36 @@ import java.text.ParseException;
 
 import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
 import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
-import org.mobicents.protocols.mgcp.parser.Utils;
-import org.mobicents.protocols.mgcp.parser.UtilsFactory;
 import org.mobicents.protocols.mgcp.stack.test.TestHarness;
 
+import org.mobicents.protocols.mgcp.parser.StringFunctions;
+import org.mobicents.protocols.mgcp.parser.SplitDetails;
+
+import org.mobicents.protocols.mgcp.parser.params.CapabilityHandler;
+import org.mobicents.protocols.mgcp.parser.params.InfoCodeHandler;
+import org.mobicents.protocols.mgcp.parser.params.ConnectionModeHandler;
+import org.mobicents.protocols.mgcp.parser.params.BearerInformationHandler;
+import org.mobicents.protocols.mgcp.parser.params.LocalOptionValueHandler;
+import org.mobicents.protocols.mgcp.parser.params.BandwidthHandler;
+import org.mobicents.protocols.mgcp.parser.params.CompressionAlgorithmHandler;
+import org.mobicents.protocols.mgcp.parser.params.EchoCancellationHandler;
+import org.mobicents.protocols.mgcp.parser.params.EncryptionMethodHandler;
+import org.mobicents.protocols.mgcp.parser.params.GainControlHandler;
+import org.mobicents.protocols.mgcp.parser.params.PacketizationPeriodHandler;
+import org.mobicents.protocols.mgcp.parser.params.ResourceReservationHandler;
+import org.mobicents.protocols.mgcp.parser.params.SilenceSuppressionHandler;
+import org.mobicents.protocols.mgcp.parser.params.TypeOfNetworkHandler;
+import org.mobicents.protocols.mgcp.parser.params.TypeOfServiceHandler;
+import org.mobicents.protocols.mgcp.parser.params.RestartMethodHandler;
+import org.mobicents.protocols.mgcp.parser.params.EventNameHandler;
+import org.mobicents.protocols.mgcp.parser.params.EmbeddedRequestHandler;
+import org.mobicents.protocols.mgcp.parser.params.RequestedEventHandler;
+import org.mobicents.protocols.mgcp.parser.params.ConnectionParmHandler;
+import org.mobicents.protocols.mgcp.parser.params.ReasonCodeHandler;
+import org.mobicents.protocols.mgcp.parser.params.NotifiedEntityHandler;
+import org.mobicents.protocols.mgcp.parser.params.EndpointIdentifierHandler;
+
 public class ParserTest extends TestHarness {
-	Utils parser = null;
-	UtilsFactory factory = null;
 
 	public ParserTest() {
 		super("ParserTest");
@@ -70,9 +93,6 @@ public class ParserTest extends TestHarness {
 
 	@Override
 	public void setUp() {
-		factory = new UtilsFactory(2);
-		parser = factory.allocate();
-
 	}
 
 	@Override
@@ -81,223 +101,264 @@ public class ParserTest extends TestHarness {
 	}
 
 	public void testDecodeEncodeCapabilityList() throws ParseException {
-		String capability = "a:PCMU;G729,p:10-100,e:on,s:off,v:L;S,m:sendonly;recvonly;sendrecv;inactive;netwloop;netwtest";
-		CapabilityValue[] capabilities = parser.decodeCapabilityList(capability);
+		String capability = "a:PCMU;G729,p:10-100,e:on,s:off,v:L;S,m:sendonly;recvonly;sendrecv;inactive;netwloop;netwtest";						   
+		byte[] value=capability.getBytes();
+		CapabilityValue[] capabilities = CapabilityHandler.decodeList(value,0,value.length);
 
 		assertNotNull(capabilities);
 		assertEquals(6, capabilities.length);
 
-		String encodedCapability = parser.encodeCapabilityList(capabilities);
-
+		byte[] output=new byte[5000];
+		int length=CapabilityHandler.encodeList(output,0,capabilities);
+		String encodedCapability = new String(output,0,length);
 		assertEquals(capability, encodedCapability);
-
-		// Test 2
-//		capability = "a:PCMU;G728, p:10-100, e:on, s:off, t:1, v:L, m:sendonly;recvonly;sendrecv;inactive, a:G729, p:30-90, e:on, s:on, t:1, v:L, m:sendonly;recvonly;sendrecv;inactive;confrnce";
-//		capabilities = parser.decodeCapabilityList(capability);
 	}
 
 	public void testDecodeEncodeInfoCodeList() throws ParseException {
 		String requestedInfo = "R,D,S,X,N,I,T,O,ES";
-		InfoCode[] infoCodeList = parser.decodeInfoCodeList(requestedInfo);
+		byte[] value=requestedInfo.getBytes();		
+		InfoCode[] infoCodeList = InfoCodeHandler.decodeList(value,0,value.length);
 
 		assertNotNull(infoCodeList);
 		assertEquals(9, infoCodeList.length);
 
-		String encodedInfoCodeList = parser.encodeInfoCodeList(infoCodeList);
-		assertEquals(requestedInfo, encodedInfoCodeList);
+		byte[] output=new byte[5000];
+		int length=InfoCodeHandler.encodeList(output,0,infoCodeList);
+		String encodedInfoCodeList = new String(output,0,length);
+		assertEquals(requestedInfo, encodedInfoCodeList);		
 	}
 
-	public void testDecodeConnectionMode() {
+	public void testDecodeConnectionMode() throws ParseException {
 		String connectionMode = "conttest";
-
-		ConnectionMode cMode = parser.decodeConnectionMode(connectionMode);
+		byte[] value=connectionMode.getBytes();		
+		
+		ConnectionMode cMode = ConnectionModeHandler.decode(value,0,value.length);
 		assertNotNull(cMode);
 		assertEquals(connectionMode, cMode.toString());
 	}
 
 	public void testDecodeEncodeBearerInformation() throws ParseException {
 		String text = "e:mu";
-		BearerInformation bearerInformation = parser.decodeBearerInformation(text);
+		byte[] value=text.getBytes();		
+		BearerInformation bearerInformation = BearerInformationHandler.decode(value,0,value.length);
 		assertNotNull(bearerInformation);
 		assertEquals("mu", bearerInformation.toString());
 
-		String encodedText = parser.encodeBearerInformation(bearerInformation);
+		byte[] output=new byte[5000];
+		int length=BearerInformationHandler.encode(output,0,bearerInformation);
+		String encodedText = new String(output,0,length);
 
 		assertEquals(text, encodedText);
 	}
 
 	public void testDecodeLocalOptionValueList() throws ParseException {
 		String text = "p:10,a:PCMU";
-		LocalOptionValue[] localOptionValueList = parser.decodeLocalOptionValueList(text);
+		byte[] value=text.getBytes();		
+		LocalOptionValue[] localOptionValueList = LocalOptionValueHandler.decodeList(value,0,value.length);
 		assertNotNull(localOptionValueList);
 		assertEquals(2, localOptionValueList.length);
 
-		String encodedText = parser.encodeLocalOptionValueList(localOptionValueList);
+		byte[] output=new byte[5000];
+		int length=LocalOptionValueHandler.encodeList(output,0,localOptionValueList);
+		String encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 
 		text = "a:G729;PCMU,p:30-90,e:on,s:on,customkey:customevalue";
-		localOptionValueList = parser.decodeLocalOptionValueList(text);
+		value=text.getBytes();
+		localOptionValueList = LocalOptionValueHandler.decodeList(value,0,value.length);
 		assertEquals(5, localOptionValueList.length);
 
-		encodedText = parser.encodeLocalOptionValueList(localOptionValueList);
+		length=LocalOptionValueHandler.encodeList(output,0,localOptionValueList);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 
 	}
 
 	public void testDecodeEncodeBandwidth() throws ParseException {
 		String text = "64";
-		Bandwidth bandwidth = parser.decodeBandwidth(text);
+		byte[] value=text.getBytes();		
+		Bandwidth bandwidth = BandwidthHandler.decode(value,0,value.length);
 		assertNotNull(bandwidth);
 		assertEquals(64, bandwidth.getBandwidthLowerBound());
 		assertEquals(64, bandwidth.getBandwidthUpperBound());
 
-		String encodedText = parser.encodeBandwidth(bandwidth);
-
+		byte[] output=new byte[5000];
+		int length=BandwidthHandler.encode(output,0,bandwidth);
+		String encodedText = new String(output,0,length);
+		
 		assertEquals(text, encodedText);
 
 		text = "64-128";
-		bandwidth = parser.decodeBandwidth(text);
+		value=text.getBytes();		
+		bandwidth = BandwidthHandler.decode(value,0,value.length);
 		assertNotNull(bandwidth);
 		assertEquals(64, bandwidth.getBandwidthLowerBound());
 		assertEquals(128, bandwidth.getBandwidthUpperBound());
 
-		encodedText = parser.encodeBandwidth(bandwidth);
+		length=BandwidthHandler.encode(output,0,bandwidth);
+		encodedText = new String(output,0,length);
 
 		assertEquals(text, encodedText);
-
 	}
 
 	public void testDecodeEncodeCompressionAlgorithm() throws ParseException {
 		String text = "PCMU;G726";
-		CompressionAlgorithm compressionAlgorithm = parser.decodeCompressionAlgorithm(text);
+		byte[] value=text.getBytes();		
+		CompressionAlgorithm compressionAlgorithm = CompressionAlgorithmHandler.decode(value,0,value.length);
 		assertNotNull(compressionAlgorithm);
 		assertEquals(2, compressionAlgorithm.getCompressionAlgorithmNames().length);
 
-		String encodedText = parser.encodeCompressionAlgorithm(compressionAlgorithm);
+		byte[] output=new byte[5000];
+		int length=CompressionAlgorithmHandler.encode(output,0,compressionAlgorithm);
+		String encodedText = new String(output,0,length);
 
 		assertEquals(text, encodedText);
-
 	}
 
 	public void testDecodeEncodeEchoCancellation() throws ParseException {
 		String text = "on";
-		EchoCancellation echoCancellation = parser.decodeEchoCancellation(text);
+		byte[] value=text.getBytes();		
+		EchoCancellation echoCancellation = EchoCancellationHandler.decode(value,0,value.length);
 		assertNotNull(echoCancellation);
 		assertTrue(echoCancellation.getEchoCancellation());
 
-		String encodedText = parser.encodeEchoCancellation(echoCancellation);
+		byte[] output=new byte[5000];
+		int length=EchoCancellationHandler.encode(output,0,echoCancellation);
+		String encodedText = new String(output,0,length);
 
 		assertEquals(text, encodedText);
 	}
 
 	public void testDecodeEncodeEncryptionMethod() throws ParseException {
 		String text = "base64:somekey";
-		EncryptionMethod encryptionMethod = parser.decodeEncryptionMethod(text);
+		byte[] value=text.getBytes();		
+		EncryptionMethod encryptionMethod = EncryptionMethodHandler.decode(value,0,value.length);
 		assertNotNull(encryptionMethod);
 		assertEquals(2, encryptionMethod.getEncryptionMethod());
 		assertEquals("somekey", encryptionMethod.getEncryptionKey());
 
-		String encodedText = parser.encodeEncryptionMethod(encryptionMethod);
+		byte[] output=new byte[5000];
+		int length=EncryptionMethodHandler.encode(output,0,encryptionMethod);
+		String encodedText = new String(output,0,length);
 
 		assertEquals(text, encodedText);
 	}
 
 	public void testDecodeEncodeGainControl() throws ParseException {
 		String text = "auto";
-		GainControl gainControl = parser.decodeGainControl(text);
+		byte[] value=text.getBytes();		
+		GainControl gainControl = GainControlHandler.decode(value,0,value.length);
 		assertNotNull(gainControl);
 		assertTrue(gainControl.getGainControlAuto());
 
-		String encodedText = parser.encodeGainControl(gainControl);
+		byte[] output=new byte[5000];
+		int length=GainControlHandler.encode(output,0,gainControl);
+		String encodedText = new String(output,0,length);
 
 		assertEquals(text, encodedText);
 
 		text = "101";
-		gainControl = parser.decodeGainControl(text);
+		value=text.getBytes();		
+		gainControl = GainControlHandler.decode(value,0,value.length);
 		assertEquals(101, gainControl.getGainControl());
-		encodedText = parser.encodeGainControl(gainControl);
+		length=GainControlHandler.encode(output,0,gainControl);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
-
 	}
 
 	public void testDecodeEncodePacketizationPeriod() throws ParseException {
 		String text = "20";
-		PacketizationPeriod packetizationPeriod = parser.decodePacketizationPeriod(text);
+		byte[] value=text.getBytes();		
+		PacketizationPeriod packetizationPeriod = PacketizationPeriodHandler.decode(value,0,value.length);
 		assertNotNull(packetizationPeriod);
 		assertEquals(20, packetizationPeriod.getPacketizationPeriodLowerBound());
-		assertEquals(packetizationPeriod.getPacketizationPeriodLowerBound(), packetizationPeriod
-				.getPacketizationPeriodUpperBound());
+		assertEquals(packetizationPeriod.getPacketizationPeriodLowerBound(), packetizationPeriod.getPacketizationPeriodUpperBound());
 
-		String encodedText = parser.encodePacketizationPeriod(packetizationPeriod);
+		byte[] output=new byte[5000];
+		int length=PacketizationPeriodHandler.encode(output,0,packetizationPeriod);
+		String encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 
 		text = "20-25";
-		packetizationPeriod = parser.decodePacketizationPeriod(text);
+		value=text.getBytes();		
+		packetizationPeriod = PacketizationPeriodHandler.decode(value,0,value.length);
 		assertEquals(20, packetizationPeriod.getPacketizationPeriodLowerBound());
 		assertEquals(25, packetizationPeriod.getPacketizationPeriodUpperBound());
-		encodedText = parser.encodePacketizationPeriod(packetizationPeriod);
+		length=PacketizationPeriodHandler.encode(output,0,packetizationPeriod);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
-
 	}
 
 	public void testDecodeEncodeResourceReservation() throws ParseException {
 		String text = "be";
-		ResourceReservation resourceReservation = parser.decodeResourceReservation(text);
+		byte[] value=text.getBytes();		
+		ResourceReservation resourceReservation = ResourceReservationHandler.decode(value,0,value.length);
 		assertNotNull(resourceReservation);
 		assertEquals(ResourceReservation.BEST_EFFORT, resourceReservation.getResourceReservation());
 
-		String encodedText = parser.encodeResourceReservation(resourceReservation);
-
+		byte[] output=new byte[5000];
+		int length=ResourceReservationHandler.encode(output,0,resourceReservation);
+		String encodedText = new String(output,0,length);
+		
 		assertEquals(text, encodedText);
 	}
 
 	public void testDecodeEncodeSilenceSuppression() throws ParseException {
 		String text = "off";
-		SilenceSuppression silenceSuppression = parser.decodeSilenceSuppression(text);
+		byte[] value=text.getBytes();		
+		SilenceSuppression silenceSuppression = SilenceSuppressionHandler.decode(value,0,value.length);
 		assertNotNull(silenceSuppression);
 		assertEquals(false, silenceSuppression.getSilenceSuppression());
 
-		String encodedText = parser.encodeSilenceSuppression(silenceSuppression);
+		byte[] output=new byte[5000];
+		int length=SilenceSuppressionHandler.encode(output,0,silenceSuppression);
+		String encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 	}
 
 	public void testDecodeEncodeTypeOfNetwork() throws ParseException {
 		String text = "atm";
-		TypeOfNetwork typeOfNetwork = parser.decodeTypeOfNetwork(text);
+		byte[] value=text.getBytes();		
+		TypeOfNetwork typeOfNetwork = TypeOfNetworkHandler.decode(value,0,value.length);
 		assertNotNull(typeOfNetwork);
 		assertEquals(TypeOfNetwork.ATM, typeOfNetwork.getTypeOfNetwork());
 
-		String encodedText = parser.encodeTypeOfNetwork(typeOfNetwork);
-
+		byte[] output=new byte[5000];
+		int length=TypeOfNetworkHandler.encode(output,0,typeOfNetwork);
+		String encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 	}
 
 	public void testDecodeEncodeTypeOfService() throws ParseException {
 		String text = "5";
-		TypeOfService typeOfService = parser.decodeTypeOfService(text);
+		byte[] value=text.getBytes();		
+		TypeOfService typeOfService = TypeOfServiceHandler.decode(value,0,value.length);
 		assertNotNull(typeOfService);
 		assertEquals(5, typeOfService.getTypeOfService());
 
-		String encodedText = parser.encodeTypeOfService(typeOfService);
+		byte[] output=new byte[5000];
+		int length=TypeOfServiceHandler.encode(output,0,typeOfService);
+		String encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 	}
 
 	public void testDecodeEncodeRestartMethod() throws ParseException {
 		String text = "disconnected";
-		RestartMethod restartMethod = parser.decodeRestartMethod(text);
+		byte[] value=text.getBytes();		
+		RestartMethod restartMethod = RestartMethodHandler.decode(value,0,value.length);
 		assertNotNull(restartMethod);
 		assertEquals(RestartMethod.DISCONNECTED, restartMethod.getRestartMethod());
 
-		String encodedText = restartMethod.toString();
-
+		byte[] output=new byte[5000];
+		int length=RestartMethodHandler.encode(output,0,restartMethod);
+		String encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
-
 	}
 
 	public void testDecodeEncodeEventName() throws ParseException {
-		String text = "L/rg@112A9FF";
-		String param = "to=6000";
-		EventName eventName = parser.decodeEventName(text, param);
+		String text = "L/rg@112A9FF to=6000";
+		byte[] value=text.getBytes();		
+		EventName eventName = EventNameHandler.decodeWithParams(value,0,12,13,7);
 
 		assertNotNull(eventName);
 		PackageName packageName = eventName.getPackageName();
@@ -312,12 +373,15 @@ public class ParserTest extends TestHarness {
 		assertNotNull(connectionIdentifier);
 		assertEquals("112A9FF", connectionIdentifier.toString());
 
-		String encodedText = parser.encodeEventName(eventName);
-		assertEquals(text + "(" + param + ")", encodedText);
+		byte[] output=new byte[5000];
+		int length=EventNameHandler.encodeList(output,0,new EventName[] { eventName });
+		String encodedText = new String(output,0,length);
+		assertEquals("L/rg@112A9FF(to=6000)", encodedText);
 
 		// Test 2
 		text = "G/rt@$";
-		eventName = parser.decodeEventName(text, null);
+		value=text.getBytes();
+		eventName = EventNameHandler.decode(value,0,value.length);
 
 		assertNotNull(eventName);
 		packageName = eventName.getPackageName();
@@ -332,13 +396,14 @@ public class ParserTest extends TestHarness {
 		assertNotNull(connectionIdentifier);
 		assertEquals(ConnectionIdentifier.AnyConnection.toString(), connectionIdentifier.toString());
 
-		encodedText = parser.encodeEventName(eventName);
+		length=EventNameHandler.encode(output,0,eventName);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
-
 		// Test 3
 		text = "R/qa@*";
-		eventName = parser.decodeEventName(text, null);
-
+		value=text.getBytes();
+		eventName = EventNameHandler.decode(value,0,value.length);
+		
 		assertNotNull(eventName);
 		packageName = eventName.getPackageName();
 		assertEquals(PackageName.RTP, packageName.intValue());
@@ -352,13 +417,15 @@ public class ParserTest extends TestHarness {
 		assertNotNull(connectionIdentifier);
 		assertEquals(ConnectionIdentifier.AllConnections.toString(), connectionIdentifier.toString());
 
-		encodedText = parser.encodeEventName(eventName);
+		length=EventNameHandler.encode(output,0,eventName);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 
 		// Test 4
 		text = "D/[0-9#T]";
-		eventName = parser.decodeEventName(text, null);
-
+		value=text.getBytes();
+		eventName = EventNameHandler.decode(value,0,value.length);
+		
 		packageName = eventName.getPackageName();
 		assertEquals(PackageName.DTMF, packageName.intValue());
 
@@ -369,13 +436,15 @@ public class ParserTest extends TestHarness {
 		connectionIdentifier = eventName.getConnectionIdentifier();
 		assertNull(connectionIdentifier);
 
-		encodedText = parser.encodeEventName(eventName);
+		length=EventNameHandler.encode(output,0,eventName);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 
 		// Test 5
 		text = "T/AllEvents";
-		eventName = parser.decodeEventName(text, null);
-
+		value=text.getBytes();
+		eventName = EventNameHandler.decode(value,0,value.length);
+		
 		packageName = eventName.getPackageName();
 		assertEquals(PackageName.TRUNK, packageName.intValue());
 
@@ -386,13 +455,15 @@ public class ParserTest extends TestHarness {
 		connectionIdentifier = eventName.getConnectionIdentifier();
 		assertNull(connectionIdentifier);
 
-		encodedText = parser.encodeEventName(eventName);
+		length=EventNameHandler.encode(output,0,eventName);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 
 		// Test 6
 		text = "*/AllEvents";
-		eventName = parser.decodeEventName(text, null);
-
+		value=text.getBytes();
+		eventName = EventNameHandler.decode(value,0,value.length);
+		
 		packageName = eventName.getPackageName();
 		assertEquals(PackageName.ALL_PACKAGES, packageName.intValue());
 
@@ -403,27 +474,26 @@ public class ParserTest extends TestHarness {
 		connectionIdentifier = eventName.getConnectionIdentifier();
 		assertNull(connectionIdentifier);
 
-		encodedText = parser.encodeEventName(eventName);
+		length=EventNameHandler.encode(output,0,eventName);
+		encodedText = new String(output,0,length);
 		assertEquals(text, encodedText);
 		
 		//Test 7
-		text = "AU/pr";
-		eventName = parser.decodeEventName(text, "ip=22 ns=42 na=2");
+		text = "AU/pr ip=22 ns=42 na=2";
+		value=text.getBytes();		
+		eventName = EventNameHandler.decodeWithParams(value,0,5,6,16);
 		
 		packageName = eventName.getPackageName();
 		assertEquals(AUPackage.ADVANCED_AUDIO, packageName.intValue());
-		
 		mgcpEvent = eventName.getEventIdentifier();
-		assertEquals(AUMgcpEvent.PLAY_RECORD, mgcpEvent.intValue());
-		
+		assertEquals(AUMgcpEvent.PLAY_RECORD, mgcpEvent.intValue());		
 		assertEquals("ip=22 ns=42 na=2", mgcpEvent.getParms());
-
 	}
 
 	public void testDecodeEncodeEmbeddedRequest() throws ParseException {
 		String text = "R(D/[0-9#T] (D),L/hu (N)),S(L/dl)";
-
-		EmbeddedRequest embeddedRequest = parser.decodeEmbeddedRequest(text);
+		byte[] value=text.getBytes();		
+		EmbeddedRequest embeddedRequest = EmbeddedRequestHandler.decode(value,0,value.length);
 
 		assertNotNull(embeddedRequest);
 
@@ -439,7 +509,7 @@ public class ParserTest extends TestHarness {
 		assertEquals(PackageName.DTMF, packageName.intValue());
 
 		MgcpEvent mgcpEvent = eventName1.getEventIdentifier();
-
+		
 		// There are two custom Events and hence CurrentLargestEventValue will
 		// be greater than 2
 		assertEquals(MgcpEvent.getCurrentLargestEventValue(), mgcpEvent.intValue());
@@ -491,17 +561,17 @@ public class ParserTest extends TestHarness {
 		DigitMap digitMap = embeddedRequest.getEmbeddedDigitMap();
 		assertNull(digitMap);
 
-		String encodedText = parser.encodeEmbeddedRequest(embeddedRequest);
-
-		assertEquals(text, encodedText);
-
+		byte[] output=new byte[5000];
+		int length=EmbeddedRequestHandler.encode(output,0,embeddedRequest);
+		String encodedText = new String(output,0,length);
+		assertEquals("R(D/[0-9#T](D),L/hu(N)),S(L/dl)", encodedText);		
 	}
 
 	public void testDecodeEncodeRequestedEvent() throws ParseException {
-
 		// Test 1
 		String text = "L/hu (N)";
-		RequestedEvent requestedEvent = parser.decodeRequestedEvent(text);
+		byte[] value=text.getBytes();		
+		RequestedEvent requestedEvent = RequestedEventHandler.decode(value,0,value.length);
 		assertNotNull(requestedEvent);
 
 		EventName eventName = requestedEvent.getEventName();
@@ -512,12 +582,15 @@ public class ParserTest extends TestHarness {
 		assertEquals(1, requestedActionList.length);
 		assertEquals(RequestedAction.NOTIFY_IMMEDIATELY, requestedActionList[0].getRequestedAction());
 
-		String encodedText = parser.encodeRequestedEvent(requestedEvent);
-		assertEquals(text, encodedText);
+		byte[] output=new byte[5000];
+		int length=RequestedEventHandler.encode(output,0,requestedEvent);
+		String encodedText = new String(output,0,length);		
+		assertEquals("L/hu(N)", encodedText);
 
 		// Test 2
 		text = "L/hf (S,N)";
-		requestedEvent = parser.decodeRequestedEvent(text);
+		value=text.getBytes();		
+		requestedEvent = RequestedEventHandler.decode(value,0,value.length);
 		assertNotNull(requestedEvent);
 
 		eventName = requestedEvent.getEventName();
@@ -529,12 +602,14 @@ public class ParserTest extends TestHarness {
 		assertEquals(RequestedAction.SWAP, requestedActionList[0].getRequestedAction());
 		assertEquals(RequestedAction.NOTIFY_IMMEDIATELY, requestedActionList[1].getRequestedAction());
 
-		encodedText = parser.encodeRequestedEvent(requestedEvent);
-		assertEquals(text, encodedText);
+		length=RequestedEventHandler.encode(output,0,requestedEvent);
+		encodedText = new String(output,0,length);		
+		assertEquals("L/hf(S,N)", encodedText);
 
 		// Test 3
 		text = "R/foobar (N) (epar=2)";
-		requestedEvent = parser.decodeRequestedEvent(text);
+		value=text.getBytes();		
+		requestedEvent = RequestedEventHandler.decode(value,0,value.length);
 		assertNotNull(requestedEvent);
 
 		eventName = requestedEvent.getEventName();
@@ -547,12 +622,14 @@ public class ParserTest extends TestHarness {
 		assertEquals(1, requestedActionList.length);
 		assertEquals(RequestedAction.NOTIFY_IMMEDIATELY, requestedActionList[0].getRequestedAction());
 
-		encodedText = parser.encodeRequestedEvent(requestedEvent);
-		assertEquals(text, encodedText);
+		length=RequestedEventHandler.encode(output,0,requestedEvent);
+		encodedText = new String(output,0,length);		
+		assertEquals("R/foobar(N)(epar=2)", encodedText);
 
 		// Test 4
 		text = "L/hd (E(R(D/[0-9#T] (D),L/hu (N)),S(L/dl),D([0-9].[#T])))";
-		requestedEvent = parser.decodeRequestedEvent(text);
+		value=text.getBytes();		
+		requestedEvent = RequestedEventHandler.decode(value,0,value.length);
 		assertNotNull(requestedEvent);
 		eventName = requestedEvent.getEventName();
 		assertEquals(PackageName.LINE, eventName.getPackageName().intValue());
@@ -629,84 +706,96 @@ public class ParserTest extends TestHarness {
 		DigitMap digitMap = embeddedRequest.getEmbeddedDigitMap();
 		assertEquals("[0-9].[#T]", digitMap.toString());
 
-		encodedText = parser.encodeRequestedEvent(requestedEvent);
-		assertEquals(text, encodedText);
-
+		length=RequestedEventHandler.encode(output,0,requestedEvent);
+		encodedText = new String(output,0,length);		
+		assertEquals("L/hd(E(R(D/[0-9#T](D),L/hu(N)),S(L/dl),D([0-9].[#T])))", encodedText);
 	}
 
-	public void testDecodeEncodeConnectionParm() {
+	public void testDecodeEncodeConnectionParm() throws ParseException {
 		String text = "PR=780";
-
-		ConnectionParm connectionParm = parser.decodeConnectionParm(text);
+		byte[] value=text.getBytes();		
+		ConnectionParm connectionParm = ConnectionParmHandler.decode(value,0,value.length);
 		assertNotNull(connectionParm);
 		assertEquals(RegularConnectionParm.PACKETS_RECEIVED, connectionParm.getConnectionParmType());
 		assertEquals(780, connectionParm.getConnectionParmValue());
 
-		String encodedText = parser.encodeConnectionParm(connectionParm);
-
+		byte[] output=new byte[5000];
+		int length=ConnectionParmHandler.encode(output,0,connectionParm);
+		String encodedText = new String(output,0,length);				
 		assertEquals(text, encodedText);
 
 		// Test Custom
 		text = "MS=1";
-		connectionParm = parser.decodeConnectionParm(text);
+		value=text.getBytes();		
+		connectionParm = ConnectionParmHandler.decode(value,0,value.length);
 		assertNotNull(connectionParm);
 		assertEquals(1, connectionParm.getConnectionParmValue());
-		encodedText = parser.encodeConnectionParm(connectionParm);
-
+		length=ConnectionParmHandler.encode(output,0,connectionParm);
+		encodedText = new String(output,0,length);	
 		assertEquals(text, encodedText);
 
 	}
 
-	public void testDecodeReasonCode() {
+	public void testDecodeReasonCode() throws ParseException {
 		String text = "0 Endpoint state is nominal.";
-		ReasonCode reasonCode = parser.decodeReasonCode(text);
+		byte[] value=text.getBytes();		
+		ReasonCode reasonCode = ReasonCodeHandler.decode(value,0,value.length);
 		assertNotNull(reasonCode);
 		assertEquals(ReasonCode.ENDPOINT_STATE_IS_NOMINAL, reasonCode.getValue());
 
-		String encodedText = reasonCode.toString();
-
-		assertEquals(text, encodedText);
+		byte[] output=new byte[5000];
+		int length=ReasonCodeHandler.encode(output,0,reasonCode);
+		String encodedText = new String(output,0,length);
+		assertEquals(text, encodedText);		
 	}
 
 	public void testDecodeEncodeNotifiedEntity() throws ParseException {
 		String text = "128.96.41.12";
-		NotifiedEntity notifiedEntity = parser.decodeNotifiedEntity(text, true);
+		byte[] value=text.getBytes();		
+		NotifiedEntity notifiedEntity = NotifiedEntityHandler.decode(value,0,value.length,true);
 		assertNotNull(notifiedEntity);
 		assertEquals("128.96.41.12", notifiedEntity.getDomainName());
 		assertEquals(2427, notifiedEntity.getPortNumber());
 
-		String encodedText = parser.encodeNotifiedEntity(notifiedEntity);
+		byte[] output=new byte[5000];
+		int length=NotifiedEntityHandler.encode(output,0,notifiedEntity);
+		String encodedText = new String(output,0,length);				
 		assertEquals("128.96.41.12:2427", encodedText);
 
 		// Test 2
 		text = "CA-1@whatever.net";
-		notifiedEntity = parser.decodeNotifiedEntity(text, false);
+		value=text.getBytes();		
+		notifiedEntity = NotifiedEntityHandler.decode(value,0,value.length,false);
 		assertEquals("whatever.net", notifiedEntity.getDomainName());
 		assertEquals("CA-1", notifiedEntity.getLocalName());
 		assertEquals(2727, notifiedEntity.getPortNumber());
-		encodedText = parser.encodeNotifiedEntity(notifiedEntity);
+		length=NotifiedEntityHandler.encode(output,0,notifiedEntity);
+		encodedText = new String(output,0,length);		
 		assertEquals("CA-1@whatever.net:2727", encodedText);
 
 		// Test 3
 		text = "ca@ca1.whatever.net:5678";
-		notifiedEntity = parser.decodeNotifiedEntity(text, false);
+		value=text.getBytes();		
+		notifiedEntity = NotifiedEntityHandler.decode(value,0,value.length,false);
 		assertEquals("ca1.whatever.net", notifiedEntity.getDomainName());
 		assertEquals("ca", notifiedEntity.getLocalName());
 		assertEquals(5678, notifiedEntity.getPortNumber());
-		encodedText = parser.encodeNotifiedEntity(notifiedEntity);
-		assertEquals(text, encodedText);
+		length=NotifiedEntityHandler.encode(output,0,notifiedEntity);
+		encodedText = new String(output,0,length);
+		assertEquals(text, encodedText);		
 	}
 
-	public void testDecodeEncodeEndpointIdentifier() {
+	public void testDecodeEncodeEndpointIdentifier() throws ParseException {
 		String text = "aaln/1@rgw.whatever.net";
-		EndpointIdentifier endpointIdentifier = parser.decodeEndpointIdentifier(text);
+		byte[] value=text.getBytes();		
+		EndpointIdentifier endpointIdentifier = EndpointIdentifierHandler.decode(value,0,value.length);
 		assertNotNull(endpointIdentifier);
 		assertEquals("aaln/1", endpointIdentifier.getLocalEndpointName());
 		assertEquals("rgw.whatever.net", endpointIdentifier.getDomainName());
 
-		String encodedText = parser.encodeEndpointIdentifier(endpointIdentifier);
+		byte[] output=new byte[5000];
+		int length=EndpointIdentifierHandler.encode(output,0,endpointIdentifier);
+		String encodedText = new String(output,0,length);				
 		assertEquals(text, encodedText);
-
 	}
-
 }

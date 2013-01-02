@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.CompoundOutput;
+import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -108,7 +108,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     
     private boolean speechDetected=false;
     
-    private CompoundOutput output;
+    private AudioOutput output;
     
     private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
     
@@ -128,11 +128,11 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         eventSender = new EventSender();
         heartbeat = new Heartbeat();
         
-        output=new CompoundOutput(scheduler,ComponentType.RECORDER.getType());
+        output=new AudioOutput(scheduler,ComponentType.RECORDER.getType());
         output.join(this);
     }
 
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }

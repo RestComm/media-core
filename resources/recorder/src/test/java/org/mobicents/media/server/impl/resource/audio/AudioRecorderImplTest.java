@@ -10,10 +10,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.component.audio.CompoundInput;
-import org.mobicents.media.server.component.audio.CompoundOutput;
-import org.mobicents.media.server.component.audio.CompoundComponent;
-import org.mobicents.media.server.component.audio.CompoundMixer;
+import org.mobicents.media.server.component.audio.AudioInput;
+import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -31,10 +31,10 @@ public class AudioRecorderImplTest {
     private Sine sine;
     private AudioRecorderImpl recorder;
     
-    private CompoundComponent sineComponent;
-    private CompoundComponent recorderComponent;
+    private AudioComponent sineComponent;
+    private AudioComponent recorderComponent;
     
-    private CompoundMixer mixer;
+    private AudioMixer mixer;
     
     public AudioRecorderImplTest() {
     }
@@ -60,16 +60,16 @@ public class AudioRecorderImplTest {
         
         recorder = new AudioRecorderImpl(scheduler);
         
-        sineComponent=new CompoundComponent(1);
-        recorderComponent=new CompoundComponent(2);
+        sineComponent=new AudioComponent(1);
+        recorderComponent=new AudioComponent(2);
         
         sineComponent.updateMode(true,true);
         recorderComponent.updateMode(true,true);
         
-        sineComponent.addInput(sine.getCompoundInput());
-        recorderComponent.addOutput(recorder.getCompoundOutput());
+        sineComponent.addInput(sine.getAudioInput());
+        recorderComponent.addOutput(recorder.getAudioOutput());
         
-        mixer=new CompoundMixer(scheduler);
+        mixer=new AudioMixer(scheduler);
         mixer.addComponent(sineComponent);
         mixer.addComponent(recorderComponent);               
     }

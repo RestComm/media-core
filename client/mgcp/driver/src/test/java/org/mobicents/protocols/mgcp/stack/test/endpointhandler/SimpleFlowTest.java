@@ -57,7 +57,7 @@ public class SimpleFlowTest extends MessageFlowHarness {
 		this.ca.sendCRCX();
 		waitForRetransmissionTimeout();
 		
-		sleep(45000);
+		sleep(10000);
 		
 		}finally
 		{

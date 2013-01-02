@@ -30,7 +30,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.text.Format;
 import java.util.ArrayList;
-import org.mobicents.media.server.component.audio.CompoundOutput;
+import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.Channel;
@@ -84,7 +84,7 @@ public class SS7Output extends AbstractSink {
     //number of bytes to send in single cycle
     private static final int SEND_SIZE=32;
     
-    private CompoundOutput output;
+    private AudioOutput output;
     /**
      * Creates new transmitter
      */
@@ -95,11 +95,11 @@ public class SS7Output extends AbstractSink {
         this.sender=new Sender();
         
         this.scheduler=scheduler;
-        output=new CompoundOutput(scheduler,1);
+        output=new AudioOutput(scheduler,1);
         output.join(this);    
     }
     
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }

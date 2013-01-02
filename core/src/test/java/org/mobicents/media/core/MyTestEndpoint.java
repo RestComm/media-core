@@ -33,7 +33,7 @@ import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.spi.Endpoint;
@@ -49,10 +49,10 @@ public class MyTestEndpoint extends BaseMixerEndpointImpl implements Endpoint {
     private int f;
     private Sine sine;
     private SpectraAnalyzer analyzer;
-    private CompoundComponent compoundComponent;
+    private AudioComponent audioComponent;
     public MyTestEndpoint(String localName) {
         super(localName);        
-        compoundComponent=new CompoundComponent(-1);
+        audioComponent=new AudioComponent(-1);
     }
 
     public void setFreq(int f) {
@@ -68,10 +68,10 @@ public class MyTestEndpoint extends BaseMixerEndpointImpl implements Endpoint {
         sine.setAmplitude((short)(Short.MAX_VALUE / 3));
         analyzer = new SpectraAnalyzer("analyzer",this.getScheduler());
         
-        compoundComponent.addInput(sine.getCompoundInput());
-        compoundComponent.addOutput(analyzer.getCompoundOutput());
-        compoundComponent.updateMode(true,true);
-        compoundMixer.addComponent(compoundComponent);
+        audioComponent.addInput(sine.getAudioInput());
+        audioComponent.addOutput(analyzer.getAudioOutput());
+        audioComponent.updateMode(true,true);
+        audioMixer.addComponent(audioComponent);
         modeUpdated(ConnectionMode.INACTIVE,ConnectionMode.SEND_RECV);
     }    
     

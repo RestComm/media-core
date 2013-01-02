@@ -29,7 +29,7 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.utils.Text;
@@ -47,9 +47,9 @@ public class LocalConnectionImpl extends BaseConnection {
         this.localAudioChannel=channelsManager.getLocalChannel();
     }
     
-    public CompoundComponent getCompoundComponent()
+    public AudioComponent getAudioComponent()
     {
-    	return this.localAudioChannel.getCompoundComponent();
+    	return this.localAudioChannel.getAudioComponent();
     }
     
     @Override

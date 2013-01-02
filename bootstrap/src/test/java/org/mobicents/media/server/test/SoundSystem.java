@@ -33,7 +33,7 @@ import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SoundCard;
 import org.mobicents.media.server.spi.Endpoint;
@@ -50,11 +50,11 @@ public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
     private Sine sine;
     private SoundCard soundcard;
 
-    private CompoundComponent compoundComponent;
+    private AudioComponent audioComponent;
     
     public SoundSystem(String localName) {
         super(localName);
-        compoundComponent=new CompoundComponent(-1);
+        audioComponent=new AudioComponent(-1);
     }
 
     public void setFreq(int f) {
@@ -70,10 +70,10 @@ public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
         sine.setAmplitude((short)(Short.MAX_VALUE / 3));
         soundcard = new SoundCard(this.getScheduler());
         
-        compoundComponent.addInput(sine.getCompoundInput());
-        compoundComponent.addOutput(soundcard.getCompoundOutput());
-        compoundComponent.updateMode(true,true);
-        compoundMixer.addComponent(compoundComponent);
+        audioComponent.addInput(sine.getAudioInput());
+        audioComponent.addOutput(soundcard.getAudioOutput());
+        audioComponent.updateMode(true,true);
+        audioMixer.addComponent(audioComponent);
         modeUpdated(ConnectionMode.INACTIVE,ConnectionMode.SEND_RECV);
     }    
 

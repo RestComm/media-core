@@ -11,8 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.mobicents.media.server.component.audio.CompoundComponent;
-import org.mobicents.media.server.component.audio.CompoundMixer;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -32,9 +32,9 @@ public class ToneTest implements ToneDetectorListener {
     private PhoneSignalDetector detector;
     private PhoneSignalGenerator generator;
     
-    private CompoundComponent detectorComponent;
-    private CompoundComponent generatorComponent;
-    private CompoundMixer compoundMixer;
+    private AudioComponent detectorComponent;
+    private AudioComponent generatorComponent;
+    private AudioMixer audioMixer;
     
     private Boolean detected=false;
     
@@ -62,25 +62,25 @@ public class ToneTest implements ToneDetectorListener {
         
         detector.addListener(this);
         
-        compoundMixer=new CompoundMixer(scheduler);
+        audioMixer=new AudioMixer(scheduler);
         
-        detectorComponent=new CompoundComponent(1);
-        detectorComponent.addOutput(detector.getCompoundOutput());
+        detectorComponent=new AudioComponent(1);
+        detectorComponent.addOutput(detector.getAudioOutput());
         detectorComponent.updateMode(false,true);
         
-        generatorComponent=new CompoundComponent(2);
-        generatorComponent.addInput(generator.getCompoundInput());
+        generatorComponent=new AudioComponent(2);
+        generatorComponent.addInput(generator.getAudioInput());
         generatorComponent.updateMode(true,false);
         
-        compoundMixer.addComponent(detectorComponent);
-        compoundMixer.addComponent(generatorComponent);    	
+        audioMixer.addComponent(detectorComponent);
+        audioMixer.addComponent(generatorComponent);    	
     }
     
     @After
     public void tearDown() {
     	generator.deactivate();
     	detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
         scheduler.stop();
     }
 
@@ -93,13 +93,13 @@ public class ToneTest implements ToneDetectorListener {
     	detector.setFrequency(new int[] {1700});
         generator.activate();
         detector.activate();
-    	compoundMixer.start();
+    	audioMixer.start();
         
         Thread.sleep(5000);
         
         generator.deactivate();
         detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
     	
         assertEquals(true, detected);    	
     }    

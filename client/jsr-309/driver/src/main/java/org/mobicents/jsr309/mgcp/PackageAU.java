@@ -21,6 +21,9 @@ package org.mobicents.jsr309.mgcp;
 import jain.protocol.ip.mgcp.pkg.MgcpEvent;
 import jain.protocol.ip.mgcp.pkg.PackageName;
 
+import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
+import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
+
 /**
  * Defines advanced audio package.
  * 
@@ -28,15 +31,14 @@ import jain.protocol.ip.mgcp.pkg.PackageName;
  */
 public interface PackageAU {
     /** package name */
-    public final static PackageName Name = PackageName.factory("AU");
+    public final static PackageName Name = AUPackage.AU;
     
     /** events */
-    public final static MgcpEvent pa = MgcpEvent.factory("pa");
-    public final static MgcpEvent pc = MgcpEvent.factory("pc");
-    public final static MgcpEvent pr = MgcpEvent.factory("pr");
+    public final static MgcpEvent pa = AUMgcpEvent.aupa;
+    public final static MgcpEvent pc = AUMgcpEvent.aupc;
+    public final static MgcpEvent pr = AUMgcpEvent.aupr;
     
-    public final static MgcpEvent oc = MgcpEvent.factory("oc");
-    public final static MgcpEvent of = MgcpEvent.factory("of");
-    public final static MgcpEvent es = MgcpEvent.factory("es");
-    
+    public final static MgcpEvent oc = AUMgcpEvent.auoc;
+    public final static MgcpEvent of = AUMgcpEvent.auof;
+    public final static MgcpEvent es = AUMgcpEvent.aues;
 }

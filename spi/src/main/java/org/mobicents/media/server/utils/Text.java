@@ -241,7 +241,7 @@ public class Text implements CharSequence {
      * @see java.lang.CharSequence#subSequence(int, int);
      */
     public CharSequence subSequence(int start, int end) {
-        return new Text(chars, start, end - start);
+        return new Text(chars, this.pos + start, end - start);
     }
 
     /**

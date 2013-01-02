@@ -32,7 +32,7 @@ import java.nio.channels.SelectionKey;
 import java.text.Format;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -73,18 +73,18 @@ public class RTPInput extends AbstractSource implements BufferListener {
     
     private static final Logger logger = Logger.getLogger(RTPInput.class);
     
-    private CompoundInput input;
+    private AudioInput input;
 	/**
      * Creates new receiver.
      */
     protected RTPInput(Scheduler scheduler,JitterBuffer rxBuffer) {
         super("rtpinput", scheduler,scheduler.INPUT_QUEUE);
         this.rxBuffer=rxBuffer;        
-        input=new CompoundInput(1,packetSize);
+        input=new AudioInput(1,packetSize);
         this.connect(input);        
     }
 
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }

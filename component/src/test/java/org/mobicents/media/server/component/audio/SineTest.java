@@ -50,10 +50,10 @@ public class SineTest {
     private Sine sine;
     private SpectraAnalyzer analyzer;
     
-    private CompoundComponent sineComponent;
-    private CompoundComponent analyzerComponent;
+    private AudioComponent sineComponent;
+    private AudioComponent analyzerComponent;
     
-    private CompoundMixer compoundMixer;
+    private AudioMixer audioMixer;
     
     public SineTest() {
     }
@@ -77,17 +77,17 @@ public class SineTest {
         sine = new Sine(scheduler);
         analyzer = new SpectraAnalyzer("analyzer",scheduler);
 
-        sineComponent=new CompoundComponent(1);
-        sineComponent.addInput(sine.getCompoundInput());
+        sineComponent=new AudioComponent(1);
+        sineComponent.addInput(sine.getAudioInput());
         sineComponent.updateMode(true,false);
         
-        analyzerComponent=new CompoundComponent(2);
-        analyzerComponent.addOutput(analyzer.getCompoundOutput());
+        analyzerComponent=new AudioComponent(2);
+        analyzerComponent.addOutput(analyzer.getAudioOutput());
         analyzerComponent.updateMode(false,true);
         
-        compoundMixer=new CompoundMixer(scheduler);
-        compoundMixer.addComponent(sineComponent);
-        compoundMixer.addComponent(analyzerComponent); 
+        audioMixer=new AudioMixer(scheduler);
+        audioMixer.addComponent(sineComponent);
+        audioMixer.addComponent(analyzerComponent); 
         
         sine.setFrequency(50);
     }
@@ -95,9 +95,9 @@ public class SineTest {
     @After
     public void tearDown() {
     	sine.stop();
-    	compoundMixer.stop();
-    	compoundMixer.release(sineComponent);
-    	compoundMixer.release(analyzerComponent);
+    	audioMixer.stop();
+    	audioMixer.release(sineComponent);
+    	audioMixer.release(analyzerComponent);
     	
         scheduler.stop();
     }
@@ -109,13 +109,13 @@ public class SineTest {
     public void testSignal() throws Exception {
         sine.activate();
         analyzer.activate();
-        compoundMixer.start();
+        audioMixer.start();
         
         Thread.sleep(2000);
 
         sine.deactivate();
         analyzer.deactivate();
-        compoundMixer.stop();
+        audioMixer.stop();
         
         Thread.sleep(1000);
 
@@ -127,12 +127,12 @@ public class SineTest {
         sine.setAmplitude((short)0);        
         sine.activate();
         analyzer.activate();
-        compoundMixer.start();
+        audioMixer.start();
         
         Thread.sleep(1000);
         sine.deactivate();
         analyzer.deactivate();
-        compoundMixer.stop();
+        audioMixer.stop();
         
         spectra = analyzer.getSpectra();
         assertEquals(0, spectra.length);

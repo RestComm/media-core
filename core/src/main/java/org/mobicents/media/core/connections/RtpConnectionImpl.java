@@ -37,7 +37,7 @@ import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.core.SdpTemplate;
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
@@ -108,9 +108,9 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         template = new SdpTemplate(audioFormats,null);
     }
 
-    public CompoundComponent getCompoundComponent()
+    public AudioComponent getAudioComponent()
     {
-    	return this.rtpAudioChannel.getCompoundComponent();
+    	return this.rtpAudioChannel.getAudioComponent();
     }
     
     /**

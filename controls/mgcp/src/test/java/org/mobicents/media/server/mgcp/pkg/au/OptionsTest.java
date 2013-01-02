@@ -50,4 +50,18 @@ public class OptionsTest {
         assertTrue(segments != null);
     }
 
+    /**
+     * Test of getSegments method, of class Options.
+     */
+    @Test
+    public void testGetPositionKeys() {
+    	Text params = new Text("dp=0| cb=true psk=1,fst psk=4,prv psk=2,cur psk=6,nxt psk=3,lst");
+        Options options = new Options(params);
+        
+        assertTrue(options.prevKeyValid());
+        assertTrue(options.firstKeyValid());
+        assertTrue(options.currKeyValid());
+        assertTrue(options.nextKeyValid());
+        assertTrue(options.lastKeyValid());
+    }
 }

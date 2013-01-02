@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.connections.BaseConnection;
-import org.mobicents.media.server.component.audio.CompoundSplitter;
+import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -53,7 +53,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  */
 public class BaseSS7EndpointImpl extends BaseEndpointImpl {
 	
-	protected CompoundSplitter compoundSplitter;
+	protected AudioSplitter audioSplitter;
 	
 	private AtomicInteger loopbackCount=new AtomicInteger(0);
 	private AtomicInteger readCount=new AtomicInteger(0);
@@ -80,8 +80,8 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     public void start() throws ResourceUnavailableException {
     	super.start();
     	
-    	compoundSplitter=new CompoundSplitter(getScheduler());
-    	compoundSplitter.addOutsideComponent(mediaGroup.getCompoundComponent());
+    	audioSplitter=new AudioSplitter(getScheduler());
+    	audioSplitter.addOutsideComponent(mediaGroup.getAudioComponent());
     	
     	try {
     		ss7DataChannel=channelsManager.getSS7Channel(channelID,isALaw);
@@ -97,7 +97,7 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
         catch(Exception e) {
         	//exception may happen only if invalid classes have been set in config
         }
-    	compoundSplitter.addInsideComponent(ss7DataChannel.getCompoundComponent());
+    	audioSplitter.addInsideComponent(ss7DataChannel.getAudioComponent());
     }
 
     /**
@@ -106,8 +106,8 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
      * @see org.mobicents.media.server.spi.Endpoint#stop()
      */
     public void stop() {
-    	compoundSplitter.releaseInsideComponent(ss7DataChannel.getCompoundComponent());
-    	compoundSplitter.releaseOutsideComponent(mediaGroup.getCompoundComponent());
+    	audioSplitter.releaseInsideComponent(ss7DataChannel.getAudioComponent());
+    	audioSplitter.releaseOutsideComponent(mediaGroup.getAudioComponent());
     	super.stop();    	
     }
     
@@ -118,7 +118,7 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
      */
     public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
     	Connection connection=super.createConnection(type,isLocal);
-    	compoundSplitter.addOutsideComponent(((BaseConnection)connection).getCompoundComponent());
+    	audioSplitter.addOutsideComponent(((BaseConnection)connection).getAudioComponent());
     	
     	if(getActiveConnectionsCount()==1)
     	{
@@ -137,7 +137,7 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
      */
     public void deleteConnection(Connection connection,ConnectionType connectionType) {
     	super.deleteConnection(connection,connectionType);
-    	compoundSplitter.releaseOutsideComponent(((BaseConnection)connection).getCompoundComponent());
+    	audioSplitter.releaseOutsideComponent(((BaseConnection)connection).getAudioComponent());
     	
     	if(getActiveConnectionsCount()==0)
     	{
@@ -195,9 +195,9 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     		writeCount=this.writeCount.addAndGet(writeCount);
     	
     		if(loopbackCount>0 || readCount==0 || writeCount==0)
-    			compoundSplitter.stop();
+    			audioSplitter.stop();
     		else
-    			compoundSplitter.start();
+    			audioSplitter.start();
     	}    		
     }
     
@@ -208,14 +208,14 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     	{
     		ss7DataChannel.activateLoop();
     		loopbackCount.addAndGet(1);
-    		compoundSplitter.stop();
+    		audioSplitter.stop();
     	}
     	else if(!toSet && oldState)
     	{
     		ss7DataChannel.deactivateLoop();
     		loopbackCount.addAndGet(-1);
     		if(loopbackCount.get()==0 && readCount.get()>0 && writeCount.get()>0)
-    			compoundSplitter.start();
+    			audioSplitter.start();
     	}
     }
     public void configure(boolean isALaw)

@@ -14,8 +14,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.component.audio.CompoundComponent;
-import org.mobicents.media.server.component.audio.CompoundMixer;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -35,9 +35,9 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     private DetectorImpl detector;
     private GeneratorImpl generator;
     
-    private CompoundComponent detectorComponent;
-    private CompoundComponent generatorComponent;
-    private CompoundMixer compoundMixer;
+    private AudioComponent detectorComponent;
+    private AudioComponent generatorComponent;
+    private AudioMixer audioMixer;
     
     private String tone;
     
@@ -68,18 +68,18 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         detector.setVolume(-35);
         detector.setDuration(40);
         
-        compoundMixer=new CompoundMixer(scheduler);
+        audioMixer=new AudioMixer(scheduler);
         
-        detectorComponent=new CompoundComponent(1);
-        detectorComponent.addOutput(detector.getCompoundOutput());
+        detectorComponent=new AudioComponent(1);
+        detectorComponent.addOutput(detector.getAudioOutput());
         detectorComponent.updateMode(false,true);
         
-        generatorComponent=new CompoundComponent(2);
-        generatorComponent.addInput(generator.getCompoundInput());
+        generatorComponent=new AudioComponent(2);
+        generatorComponent.addInput(generator.getAudioInput());
         generatorComponent.updateMode(true,false);
                 
-        compoundMixer.addComponent(detectorComponent);
-        compoundMixer.addComponent(generatorComponent);
+        audioMixer.addComponent(detectorComponent);
+        audioMixer.addComponent(generatorComponent);
         tone="";
     }
     
@@ -87,7 +87,7 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     public void tearDown() {
     	generator.deactivate();
     	detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
         scheduler.stop();
     }
 
@@ -100,13 +100,13 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.setDigit("1");
         generator.activate();
         detector.activate();
-    	compoundMixer.start();
+    	audioMixer.start();
         
         Thread.sleep(200);        
 
         generator.deactivate();
         detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
         
         //assign listener and flush digit
         detector.addListener(this);
@@ -124,7 +124,7 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.setDigit("1");
         generator.activate();
         detector.activate();
-    	compoundMixer.start();
+    	audioMixer.start();
         
         Thread.sleep(200);          
         
@@ -136,7 +136,7 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
 
         generator.deactivate();
         detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
         
         //assign listener and flush digit
         detector.addListener(this);
@@ -157,25 +157,25 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.setDigit("1");
         generator.activate();
         detector.activate();
-    	compoundMixer.start();
+    	audioMixer.start();
         
         Thread.sleep(200);          
 
         generator.deactivate();
         detector.deactivate();
-    	compoundMixer.stop();    	
+    	audioMixer.stop();    	
 
         //queue "2" into detector's buffer
         generator.setDigit("2");
         generator.activate();
         detector.activate();
-    	compoundMixer.start();
+    	audioMixer.start();
         
         Thread.sleep(200);          
 
         generator.deactivate();
         detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
         
         assertEquals("12", tone);
         
@@ -194,25 +194,25 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.setDigit("1");
         generator.activate();
         detector.activate();
-    	compoundMixer.start();
+    	audioMixer.start();
         
         Thread.sleep(200);          
 
         generator.deactivate();
         detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
 
         //queue "2" into detector's buffer
         generator.setDigit("2");
         generator.activate();
         detector.activate();
-    	compoundMixer.start();
+    	audioMixer.start();
         
         Thread.sleep(200);          
 
         generator.deactivate();
         detector.deactivate();
-    	compoundMixer.stop();
+    	audioMixer.stop();
         
         //assign listener and flush digit
         detector.addListener(this);

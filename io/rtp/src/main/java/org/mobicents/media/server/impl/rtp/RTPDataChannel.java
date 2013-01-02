@@ -33,7 +33,7 @@ import java.nio.channels.SelectionKey;
 import java.text.Format;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfConverter;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
@@ -88,7 +88,7 @@ public class RTPDataChannel {
     private RtpClock rtpClock;
 
     //allowed jitter
-    private int jitter;
+    private int jitterBufferSize;
 
     //Media stream format
     private RTPFormats rtpFormats = new RTPFormats();
@@ -120,7 +120,7 @@ public class RTPDataChannel {
     
     private Logger logger = Logger.getLogger(RTPDataChannel.class) ;
         
-    private CompoundComponent compoundComponent;
+    private AudioComponent audioComponent;
     /**
      * Create RTP channel instance.
      *
@@ -129,7 +129,7 @@ public class RTPDataChannel {
      */
     protected RTPDataChannel(ChannelsManager channelsManager,int channelId) {    	
         this.channelsManager = channelsManager;
-        this.jitter = channelsManager.getJitter();
+        this.jitterBufferSize = channelsManager.getJitterBufferSize();
 
         //open data channel
         rtpHandler = new RTPHandler();
@@ -137,7 +137,7 @@ public class RTPDataChannel {
         //create clock with RTP units
         rtpClock = new RtpClock(channelsManager.getClock());
 
-        rxBuffer = new JitterBuffer(rtpClock, jitter);
+        rxBuffer = new JitterBuffer(rtpClock, jitterBufferSize);
         
         scheduler=channelsManager.getScheduler();
         udpManager=channelsManager.getUdpManager();
@@ -148,21 +148,21 @@ public class RTPDataChannel {
         //transmittor
         output = new RTPOutput(scheduler,this);               
 
-        dtmfConverter=new DtmfConverter(scheduler,rtpClock,this.channelsManager.getRfc2833BufferSize());
+        dtmfConverter=new DtmfConverter(scheduler,rtpClock);
         
         heartBeat=new HeartBeat();
         
         formats.add(format);
         
-        compoundComponent=new CompoundComponent(channelId); 
-        compoundComponent.addInput(dtmfConverter.getCompoundInput());
-        compoundComponent.addInput(input.getCompoundInput());
-        compoundComponent.addOutput(output.getCompoundOutput());
+        audioComponent=new AudioComponent(channelId); 
+        audioComponent.addInput(dtmfConverter.getAudioInput());
+        audioComponent.addInput(input.getAudioInput());
+        audioComponent.addOutput(output.getAudioOutput());
     }
     
-    public CompoundComponent getCompoundComponent()
+    public AudioComponent getAudioComponent()
     {
-    	return this.compoundComponent;
+    	return this.audioComponent;
     }
     
     public void setInputDsp(Processor dsp) {
@@ -195,7 +195,7 @@ public class RTPDataChannel {
         	case SEND_ONLY:
         		shouldReceive=false;
         		shouldLoop=false;
-        		compoundComponent.updateMode(false,true);
+        		audioComponent.updateMode(false,true);
         		dtmfConverter.deactivate();
         		input.deactivate();
         		output.activate();
@@ -203,7 +203,7 @@ public class RTPDataChannel {
         	case RECV_ONLY:
         		shouldReceive=true;
         		shouldLoop=false;
-        		compoundComponent.updateMode(true,false);
+        		audioComponent.updateMode(true,false);
         		dtmfConverter.activate();
         		input.activate();
         		output.deactivate();
@@ -211,7 +211,7 @@ public class RTPDataChannel {
         	case INACTIVE:
         		shouldReceive=false;
         		shouldLoop=false;
-        		compoundComponent.updateMode(false,false);
+        		audioComponent.updateMode(false,false);
         		dtmfConverter.deactivate();
         		input.deactivate();
         		output.deactivate();
@@ -220,7 +220,7 @@ public class RTPDataChannel {
         	case CONFERENCE:
         		shouldReceive=true;
         		shouldLoop=false;
-        		compoundComponent.updateMode(true,true);
+        		audioComponent.updateMode(true,true);
         		dtmfConverter.activate();
         		input.activate();
         		output.activate();
@@ -228,7 +228,7 @@ public class RTPDataChannel {
         	case NETWORK_LOOPBACK:
         		shouldReceive=false;
         		shouldLoop=true;
-        		compoundComponent.updateMode(false,false);
+        		audioComponent.updateMode(false,false);
         		dtmfConverter.deactivate();
         		input.deactivate();
         		output.deactivate();
@@ -360,6 +360,7 @@ public class RTPDataChannel {
         txCount=0;
         input.deactivate();
         dtmfConverter.deactivate();
+        dtmfConverter.reset();
         output.deactivate();        
         this.tx.clear();    	
         

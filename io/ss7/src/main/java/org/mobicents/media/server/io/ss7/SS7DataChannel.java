@@ -27,7 +27,7 @@ import java.net.SocketAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.text.Format;
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.SelectorKeyImpl;
@@ -79,7 +79,7 @@ public class SS7DataChannel {
     private boolean isALaw=false;
     private boolean shouldLoop=false;
     
-    private CompoundComponent compoundComponent;
+    private AudioComponent audioComponent;
     
     /**
      * Create SS7 channel instance.
@@ -87,7 +87,7 @@ public class SS7DataChannel {
      * @param SS7 manager , Dahdi Channel ID , Audio Format used on channel
      * @throws IOException
      */
-    public SS7DataChannel(SS7Manager ss7Manager,int dahdiChannelID,int compoundChannelID,boolean isALaw) throws IOException {
+    public SS7DataChannel(SS7Manager ss7Manager,int dahdiChannelID,int audioChannelID,boolean isALaw) throws IOException {
     	this.ss7Manager=ss7Manager;
     	this.ss7Handler=new SS7Handler();
     	this.channelID=dahdiChannelID;
@@ -109,14 +109,14 @@ public class SS7DataChannel {
     		output = new SS7Output(ss7Manager.scheduler,channel,g711u);
     	}
     	
-    	compoundComponent=new CompoundComponent(compoundChannelID); 
-        compoundComponent.addInput(input.getCompoundInput());
-        compoundComponent.addOutput(output.getCompoundOutput());
+    	audioComponent=new AudioComponent(audioChannelID); 
+        audioComponent.addInput(input.getAudioInput());
+        audioComponent.addOutput(output.getAudioOutput());
     }
     
-    public CompoundComponent getCompoundComponent()
+    public AudioComponent getAudioComponent()
     {
-    	return this.compoundComponent;
+    	return this.audioComponent;
     }
     
     public void setOutputDsp(Processor dsp) {
@@ -154,7 +154,7 @@ public class SS7DataChannel {
     	channel.setCodec(isALaw);    		
         input.activate();
     	output.activate();
-    	compoundComponent.updateMode(true,true);
+    	audioComponent.updateMode(true,true);
     }
 
     /**
@@ -169,14 +169,14 @@ public class SS7DataChannel {
     public void activateLoop() {
     	input.deactivate();
         output.deactivate(); 
-        compoundComponent.updateMode(false,false);
+        audioComponent.updateMode(false,false);
         shouldLoop=true;
     }
     
     public void deactivateLoop() {
     	input.activate();
         output.activate(); 
-        compoundComponent.updateMode(true,true);
+        audioComponent.updateMode(true,true);
         shouldLoop=false;
     }
     
@@ -195,7 +195,7 @@ public class SS7DataChannel {
         txCount=0;
         input.deactivate();
         output.deactivate();  
-        compoundComponent.updateMode(false,false);        
+        audioComponent.updateMode(false,false);        
     }    
 
     public int getPacketsLost() {

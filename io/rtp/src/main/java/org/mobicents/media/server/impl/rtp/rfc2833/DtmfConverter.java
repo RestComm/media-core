@@ -22,7 +22,7 @@
 
 package org.mobicents.media.server.impl.rtp.rfc2833;
 
-import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
@@ -45,90 +45,112 @@ public class DtmfConverter extends AbstractSource {
     private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * LINEAR_AUDIO.getSampleRate()/1000 * LINEAR_AUDIO.getSampleSize() / 8;
     
-    private ArrayList<Frame> frameBuffer=new ArrayList(2);
+    private ArrayList<Frame> frameBuffer=new ArrayList(5);
     private Frame currFrame;
     
     private byte currTone=(byte)0xFF;
-    private int offset=0;
+    private long latestTime=0;
+    private int latestSeq=0;
     byte[] data = new byte[4];
     
     private RtpClock clock;    
     
-    private CompoundInput input;
+    private AudioInput input;
 	
-    private int bufferSize;
-    
     private static final Logger logger = Logger.getLogger(DtmfConverter.class);
     
-    public DtmfConverter(Scheduler scheduler,RtpClock clock,int bufferSize)
+    public DtmfConverter(Scheduler scheduler,RtpClock clock)
     {
     	super("dtmfconverter", scheduler,scheduler.INPUT_QUEUE);
     	this.clock=clock;
-    	this.bufferSize=bufferSize;
-    	input=new CompoundInput(2,packetSize);
+    	input=new AudioInput(2,packetSize);
         this.connect(input);       
     }
     
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }
     
-    public void setClock(RtpClock clock) {
+    public void setClock(RtpClock clock) 
+    {
         this.clock = clock;
     }
     
-    public void write(RtpPacket event) {
+    public void write(RtpPacket event) 
+    {
     	//obtain payload        
         event.getPyalod(data, 0);
         
-        //check that same tone
         if(data.length==0)
-        	return;                
-        
-        if(currTone!=data[0])
-        {
-        	currTone=data[0];
-        	offset=0;
-        }               
-        
-        boolean endOfEvent=false;
+        	return;
+    	
+    	boolean endOfEvent=false;
         if(data.length>1)
             endOfEvent=(data[1] & 0X80)!=0;
-                
-        currFrame = Memory.allocate(packetSize);
-    	
-    	//update time
-        currFrame.setSequenceNumber(event.getSeqNumber());
-    	
-        currFrame.setOffset(0);
-        currFrame.setLength(packetSize);
-        currFrame.setFormat(LINEAR_AUDIO);
-        currFrame.setDuration(20);
-        System.arraycopy(DtmfTonesData.buffer[data[0]], offset, currFrame.getData(), 0, packetSize);
-        currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp()));
-        offset+=packetSize;
-        if(offset>=DtmfTonesData.buffer[data[0]].length)
-        	offset=0;
         
+       //lets ignore end of event packets
         if(endOfEvent)
-    		offset=0;
+        	return;                                       
         
-    	if(frameBuffer.size()>bufferSize)
-    		//lets not store too much data
-    		frameBuffer.remove(0);
-    	
-    	frameBuffer.add(currFrame);
-    	
-    	if(frameBuffer.size()==bufferSize)
-    		wakeup();
+        //lets update sync data , allowing same tone come after 160ms from previous tone , not including end of tone
+        if(currTone==data[0])
+        {
+        	if((event.getSeqNumber()<(latestSeq+8)) && event.getSeqNumber()>(latestSeq-8))
+        	{
+        		if(event.getSeqNumber()>latestSeq)
+        		{
+        			latestSeq=event.getSeqNumber();
+        			latestTime=event.getTimestamp();
+        		}
+        		
+                return;
+        	}
+        	
+        	if(event.getTimestamp()<(latestTime+160) && event.getTimestamp()>(latestTime-160))        		
+        	{
+        		if(event.getTimestamp()>latestTime)
+        		{
+        			latestSeq=event.getSeqNumber();
+        			latestTime=event.getTimestamp();
+        		}
+        		
+                return;
+            }
+        }        
+        
+        latestSeq=event.getSeqNumber();
+        latestTime=event.getTimestamp();
+        currTone=data[0];
+        for(int i=0;i<5;i++)
+        {
+        	currFrame = Memory.allocate(packetSize);
+        	currFrame.setSequenceNumber(event.getSeqNumber()+i);
+        	currFrame.setOffset(0);
+            currFrame.setLength(packetSize);
+            currFrame.setFormat(LINEAR_AUDIO);
+            currFrame.setDuration(period);
+            System.arraycopy(DtmfTonesData.buffer[data[0]], i*packetSize, currFrame.getData(), 0, packetSize);
+            currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp() + 20*i));
+            frameBuffer.add(currFrame);                       
+        }
+        
+        wakeup();
     }
     
     @Override
-    public Frame evolve(long timestamp) {
+    public Frame evolve(long timestamp) 
+    {
     	if (frameBuffer.size()==0)
     		return null;    	
     	
     	return frameBuffer.remove(0);    	
+    }
+    
+    public void reset() 
+    {
+    	latestSeq=0;
+		latestTime=0;
+		currTone=(byte)0xFF;		
     }
 }

@@ -60,10 +60,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.mobicents.protocols.mgcp.parser.UtilsFactory;
+
+import org.mobicents.protocols.mgcp.handlers.MessageHandler;
+import org.mobicents.protocols.mgcp.handlers.TransactionHandler;
+
 import org.mobicents.protocols.mgcp.utils.PacketRepresentation;
 import org.mobicents.protocols.mgcp.utils.PacketRepresentationFactory;
-
+import org.mobicents.protocols.mgcp.utils.ConcurrentLinkedList;
 /**
  * 
  * @author Oleg Kulikov
@@ -93,7 +96,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 	private int messageReaderThreadPriority = Thread.MIN_PRIORITY;
 
-	private UtilsFactory utilsFactory = null;
 	private PacketRepresentationFactory prFactory = null;
 
 	// Should we ever get data more than 5000 bytes?
@@ -180,8 +182,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		}
 
 		this.provider = new JainMgcpStackProviderImpl(this);
-		this.utilsFactory = new UtilsFactory(25);
-
+		
 		this.prFactory = new PacketRepresentationFactory(50, BUFFER_SIZE);
 
 		this.setPriority(this.messageReaderThreadPriority);
@@ -286,14 +287,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		return port;
 	}
 
-	public UtilsFactory getUtilsFactory() {
-		return this.utilsFactory;
-	}
-
-	public void setUtilsFactory(UtilsFactory utilsFactory) {
-		this.utilsFactory = utilsFactory;
-	}
-
 	public InetAddress getAddress() {
 		if (this.localAddress != null) {
 			return this.localAddress;
@@ -310,15 +303,22 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		this.protocolVersion = protocolVersion;
 	}
 
-	protected void send(byte[] data, SocketAddress address) {
-		PacketRepresentation pr = this.prFactory.allocate();
-		System.arraycopy(data, 0, pr.getRawData(), 0, data.length);
-		pr.setLength(data.length);						
-		pr.setRemoteAddress((InetSocketAddress)address);						
-
-		outputQueue.offer(pr);		
+	public PacketRepresentation allocatePacket() 
+	{
+		return this.prFactory.allocate();		
 	}
-
+	
+	public void releasePacket(PacketRepresentation pr) 
+	{
+		this.prFactory.deallocate(pr);		
+	}
+	
+	public void send(PacketRepresentation pr) 
+	{
+		pr.setParseTime(System.currentTimeMillis());
+		outputQueue.offer(pr);		
+	}	
+	
 	public boolean isRequest(String header) {
 		return header.matches("[\\w]{4}(\\s|\\S)*");
 	}
@@ -356,7 +356,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 						receiveBuffer.get(pr.getRawData(), 0, length);
 						pr.setLength(length);						
 						pr.setRemoteAddress(address);						
-
+						pr.setReceiveTime(System.currentTimeMillis());
 						inputQueue.offer(pr);						
 					}
 				} while (this.address != null);
@@ -366,7 +366,11 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				
 				while((pr=outputQueue.poll())!=null)
 				{
-					try {
+					try {						
+						pr.setEndTime(System.currentTimeMillis());
+						if(logger.isDebugEnabled())
+							logger.debug("Accepted message time:" + pr.getReceiveTime() + "parse completed time:" + pr.getParseTime() + ",end time:" + pr.getEndTime());
+						
 						this.sendBuffer.clear();
 						this.sendBuffer.put(pr.getRawData(),0,pr.getLength());
 						this.sendBuffer.flip();
@@ -376,8 +380,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 						{							
 							logger.error("I/O Exception occured, caused by", e);
 						}
-					}
-					this.prFactory.deallocate(pr);
+					}					
 				}
 				
 				finish = System.currentTimeMillis();
@@ -455,7 +458,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
     	public void run() {
     		while(active)
     			try {
-    				messageHandler.scheduleMessages(inputQueue.take());
+    				PacketRepresentation current=inputQueue.take();
+    				current.setParseTime(System.currentTimeMillis());					
+    				messageHandler.scheduleMessages(current);
     			}
     			catch(Exception e)
     			{

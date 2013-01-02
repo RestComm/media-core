@@ -30,7 +30,7 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.text.Format;
-import org.mobicents.media.server.component.audio.CompoundOutput;
+import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.impl.AbstractSink;
@@ -69,7 +69,7 @@ public class RTPOutput extends AbstractSink {
         
     private static final Logger logger = Logger.getLogger(RTPOutput.class);
     
-    private CompoundOutput output;
+    private AudioOutput output;
     
     /**
      * Creates new transmitter
@@ -77,11 +77,11 @@ public class RTPOutput extends AbstractSink {
     protected RTPOutput(Scheduler scheduler,RTPDataChannel channel) {
         super("Output");
         this.channel=channel;
-        output=new CompoundOutput(scheduler,1);
+        output=new AudioOutput(scheduler,1);
         output.join(this);        
     }
     
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }

@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.connections.BaseConnection;
-import org.mobicents.media.server.component.audio.CompoundMixer;
+import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -51,7 +51,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  */
 public class BaseMixerEndpointImpl extends BaseEndpointImpl {
 	
-	protected CompoundMixer compoundMixer;
+	protected AudioMixer audioMixer;
 	
 	private AtomicInteger loopbackCount=new AtomicInteger(0);
 	private AtomicInteger readCount=new AtomicInteger(0);
@@ -69,7 +69,7 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
     public void start() throws ResourceUnavailableException {
     	super.start();
     	
-    	compoundMixer=new CompoundMixer(getScheduler());    	       
+    	audioMixer=new AudioMixer(getScheduler());    	       
     }    
     
     /**
@@ -79,7 +79,7 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
      */
     public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
     	Connection connection=super.createConnection(type,isLocal);
-    	compoundMixer.addComponent(((BaseConnection)connection).getCompoundComponent());
+    	audioMixer.addComponent(((BaseConnection)connection).getAudioComponent());
         return connection;
     }
 
@@ -90,7 +90,7 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
      */
     public void deleteConnection(Connection connection,ConnectionType connectionType) {
     	super.deleteConnection(connection,connectionType);
-    	compoundMixer.release(((BaseConnection)connection).getCompoundComponent());
+    	audioMixer.release(((BaseConnection)connection).getAudioComponent());
     }
     
     //should be handled on higher layers
@@ -141,9 +141,9 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
     		writeCount=this.writeCount.addAndGet(writeCount);
     		
     		if(loopbackCount>0 || readCount==0 || writeCount==0)
-    			compoundMixer.stop();
+    			audioMixer.stop();
     		else
-    			compoundMixer.start();    		    	
+    			audioMixer.start();    		    	
     	} 		
     }
 }

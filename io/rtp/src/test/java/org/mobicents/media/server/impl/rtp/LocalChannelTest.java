@@ -35,8 +35,8 @@ import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import java.net.InetSocketAddress;
 import org.mobicents.media.server.io.ss7.SS7Manager;
-import org.mobicents.media.server.component.audio.CompoundComponent;
-import org.mobicents.media.server.component.audio.CompoundMixer;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -71,8 +71,8 @@ public class LocalChannelTest {
 
     private DspFactoryImpl dspFactory = new DspFactoryImpl();
     
-    private CompoundMixer compoundMixer1,compoundMixer2;
-    private CompoundComponent component1,component2;
+    private AudioMixer audioMixer1,audioMixer2;
+    private AudioComponent component1,component2;
     
     public LocalChannelTest() {
     }
@@ -106,24 +106,24 @@ public class LocalChannelTest {
         channel2 = channelsManager.getLocalChannel();
         channel1.join(channel2);
         
-        compoundMixer1=new CompoundMixer(scheduler);
-        compoundMixer2=new CompoundMixer(scheduler);
+        audioMixer1=new AudioMixer(scheduler);
+        audioMixer2=new AudioMixer(scheduler);
         
-        component1=new CompoundComponent(1);
-        component1.addInput(source1.getCompoundInput());
-        component1.addOutput(analyzer1.getCompoundOutput());
+        component1=new AudioComponent(1);
+        component1.addInput(source1.getAudioInput());
+        component1.addOutput(analyzer1.getAudioOutput());
         component1.updateMode(true,true);
         
-        compoundMixer1.addComponent(component1);
-        compoundMixer1.addComponent(channel1.getCompoundComponent());
+        audioMixer1.addComponent(component1);
+        audioMixer1.addComponent(channel1.getAudioComponent());
         
-        component2=new CompoundComponent(2);
-        component2.addInput(source2.getCompoundInput());
-        component2.addOutput(analyzer2.getCompoundOutput());
+        component2=new AudioComponent(2);
+        component2.addInput(source2.getAudioInput());
+        component2.addOutput(analyzer2.getAudioOutput());
         component2.updateMode(true,true);
         
-        compoundMixer2.addComponent(component2);
-        compoundMixer2.addComponent(channel2.getCompoundComponent());        
+        audioMixer2.addComponent(component2);
+        audioMixer2.addComponent(channel2.getAudioComponent());        
     }
 
     @After
@@ -136,8 +136,8 @@ public class LocalChannelTest {
     	channel1.unjoin();    	    	
     	channel2.unjoin();
     	
-    	compoundMixer1.stop();
-    	compoundMixer2.stop();
+    	audioMixer1.stop();
+    	audioMixer2.stop();
     	
         udpManager.stop();
         scheduler.stop();
@@ -152,8 +152,8 @@ public class LocalChannelTest {
         source2.activate();
         analyzer1.activate();
         analyzer2.activate();
-    	compoundMixer1.start();
-    	compoundMixer2.start();
+    	audioMixer1.start();
+    	audioMixer2.start();
         
         Thread.sleep(5000);
         
@@ -161,8 +161,8 @@ public class LocalChannelTest {
         analyzer2.deactivate();
         source1.deactivate();
         source2.deactivate();
-        compoundMixer1.stop();        
-        compoundMixer2.stop();
+        audioMixer1.stop();        
+        audioMixer2.stop();
         channel1.updateMode(ConnectionMode.INACTIVE);
         
         int s1[] = analyzer1.getSpectra();

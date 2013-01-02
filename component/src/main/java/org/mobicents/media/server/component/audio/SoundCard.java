@@ -48,7 +48,7 @@ public class SoundCard extends AbstractSink {
 
     private final static Encoding GSM_ENCODING = new Encoding("GSM0610");
     
-    private CompoundOutput output;
+    private AudioOutput output;
     
     static{
         formats.add(LINEAR);
@@ -62,11 +62,11 @@ public class SoundCard extends AbstractSink {
     
     public SoundCard(Scheduler scheduler) {
         super("soundcard");
-        output=new CompoundOutput(scheduler,ComponentType.SOUND_CARD.getType());
+        output=new AudioOutput(scheduler,ComponentType.SOUND_CARD.getType());
         output.join(this);
     }
 
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }

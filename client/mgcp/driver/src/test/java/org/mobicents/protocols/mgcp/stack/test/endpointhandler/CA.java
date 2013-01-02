@@ -61,7 +61,6 @@ import java.net.InetAddress;
 import org.apache.log4j.Logger;
 import org.mobicents.protocols.mgcp.stack.JainMgcpExtendedListener;
 import org.mobicents.protocols.mgcp.stack.JainMgcpStackProviderImpl;
-import org.mobicents.protocols.mgcp.stack.MgcpResponseType;
 
 /**
  * Start time:12:54:42 2008-11-24<br>
@@ -219,15 +218,12 @@ public class CA implements JainMgcpExtendedListener {
 	 * protocol.ip.mgcp.JainMgcpResponseEvent)
 	 */
 	public void processMgcpResponseEvent(JainMgcpResponseEvent response) {
-
-		MgcpResponseType type = MgcpResponseType
-				.getResponseTypeFromCode(response.getReturnCode().getValue());
-
+		int responseCode=response.getReturnCode().getValue();
 		if (response instanceof CreateConnectionResponse) {
 			receivedCCResponse = true;
 			System.err.println(" - "+localAddress+":"+localPort+" RECEIVE CRCXResponse");
-			switch (type) {
-			case SuccessResponse:
+			if(responseCode>=200 && responseCode<300)
+			{
 				// Tx executed properly
 				CreateConnectionResponse event = (CreateConnectionResponse) response;
 				ConnectionIdentifier connectionIdentifier = event
@@ -267,37 +263,19 @@ public class CA implements JainMgcpExtendedListener {
 				caProvider
 						.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
 				sentNotificationRequest = true;
-				break;
-			case ProvisionalResponse:
-				break;
-			default:
-				SimpleFlowTest.fail("Bad message: " + response);
 			}
+			else if(responseCode<100 || responseCode>=300)
+				SimpleFlowTest.fail("Bad message: " + response);			
 		} else if (response instanceof NotificationRequestResponse) {
 			receiveNotificationRequestResponse = true;
 			System.err.println(" - "+localAddress+":"+localPort+" Receive NRResponse");
-			switch (type) {
-			case SuccessResponse:
-
-				break;
-			case ProvisionalResponse:
-				break;
-			default:
-				SimpleFlowTest.fail("Bad message: " + response);
-			}
+			if(responseCode<100 || responseCode>=300)			
+				SimpleFlowTest.fail("Bad message: " + response);		
 		} else if (response instanceof DeleteConnectionResponse) {
 			receivedDLCXA = true;
-			switch (type) {
-			case SuccessResponse:
-
-				break;
-			case ProvisionalResponse:
-				break;
-			default:
-				SimpleFlowTest.fail("Bad message: " + response);
-			}
+			if(responseCode<100 || responseCode>=300)
+				SimpleFlowTest.fail("Bad message: " + response);			
 		}
-
 	}
 
 	public void checkState() {

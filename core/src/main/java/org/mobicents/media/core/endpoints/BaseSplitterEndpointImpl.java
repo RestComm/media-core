@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.connections.BaseConnection;
-import org.mobicents.media.server.component.audio.CompoundSplitter;
+import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -51,7 +51,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  */
 public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 	
-	protected CompoundSplitter compoundSplitter;
+	protected AudioSplitter audioSplitter;
 	
 	private AtomicInteger loopbackCount=new AtomicInteger(0);
 	private AtomicInteger readCount=new AtomicInteger(0);
@@ -69,7 +69,7 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     public void start() throws ResourceUnavailableException {
     	super.start();
     	
-    	compoundSplitter=new CompoundSplitter(getScheduler());    	       
+    	audioSplitter=new AudioSplitter(getScheduler());    	       
     }    
     
     /**
@@ -83,10 +83,10 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     	switch(type)
     	{
     		case RTP:
-    			compoundSplitter.addOutsideComponent(((BaseConnection)connection).getCompoundComponent());        
+    			audioSplitter.addOutsideComponent(((BaseConnection)connection).getAudioComponent());        
     			break;
     		case LOCAL:
-    			compoundSplitter.addInsideComponent(((BaseConnection)connection).getCompoundComponent());        
+    			audioSplitter.addInsideComponent(((BaseConnection)connection).getAudioComponent());        
     	    	break;
     	}
     	
@@ -104,10 +104,10 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     	switch(connectionType)
     	{
     		case RTP:
-    			compoundSplitter.releaseOutsideComponent(((BaseConnection)connection).getCompoundComponent());        
+    			audioSplitter.releaseOutsideComponent(((BaseConnection)connection).getAudioComponent());        
     			break;
     		case LOCAL:
-    			compoundSplitter.releaseInsideComponent(((BaseConnection)connection).getCompoundComponent());        
+    			audioSplitter.releaseInsideComponent(((BaseConnection)connection).getAudioComponent());        
     	    	break;
     	}    	
     }
@@ -160,9 +160,9 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     		writeCount=this.writeCount.addAndGet(writeCount);
     		
     		if(loopbackCount>0 || readCount==0 || writeCount==0)
-    			compoundSplitter.stop();
+    			audioSplitter.stop();
     		else
-    			compoundSplitter.start();
+    			audioSplitter.start();
     	}    		
     }
 }

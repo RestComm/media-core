@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import org.mobicents.media.MediaSource;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.CompoundOutput;
+import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.scheduler.Scheduler;
 
 import org.mobicents.media.server.spi.memory.Frame;
@@ -66,7 +66,7 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
     private long startTime;
     private int count;    
 
-    private CompoundOutput output;
+    private AudioOutput output;
         
     private Listeners<ToneDetectorListener> listeners = new Listeners<ToneDetectorListener>();    
     
@@ -74,11 +74,11 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
         super(name);
         signal = new double[N];  
 
-        output=new CompoundOutput(scheduler,ComponentType.SIGNAL_DETECTOR.getType());
+        output=new AudioOutput(scheduler,ComponentType.SIGNAL_DETECTOR.getType());
         output.join(this);    
     }
 
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }

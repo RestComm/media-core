@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.text.Format;
 import java.util.ArrayList;
 
-import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.Channel;
@@ -75,7 +75,7 @@ public class SS7Input extends AbstractSource {
     
     private ArrayList<Frame> framesBuffer=new ArrayList(2);
     
-    private CompoundInput input;
+    private AudioInput input;
     /**
      * Creates new receiver.
      */
@@ -84,11 +84,11 @@ public class SS7Input extends AbstractSource {
         this.channel=channel;
         this.sourceFormat=sourceFormat;
         
-        input=new CompoundInput(1,packetSize);
+        input=new AudioInput(1,packetSize);
         this.connect(input);
     }
 
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }

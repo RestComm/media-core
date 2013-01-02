@@ -28,7 +28,7 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.CompoundOutput;
+import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.component.audio.GoertzelFilter;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -109,7 +109,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     private EventSender eventSender;
     private Scheduler scheduler;
         
-    private CompoundOutput output;
+    private AudioOutput output;
     
     private static final Logger logger = Logger.getLogger(DetectorImpl.class) ;
     
@@ -131,11 +131,11 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         }
         this.level = DEFAULT_SIGNAL_LEVEL;
         
-        output=new CompoundOutput(scheduler,ComponentType.RECORDER.getType());
+        output=new AudioOutput(scheduler,ComponentType.RECORDER.getType());
         output.join(this);
     }
 
-    public CompoundOutput getCompoundOutput()
+    public AudioOutput getAudioOutput()
     {
     	return this.output;
     }

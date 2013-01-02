@@ -49,7 +49,7 @@ public class Sine extends AbstractSource {
     private double dt;
     private double time;
 
-    private CompoundInput input;
+    private AudioInput input;
     
     static {
         formats.add(LINEAR_AUDIO);
@@ -60,11 +60,11 @@ public class Sine extends AbstractSource {
         //number of seconds covered by one sample
         dt = 1. / LINEAR_AUDIO.getSampleRate();
         
-        this.input=new CompoundInput(ComponentType.SINE.getType(),packetSize);
+        this.input=new AudioInput(ComponentType.SINE.getType(),packetSize);
         this.connect(this.input); 
     }
 
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }

@@ -30,7 +30,7 @@ import java.io.IOException;
 import org.mobicents.media.CheckPoint;
 import org.mobicents.media.server.utils.Text;
 
-import org.mobicents.media.server.component.audio.CompoundComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -100,7 +100,7 @@ public abstract class BaseConnection implements Connection {
         this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
     }
         
-    public abstract CompoundComponent getCompoundComponent();
+    public abstract AudioComponent getAudioComponent();
     
     /**
      * (Non Java-doc).

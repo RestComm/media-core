@@ -28,7 +28,7 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.CompoundInput;
+import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.resource.mediaplayer.Track;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.gsm.GsmTrackImpl;
@@ -74,7 +74,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
 
     private final static Logger logger = Logger.getLogger(AudioPlayerImpl.class);
     
-    private CompoundInput input;
+    private AudioInput input;
     /**
      * Creates new instance of the Audio player.
      * 
@@ -85,11 +85,11 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
     public AudioPlayerImpl(String name, Scheduler scheduler) {
         super(name, scheduler,scheduler.INPUT_QUEUE);
         
-        this.input=new CompoundInput(ComponentType.PLAYER.getType(),packetSize);
+        this.input=new AudioInput(ComponentType.PLAYER.getType(),packetSize);
         this.connect(this.input);        
     }
 
-    public CompoundInput getCompoundInput()
+    public AudioInput getAudioInput()
     {
     	return this.input;
     }

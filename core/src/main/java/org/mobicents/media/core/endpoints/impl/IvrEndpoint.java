@@ -55,11 +55,11 @@ public class IvrEndpoint extends BaseMixerEndpointImpl {
 	
 	public void start() throws ResourceUnavailableException {		
     	super.start();
-    	compoundMixer.addComponent(mediaGroup.getCompoundComponent());
+    	audioMixer.addComponent(mediaGroup.getAudioComponent());
 	}
 	
 	public void stop() {
-    	compoundMixer.release(mediaGroup.getCompoundComponent());
+    	audioMixer.release(mediaGroup.getAudioComponent());
     	super.stop();    	
     }
 	/**

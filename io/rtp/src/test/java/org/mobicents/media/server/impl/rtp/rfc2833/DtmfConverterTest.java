@@ -71,7 +71,7 @@ public class DtmfConverterTest {
         scheduler.setClock(clock);
         scheduler.start();
         
-        dtmfConverter = new DtmfConverter(scheduler, rtpClock, 1);
+        dtmfConverter = new DtmfConverter(scheduler, rtpClock);
         
         packets[0].wrap(true, 101, 1, 160, 1, event1, 0, 4);
         packets[1].wrap(false, 101, 2, 160, 1, event2, 0, 4);
@@ -90,23 +90,28 @@ public class DtmfConverterTest {
     	dtmfConverter.activate();
     	
     	long start = System.nanoTime();
-    	
-        dtmfConverter.write(packets[0]);
-        Thread.sleep(20);
-        dtmfConverter.write(packets[1]);
-        Thread.sleep(20);
-        dtmfConverter.write(packets[2]);
-        Thread.sleep(50);
-        dtmfConverter.deactivate();
+    	dtmfConverter.reset();
+    	dtmfConverter.write(packets[0]);
+    	dtmfConverter.write(packets[1]);
+    	dtmfConverter.write(packets[2]);
         
-        long finish = System.nanoTime();                
+    	Thread.sleep(40);
+        Frame frame0 = dtmfConverter.getAudioInput().poll();
+        Thread.sleep(20);
+        Frame frame1 = dtmfConverter.getAudioInput().poll(); 
+        Thread.sleep(20);
+        Frame frame2 = dtmfConverter.getAudioInput().poll();
+        Thread.sleep(40);
         
-        Frame frame0 = dtmfConverter.getCompoundInput().poll();
-        Frame frame1 = dtmfConverter.getCompoundInput().poll(); 
-        Frame frame2 = dtmfConverter.getCompoundInput().poll();
+        //lets read 2 extra packets generated , should have 5 frames
+        dtmfConverter.getAudioInput().poll();
+        dtmfConverter.getAudioInput().poll();
+        dtmfConverter.deactivate();        
+        
+        long finish = System.nanoTime();                        
         		
         for (int i = 0; i < 320; i++) {
-            assertEquals("Pos " + i, DtmfTonesData.buffer[3][i], frame0.getData()[i]);
+        	assertEquals("Pos " + i, DtmfTonesData.buffer[3][i], frame0.getData()[i]);
         }
         
         for (int i = 0; i < 320; i++) {
