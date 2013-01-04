@@ -86,7 +86,6 @@ public class LocalConnectionImpl extends BaseConnection {
         return 0;
     }
 
-    @Override
     public long getBytesReceived() {
         return 0;
     }
@@ -95,18 +94,15 @@ public class LocalConnectionImpl extends BaseConnection {
         return 0;
     }
 
-    @Override
     public long getBytesTransmitted() {
         return 0;
     }
     
-    @Override
     public String toString() {
         return "Local Connection [" + getId() + "]";
     }
 
     
-    @Override
     public double getJitter() {
         return 0;
     }
