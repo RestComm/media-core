@@ -22,7 +22,6 @@
 package org.mobicents.media.server.mgcp.pkg.dtmf;
 
 import org.mobicents.media.server.mgcp.controller.signal.Event;
-import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.utils.Text;
 
 /**
