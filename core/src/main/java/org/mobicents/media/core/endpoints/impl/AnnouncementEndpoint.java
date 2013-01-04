@@ -46,10 +46,12 @@ public class AnnouncementEndpoint extends BaseMixerEndpointImpl {
 	public void start() throws ResourceUnavailableException {		
     	super.start();
     	audioMixer.addComponent(mediaGroup.getAudioComponent());
+    	oobMixer.addComponent(mediaGroup.getOOBComponent());
 	}
 	
 	public void stop() {
     	audioMixer.release(mediaGroup.getAudioComponent());
+    	oobMixer.release(mediaGroup.getOOBComponent());
     	super.stop();    	
     }
 	
