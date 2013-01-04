@@ -25,7 +25,7 @@
  * and open the template in the editor.
  */
 
-package org.mobicents.media.server.connection;
+package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 import org.junit.After;
