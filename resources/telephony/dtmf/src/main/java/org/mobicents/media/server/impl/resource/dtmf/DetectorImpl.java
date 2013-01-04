@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.component.audio.GoertzelFilter;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -110,6 +111,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     private Scheduler scheduler;
         
     private AudioOutput output;
+    private OOBOutput oobOutput;
     
     private static final Logger logger = Logger.getLogger(DetectorImpl.class) ;
     
@@ -132,12 +134,18 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         this.level = DEFAULT_SIGNAL_LEVEL;
         
         output=new AudioOutput(scheduler,ComponentType.RECORDER.getType());
+        oobOutput=new OOBOutput(scheduler,ComponentType.RECORDER.getType());
         output.join(this);
     }
 
     public AudioOutput getAudioOutput()
     {
     	return this.output;
+    }
+    
+    public OOBOutput getOOBOutput()
+    {
+    	return this.oobOutput;
     }
     
     public void activate()
@@ -147,11 +155,13 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         
         this.dtmfBuffer.clear();  
         output.start();
+        oobOutput.start();
     }
     
     public void deactivate()
     {
-    	output.stop();    	    
+    	output.stop(); 
+    	oobOutput.stop();
     }
     
     public void setDuration(int duartion) {

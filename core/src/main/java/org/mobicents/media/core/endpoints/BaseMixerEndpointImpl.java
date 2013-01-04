@@ -31,6 +31,7 @@ import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.component.audio.AudioMixer;
+import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -52,6 +53,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
 public class BaseMixerEndpointImpl extends BaseEndpointImpl {
 	
 	protected AudioMixer audioMixer;
+	protected OOBMixer oobMixer;
 	
 	private AtomicInteger loopbackCount=new AtomicInteger(0);
 	private AtomicInteger readCount=new AtomicInteger(0);
@@ -70,6 +72,7 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
     	super.start();
     	
     	audioMixer=new AudioMixer(getScheduler());    	       
+    	oobMixer=new OOBMixer(getScheduler());
     }    
     
     /**
@@ -80,6 +83,7 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
     public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
     	Connection connection=super.createConnection(type,isLocal);
     	audioMixer.addComponent(((BaseConnection)connection).getAudioComponent());
+    	oobMixer.addComponent(((BaseConnection)connection).getOOBComponent());
         return connection;
     }
 
@@ -91,6 +95,7 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
     public void deleteConnection(Connection connection,ConnectionType connectionType) {
     	super.deleteConnection(connection,connectionType);
     	audioMixer.release(((BaseConnection)connection).getAudioComponent());
+    	oobMixer.release(((BaseConnection)connection).getOOBComponent());
     }
     
     //should be handled on higher layers
@@ -141,9 +146,15 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
     		writeCount=this.writeCount.addAndGet(writeCount);
     		
     		if(loopbackCount>0 || readCount==0 || writeCount==0)
+    		{
     			audioMixer.stop();
+    			oobMixer.stop();
+    		}
     		else
-    			audioMixer.start();    		    	
+    		{
+    			audioMixer.start();
+    			oobMixer.start();
+    		}
     	} 		
     }
 }

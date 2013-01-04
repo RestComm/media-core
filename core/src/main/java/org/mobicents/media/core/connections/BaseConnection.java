@@ -31,6 +31,7 @@ import org.mobicents.media.CheckPoint;
 import org.mobicents.media.server.utils.Text;
 
 import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -101,6 +102,8 @@ public abstract class BaseConnection implements Connection {
     }
         
     public abstract AudioComponent getAudioComponent();
+    
+    public abstract OOBComponent getOOBComponent();
     
     /**
      * (Non Java-doc).

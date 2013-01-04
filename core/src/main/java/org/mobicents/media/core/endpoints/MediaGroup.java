@@ -28,6 +28,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.core.ResourcesPool;
 
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
@@ -55,21 +56,29 @@ public class MediaGroup {
 	private ResourcesPool resourcesPool;
 	
 	private AudioComponent audioComponent;
+	private OOBComponent oobComponent;
 	
 	private Endpoint endpoint;
 	
 	private int readComponents=0,writeComponents=0;
+	private int readDtmfComponents=0,writeDtmfComponents=0;
 	
 	public MediaGroup(ResourcesPool resourcesPool,Endpoint endpoint)
 	{
 		this.resourcesPool=resourcesPool;
 		this.audioComponent=new AudioComponent(0);
+		this.oobComponent=new OOBComponent(0);
 		this.endpoint=endpoint;
 	} 
 	
 	public AudioComponent getAudioComponent()
 	{
 		return this.audioComponent;
+	}
+	
+	public OOBComponent getOOBComponent()
+	{
+		return this.oobComponent;
 	}
 	
 	public Component getPlayer()
@@ -114,8 +123,11 @@ public class MediaGroup {
 			this.recorder=resourcesPool.newAudioComponent(ComponentType.RECORDER);
 			this.recorder.setEndpoint(endpoint);
 			audioComponent.addOutput(((AudioRecorderImpl)this.recorder).getAudioOutput());
+			oobComponent.addOutput(((AudioRecorderImpl)this.recorder).getOOBOutput());
 			writeComponents++;
+			writeDtmfComponents++;
 			audioComponent.updateMode(readComponents!=0,true);
+			oobComponent.updateMode(readDtmfComponents!=0,true);
 			updateEndpoint(0,1);
 		}
 		
@@ -127,8 +139,11 @@ public class MediaGroup {
 		if(this.recorder!=null)
 		{
 			audioComponent.remove(((AudioRecorderImpl)this.recorder).getAudioOutput());
+			oobComponent.remove(((AudioRecorderImpl)this.recorder).getOOBOutput());
 			writeComponents--;
+			writeDtmfComponents--;
 			audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
+			oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
 			updateEndpoint(0,-1);
 			this.recorder.clearEndpoint();
 			((AudioRecorderImpl)this.recorder).clearAllListeners();
@@ -150,8 +165,11 @@ public class MediaGroup {
 			this.dtmfDetector=resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
 			this.dtmfDetector.setEndpoint(endpoint);
 			audioComponent.addOutput(((DetectorImpl)this.dtmfDetector).getAudioOutput());
+			oobComponent.addOutput(((DetectorImpl)this.dtmfDetector).getOOBOutput());
 			writeComponents++;
+			writeDtmfComponents++;
 			audioComponent.updateMode(readComponents!=0,true);
+			oobComponent.updateMode(readDtmfComponents!=0,true);
 			updateEndpoint(0,1);
 		}
 		
@@ -163,8 +181,11 @@ public class MediaGroup {
 		if(this.dtmfDetector!=null)
 		{
 			audioComponent.remove(((DetectorImpl)this.dtmfDetector).getAudioOutput());
+			oobComponent.remove(((DetectorImpl)this.dtmfDetector).getOOBOutput());
 			writeComponents--;
+			writeDtmfComponents--;
 			audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
+			oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
 			updateEndpoint(0,-1);
 			this.dtmfDetector.clearEndpoint();			
 			((DetectorImpl)this.dtmfDetector).clearAllListeners();
@@ -187,8 +208,10 @@ public class MediaGroup {
 			this.dtmfGenerator=resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
 			this.dtmfGenerator.setEndpoint(endpoint);
 			audioComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
+			oobComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
 			readComponents++;
-			audioComponent.updateMode(true,writeComponents!=0);
+			readDtmfComponents++;
+			audioComponent.updateMode(true,writeDtmfComponents!=0);
 			updateEndpoint(1,0);
 		}
 		
@@ -200,8 +223,10 @@ public class MediaGroup {
 		if(this.dtmfGenerator!=null)
 		{
 			audioComponent.remove(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
+			oobComponent.remove(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
 			readComponents--;
-			audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
+			readDtmfComponents--;
+			oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);			
 			updateEndpoint(-1,0);
 			this.dtmfGenerator.clearEndpoint();			
 			this.dtmfGenerator.deactivate();

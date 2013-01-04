@@ -33,6 +33,7 @@ import java.nio.channels.FileChannel;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -109,6 +110,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     private boolean speechDetected=false;
     
     private AudioOutput output;
+    private OOBOutput oobOutput;
     
     private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
     
@@ -129,6 +131,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         heartbeat = new Heartbeat();
         
         output=new AudioOutput(scheduler,ComponentType.RECORDER.getType());
+        oobOutput=new OOBOutput(scheduler,ComponentType.RECORDER.getType());
         output.join(this);
     }
 
@@ -137,13 +140,18 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     	return this.output;
     }
     
+    public OOBOutput getOOBOutput()
+    {
+    	return this.oobOutput;
+    }
+    
     @Override
     public void activate() {
     	this.lastPacketData=scheduler.getClock().getTime();
     	this.startTime=scheduler.getClock().getTime();
     	
     	output.start();
-        
+    	oobOutput.start();
         if(this.postSpeechTimer>0 || this.preSpeechTimer>0 || this.maxRecordTime>0)
         	scheduler.submitHeatbeat(this.heartbeat);
         
@@ -158,6 +166,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         }
         
         output.stop();
+        oobOutput.stop();
         this.maxRecordTime = -1;
         this.lastPacketData=0;
         this.startTime=0;

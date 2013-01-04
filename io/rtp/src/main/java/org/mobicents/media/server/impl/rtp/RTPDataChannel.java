@@ -23,6 +23,7 @@
 package org.mobicents.media.server.impl.rtp;
 
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.net.InetSocketAddress;
@@ -34,7 +35,9 @@ import java.text.Format;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.impl.rtp.rfc2833.DtmfConverter;
+import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
+import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -78,8 +81,9 @@ public class RTPDataChannel {
     //Receiver and transmitter
     private RTPInput input;
     private RTPOutput output;
-    //RTP dtmf event converter
-    private DtmfConverter dtmfConverter;    
+    //RTP dtmf receiver and trasmitter
+    private DtmfInput dtmfInput;    
+    private DtmfOutput dtmfOutput;
     
     //tx task - sender
     private TxTask tx = new TxTask();
@@ -121,6 +125,10 @@ public class RTPDataChannel {
     private Logger logger = Logger.getLogger(RTPDataChannel.class) ;
         
     private AudioComponent audioComponent;
+    private OOBComponent oobComponent;
+    
+    private boolean sendDtmf=false;
+    
     /**
      * Create RTP channel instance.
      *
@@ -148,21 +156,30 @@ public class RTPDataChannel {
         //transmittor
         output = new RTPOutput(scheduler,this);               
 
-        dtmfConverter=new DtmfConverter(scheduler,rtpClock);
+        dtmfInput=new DtmfInput(scheduler,rtpClock);
+        dtmfOutput=new DtmfOutput(scheduler,this);
         
         heartBeat=new HeartBeat();
         
         formats.add(format);
         
         audioComponent=new AudioComponent(channelId); 
-        audioComponent.addInput(dtmfConverter.getAudioInput());
         audioComponent.addInput(input.getAudioInput());
         audioComponent.addOutput(output.getAudioOutput());
+        
+        oobComponent=new OOBComponent(channelId); 
+        oobComponent.addInput(dtmfInput.getOOBInput());
+        oobComponent.addOutput(dtmfOutput.getOOBOutput());
     }
     
     public AudioComponent getAudioComponent()
     {
     	return this.audioComponent;
+    }
+    
+    public OOBComponent getOOBComponent()
+    {
+    	return this.oobComponent;
     }
     
     public void setInputDsp(Processor dsp) {
@@ -196,42 +213,52 @@ public class RTPDataChannel {
         		shouldReceive=false;
         		shouldLoop=false;
         		audioComponent.updateMode(false,true);
-        		dtmfConverter.deactivate();
+        		oobComponent.updateMode(false,true);
+        		dtmfInput.deactivate();
         		input.deactivate();
         		output.activate();
+        		dtmfOutput.activate();
         		break;
         	case RECV_ONLY:
         		shouldReceive=true;
         		shouldLoop=false;
         		audioComponent.updateMode(true,false);
-        		dtmfConverter.activate();
+        		oobComponent.updateMode(true,false);
+        		dtmfInput.activate();
         		input.activate();
         		output.deactivate();
+        		dtmfOutput.deactivate();
         		break;
         	case INACTIVE:
         		shouldReceive=false;
         		shouldLoop=false;
         		audioComponent.updateMode(false,false);
-        		dtmfConverter.deactivate();
+        		oobComponent.updateMode(false,false);
+        		dtmfInput.deactivate();
         		input.deactivate();
         		output.deactivate();
+        		dtmfOutput.deactivate();
         		break;
         	case SEND_RECV:
         	case CONFERENCE:
         		shouldReceive=true;
         		shouldLoop=false;
         		audioComponent.updateMode(true,true);
-        		dtmfConverter.activate();
+        		oobComponent.updateMode(true,true);
+        		dtmfInput.activate();
         		input.activate();
         		output.activate();
+        		dtmfOutput.activate();
         		break;
         	case NETWORK_LOOPBACK:
         		shouldReceive=false;
         		shouldLoop=true;
         		audioComponent.updateMode(false,false);
-        		dtmfConverter.deactivate();
+        		oobComponent.updateMode(false,false);
+        		dtmfInput.deactivate();
         		input.deactivate();
         		output.deactivate();
+        		dtmfOutput.deactivate();
         		break;
     	}
     	
@@ -359,12 +386,14 @@ public class RTPDataChannel {
         rxCount=0;
         txCount=0;
         input.deactivate();
-        dtmfConverter.deactivate();
-        dtmfConverter.reset();
-        output.deactivate();        
+        dtmfInput.deactivate();
+        dtmfInput.reset();
+        output.deactivate();
+        dtmfOutput.deactivate();
         this.tx.clear();    	
         
-        heartBeat.cancel();        
+        heartBeat.cancel();   
+        sendDtmf=false;
     }    
 
     public int getPacketsLost() {
@@ -385,6 +414,11 @@ public class RTPDataChannel {
      * @param rtpFormats the format map
      */
     public void setFormatMap(RTPFormats rtpFormats) {
+    	if(rtpFormats.find(AVProfile.telephoneEventsID)!=null)
+    		sendDtmf=true;
+    	else
+    		sendDtmf=false;
+    	
     	this.rtpHandler.flush();
     	this.rtpFormats = rtpFormats;
         this.rxBuffer.setFormats(rtpFormats);                        
@@ -394,6 +428,12 @@ public class RTPDataChannel {
     {
     	if(dataChannel.isConnected())
     		tx.perform(frame);
+    }
+    
+    public void sendDtmf(Frame frame)
+    {
+    	if(dataChannel.isConnected())
+    		tx.performDtmf(frame);
     }
     
     /**
@@ -577,7 +617,7 @@ public class RTPDataChannel {
                     		else if(!shouldLoop) {
                     			format = rtpFormats.find(rtpPacket.getPayloadType());
                     			if (format != null && format.getFormat().matches(dtmf))
-                    				dtmfConverter.write(rtpPacket);
+                    				dtmfInput.write(rtpPacket);
                     			else
                     				rxBuffer.write(rtpPacket,format);	
                     			
@@ -617,6 +657,7 @@ public class RTPDataChannel {
     	private RtpPacket rtpPacket = new RtpPacket(8192, true);
         private RTPFormat fmt;
         private long timestamp=-1;
+        private long dtmfTimestamp=-1;
         
         private TxTask() {        	                       
         }
@@ -627,12 +668,58 @@ public class RTPDataChannel {
          */
         public void clear() {
         	this.timestamp=-1;
+        	this.dtmfTimestamp=-1;
         	this.fmt=null;
+        }
+        
+        public void performDtmf(Frame frame) {
+        	if(!sendDtmf)
+        	{
+        		frame.recycle();
+        		return;
+        	}
+        	
+        	//ignore frames with duplicate timestamp
+            if (frame.getTimestamp()/1000000L == dtmfTimestamp) {
+            	frame.recycle();
+            	return;
+            }
+            
+        	//convert to milliseconds first
+        	dtmfTimestamp = frame.getTimestamp() / 1000000L;
+
+            //convert to rtp time units
+        	dtmfTimestamp = rtpClock.convertToRtpTime(dtmfTimestamp);
+            rtpPacket.wrap(false, AVProfile.telephoneEventsID, sn++, dtmfTimestamp,
+                    ssrc, frame.getData(), frame.getOffset(), frame.getLength());
+
+            frame.recycle();
+            try {
+                if (dataChannel.isConnected()) {
+                	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                	txCount++;
+                }
+            }
+            catch(PortUnreachableException e) {
+            	//icmp unreachable received
+            	//disconnect and wait for new packet
+            	try
+            	{
+            		dataChannel.disconnect();
+            	}
+            	catch(IOException ex) {
+            		logger.error(ex);
+            	}
+            }
+            catch (Exception e) {
+            	logger.error(e);
+            }
         }
         
         public void perform(Frame frame) {
             //discard frame if format is unknown
             if (frame.getFormat() == null) {
+            	frame.recycle();
             	return;
             }
 
@@ -641,6 +728,7 @@ public class RTPDataChannel {
                 fmt = rtpFormats.getRTPFormat(frame.getFormat());
                 //format still unknown? discard packet
                 if (fmt == null) {
+                	frame.recycle();
                 	return;
                 }
                 //update clock rate
@@ -649,6 +737,7 @@ public class RTPDataChannel {
 
             //ignore frames with duplicate timestamp
             if (frame.getTimestamp()/1000000L == timestamp) {
+            	frame.recycle();
             	return;
             }
             

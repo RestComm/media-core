@@ -24,6 +24,7 @@ package org.mobicents.media.server.impl.resource.dtmf;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioInput;
+import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -77,12 +78,14 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     private double time = 0;
 
     private AudioInput input;
+    private OOBInput oobInput;
     
     public GeneratorImpl(String name, Scheduler scheduler) {
         super(name, scheduler,scheduler.INPUT_QUEUE);
         dt = 1.0 / linear.getSampleRate();
         
         this.input=new AudioInput(ComponentType.DTMF_GENERATOR.getType(),packetSize);
+        this.oobInput=new OOBInput(ComponentType.DTMF_GENERATOR.getType());
         this.connect(this.input);   
     }
 
@@ -90,6 +93,11 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     {
     	return this.input;
     }
+    
+    public OOBInput getOOBInput()
+    {
+    	return this.oobInput;
+    }    
     
     @Override
     public void activate() {

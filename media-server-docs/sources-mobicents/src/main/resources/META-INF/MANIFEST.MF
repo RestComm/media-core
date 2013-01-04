@@ -13,7 +13,7 @@ Implementation-URL: http://www.mobicents.org
 Bundle-Vendor: TeleStax, Inc.
 Implementation-Vendor-Id: TeleStax, Inc.
 Bundle-Version: 3.0.0.FINAL-SNAPSHOT
-Bnd-LastModified: 1357083334110
+Bnd-LastModified: 1357310815220
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.gnu.org/licenses/lgpl-2.1.html
 Bundle-Description: Mobicents :: Parent pom for 2.x releases

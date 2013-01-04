@@ -31,7 +31,7 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class AVProfile {
-
+	public final static int telephoneEventsID=101;
     public final static AudioFormat telephoneEvent = FormatFactory.createAudioFormat("telephone-event", 8000);
     static {
         telephoneEvent.setOptions(new Text("0-15"));
@@ -44,7 +44,7 @@ public class AVProfile {
     private final static RTPFormat gsm = new RTPFormat(3, FormatFactory.createAudioFormat("gsm", 8000), 8000);
     private final static RTPFormat g729 = new RTPFormat(18, FormatFactory.createAudioFormat("g729", 8000), 8000);
     private final static RTPFormat l16 = new RTPFormat(97, FormatFactory.createAudioFormat("l16", 8000, 16, 1), 8000);    
-    private final static RTPFormat dtmf = new RTPFormat(101, telephoneEvent, 8000);
+    private final static RTPFormat dtmf = new RTPFormat(telephoneEventsID, telephoneEvent, 8000);
     private final static RTPFormat ilbc = new RTPFormat(102, FormatFactory.createAudioFormat("ilbc", 8000, 16, 1), 8000);
     private final static RTPFormat linear = new RTPFormat(150, FormatFactory.createAudioFormat("linear", 8000, 16, 1), 8000);
 

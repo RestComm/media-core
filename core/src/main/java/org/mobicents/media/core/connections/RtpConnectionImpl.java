@@ -38,6 +38,7 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
@@ -111,6 +112,11 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     public AudioComponent getAudioComponent()
     {
     	return this.rtpAudioChannel.getAudioComponent();
+    }
+    
+    public OOBComponent getOOBComponent()
+    {
+    	return this.rtpAudioChannel.getOOBComponent();
     }
     
     /**

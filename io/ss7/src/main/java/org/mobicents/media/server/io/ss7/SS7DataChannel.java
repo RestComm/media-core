@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.text.Format;
 import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.SelectorKeyImpl;
@@ -80,6 +81,7 @@ public class SS7DataChannel {
     private boolean shouldLoop=false;
     
     private AudioComponent audioComponent;
+    private OOBComponent oobComponent;
     
     /**
      * Create SS7 channel instance.
@@ -112,11 +114,18 @@ public class SS7DataChannel {
     	audioComponent=new AudioComponent(audioChannelID); 
         audioComponent.addInput(input.getAudioInput());
         audioComponent.addOutput(output.getAudioOutput());
+        
+        oobComponent=new OOBComponent(audioChannelID);
     }
     
     public AudioComponent getAudioComponent()
     {
     	return this.audioComponent;
+    }
+    
+    public OOBComponent getOOBComponent()
+    {
+    	return this.oobComponent;
     }
     
     public void setOutputDsp(Processor dsp) {
@@ -155,6 +164,7 @@ public class SS7DataChannel {
         input.activate();
     	output.activate();
     	audioComponent.updateMode(true,true);
+    	oobComponent.updateMode(true,true);
     }
 
     /**
@@ -170,6 +180,7 @@ public class SS7DataChannel {
     	input.deactivate();
         output.deactivate(); 
         audioComponent.updateMode(false,false);
+        oobComponent.updateMode(false,false);
         shouldLoop=true;
     }
     
@@ -177,6 +188,7 @@ public class SS7DataChannel {
     	input.activate();
         output.activate(); 
         audioComponent.updateMode(true,true);
+        oobComponent.updateMode(true,true);
         shouldLoop=false;
     }
     
@@ -195,7 +207,8 @@ public class SS7DataChannel {
         txCount=0;
         input.deactivate();
         output.deactivate();  
-        audioComponent.updateMode(false,false);        
+        audioComponent.updateMode(false,false);
+        oobComponent.updateMode(false,false);
     }    
 
     public int getPacketsLost() {

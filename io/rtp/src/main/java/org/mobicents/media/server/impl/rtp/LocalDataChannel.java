@@ -27,6 +27,9 @@ import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBInput;
+import org.mobicents.media.server.component.oob.OOBOutput;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -49,6 +52,10 @@ public class LocalDataChannel {
 	private AudioInput input;
 	private AudioOutput output;
 	
+	private OOBComponent oobComponent;
+	private OOBInput oobInput;
+	private OOBOutput oobOutput;
+	
 	private LocalDataChannel otherChannel=null;
 	
 	/**
@@ -60,6 +67,12 @@ public class LocalDataChannel {
     	output=new AudioOutput(channelsManager.getScheduler(),2);
     	audioComponent.addInput(input);
     	audioComponent.addOutput(output);
+    	
+    	oobComponent=new OOBComponent(channelId); 
+    	oobInput=new OOBInput(1);
+    	oobOutput=new OOBOutput(channelsManager.getScheduler(),2);
+    	oobComponent.addInput(oobInput);
+    	oobComponent.addOutput(oobOutput);
     }
 
     public AudioInput getAudioInput()
@@ -77,6 +90,21 @@ public class LocalDataChannel {
     	return this.audioComponent;
     }
     
+    public OOBInput getOOBInput()
+    {
+    	return this.oobInput;
+    }
+    
+    public OOBOutput getOOBOutput()
+    {
+    	return this.oobOutput;
+    }
+    
+    public OOBComponent getOOBComponent()
+    {
+    	return this.oobComponent;
+    }
+    
     public void join(LocalDataChannel otherChannel) throws IOException
     {
     	if(this.otherChannel!=null)
@@ -85,7 +113,9 @@ public class LocalDataChannel {
     	this.otherChannel=otherChannel;
     	otherChannel.otherChannel=this;
     	this.otherChannel.getAudioOutput().join(input);
+    	this.otherChannel.getOOBOutput().join(oobInput);
     	output.join(this.otherChannel.getAudioInput());
+    	oobOutput.join(this.otherChannel.getOOBInput());
     }
     
     public void unjoin()
@@ -94,7 +124,10 @@ public class LocalDataChannel {
     		return;
     	
     	this.output.deactivate();    	
-    	output.unjoin();    	
+    	this.oobOutput.deactivate();
+    	output.unjoin();
+    	oobOutput.unjoin();
+    	
     	this.otherChannel=null;
     }
     
@@ -106,23 +139,31 @@ public class LocalDataChannel {
     	switch (connectionMode) {
         	case SEND_ONLY:
         		audioComponent.updateMode(false,true);
-        		output.activate();        		
+        		oobComponent.updateMode(false,true);
+        		output.activate();
+        		oobOutput.activate();
         		break;
         	case RECV_ONLY:
         		audioComponent.updateMode(true,false);
-        		output.deactivate();        		
+        		oobComponent.updateMode(true,false);
+        		output.deactivate();
+        		oobOutput.deactivate();
         		break;
         	case INACTIVE:
         		audioComponent.updateMode(false,false);
-        		output.deactivate();        		
+        		oobComponent.updateMode(false,false);
+        		output.deactivate(); 
+        		oobOutput.deactivate();
         		break;
         	case SEND_RECV:
         	case CONFERENCE:
         		audioComponent.updateMode(true,true);
-        		output.activate();        		
+        		oobComponent.updateMode(true,true);
+        		output.activate();    
+        		oobOutput.activate();
         		break;
         	case NETWORK_LOOPBACK:
         		throw new ModeNotSupportedException("Loopback not supported on local channel");        		
-    	}       	
+    	}
     }    
 }

@@ -31,6 +31,7 @@ import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -54,6 +55,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
 public class BaseSS7EndpointImpl extends BaseEndpointImpl {
 	
 	protected AudioSplitter audioSplitter;
+	protected OOBSplitter oobSplitter;
 	
 	private AtomicInteger loopbackCount=new AtomicInteger(0);
 	private AtomicInteger readCount=new AtomicInteger(0);
@@ -81,7 +83,9 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     	super.start();
     	
     	audioSplitter=new AudioSplitter(getScheduler());
+    	oobSplitter=new OOBSplitter(getScheduler());
     	audioSplitter.addOutsideComponent(mediaGroup.getAudioComponent());
+    	oobSplitter.addOutsideComponent(mediaGroup.getOOBComponent());
     	
     	try {
     		ss7DataChannel=channelsManager.getSS7Channel(channelID,isALaw);
@@ -97,7 +101,9 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
         catch(Exception e) {
         	//exception may happen only if invalid classes have been set in config
         }
+        
     	audioSplitter.addInsideComponent(ss7DataChannel.getAudioComponent());
+    	oobSplitter.addInsideComponent(ss7DataChannel.getOOBComponent());
     }
 
     /**
@@ -107,7 +113,9 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
      */
     public void stop() {
     	audioSplitter.releaseInsideComponent(ss7DataChannel.getAudioComponent());
+    	oobSplitter.releaseInsideComponent(ss7DataChannel.getOOBComponent());
     	audioSplitter.releaseOutsideComponent(mediaGroup.getAudioComponent());
+    	oobSplitter.releaseOutsideComponent(mediaGroup.getOOBComponent());
     	super.stop();    	
     }
     
@@ -119,6 +127,7 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
     	Connection connection=super.createConnection(type,isLocal);
     	audioSplitter.addOutsideComponent(((BaseConnection)connection).getAudioComponent());
+    	oobSplitter.addOutsideComponent(((BaseConnection)connection).getOOBComponent());
     	
     	if(getActiveConnectionsCount()==1)
     	{
@@ -138,6 +147,7 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     public void deleteConnection(Connection connection,ConnectionType connectionType) {
     	super.deleteConnection(connection,connectionType);
     	audioSplitter.releaseOutsideComponent(((BaseConnection)connection).getAudioComponent());
+    	oobSplitter.releaseOutsideComponent(((BaseConnection)connection).getOOBComponent());
     	
     	if(getActiveConnectionsCount()==0)
     	{
@@ -195,9 +205,15 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     		writeCount=this.writeCount.addAndGet(writeCount);
     	
     		if(loopbackCount>0 || readCount==0 || writeCount==0)
+    		{
     			audioSplitter.stop();
+    			oobSplitter.stop();
+    		}
     		else
+    		{
     			audioSplitter.start();
+    			oobSplitter.start();
+    		}
     	}    		
     }
     
@@ -209,13 +225,17 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
     		ss7DataChannel.activateLoop();
     		loopbackCount.addAndGet(1);
     		audioSplitter.stop();
+    		oobSplitter.stop();
     	}
     	else if(!toSet && oldState)
     	{
     		ss7DataChannel.deactivateLoop();
     		loopbackCount.addAndGet(-1);
     		if(loopbackCount.get()==0 && readCount.get()>0 && writeCount.get()>0)
+    		{
     			audioSplitter.start();
+    			oobSplitter.start();
+    		}
     	}
     }
     public void configure(boolean isALaw)

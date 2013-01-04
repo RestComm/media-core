@@ -31,6 +31,7 @@ import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -52,6 +53,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
 public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 	
 	protected AudioSplitter audioSplitter;
+	protected OOBSplitter oobSplitter;
 	
 	private AtomicInteger loopbackCount=new AtomicInteger(0);
 	private AtomicInteger readCount=new AtomicInteger(0);
@@ -70,6 +72,7 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     	super.start();
     	
     	audioSplitter=new AudioSplitter(getScheduler());    	       
+    	oobSplitter=new OOBSplitter(getScheduler());
     }    
     
     /**
@@ -84,9 +87,11 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     	{
     		case RTP:
     			audioSplitter.addOutsideComponent(((BaseConnection)connection).getAudioComponent());        
+    			oobSplitter.addOutsideComponent(((BaseConnection)connection).getOOBComponent());
     			break;
     		case LOCAL:
     			audioSplitter.addInsideComponent(((BaseConnection)connection).getAudioComponent());        
+    			oobSplitter.addInsideComponent(((BaseConnection)connection).getOOBComponent());
     	    	break;
     	}
     	
@@ -105,9 +110,11 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     	{
     		case RTP:
     			audioSplitter.releaseOutsideComponent(((BaseConnection)connection).getAudioComponent());        
+    			oobSplitter.releaseOutsideComponent(((BaseConnection)connection).getOOBComponent());
     			break;
     		case LOCAL:
     			audioSplitter.releaseInsideComponent(((BaseConnection)connection).getAudioComponent());        
+    			oobSplitter.releaseInsideComponent(((BaseConnection)connection).getOOBComponent());
     	    	break;
     	}    	
     }
@@ -160,9 +167,15 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
     		writeCount=this.writeCount.addAndGet(writeCount);
     		
     		if(loopbackCount>0 || readCount==0 || writeCount==0)
+    		{
     			audioSplitter.stop();
+    			oobSplitter.stop();
+    		}
     		else
+    		{
     			audioSplitter.start();
+    			oobSplitter.start();
+    		}
     	}    		
     }
 }
