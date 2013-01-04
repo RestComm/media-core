@@ -79,6 +79,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         {"*", "0", "#", "D"}
     };
     private final static String[] evtID = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "#", "*"};
+    private final static String[] oobEvtID = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#", "A", "B", "C", "D"};
     
     private final static int[] lowFreq = new int[]{697, 770, 852, 941};
     private final static int[] highFreq = new int[]{1209, 1336, 1477, 1633};
@@ -112,6 +113,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         
     private AudioOutput output;
     private OOBOutput oobOutput;
+    private OOBDetector oobDetector;
     
     private static final Logger logger = Logger.getLogger(DetectorImpl.class) ;
     
@@ -136,6 +138,9 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         output=new AudioOutput(scheduler,ComponentType.RECORDER.getType());
         oobOutput=new OOBOutput(scheduler,ComponentType.RECORDER.getType());
         output.join(this);
+        
+        oobDetector=new OOBDetector();
+        oobOutput.join(oobDetector);
     }
 
     public AudioOutput getAudioOutput()
@@ -403,4 +408,53 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         
     }
     
+    private class OOBDetector extends AbstractSink
+    {
+    	 private byte currTone=(byte)0xFF;
+    	 private long latestSeq=0;
+    	 byte[] data = new byte[4];
+    	    
+    	public OOBDetector()
+    	{
+    		super("oob detector");
+    	}
+    	
+    	public void onMediaTransfer(Frame buffer) throws IOException {
+    		byte[] data=buffer.getData();
+    		if(data.length!=4)
+            	return;
+        	
+        	boolean endOfEvent=false;
+            endOfEvent=(data[1] & 0X80)!=0;
+            
+           //lets ignore end of event packets
+            if(endOfEvent)
+            	return;                                       
+            
+            //lets update sync data , allowing same tone come after 160ms from previous tone , not including end of tone
+            if(currTone==data[0])
+            {
+            	if((buffer.getSequenceNumber()<(latestSeq+8)) && buffer.getSequenceNumber()>(latestSeq-8))
+            	{
+            		if(buffer.getSequenceNumber()>latestSeq)
+            			latestSeq=buffer.getSequenceNumber();            			
+            		
+                    return;
+            	}            	            	
+            }        
+            
+            latestSeq=buffer.getSequenceNumber();
+            currTone=data[0];
+            fireEvent(oobEvtID[currTone]);
+    	}
+    	
+    	public void activate()
+        {
+        }
+    	
+    	public void deactivate()
+        {
+        
+        }
+    }
 }

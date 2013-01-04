@@ -136,7 +136,6 @@ public class DtmfInput extends AbstractSource {
             currFrame.setLength(packetSize);
             currFrame.setFormat(dtmf);
             currFrame.setDuration(period);
-            System.arraycopy(DtmfTonesData.buffer[data[0]], i*packetSize, currFrame.getData(), 0, packetSize);
             currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp() + 20*i));
             frameBuffer.add(currFrame);                       
         }
@@ -155,7 +154,6 @@ public class DtmfInput extends AbstractSource {
             currFrame.setLength(packetSize);
             currFrame.setFormat(dtmf);
             currFrame.setDuration(period);
-            System.arraycopy(DtmfTonesData.buffer[data[0]], i*packetSize, currFrame.getData(), 0, packetSize);
             currFrame.setTimestamp(clock.convertToAbsoluteTime(event.getTimestamp() + 20*i));
             frameBuffer.add(currFrame);                       
         }
