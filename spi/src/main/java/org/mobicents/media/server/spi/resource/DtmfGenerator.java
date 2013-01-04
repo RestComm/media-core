@@ -32,7 +32,9 @@ import org.mobicents.media.MediaSource;
 public interface DtmfGenerator extends MediaSource {
 	
 	public void setDigit(String digit);
+	public void setOOBDigit(String digit);
 	public String getDigit();
+	public String getOOBDigit();
 	
 	public void setToneDuration(int duration);
 	public int getToneDuration();

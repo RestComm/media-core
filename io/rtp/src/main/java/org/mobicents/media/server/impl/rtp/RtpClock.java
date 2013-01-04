@@ -79,7 +79,7 @@ public class RtpClock {
      * @param remote the time on remote clock.
      */
     public void synchronize(long remote) {
-        this.drift = remote - getTime();
+        this.drift = remote - getLocalRtpTime();
         this.isSynchronized = true;
     }
 
@@ -105,7 +105,7 @@ public class RtpClock {
      * Time in RTP timestamps.
      * @return
      */
-    public long getTime() {
+    public long getLocalRtpTime() {
         return scale * wallClock.getTime(TimeUnit.MILLISECONDS) + drift;
     }
     
