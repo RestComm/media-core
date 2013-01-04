@@ -1,4 +1,5 @@
 /.project
+/**/.classpath
 
 # ignore .svn metadata files
 .svn
@@ -13,3 +14,9 @@ classes
 
 # Ignore Maven target/ dirs
 /**/target/**/* 
+
+#Ignore Maven generated artifacts
+/**/.classpath
+/**/.project
+/**/.settings
+
