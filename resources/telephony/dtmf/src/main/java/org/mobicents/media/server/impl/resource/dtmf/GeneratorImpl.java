@@ -69,6 +69,9 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     private int[] lowFreq = new int[]{697, 770, 852, 941};
     private int[] highFreq = new int[]{1209, 1336, 1477, 1633};
     private String digit = null;    // Min duration = 40ms and max = 500ms
+    private String oobDigit = null;
+    private int oobDigitValue=-1;
+    
     private int duration = 50;
     private short A = Short.MAX_VALUE / 2;
     private int volume = 0;
@@ -79,14 +82,17 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
 
     private AudioInput input;
     private OOBInput oobInput;
+    private OOBGenerator oobGenerator;
     
     public GeneratorImpl(String name, Scheduler scheduler) {
         super(name, scheduler,scheduler.INPUT_QUEUE);
         dt = 1.0 / linear.getSampleRate();
         
         this.input=new AudioInput(ComponentType.DTMF_GENERATOR.getType(),packetSize);
+        this.connect(this.input);
+        
         this.oobInput=new OOBInput(ComponentType.DTMF_GENERATOR.getType());
-        this.connect(this.input);   
+        this.oobGenerator=new OOBGenerator(scheduler,oobInput);        
     }
 
     public AudioInput getAudioInput()
@@ -101,12 +107,32 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     
     @Override
     public void activate() {
-        if (digit == null) {
-            return;
-        }
-        
-        time = 0;
-        start();
+    	if(oobDigit!=null) {
+    		oobGenerator.index=0;
+    		oobGenerator.activate();    		
+    	}
+    	
+    	if (digit != null) {
+    		time = 0;
+            start();
+        }     
+    }
+    
+    public void setOOBDigit(String digit) {
+    	if(oobDigit.charAt(0)>='0' && oobDigit.charAt(0)<='9')    			
+    		oobDigitValue=(oobDigit.charAt(0)-'0');
+		else if(oobDigit.charAt(0)=='*')
+			oobDigitValue=10;
+		else if(oobDigit.charAt(0)=='#')
+			oobDigitValue=11;
+		else if(oobDigit.charAt(0)>='A' && oobDigit.charAt(0)<='D')
+			oobDigitValue=12+oobDigit.charAt(0)-'A';
+		else if(oobDigit.charAt(0)>='a' && oobDigit.charAt(0)<='d')
+			oobDigitValue=12+oobDigit.charAt(0)-'a';
+		else
+			return;
+    	
+    	this.oobDigit=digit;
     }
     
     public void setDigit(String digit) {
@@ -126,6 +152,10 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         return this.digit;
     }
 
+    public String getOOBDigit() {
+        return this.oobDigit;
+    }
+    
     public void setToneDuration(int duration) {
         if (duration < 40) {
             throw new IllegalArgumentException("Duration cannot be less than 40ms");
@@ -176,11 +206,6 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         frame.setTimestamp(getMediaTime());
         frame.setDuration(20000000L);
 
-        if (time == 0) {
-            //TODO add key frame
-//            buffer.setFlags(Buffer.FLAG_KEY_FRAME);
-        }
-        
         time += ((double) 20) / 1000.0;
         return frame;
     }
@@ -188,6 +213,57 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     @Override
     public void deactivate() {
         stop();
-    }    
+        oobGenerator.deactivate();
+    } 
+    
+    private class OOBGenerator extends AbstractSource {
+    	int index=0;
+    	int eventDuration=0;
+    	int oobVolume;
+    	public OOBGenerator(Scheduler scheduler,OOBInput input) {
+            super("oob generator", scheduler,scheduler.INPUT_QUEUE);
+            this.connect(input);
+    	}
+    	
+    	@Override
+        public Frame evolve(long timestamp) {    		
+    		if(index > ((duration / 20)+3))
+        		return null;    		    		
+    	
+    		Frame frame = Memory.allocate(4);
+    		byte[] data=frame.getData();
+    		
+    		data[0]=(byte)oobDigitValue;
+    		
+    		oobVolume=0-volume;
+    		if(index > (duration / 20))
+    			//with end of event flag
+    			data[1]=(byte)(0xBF & oobVolume);	
+    		else
+    			//without end of event flag
+    			data[1]=(byte)(0x3F & oobVolume);
+    		
+        	eventDuration=(short)(160*index);
+        	data[2]=(byte)((eventDuration>>8) & 0xFF);
+        	data[3]=(byte)(eventDuration & 0xFF);
+        	
+    		frame.setOffset(0);
+            frame.setLength(4);
+            frame.setTimestamp(getMediaTime());
+            frame.setDuration(20000000L);
+            
+            index++;
+            return frame;
+    	}
+    	
+    	@Override
+        public void activate() {
+            start();
+        }
+    	
+    	@Override
+        public void deactivate() {
+            stop();
+        } 
+    }
 }
-

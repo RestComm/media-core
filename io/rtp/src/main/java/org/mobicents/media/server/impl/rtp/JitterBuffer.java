@@ -67,7 +67,7 @@ public class JitterBuffer implements Serializable {
 
     //allowed jitter
     private long jitterBufferSize;
-
+    
     //packet arrival dead line measured on RTP clock.
     //initial value equals to infinity
     private long arrivalDeadLine = 0;
@@ -86,6 +86,18 @@ public class JitterBuffer implements Serializable {
     private BufferListener listener;
 
     private volatile boolean ready;
+    
+    /**
+     * used to calculate network jitter.
+     * currentTransit measures the relative time it takes for an RTP packet 
+     * to arrive from the remote server to MMS
+     */
+    private long currentTransit = 0;
+    
+    /**
+     * continuously updated value of network jitter 
+     */
+    private long currentJitter = 0;
     
     //transmission formats
     private RTPFormats rtpFormats = new RTPFormats();
@@ -106,6 +118,41 @@ public class JitterBuffer implements Serializable {
         this.jitterBufferSize = jitterBufferSize;        
     }
 
+    private void initJitter(RtpPacket firstPacket) {
+        long arrival = rtpClock.getLocalRtpTime();
+        long firstPacketTimestamp = firstPacket.getTimestamp();
+        currentTransit = arrival - firstPacketTimestamp;
+    }
+    
+    /**
+     * 
+     * Calculates the current network jitter, which is 
+     * an estimate of the statistical variance of the RTP data packet interarrival time:
+     * http://tools.ietf.org/html/rfc3550#appendix-A.8
+     * 
+     */
+    private void estimateJitter(RtpPacket newPacket) {
+            long arrival = rtpClock.getLocalRtpTime();
+            long newPacketTimestamp = newPacket.getTimestamp();
+            long transit = arrival - newPacketTimestamp;
+        long d = transit - currentTransit;
+        if (d<0) d = -d;
+        // logger.info(String.format("recalculating jitter: arrival=%d, newPacketTimestamp=%d, transit=%d, transit delta=%d", arrival, newPacketTimestamp, transit, d ));
+        currentTransit = transit;           
+            currentJitter += d - ((currentJitter + 8) >> 4);  
+    }
+    
+    /**
+     * 
+     * @return the current value of the network RTP jitter. The value is in normalized form as specified in RFC 3550 
+     * http://tools.ietf.org/html/rfc3550#appendix-A.8
+     */
+    public long getEstimatedJitter() {
+            long jitterEstimate = currentJitter >> 4; 
+            // logger.info(String.format("Jitter estimated at %d. Current transit time is %d.", jitterEstimate, currentTransit));
+            return jitterEstimate;
+    }
+    
     public void setFormats(RTPFormats rtpFormats) {
         this.rtpFormats = rtpFormats;
     }
@@ -176,8 +223,11 @@ public class JitterBuffer implements Serializable {
     	if (isn == -1) {
     		rtpClock.synchronize(packet.getTimestamp());
     		isn = packet.getSeqNumber();
+    		initJitter(packet);
     	}
-    	
+    	else
+            estimateJitter(packet);
+            
     	//update clock rate
     	rtpClock.setClockRate(this.format.getClockRate());            		    		
         

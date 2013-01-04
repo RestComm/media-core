@@ -68,9 +68,9 @@ public class RtpClockTest {
      */
     @Test
     public void testTime() {
-        long t1 = clock.getTime();
+        long t1 = clock.getLocalRtpTime();
         wallClock.tick(20000000L);
-        long t2 = clock.getTime();
+        long t2 = clock.getLocalRtpTime();
         assertEquals(160, t2 - t1);
     }
 
@@ -80,10 +80,10 @@ public class RtpClockTest {
         wallClock.tick(20000000L);
 
         clock.synchronize(remoteTime);
-        assertEquals(480, clock.getTime());
+        assertEquals(480, clock.getLocalRtpTime());
 
         wallClock.tick(20000000L);
-        long t = clock.getTime();
+        long t = clock.getLocalRtpTime();
 
         assertEquals(640, t);
     }

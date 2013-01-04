@@ -205,7 +205,14 @@ public class JitterBufferTest {
     }
 
     @Test
+    /**
+     * 
+     * Test that network jitter for RTP packets is estimated correctly 
+     * 
+     * http://tools.ietf.org/html/rfc3550#appendix-A.8
+     */
     public void testJitter() {
+            // the timestamp for each packet increases by 10ms=160 timestamp units for sampling rate 8KHz 
         RtpPacket p1 = new RtpPacket(172, false);
         p1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
 
@@ -213,25 +220,50 @@ public class JitterBufferTest {
         p2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
 
         RtpPacket p3 = new RtpPacket(172, false);
-        p3.wrap(false, 8, 3, 160 * 3, 123, new byte[160], 0, 160);
+        p3.wrap(false, 8, 2, 160 * 3, 123, new byte[160], 0, 160);
 
+        RtpPacket p4 = new RtpPacket(172, false);
+        p4.wrap(false, 8, 3, 160 * 4, 123, new byte[160], 0, 160);
+
+        RtpPacket p5 = new RtpPacket(172, false);
+        p5.wrap(false, 8, 3, 160 * 5, 123, new byte[160], 0, 160);
+
+        
+        long jitterDeltaLimit = 1; // 1 sampling units delta for timing and rounding errors , i.e. 1/8ms
+        
         //write first packet, expected jitter = 0
         jitterBuffer.write(p1,AVProfile.audio.find(8));
-        assertEquals(0, jitterBuffer.getJitter(), 0.1);
+        assertEquals(0, jitterBuffer.getEstimatedJitter(), jitterDeltaLimit);
 
-        //move time forward on 20ms and write second packet
-        //expected jitter = 0;
+        // move time forward by 20ms and write the second packet
+        // the transit time should remain approximately the same - near 0ms. 
+        // expected jitter = 0;
         wallClock.tick(20000000L);
         jitterBuffer.write(p2,AVProfile.audio.find(8));
+        assertEquals(0, jitterBuffer.getEstimatedJitter(), jitterDeltaLimit);
 
-        assertEquals(0, jitterBuffer.getJitter(), 0.1);
-
-        //move time forward on 30ms and wriate third packet
-        //packet was delayed on 10ms and expected jitter equals
-        //160/2/16=5ms
+        // move time forward by 30ms and write the next packet
+        // the transit time should increase by 10ms, 
+        // as suggested by the difference in the third packet timestamp (160*3) and the 20ms delay for the server to receive the second packet
+        // expected jitter should be close to the 10ms delay in timestamp units/16, i.e. 80/16.
         wallClock.tick(30000000L);
         jitterBuffer.write(p3,AVProfile.audio.find(8));
-        assertEquals(0, jitterBuffer.getJitter(), 0.1);
+        assertEquals(5, jitterBuffer.getEstimatedJitter(), jitterDeltaLimit);
+
+        //move time forward by 20ms and write the next packet
+        //the transit time does not change from the previous packet. 
+        // The jitter should stay approximately the same. 
+        wallClock.tick(20000000L);
+        jitterBuffer.write(p4,AVProfile.audio.find(8));
+        assertEquals(4, jitterBuffer.getEstimatedJitter(), jitterDeltaLimit);
+
+        //move time forward by 30ms and write the next packet
+        //packet was delayed 10ms again.  
+        // The estimated jitter should increase significantly, by nearly 5ms (80/16)
+        wallClock.tick(30000000L);
+        jitterBuffer.write(p5,AVProfile.audio.find(8));
+        assertEquals(9, jitterBuffer.getEstimatedJitter(), jitterDeltaLimit);
+        
     }
 
     private RtpPacket[] createStream(int size) {

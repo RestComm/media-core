@@ -1,0 +1,1108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<!-- chapter id nickname: ittms -->
+<chapter id="ittms-Introduction_to_the_Media_Server">
+	<title>Introduction to the Mobicents Media Server</title>
+	<section
+		id="ittms-Overview-the_Reasoning_and_Need_for_Media_Servers">
+		<title>
+			Overview: the Reasoning and Need for Media Servers
+		</title>
+		<formalpara>
+			<title>Media Gateways Bridge Multiple Technologies</title>
+			<para>
+				Today, all communications can be routed through
+				computers. Widespread access to broadband Internet and
+				the ubiquity of Internet Protocol (
+				<acronym>IP</acronym>
+				) enable the convergence of voice, data and video. Media
+				gateways provide the ability to switch voice media
+				between a network and its access point. Using Digital
+				Subscriber Line (
+				<acronym>DSL</acronym>
+				) and fast-Internet cable technology, a media gateway
+				converts, compresses and packetizes voice data for
+				transmission back-and-forth across the Internet backbone
+				for landline and wireless phones. Media gateways sit at
+				the intersection of Public Switched Telephone Networks (
+				<acronym>PSTN</acronym>
+				s) and wireless or IP-based networks.
+			</para>
+		</formalpara>
+		<formalpara>
+			<title>The Justification for Media Gateways for VoIP</title>
+			<para>
+				Multiple market demands are pushing companies to
+				converge all of their media services using media
+				gateways with Voice-over-IP (
+				<acronym>VoIP</acronym>
+				) capabilities. Companies have expectations for such
+				architectures, which include:
+			</para>
+		</formalpara>
+		<variablelist>
+			<varlistentry>
+				<term>Lowering initial costs</term>
+				<listitem>
+					<para>
+						Capital investment is decreased because low-cost
+						commodity hardware can be used for multiple
+						functions.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Lowering development costs</term>
+				<listitem>
+					<para>
+						Open system hardware and software standards with
+						well-defined applications reduce costs, and
+						Application Programming Interfaces (
+						<acronym>API</acronym>
+						s) accelerate development.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Handling multiple media types</term>
+				<listitem>
+					<para>
+						Companies want
+						<acronym>VoIP</acronym>
+						solutions today, but also need to choose
+						extensible solutions that will handle video in
+						the near future.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>
+					Lowering the costs of deployment and maintenance
+				</term>
+				<listitem>
+					<para>
+						Standardized, modular systems reduce training
+						costs and maintenance while simultaneously
+						improving uptime.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Enabling rapid time-to-market</term>
+				<listitem>
+					<para>
+						Early market entry hits the window of
+						opportunity and maximizes revenue.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<formalpara>
+			<title>What Is the Mobicents Media Server?</title>
+			<para>
+				The Mobicents Media Gateway is an open source Media
+				Server aimed at:
+			</para>
+		</formalpara>
+		<itemizedlist>
+			<listitem>
+				<para>
+					Delivering competitive, complete, best-of-breed
+					media gateway functionality of the highest quality.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Meeting the demands of converged wireless and
+					landline networks, DSL and cable broadband access,
+					and fixed-mobile converged
+					<acronym>VoIP</acronym>
+					&mdash;&mdash; networks from a singleand
+					singularly-capablemedia gateway platform.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Increasing flexibility with a media gateway that
+					supports a wide variety of call control protocols,
+					which possesses an architecture that can scale to
+					meet the demands of small-carrier providers as well
+					as large enterprises.
+				</para>
+			</listitem>
+		</itemizedlist>
+		<para>
+			Because Mobicents Media Server is Java based, it is cross
+			platform, easy to install and run on any operating system
+			that supports Java. The available source code is a powerful
+			tool to debug the server and understand processing logic. It
+			also gives you the flexibility to create customized
+			components and configurations for your personal or business
+			use.
+		</para>
+		<para>
+			Form version 2.0.0, the Mobicents Media Server is available
+			either as embedded in JBoss AS 5.x.y or Standalone.
+		</para>
+	</section>
+
+	<section id="ittms-Technical_specification_and_capacity">
+		<title>Technical Specification and Capacity</title>
+
+		<para>The Mobicents Media Server is capable of</para>
+
+		<itemizedlist>
+			<listitem>
+				<para>
+					Media and Coders :
+					<itemizedlist>
+						<listitem>
+							<para>G711 (a-Law, u-Law)</para>
+						</listitem>
+						<listitem>
+							<para>GSM</para>
+						</listitem>
+						<listitem>
+							<para>SPEEX</para>
+						</listitem>
+						<listitem>
+							<para>G729</para>
+						</listitem>
+						<listitem>
+							<para>DTMF(RFC 2833, INBAND)</para>
+						</listitem>
+					</itemizedlist>
+				</para>
+			</listitem>
+
+			<listitem>
+				<para>
+					Media Files :
+					<itemizedlist>
+						<listitem>
+							<para>WAV</para>
+						</listitem>
+						<listitem>
+							<para>SPX</para>
+						</listitem>
+						<listitem>
+							<para>GSM</para>
+						</listitem>
+						<listitem>
+							<para>MP3</para>
+						</listitem>
+					</itemizedlist>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Signaling and control :
+					<itemizedlist>
+						<listitem>
+							<para>MGCP</para>
+						</listitem>
+						<listitem>
+							<para>Java Media Control API(JSR-309)</para>
+						</listitem>
+					</itemizedlist>
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Capacity : Typical media sessions per server
+					<itemizedlist>
+						<listitem>
+							<para>
+								G.711 @ 20 ms - upto 500 with dual-core
+								2.33GHz CPU 4GB RAM
+							</para>
+						</listitem>
+
+					</itemizedlist>
+				</para>
+			</listitem>
+		</itemizedlist>
+
+	</section>
+
+
+	<section id="ittms-Media_Server_Architecture">
+		<title>Media Server Architecture</title>
+		<para>
+			Media services have played an important role in the
+			traditional Time Division Multiplexing (
+			<acronym>TDM</acronym>
+			)-based telephone network. As the network migrates to an
+			Internet Protocol (
+			<acronym>IP</acronym>
+			)-based environment, media services are also moving to new
+			environments.
+		</para>
+		<para>
+			One of the most exciting trends is the emergence and
+			adoption of complementary modular standards that leverage
+			the Internet to enable media services to be developed,
+			deployed and updated more rapidly than before in a network
+			architecture that supports the two concepts called
+			<emphasis>provisioning-on-demand</emphasis>
+			and
+			<emphasis>scaling-on-demand</emphasis>
+			.
+		</para>
+		<section id="ittms-High_Level_Component">
+			<title>High level components</title>
+
+
+			<para>
+				The Media Server's high degree of modularity benefits
+				the application developer in several ways. The
+				already-tight code can be further optimized to support
+				applications that require small footprints. For example,
+				if
+				<acronym>PSTN</acronym>
+				interconnection is unnecessary in an application, then
+				the D-channel feature can be removed from the Media
+				Server. In the future, if the same application is
+				deployed within a Signaling System 7 (
+				<acronym>SS7</acronym>
+				) network, then the appropriate endpoint can be enabled,
+				and the application is then compatible.
+			</para>
+			<mediaobject id="ittms-mms-MMSArchictecture-dia-MMS">
+				<imageobject>
+					<imagedata align="center" width="550"
+						fileref="images/mms-MMSArchictecture-dia-MMS2.jpg" format="PNG"></imagedata>
+				</imageobject>
+			</mediaobject>
+			<para>
+				The Media Server architecture assumes that call control
+				intelligence lies outside of the Media Server, and is
+				handled by an external entity. The Media Server also
+				assumes that call controllers will use control
+				procedures such as
+				<acronym>MGCP</acronym>
+				,
+				<acronym>MEGACO</acronym>
+				or
+				<acronym>MSML</acronym>
+				, among others. Each specific control module can be
+				plugged in directly to the server as a standard
+				deployable unit. Utilizing the JBoss Microcontainer for
+				the implementation of control protocol-specific
+				communication logic allows for simple deployment. It is
+				therefore unnecessary for developers to configure
+				low-level transaction and state management details,
+				multi-threading, connection-pooling and other low-level
+				details and
+				<acronym>API</acronym>
+				s.
+			</para>
+			<para>
+				The Mobicents Media Server call control intelligence can
+				be a JSLEE Application deployed on Mobicents JAIN SLEE
+				Server or any other JAIN SLEE container. In case of
+				Mobicents JSLEE Server there is already MGCP Resource
+				Adaptor available.
+			</para>
+
+			<para>
+				Mobicents Media Server can also be controlled from
+				Mobicents SIP Servlets or any other SIP Servlets
+				container using any of the above call control procedures
+				or using the Mobicents JSR-309 Implementation. Mobicents
+				JSR-309 Implementation internally leverages MGCP
+				protocol to controll media server. Mobicents JSR-309
+				implementation details is out of scope of this document.
+			</para>
+
+			<para>
+				It is also possible to control the Mobicents Media
+				Server from any third party Java application (including
+				standalone Java apps) or other technologies like .NET
+				etc as far as they follow standrad protocols like MGCP,
+				MEGACO etc. There is no dependency on call controller
+				but the protocol used between the call controller and
+				Mobicents Media Server.
+			</para>
+
+
+			<para>
+				Many key features of Mobicents Media Server are provided
+				by integrating individual components operating using
+				generic Service Provider Interface. There are two of
+				types of high level components: Endpoints and
+				Controllers.
+			</para>
+
+			<section id="ittms-Endpoints">
+				<title>Endpoints</title>
+
+				<para>
+					It is convenient to consider a media gateway as a
+					collection of endpoints. An endpoint is a logical
+					representation of a physical entity such as an
+					analog phone or a channel in a trunk. Endpoints are
+					sources or sinks of data and can be either physical
+					or virtual. Physical endpoint creation requires
+					hardware installation, while software is sufficient
+					for creating virtual endpoints. An interface on a
+					gateway that terminates at a trunk connected to a
+					<acronym>PTSN</acronym>
+					switch would be an example of a physical endpoint.
+					An audio source in an audio content server would be
+					an example of a virtual endpoint.
+				</para>
+
+				<para>
+					The type of the endpoint determines its
+					functionality. Our analysis, so far, has led us to
+					isolate the following basic endpoint types:
+				</para>
+				<itemizedlist>
+					<listitem>
+						<para>
+							digital signal 0 (
+							<acronym>DS0</acronym>
+							)
+						</para>
+					</listitem>
+					<listitem>
+						<para>analog line</para>
+					</listitem>
+					<listitem>
+						<para>announcement server access point</para>
+					</listitem>
+					<listitem>
+						<para>conference bridge access point</para>
+					</listitem>
+					<listitem>
+						<para>packet relay</para>
+					</listitem>
+					<listitem>
+						<para>
+							Asynchronous Transfer Mode (
+							<acronym>ATM</acronym>
+							) "trunk side" interface
+						</para>
+					</listitem>
+				</itemizedlist>
+				<para>
+					This list is not final: other endpoint types may be
+					defined in the future, such as test endpoints which
+					could be used to check network quality, or
+					frame-relay endpoints that could be used to manage
+					audio channels multiplexed over a frame-relay
+					virtual circuit.
+				</para>
+				<variablelist>
+					<title>
+						Descriptions of Various Access Point Types
+					</title>
+					<varlistentry>
+						<term>Announcement Server Access Point</term>
+						<listitem>
+							<para>
+								An announcement server endpoint provides
+								access, intuitively, to an announcement
+								server. Upon receiving requests from the
+								call agent, the announcement server
+								<quote>plays</quote>
+								a specified announcement. A given
+								announcement endpoint is not expected to
+								support more than one connection at a
+								time. Connections to an announcement
+								server are typically one-way; they are
+								<quote>half-duplex</quote>
+								: the announcement server is not
+								expected to listen to audio signals from
+								the connection. Announcement access
+								points are capable of playing
+								announcements; however, these endpoints
+								do not have the capability of
+								transcoding. To achieve transcoding, a
+								Packet Relay must be used. Also note
+								that the announcement server endpoint
+								can generate tones, such as dual-tone
+								multi-frequency (DTMF).
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>
+							Interactive Voice Response Access Point
+						</term>
+						<listitem>
+							<para>
+								An Interactive Voice Response (
+								<acronym>IVR</acronym>
+								) endpoint provides access to an
+								<acronym>IVR</acronym>
+								service. Upon requests from the call
+								agent, the
+								<acronym>IVR</acronym>
+								server
+								<quote>plays</quote>
+								announcements and tones, and
+								<quote>listens</quote>
+								for responses, such as (
+								<acronym>DTMF</acronym>
+								) input or voice messages, from the
+								user. A given
+								<acronym>IVR</acronym>
+								endpoint is not expected to support more
+								than one connection at a time. Similarly
+								to announcement endpoints, IVR endpoints
+								do not possess media-transcoding
+								capabilities. IVR plays and records in
+								the format in which the media was stored
+								or received.
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Conference Bridge Access Point</term>
+						<listitem>
+							<para>
+								A conference bridge endpoint is used to
+								provide access to a specific conference.
+								Media gateways should be able to
+								establish several connections between
+								the endpoint and packet networks, or
+								between the endpoint and other endpoints
+								in the same gateway. The signals
+								originating from these connections are
+								mixed according to the connection
+								<quote>mode</quote>
+								(as specified later in this document).
+								The precise number of connections that
+								an endpoint supports is characteristic
+								of the gateway, and may, in fact, vary
+								according to the allocation of resources
+								within the gateway.
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Packet Relay Endpoint</term>
+						<listitem>
+							<para>
+								A packet relay endpoint is a specific
+								form of conference bridge that typically
+								only supports two connections. Packet
+								relays can be found in firewalls between
+								a protected and an open network, or in
+								transcoding servers used to provide
+								interoperation between incompatible
+								gateways, such as gateways which don't
+								support compatible compression
+								algorithms and gateways which operate
+								over different transmission networks,
+								such as IP or ATM.
+							</para>
+						</listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>Echo Endpoint</term>
+						<listitem>
+							<para>
+								An echo—or loopback—endpoint is a test
+								endpoint that is used for maintenance
+								and/or continuity testing. The endpoint
+								returns the incoming audio signal from
+								the endpoint back to that same endpoint,
+								thus creating an echo effect
+							</para>
+						</listitem>
+					</varlistentry>
+				</variablelist>
+			</section>
+
+			<section id="ittms-Controller-Modules">
+				<title>Controller Modules</title>
+				<para>
+					Controller Modules allows external interfaces to be
+					implemented for the Media Server. Each controller
+					module implements an industry standard control
+					protocol, and uses a generic SPI to control
+					processing components or endpoints.
+				</para>
+				<para>
+					One such controller module is the Media Gateway
+					Control Protocol (MGCP). MGCP is designed as an
+					internal protocol within a distributed system that
+					appears to outside as a single VoIP gateway. The
+					MGCP is composed of a Call Agent, and set of
+					gateways including at least one "media gateway" that
+					perform the conversion of media signal between
+					circuit and packets, and atleast one "signalling
+					gateway" when connecting to an SS7 controlled
+					network. The Call Agent can be distributed over
+					several computer platforms.
+				</para>
+			</section>
+		</section>
+
+		<section id="ittms-Design_Overview">
+			<title>Design Overview</title>
+			<formalpara>
+				<title>Base Architecture</title>
+				<para>
+					The Mobicents Media Server is developed on top of
+					existing Java technologies. The Java platform is
+					ideal for network computing. It offers a single,
+					unified-and-unifying programming model that can
+					connect all elements of a business infrastructure.
+					The modularization effort is supported by the use of
+					the JBoss Microcontainer which allows to deploy
+					services written as Plain Java Objects into a
+					Standard Java SE runtime environment in controlled
+					manner and achieve a great level of customization.
+					Dependencies are fully managed to ensure that new
+					services cannot be deployed until services they
+					depend on have first been deployed. Where it makes
+					sense to do so you can even re-deploy services at
+					runtime providing that you access them via the
+					microcontainer bus. Undeploying a service causes all
+					dependent services to be undeployed first in order
+					to maintain the integrity of the system.
+				</para>
+			</formalpara>
+			<section id="ittms-Service_Provider_Interface">
+				<title>Service Provider Interface</title>
+				<para>
+					A common theme for Mobicents Media Server is the
+					breaking out of internal fixed subsystems into
+					stand-alone components implemented as POJOs and the
+					introduction of SPIs throughout the server codebase.
+					Those changes should not affect directly the end
+					user but they are an important part of the Mobicents
+					Media Server strategy for making available the
+					various voice/video services as independent
+					components, so that they can be wired-together on
+					demand
+				</para>
+
+				<para>
+					The controllers use this SPI to controll the media
+					server components.
+				</para>
+
+				<mediaobject
+					id="ittms-mms-MMSArchitecture-dia-MSGeneral">
+					<imageobject>
+						<imagedata width="405" align="center"
+							fileref="images/mms-MMSArchitecture-dia-MSGeneral2.jpg"
+							format="JPG"></imagedata>
+					</imageobject>
+				</mediaobject>
+
+
+
+				<para>
+					Mobicents Media server architecture promotes the
+					usage of Service Objects to represent the media flow
+					path. The component architecture divides the process
+					of constructing media services into two major parts:
+					<itemizedlist>
+						<listitem>
+							<para>
+								Implementing components that generate,
+								or consume, media data.
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Assembling media component chains to
+								build a media flow path.
+							</para>
+						</listitem>
+					</itemizedlist>
+				</para>
+
+
+				<section>
+					<title>Wiring Components</title>
+					<para>
+						The process of defining an Endpoint in the Media
+						Server involves specifying the path over which
+						media information travels. This process is
+						referred to as "Wiring" the components. Wiring
+						connects media sources and sinks (components)
+						together so data can interact with all stages of
+						the data transfer process.
+					</para>
+					<para>
+						The following diagram provides an example of a
+						basic wiring schematic for components in Media
+						Server.
+					</para>
+					<mediaobject>
+						<imageobject>
+							<imagedata align="center" width="400"
+								fileref="images/mms-ApplicationWiring-dia-Media_Flow_Path.png"
+								format="PNG"></imagedata>
+						</imageobject>
+						<caption>Media Flow Path</caption>
+					</mediaobject>
+					<para>
+						The primary media components depicted in the
+						diagram are:
+					</para>
+					<itemizedlist>
+						<listitem>
+							<para>
+								Source components, which generate media
+								content (refer to
+								<xref
+									linkend="ctms-Media_Source_Interface"></xref>
+								for the base interface).
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Sink components, which consume media
+								content (refer to
+								<xref
+									linkend="ctms-Media_Sink_Interface"></xref>
+								for the base interface.
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Inlets, which provide access to a media
+								sink within the media flow (refer to
+								<xref linkend="ctms-Inlet_Interface"></xref>
+								for the base interface).
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Outlets, which access the output from an
+								Inlet as a media source in the media
+								flow (refer to
+								<xref linkend="ctms-Outlet_Interface"></xref>
+								for the base interface).
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								Channels and Pipes, which join the
+								elements that form a media flow path
+								(refer to
+								<xref linkend="Channels_and_Pipes"></xref>
+								for the base interface).
+							</para>
+						</listitem>
+					</itemizedlist>
+					<para>
+						The components that can exist between a Source
+						and Sink vary between each wiring
+						implementation. For example, some wiring
+						implementations contain components that are not
+						Source or Sink components as such, but provide
+						access to components that emulate sources and
+						sinks. In the diagram,
+						<literal>Component A</literal>
+						represents a source (Input) and
+						<literal>Component B</literal>
+						represents a sink (Output) in the media flow.
+					</para>
+					<para>
+						Also note that
+						<literal>Component A</literal>
+						provides a Source to the implementation
+						<literal>Composite A</literal>
+						.
+						<literal>Composite A</literal>
+						can use the Input received from
+						<literal>Component A</literal>
+						to supply the Source for the application.
+					</para>
+					<formalpara>
+						<title>Media Sources and Sinks</title>
+						<para>
+							The Media Source and Media Sink interfaces
+							define the general wiring principle for a
+							component, including media transition and
+							handling. Each media source object generates
+							media after receiving a start() command,
+							while each media sink implements the data
+							handling logic within the receive method.
+							Each source and sink pair defines the
+							connection method used to wire the
+							components in a media stream together.
+						</para>
+					</formalpara>
+					<para>
+						<xref linkend="ctms-Media_Source_Interface"></xref>
+						describes the base interfaces for the Media
+						Source container.
+					</para>
+					<example id="ctms-Media_Source_Interface">
+						<title>Base Media Source Interface</title>
+						<programlisting linenumbering="unnumbered"
+							role="JAVA"><![CDATA[
+public interface MediaSource extends Component {
+      /**
+      * Joins this source with media sink.
+      * 
+      * @param sink the media sink to join with.
+      */
+    public void connect(MediaSink sink);
+      /**
+      * Drops connection between this source and media sink.
+      * 
+      * @param sink the sink to disconnect.
+      */
+    public void disconnect(MediaSink sink);
+      /**
+      * Starts media production.
+      */
+    public void start();
+      /**
+      * Terminates media production.
+      */
+    public void stop();
+      /**
+      * Get possible formats in which this source can stream media.
+      * 
+      * @return an array of Format objects.
+      */
+    public Format[] getFormats();}
+      ]]>
+						</programlisting>
+					</example>
+					<para>
+						<xref linkend="ctms-Media_Sink_Interface"></xref>
+						describes the base interfaces for the Media Sink
+						container.
+					</para>
+					<example id="ctms-Media_Sink_Interface">
+						<title>Base Media Sink Interface</title>
+						<programlisting linenumbering="unnumbered"
+							role="JAVA"><![CDATA[
+public interface MediaSink extends Component {
+      /**
+     * Get possible formats which this consumer can handle.
+     * 
+     * @return an array of Format objects.
+     */
+    public Format[] getFormats();    
+      /**
+     * Checks is the specified format is acceptable by this source.
+     * This method is used by DEMUX to perform proper demultiplexing.
+     * 
+     * @param format the format to check.
+     * @return true if this source can handle specified format.
+     */
+    public boolean isAcceptable(Format format);
+    /**
+     * Joins this media sink with media source.
+     * The concrete media sink can allow to join with multiple sources
+     * 
+     * @param source the media source to join with.
+     */
+    public void connect(MediaSource source);
+    /**
+     * Breaks connection with media source.
+     * The concrete media sink can allow to join with multiple sources so
+     * this method requires the explicit source for disconnection.
+     *
+     * @param source the source to disconnect from.
+     */
+    public void disconnect(MediaSource source);
+    /**
+     * This method is called by media source when new media is available
+     * 
+     * @param buffer the Buffer object which contains the next portion of media.
+     */
+    public void receive(Buffer buffer);
+    
+    //public void dispose();
+}
+      ]]></programlisting>
+					</example>
+					<formalpara>
+						<title>Inlets and Outlets</title>
+						<para>
+							Inlets and Outlets are used to aggregate
+							several wired components into a single
+							object..
+							<xref linkend="ctms-Inlet_Interface"></xref>
+							describes the base interfaces for the Inlet
+							container.
+						</para>
+					</formalpara>
+					<example id="ctms-Inlet_Interface">
+						<title>Inlet Interface</title>
+						<programlisting linenumbering="unnumbered"
+							role="JAVA"><![CDATA[
+public interface Inlet extends Component {
+      /**
+     * Provides access to the media sink.
+     * 
+     * @return the reference to the media sink.
+     */
+    public MediaSink getInput();
+}
+      ]]>
+						</programlisting>
+					</example>
+					<para>
+						<xref linkend="ctms-Outlet_Interface"></xref>
+						describes the base interfaces for the Outlet
+						container.
+					</para>
+					<example id="ctms-Outlet_Interface">
+						<title>Outlet Interface</title>
+						<programlisting linenumbering="unnumbered"
+							role="JAVA"><![CDATA[
+public interface Outlet extends Component {
+    /**
+     * Provides access to the media source.
+     * 
+     * @return the reference to the media source.
+     */
+    public MediaSource getOutput();
+}
+      ]]>
+						</programlisting>
+					</example>
+					<formalpara id="Channels_and_Pipes">
+						<title>Channels and Pipes</title>
+						<para>
+							Channels allow Media Sources and Sinks to be
+							joined with other channels by creating pipes
+							between each component. Using multiplexers
+							and demultiplexers, the media stream can be
+							merged or split. Within the stream,
+							different signal processors can be connected
+							to increase performance or provide greater
+							flexibility. Media Server uses declarative
+							channel construction to construct customized
+							media flow paths by utilizing pipes.
+						</para>
+					</formalpara>
+					<para>
+						<xref
+							linkend="ctms-AudioProcessorFactory_Deployment_Descriptor"></xref>
+						shows the AudioProcessorFactory deployment
+						descriptor, which contains the codecFactories
+						used by applications.
+					</para>
+					<example
+						id="ctms-AudioProcessorFactory_Deployment_Descriptor">
+						<title>
+							AudioProcessorFactory Deployment Descriptor
+						</title>
+						<programlisting linenumbering="unnumbered"
+							role="XML"><![CDATA[
+...
+<bean name="AudioProcessorFactory"
+		class="org.mobicents.media.server.impl.dsp.DspFactory">
+		<property name="name">audio.processor</property>
+		<property name="codecFactories">
+			<list>
+				<inject bean="G711.UlawEncoderFactory" />
+				<inject bean="G711.UlawDecoderFactory" />
+				<inject bean="G711.AlawEncoderFactory" />
+				<inject bean="G711.AlawDecoderFactory" />
+				<inject bean="SpeexEncoderFactory" />
+				<inject bean="SpeexDecoderFactory" />
+				<inject bean="GSMEncoderFactory" />
+				<inject bean="GSMDecoderFactory" />
+				<inject bean="G729EncoderFactory" />
+				<inject bean="G729DecoderFactory" />
+			</list>
+		</property>
+</bean>
+...
+      ]]>
+						</programlisting>
+					</example>
+					<para>
+						The codec factories listed in the deployment
+						descriptor each represent a component that can
+						be deployed inside a media stream. To create a
+						pipe to another component, the component name is
+						appended to the &lt;property&gt; element inside
+						the &lt;bean&gt; element.
+						<xref linkend="ctms-IVR_Pipes"></xref>
+						shows a series of Interactive Voice Response
+						(IVR) pipes.
+					</para>
+					<example id="ctms-IVR_Pipes">
+						<title>IVR Pipes</title>
+						<programlisting linenumbering="unnumbered"
+							role="XML"><![CDATA[
+<bean name="IVR-Pipe-1"
+		class="org.mobicents.media.server.resource.PipeFactory">
+		<property name="outlet">audio.processor</property>
+</bean>
+<bean name="IVR-Pipe-2"
+		class="org.mobicents.media.server.resource.PipeFactory">
+		<property name="inlet">audio.processor</property>
+		<property name="outlet">DeMux</property>
+</bean>
+<bean name="IVR-Pipe-3"
+		class="org.mobicents.media.server.resource.PipeFactory">
+		<property name="inlet">DeMux</property>
+		<property name="outlet">Rfc2833DetectorFactory</property>
+</bean>
+<bean name="IVR-Pipe-4"
+		class="org.mobicents.media.server.resource.PipeFactory">
+		<property name="inlet">DeMux</property>
+</bean>
+</bean>
+      ]]>
+						</programlisting>
+					</example>
+					<para>
+						In
+						<literal>IVR-Pipe-1</literal>
+						, the
+						<literal>audio.processor</literal>
+						component is used to activate the codec
+						factories for the media stream. Notice how each
+						pipe is connected; the
+						<literal>outlet</literal>
+						attribute is used as the
+						<literal>inlet</literal>
+						attribute value for the next pipe.
+					</para>
+					<para>
+						To use the channels together with the pipes, a
+						channel declaration must be specified. In this
+						declaration, the components and pipes are
+						explicitly stated.
+						<xref linkend="ctms-IVR_Channel_Declaration"></xref>
+						shows the IVR-RxChannelFactory channel
+						declaration, which contains element from
+						<xref
+							linkend="ctms-AudioProcessorFactory_Deployment_Descriptor"></xref>
+						and
+						<xref linkend="ctms-IVR_Pipes"></xref>
+					</para>
+					<example id="ctms-IVR_Channel_Declaration">
+						<title>IVR Channel Declaration</title>
+						<programlisting linenumbering="unnumbered"
+							role="XML"><![CDATA[
+<bean name="IVR-RxChannelFactory"
+		class="org.mobicents.media.server.resource.ChannelFactory">
+		<property name="components">
+			<list>
+				<inject bean="DeMuxFactory" />
+				<inject bean="Rfc2833DetectorFactory" />
+				<inject bean="AudioProcessorFactory" />
+			</list>
+		</property>
+		<property name="pipes">
+			<list>
+				<inject bean="IVR-Pipe-1" />
+				<inject bean="IVR-Pipe-2" />
+				<inject bean="IVR-Pipe-3" />
+				<inject bean="IVR-Pipe-4" />
+			</list>
+		</property>
+  </bean>
+      ]]>
+						</programlisting>
+					</example>
+				</section>
+				<section>
+					<title>Media Buffer</title>
+					<para>
+						The media transition process strongly depends on
+						underlying layer capabilities. In an IP-based
+						network, the Real-time Transmission Protocol
+						(RTP) is used to transmit data. However, in a
+						Time Division Multiplexing (TDM) network, a
+						circuit channel is used for transmission. For
+						exchanging media data between components within
+						the Media Server, a special container is used.
+					</para>
+					<para>
+						A Media Buffer is a media-data container within
+						the Media server, which carries data from one
+						processing component to the next. A Buffer
+						object maintains information such as the time
+						stamp, length, data format, and header
+						information required to process the media data.
+					</para>
+					<para>
+						A Buffer object contains the following
+						attributes:
+					</para>
+					<variablelist>
+						<varlistentry>
+							<term>data</term>
+							<listitem>
+								<para>
+									Specifies the internal data object
+									that retains the media chunk in the
+									buffer. An array of bytes is used by
+									default.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term>offset</term>
+							<listitem>
+								<para>
+									Specifies the offset into the data
+									array where the valid data begins.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term>length</term>
+							<listitem>
+								<para>
+									Specifies the valid data length
+									present in the buffer.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term>format</term>
+							<listitem>
+								<para>
+									Specifies the data format present in
+									the buffer.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term>sequenceNumber</term>
+							<listitem>
+								<para>
+									Specifies the sequence number of the
+									buffer.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term>timestamp</term>
+							<listitem>
+								<para>
+									Specifies the time stamp (in
+									relative units) of the buffer.
+								</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term>duration</term>
+							<listitem>
+								<para>
+									Specifies the duration (in relative
+									units) of the buffer.
+								</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+				</section>
+
+			</section>
+		</section>
+	</section>
+</chapter>
