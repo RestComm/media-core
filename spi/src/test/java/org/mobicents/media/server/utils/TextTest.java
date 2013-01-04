@@ -222,7 +222,7 @@ public class TextTest {
 
         long f = System.nanoTime();
         System.out.println("Split execution time=" + (f-s));
-        assertTrue("Too slow", 5000000 > (f-s));
+        assertTrue("Too slow", 15000000 > (f-s));
     }
 
     @Test
