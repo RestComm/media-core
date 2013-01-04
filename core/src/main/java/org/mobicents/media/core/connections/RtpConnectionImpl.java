@@ -302,7 +302,6 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     	return rtpAudioChannel.getPacketsReceived();       	
     }
 
-    @Override
     public long getBytesReceived() {
         return 0;
     }
@@ -321,7 +320,6 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
      * 
      * @see org.mobicents.media.server.spi.Connection#getBytesTransmitted() 
      */
-    @Override
     public long getBytesTransmitted() {
         return 0;
     }
@@ -331,7 +329,6 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
      * 
      * @see org.mobicents.media.server.spi.Connection#getJitter() 
      */
-    @Override
     public double getJitter() {
         return 0;
     }
