@@ -74,11 +74,7 @@ public class JitterBuffer implements Serializable {
 
     //allowed jitter buffer size
     private long jitterBufferSize;
-    
-    // jitter buffer size in the current timestamp units  
-	private long jitterBufferSizeInTimestampUnits;
-   
-    
+        
     //packet arrival dead line measured on RTP clock.
     //initial value equals to infinity
     private long arrivalDeadLine = 0;
@@ -327,7 +323,7 @@ public class JitterBuffer implements Serializable {
     			    		       
     		//check if this buffer already full
     		if (!ready) {    			
-    			ready = !useBuffer || (duration >= jitterBufferSizeInTimestampUnits && queue.size() > 1);
+    			ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
     			if (ready) {    				
     				if (listener != null) {
     					listener.onFill();
@@ -340,7 +336,6 @@ public class JitterBuffer implements Serializable {
     
     private void updateCurrentClockRate(int newClockRate) {
     		rtpClock.setClockRate(newClockRate);            		    		
-    		jitterBufferSizeInTimestampUnits = rtpClock.convertToRtpTime(jitterBufferSize);		
 	}
 
 	/**
