@@ -217,6 +217,10 @@ public class JitterBuffer implements Serializable {
     	{
     		this.format=format;
     		logger.info("Format has been changed: " + this.format.toString()); 
+    		
+        	//Since the RTP packet Payload Type (format) changed, it is possible that the sampling rate/clock rate is different for the new format
+    		// update current clock rate we use to convert timestamp units to absolute time and vice versa  
+        	rtpClock.setClockRate(this.format.getClockRate());            		    		
     	}
     	    	
     	//if this is first packet then synchronize clock
@@ -228,9 +232,6 @@ public class JitterBuffer implements Serializable {
     	else
             estimateJitter(packet);
             
-    	//update clock rate
-    	rtpClock.setClockRate(this.format.getClockRate());            		    		
-        
     	Frame f=null;
     	//drop outstanding packets
 		//packet is outstanding if its timestamp of arrived packet is less
