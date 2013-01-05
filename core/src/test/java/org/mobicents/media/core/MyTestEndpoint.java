@@ -84,7 +84,9 @@ public class MyTestEndpoint extends BaseMixerEndpointImpl implements Endpoint {
         			case SINE:
         				return sine;
         			case SPECTRA_ANALYZER:
-        				return analyzer;        				
+        				return analyzer;     
+        			default: 
+        				return super.getResource(mediaType, componentType);
         		}
         }
         
