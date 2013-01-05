@@ -1,6 +1,5 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
+ * Copyright 2012, Telestax, Inc. and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -53,9 +52,17 @@ import org.apache.log4j.Logger;
  * introduced can lead to conversational difficulty.
  *
  * @author oifa yulian
+ * @author Ivelin Ivanov
+ * 
  */
 public class JitterBuffer implements Serializable {    
-    //The underlying buffer size
+
+	/**
+	 * serialVersionID is required for serializable classes 
+	 */
+	private static final long serialVersionUID = -179700214594330050L;
+	
+	//The underlying buffer size
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
     private ArrayList<Frame> queue = new ArrayList(QUEUE_SIZE);
@@ -65,8 +72,12 @@ public class JitterBuffer implements Serializable {
     //first received sequence number
     private long isn = -1;
 
-    //allowed jitter
+    //allowed jitter buffer size
     private long jitterBufferSize;
+    
+    // jitter buffer size in the current timestamp units  
+	private long jitterBufferSizeInTimestampUnits;
+   
     
     //packet arrival dead line measured on RTP clock.
     //initial value equals to infinity
@@ -220,7 +231,7 @@ public class JitterBuffer implements Serializable {
     		
         	//Since the RTP packet Payload Type (format) changed, it is possible that the sampling rate/clock rate is different for the new format
     		// update current clock rate we use to convert timestamp units to absolute time and vice versa  
-        	rtpClock.setClockRate(this.format.getClockRate());            		    		
+    		updateCurrentClockRate(this.format.getClockRate());
     	}
     	    	
     	//if this is first packet then synchronize clock
@@ -316,7 +327,7 @@ public class JitterBuffer implements Serializable {
     			    		       
     		//check if this buffer already full
     		if (!ready) {    			
-    			ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
+    			ready = !useBuffer || (duration >= jitterBufferSizeInTimestampUnits && queue.size() > 1);
     			if (ready) {    				
     				if (listener != null) {
     					listener.onFill();
@@ -326,7 +337,13 @@ public class JitterBuffer implements Serializable {
     	}
     }        
 
-    /**
+    
+    private void updateCurrentClockRate(int newClockRate) {
+    		rtpClock.setClockRate(newClockRate);            		    		
+    		jitterBufferSizeInTimestampUnits = rtpClock.convertToRtpTime(jitterBufferSize);		
+	}
+
+	/**
      * Polls packet from buffer's head.
      *
      * @param timestamp the media time measured by reader
