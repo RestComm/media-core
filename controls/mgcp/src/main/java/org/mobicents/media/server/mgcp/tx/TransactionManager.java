@@ -143,9 +143,8 @@ public class TransactionManager {
     private Transaction begin(int id) {
         Transaction t = pool.poll();
         
-        if (t == null) {
-            return t;
-        }
+        if (t == null)
+        	t=new Transaction(this);
         
         t.uniqueId = id;
         active.put(t.uniqueId,t);        

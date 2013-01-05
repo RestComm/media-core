@@ -283,7 +283,7 @@ public class MessageHandler
 				else 
 				{
 					if (logger.isDebugEnabled())
-						logger.debug("Processing response message");					
+						logger.debug("Processing response message " + new String(data,message[0].getOffset(),message[0].getLength()));					
 
 					TransactionHandler handler = (TransactionHandler) stack.getLocalTransactions().get(remoteTxIdIntegere);
 					if (handler == null) 

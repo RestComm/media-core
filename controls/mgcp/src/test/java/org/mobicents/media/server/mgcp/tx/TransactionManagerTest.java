@@ -95,7 +95,7 @@ public class TransactionManagerTest {
         assertTrue("Transaction not found", tx != null);
         
         tx = txManager.allocateNew(4);
-        assertTrue("Transaction still in pool", tx == null);
+        assertTrue("Transaction still in pool", tx != null);
     }
     
     @Test

@@ -200,7 +200,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 		try {
 			Properties props = new Properties();
-			InputStream is = this.getClass().getResourceAsStream(this.propertiesFileName);
+			InputStream is = this.getClass().getClassLoader().getResourceAsStream(this.propertiesFileName);
 			if (is == null) {
 				logger.warn("Failed to locate properties file, using default values");
 				return;
@@ -339,10 +339,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		
 		if(this.provider!=null)
 			this.provider.start();
-				
+			
+		start = System.currentTimeMillis();		
 		while (!stopped) {
-
-			start = System.currentTimeMillis();
 			try {
 				PacketRepresentation pr;
 				do {
@@ -384,10 +383,11 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				}
 				
 				finish = System.currentTimeMillis();
-
 				drift = finish - start;
-
 				latency = delay - drift;
+				//lets check by cycle since if we sleep more due to
+				//other threads we will be working not too fast here
+				start = finish;
 				
 				if (drift <= threshold) {
 					try {
@@ -396,7 +396,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 						return;
 					}
 				}
-
 			} catch (IOException e) {
 				if (stopped) {
 					break;
