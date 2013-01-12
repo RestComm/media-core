@@ -447,13 +447,13 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 			switch(unit)
 			{
 				case SECONDS:
-					TimeUnit.SECONDS.toNanos(timeout);											
+					LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(timeout));											
 					break;
 				case MILLISECONDS:
-					TimeUnit.MILLISECONDS.toNanos(timeout);										
+					LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(timeout));										
 					break;
 				case MICROSECONDS:
-					TimeUnit.MICROSECONDS.toNanos(timeout);											
+					LockSupport.parkNanos(TimeUnit.MICROSECONDS.toNanos(timeout));											
 					break;
 				case NANOSECONDS:						
 					LockSupport.parkNanos(timeout);						
