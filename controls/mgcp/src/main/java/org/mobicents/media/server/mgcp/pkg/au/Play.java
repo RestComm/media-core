@@ -172,10 +172,11 @@ public class Play extends Signal implements PlayerListener {
     }
     
     private void terminate() {
-    	if (player != null) {
-            player.removeListener(this);
-            player.deactivate();
-            player=null;
+    	Player currPlayer=player;
+    	if (currPlayer != null) {
+    		currPlayer.removeListener(this);
+    		currPlayer.deactivate();
+    		player=null;
         }                
     }
     

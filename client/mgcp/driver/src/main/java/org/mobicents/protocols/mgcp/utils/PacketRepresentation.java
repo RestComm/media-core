@@ -47,9 +47,6 @@ public class PacketRepresentation {
 	private byte[] rawData = null;
 	private InetSocketAddress remoteAddress = null;
 	private int length = 0;
-	private long receiveTime=0L;
-	private long parseTime=0L;
-	private long endTime=0L;
 	
 	private PacketRepresentationFactory prFactory = null;
 
@@ -86,37 +83,9 @@ public class PacketRepresentation {
 		this.remoteAddress = remoteAddress;
 	}
 
-	public long getReceiveTime() {
-		return this.receiveTime;
-	}
-
-	public void setReceiveTime(long receiveTime) {
-		this.receiveTime = receiveTime;
-	}
-	
-	public long getParseTime() {
-		return this.parseTime;
-	}
-
-	public void setParseTime(long parseTime) {
-		this.parseTime = parseTime;
-	}
-	
-	public long getEndTime() {
-		return this.endTime;
-	}
-
-	public void setEndTime(long endTime) {
-		this.endTime = endTime;
-	}
-	
 	public void release() {
 		this.prFactory.deallocate(this);
 		this.remoteAddress=null;
-		this.length=0;
-		this.receiveTime=0L;
-		this.parseTime=0L;
-		this.endTime=0L;		
+		this.length=0;			
 	}
-
 }

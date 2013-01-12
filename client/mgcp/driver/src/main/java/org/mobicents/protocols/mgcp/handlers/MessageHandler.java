@@ -299,10 +299,6 @@ public class MessageHandler
 		} 
 		finally 
 		{
-			pr.setEndTime(System.currentTimeMillis());
-			if(logger.isDebugEnabled())
-				logger.debug("Tx ID:" + remoteTxIdIntegere + ",Received message time:" + pr.getReceiveTime() + ",parse start time:" + pr.getParseTime() + ",end time:" + pr.getEndTime());
-
 			pr.release();
 		}
 	}

@@ -315,7 +315,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	
 	public void send(PacketRepresentation pr) 
 	{
-		pr.setParseTime(System.currentTimeMillis());
 		outputQueue.offer(pr);		
 	}	
 	
@@ -355,7 +354,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 						receiveBuffer.get(pr.getRawData(), 0, length);
 						pr.setLength(length);						
 						pr.setRemoteAddress(address);						
-						pr.setReceiveTime(System.currentTimeMillis());
 						inputQueue.offer(pr);						
 					}
 				} while (this.address != null);
@@ -366,10 +364,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				while((pr=outputQueue.poll())!=null)
 				{
 					try {						
-						pr.setEndTime(System.currentTimeMillis());
-						if(logger.isDebugEnabled())
-							logger.debug("Accepted message time:" + pr.getReceiveTime() + "parse completed time:" + pr.getParseTime() + ",end time:" + pr.getEndTime());
-						
 						this.sendBuffer.clear();
 						this.sendBuffer.put(pr.getRawData(),0,pr.getLength());
 						this.sendBuffer.flip();
@@ -458,7 +452,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
     		while(active)
     			try {
     				PacketRepresentation current=inputQueue.take();
-    				current.setParseTime(System.currentTimeMillis());					
     				messageHandler.scheduleMessages(current);
     			}
     			catch(Exception e)

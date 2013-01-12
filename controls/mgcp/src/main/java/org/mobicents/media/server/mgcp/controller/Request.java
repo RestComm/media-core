@@ -139,8 +139,10 @@ public class Request {
     public void execute() {
         if (!executors.isEmpty()) {
         	currentSignal = executors.poll();
-        	currentSignal.execute();                    
-        }        
+        	
+        	if(currentSignal!=null)
+        		currentSignal.execute();                    
+        }
     }
     
     public void onEvent(Text event) { 

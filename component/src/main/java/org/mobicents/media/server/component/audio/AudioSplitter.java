@@ -49,6 +49,11 @@ public class AudioSplitter {
     private IntConcurrentLinkedList<AudioComponent> insideComponents = new IntConcurrentLinkedList();
     private IntConcurrentLinkedList<AudioComponent> outsideComponents = new IntConcurrentLinkedList();
     
+    private Iterator<AudioComponent> insideRIterator=insideComponents.iterator();
+    private Iterator<AudioComponent> insideSIterator=insideComponents.iterator();
+    
+    private Iterator<AudioComponent> outsideRIterator=outsideComponents.iterator();
+    private Iterator<AudioComponent> outsideSIterator=outsideComponents.iterator();
     
     private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;    
@@ -144,10 +149,10 @@ public class AudioSplitter {
         public long perform() {
             //summarize all
             first=true;
-            Iterator<AudioComponent> activeComponents=insideComponents.iterator();
-            while(activeComponents.hasNext())
+            insideComponents.resetIterator(insideRIterator);            
+            while(insideRIterator.hasNext())
             {
-            	AudioComponent component=activeComponents.next();
+            	AudioComponent component=insideRIterator.next();
             	component.perform();
             	current=component.getData();
             	if(current!=null)
@@ -194,10 +199,10 @@ public class AudioSplitter {
 				total[i]=(short)Math.round((double) total[i] * currGain);
             
             //get data for each component
-            activeComponents=outsideComponents.iterator();
-            while(activeComponents.hasNext())
+            outsideComponents.resetIterator(outsideSIterator);            
+            while(outsideSIterator.hasNext())
             {
-            	AudioComponent component=activeComponents.next();
+            	AudioComponent component=outsideSIterator.next();
             	component.offer(total);
             		
             }
@@ -230,10 +235,10 @@ public class AudioSplitter {
         public long perform() {
             //summarize all
             first=true;
-            Iterator<AudioComponent> activeComponents=outsideComponents.iterator();
-            while(activeComponents.hasNext())
+            outsideComponents.resetIterator(outsideRIterator);            
+            while(outsideRIterator.hasNext())
             {
-            	AudioComponent component=activeComponents.next();
+            	AudioComponent component=outsideRIterator.next();
             	component.perform();
             	current=component.getData();
             	if(current!=null)
@@ -278,10 +283,10 @@ public class AudioSplitter {
 				total[i]=(short)Math.round((double) total[i] * currGain);
             
             //get data for each component
-            activeComponents=insideComponents.iterator();
-            while(activeComponents.hasNext())
+            insideComponents.resetIterator(insideSIterator);            
+            while(insideSIterator.hasNext())
             {
-            	AudioComponent component=activeComponents.next();
+            	AudioComponent component=insideSIterator.next();
             	component.offer(total);
             		
             }

@@ -302,6 +302,8 @@ public abstract class TransactionHandler {
 		
 		if(originalPacket!=null)
 			stack.releasePacket(originalPacket);
+		
+		originalPacket=null;
 	}
 
 	/**
@@ -444,7 +446,6 @@ public abstract class TransactionHandler {
 		if(originalPacket==null)
 			originalPacket=stack.allocatePacket();
 		
-		originalPacket.setReceiveTime(System.currentTimeMillis());
 		originalPacket.setLength(encode(event,originalPacket.getRawData()));
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
 		originalPacket.setRemoteAddress(inetSocketAddress);		
@@ -453,7 +454,7 @@ public abstract class TransactionHandler {
 		resetTHISTTimerTask(false);
 
 		if (logger.isDebugEnabled())
-			logger.debug("Send command event to " + address + ", message\n" + new String(originalPacket.getRawData(),0,originalPacket.getLength()));
+			logger.debug("Send command event to " + address + "remote TX ID:" + remoteTID + ", message\n" + new String(originalPacket.getRawData(),0,originalPacket.getLength()));
 		
 		countOfCommandRetransmitted++;
 		stack.send(originalPacket);
@@ -484,7 +485,6 @@ public abstract class TransactionHandler {
 		if(originalPacket==null)
 			originalPacket=stack.allocatePacket();
 		
-		originalPacket.setReceiveTime(System.currentTimeMillis());
 		originalPacket.setLength(encode(event,originalPacket.getRawData()));						
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(remoteAddress, remotePort);
 		originalPacket.setRemoteAddress(inetSocketAddress);		

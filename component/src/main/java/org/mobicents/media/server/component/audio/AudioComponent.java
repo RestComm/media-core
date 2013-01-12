@@ -43,7 +43,10 @@ public class AudioComponent {
 
     private IntConcurrentLinkedList<AudioInput> inputs = new IntConcurrentLinkedList();
 	private IntConcurrentLinkedList<AudioOutput> outputs = new IntConcurrentLinkedList();
-    
+	
+	private Iterator<AudioInput> activeInputs=inputs.iterator();
+	private Iterator<AudioOutput> activeOutputs=outputs.iterator();
+	
 	protected Boolean shouldRead=false;
 	protected Boolean shouldWrite=false;
 	
@@ -97,9 +100,9 @@ public class AudioComponent {
     
     public void perform()
     {
-    	first=true;    	
-    	Iterator<AudioInput> activeInputs=inputs.iterator();
-        while(activeInputs.hasNext())
+    	first=true;  
+    	inputs.resetIterator(activeInputs);  	
+    	while(activeInputs.hasNext())
         {
         	AudioInput input=activeInputs.next();
         	frame=input.poll();
@@ -157,8 +160,8 @@ public class AudioComponent {
         frame.setDuration(period);
         frame.setFormat(format);
         
-        Iterator<AudioOutput> activeOutputs=outputs.iterator();
-    	while(activeOutputs.hasNext())
+        outputs.resetIterator(activeOutputs);
+        while(activeOutputs.hasNext())
         {
         	AudioOutput output=activeOutputs.next();
         	if(!activeOutputs.hasNext())

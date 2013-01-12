@@ -73,7 +73,7 @@ public class Scheduler  {
     //priority queue
     protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[7];
 
-    protected OrderedTaskQueue heartBeatQueue;
+    protected OrderedTaskQueue[] heartBeatQueue = new OrderedTaskQueue[5];
     
     //CPU bound threads
     private CoreThread coreThread;
@@ -96,7 +96,8 @@ public class Scheduler  {
     	for(int i=0;i<taskQueues.length;i++)
     		taskQueues[i]=new OrderedTaskQueue();
     	
-    	heartBeatQueue=new OrderedTaskQueue();
+    	for(int i=0;i<heartBeatQueue.length;i++)
+    		heartBeatQueue[i]=new OrderedTaskQueue();
     	
     	coreThread = new CoreThread(String.format("Scheduler"));  
     	criticalThread = new CriticalThread(String.format("Scheduler"));
@@ -150,7 +151,7 @@ public class Scheduler  {
      */
     public void submitHeatbeat(Task task) {
         task.activate(true);
-        heartBeatQueue.accept(task);
+        heartBeatQueue[coreThread.runIndex].accept(task);
     }
     
     /**
@@ -215,7 +216,8 @@ public class Scheduler  {
         for(int i=0;i<taskQueues.length;i++)
         	taskQueues[i].clear();
         
-        heartBeatQueue.clear();
+        for(int i=0;i<heartBeatQueue.length;i++)
+        	heartBeatQueue[i].clear();
     }
 
     //removed statistics to increase perfomance
@@ -293,16 +295,15 @@ public class Scheduler  {
 				}
         		
         		runIndex=(runIndex+1)%5;        		
-    			if(runIndex==0)    				    				
-    				synchronized(LOCK) {
-    					if(executeQueue(heartBeatQueue))
-    						try  {
-    							LOCK.wait();
-    						}
-    						catch(InterruptedException e)  {                                               
-    							//lets continue
-    						}
-    				}    
+        		synchronized(LOCK) {
+					if(executeQueue(heartBeatQueue[runIndex]))
+						try  {
+							LOCK.wait();
+						}
+						catch(InterruptedException e)  {                                               
+							//lets continue
+						}
+				} 	   
     			
     			synchronized(LOCK) {    					
 					if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
@@ -455,7 +456,7 @@ public class Scheduler  {
     		while(active)
     		{
     			waitingTasks.take().run();
-    			coreThread.notifyCompletion();
+    			coreThread.notifyCompletion();    			
     		}
     	}
     	

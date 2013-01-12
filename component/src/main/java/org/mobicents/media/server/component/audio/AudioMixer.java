@@ -48,6 +48,8 @@ public class AudioMixer {
     //The pool of components
     private IntConcurrentLinkedList<AudioComponent> components = new IntConcurrentLinkedList();
     
+    Iterator<AudioComponent> activeComponents=components.iterator();
+    
     private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;    
 
@@ -124,7 +126,7 @@ public class AudioMixer {
         public long perform() {
         	//summarize all
         	sourcesCount=0;
-            Iterator<AudioComponent> activeComponents=components.iterator();
+        	components.resetIterator(activeComponents);
             while(activeComponents.hasNext())
             {
             	AudioComponent component=activeComponents.next();
@@ -171,7 +173,7 @@ public class AudioMixer {
 				total[i]=(short)Math.round((double) total[i] * currGain);
             
             //get data for each component
-            activeComponents=components.iterator();
+            components.resetIterator(activeComponents);
             while(activeComponents.hasNext())
             {
             	AudioComponent component=activeComponents.next();

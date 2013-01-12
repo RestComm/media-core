@@ -42,6 +42,9 @@ public class OOBComponent {
     private IntConcurrentLinkedList<OOBInput> inputs = new IntConcurrentLinkedList();
 	private IntConcurrentLinkedList<OOBOutput> outputs = new IntConcurrentLinkedList();
     
+	Iterator<OOBInput> activeInputs=inputs.iterator();
+	Iterator<OOBOutput> activeOutputs=outputs.iterator();
+	
 	protected Boolean shouldRead=false;
 	protected Boolean shouldWrite=false;
 	
@@ -87,8 +90,8 @@ public class OOBComponent {
     public void perform()
     {
     	frame=null;    	
-    	Iterator<OOBInput> activeInputs=inputs.iterator();
-        while(activeInputs.hasNext())
+    	inputs.resetIterator(activeInputs);
+    	while(activeInputs.hasNext())
         {
         	OOBInput input=activeInputs.next();
         	frame=input.poll();
@@ -118,7 +121,7 @@ public class OOBComponent {
     		return;
     	}
     	
-    	Iterator<OOBOutput> activeOutputs=outputs.iterator();
+    	outputs.resetIterator(activeOutputs);    	
     	while(activeOutputs.hasNext())
         {
     		OOBOutput output=activeOutputs.next();

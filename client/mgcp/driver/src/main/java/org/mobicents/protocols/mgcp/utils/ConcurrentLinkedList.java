@@ -30,6 +30,7 @@ import java.util.NoSuchElementException;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.LockSupport;
 /**
  *
  * @author oifa yulian
@@ -146,6 +147,13 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 			return false;
 		}				
 		
+		if(notifierSize>0)
+		{
+			updateNotifier(value);
+			releaseAccess();
+			return true;
+		}
+		
 		if(cacheSize==0)
 			//need new node
 			tempNode=new Node(value);
@@ -153,8 +161,8 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 		{
 			//obtain node from cache decrease cache size
 			tempNode=cacheHead.next;
-			cacheHead.next=tempNode.next;
-			cacheHead.next.previous=cacheHead;			
+			tempNode.next.previous=cacheHead;
+			cacheHead.next=tempNode.next;					
 			
 			tempNode.element=value;	
 			cacheSize--;
@@ -167,10 +175,7 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 		tempNode.next=tail;
 		tail.previous=tempNode;
 		size++;
-		
-		if(notifierSize>0)
-			updateNotifier(value);
-		
+				
 		releaseAccess();
 		return true;
 	}
@@ -201,6 +206,13 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 		
 		aquireAccess();		
 		
+		if(notifierSize>0)
+		{
+			updateNotifier(value);
+			releaseAccess();
+			return true;
+		}
+		
 		if(cacheSize==0)
 			//need new node
 			tempNode=new Node(value);
@@ -208,8 +220,8 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 		{
 			//obtain node from cache decrease cache size
 			tempNode=cacheHead.next;
-			cacheHead.next=tempNode.next;
-			cacheHead.next.previous=cacheHead;			
+			tempNode.next.previous=cacheHead;
+			cacheHead.next=tempNode.next;					
 			
 			tempNode.element=value;	
 			cacheSize--;
@@ -222,9 +234,6 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 		tempNode.next=tail;
 		tail.previous=tempNode;
 		size++;
-		
-		if(notifierSize>0)
-			updateNotifier(value);
 		
 		releaseAccess();
 		return true;
@@ -354,42 +363,29 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 			notifierTail.previous.next=tempNotifier;				
 			tempNotifier.previous=notifierTail.previous;
 			
-			tempNotifier.next=notifierTail;
+			tempNotifier.next=notifierTail;			
 			notifierTail.previous=tempNotifier;
 			notifierSize++;
+			tempNotifier.element=null;			
+			tempNotifier.waitingThread=Thread.currentThread();
 			
-			while(size==0)
-			{
-				//release lock so others will be able to add nodes and wait
-				releaseAccess();
+			//release lock so others will be able to add nodes and wait
+			releaseAccess();
+		
+			while(tempNotifier.element==null)
+				LockSupport.park();
 			
-				synchronized(tempNotifier.lock)
-		    	{
-					try
-					{
-						tempNotifier.lock.wait();
-					}
-					catch(InterruptedException e)
-					{
-						
-					}
-		    	}
-				
-				aquireAccess();
-				
-				if(size!=0)
-				{
-					//take back notifier
-					tempNotifier.previous.next=tempNotifier.next;
-					tempNotifier.next.previous=tempNotifier.previous;
-					
-					tempNotifier.next=notifierCacheHead.next;
-					notifierCacheHead.next.previous=tempNotifier;
-					notifierCacheHead.next=tempNotifier;
-					tempNotifier.previous=notifierCacheHead;
-					cacheNotifierSize++;
-				}
-			}
+			aquireAccess();
+			
+			tempNotifier.next=notifierCacheHead.next;
+			notifierCacheHead.next.previous=tempNotifier;
+			notifierCacheHead.next=tempNotifier;
+			tempNotifier.previous=notifierCacheHead;
+			cacheNotifierSize++;
+			
+			E result=tempNotifier.element;
+			releaseAccess();			
+			return result;
 		}
 		
 		//disconnect from main list
@@ -439,57 +435,59 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
 			tempNotifier.previous=notifierTail.previous;
 			
 			tempNotifier.next=notifierTail;
-			notifierTail.previous=tempNotifier;
+			notifierTail.previous=tempNotifier;			
 			notifierSize++;
 			
-			while(size==0)
+			tempNotifier.element=null;
+			tempNotifier.waitingThread=Thread.currentThread();
+			
+			//release lock so others will be able to add nodes and wait
+			releaseAccess();
+		
+			switch(unit)
 			{
-				//release lock so others will be able to add nodes and wait
-				releaseAccess();
+				case SECONDS:
+					TimeUnit.SECONDS.toNanos(timeout);											
+					break;
+				case MILLISECONDS:
+					TimeUnit.MILLISECONDS.toNanos(timeout);										
+					break;
+				case MICROSECONDS:
+					TimeUnit.MICROSECONDS.toNanos(timeout);											
+					break;
+				case NANOSECONDS:						
+					LockSupport.parkNanos(timeout);						
+					break;				
+			}			
 			
-				synchronized(tempNotifier.lock)
-		    	{
-					try {
-						switch(unit)
-						{
-							case MICROSECONDS:
-								tempNotifier.lock.wait(timeout/1000L,(int)((timeout*1000L)%1000000L));							
-								break;
-							case MILLISECONDS:
-								tempNotifier.lock.wait(timeout);
-								break;
-							case NANOSECONDS:
-								tempNotifier.lock.wait(timeout/1000000L,(int)(timeout%1000000L));
-								break;
-							case SECONDS:
-								tempNotifier.lock.wait(timeout*1000L);		
-								break;
-						}
-					}
-					catch(InterruptedException e)
-					{
-						
-					}
-		    	}				
+			aquireAccess();	
 			
-				aquireAccess();
+			if(tempNotifier.element==null)
+			{
+				//take back notifier
+				tempNotifier.previous.next=tempNotifier.next;
+				tempNotifier.next.previous=tempNotifier.previous;
 				
-				if(size==0)
-				{
-					releaseAccess();
-					throw new InterruptedException();
-				}
+				tempNotifier.next=notifierCacheHead.next;
+				notifierCacheHead.next.previous=tempNotifier;
+				notifierCacheHead.next=tempNotifier;
+				tempNotifier.previous=notifierCacheHead;
+				cacheNotifierSize++;
+				
+				releaseAccess();
+				throw new InterruptedException();
 			}
-			
-			//take back notifier
-			tempNotifier.previous.next=tempNotifier.next;
-			tempNotifier.next.previous=tempNotifier.previous;
 			
 			tempNotifier.next=notifierCacheHead.next;
 			notifierCacheHead.next.previous=tempNotifier;
 			notifierCacheHead.next=tempNotifier;
 			tempNotifier.previous=notifierCacheHead;
 			cacheNotifierSize++;
+			
+			E result=tempNotifier.element;
+			releaseAccess();
+			
+			return result;
 		}				
 		
 		//disconnect from main list
@@ -715,15 +713,15 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
     
     private void updateNotifier(E newElement)
     {
-    	if(notifierSize==0)
-    		return;
-    	
     	notifierSize--;
-    	Notifier tempNotifier=notifierHead.next;
-    	synchronized(tempNotifier.lock)
-    	{
-    		tempNotifier.lock.notify();
-    	}
+		Notifier tempNotifier=notifierHead.next;
+	
+		//take back notifier
+		notifierHead.next=tempNotifier.next;
+		notifierHead.next.previous=notifierHead;
+	
+		tempNotifier.element=newElement;
+		LockSupport.unpark(tempNotifier.waitingThread);
     }
     
     private void aquireAccess()
@@ -744,9 +742,10 @@ public class ConcurrentLinkedList<E> implements BlockingQueue<E> {
     }
     
     private class Notifier<E> {
-    	private Object lock=new Object();
     	Notifier next;
     	Notifier previous;
+    	E element;
+    	Thread waitingThread;
     }
     
     private class Node<E> {

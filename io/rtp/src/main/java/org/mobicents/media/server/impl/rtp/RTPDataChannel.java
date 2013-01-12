@@ -335,7 +335,7 @@ public class RTPDataChannel {
         			dataChannel.disconnect();
         		}
     			catch (IOException e) {
-    				logger.error(e);
+    				logger.error(e);    				
     			}
     		
     		connectImmediately=udpManager.connectImmediately((InetSocketAddress)address);
@@ -343,8 +343,9 @@ public class RTPDataChannel {
         		try {
         			dataChannel.connect(address);        		
         		}
-        		catch (IOException e) {    
-        			logger.error(e);
+        		catch (IOException e) {
+        			logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
+        			logger.error(e);        			
         		}
         }
         
@@ -368,14 +369,14 @@ public class RTPDataChannel {
         		dataChannel.disconnect();        		
         	}
         	catch(IOException e) {
-        		logger.error(e);
+        		logger.error(e);        		
         	}        	        	        
         
         try {   
         	dataChannel.socket().close();
         	dataChannel.close();
         } catch(IOException e) {
-        	logger.error(e);
+        	logger.error(e);        	
         }  
         	
         if (controlChannel != null) {
@@ -557,7 +558,7 @@ public class RTPDataChannel {
         		}
         	}
         	catch (Exception e) {
-        		logger.error(e);
+        		logger.error(e);        		
             }
         }
         
@@ -591,11 +592,11 @@ public class RTPDataChannel {
                 		dataChannel.disconnect();
                 	}
                 	catch(IOException ex) {
-                		logger.error(ex);
+                		logger.error(ex);                		
                 	}
                 }
                 catch (IOException e) {  
-                	logger.error(e);
+                	logger.error(e);                	
                 }
                                 	
                 while (currAddress != null) {
@@ -638,11 +639,11 @@ public class RTPDataChannel {
             		dataChannel.disconnect();
             	}
             	catch(IOException ex) {
-            		logger.error(ex);
+            		logger.error(ex);            		
             	}
             }
         	catch (Exception e) {
-            	logger.error(e);
+            	logger.error(e);            	
             }
             
             rtpHandler.isReading = false;
@@ -708,11 +709,11 @@ public class RTPDataChannel {
             		dataChannel.disconnect();
             	}
             	catch(IOException ex) {
-            		logger.error(ex);
+            		logger.error(ex);            		
             	}
             }
             catch (Exception e) {
-            	logger.error(e);
+            	logger.error(e);            	
             }
         }
         
@@ -764,11 +765,11 @@ public class RTPDataChannel {
             		dataChannel.disconnect();
             	}
             	catch(IOException ex) {
-            		logger.error(ex);
+            		logger.error(ex);            		
             	}
             }
             catch (Exception e) {
-            	logger.error(e);
+            	logger.error(e);            	
             }
         }
     }

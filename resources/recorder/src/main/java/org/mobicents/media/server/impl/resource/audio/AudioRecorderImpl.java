@@ -252,9 +252,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
             }
         }
         else
-        	this.lastPacketData=scheduler.getClock().getTime();
-        
-        
+        	this.lastPacketData=scheduler.getClock().getTime();                
     }
 
     public void setRecordDir(String recordDir) {

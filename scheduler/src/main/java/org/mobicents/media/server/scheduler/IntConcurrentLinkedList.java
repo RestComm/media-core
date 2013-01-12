@@ -49,8 +49,6 @@ public class IntConcurrentLinkedList<E> {
 	private Integer size=0;
 	private Integer cacheSize=0;		
 	
-	private ListIterator iterator=new ListIterator();
-	
 	private Lock lock=new Lock();
 	
 	public IntConcurrentLinkedList()
@@ -235,8 +233,14 @@ public class IntConcurrentLinkedList<E> {
 	
 	public Iterator<E> iterator()
 	{
+		ListIterator iterator=new ListIterator();				
 		iterator.currNode=head;
 		return iterator;
+	}
+	
+	public void resetIterator(Iterator<E> iterator)
+	{
+		((ListIterator)iterator).currNode=head;
 	}
 	
 	private void aquireAccess()

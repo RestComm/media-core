@@ -46,6 +46,12 @@ public class OOBSplitter {
     private IntConcurrentLinkedList<OOBComponent> insideComponents = new IntConcurrentLinkedList();
     private IntConcurrentLinkedList<OOBComponent> outsideComponents = new IntConcurrentLinkedList();
         
+    private Iterator<OOBComponent> insideRIterator=insideComponents.iterator();
+    private Iterator<OOBComponent> insideSIterator=insideComponents.iterator();
+    
+    private Iterator<OOBComponent> outsideRIterator=outsideComponents.iterator();
+    private Iterator<OOBComponent> outsideSIterator=outsideComponents.iterator();
+    
     private InsideMixTask insideMixer;
     private OutsideMixTask outsideMixer;
     private volatile boolean started = false;
@@ -115,10 +121,10 @@ public class OOBSplitter {
         public long perform() {
             //summarize all
         	current=null;
-            Iterator<OOBComponent> activeComponents=insideComponents.iterator();
-            while(activeComponents.hasNext())
+        	insideComponents.resetIterator(insideRIterator);            
+            while(insideRIterator.hasNext())
             {
-            	OOBComponent component=activeComponents.next();
+            	OOBComponent component=insideRIterator.next();
             	component.perform();
             	current=component.getData();
             	if(current!=null)
@@ -133,11 +139,12 @@ public class OOBSplitter {
             }
             
             //get data for each component
-            activeComponents=outsideComponents.iterator();
-            while(activeComponents.hasNext())
+            outsideComponents.resetIterator(outsideSIterator);
+            
+            while(outsideSIterator.hasNext())
             {
-            	OOBComponent component=activeComponents.next();
-            	if(!activeComponents.hasNext())
+            	OOBComponent component=outsideSIterator.next();
+            	if(!outsideSIterator.hasNext())
             		component.offer(current);
             	else
             		component.offer(current.clone());            		
@@ -165,10 +172,10 @@ public class OOBSplitter {
         public long perform() {
             //summarize all
             current=null;
-            Iterator<OOBComponent> activeComponents=outsideComponents.iterator();
-            while(activeComponents.hasNext())
+            outsideComponents.resetIterator(outsideRIterator);            
+            while(outsideRIterator.hasNext())
             {
-            	OOBComponent component=activeComponents.next();
+            	OOBComponent component=outsideRIterator.next();
             	component.perform();
             	current=component.getData();
             	if(current!=null)
@@ -183,11 +190,11 @@ public class OOBSplitter {
             }
             
             //get data for each component
-            activeComponents=insideComponents.iterator();
-            while(activeComponents.hasNext())
+            insideComponents.resetIterator(insideSIterator);            
+            while(insideSIterator.hasNext())
             {
-            	OOBComponent component=activeComponents.next();
-            	if(!activeComponents.hasNext())
+            	OOBComponent component=insideSIterator.next();
+            	if(!insideSIterator.hasNext())
             		component.offer(current);
             	else
             		component.offer(current.clone());
