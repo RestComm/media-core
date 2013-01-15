@@ -85,16 +85,12 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	 */
 	public static final String _EXECUTOR_QUEUE_SIZE = "executorQueueSize";
 
-	public static final String _MESSAGE_READER_THREAD_PRIORITY = "messageReaderThreadPriority";
-
 	private static final Logger logger = Logger.getLogger(JainMgcpStackImpl.class);
 	private static final String propertiesFileName = "mgcp-stack.properties";
 	private String protocolVersion = "1.0";
 	protected int port = 2727;
 	private InetAddress localAddress = null;
 	private boolean stopped = true;
-
-	private int messageReaderThreadPriority = Thread.MIN_PRIORITY;
 
 	private PacketRepresentationFactory prFactory = null;
 
@@ -185,8 +181,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		
 		this.prFactory = new PacketRepresentationFactory(50, BUFFER_SIZE);
 
-		this.setPriority(this.messageReaderThreadPriority);
-		
 		decodingThreads=new DecodingThread[this.parserThreadPoolSize];
 		for(int i=0;i<decodingThreads.length;i++)
 			decodingThreads[i]=new DecodingThread(this);
@@ -210,15 +204,10 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 			String val = null;
 
-			val = props.getProperty(_MESSAGE_READER_THREAD_PRIORITY, "" + this.messageReaderThreadPriority);
-			this.messageReaderThreadPriority = Integer.parseInt(val);
 			val = props.getProperty(_EXECUTOR_QUEUE_SIZE, "" + this.parserThreadPoolSize);
 			this.parserThreadPoolSize = Integer.parseInt(val);			
 			val = null;
 
-			logger.info(this.propertiesFileName + " read successfully! \nmessageReaderThreadPriority = "
-					+ this.messageReaderThreadPriority);
-			
 			logger.info(this.propertiesFileName + " read successfully! \nexecutorQueueSize = "
 					+ this.parserThreadPoolSize);
 

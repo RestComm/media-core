@@ -111,7 +111,17 @@ public class WavTrackImpl implements Track {
         try {
             long offset = frameSize * (timestamp / period/ 1000000L);
             byte[] skip = new byte[(int)offset];
-            totalRead+=inStream.read(skip);
+            int bytesRead=0;
+            while(bytesRead<skip.length && inStream.available()>0)
+            {
+            	int len=inStream.read(skip,bytesRead,skip.length-bytesRead);
+            	if(len==-1)
+            		return;
+            	
+            	totalRead+=len;
+            	bytesRead+=len;            	
+            }
+            
         } catch (IOException e) {
         	logger.error(e);
         }
@@ -122,7 +132,7 @@ public class WavTrackImpl implements Track {
     	byte[] headerEnd = null;
     	int tempValue;
     	int bytesRead=0;
-    	while (bytesRead < 36) {
+    	while (bytesRead < 36 && stream.available()>0) {
             int len = stream.read(header, bytesRead, 36 - bytesRead);
             if (len == -1) {                	
                 return;
@@ -169,7 +179,7 @@ public class WavTrackImpl implements Track {
     	headerEnd=new byte[8+ckSize-16];
 		bytesRead=0;   	
     	extraHeaderSize=headerEnd.length;
-    	while (bytesRead < extraHeaderSize) {
+    	while (bytesRead < extraHeaderSize && stream.available()>0) {
             int len = stream.read(headerEnd, bytesRead, extraHeaderSize - bytesRead);
             if (len == -1) {                	
                 return;
@@ -194,7 +204,7 @@ public class WavTrackImpl implements Track {
     		sizeOfData-=12;
     		headerEnd=new byte[12];
     		bytesRead=0;
-    		while (bytesRead < 12) {
+    		while (bytesRead < 12 && stream.available()>0) {
                 int len = stream.read(headerEnd, bytesRead, 12 - bytesRead);
                 if (len == -1) {                	
                     return;
@@ -223,7 +233,7 @@ public class WavTrackImpl implements Track {
     private int readPacket(byte[] packet, int offset, int psize) throws IOException {
         int length = 0;
         try {
-            while (length < psize) {
+            while (length < psize && inStream.available()>0) {
                 int len = inStream.read(packet, offset + length, psize - length);
                 if (len == -1) {
                 	return length;
