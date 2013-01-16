@@ -90,38 +90,25 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 	protected NotifiedEntity notifiedEntity = null;
 
 	private ConcurrentLinkedList<EventWrapper> waitingQueue=new ConcurrentLinkedList<EventWrapper>();
-	private ConcurrentLinkedList<TransactionHandler> sendingQueue=new ConcurrentLinkedList<TransactionHandler>();
 	
 	private DispatcherThread dispatcher;
-	
-	private EncodingThread[] encodingThreads;
 	
 	public JainMgcpStackProviderImpl(JainMgcpStackImpl runningStack) {
 		super();
 		// eventQueue = new QueuedExecutor();
 		// pool = Executors.newCachedThreadPool(new ThreadFactoryImpl());
 		this.runningStack = runningStack;
-		dispatcher=new DispatcherThread();
-		
-		this.encodingThreads=new EncodingThread[this.runningStack.parserThreadPoolSize];
-		for(int i=0;i<this.encodingThreads.length;i++)
-			this.encodingThreads[i]=new EncodingThread();
+		dispatcher=new DispatcherThread();				
 	}
 
 	protected void start()
 	{
-		dispatcher.activate();
-		
-		for(int i=0;i<this.encodingThreads.length;i++)
-			this.encodingThreads[i].activate();
+		dispatcher.activate();		
 	}
 	
 	protected void stop()
 	{
-		dispatcher.shutdown();
-		
-		for(int i=0;i<this.encodingThreads.length;i++)
-			this.encodingThreads[i].shutdown();
+		dispatcher.shutdown();		
 	}
 	
 	public void setNotifiedEntity(NotifiedEntity notifiedEntity) {
@@ -252,9 +239,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 				}
 				handle.setCommand(true);
 				handle.setCommandEvent(commandEvent);
-
-				sendingQueue.offer(handle);				
-
+				handle.send();				
 			} else {
 
 				// SENDING RESPONSE
@@ -265,8 +250,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 				if (handle != null) {
 					handle.setCommand(false);
 					handle.setResponseEvent((JainMgcpResponseEvent) event);
-					sendingQueue.offer(handle);					
-
+					handle.send();					
 				} else {
 					logger.error("The TransactionHandler not found for TransactionHandle " + tid
 							+ " May be the Tx timed out. Event = " + (JainMgcpResponseEvent) event);
@@ -463,39 +447,5 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
         private void shutdown() {
             this.active = false;
         }
-	}
-	
-	private class EncodingThread extends Thread
-	{
-		private volatile boolean active;
-        
-		public EncodingThread()
-		{
-		}
-		
-    	public void run() {
-    		while(active)
-    			try {
-    				sendingQueue.take().send();
-    			}
-    			catch(Exception e)
-    			{
-    				//catch everything, so worker wont die.
-    				if(logger.isEnabledFor(Level.ERROR))
-    					logger.error("Unexpected exception occured:", e);    				    		
-    			}
-    	}
-    	
-    	public void activate() {        	        	
-        	this.active = true;
-        	this.start();
-        }
-    	
-    	/**
-         * Terminates thread.
-         */
-        private void shutdown() {
-            this.active = false;
-        }
-	}
+	}	
 }

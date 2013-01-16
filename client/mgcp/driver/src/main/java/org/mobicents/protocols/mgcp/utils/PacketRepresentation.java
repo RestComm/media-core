@@ -32,6 +32,7 @@ package org.mobicents.protocols.mgcp.utils;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 
 /**
@@ -47,14 +48,22 @@ public class PacketRepresentation {
 	private byte[] rawData = null;
 	private InetSocketAddress remoteAddress = null;
 	private int length = 0;
+	private ByteBuffer buffer;
 	
 	private PacketRepresentationFactory prFactory = null;
 
 	protected PacketRepresentation(int byteArrSize, PacketRepresentationFactory prFactory) {
 		rawData = new byte[byteArrSize];
+		this.buffer=ByteBuffer.wrap(rawData);
 		this.prFactory = prFactory;
 	}
 
+	public ByteBuffer getBuffer() {
+		buffer.position(0);
+		buffer.limit(length);
+		return buffer;
+	}
+	
 	public byte[] getRawData() {
 		return rawData;
 	}

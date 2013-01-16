@@ -118,7 +118,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	private ConcurrentHashMap<Integer, TransactionHandler> completedTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
 
 	private ConcurrentLinkedList<PacketRepresentation> inputQueue=new ConcurrentLinkedList<PacketRepresentation>();	
-	private ConcurrentLinkedList<PacketRepresentation> outputQueue=new ConcurrentLinkedList<PacketRepresentation>();
 	
 	private DatagramSocket socket;
 
@@ -304,7 +303,14 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	
 	public void send(PacketRepresentation pr) 
 	{
-		outputQueue.offer(pr);		
+		try {						
+			this.channel.send(pr.getBuffer(), pr.getInetAddress());											
+		} catch (IOException e) {
+			if(logger.isEnabledFor(Level.ERROR))
+			{							
+				logger.error("I/O Exception occured, caused by", e);
+			}
+		}			
 	}	
 	
 	public boolean isRequest(String header) {
@@ -318,6 +324,11 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		}
 		int length = 0;
 
+		//for testing only
+		long maxRunTime=0;
+		long maxCycleTime=0;
+		long currSleepTime=0;
+		
 		long start = 0;
 		long finish = 0;
 		long drift = 0;
@@ -350,26 +361,17 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				//this is for async send
 				this.provider.flush();
 				
-				while((pr=outputQueue.poll())!=null)
-				{
-					try {						
-						this.sendBuffer.clear();
-						this.sendBuffer.put(pr.getRawData(),0,pr.getLength());
-						this.sendBuffer.flip();
-						this.channel.send(this.sendBuffer, pr.getInetAddress());											
-					} catch (IOException e) {
-						if(logger.isEnabledFor(Level.ERROR))
-						{							
-							logger.error("I/O Exception occured, caused by", e);
-						}
-					}					
-				}
-				
 				finish = System.currentTimeMillis();
 				drift = finish - start;
 				latency = delay - drift;
 				//lets check by cycle since if we sleep more due to
 				//other threads we will be working not too fast here
+				if(drift>maxRunTime)
+				{
+					maxRunTime=drift;
+					logger.info("Network thread max working time:" + maxRunTime);									
+				}
+				
 				start = finish;
 				
 				if (drift <= threshold) {
@@ -379,6 +381,14 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 						return;
 					}
 				}
+				
+				currSleepTime=System.currentTimeMillis()-finish;
+				if(currSleepTime+drift>maxCycleTime)
+				{
+					maxCycleTime=currSleepTime+drift;
+					logger.info("Network thread max cycle time:" + maxCycleTime);
+				}
+				
 			} catch (IOException e) {
 				if (stopped) {
 					break;
@@ -408,7 +418,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		if(this.provider!=null)
 			this.provider.stop();
 		
-		if (logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {			
 			logger.debug("MGCP stack stopped gracefully on" + this.localAddress + ":" + this.port);
 		}
 	}
