@@ -155,6 +155,7 @@ public class GlobalTransactionManager
         txManager.setNamingService(namingService);
         txManager.setCallManager(new CallManager());
         txManager.setMgcpProvider(provider);
+        txManager.start();
         return txManager;
     }
     
@@ -197,6 +198,8 @@ public class GlobalTransactionManager
     }
     
     private void checkAddress(byte index) {
+    	int intIndex = ((int)index) & 0xFF;
+    	
     	if(subManager==null)
 		{
     		try
@@ -212,15 +215,15 @@ public class GlobalTransactionManager
 			{
 				subManager=new GlobalTransactionManager[256];
 				
-				subManager[index]=new GlobalTransactionManager(scheduler);
-    			subManager[index].setMgcpProvider(provider);
-    			subManager[index].setNamingService(namingService);
-    			subManager[index].setPoolSize(poolSize);
+				subManager[intIndex]=new GlobalTransactionManager(scheduler);
+    			subManager[intIndex].setMgcpProvider(provider);
+    			subManager[intIndex].setNamingService(namingService);
+    			subManager[intIndex].setPoolSize(poolSize);
 			}
 			
 			lock.unlock();
 		}
-		else if(subManager[index]==null)
+		else if(subManager[intIndex]==null)
 		{
 			try
     		{
@@ -231,12 +234,12 @@ public class GlobalTransactionManager
     			
     		}
 			
-			if(subManager[index]==null)
+			if(subManager[intIndex]==null)
 			{
-				subManager[index]=new GlobalTransactionManager(scheduler);
-    			subManager[index].setMgcpProvider(provider);
-    			subManager[index].setNamingService(namingService);
-    			subManager[index].setPoolSize(poolSize);
+				subManager[intIndex]=new GlobalTransactionManager(scheduler);
+    			subManager[intIndex].setMgcpProvider(provider);
+    			subManager[intIndex].setNamingService(namingService);
+    			subManager[intIndex].setPoolSize(poolSize);
 			}
 			
 			lock.unlock();

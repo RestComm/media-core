@@ -43,6 +43,8 @@ public class Transaction implements ActionListener {
     protected int id;
     protected int uniqueId; 
     
+    protected boolean completed=false;
+    
     //Transaction manager instance
     private TransactionManager txManager;
     
@@ -154,9 +156,14 @@ public class Transaction implements ActionListener {
         logger.info("tx=" + id + " was executed normaly");
         if (action != null && action.getEvent() != null) {
         	action.getEvent().recycle();
+        	action=null;
         }
         
-        txManager.terminate(this);
+        if(!completed)
+        {
+        	completed=true;
+        	txManager.terminate(this);
+        }
     }
 
     public void onFailure(Exception e) {
@@ -176,7 +183,13 @@ public class Transaction implements ActionListener {
         logger.info("tx=" + id + " Rolled back");
         if (action.getEvent() != null) {
             action.getEvent().recycle();
+            action=null;
         }
-        txManager.terminate(this);
+        
+        if(!completed)
+        {
+        	completed=true;
+        	txManager.terminate(this);
+        }
     }
 }
