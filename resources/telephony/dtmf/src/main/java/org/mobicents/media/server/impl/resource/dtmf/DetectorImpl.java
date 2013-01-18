@@ -412,6 +412,10 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     {
     	 private byte currTone=(byte)0xFF;
     	 private long latestSeq=0;
+    	 
+    	 private boolean hasEndOfEvent=false;
+    	 private long endSeq=0;
+    	 
     	 byte[] data = new byte[4];
     	    
     	public OOBDetector()
@@ -429,23 +433,37 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
             
            //lets ignore end of event packets
             if(endOfEvent)
+            {
+            	hasEndOfEvent=true;
+            	endSeq=buffer.getSequenceNumber();
             	return;                                       
+            }
             
             //lets update sync data , allowing same tone come after 160ms from previous tone , not including end of tone
             if(currTone==data[0])
             {
-            	if((buffer.getSequenceNumber()<(latestSeq+8)) && buffer.getSequenceNumber()>(latestSeq-8))
+            	if(hasEndOfEvent)
+            	{
+            		if(buffer.getSequenceNumber()<=endSeq && buffer.getSequenceNumber()>(endSeq-8))
+            			//out of order , belongs to same event 
+            			//if comes after end of event then its new one
+            			return;
+            	}
+            	else if((buffer.getSequenceNumber()<(latestSeq+8)) && buffer.getSequenceNumber()>(latestSeq-8))
             	{
             		if(buffer.getSequenceNumber()>latestSeq)
             			latestSeq=buffer.getSequenceNumber();            			
             		
                     return;
-            	}            	            	
-            }        
+            	}
+            }
             
+            hasEndOfEvent=false;
+        	endSeq=0;
+        	
             latestSeq=buffer.getSequenceNumber();
             currTone=data[0];
-            fireEvent(oobEvtID[currTone]);
+            dtmfBuffer.push(oobEvtID[currTone]);             
     	}
     	
     	public void activate()

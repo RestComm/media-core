@@ -43,7 +43,7 @@ public class TransactionManager {
     private static java.util.concurrent.atomic.AtomicInteger ID = new AtomicInteger(1);
     
     //pool of transaction objects
-    private ConcurrentLinkedList<Transaction> pool=new ConcurrentLinkedList();
+    protected  ConcurrentLinkedList<Transaction> pool=new ConcurrentLinkedList();
     //currently active transactions.
     private ConcurrentHashMap<Integer,Transaction> active;
     
@@ -68,7 +68,11 @@ public class TransactionManager {
         
         active = new ConcurrentHashMap(size);
         
-        for (int i = 0; i < size; i++) {
+        initializePool(size);        
+    }
+    
+    public void initializePool(int size){
+    	for (int i = 0; i < size; i++) {
         	pool.offer(new Transaction(this));            
         }
     }

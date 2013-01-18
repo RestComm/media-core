@@ -50,6 +50,11 @@ public class DtmfInput extends AbstractSource {
     private byte currTone=(byte)0xFF;
     private long latestTime=0;
     private int latestSeq=0;
+    
+    private boolean hasEndOfEvent;
+    private long endTime=0;
+    private int endSeq=0;
+    
     private short eventDuration=0;
     byte[] data = new byte[4];
     
@@ -57,7 +62,7 @@ public class DtmfInput extends AbstractSource {
     
     private OOBInput input;
 	
-    private static final Logger logger = Logger.getLogger(DtmfConverter.class);
+    private static final Logger logger = Logger.getLogger(DtmfInput.class);
     
     public DtmfInput(Scheduler scheduler,RtpClock clock)
     {
@@ -91,34 +96,52 @@ public class DtmfInput extends AbstractSource {
         
        //lets ignore end of event packets
         if(endOfEvent)
+        {
+        	hasEndOfEvent=true;
+        	endTime=event.getTimestamp();
+        	endSeq=event.getSeqNumber();
         	return;                                       
+        }
         
         //lets update sync data , allowing same tone come after 160ms from previous tone , not including end of tone
         if(currTone==data[0])
         {
-        	if((event.getSeqNumber()<(latestSeq+8)) && event.getSeqNumber()>(latestSeq-8))
+        	if(hasEndOfEvent)
         	{
-        		if(event.getSeqNumber()>latestSeq)
-        		{
-        			latestSeq=event.getSeqNumber();
-        			latestTime=event.getTimestamp();
-        		}
-        		
-                return;
+        		if(event.getSeqNumber()<=endSeq || event.getTimestamp()<=endTime)
+        			//out of order , belongs to same event 
+        			//if comes after end of event then its new one
+        			return;
         	}
-        	
-        	if(event.getTimestamp()<(latestTime+160) && event.getTimestamp()>(latestTime-160))        		
+        	else
         	{
-        		if(event.getTimestamp()>latestTime)
+        		if((event.getSeqNumber()<(latestSeq+8)) && event.getSeqNumber()>(latestSeq-8))
         		{
-        			latestSeq=event.getSeqNumber();
-        			latestTime=event.getTimestamp();
-        		}
+        			if(event.getSeqNumber()>latestSeq)
+        			{
+        				latestSeq=event.getSeqNumber();
+        				latestTime=event.getTimestamp();
+        			}
         		
-                return;
-            }
+        			return;
+        		}
+        	
+        		if(event.getTimestamp()<(latestTime+160) && event.getTimestamp()>(latestTime-160))        		
+        		{
+        			if(event.getTimestamp()>latestTime)
+        			{
+        				latestSeq=event.getSeqNumber();
+        				latestTime=event.getTimestamp();
+        			}
+        		
+        			return;
+        		}
+        	}
         }        
         
+        hasEndOfEvent=false;
+    	endTime=0;
+    	endSeq=0;
         latestSeq=event.getSeqNumber();
         latestTime=event.getTimestamp();
         currTone=data[0];
@@ -172,6 +195,9 @@ public class DtmfInput extends AbstractSource {
     
     public void reset() 
     {
+    	hasEndOfEvent=false;
+    	endTime=0;
+    	endSeq=0;
     	latestSeq=0;
 		latestTime=0;
 		currTone=(byte)0xFF;		

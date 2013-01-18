@@ -116,6 +116,7 @@ public class SS7DataChannel {
         audioComponent.addOutput(output.getAudioOutput());
         
         oobComponent=new OOBComponent(audioChannelID);
+        oobComponent.addOutput(output.getOOBOutput());
     }
     
     public AudioComponent getAudioComponent()

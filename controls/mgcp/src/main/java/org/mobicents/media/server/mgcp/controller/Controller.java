@@ -52,10 +52,10 @@ public class Controller implements MgcpListener, ServerManager {
     private final Logger logger = Logger.getLogger("MGCP");
     
     //network interface
-    private UdpManager udpInterface;
+    protected UdpManager udpInterface;
     
     //MGCP port number
-    private int port;
+    protected int port;
     
     protected Scheduler scheduler;
     
@@ -72,11 +72,11 @@ public class Controller implements MgcpListener, ServerManager {
     private Configurator configurator;
     
     //call manager
-    private CallManager callManager = new CallManager();
+    protected CallManager callManager = new CallManager();
     
-    private TransactionManager txManager;
+    protected TransactionManager txManager;
     
-    private int poolSize=10;
+    protected int poolSize=10;
     
     /**
      * Assigns UDP network interface.
@@ -177,6 +177,17 @@ public class Controller implements MgcpListener, ServerManager {
     	return mmsHomeDir;
     }
     
+    public void createProvider() {
+    	mgcpProvider = new MgcpProvider(udpInterface, port, scheduler);
+    }
+    
+    public void createTransactionManager() {
+    	txManager = new TransactionManager(scheduler, poolSize);
+        txManager.setNamingService(endpoints);
+        txManager.setCallManager(callManager);
+        txManager.setMgcpProvider(mgcpProvider);
+    }
+    
     /**
      * Starts controller.
      */
@@ -185,7 +196,7 @@ public class Controller implements MgcpListener, ServerManager {
 
         logger.info("Starting MGCP provider");
         
-        mgcpProvider = new MgcpProvider(udpInterface, port, scheduler);  
+        createProvider();  
         mgcpProvider.activate();
         
         try {
@@ -193,12 +204,9 @@ public class Controller implements MgcpListener, ServerManager {
         } catch (TooManyListenersException e) {
         	logger.error(e);
         }
-        
+                
         //initialize transaction subsystem                
-        txManager = new TransactionManager(scheduler, poolSize);
-        txManager.setNamingService(endpoints);
-        txManager.setCallManager(callManager);
-        txManager.setMgcpProvider(mgcpProvider);
+        createTransactionManager();
         
         logger.info("Controller started");
     }

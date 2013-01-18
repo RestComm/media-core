@@ -324,11 +324,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		}
 		int length = 0;
 
-		//for testing only
-		long maxRunTime=0;
-		long maxCycleTime=0;
-		long currSleepTime=0;
-		
 		long start = 0;
 		long finish = 0;
 		long drift = 0;
@@ -363,14 +358,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				
 				finish = System.currentTimeMillis();
 				drift = finish - start;
-				latency = delay - drift;
-				//lets check by cycle since if we sleep more due to
-				//other threads we will be working not too fast here
-				if(drift>maxRunTime)
-				{
-					maxRunTime=drift;
-					logger.info("Network thread max working time:" + maxRunTime);									
-				}
+				latency = delay - drift;				
 				
 				start = finish;
 				
@@ -380,15 +368,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 					} catch (InterruptedException e) {
 						return;
 					}
-				}
-				
-				currSleepTime=System.currentTimeMillis()-finish;
-				if(currSleepTime+drift>maxCycleTime)
-				{
-					maxCycleTime=currSleepTime+drift;
-					logger.info("Network thread max cycle time:" + maxCycleTime);
-				}
-				
+				}				
 			} catch (IOException e) {
 				if (stopped) {
 					break;
