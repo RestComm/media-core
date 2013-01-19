@@ -119,23 +119,25 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     }
     
     public void setOOBDigit(String digit) {
-    	if(oobDigit.charAt(0)>='0' && oobDigit.charAt(0)<='9')    			
-    		oobDigitValue=(oobDigit.charAt(0)-'0');
-		else if(oobDigit.charAt(0)=='*')
+    	if(digit.charAt(0)>='0' && digit.charAt(0)<='9')    			
+    		oobDigitValue=(digit.charAt(0)-'0');
+		else if(digit.charAt(0)=='*')
 			oobDigitValue=10;
-		else if(oobDigit.charAt(0)=='#')
+		else if(digit.charAt(0)=='#')
 			oobDigitValue=11;
-		else if(oobDigit.charAt(0)>='A' && oobDigit.charAt(0)<='D')
-			oobDigitValue=12+oobDigit.charAt(0)-'A';
-		else if(oobDigit.charAt(0)>='a' && oobDigit.charAt(0)<='d')
-			oobDigitValue=12+oobDigit.charAt(0)-'a';
+		else if(digit.charAt(0)>='A' && digit.charAt(0)<='D')
+			oobDigitValue=12+digit.charAt(0)-'A';
+		else if(digit.charAt(0)>='a' && digit.charAt(0)<='d')
+			oobDigitValue=12+digit.charAt(0)-'a';
 		else
-			return;
+			return;   
     	
     	this.oobDigit=digit;
+    	this.digit=null;
     }
     
     public void setDigit(String digit) {
+    	this.oobDigit=null;
         this.digit = digit;
         this.time=0;
         for (int i = 0; i < 4; i++) {
@@ -216,6 +218,17 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         oobGenerator.deactivate();
     } 
     
+    @Override
+    public void wakeup() {
+        if(this.oobDigit!=null)
+        {
+        	oobGenerator.index=0;
+        	oobGenerator.wakeup();
+        }
+        else if(this.digit!=null)
+        	super.wakeup();
+    }
+    
     private class OOBGenerator extends AbstractSource {
     	int index=0;
     	int eventDuration=0;
@@ -247,7 +260,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         	data[2]=(byte)((eventDuration>>8) & 0xFF);
         	data[3]=(byte)(eventDuration & 0xFF);
         	
-    		frame.setOffset(0);
+        	frame.setOffset(0);
             frame.setLength(4);
             frame.setTimestamp(getMediaTime());
             frame.setDuration(20000000L);

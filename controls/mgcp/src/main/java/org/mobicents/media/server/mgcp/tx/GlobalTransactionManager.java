@@ -127,8 +127,9 @@ public class GlobalTransactionManager
     		return managers[port-1].find(id);
     	}
     	
-    	checkAddress(address[level]);
-    	return subManager[address[level]].find(address, port, level+1, id);    	
+    	int intIndex = ((int)address[level]) & 0xFF;    				       	
+    	checkAddress(intIndex);
+    	return subManager[intIndex].find(address, port, level+1, id);    	
     }
     
     public Transaction allocateNew(InetSocketAddress source,int id) {
@@ -146,8 +147,9 @@ public class GlobalTransactionManager
     		return null;
     	}
     	
-    	checkAddress(address[level]);	
-    	return subManager[address[level]].allocateNew(address, port, level+1, id);    	
+    	int intIndex = ((int)address[level]) & 0xFF;    				       	
+    	checkAddress(intIndex);
+    	return subManager[intIndex].allocateNew(address, port, level+1, id);    	
     }
     
     public TransactionManager createTransactionManager() {
@@ -197,9 +199,7 @@ public class GlobalTransactionManager
 		}
     }
     
-    private void checkAddress(byte index) {
-    	int intIndex = ((int)index) & 0xFF;
-    	
+    private void checkAddress(int intIndex) {
     	if(subManager==null)
 		{
     		try

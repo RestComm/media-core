@@ -16,6 +16,10 @@ import static org.junit.Assert.*;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
+
+import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.component.oob.OOBMixer;
+
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -38,6 +42,10 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
     private AudioComponent detectorComponent;
     private AudioComponent generatorComponent;
     private AudioMixer audioMixer;
+    
+    private OOBComponent oobDetectorComponent;
+    private OOBComponent oobGeneratorComponent;
+    private OOBMixer oobMixer;
     
     private String tone;
     
@@ -80,6 +88,20 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
                 
         audioMixer.addComponent(detectorComponent);
         audioMixer.addComponent(generatorComponent);
+        
+        oobMixer=new OOBMixer(scheduler);
+        
+        oobDetectorComponent=new OOBComponent(1);
+        oobDetectorComponent.addOutput(detector.getOOBOutput());
+        oobDetectorComponent.updateMode(false,true);
+        
+        oobGeneratorComponent=new OOBComponent(2);
+        oobGeneratorComponent.addInput(generator.getOOBInput());
+        oobGeneratorComponent.updateMode(true,false);
+        
+        oobMixer.addComponent(oobDetectorComponent);
+        oobMixer.addComponent(oobGeneratorComponent);
+        
         tone="";
     }
     
@@ -116,6 +138,29 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         Thread.sleep(300);        
         
         assertEquals("1", tone);
+        
+        tone="";
+        detector.removeListener(this);
+        //queue "1" into detector's buffer
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(200);        
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(300);        
+        
+        assertEquals("1", tone);
     }
 
     @Test
@@ -137,6 +182,35 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         generator.deactivate();
         detector.deactivate();
     	audioMixer.stop();
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("12", tone);
+        
+        tone="";
+        detector.removeListener(this);
+        //queue "1" into detector's buffer
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(200);          
+        
+        //queue "2" into detector's buffer
+        generator.setOOBDigit("2");
+        generator.wakeup();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
         
         //assign listener and flush digit
         detector.addListener(this);
@@ -186,6 +260,41 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         Thread.sleep(200);        
         
         assertEquals("12", tone);
+        
+        tone="";
+        //queue "1" into detector's buffer
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();    	
+
+        //queue "2" into detector's buffer
+        generator.setOOBDigit("2");
+        generator.activate();
+        detector.activate();
+        oobMixer.start();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
+        
+        assertEquals("12", tone);
+        
+        //assign listener and flush digit
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("12", tone);
     }
     
     @Test
@@ -223,115 +332,42 @@ public class DtmfBufferingTest implements DtmfDetectorListener {
         Thread.sleep(200);        
         
         assertEquals("", tone);
-    }
-    
-    /*@Test
-    public void testGenerateFile()
-   	{
-    	try
-    	{
-    		java.io.File currFile=new File("testOutput.txt");
-    		java.io.FileOutputStream fout = new FileOutputStream(currFile);
-    		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fout));
-    		String currString;
-    		
-    		generator.setToneDuration(100);    		
-    		generator.setVolume(-20);
-			
-    		for(int i=0;i<=9;i++)
-    		{    		
-    			writer.write("buffer[" + i + "]=new byte[] {");
-    			
-    			generator.setDigit(String.valueOf((char)(i+'0')));
-    			for(int j=0;j<5;j++)
-    			{
-    				Frame currFrame=generator.evolve(0L);
-    				byte[] data=currFrame.getData();
-    				for(int k=0;k<data.length;k++)
-    				{    					
-    					currString="(byte) 0X" + String.format("%02X", data[k]);
-    					if(k<data.length-1 || j<4)
-    						 currString+= ",";
-    					
-    					writer.write(currString);
-    				}
-    			}
-    			    			
-    			writer.write("};");    			
-    			writer.newLine();    			
-    		}
-    		
-    		writer.write("buffer[10]=new byte[] {");
-			
-			generator.setDigit("*");
-			for(int j=0;j<5;j++)
-			{
-				Frame currFrame=generator.evolve(0L);
-				byte[] data=currFrame.getData();
-				for(int k=0;k<data.length;k++)
-				{
-					currString="(byte) 0X" + String.format("%02X", data[k]);
-					if(k<data.length-1 || j<4)
-						 currString+= ",";
-					
-					writer.write(currString);
-				}
-			}
-			    			
-			writer.write("};");    			
-			writer.newLine();  
-			
-			writer.write("buffer[11]=new byte[] {");
-			
-			generator.setDigit("#");
-			for(int j=0;j<5;j++)
-			{
-				Frame currFrame=generator.evolve(0L);
-				byte[] data=currFrame.getData();
-				for(int k=0;k<data.length;k++)
-				{
-					currString="(byte) 0X" + String.format("%02X", data[k]);
-					if(k<data.length-1 || j<4)
-						 currString+= ",";
-					
-					writer.write(currString);
-				}
-			}
-			    			
-			writer.write("};");    			
-			writer.newLine(); 
-			
-    		for(int i=0;i<4;i++)
-    		{    		
-    			writer.write("buffer[" + (i+12) + "]=new byte[] {");
-    			
-    			generator.setDigit(String.valueOf((char)(i+'A')));
-    			for(int j=0;j<5;j++)
-    			{
-    				Frame currFrame=generator.evolve(0L);
-    				byte[] data=currFrame.getData();
-    				for(int k=0;k<data.length;k++)
-    				{
-    					currString="(byte) 0X" + String.format("%02X", data[k]);
-    					if(k<data.length-1 || j<4)
-    						 currString+= ",";
-    					
-    					writer.write(currString);
-    				}
-    			}
-    			    			
-    			writer.write("};");    			
-    			writer.newLine();    			
-    		}
-    		
-    		writer.flush();
-    		fout.close();  
-    	}
-    	catch(Exception e)
-    	{
-    		e.printStackTrace();
-    	}
-   	}*/
+        
+        detector.removeListener(this);
+        //queue "1" into detector's buffer
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
+
+        //queue "2" into detector's buffer
+        generator.setOOBDigit("2");
+        generator.activate();
+        detector.activate();
+        oobMixer.start();
+        
+        Thread.sleep(200);          
+
+        generator.deactivate();
+        detector.deactivate();
+        oobMixer.stop();
+        
+        //assign listener and flush digit
+        detector.addListener(this);
+        detector.clearBuffer();
+        detector.flushBuffer();
+
+        //wait a bit for delivery
+        Thread.sleep(200);        
+        
+        assertEquals("", tone);
+    }        
     	
     public void process(DtmfEvent event) {
         tone += event.getTone();
