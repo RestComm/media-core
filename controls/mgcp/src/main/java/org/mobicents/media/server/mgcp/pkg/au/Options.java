@@ -70,7 +70,7 @@ public class Options {
     private final static Text FALSE = new Text("false");
     
     //private Text prompt = new Text(new byte[150], 0, 150);
-    private Text recordID = new Text(new byte[150], 0, 150);
+    private Text recordID = new Text(new byte[2048], 0, 2048);
     
     private boolean isPrompt,isReprompt,isDeletePersistentAudio=false,isFailureAnnouncement=false,isSuccessAnnouncement=false,isNoSpeechReprompt=false,isNoDigitsReprompt=false;
     private boolean override = true;
@@ -100,7 +100,7 @@ public class Options {
     private int digitsNumber,maxDigitsNumber;
     private long postSpeechTimer = -1,preSpeechTimer = -1;
     
-    private Text digitPattern = new Text(new byte[150], 0, 150);
+    private Text digitPattern = new Text(new byte[2048], 0, 2048);
     private Collection digitPatterns;
     
     private Text name = new Text();
