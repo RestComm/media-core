@@ -67,7 +67,10 @@ public class DtmfInput extends AbstractSource {
     public DtmfInput(Scheduler scheduler,RtpClock clock)
     {
     	super("dtmfconverter", scheduler,scheduler.INPUT_QUEUE);
+    	
     	this.clock=clock;
+    	this.clock.setClockRate(8000);
+    	
     	input=new OOBInput(2);
         this.connect(input);       
     }
@@ -80,6 +83,7 @@ public class DtmfInput extends AbstractSource {
     public void setClock(RtpClock clock) 
     {
         this.clock = clock;
+        this.clock.setClockRate(8000);        
     }
     
     public void write(RtpPacket event) 

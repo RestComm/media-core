@@ -694,12 +694,12 @@ public class PlayCollect extends Signal {
         		}
         		else if(options.nextKeyValid() && options.getNextKey()==s.charAt(0))
         		{
-        			first(options.getInterval());
+        			next(options.getInterval());
         			return false;
         		}
         		else if(options.lastKeyValid() && options.getLastKey()==s.charAt(0))
         		{
-        			curr(options.getInterval());
+        			last(options.getInterval());
         			return false;
         		}
         	}

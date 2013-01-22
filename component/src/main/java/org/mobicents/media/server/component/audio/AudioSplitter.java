@@ -147,7 +147,7 @@ public class AudioSplitter {
         }
         
         public long perform() {
-            //summarize all
+        	//summarize all
             first=true;
             insideComponents.resetIterator(insideRIterator);            
             while(insideRIterator.hasNext())
@@ -209,8 +209,7 @@ public class AudioSplitter {
             
             scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             mixCount++;            
-            
-            return 0;            
+            return 0;         	
         }
     }
     
@@ -233,7 +232,7 @@ public class AudioSplitter {
         }
         
         public long perform() {
-            //summarize all
+        	//summarize all
             first=true;
             outsideComponents.resetIterator(outsideRIterator);            
             while(outsideRIterator.hasNext())
@@ -293,8 +292,7 @@ public class AudioSplitter {
             
             scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             mixCount++;            
-            
-            return 0;
+        	return 0;        	
         }
     }
 }

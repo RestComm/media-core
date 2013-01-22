@@ -426,8 +426,8 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     	public void onMediaTransfer(Frame buffer) throws IOException {
     		byte[] data=buffer.getData();
     		if(data.length!=4)
-            	return;
-        	
+    			return;
+    		
         	boolean endOfEvent=false;
             endOfEvent=(data[1] & 0X80)!=0;
             

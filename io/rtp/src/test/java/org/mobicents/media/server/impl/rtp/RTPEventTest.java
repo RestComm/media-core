@@ -31,7 +31,11 @@ import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
+import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.component.oob.OOBMixer;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.SocketAddress;
@@ -42,6 +46,7 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.dtmf.DtmfTonesData;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -56,6 +61,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.spi.format.FormatFactory;
+
 import static org.junit.Assert.*;
 
 /**
@@ -84,9 +90,14 @@ public class RTPEventTest implements DtmfDetectorListener {
     private Sender sender;
     
     private AudioMixer audioMixer;
-    private AudioComponent detectorComponent;
+    private OOBMixer oobMixer;
     
-    public RTPEventTest() {
+    private AudioComponent detectorComponent;
+    private OOBComponent oobComponent;
+    
+    private int count=0;
+    
+    public RTPEventTest() {    	
     }
 
     @Before
@@ -142,12 +153,21 @@ public class RTPEventTest implements DtmfDetectorListener {
         detectorComponent.addOutput(detector.getAudioOutput());
         detectorComponent.updateMode(true,true);
         audioMixer.addComponent(detectorComponent);               
+        
+        oobMixer=new OOBMixer(scheduler);
+        oobMixer.addComponent(channel.getOOBComponent());
+        
+        oobComponent=new OOBComponent(1);
+        oobComponent.addOutput(detector.getOOBOutput());
+        oobComponent.updateMode(true,true);
+        oobMixer.addComponent(oobComponent);
     }
 
     @After
     public void tearDown() {
     	channel.close();
     	audioMixer.stop();
+    	oobMixer.stop();
         udpManager.stop();
         scheduler.stop();
         sender.close();
@@ -157,6 +177,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     public void testTransmission() throws Exception {
     	channel.updateMode(ConnectionMode.SEND_RECV);
     	audioMixer.start();
+    	oobMixer.start();
     	detector.activate();
     	
         new Thread(sender).start();
@@ -165,10 +186,14 @@ public class RTPEventTest implements DtmfDetectorListener {
         
         channel.updateMode(ConnectionMode.INACTIVE);
     	audioMixer.stop();
+    	oobMixer.stop();
     	detector.deactivate();
+    	
+    	assertEquals(4,count);
     }
 
     public void process(DtmfEvent event) {
+    	count++;
         System.out.println("TONE=" + event.getTone());
     }
     
@@ -264,5 +289,5 @@ public class RTPEventTest implements DtmfDetectorListener {
                 socket.close();
             }
         }
-    }
+    }        
 }

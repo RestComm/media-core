@@ -37,9 +37,10 @@ import static org.junit.Assert.*;
 
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.core.connections.RtpConnectionImpl;
+import org.mobicents.media.core.connections.LocalConnectionImpl;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
+import org.mobicents.media.core.endpoints.impl.BridgeEndpoint;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.Connection;
@@ -62,7 +63,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  *
  * @author yulian oifa
  */
-public class MediaGroupTest implements DtmfDetectorListener {
+public class LocalMediaGroupTest implements DtmfDetectorListener {
 
     //clock and scheduler
     private Clock clock;
@@ -74,14 +75,15 @@ public class MediaGroupTest implements DtmfDetectorListener {
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     //endpoint and connection
-    private RtpConnectionImpl connection;
+    private LocalConnectionImpl connection;
     private BaseMixerEndpointImpl endpoint1,endpoint2;
+    private BridgeEndpoint endpoint3;
     private ResourcesPool resourcesPool;
     protected UdpManager udpManager;
     
     private String tone;
     
-    public MediaGroupTest() {
+    public LocalMediaGroupTest() {
     }
 
     @BeforeClass
@@ -123,16 +125,23 @@ public class MediaGroupTest implements DtmfDetectorListener {
         endpoint2.setScheduler(scheduler);
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.start();    	
+        
+        endpoint3 = new BridgeEndpoint("test 3");
+        endpoint3.setScheduler(scheduler);
+        endpoint3.setResourcesPool(resourcesPool);
+        endpoint3.start();
     }
 
     @After
     public void tearDown() {
         endpoint1.deleteAllConnections();
         endpoint2.deleteAllConnections();
+        endpoint3.deleteAllConnections();
         endpoint1.releaseResource(MediaType.AUDIO,ComponentType.DTMF_GENERATOR);
         endpoint2.releaseResource(MediaType.AUDIO,ComponentType.DTMF_DETECTOR);
         endpoint1.stop();
         endpoint2.stop();
+        endpoint3.stop();
         udpManager.stop();
         scheduler.stop();          
     }
@@ -142,40 +151,71 @@ public class MediaGroupTest implements DtmfDetectorListener {
      */
     @Test
     public void testResources() throws Exception {
-    	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
-        
-        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
-        
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection2.getDescriptor());
-
-        connection1.setOtherParty(sd2);        
-        connection2.setOtherParty(sd1);
+    	Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);        
+        Connection connection2 = endpoint3.createConnection(ConnectionType.LOCAL,false);       
+        connection1.setOtherParty(connection2);        
         
         connection1.setMode(ConnectionMode.SEND_RECV);
         connection2.setMode(ConnectionMode.SEND_RECV);
         
-        GeneratorImpl generator=(GeneratorImpl)endpoint1.getResource(MediaType.AUDIO,ComponentType.DTMF_GENERATOR);
-        DetectorImpl detector=(DetectorImpl)endpoint2.getResource(MediaType.AUDIO,ComponentType.DTMF_DETECTOR);
+        Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);        
+        Connection connection4 = endpoint2.createConnection(ConnectionType.RTP,false);       
         
-        detector.addListener(this);
+        Text sd1 = new Text(connection3.getDescriptor());
+        Text sd2 = new Text(connection4.getDescriptor());
+
+        connection3.setOtherParty(sd2);        
+        connection4.setOtherParty(sd1);
         
-        generator.setToneDuration(200);
-        generator.setVolume(-20);
+        connection3.setMode(ConnectionMode.SEND_RECV);
+        connection4.setMode(ConnectionMode.SEND_RECV);
         
-        generator.setDigit("1");
-        generator.activate();
-        detector.activate();
+        GeneratorImpl generator1=(GeneratorImpl)endpoint1.getResource(MediaType.AUDIO,ComponentType.DTMF_GENERATOR);
+        GeneratorImpl generator2=(GeneratorImpl)endpoint2.getResource(MediaType.AUDIO,ComponentType.DTMF_GENERATOR);
+        DetectorImpl detector1=(DetectorImpl)endpoint2.getResource(MediaType.AUDIO,ComponentType.DTMF_DETECTOR);
+        DetectorImpl detector2=(DetectorImpl)endpoint1.getResource(MediaType.AUDIO,ComponentType.DTMF_DETECTOR);
+        
+        detector1.addListener(this);
+        detector2.addListener(this);
+        
+        generator1.setToneDuration(200);
+        generator1.setVolume(-20);
+        
+        generator1.setDigit("1");
+        generator1.activate();
+        detector1.activate();
         
         Thread.sleep(1000);
         
         assertEquals("1", tone);        
-        generator.deactivate();
+        generator1.deactivate();
         
         tone="";
-        generator.setOOBDigit("1");
-        generator.activate();
-        detector.activate();
+        generator1.setOOBDigit("1");
+        generator1.activate();
+        detector1.activate();
+        
+        Thread.sleep(1000);
+        
+        assertEquals("1", tone);
+        
+        tone="";
+        generator2.setToneDuration(200);
+        generator2.setVolume(-20);
+        
+        generator2.setDigit("1");
+        generator2.activate();
+        detector2.activate();
+        
+        Thread.sleep(1000);
+        
+        assertEquals("1", tone);        
+        generator2.deactivate();
+        
+        tone="";
+        generator2.setOOBDigit("1");
+        generator2.activate();
+        detector2.activate();
         
         Thread.sleep(1000);
         

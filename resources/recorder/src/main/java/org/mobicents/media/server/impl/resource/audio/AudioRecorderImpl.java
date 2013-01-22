@@ -627,6 +627,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
             hasEndOfEvent=false;
         	endSeq=0;
         	
+        	logger.info("Storing oob tone");
             latestSeq=buffer.getSequenceNumber();
             currTone=data[0];
             toneBuffer.clear();
@@ -643,5 +644,5 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     	 public void deactivate()
     	 {        
     	 }
-    }
+    }    
 }

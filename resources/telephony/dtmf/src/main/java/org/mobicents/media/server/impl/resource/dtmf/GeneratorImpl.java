@@ -72,7 +72,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     private String oobDigit = null;
     private int oobDigitValue=-1;
     
-    private int duration = 50;
+    private int toneDuration = 50;
     private short A = Short.MAX_VALUE / 2;
     private int volume = 0;
     private int f1,  f2;
@@ -162,11 +162,11 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         if (duration < 40) {
             throw new IllegalArgumentException("Duration cannot be less than 40ms");
         }
-        this.duration = duration;
+        this.toneDuration = duration;
     }
 
     public int getToneDuration() {
-        return duration;
+        return toneDuration;
     }
 
     public int getVolume() {
@@ -191,7 +191,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
 
     @Override
     public Frame evolve(long timestamp) {
-    	if(time > (double) duration / 1000.0)
+    	if(time > (double) toneDuration / 1000.0)
     		return null;
     	
     	int k = 0;
@@ -239,17 +239,17 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     	}
     	
     	@Override
-        public Frame evolve(long timestamp) {    		
-    		if(index > ((duration / 20)+3))
-        		return null;    		    		
-    	
+        public Frame evolve(long timestamp) {
+    		if(index > ((toneDuration / 20)+2))
+    			return null;    		    		
+    		
     		Frame frame = Memory.allocate(4);
     		byte[] data=frame.getData();
     		
     		data[0]=(byte)oobDigitValue;
     		
     		oobVolume=0-volume;
-    		if(index > (duration / 20))
+    		if(index > (toneDuration / 20))
     			//with end of event flag
     			data[1]=(byte)(0xBF & oobVolume);	
     		else

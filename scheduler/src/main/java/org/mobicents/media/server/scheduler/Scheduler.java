@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 
 import org.apache.log4j.Logger;
 
@@ -257,9 +258,7 @@ public class Scheduler  {
         
         public void notifyCompletion() {
         	if(activeTasksCount.decrementAndGet()==0)
-        		synchronized(LOCK) {
-        			LOCK.notify();
-        		}        	        	
+        		LockSupport.unpark(coreThread); 	        	
         }
         
         @Override
@@ -271,49 +270,26 @@ public class Scheduler  {
         		currQueue=MANAGEMENT_QUEUE;
         		while(currQueue<=OUTPUT_QUEUE)
     			{    				    				
-    				synchronized(LOCK) {    					
-    					if(executeQueue(taskQueues[currQueue]))
-    						try {
-    							LOCK.wait();
-    						}
-							catch(InterruptedException e)  {                                               
-								//lets continue
-							}
-    				}
-				
+        			executeQueue(taskQueues[currQueue]);
+					while(activeTasksCount.get()!=0)
+						LockSupport.park();
+					
     				currQueue++;
     			}				        		
         		
-        		synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
-						try {
-							LOCK.wait();
-						}
-						catch(InterruptedException e)  {                                               
-							//lets continue
-						}
-				}
+        		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
+        		while(activeTasksCount.get()!=0)
+					LockSupport.park();					
         		
         		runIndex=(runIndex+1)%5;        		
-        		synchronized(LOCK) {
-					if(executeQueue(heartBeatQueue[runIndex]))
-						try  {
-							LOCK.wait();
-						}
-						catch(InterruptedException e)  {                                               
-							//lets continue
-						}
-				} 	   
-    			
-    			synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[MANAGEMENT_QUEUE]))
-						try {
-							LOCK.wait();
-						}
-						catch(InterruptedException e)  {                                               
-							//lets continue
-						}
-				}
+        		executeQueue(heartBeatQueue[runIndex]);
+        		while(activeTasksCount.get()!=0)
+					LockSupport.park();
+        		
+				
+        		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
+        		while(activeTasksCount.get()!=0)
+					LockSupport.park();	
         		
         		//sleep till next cycle
         		cycleDuration=clock.getTime() - cycleStart;
@@ -330,12 +306,11 @@ public class Scheduler  {
         	}
         }
         
-        private boolean executeQueue(OrderedTaskQueue currQueue)
+        private void executeQueue(OrderedTaskQueue currQueue)
         {
         	Task t;        	
         	currQueue.changePool();
             t = currQueue.poll();
-            activeTasksCount.incrementAndGet();
             
             //submit all tasks in current queue
             while(t!=null)
@@ -343,9 +318,7 @@ public class Scheduler  {
             	activeTasksCount.incrementAndGet();
             	waitingTasks.offer(t);
             	t = currQueue.poll();
-            }
-            
-            return activeTasksCount.decrementAndGet()!=0;
+            }            
         }
 
         /**
@@ -377,9 +350,7 @@ public class Scheduler  {
         
         public void notifyCompletion() {
         	if(activeTasksCount.decrementAndGet()==0)
-        		synchronized(LOCK) {
-        			LOCK.notify();
-        		}        	        	
+        		LockSupport.unpark(criticalThread);        	        	
         }
         
         @Override
@@ -388,25 +359,13 @@ public class Scheduler  {
         	
         	while(active)
         	{
-        		synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[RECEIVER_QUEUE]))
-						try {
-							LOCK.wait();
-						}
-						catch(InterruptedException e)  {                                               
-							//lets continue
-						}
-				}
+        		executeQueue(taskQueues[RECEIVER_QUEUE]);
+        		while(activeTasksCount.get()!=0)
+					LockSupport.park();	
         		
-        		synchronized(LOCK) {    					
-					if(executeQueue(taskQueues[SENDER_QUEUE]))
-						try {
-							LOCK.wait();
-						}
-						catch(InterruptedException e)  {                                               
-							//lets continue
-						}
-				}
+        		executeQueue(taskQueues[SENDER_QUEUE]);
+        		while(activeTasksCount.get()!=0)
+					LockSupport.park();
         		
         		//sleep till next cycle
         		cycleDuration=clock.getTime() - cycleStart;
@@ -423,12 +382,11 @@ public class Scheduler  {
         	}
         }
         
-        private boolean executeQueue(OrderedTaskQueue currQueue)
+        private void executeQueue(OrderedTaskQueue currQueue)
         {
         	Task t;        	
         	currQueue.changePool();
             t = currQueue.poll();
-            activeTasksCount.incrementAndGet();
             
             //submit all tasks in current queue
             while(t!=null)
@@ -436,9 +394,7 @@ public class Scheduler  {
             	activeTasksCount.incrementAndGet();
             	criticalTasks.offer(t);
             	t = currQueue.poll();
-            }
-            
-            return activeTasksCount.decrementAndGet()!=0;
+            }            
         }
 
         /**
