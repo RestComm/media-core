@@ -634,7 +634,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         	toneBuffer.put(DtmfTonesData.buffer[data[0]]);            
             toneBuffer.rewind();            
             logger.info("Going to store oob tone , position:" + toneBuffer.position() + ",available:" + toneBuffer.remaining());
-            int wroteBytes=fout.getChannel().write(byteBuffer);
+            int wroteBytes=fout.getChannel().write(toneBuffer);
             logger.info("Wrote bytes:" + wroteBytes);
     	 }
     	
