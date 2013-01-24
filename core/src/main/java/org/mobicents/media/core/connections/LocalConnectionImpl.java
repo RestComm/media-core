@@ -67,7 +67,8 @@ public class LocalConnectionImpl extends BaseConnection {
         this.localAudioChannel.join(((LocalConnectionImpl)other).localAudioChannel);
 
         try {
-            join();            
+            join();           
+            ((LocalConnectionImpl)other).join();
         } catch (Exception e) {
         	throw new IOException(e);
         }
