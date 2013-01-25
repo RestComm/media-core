@@ -124,10 +124,10 @@ public class OOBMixer {
             //get data for each component
             components.resetIterator(activeComponents);
         	while(activeComponents.hasNext())
-            {
+            {        		
             	OOBComponent component=activeComponents.next();
             	if(component.getComponentId()!=sourceComponent)
-            		component.offer(current.clone());            	            	            	
+            		component.offer(current.clone());            	
             }
             
             current.recycle();

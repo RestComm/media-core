@@ -37,6 +37,7 @@ import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.dtmf.DtmfTonesData;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
@@ -57,6 +58,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
     private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     private final static Formats formats = new Formats();
+    
+    private long period = 20000000L;
+    private int packetSize = (int)(period / 1000000) * LINEAR.getSampleRate()/1000 * LINEAR.getSampleSize() / 8;
     
     private final static int SILENCE_LEVEL = 10;
     
@@ -111,6 +115,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     
     private AudioOutput output;
     private OOBOutput oobOutput;
+    private OOBRecorder oobRecorder;
     
     private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
     
@@ -131,8 +136,11 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         heartbeat = new Heartbeat();
         
         output=new AudioOutput(scheduler,ComponentType.RECORDER.getType());
-        oobOutput=new OOBOutput(scheduler,ComponentType.RECORDER.getType());
         output.join(this);
+        
+        oobOutput=new OOBOutput(scheduler,ComponentType.RECORDER.getType());
+        oobRecorder=new OOBRecorder();
+        oobOutput.join(oobRecorder);
     }
 
     public AudioOutput getAudioOutput()
@@ -563,4 +571,79 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
             return scheduler.HEARTBEAT_QUEUE;
         }
     }
+    
+    private class OOBRecorder extends AbstractSink
+    {
+    	 private byte currTone=(byte)0xFF;
+    	 private long latestSeq=0;
+    	 
+    	 private boolean hasEndOfEvent=false;
+    	 private long endSeq=0;
+    	 
+    	 private ByteBuffer toneBuffer=ByteBuffer.allocateDirect(1600);
+    	    
+    	 byte[] data = new byte[4];
+    	    
+    	 public OOBRecorder()
+    	 {
+    		super("oob recorder");
+    	 }
+    	
+    	 public void onMediaTransfer(Frame buffer) throws IOException {
+    		byte[] data=buffer.getData();
+    		if(data.length!=4)
+            	return;
+        	
+        	boolean endOfEvent=false;
+            endOfEvent=(data[1] & 0X80)!=0;
+            
+           //lets ignore end of event packets
+            if(endOfEvent)
+            {
+            	hasEndOfEvent=true;
+            	endSeq=buffer.getSequenceNumber();
+            	return;                                       
+            }
+            
+            //lets update sync data , allowing same tone come after 160ms from previous tone , not including end of tone
+            if(currTone==data[0])
+            {
+            	if(hasEndOfEvent)
+            	{
+            		if(buffer.getSequenceNumber()<=endSeq && buffer.getSequenceNumber()>(endSeq-8))
+            			//out of order , belongs to same event 
+            			//if comes after end of event then its new one
+            			return;
+            	}
+            	else if((buffer.getSequenceNumber()<(latestSeq+8)) && buffer.getSequenceNumber()>(latestSeq-8))
+            	{
+            		if(buffer.getSequenceNumber()>latestSeq)
+            			latestSeq=buffer.getSequenceNumber();            			
+            		
+                    return;
+            	}
+            }
+            
+            hasEndOfEvent=false;
+        	endSeq=0;
+        	
+        	latestSeq=buffer.getSequenceNumber();
+            currTone=data[0];
+            toneBuffer.clear();
+        	toneBuffer.limit(DtmfTonesData.buffer[data[0]].length);        	
+        	toneBuffer.put(DtmfTonesData.buffer[data[0]]);            
+            toneBuffer.rewind();            
+            logger.info("Going to store oob tone , position:" + toneBuffer.position() + ",available:" + toneBuffer.remaining());
+            int wroteBytes=fout.getChannel().write(toneBuffer);
+            logger.info("Wrote bytes:" + wroteBytes);
+    	 }
+    	
+    	 public void activate()
+    	 {
+    	 }
+    	
+    	 public void deactivate()
+    	 {        
+    	 }
+    }    
 }

@@ -25,6 +25,7 @@ package org.mobicents.media.server.mgcp.tx;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
+import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
 
@@ -43,7 +44,13 @@ public class TransactionManager {
     private static java.util.concurrent.atomic.AtomicInteger ID = new AtomicInteger(1);
     
     //pool of transaction objects
-    private ConcurrentLinkedList<Transaction> pool=new ConcurrentLinkedList();
+    private  ConcurrentLinkedList<Transaction> pool=new ConcurrentLinkedList();
+    
+    //cache size in 100ms units    
+    private static final int cacheSize=5;
+    private ConcurrentLinkedList<Transaction>[] cache=new ConcurrentLinkedList[cacheSize];
+    private int cleanIndex=0;
+    
     //currently active transactions.
     private ConcurrentHashMap<Integer,Transaction> active;
     
@@ -56,7 +63,12 @@ public class TransactionManager {
     //access to naming service
     protected NamingTree namingService;
     
+    //call manager
     protected CallManager callManager;
+    
+    //cache heartbeat
+    private Heartbeat cacheHeartbeat;
+    
     /**
      * Creates new transaction's pool.
      * 
@@ -70,7 +82,17 @@ public class TransactionManager {
         
         for (int i = 0; i < size; i++) {
         	pool.offer(new Transaction(this));            
-        }
+        }      
+        
+        for(int i=0;i<cache.length;i++)
+        	cache[i]=new ConcurrentLinkedList<Transaction>();
+        
+        cacheHeartbeat = new Heartbeat();        
+    }
+    
+    public void start()
+    {
+    	scheduler.submitHeatbeat(cacheHeartbeat);
     }
     
     /**
@@ -103,8 +125,7 @@ public class TransactionManager {
     public void setCallManager(CallManager callManager) {
         this.callManager = callManager;
     }
-    
-    
+        
     /**
      * Assigns MGCP provider.
      * 
@@ -158,10 +179,7 @@ public class TransactionManager {
      * @param t the transaction to be terminated
      */
     protected void terminate(Transaction t) {
-    	active.remove(t.uniqueId);
-    	t.id = 0;
-    	t.uniqueId=0;
-    	pool.offer(t);    	    
+    	cache[cleanIndex].offer(t);
     }   
     
     /**
@@ -181,5 +199,36 @@ public class TransactionManager {
      */
     protected int remainder() {
     	return pool.size();        
+    }
+    
+    private class Heartbeat extends Task {
+    	int queueToClean;
+    	
+    	public Heartbeat() {
+            super();
+        }        
+
+        @Override
+        public long perform() {
+        	queueToClean=(cleanIndex+1)%cacheSize;
+        	Transaction current=cache[queueToClean].poll();
+            while(current!=null)
+            {
+            	active.remove(current.uniqueId);
+            	current.id = 0;
+            	current.uniqueId=0;
+            	current.completed=false;
+            	pool.offer(current);
+            	current=cache[queueToClean].poll();
+            }
+            
+            cleanIndex=(cleanIndex+1)%cacheSize;
+            scheduler.submitHeatbeat(this);
+            return 0;
+        }
+    
+        public int getQueueNumber() {
+            return scheduler.HEARTBEAT_QUEUE;
+        }
     }
 }

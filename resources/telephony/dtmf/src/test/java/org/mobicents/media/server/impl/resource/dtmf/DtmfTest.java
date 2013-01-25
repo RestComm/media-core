@@ -13,6 +13,10 @@ import static org.junit.Assert.*;
 
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
+
+import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.component.oob.OOBMixer;
+
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -35,6 +39,10 @@ public class DtmfTest implements DtmfDetectorListener {
     private AudioComponent detectorComponent;
     private AudioComponent generatorComponent;
     private AudioMixer audioMixer;
+    
+    private OOBComponent oobDetectorComponent;
+    private OOBComponent oobGeneratorComponent;
+    private OOBMixer oobMixer;
     
     private String tone;
     
@@ -79,6 +87,19 @@ public class DtmfTest implements DtmfDetectorListener {
         
         audioMixer.addComponent(detectorComponent);
         audioMixer.addComponent(generatorComponent);    	
+        
+        oobMixer=new OOBMixer(scheduler);
+        
+        oobDetectorComponent=new OOBComponent(1);
+        oobDetectorComponent.addOutput(detector.getOOBOutput());
+        oobDetectorComponent.updateMode(false,true);
+        
+        oobGeneratorComponent=new OOBComponent(2);
+        oobGeneratorComponent.addInput(generator.getOOBInput());
+        oobGeneratorComponent.updateMode(true,false);
+        
+        oobMixer.addComponent(oobDetectorComponent);
+        oobMixer.addComponent(oobGeneratorComponent);
     }
     
     @After
@@ -106,6 +127,20 @@ public class DtmfTest implements DtmfDetectorListener {
     	audioMixer.stop();
     	
         assertEquals("1", tone);    	
+        
+        tone="";
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
+        assertEquals("1", tone);
     }
 
     @Test
@@ -121,7 +156,21 @@ public class DtmfTest implements DtmfDetectorListener {
         detector.deactivate();
     	audioMixer.stop();
     	
-        assertEquals("2", tone);    
+        assertEquals("2", tone);
+        
+        tone="";
+        generator.setOOBDigit("2");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
+        assertEquals("2", tone);
     }
     
     @Test
@@ -136,6 +185,20 @@ public class DtmfTest implements DtmfDetectorListener {
         generator.deactivate();
         detector.deactivate();
     	audioMixer.stop();
+    	
+        assertEquals("3", tone);
+        
+        tone="";
+        generator.setOOBDigit("3");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
     	
         assertEquals("3", tone);
     }
@@ -154,6 +217,20 @@ public class DtmfTest implements DtmfDetectorListener {
     	audioMixer.stop();
         
         assertEquals("4", tone);
+        
+        tone="";
+        generator.setOOBDigit("4");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
+        assertEquals("4", tone);
     }
     
     @Test
@@ -170,6 +247,20 @@ public class DtmfTest implements DtmfDetectorListener {
     	audioMixer.stop();
         
         assertEquals("5", tone);
+        
+        tone="";
+        generator.setOOBDigit("5");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
+        assertEquals("5", tone);
     }
     
     @Test
@@ -185,7 +276,21 @@ public class DtmfTest implements DtmfDetectorListener {
         detector.deactivate();
     	audioMixer.stop();
         
-        assertEquals("6", tone);        
+        assertEquals("6", tone);  
+        
+        tone="";
+        generator.setOOBDigit("6");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
+        assertEquals("6", tone);
     }
     
     @Test
@@ -201,6 +306,20 @@ public class DtmfTest implements DtmfDetectorListener {
         detector.deactivate();
     	audioMixer.stop();
         
+        assertEquals("7", tone);
+        
+        tone="";
+        generator.setOOBDigit("7");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
         assertEquals("7", tone);
     }
     
@@ -218,6 +337,20 @@ public class DtmfTest implements DtmfDetectorListener {
     	audioMixer.stop();
         
         assertEquals("8", tone);
+        
+        tone="";
+        generator.setOOBDigit("8");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
+        assertEquals("8", tone);
     }
     
     @Test
@@ -234,6 +367,20 @@ public class DtmfTest implements DtmfDetectorListener {
     	audioMixer.stop();
         
         assertEquals("9", tone);
+        
+        tone="";
+        generator.setOOBDigit("9");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
+        assertEquals("9", tone);
     }
     
     @Test
@@ -249,6 +396,20 @@ public class DtmfTest implements DtmfDetectorListener {
         detector.deactivate();
     	audioMixer.stop();
         
+        assertEquals("0", tone);
+        
+        tone="";
+        generator.setOOBDigit("0");
+        generator.activate();
+        detector.activate();
+    	oobMixer.start();
+        
+        Thread.sleep(1000);
+        
+        generator.deactivate();
+        detector.deactivate();
+    	oobMixer.stop();
+    	
         assertEquals("0", tone);
     }
     

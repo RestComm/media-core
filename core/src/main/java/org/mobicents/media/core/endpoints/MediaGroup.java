@@ -211,7 +211,8 @@ public class MediaGroup {
 			oobComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
 			readComponents++;
 			readDtmfComponents++;
-			audioComponent.updateMode(true,writeDtmfComponents!=0);
+			audioComponent.updateMode(true,writeComponents!=0);
+			oobComponent.updateMode(true,writeDtmfComponents!=0);
 			updateEndpoint(1,0);
 		}
 		
@@ -226,6 +227,7 @@ public class MediaGroup {
 			oobComponent.remove(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
 			readComponents--;
 			readDtmfComponents--;
+			audioComponent.updateMode(readComponents!=0,writeComponents!=0);
 			oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);			
 			updateEndpoint(-1,0);
 			this.dtmfGenerator.clearEndpoint();			

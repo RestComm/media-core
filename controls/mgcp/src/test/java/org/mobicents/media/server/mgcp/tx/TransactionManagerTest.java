@@ -65,7 +65,9 @@ public class TransactionManagerTest {
         scheduler.setClock(clock);
         scheduler.start();
         
-        txManager = new TransactionManager(scheduler, 3);        
+        txManager = new TransactionManager(scheduler, 3);
+        txManager.start();
+        
         action = new Action();
         
         TaskChain actionHandler = new TaskChain(2,scheduler);
@@ -105,6 +107,16 @@ public class TransactionManagerTest {
         assertEquals(2, txManager.remainder());
         
         txManager.terminate(tx);
+        
+        try
+        {
+        	Thread.sleep(700);
+        }
+        catch(InterruptedException e)
+        {
+        	
+        }
+        
         assertEquals(3, txManager.remainder());
     }
     
@@ -113,7 +125,7 @@ public class TransactionManagerTest {
     	{    		
     		Transaction tx = txManager.allocateNew(id);
         	tx.process(action);
-        	Thread.sleep(1500);
+        	Thread.sleep(700);
         	assertEquals(3, txManager.remainder());
     	}
     	catch(Exception e)

@@ -25,7 +25,6 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.mobicents.media.server.impl.rtp.rfc2833.DtmfConverter;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.spi.format.AudioFormat;

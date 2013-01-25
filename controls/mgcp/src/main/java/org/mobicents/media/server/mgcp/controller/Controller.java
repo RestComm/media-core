@@ -23,6 +23,7 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import java.net.URL;
+import java.net.InetSocketAddress;
 import java.io.FileInputStream;
 import java.io.IOException;
 import org.apache.log4j.Logger;
@@ -32,7 +33,7 @@ import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.mgcp.tx.Transaction;
-import org.mobicents.media.server.mgcp.tx.TransactionManager;
+import org.mobicents.media.server.mgcp.tx.GlobalTransactionManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -52,10 +53,10 @@ public class Controller implements MgcpListener, ServerManager {
     private final Logger logger = Logger.getLogger("MGCP");
     
     //network interface
-    private UdpManager udpInterface;
+    protected UdpManager udpInterface;
     
     //MGCP port number
-    private int port;
+    protected int port;
     
     protected Scheduler scheduler;
     
@@ -71,12 +72,9 @@ public class Controller implements MgcpListener, ServerManager {
     //Endpoint configurator
     private Configurator configurator;
     
-    //call manager
-    private CallManager callManager = new CallManager();
+    protected GlobalTransactionManager txManager;
     
-    private TransactionManager txManager;
-    
-    private int poolSize=10;
+    protected int poolSize=10;
     
     /**
      * Assigns UDP network interface.
@@ -177,6 +175,17 @@ public class Controller implements MgcpListener, ServerManager {
     	return mmsHomeDir;
     }
     
+    public void createProvider() {
+    	mgcpProvider = new MgcpProvider(udpInterface, port, scheduler);
+    }
+    
+    public void createGlobalTransactionManager() {
+    	txManager = new GlobalTransactionManager(scheduler);
+    	txManager.setPoolSize(poolSize);
+        txManager.setNamingService(endpoints);        
+        txManager.setMgcpProvider(mgcpProvider);
+    }
+    
     /**
      * Starts controller.
      */
@@ -185,7 +194,7 @@ public class Controller implements MgcpListener, ServerManager {
 
         logger.info("Starting MGCP provider");
         
-        mgcpProvider = new MgcpProvider(udpInterface, port, scheduler);  
+        createProvider();  
         mgcpProvider.activate();
         
         try {
@@ -193,12 +202,9 @@ public class Controller implements MgcpListener, ServerManager {
         } catch (TooManyListenersException e) {
         	logger.error(e);
         }
-        
+                
         //initialize transaction subsystem                
-        txManager = new TransactionManager(scheduler, poolSize);
-        txManager.setNamingService(endpoints);
-        txManager.setCallManager(callManager);
-        txManager.setMgcpProvider(mgcpProvider);
+        createGlobalTransactionManager();
         
         logger.info("Controller started");
     }
@@ -216,9 +222,9 @@ public class Controller implements MgcpListener, ServerManager {
     	int txID = event.getMessage().getTxID();
     	Transaction tx;
     	if(event.getEventID()==MgcpEvent.REQUEST)
-    		tx = txManager.allocateNew(txID);
+    		tx = txManager.allocateNew((InetSocketAddress)event.getAddress(),txID);
     	else
-    		tx = txManager.find(txID);
+    		tx = txManager.find((InetSocketAddress)event.getAddress(),txID);
         
     	if (tx != null)
             tx.process(event);    	

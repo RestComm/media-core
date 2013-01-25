@@ -54,9 +54,10 @@ public class AudioComponent {
 	private int[] data;
 	
 	private byte[] dataArray;
-	private Frame frame;
+	private Frame inputFrame;
+	private Frame outputFrame;
 	
-	int i,k;
+	int inputCount,outputCount,inputIndex,outputIndex;
 	boolean first;
 	
 	private int componentId;
@@ -105,26 +106,26 @@ public class AudioComponent {
     	while(activeInputs.hasNext())
         {
         	AudioInput input=activeInputs.next();
-        	frame=input.poll();
-        	if(frame!=null)
+        	inputFrame=input.poll();
+        	if(inputFrame!=null)
         	{
-        		dataArray=frame.getData();
+        		dataArray=inputFrame.getData();
         		if(first)
         		{
-        			k=0;
-        			for(i=0;i<dataArray.length;i+=2)
-        				data[k++]=(short) (((dataArray[i + 1]) << 8) | (dataArray[i] & 0xff));
+        			inputIndex=0;
+        			for(inputCount=0;inputCount<dataArray.length;inputCount+=2)
+        				data[inputIndex++]=(short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
         			
         			first=false;
         		}
         		else
         		{
-        			k=0;
-        			for(i=0;i<dataArray.length;i+=2)
-        				data[k++]+=(short) (((dataArray[i + 1]) << 8) | (dataArray[i] & 0xff));
+        			inputIndex=0;
+        			for(inputCount=0;inputCount<dataArray.length;inputCount+=2)
+        				data[inputIndex++]+=(short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
         		}
         		
-        		frame.recycle();
+        		inputFrame.recycle();
         	}        	   	   
         }
     }
@@ -145,29 +146,29 @@ public class AudioComponent {
     	if(!this.shouldWrite)
     		return;
     	
-    	Frame frame=Memory.allocate(packetSize);
-    	dataArray=frame.getData();
+    	outputFrame=Memory.allocate(packetSize);
+    	dataArray=outputFrame.getData();
     	
-    	k=0;
-    	for(i=0;i<data.length;)
+    	outputIndex=0;
+    	for(outputCount=0;outputCount<data.length;)
     	{
-    		dataArray[k++]=(byte) (data[i]);
-    		dataArray[k++]=(byte) (data[i++] >> 8);
+    		dataArray[outputIndex++]=(byte) (data[outputCount]);
+    		dataArray[outputIndex++]=(byte) (data[outputCount++] >> 8);
     	}
     	
-    	frame.setOffset(0);
-        frame.setLength(packetSize);
-        frame.setDuration(period);
-        frame.setFormat(format);
+    	outputFrame.setOffset(0);
+    	outputFrame.setLength(packetSize);
+        outputFrame.setDuration(period);
+        outputFrame.setFormat(format);
         
         outputs.resetIterator(activeOutputs);
         while(activeOutputs.hasNext())
         {
         	AudioOutput output=activeOutputs.next();
         	if(!activeOutputs.hasNext())
-        		output.offer(frame);
+        		output.offer(outputFrame);
         	else
-        		output.offer(frame.clone());        		        	
+        		output.offer(outputFrame.clone());        		        	
         	
         	output.wakeup();
         }

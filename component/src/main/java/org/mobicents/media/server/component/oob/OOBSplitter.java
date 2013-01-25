@@ -119,7 +119,7 @@ public class OOBSplitter {
         }
         
         public long perform() {
-            //summarize all
+        	//summarize all
         	current=null;
         	insideComponents.resetIterator(insideRIterator);            
             while(insideRIterator.hasNext())
@@ -147,13 +147,12 @@ public class OOBSplitter {
             	if(!outsideSIterator.hasNext())
             		component.offer(current);
             	else
-            		component.offer(current.clone());            		
+            		component.offer(current.clone());
             }
             
             scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             mixCount++;            
-            
-            return 0;            
+        	return 0;            
         }
     }
     
@@ -170,7 +169,7 @@ public class OOBSplitter {
         }
         
         public long perform() {
-            //summarize all
+        	//summarize all
             current=null;
             outsideComponents.resetIterator(outsideRIterator);            
             while(outsideRIterator.hasNext())
@@ -197,13 +196,12 @@ public class OOBSplitter {
             	if(!insideSIterator.hasNext())
             		component.offer(current);
             	else
-            		component.offer(current.clone());
+            		component.offer(current.clone());            	
             }
             
             scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
             mixCount++;            
-            
-            return 0;
+        	return 0;
         }
     }
 }

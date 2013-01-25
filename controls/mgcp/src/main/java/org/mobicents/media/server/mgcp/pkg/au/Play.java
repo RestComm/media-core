@@ -97,6 +97,7 @@ public class Play extends Signal implements PlayerListener {
         //get announcement segments
         segments = options.getSegments().iterator();
         repeatCount = options.getRepeatCount();
+        segCount=0;
         
         uri = segments.next().toString();
         

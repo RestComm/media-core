@@ -85,16 +85,12 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	 */
 	public static final String _EXECUTOR_QUEUE_SIZE = "executorQueueSize";
 
-	public static final String _MESSAGE_READER_THREAD_PRIORITY = "messageReaderThreadPriority";
-
 	private static final Logger logger = Logger.getLogger(JainMgcpStackImpl.class);
 	private static final String propertiesFileName = "mgcp-stack.properties";
 	private String protocolVersion = "1.0";
 	protected int port = 2727;
 	private InetAddress localAddress = null;
 	private boolean stopped = true;
-
-	private int messageReaderThreadPriority = Thread.MIN_PRIORITY;
 
 	private PacketRepresentationFactory prFactory = null;
 
@@ -122,7 +118,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	private ConcurrentHashMap<Integer, TransactionHandler> completedTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
 
 	private ConcurrentLinkedList<PacketRepresentation> inputQueue=new ConcurrentLinkedList<PacketRepresentation>();	
-	private ConcurrentLinkedList<PacketRepresentation> outputQueue=new ConcurrentLinkedList<PacketRepresentation>();
 	
 	private DatagramSocket socket;
 
@@ -185,8 +180,6 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		
 		this.prFactory = new PacketRepresentationFactory(50, BUFFER_SIZE);
 
-		this.setPriority(this.messageReaderThreadPriority);
-		
 		decodingThreads=new DecodingThread[this.parserThreadPoolSize];
 		for(int i=0;i<decodingThreads.length;i++)
 			decodingThreads[i]=new DecodingThread(this);
@@ -210,15 +203,10 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 			String val = null;
 
-			val = props.getProperty(_MESSAGE_READER_THREAD_PRIORITY, "" + this.messageReaderThreadPriority);
-			this.messageReaderThreadPriority = Integer.parseInt(val);
 			val = props.getProperty(_EXECUTOR_QUEUE_SIZE, "" + this.parserThreadPoolSize);
 			this.parserThreadPoolSize = Integer.parseInt(val);			
 			val = null;
 
-			logger.info(this.propertiesFileName + " read successfully! \nmessageReaderThreadPriority = "
-					+ this.messageReaderThreadPriority);
-			
 			logger.info(this.propertiesFileName + " read successfully! \nexecutorQueueSize = "
 					+ this.parserThreadPoolSize);
 
@@ -315,7 +303,14 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	
 	public void send(PacketRepresentation pr) 
 	{
-		outputQueue.offer(pr);		
+		try {						
+			this.channel.send(pr.getBuffer(), pr.getInetAddress());											
+		} catch (IOException e) {
+			if(logger.isEnabledFor(Level.ERROR))
+			{							
+				logger.error("I/O Exception occured, caused by", e);
+			}
+		}			
 	}	
 	
 	public boolean isRequest(String header) {
@@ -361,26 +356,10 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 				//this is for async send
 				this.provider.flush();
 				
-				while((pr=outputQueue.poll())!=null)
-				{
-					try {						
-						this.sendBuffer.clear();
-						this.sendBuffer.put(pr.getRawData(),0,pr.getLength());
-						this.sendBuffer.flip();
-						this.channel.send(this.sendBuffer, pr.getInetAddress());											
-					} catch (IOException e) {
-						if(logger.isEnabledFor(Level.ERROR))
-						{							
-							logger.error("I/O Exception occured, caused by", e);
-						}
-					}					
-				}
-				
 				finish = System.currentTimeMillis();
 				drift = finish - start;
-				latency = delay - drift;
-				//lets check by cycle since if we sleep more due to
-				//other threads we will be working not too fast here
+				latency = delay - drift;				
+				
 				start = finish;
 				
 				if (drift <= threshold) {
@@ -389,7 +368,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 					} catch (InterruptedException e) {
 						return;
 					}
-				}
+				}				
 			} catch (IOException e) {
 				if (stopped) {
 					break;
@@ -419,7 +398,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		if(this.provider!=null)
 			this.provider.stop();
 		
-		if (logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {			
 			logger.debug("MGCP stack stopped gracefully on" + this.localAddress + ":" + this.port);
 		}
 	}
