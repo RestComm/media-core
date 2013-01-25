@@ -1,6 +1,6 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
+ * Telestax, Open Source Cloud Communications
+ * Copyright 2013, Telestax, Inc. and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -30,7 +30,7 @@ import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
 /**
- * Implements input for compound components
+ * Implements Out of Band events input for compound components
  * 
  * @author Yulian Oifa
  */
