@@ -44,6 +44,17 @@
             <artifactId>scheduler</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+        		<!--  Hadoop Pcap project home: https://github.com/RIPE-NCC/hadoop-pcap -->
+            <groupId>net.ripe.hadoop.pcap</groupId>
+            <artifactId>hadoop-pcap-lib</artifactId>
+            <version>0.2-SNAPSHOT</version>
+        </dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
     </dependencies>
 
     <build>
