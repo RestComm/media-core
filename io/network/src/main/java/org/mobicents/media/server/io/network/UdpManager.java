@@ -266,7 +266,8 @@ public class UdpManager {
         DatagramChannel channel = DatagramChannel.open();
         channel.configureBlocking(false);
         int index=currSelectorIndex.getAndIncrement();
-        SelectionKey key = channel.register(selectors[index % selectors.length], SelectionKey.OP_READ);
+        Selector nextSelector = selectors[index % selectors.length];
+        SelectionKey key = channel.register(nextSelector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         key.attach(handler);
         handler.setKey(key);        
         return channel;
@@ -410,9 +411,9 @@ public class UdpManager {
                     }
                     
                     //do write
-//                    if (key.isWritable()) {
-//                        handler.send(channel);
-//                    }
+                    if (key.isWritable()) {
+                        handler.send(channel);
+                    }
 
                 }
                 localSelector.selectedKeys().clear();
