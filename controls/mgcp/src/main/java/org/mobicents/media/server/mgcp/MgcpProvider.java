@@ -214,7 +214,7 @@ public class MgcpProvider {
     public void activate() {
         try {
             logger.info("Opening channel");
-            channel = transport.open(new MGCPHandler());
+            channel = transport.openChannelForRead(new MGCPHandler());
         } catch (IOException e) {
             logger.info("Could not open UDP channel: " + e.getMessage());
             return;
