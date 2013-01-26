@@ -22,40 +22,34 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.net.PortUnreachableException;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.text.Format;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
-import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.FormatNotSupportedException;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.utils.Text;
-
-import org.apache.log4j.Logger;
 /**
  *
  * @author Oifa Yulian
@@ -89,7 +83,7 @@ public class RTPDataChannel {
     private TxTask tx = new TxTask();
     
     //RTP clock
-    private RtpClock rtpClock;
+    private RtpClock rtpClock, oobClock;
 
     //allowed jitter
     private int jitterBufferSize;
@@ -144,6 +138,7 @@ public class RTPDataChannel {
 
         //create clock with RTP units
         rtpClock = new RtpClock(channelsManager.getClock());
+        oobClock = new RtpClock(channelsManager.getClock());        
 
         rxBuffer = new JitterBuffer(rtpClock, jitterBufferSize);
         
@@ -156,7 +151,7 @@ public class RTPDataChannel {
         //transmittor
         output = new RTPOutput(scheduler,this);               
 
-        dtmfInput=new DtmfInput(scheduler,rtpClock);
+        dtmfInput=new DtmfInput(scheduler,oobClock);
         dtmfOutput=new DtmfOutput(scheduler,this);
         
         heartBeat=new HeartBeat();
@@ -655,7 +650,8 @@ public class RTPDataChannel {
      * Writer job.
      */
     private class TxTask {
-    	private RtpPacket rtpPacket = new RtpPacket(8192, true);
+    		private RtpPacket rtpPacket = new RtpPacket(8192, true);
+    		private RtpPacket oobPacket = new RtpPacket(8192, true);
         private RTPFormat fmt;
         private long timestamp=-1;
         private long dtmfTimestamp=-1;
@@ -680,24 +676,18 @@ public class RTPDataChannel {
         		return;
         	}
         	
-        	//ignore frames with duplicate timestamp
-            if (frame.getTimestamp()/1000000L == dtmfTimestamp) {
-            	frame.recycle();
-            	return;
-            }
-            
         	//convert to milliseconds first
         	dtmfTimestamp = frame.getTimestamp() / 1000000L;
 
             //convert to rtp time units
         	dtmfTimestamp = rtpClock.convertToRtpTime(dtmfTimestamp);
-            rtpPacket.wrap(false, AVProfile.telephoneEventsID, sn++, dtmfTimestamp,
+            oobPacket.wrap(false, AVProfile.telephoneEventsID, sn++, dtmfTimestamp,
                     ssrc, frame.getData(), frame.getOffset(), frame.getLength());
 
             frame.recycle();
             try {
                 if (dataChannel.isConnected()) {
-                	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                	dataChannel.send(oobPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
                 	txCount++;
                 }
             }
