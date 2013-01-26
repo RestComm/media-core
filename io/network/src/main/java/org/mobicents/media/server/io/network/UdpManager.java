@@ -255,22 +255,44 @@ public class UdpManager {
     }
     
     /**
-     * Opens and binds new datagram channel.
+     * Opens and binds new datagram channel for read operations.
      *
      * @param handler the packet handler implementation
-     * @param  port the port to bind to
+     * @param int selectionKeyOps mask with the SelectionKey flags for channel operations
      * @return datagram channel
      * @throws IOException
      */
-    public DatagramChannel open(ProtocolHandler handler) throws IOException {
-        DatagramChannel channel = DatagramChannel.open();
-        channel.configureBlocking(false);
-        int index=currSelectorIndex.getAndIncrement();
-        Selector nextSelector = selectors[index % selectors.length];
-        SelectionKey key = channel.register(nextSelector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-        key.attach(handler);
-        handler.setKey(key);        
-        return channel;
+    private DatagramChannel openChannel(ProtocolHandler handler, int selectionKeyOps) throws IOException {
+	    DatagramChannel channel = DatagramChannel.open();
+	    channel.configureBlocking(false);
+	    int index=currSelectorIndex.getAndIncrement();
+	    Selector nextSelector = selectors[index % selectors.length];
+	    SelectionKey key = channel.register(nextSelector, selectionKeyOps);
+	    key.attach(handler);
+	    handler.setKey(key);        
+	    return channel;
+	}
+    
+    /**
+     * Opens and binds new datagram channel for read operations.
+     *
+     * @param handler the packet handler implementation
+     * @return datagram channel
+     * @throws IOException
+     */
+    public DatagramChannel openChannelForRead(ProtocolHandler handler) throws IOException {
+    		return openChannel(handler, SelectionKey.OP_READ);
+    }
+
+    /**
+     * Opens and binds new datagram channel for read and write operations.
+     *
+     * @param handler the packet handler implementation
+     * @return datagram channel
+     * @throws IOException
+     */
+    public DatagramChannel openChannelForReadWrite(ProtocolHandler handler) throws IOException {
+		return openChannel(handler, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 
     /**

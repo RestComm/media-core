@@ -89,7 +89,7 @@ public class RTPDataChannel {
     private TxTask tx = new TxTask();
     
     //RTP clock
-    private RtpClock rtpClock,oobClock;
+    private RtpClock rtpClock;
 
     //allowed jitter
     private int jitterBufferSize;
@@ -144,8 +144,7 @@ public class RTPDataChannel {
 
         //create clock with RTP units
         rtpClock = new RtpClock(channelsManager.getClock());
-        oobClock = new RtpClock(channelsManager.getClock());
-        
+
         rxBuffer = new JitterBuffer(rtpClock, jitterBufferSize);
         
         scheduler=channelsManager.getScheduler();
@@ -157,7 +156,7 @@ public class RTPDataChannel {
         //transmittor
         output = new RTPOutput(scheduler,this);               
 
-        dtmfInput=new DtmfInput(scheduler,oobClock);
+        dtmfInput=new DtmfInput(scheduler,rtpClock);
         dtmfOutput=new DtmfOutput(scheduler,this);
         
         heartBeat=new HeartBeat();
@@ -285,11 +284,11 @@ public class RTPDataChannel {
      */
     public void bind(boolean isLocal) throws IOException, SocketException {
     	try {
-            dataChannel = udpManager.open(rtpHandler);
+            dataChannel = udpManager.openChannelForRead(rtpHandler);
             
             //if control enabled open rtcp channel as well
             if (channelsManager.getIsControlEnabled()) {
-                controlChannel = udpManager.open(new RTCPHandler());
+                controlChannel = udpManager.openChannelForRead(new RTCPHandler());
             }
         } catch (IOException e) {
             throw new SocketException(e.getMessage());
@@ -433,7 +432,7 @@ public class RTPDataChannel {
     }
     
     public void sendDtmf(Frame frame)
-    {    	
+    {
     	if(dataChannel.isConnected())
     		tx.performDtmf(frame);
     }
@@ -657,7 +656,6 @@ public class RTPDataChannel {
      */
     private class TxTask {
     	private RtpPacket rtpPacket = new RtpPacket(8192, true);
-    	private RtpPacket oobPacket = new RtpPacket(8192, true);
         private RTPFormat fmt;
         private long timestamp=-1;
         private long dtmfTimestamp=-1;
@@ -682,18 +680,24 @@ public class RTPDataChannel {
         		return;
         	}
         	
+        	//ignore frames with duplicate timestamp
+            if (frame.getTimestamp()/1000000L == dtmfTimestamp) {
+            	frame.recycle();
+            	return;
+            }
+            
         	//convert to milliseconds first
         	dtmfTimestamp = frame.getTimestamp() / 1000000L;
 
             //convert to rtp time units
         	dtmfTimestamp = rtpClock.convertToRtpTime(dtmfTimestamp);
-        	oobPacket.wrap(false, AVProfile.telephoneEventsID, sn++, dtmfTimestamp,
+            rtpPacket.wrap(false, AVProfile.telephoneEventsID, sn++, dtmfTimestamp,
                     ssrc, frame.getData(), frame.getOffset(), frame.getLength());
 
             frame.recycle();
             try {
                 if (dataChannel.isConnected()) {
-                	dataChannel.send(oobPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
                 	txCount++;
                 }
             }

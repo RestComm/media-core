@@ -114,7 +114,7 @@ public final class PcapRtpPlayer {
 	 */
 	public void bind(boolean isLocal) throws IOException, SocketException {
 		try {
-			dataChannel = udpManager.open(rtpHandler);
+			dataChannel = udpManager.openChannelForReadWrite(rtpHandler);
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}

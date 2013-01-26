@@ -73,7 +73,7 @@ public class UdpPeripheryTest {
      */
     @Test
     public void testOpen() throws Exception {
-    	DatagramChannel channel = udpPeriphery.open(new TestHandler());
+    	DatagramChannel channel = udpPeriphery.openChannelForRead(new TestHandler());
         udpPeriphery.bind(channel, 1024);
         assertTrue("Excepted bound socket", channel.socket().isBound());    	
     }
