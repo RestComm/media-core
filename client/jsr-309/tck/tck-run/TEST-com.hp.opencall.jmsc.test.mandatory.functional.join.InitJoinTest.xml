@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="kulikov.mobicents.org" name="com.hp.opencall.jmsc.test.mandatory.functional.join.InitJoinTest" tests="2" time="10.693" timestamp="2011-09-27T07:01:15">
+  <properties>
+    <property name="ant.project.invoked-targets" value="run" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="DATE_TIME" value="2011-09-27_11-01" />
+    <property name="sun.boot.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386" />
+    <property name="java.vm.version" value="19.1-b02" />
+    <property name="ant.library.dir" value="/home/kulikov/apache-ant-1.8.2//lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on December 20 2010" />
+    <property name="run.report" value="/home/kulikov/jsr-309-tck/tck-reports/2011-09-27_11-01" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.runtime.version" value="1.6.0_24-b07" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.endorsed.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="run" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/home/kulikov/apache-ant-1.8.2/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+    <property name="os.name" value="Linux" />
+    <property name="DSTAMP" value="20110927" />
+    <property name="ant.home" value="/home/kulikov/apache-ant-1.8.2/" />
+    <property name="ant.project.name" value="TCK" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="run.dir" value="/home/kulikov/jsr-309-tck/tck-run" />
+    <property name="TODAY" value="September 27 2011" />
+    <property name="java.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386/server:/home/kulikov/jdk1.6.0_24/jre/lib/i386:/home/kulikov/jdk1.6.0_24/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="50.0" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="ant.file.type.TCK" value="file" />
+    <property name="os.version" value="2.6.33.3-85.fc13.i686" />
+    <property name="ant.file" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="user.home" value="/home/kulikov" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="TSTAMP" value="1101" />
+    <property name="user.name" value="kulikov" />
+    <property name="java.class.path" value="/home/kulikov/jsr-309-tck:/home/kulikov/jsr-309-tck/mgcp-impl-2.0.0.GA.jar:/home/kulikov/jsr-309-tck/tck.jar:/home/kulikov/jsr-309-tck/deps/jain-mgcp-ri-1.0.jar:/home/kulikov/jsr-309-tck/deps/jain-sip-ri-1.2.146.jar:/home/kulikov/jsr-309-tck/deps/junit-4.7-src.jar:/home/kulikov/jsr-309-tck/deps/junit.jar:/home/kulikov/jsr-309-tck/deps/log4j-1.2.14.jar:/home/kulikov/jsr-309-tck/deps/mgcp-impl-2.0.1.RC1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mobicents-jsr309-impl-2.0.1.CR1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mscontrol.jar:/home/kulikov/apache-ant-1.8.2/lib/junit-4.8.1.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-launcher.jar:/home/kulikov/apache-ant-1.8.2/lib/ant.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit4.jar" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="java.home" value="/home/kulikov/jdk1.6.0_24/jre" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_24" />
+    <property name="java.ext.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/resources.jar:/home/kulikov/jdk1.6.0_24/jre/lib/rt.jar:/home/kulikov/jdk1.6.0_24/jre/lib/sunrsasign.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jsse.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jce.jar:/home/kulikov/jdk1.6.0_24/jre/lib/charsets.jar:/home/kulikov/jdk1.6.0_24/jre/lib/modules/jdk.boot.jar:/home/kulikov/jdk1.6.0_24/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="ant.file.TCK" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.join.InitJoinTest" name="test_2_1_16_1_InitJoinNCMG" time="4.054" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.join.InitJoinTest" name="test_2_1_16_2_InitJoinNCMixer" time="6.624" />
+  <system-out><![CDATA[11:01:15,925 INFO  [Runner] Start    mandatory.functional.join.InitJoinTest.test_2_1_16_1_InitJoinNCMG javadoc::Joinable::9 javadoc::Joinable::11 javadoc::JoinEvent::1 javadoc::JoinEvent::2 javadoc::JoinEvent::3 javadoc::JoinEvent::4
+11:01:15,941 INFO  [DriverImpl] Initializing MGCP on /127.0.0.1:2729
+11:01:15,947 ERROR [JainMgcpStackImpl] Failed to locate properties file, using default values
+11:01:15,954 INFO  [JainMgcpStackImpl] Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+74   [] DEBUG TestBase - log4j configured
+75   [] DEBUG TestBase - Loading file:/home/kulikov/jsr-309-tck/TCK.properties
+234  [] DEBUG InitJoinTest - Received: Source = mscontrol://127.0.0.1:2427/MediaSession1/NetworkConnection2 Other = mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup3 EventId = JOIN_JOINED Error = NO_ERROR ErrorText = null
+235  [] DEBUG InitJoinTest - Context: INIT
+235  [] DEBUG InitJoinTest - Moving from INIT to JOINED
+237  [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+333  [] DEBUG InitJoinTest - Received: ANSWER_GENERATED
+333  [] DEBUG InitJoinTest - Moving from JOINED to MODIFIED
+334  [] DEBUG TestBase - getProperty(testcase.shortpromptfile) = file:///home/kulikov/jsr-309-tck/media/Numbers_1-5_3s.wav
+3403 [] DEBUG InitJoinTest - Received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@1a85d38
+3404 [] DEBUG InitJoinTest - Moving from MODIFIED to PLAYED
+3404 [] INFO  DriverImpl - MediaSession1 NetworkConnection2 Initiation of unjoin procedure, other party = MediaGroup3
+3428 [] DEBUG InitJoinTest - Received: Source = mscontrol://127.0.0.1:2427/MediaSession1/NetworkConnection2 Other = mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup3 EventId = JOIN_UNJOINED Error = NO_ERROR ErrorText = null
+3428 [] DEBUG InitJoinTest - Context: PLAYED
+3428 [] DEBUG InitJoinTest - Moving from PLAYED to UNJOINED
+3428 [] INFO  DriverImpl - MediaSession1 MediaGroup3 Releasing...
+3729 [] INFO  DriverImpl - MediaSession1 NetworkConnection2 Releasing....
+4032 [] INFO  Runner - End      mandatory.functional.join.InitJoinTest.test_2_1_16_1_InitJoinNCMG
+4034 [] INFO  Runner - Start    mandatory.functional.join.InitJoinTest.test_2_1_16_2_InitJoinNCMixer javadoc::Joinable::10 javadoc::Joinable::12 javadoc::JoinEventListener::1 javadoc::JoinEventNotifier::1
+4088 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317106879977 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65530 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+4089 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317106879977 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65530 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+4137 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317106880032 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65528 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+4271 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317106880164 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65526 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+4272 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317106880164 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65526 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+4311 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317106880215 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65524 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+4450 [] DEBUG InitJoinTest - Received: Source = mscontrol://127.0.0.1:2427/MediaSession4/CChecker-0 Other = mscontrol://127.0.0.1:2427/MediaSession4/MediaMixer5 EventId = JOIN_JOINED Error = NO_ERROR ErrorText = null
+4451 [] DEBUG InitJoinTest - Context: UNJOINED
+4451 [] DEBUG InitJoinTest - Moving from UNJOINED to JOINED
+4510 [] DEBUG InitJoinTest - Received: Source = mscontrol://127.0.0.1:2427/MediaSession4/CChecker-1 Other = mscontrol://127.0.0.1:2427/MediaSession4/MediaMixer5 EventId = JOIN_JOINED Error = NO_ERROR ErrorText = null
+4510 [] DEBUG InitJoinTest - Context: UNJOINED
+4510 [] DEBUG InitJoinTest - Moving from UNJOINED to JOINED
+4511 [] INFO  DriverImpl - MediaSession4 MG-SipPhoneEmulator-CChecker-1 Receive signal called
+5015 [] DEBUG TestBase - getProperty(testcase.dtmf1) = file:///home/kulikov/jsr-309-tck/media/dtmf-1.wav
+5511 [] DEBUG ContinuityChecker - org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@134ce4a received: org.mobicents.javax.media.mscontrol.mediagroup.PlayerEventImpl@1d381d2
+6997 [] DEBUG ContinuityChecker - CChecker-1 received: RECEIVE_SIGNALS_COMPLETED(NUM_SIGNALS_DETECTED, signal=1)
+8512 [] INFO  DriverImpl - MediaSession4 CChecker-0 Initiation of unjoin procedure, other party = MediaMixer5
+8528 [] DEBUG InitJoinTest - Received: Source = mscontrol://127.0.0.1:2427/MediaSession4/CChecker-0 Other = mscontrol://127.0.0.1:2427/MediaSession4/MediaMixer5 EventId = JOIN_UNJOINED Error = NO_ERROR ErrorText = null
+8529 [] DEBUG InitJoinTest - Context: JOINED
+8529 [] DEBUG InitJoinTest - Moving from JOINED to UNJOINED
+8529 [] INFO  DriverImpl - MediaSession4 CChecker-1 Initiation of unjoin procedure, other party = MediaMixer5
+8549 [] DEBUG InitJoinTest - Received: Source = mscontrol://127.0.0.1:2427/MediaSession4/CChecker-1 Other = mscontrol://127.0.0.1:2427/MediaSession4/MediaMixer5 EventId = JOIN_UNJOINED Error = NO_ERROR ErrorText = null
+8549 [] DEBUG InitJoinTest - Context: JOINED
+8549 [] DEBUG InitJoinTest - Moving from JOINED to UNJOINED
+8850 [] INFO  DriverImpl - MediaSession4 MG-SipPhoneEmulator-CChecker-0 Releasing...
+9151 [] INFO  DriverImpl - MediaSession4 MG-SipPhoneEmulator-CChecker-1 Releasing...
+9453 [] INFO  DriverImpl - MediaSession4 ShadowNC-SipPhoneEmulator-CChecker-0 Releasing....
+9754 [] INFO  DriverImpl - MediaSession4 CChecker-0 Releasing....
+10055 [] INFO  DriverImpl - MediaSession4 ShadowNC-SipPhoneEmulator-CChecker-1 Releasing....
+10357 [] INFO  DriverImpl - MediaSession4 CChecker-1 Releasing....
+10658 [] INFO  Runner - End      mandatory.functional.join.InitJoinTest.test_2_1_16_2_InitJoinNCMixer
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

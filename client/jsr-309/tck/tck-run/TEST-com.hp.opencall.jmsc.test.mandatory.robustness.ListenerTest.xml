@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="kulikov.mobicents.org" name="com.hp.opencall.jmsc.test.mandatory.robustness.ListenerTest" tests="2" time="26.072" timestamp="2011-09-27T07:10:23">
+  <properties>
+    <property name="ant.project.invoked-targets" value="run" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="DATE_TIME" value="2011-09-27_11-01" />
+    <property name="sun.boot.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386" />
+    <property name="java.vm.version" value="19.1-b02" />
+    <property name="ant.library.dir" value="/home/kulikov/apache-ant-1.8.2//lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on December 20 2010" />
+    <property name="run.report" value="/home/kulikov/jsr-309-tck/tck-reports/2011-09-27_11-01" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.runtime.version" value="1.6.0_24-b07" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.endorsed.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="run" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/home/kulikov/apache-ant-1.8.2/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+    <property name="os.name" value="Linux" />
+    <property name="DSTAMP" value="20110927" />
+    <property name="ant.home" value="/home/kulikov/apache-ant-1.8.2/" />
+    <property name="ant.project.name" value="TCK" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="run.dir" value="/home/kulikov/jsr-309-tck/tck-run" />
+    <property name="TODAY" value="September 27 2011" />
+    <property name="java.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386/server:/home/kulikov/jdk1.6.0_24/jre/lib/i386:/home/kulikov/jdk1.6.0_24/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="50.0" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="ant.file.type.TCK" value="file" />
+    <property name="os.version" value="2.6.33.3-85.fc13.i686" />
+    <property name="ant.file" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="user.home" value="/home/kulikov" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="TSTAMP" value="1101" />
+    <property name="user.name" value="kulikov" />
+    <property name="java.class.path" value="/home/kulikov/jsr-309-tck:/home/kulikov/jsr-309-tck/mgcp-impl-2.0.0.GA.jar:/home/kulikov/jsr-309-tck/tck.jar:/home/kulikov/jsr-309-tck/deps/jain-mgcp-ri-1.0.jar:/home/kulikov/jsr-309-tck/deps/jain-sip-ri-1.2.146.jar:/home/kulikov/jsr-309-tck/deps/junit-4.7-src.jar:/home/kulikov/jsr-309-tck/deps/junit.jar:/home/kulikov/jsr-309-tck/deps/log4j-1.2.14.jar:/home/kulikov/jsr-309-tck/deps/mgcp-impl-2.0.1.RC1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mobicents-jsr309-impl-2.0.1.CR1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mscontrol.jar:/home/kulikov/apache-ant-1.8.2/lib/junit-4.8.1.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-launcher.jar:/home/kulikov/apache-ant-1.8.2/lib/ant.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit4.jar" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="java.home" value="/home/kulikov/jdk1.6.0_24/jre" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_24" />
+    <property name="java.ext.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/resources.jar:/home/kulikov/jdk1.6.0_24/jre/lib/rt.jar:/home/kulikov/jdk1.6.0_24/jre/lib/sunrsasign.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jsse.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jce.jar:/home/kulikov/jdk1.6.0_24/jre/lib/charsets.jar:/home/kulikov/jdk1.6.0_24/jre/lib/modules/jdk.boot.jar:/home/kulikov/jdk1.6.0_24/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="ant.file.TCK" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.ListenerTest" name="test_2_2_3_1_remove_Listener" time="13.008" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.ListenerTest" name="test_2_2_3_2_Run_AnyCode_In_Listener" time="13.051" />
+  <system-out><![CDATA[11:10:23,456 INFO  [Runner] Start    mandatory.robustness.ListenerTest.test_2_2_3_1_remove_Listener
+11:10:23,473 INFO  [DriverImpl] Initializing MGCP on /127.0.0.1:2729
+11:10:23,478 ERROR [JainMgcpStackImpl] Failed to locate properties file, using default values
+11:10:23,484 INFO  [JainMgcpStackImpl] Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+76   [] DEBUG TestBase - log4j configured
+77   [] DEBUG TestBase - Loading file:/home/kulikov/jsr-309-tck/TCK.properties
+124  [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+312  [] DEBUG TestBase - getProperty(testcase.onesecondfile) = file:///home/kulikov/jsr-309-tck/media/cagocago-onesecond.wav
+348  [] DEBUG ListenerTest - Waiting for first listener
+1362 [] DEBUG ListenerTest - Listener of org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@b02928 is called
+1362 [] DEBUG ListenerTest - Listener is removed from org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@b02928
+1362 [] DEBUG ListenerTest - finishedruns=1
+1362 [] DEBUG ListenerTest - Listener of org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@b02928 is called
+1362 [] DEBUG ListenerTest - finishedruns=2
+1362 [] DEBUG ListenerTest - Waiting for second listener
+6363 [] DEBUG TestBase - getProperty(testcase.onesecondfile) = file:///home/kulikov/jsr-309-tck/media/cagocago-onesecond.wav
+7391 [] DEBUG ListenerTest - Listener of org.mobicents.javax.media.mscontrol.mediagroup.PlayerImpl@b02928 is called
+7392 [] DEBUG ListenerTest - finishedruns=3
+12392 [] INFO  DriverImpl - MediaSession1 MediaGroup3 Releasing...
+12693 [] INFO  DriverImpl - MediaSession1 NetworkConnection2 Releasing....
+13000 [] INFO  Runner - End      mandatory.robustness.ListenerTest.test_2_2_3_1_remove_Listener
+13003 [] INFO  Runner - Start    mandatory.robustness.ListenerTest.test_2_2_3_2_Run_AnyCode_In_Listener
+13010 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13013 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13017 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13020 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13023 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13025 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13035 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13036 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13038 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13039 [] DEBUG TestBase - getProperty(testcase.sipphoneSDP) = v=0
+o=acomment 123456 654321 IN IP4 127.0.0.1
+t=0 0
+m=audio 1234 RTP/AVP  0 101 
+c=IN IP4 127.0.0.1
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000/1
+
+13040 [] DEBUG ListenerTest - Duration to fire 10 modifies:30
+13048 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@21e554 received: ANSWER_GENERATED
+13049 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@1f2cea2 received: ANSWER_GENERATED
+13052 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@d05c13 received: ANSWER_GENERATED
+13060 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@b40ec4 received: ANSWER_GENERATED
+13061 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@ff94b1 received: ANSWER_GENERATED
+13064 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@1682598 received: ANSWER_GENERATED
+13065 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@3257b8 received: ANSWER_GENERATED
+13065 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@1318b received: ANSWER_GENERATED
+13067 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@a45536 received: ANSWER_GENERATED
+13068 [] DEBUG ListenerTest - org.mobicents.javax.media.mscontrol.networkconnection.SdpPortManagerImpl@8c4a77 received: ANSWER_GENERATED
+23041 [] INFO  DriverImpl - MediaSession4 NetworkConnection5 Releasing....
+23342 [] INFO  DriverImpl - MediaSession4 NetworkConnection6 Releasing....
+23644 [] INFO  DriverImpl - MediaSession4 NetworkConnection7 Releasing....
+23945 [] INFO  DriverImpl - MediaSession4 NetworkConnection8 Releasing....
+24246 [] INFO  DriverImpl - MediaSession4 NetworkConnection9 Releasing....
+24548 [] INFO  DriverImpl - MediaSession4 NetworkConnection10 Releasing....
+24849 [] INFO  DriverImpl - MediaSession4 NetworkConnection11 Releasing....
+25150 [] INFO  DriverImpl - MediaSession4 NetworkConnection12 Releasing....
+25451 [] INFO  DriverImpl - MediaSession4 NetworkConnection13 Releasing....
+25753 [] INFO  DriverImpl - MediaSession4 NetworkConnection14 Releasing....
+26054 [] INFO  Runner - End      mandatory.robustness.ListenerTest.test_2_2_3_2_Run_AnyCode_In_Listener
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

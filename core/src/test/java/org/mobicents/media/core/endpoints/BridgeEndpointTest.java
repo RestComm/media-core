@@ -170,6 +170,10 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		dtmfDetectorLocal2 = (DtmfDetector) endpointLocal2.getResource(MediaType.AUDIO, 
 				ComponentType.DTMF_DETECTOR);
 		
+		dtmfDetectorRTP1.setVolume(-36);
+		dtmfDetectorLocal1.setVolume(-36);
+		dtmfDetectorLocal2.setVolume(-36);
+		
 		tonesReceivedAtRTP1 = new ConcurrentLinkedQueue<String>();
 		tonesReceivedAtLocal1 = new ConcurrentLinkedQueue<String>();
 		tonesReceivedAtLocal2 = new ConcurrentLinkedQueue<String>();
@@ -240,10 +244,10 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		dtmfDetectorLocal1.activate();
 
 		dtmfGeneratorRTP1.setToneDuration(200);
-		dtmfGeneratorRTP1.setVolume(-10);
+		dtmfGeneratorRTP1.setVolume(-20);
         
 		dtmfGeneratorLocal1.setToneDuration(200);
-		dtmfGeneratorLocal1.setVolume(-10);
+		dtmfGeneratorLocal1.setVolume(-20);
 		
         dtmfGeneratorRTP1.setDigit("A");
 		dtmfGeneratorLocal1.setDigit("1");

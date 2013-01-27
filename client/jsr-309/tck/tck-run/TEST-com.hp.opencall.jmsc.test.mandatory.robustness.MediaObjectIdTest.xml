@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="kulikov.mobicents.org" name="com.hp.opencall.jmsc.test.mandatory.robustness.MediaObjectIdTest" tests="3" time="3.221" timestamp="2011-09-27T07:10:50">
+  <properties>
+    <property name="ant.project.invoked-targets" value="run" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="DATE_TIME" value="2011-09-27_11-01" />
+    <property name="sun.boot.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386" />
+    <property name="java.vm.version" value="19.1-b02" />
+    <property name="ant.library.dir" value="/home/kulikov/apache-ant-1.8.2//lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on December 20 2010" />
+    <property name="run.report" value="/home/kulikov/jsr-309-tck/tck-reports/2011-09-27_11-01" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.runtime.version" value="1.6.0_24-b07" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.endorsed.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="run" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/home/kulikov/apache-ant-1.8.2/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+    <property name="os.name" value="Linux" />
+    <property name="DSTAMP" value="20110927" />
+    <property name="ant.home" value="/home/kulikov/apache-ant-1.8.2/" />
+    <property name="ant.project.name" value="TCK" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="run.dir" value="/home/kulikov/jsr-309-tck/tck-run" />
+    <property name="TODAY" value="September 27 2011" />
+    <property name="java.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386/server:/home/kulikov/jdk1.6.0_24/jre/lib/i386:/home/kulikov/jdk1.6.0_24/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="50.0" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="ant.file.type.TCK" value="file" />
+    <property name="os.version" value="2.6.33.3-85.fc13.i686" />
+    <property name="ant.file" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="user.home" value="/home/kulikov" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="TSTAMP" value="1101" />
+    <property name="user.name" value="kulikov" />
+    <property name="java.class.path" value="/home/kulikov/jsr-309-tck:/home/kulikov/jsr-309-tck/mgcp-impl-2.0.0.GA.jar:/home/kulikov/jsr-309-tck/tck.jar:/home/kulikov/jsr-309-tck/deps/jain-mgcp-ri-1.0.jar:/home/kulikov/jsr-309-tck/deps/jain-sip-ri-1.2.146.jar:/home/kulikov/jsr-309-tck/deps/junit-4.7-src.jar:/home/kulikov/jsr-309-tck/deps/junit.jar:/home/kulikov/jsr-309-tck/deps/log4j-1.2.14.jar:/home/kulikov/jsr-309-tck/deps/mgcp-impl-2.0.1.RC1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mobicents-jsr309-impl-2.0.1.CR1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mscontrol.jar:/home/kulikov/apache-ant-1.8.2/lib/junit-4.8.1.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-launcher.jar:/home/kulikov/apache-ant-1.8.2/lib/ant.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit4.jar" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="java.home" value="/home/kulikov/jdk1.6.0_24/jre" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_24" />
+    <property name="java.ext.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/resources.jar:/home/kulikov/jdk1.6.0_24/jre/lib/rt.jar:/home/kulikov/jdk1.6.0_24/jre/lib/sunrsasign.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jsse.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jce.jar:/home/kulikov/jdk1.6.0_24/jre/lib/charsets.jar:/home/kulikov/jdk1.6.0_24/jre/lib/modules/jdk.boot.jar:/home/kulikov/jdk1.6.0_24/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="ant.file.TCK" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.MediaObjectIdTest" name="test_2_2_10_1_LongId" time="0.192" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.MediaObjectIdTest" name="test_2_2_10_2_InvalidInitialCharacter" time="2.107" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.robustness.MediaObjectIdTest" name="test_2_2_10_3_DuplicateIDs" time="0.908" />
+  <system-out><![CDATA[11:10:50,413 INFO  [Runner] Start    mandatory.robustness.MediaObjectIdTest.test_2_2_10_1_LongId javadoc::MediaObject::2
+11:10:50,429 INFO  [DriverImpl] Initializing MGCP on /127.0.0.1:2729
+11:10:50,434 ERROR [JainMgcpStackImpl] Failed to locate properties file, using default values
+11:10:50,441 INFO  [JainMgcpStackImpl] Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+72   [] DEBUG TestBase - log4j configured
+73   [] DEBUG TestBase - Loading file:/home/kulikov/jsr-309-tck/TCK.properties
+78   [] INFO  MediaObjectIdTest - MediaSession URI: "mscontrol://127.0.0.1:2427/MediaSession2"
+127  [] INFO  MediaObjectIdTest - Mediagroup URI: "mscontrol://127.0.0.1:2427/MediaSession2/MGThisIsAVeryLongName123456789"
+156  [] INFO  MediaObjectIdTest - NetworkConnection URI: "mscontrol://127.0.0.1:2427/MediaSession2/NCThisIsAVeryLongName123456789"
+159  [] INFO  MediaObjectIdTest - Mediagroup URI: "mscontrol://127.0.0.1:2427/MediaSession2/MXThisIsAVeryLongName123456789"
+161  [] INFO  MediaObjectIdTest - MixerAdapter URI: "mscontrol://127.0.0.1:2427/MediaSession2/MAThisIsAVeryLongName123456789"
+161  [] INFO  Runner - End      mandatory.robustness.MediaObjectIdTest.test_2_2_10_1_LongId
+162  [] INFO  Runner - Start    mandatory.robustness.MediaObjectIdTest.test_2_2_10_2_InvalidInitialCharacter javadoc::MediaObject::1
+163  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: *invalidname
+163  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: *invalidname
+163  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: *invalidname
+164  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: *invalidname
+164  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID:  invalidname
+164  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID:  invalidname
+164  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID:  invalidname
+164  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID:  invalidname
+164  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: -invalidname
+164  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: -invalidname
+165  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: -invalidname
+165  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: -invalidname
+165  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: :invalidname
+165  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: :invalidname
+165  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: :invalidname
+165  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: :invalidname
+166  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: _invalidname
+166  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: _invalidname
+166  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: _invalidname
+166  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: _invalidname
+166  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: <invalidname
+166  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: <invalidname
+166  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: <invalidname
+167  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: <invalidname
+167  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: >invalidname
+167  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: >invalidname
+167  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: >invalidname
+167  [] INFO  MediaObjectIdTest - Caught expected exception: Illegal MEDIAOBJECT_ID: >invalidname
+2269 [] INFO  Runner - End      mandatory.robustness.MediaObjectIdTest.test_2_2_10_2_InvalidInitialCharacter
+2271 [] INFO  Runner - Start    mandatory.robustness.MediaObjectIdTest.test_2_2_10_3_DuplicateIDs javadoc::MediaObject::3
+2275 [] INFO  MediaObjectIdTest - Caught expected exception: MEDIAOBJECT_ID must be unique: MediaGroup-1
+2275 [] INFO  MediaObjectIdTest - Caught expected exception: MEDIAOBJECT_ID must be unique: NetworkConnection-1
+2275 [] INFO  MediaObjectIdTest - Caught expected exception: MEDIAOBJECT_ID must be unique: MediaMixer-1
+2275 [] INFO  MediaObjectIdTest - Caught expected exception: MEDIAOBJECT_ID must be unique: MixerAdapter-1
+2576 [] INFO  DriverImpl - MediaSession11 MediaGroup-1 Releasing...
+2876 [] INFO  DriverImpl - MediaSession11 NetworkConnection-1 Releasing....
+3177 [] INFO  Runner - End      mandatory.robustness.MediaObjectIdTest.test_2_2_10_3_DuplicateIDs
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

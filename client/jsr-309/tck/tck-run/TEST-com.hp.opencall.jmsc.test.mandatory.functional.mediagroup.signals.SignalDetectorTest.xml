@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="kulikov.mobicents.org" name="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" tests="7" time="39.72" timestamp="2011-09-27T07:07:03">
+  <properties>
+    <property name="ant.project.invoked-targets" value="run" />
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
+    <property name="DATE_TIME" value="2011-09-27_11-01" />
+    <property name="sun.boot.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386" />
+    <property name="java.vm.version" value="19.1-b02" />
+    <property name="ant.library.dir" value="/home/kulikov/apache-ant-1.8.2//lib" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on December 20 2010" />
+    <property name="run.report" value="/home/kulikov/jsr-309-tck/tck-reports/2011-09-27_11-01" />
+    <property name="ant.java.version" value="1.6" />
+    <property name="java.vm.vendor" value="Sun Microsystems Inc." />
+    <property name="java.vendor.url" value="http://java.sun.com/" />
+    <property name="path.separator" value=":" />
+    <property name="java.vm.name" value="Java HotSpot(TM) Server VM" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="user.country" value="US" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="user.dir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.runtime.version" value="1.6.0_24-b07" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="basedir" value="/home/kulikov/jsr-309-tck" />
+    <property name="java.endorsed.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/endorsed" />
+    <property name="os.arch" value="i386" />
+    <property name="ant.project.default-target" value="run" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="ant.core.lib" value="/home/kulikov/apache-ant-1.8.2/lib/ant.jar" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="run.testlist" value="com/hp/opencall/jmsc/test/mandatory/**/*Test.class" />
+    <property name="os.name" value="Linux" />
+    <property name="DSTAMP" value="20110927" />
+    <property name="ant.home" value="/home/kulikov/apache-ant-1.8.2/" />
+    <property name="ant.project.name" value="TCK" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="run.dir" value="/home/kulikov/jsr-309-tck/tck-run" />
+    <property name="TODAY" value="September 27 2011" />
+    <property name="java.library.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/i386/server:/home/kulikov/jdk1.6.0_24/jre/lib/i386:/home/kulikov/jdk1.6.0_24/jre/../lib/i386:/usr/java/packages/lib/i386:/lib:/usr/lib" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="50.0" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="ant.file.type.TCK" value="file" />
+    <property name="os.version" value="2.6.33.3-85.fc13.i686" />
+    <property name="ant.file" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="user.home" value="/home/kulikov" />
+    <property name="user.timezone" value="" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="java.specification.version" value="1.6" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="TSTAMP" value="1101" />
+    <property name="user.name" value="kulikov" />
+    <property name="java.class.path" value="/home/kulikov/jsr-309-tck:/home/kulikov/jsr-309-tck/mgcp-impl-2.0.0.GA.jar:/home/kulikov/jsr-309-tck/tck.jar:/home/kulikov/jsr-309-tck/deps/jain-mgcp-ri-1.0.jar:/home/kulikov/jsr-309-tck/deps/jain-sip-ri-1.2.146.jar:/home/kulikov/jsr-309-tck/deps/junit-4.7-src.jar:/home/kulikov/jsr-309-tck/deps/junit.jar:/home/kulikov/jsr-309-tck/deps/log4j-1.2.14.jar:/home/kulikov/jsr-309-tck/deps/mgcp-impl-2.0.1.RC1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mobicents-jsr309-impl-2.0.1.CR1-SNAPSHOT.jar:/home/kulikov/jsr-309-tck/deps/mscontrol.jar:/home/kulikov/apache-ant-1.8.2/lib/junit-4.8.1.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-launcher.jar:/home/kulikov/apache-ant-1.8.2/lib/ant.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit.jar:/home/kulikov/apache-ant-1.8.2/lib/ant-junit4.jar" />
+    <property name="java.vm.specification.version" value="1.0" />
+    <property name="java.home" value="/home/kulikov/jdk1.6.0_24/jre" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.specification.vendor" value="Sun Microsystems Inc." />
+    <property name="user.language" value="en" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="java.version" value="1.6.0_24" />
+    <property name="java.ext.dirs" value="/home/kulikov/jdk1.6.0_24/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="sun.boot.class.path" value="/home/kulikov/jdk1.6.0_24/jre/lib/resources.jar:/home/kulikov/jdk1.6.0_24/jre/lib/rt.jar:/home/kulikov/jdk1.6.0_24/jre/lib/sunrsasign.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jsse.jar:/home/kulikov/jdk1.6.0_24/jre/lib/jce.jar:/home/kulikov/jdk1.6.0_24/jre/lib/charsets.jar:/home/kulikov/jdk1.6.0_24/jre/lib/modules/jdk.boot.jar:/home/kulikov/jdk1.6.0_24/jre/classes" />
+    <property name="java.vendor" value="Sun Microsystems Inc." />
+    <property name="ant.file.TCK" value="/home/kulikov/jsr-309-tck/build.xml" />
+    <property name="file.separator" value="/" />
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="ant.file.type" value="file" />
+    <property name="sun.desktop" value="gnome" />
+    <property name="sun.cpu.isalist" value="" />
+  </properties>
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" name="test_2_1_3_1_ReceiveOneSignal" time="4.36" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" name="test_2_1_3_2_ReceiveFiveSignals" time="6.923" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" name="test_2_1_3_3_Receive123" time="5.52" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" name="test_2_1_3_4_Receive123And456" time="5.545" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" name="test_2_1_3_5_Receive45And9And123" time="5.521" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" name="test_2_1_3_10_ReceivePoundOr4Digits" time="6.311" />
+  <testcase classname="com.hp.opencall.jmsc.test.mandatory.functional.mediagroup.signals.SignalDetectorTest" name="test_2_1_3_11_Receive4DigitsOrDTMF3" time="5.521" />
+  <system-out><![CDATA[11:07:03,764 INFO  [Runner] Start    mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_1_ReceiveOneSignal javadoc::SignalDetector::1 javadoc::SignalDetectorEvent::5
+11:07:03,780 INFO  [DriverImpl] Initializing MGCP on /127.0.0.1:2729
+11:07:03,785 ERROR [JainMgcpStackImpl] Failed to locate properties file, using default values
+11:07:03,792 INFO  [JainMgcpStackImpl] Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+79   [] DEBUG TestBase - log4j configured
+80   [] DEBUG TestBase - Loading file:/home/kulikov/jsr-309-tck/TCK.properties
+230  [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107223917 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65370 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+231  [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107223917 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65370 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+271  [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107224013 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65368 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+449  [] INFO  DriverImpl - MediaSession1 MediaGroup5 Receive signal called
+962  [] DEBUG TestBase - getProperty(testcase.dtmf1-9) = file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav
+1972 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup5) (19s remaining)
+2972 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup5) (18s remaining)
+3124 [] DEBUG SignalDetectorTest - Detector(mscontrol://127.0.0.1:2427/MediaSession1/MediaGroup5) received: RECEIVE_SIGNALS_COMPLETED(NUM_SIGNALS_DETECTED, signal=1)
+3125 [] INFO  SignalDetectorTest - Received DTMFs: 1
+3125 [] INFO  DriverImpl - MediaSession1 MediaGroup4 Releasing...
+3430 [] INFO  DriverImpl - MediaSession1 MediaGroup5 Releasing...
+3731 [] INFO  DriverImpl - MediaSession1 NetworkConnection2 Releasing....
+4034 [] INFO  DriverImpl - MediaSession1 NetworkConnection3 Releasing....
+4335 [] INFO  Runner - End      mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_1_ReceiveOneSignal
+4338 [] INFO  Runner - Start    mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_2_ReceiveFiveSignals javadoc::SignalDetector::3
+4377 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107228113 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65366 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+4378 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107228113 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65366 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+4418 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107228160 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65364 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+4557 [] INFO  DriverImpl - MediaSession6 MediaGroup10 Receive signal called
+5058 [] DEBUG TestBase - getProperty(testcase.dtmf1-9) = file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav
+6078 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession6/MediaGroup10) (19s remaining)
+7079 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession6/MediaGroup10) (17s remaining)
+8079 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession6/MediaGroup10) (16s remaining)
+9079 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession6/MediaGroup10) (15s remaining)
+10054 [] DEBUG SignalDetectorTest - Detector(mscontrol://127.0.0.1:2427/MediaSession6/MediaGroup10) received: RECEIVE_SIGNALS_COMPLETED(NUM_SIGNALS_DETECTED, signal=12345)
+10055 [] INFO  SignalDetectorTest - Received DTMFs: 12345
+10055 [] INFO  DriverImpl - MediaSession6 MediaGroup9 Releasing...
+10356 [] INFO  DriverImpl - MediaSession6 MediaGroup10 Releasing...
+10658 [] INFO  DriverImpl - MediaSession6 NetworkConnection7 Releasing....
+10959 [] INFO  DriverImpl - MediaSession6 NetworkConnection8 Releasing....
+11260 [] INFO  Runner - End      mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_2_ReceiveFiveSignals
+11261 [] INFO  Runner - Start    mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_3_Receive123 javadoc::SignalDetector::4 javadoc::SignalDetectorEvent::9
+11303 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107235038 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65362 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+11304 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107235038 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65362 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+11344 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107235084 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65360 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+11483 [] INFO  DriverImpl - MediaSession11 MediaGroup15 Receive signal called
+11984 [] DEBUG TestBase - getProperty(testcase.dtmf1-9) = file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav
+13004 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (19s remaining)
+14004 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (18s remaining)
+15005 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) (17s remaining)
+15575 [] DEBUG SignalDetectorTest - Detector(mscontrol://127.0.0.1:2427/MediaSession11/MediaGroup15) received: RECEIVE_SIGNALS_COMPLETED(null, signal=123)
+15576 [] INFO  SignalDetectorTest - Received DTMFs: 123
+15576 [] INFO  DriverImpl - MediaSession11 MediaGroup14 Releasing...
+15877 [] INFO  DriverImpl - MediaSession11 MediaGroup15 Releasing...
+16178 [] INFO  DriverImpl - MediaSession11 NetworkConnection12 Releasing....
+16480 [] INFO  DriverImpl - MediaSession11 NetworkConnection13 Releasing....
+16781 [] INFO  Runner - End      mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_3_Receive123
+16782 [] INFO  Runner - Start    mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_4_Receive123And456 javadoc::SignalDetector::5
+16835 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107240558 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65358 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+16835 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107240558 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65358 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+16867 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107240615 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65356 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+17006 [] INFO  DriverImpl - MediaSession16 MediaGroup20 Receive signal called
+17507 [] DEBUG TestBase - getProperty(testcase.dtmf1-9) = file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav
+18526 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession16/MediaGroup20) (19s remaining)
+19527 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession16/MediaGroup20) (17s remaining)
+20527 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession16/MediaGroup20) (16s remaining)
+21120 [] DEBUG SignalDetectorTest - Detector(mscontrol://127.0.0.1:2427/MediaSession16/MediaGroup20) received: RECEIVE_SIGNALS_COMPLETED(null, signal=123)
+21120 [] INFO  SignalDetectorTest - Received DTMFs: 123
+21120 [] INFO  DriverImpl - MediaSession16 MediaGroup19 Releasing...
+21422 [] INFO  DriverImpl - MediaSession16 MediaGroup20 Releasing...
+21722 [] INFO  DriverImpl - MediaSession16 NetworkConnection17 Releasing....
+22024 [] INFO  DriverImpl - MediaSession16 NetworkConnection18 Releasing....
+22325 [] INFO  Runner - End      mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_4_Receive123And456
+22328 [] INFO  Runner - Start    mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_5_Receive45And9And123 javadoc::SignalDetector::6 javadoc::SignalDetector::20 javadoc::SignalDetectorEvent::3
+22368 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107246105 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65354 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+22369 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107246105 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65354 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+22409 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107246149 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65352 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+22547 [] INFO  DriverImpl - MediaSession21 MediaGroup25 Receive signal called
+23048 [] DEBUG TestBase - getProperty(testcase.dtmf1-9) = file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav
+24069 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession21/MediaGroup25) (19s remaining)
+25069 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession21/MediaGroup25) (18s remaining)
+26070 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession21/MediaGroup25) (16s remaining)
+26643 [] DEBUG SignalDetectorTest - Detector(mscontrol://127.0.0.1:2427/MediaSession21/MediaGroup25) received: RECEIVE_SIGNALS_COMPLETED(null, signal=123)
+26643 [] INFO  SignalDetectorTest - Received DTMFs: 123
+26643 [] INFO  DriverImpl - MediaSession21 MediaGroup24 Releasing...
+26945 [] INFO  DriverImpl - MediaSession21 MediaGroup25 Releasing...
+27246 [] INFO  DriverImpl - MediaSession21 NetworkConnection22 Releasing....
+27546 [] INFO  DriverImpl - MediaSession21 NetworkConnection23 Releasing....
+27848 [] INFO  Runner - End      mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_5_Receive45And9And123
+27849 [] INFO  Runner - Start    mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_10_ReceivePoundOr4Digits javadoc::SignalDetector::7
+27892 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107251628 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65350 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+27893 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107251628 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65350 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+27933 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107251673 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65348 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+28073 [] INFO  DriverImpl - MediaSession26 MediaGroup30 Receive signal called
+28574 [] DEBUG TestBase - getProperty(testcase.dtmf1-9) = file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav
+29595 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession26/MediaGroup30) (19s remaining)
+30595 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession26/MediaGroup30) (18s remaining)
+31596 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession26/MediaGroup30) (16s remaining)
+32596 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession26/MediaGroup30) (15s remaining)
+32955 [] DEBUG SignalDetectorTest - Detector(mscontrol://127.0.0.1:2427/MediaSession26/MediaGroup30) received: RECEIVE_SIGNALS_COMPLETED(NUM_SIGNALS_DETECTED, signal=1234)
+32955 [] INFO  SignalDetectorTest - Received DTMFs: 1234
+32955 [] INFO  DriverImpl - MediaSession26 MediaGroup29 Releasing...
+33257 [] INFO  DriverImpl - MediaSession26 MediaGroup30 Releasing...
+33558 [] INFO  DriverImpl - MediaSession26 NetworkConnection27 Releasing....
+33859 [] INFO  DriverImpl - MediaSession26 NetworkConnection28 Releasing....
+34160 [] INFO  Runner - End      mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_10_ReceivePoundOr4Digits
+34162 [] INFO  Runner - Start    mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_11_Receive4DigitsOrDTMF3 javadoc::SignalDetector::9
+34204 [] INFO  MediaSessionBase - getOffer: local SDP: v=0
+o=- 1317107257938 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65346 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+34204 [] INFO  MediaSessionBase - getOffer: stripped local SDP: v=0
+o=- 1317107257938 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65346 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=fmtp:101 0-15
+
+34244 [] INFO  MediaSessionBase - getAnswer: local SDP: v=0
+o=- 1317107257985 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65344 RTP/AVP 8 0 101
+a=rtpmap:8 pcma/8000
+a=rtpmap:0 pcmu/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+
+34382 [] INFO  DriverImpl - MediaSession31 MediaGroup35 Receive signal called
+34883 [] DEBUG TestBase - getProperty(testcase.dtmf1-9) = file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav
+35904 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession31/MediaGroup35) (19s remaining)
+36904 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession31/MediaGroup35) (17s remaining)
+37904 [] DEBUG SignalDetectorTest - Waiting for event from Detector(mscontrol://127.0.0.1:2427/MediaSession31/MediaGroup35) (16s remaining)
+38477 [] DEBUG SignalDetectorTest - Detector(mscontrol://127.0.0.1:2427/MediaSession31/MediaGroup35) received: RECEIVE_SIGNALS_COMPLETED(null, signal=12)
+38477 [] INFO  SignalDetectorTest - Received DTMFs: 12
+38477 [] INFO  DriverImpl - MediaSession31 MediaGroup34 Releasing...
+38778 [] INFO  DriverImpl - MediaSession31 MediaGroup35 Releasing...
+39080 [] INFO  DriverImpl - MediaSession31 NetworkConnection32 Releasing....
+39381 [] INFO  DriverImpl - MediaSession31 NetworkConnection33 Releasing....
+39682 [] INFO  Runner - End      mandatory.functional.mediagroup.signals.SignalDetectorTest.test_2_1_3_11_Receive4DigitsOrDTMF3
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

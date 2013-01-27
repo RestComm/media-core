@@ -170,7 +170,7 @@ public class AudioMixer {
                     currGain=(currGain*(double)Short.MAX_VALUE)/(double)maxValue;
             
             for(i=0;i<total.length;i++)
-				total[i]=(short)Math.round((double) total[i] * currGain);
+				total[i]=(short)((double) total[i] * currGain);
             
             //get data for each component
             components.resetIterator(activeComponents);
