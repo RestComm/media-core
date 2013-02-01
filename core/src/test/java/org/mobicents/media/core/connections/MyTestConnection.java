@@ -48,7 +48,7 @@ public class MyTestConnection extends BaseConnection {
 
     private AudioComponent audioComponent;
     private OOBComponent oobComponent;
-    public MyTestConnection(String id,Scheduler scheduler) throws Exception {
+    public MyTestConnection(int id,Scheduler scheduler) throws Exception {
         super(id, scheduler);
         audioComponent=new AudioComponent(-1);
         oobComponent=new OOBComponent(-1);

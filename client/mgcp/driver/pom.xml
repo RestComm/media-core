@@ -48,7 +48,7 @@
 			<timezone>+1</timezone>
 		</developer>
 		<developer>
-                        <id>yulian</id>
+                        <id>yulian.oifa</id>
                         <name>Yulian Oifa</name>
                         <email>oifa.yulian@gmail.com</email>
                         <organization>Sipme LTD</organization>
@@ -81,6 +81,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+	            <groupId>org.mobicents.media</groupId>
+	            <artifactId>concurrent</artifactId>
+        	    <version>${project.version}</version>
+	        </dependency>
 		<dependency>
 			<groupId>jain</groupId>
 			<artifactId>jain-mgcp-ri</artifactId>

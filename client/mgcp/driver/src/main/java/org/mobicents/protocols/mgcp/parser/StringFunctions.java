@@ -24,7 +24,7 @@ package org.mobicents.protocols.mgcp.parser;
 
 import java.util.ArrayList;
 
-import org.mobicents.protocols.mgcp.utils.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 
 public class StringFunctions 
 {

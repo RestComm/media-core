@@ -25,7 +25,7 @@ package org.mobicents.media.server.component.audio;
 import java.io.IOException;
 
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 

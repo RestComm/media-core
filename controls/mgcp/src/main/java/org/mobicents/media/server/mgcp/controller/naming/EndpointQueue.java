@@ -24,7 +24,7 @@ package org.mobicents.media.server.mgcp.controller.naming;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpointStateListener;
 import org.mobicents.media.server.utils.Text;

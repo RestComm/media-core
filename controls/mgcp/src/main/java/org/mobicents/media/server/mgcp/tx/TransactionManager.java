@@ -27,7 +27,7 @@ import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;

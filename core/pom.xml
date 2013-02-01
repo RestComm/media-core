@@ -13,7 +13,12 @@
     <artifactId>core</artifactId>
     <name>Core</name>
     
-    <dependencies>
+    <dependencies>	
+    	<dependency>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.mobicents.media</groupId>
             <artifactId>spi</artifactId>

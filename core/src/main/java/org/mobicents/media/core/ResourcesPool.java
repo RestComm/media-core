@@ -33,7 +33,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 
@@ -213,12 +213,12 @@ public class ResourcesPool implements ComponentFactory {
 		signalGeneratorsCount.set(defaultSignalGenerators);
 		
 		for(int i=0;i<defaultLocalConnections;i++)
-			localConnections.offer(new LocalConnectionImpl(String.valueOf(connectionId.incrementAndGet()),channelsManager));
+			localConnections.offer(new LocalConnectionImpl(connectionId.incrementAndGet(),channelsManager));
 
 		localConnectionsCount.set(defaultLocalConnections);
 		
 		for(int i=0;i<defaultRemoteConnections;i++)
-			remoteConnections.offer(new RtpConnectionImpl(String.valueOf(connectionId.incrementAndGet()),channelsManager,dspFactory));
+			remoteConnections.offer(new RtpConnectionImpl(connectionId.incrementAndGet(),channelsManager,dspFactory));
 		
 		rtpConnectionsCount.set(defaultRemoteConnections);				
 	}
@@ -359,7 +359,7 @@ public class ResourcesPool implements ComponentFactory {
 			result=localConnections.poll();
 			if(result==null)
 			{
-				result=new LocalConnectionImpl(String.valueOf(connectionId.incrementAndGet()),channelsManager);
+				result=new LocalConnectionImpl(connectionId.incrementAndGet(),channelsManager);
 				localConnectionsCount.incrementAndGet();
 			}
 			
@@ -371,7 +371,7 @@ public class ResourcesPool implements ComponentFactory {
 			result=remoteConnections.poll();
 			if(result==null)
 			{
-				result=new RtpConnectionImpl(String.valueOf(connectionId.incrementAndGet()),channelsManager,dspFactory);
+				result=new RtpConnectionImpl(connectionId.incrementAndGet(),channelsManager,dspFactory);
 				rtpConnectionsCount.incrementAndGet();
 			}
 			

@@ -69,7 +69,7 @@ import org.mobicents.protocols.mgcp.parser.commands.NotificationRequestHandler;
 import org.mobicents.protocols.mgcp.parser.commands.RestartInProgressHandler;
 import org.mobicents.protocols.mgcp.parser.commands.RespUnknownHandler;
 
-import org.mobicents.protocols.mgcp.utils.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 
 public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 

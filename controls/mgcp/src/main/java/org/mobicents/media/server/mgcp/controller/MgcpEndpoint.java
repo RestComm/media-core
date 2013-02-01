@@ -32,7 +32,7 @@ import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
@@ -69,7 +69,7 @@ public class MgcpEndpoint {
     private ConcurrentLinkedList<MgcpConnection> connections = new ConcurrentLinkedList();
     
     //list of active connections
-    private ConcurrentHashMap<Text,MgcpConnection> activeConnections=new ConcurrentHashMap(N);
+    private ConcurrentHashMap<Integer,MgcpConnection> activeConnections=new ConcurrentHashMap(N);
     protected MgcpProvider mgcpProvider;
     
     private MgcpListener listener;
@@ -170,6 +170,9 @@ public class MgcpEndpoint {
     	Connection connection = endpoint.createConnection(type,isLocal);
     	//wrap connection with relative activity
     	MgcpConnection mgcpConnection = connections.poll();
+    	if(mgcpConnection==null)
+    		mgcpConnection=new MgcpConnection();
+    	
     	mgcpConnection.wrap(this, call, connection);
 
     	//put connection activity into active list
@@ -187,18 +190,9 @@ public class MgcpEndpoint {
      * 
      * @param id the identifier of the relative connection activity.
      */
-    public void deleteConnection(Text id) {    	
-    	//looking for connection with specified ID.
-    	MgcpConnection mgcpConnection=null;
-    	Text currText;
-    	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-    		currText=e.nextElement();
-    		if(currText.equals(id)) {
-    			mgcpConnection=activeConnections.remove(currText);
-    			break;
-    		}
-        }
-    	
+    public void deleteConnection(Integer id) {
+    	MgcpConnection mgcpConnection=activeConnections.remove(id);
+
     	//connection not found?
     	if (mgcpConnection == null) {
     		//TODO: throw exception
@@ -224,7 +218,7 @@ public class MgcpEndpoint {
     }
 
     public void deleteAllConnections() {
-    	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
+    	for (Enumeration<Integer> e = activeConnections.keys() ; e.hasMoreElements() ;) {
     		connections.offer(activeConnections.remove(e.nextElement()));    
         }
     	    
@@ -238,15 +232,8 @@ public class MgcpEndpoint {
         this.request.cancel();
     }
     
-    public MgcpConnection getConnection(Text connectionID) {
-    	Text currText;
-    	for (Enumeration<Text> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-    		currText=e.nextElement();
-    		if(currText.equals(connectionID))
-    			return activeConnections.get(currText);    		
-        }
-    	
-    	return null;        
+    public MgcpConnection getConnection(Integer connectionID) {
+    	return activeConnections.get(connectionID);      
     }
 
     protected void send(MgcpEvent message, SocketAddress address) {
@@ -262,6 +249,9 @@ public class MgcpEndpoint {
     protected MgcpConnection poll(MgcpCall call) {
     	//take first from pool and put into list of active    	
         MgcpConnection mgcpConnection = connections.poll();
+        if(mgcpConnection==null)
+    		mgcpConnection=new MgcpConnection();
+        
         activeConnections.put(mgcpConnection.id,mgcpConnection);
         
         //assign call

@@ -24,7 +24,7 @@ package org.mobicents.media.server.impl.resource.dtmf;
 
 import java.io.Serializable;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 
 /**
  * Implements digit buffer.

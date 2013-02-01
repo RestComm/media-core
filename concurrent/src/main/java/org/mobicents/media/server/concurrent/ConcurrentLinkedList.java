@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.scheduler;
+package org.mobicents.media.server.concurrent;
 
 import java.util.Iterator;
 import java.util.Queue;

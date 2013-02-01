@@ -22,6 +22,7 @@
 
 package org.mobicents.protocols.mgcp.utils;
 
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 import org.apache.log4j.Logger;
 
 public class PacketRepresentationFactory {

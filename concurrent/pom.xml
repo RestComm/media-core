@@ -10,15 +10,10 @@
     </parent>
 
     <groupId>org.mobicents.media</groupId>
-    <artifactId>scheduler</artifactId>
-    <name>Scheduler</name>
+    <artifactId>concurrent</artifactId>
+    <name>Concurrent</name>
     
     <dependencies>
-	<dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 	<!--  -->
     <build>

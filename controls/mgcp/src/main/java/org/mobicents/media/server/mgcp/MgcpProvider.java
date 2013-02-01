@@ -30,7 +30,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.message.MgcpMessage;

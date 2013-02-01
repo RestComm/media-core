@@ -50,6 +50,13 @@ public class Text implements CharSequence {
 
     private int hash = -1;
     
+    private byte zero_byte=(byte)'0';
+    private byte nine_byte=(byte)'9';
+    private byte a_byte=(byte)'a';
+    private byte f_byte=(byte)'f';
+    private byte A_byte=(byte)'A';
+    private byte F_byte=(byte)'F';
+    
     /**
      * Create an empty text object.
      *
@@ -438,6 +445,23 @@ public class Text implements CharSequence {
         return res;
     }
 
+    public int hexToInteger() {
+    	int res = 0;
+    	byte currChar;
+        for (int i = 0; i < len; i++) {
+        	res<<=4;
+        	currChar=chars[pos+i];
+        	if(currChar>=zero_byte && chars[pos+i]<=nine_byte)
+        		res|=currChar-zero_byte;
+        	else if(currChar>=a_byte && chars[pos+i]<=f_byte)
+        		res|=currChar-a_byte+10;
+        	else if(currChar>=A_byte && chars[pos+i]<=F_byte)
+        		res|=currChar-a_byte+10;
+        }
+        
+        return res;
+    }
+    
     /**
      * 10^a
      * 
@@ -460,7 +484,7 @@ public class Text implements CharSequence {
      */
     private int digit(int pos) {
         return chars[pos] - 48;
-    }
+    }        
     
     /**
      * Writes this text into byte buffer.

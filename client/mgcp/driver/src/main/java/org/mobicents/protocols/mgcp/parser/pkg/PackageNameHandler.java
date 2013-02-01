@@ -28,6 +28,7 @@ import org.mobicents.protocols.mgcp.parser.StringFunctions;
 import org.mobicents.protocols.mgcp.parser.SplitDetails;
 
 import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
+import org.mobicents.protocols.mgcp.jain.pkg.SLPackage;
 import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
 
 import jain.protocol.ip.mgcp.pkg.PackageName;
@@ -36,6 +37,7 @@ import jain.protocol.ip.mgcp.pkg.MgcpEvent;
 public class PackageNameHandler
 {
 	static PackageName auPackage=AUPackage.AU;
+	static PackageName slPackage=SLPackage.SL;
 	static MgcpEvent rfc2897pa = AUMgcpEvent.aupa;
 	
 	public static PackageName decode(byte[] value,int offset,int length) throws ParseException

@@ -96,7 +96,7 @@ public class MgcpEndpointTest {
      */
     @Test
     public void testPollAndOffer() {
-    	MgcpCall call = callManager.getCall(new Text("1"), true);
+    	MgcpCall call = callManager.getCall(1, true);
         for (int i = 0; i < 1000; i++) {
             MgcpConnection mgcpConnection = mgcpEndpoint.poll(call);            
             assertEquals(1, call.size());

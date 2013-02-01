@@ -43,7 +43,7 @@ public class LocalConnectionImpl extends BaseConnection {
 
     private LocalDataChannel localAudioChannel;
     
-    public LocalConnectionImpl(String id,ChannelsManager channelsManager) {
+    public LocalConnectionImpl(int id,ChannelsManager channelsManager) {
         super(id,channelsManager.getScheduler());
         this.localAudioChannel=channelsManager.getLocalChannel();
     }

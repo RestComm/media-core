@@ -74,7 +74,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
     //logger instance
     private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
     
-    private ConcurrentHashMap<String,Connection> connections;
+    private ConcurrentHashMap<Integer,Connection> connections;
     
     public BaseEndpointImpl(String localName) {
         this.localName = localName;              
@@ -242,7 +242,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
      */
     public void deleteAllConnections() {
     	Connection currConnection;
-        for(Enumeration<String> e = connections.keys() ; e.hasMoreElements() ;) {
+        for(Enumeration<Integer> e = connections.keys() ; e.hasMoreElements() ;) {
                 currConnection=connections.get(e.nextElement());
                 ((BaseConnection)currConnection).close();                
         }

@@ -29,30 +29,21 @@ import java.util.Enumeration;
 /**
  * MGCP call.
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class MgcpCall {
 
     private CallManager callManager;
-    protected Text id = new Text(new byte[30], 0, 30);
-    protected ConcurrentHashMap<Text,MgcpConnection> connections=new ConcurrentHashMap(20);
+    protected int id;
+    protected ConcurrentHashMap<Integer,MgcpConnection> connections=new ConcurrentHashMap(20);
     
-    protected MgcpCall(CallManager callManager, Text id) {
-        id.duplicate(this.id);
-        this.id.trim();
-        
+    protected MgcpCall(CallManager callManager, int id) {
+        this.id=id;        
         this.callManager = callManager;
     }
 
-    public MgcpConnection getMgcpConnection(Text id) {
-    	Text currText;
-    	for (Enumeration<Text> e = connections.keys() ; e.hasMoreElements() ;) {
-    		currText=e.nextElement();
-    		if(currText.equals(id))
-    			return connections.get(currText);    		
-        }
-    	
-    	return null;    	
+    public MgcpConnection getMgcpConnection(Integer id) {
+    	return connections.get(id);    	    
     }
     
     /**
@@ -80,7 +71,7 @@ public class MgcpCall {
     
     public void deleteConnections() { 
     	MgcpConnection currConnection;
-    	for (Enumeration<Text> e = connections.keys() ; e.hasMoreElements() ;) {
+    	for (Enumeration<Integer> e = connections.keys() ; e.hasMoreElements() ;) {
     		currConnection=connections.remove(e.nextElement());
     		currConnection.mgcpEndpoint.deleteConnection(currConnection.getID());    
         }   

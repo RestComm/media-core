@@ -25,9 +25,7 @@ import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.utils.Text;
 
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 
 /**
  * Naming tree for MGCP endpoints.
@@ -41,8 +39,6 @@ public class NamingTree {
     
     //exceptions
     private static UnknownEndpointException UNKNOWN_ENDPOINT_EXCEPTION;// = new UnknownEndpointException();
-    
-    public static Clock clock = new DefaultClock();
     
     public NamingTree() {
     	//preloading text arrays

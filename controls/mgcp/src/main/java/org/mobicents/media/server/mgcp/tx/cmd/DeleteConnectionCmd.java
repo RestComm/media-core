@@ -122,7 +122,7 @@ public class DeleteConnectionCmd extends Action {
 
         private void deleteForCall(Parameter callID, MgcpRequest request) {
             //getting call
-            MgcpCall call = transaction().getCall(callID.getValue(), false);
+            MgcpCall call = transaction().getCall(callID.getValue().hexToInteger(), false);
             if (call == null) {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID, UNKNOWN_CALL_IDENTIFIER);
             }
@@ -152,7 +152,7 @@ public class DeleteConnectionCmd extends Action {
             }
             
             //getting call
-            MgcpCall call = transaction().getCall(callID.getValue(), false);
+            MgcpCall call = transaction().getCall(callID.getValue().hexToInteger(), false);
             if (call == null) {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID, UNKNOWN_CALL_IDENTIFIER);
             }
@@ -175,14 +175,14 @@ public class DeleteConnectionCmd extends Action {
             //extract found endpoint
             endpoint = endpoints[0];
                        
-            MgcpConnection connection = endpoint.getConnection(connectionID.getValue());
+            MgcpConnection connection = endpoint.getConnection(connectionID.getValue().hexToInteger());
             
             if(connection!=null)
             {
             	rx = connection.getPacketsReceived();
             	tx = connection.getPacketsTransmitted();
             
-            	endpoint.deleteConnection(connectionID.getValue());
+            	endpoint.deleteConnection(connectionID.getValue().hexToInteger());
             }
             
             return 0;

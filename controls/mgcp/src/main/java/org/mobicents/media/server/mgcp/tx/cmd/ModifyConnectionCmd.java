@@ -112,7 +112,7 @@ public class ModifyConnectionCmd extends Action {
             }
             
             //getting call
-            MgcpCall call = transaction().getCall(callID.getValue(), false);
+            MgcpCall call = transaction().getCall(callID.getValue().hexToInteger(), false);
             if (call == null) {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID, UNKNOWN_CALL_IDENTIFIER);
             }
@@ -122,12 +122,14 @@ public class ModifyConnectionCmd extends Action {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, CONNECTIONID_EXPECTED);
             }
             
-            
             try {
-                mgcpConnection = call.getMgcpConnection(connectionID.getValue());
+                mgcpConnection = call.getMgcpConnection(connectionID.getValue().hexToInteger());
             } catch (Exception e) {
                 throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connectionidentifier, probably it was deleted"));
             }
+            
+            if(mgcpConnection==null)
+            	throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connectionidentifier, probably it was deleted"));
             
             //set SDP if requested
             Parameter sdp = request.getParameter(Parameter.SDP);

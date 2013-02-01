@@ -60,8 +60,10 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  */
 public abstract class BaseConnection implements Connection {
 
+	private int id;
+	
     //Identifier of this connection
-    private String id;
+    private String textualId;
 
     //scheduler instance
     private Scheduler scheduler;
@@ -91,8 +93,10 @@ public abstract class BaseConnection implements Connection {
      * @param id the unique identifier of this connection within endpoint.
      * @param endpoint the endpoint owner of this connection.
      */
-    public BaseConnection(String id,Scheduler scheduler) {
+    public BaseConnection(int id,Scheduler scheduler) {
         this.id = id;
+        this.textualId=Integer.toHexString(id);
+        
         this.scheduler = scheduler;
         
         heartBeat = new HeartBeat();
@@ -110,10 +114,19 @@ public abstract class BaseConnection implements Connection {
      *
      * @see org.mobicents.media.server.spi.Connection#getId()
      */
-    public String getId() {
+    public int getId() {
         return id;
     }
 
+    /**
+     * (Non Java-doc).
+     *
+     * @see org.mobicents.media.server.spi.Connection#getTextualId()
+     */
+    public String getTextualId() {
+        return textualId;
+    }
+    
     /**
      * (Non Java-doc).
      *

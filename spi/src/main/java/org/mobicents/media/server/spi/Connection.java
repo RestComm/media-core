@@ -36,10 +36,16 @@ public interface Connection {
     /**
      * Gets the identifier of this connection.
      *
+     * @return integer.
+     */
+    public int getId();
+    
+    /**
+     * Gets the identifier of this connection.
+     *
      * @return hex view of the integer.
      */
-    public String getId();
-    
+    public String getTextualId();
     
     /**
      * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.

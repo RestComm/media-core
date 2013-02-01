@@ -19,6 +19,11 @@
     <dependencies>
         <dependency>
             <groupId>org.mobicents.media</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.media</groupId>
             <artifactId>scheduler</artifactId>
             <version>${project.version}</version>
         </dependency>

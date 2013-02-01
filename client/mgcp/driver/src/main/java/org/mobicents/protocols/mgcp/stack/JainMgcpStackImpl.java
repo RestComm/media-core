@@ -66,7 +66,8 @@ import org.mobicents.protocols.mgcp.handlers.TransactionHandler;
 
 import org.mobicents.protocols.mgcp.utils.PacketRepresentation;
 import org.mobicents.protocols.mgcp.utils.PacketRepresentationFactory;
-import org.mobicents.protocols.mgcp.utils.ConcurrentLinkedList;
+
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 /**
  * 
  * @author Oleg Kulikov

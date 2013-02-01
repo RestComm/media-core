@@ -35,30 +35,37 @@ import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
 
 import java.net.SocketAddress;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Represents the connection activity.
  * 
  * @author yulian oifa
  */
 public class MgcpConnection implements ConnectionFailureListener {
-	public static AtomicLong connectionID=new AtomicLong(1L);
+	public static AtomicInteger connectionID=new AtomicInteger(1);
     
 	public final static Text REASON_CODE = new Text("902 Loss of lower layer connectivity");
-    protected Text id;
+	protected Integer id;
+    protected Text textualId;
     protected MgcpCall call;
     protected MgcpEndpoint mgcpEndpoint;
     protected Connection connection;
     private SocketAddress callAgent;
     private Text descriptor = new Text();    
-    public MgcpConnection() {
-        id = new Text(Long.toHexString(connectionID.getAndIncrement()));
+    public MgcpConnection() 
+    {
+        id = connectionID.getAndIncrement();
+        textualId=new Text(Integer.toHexString(id));
     }
     
-    public Text getID() {
+    public int getID() {
         return id;
     }
 
+    public Text getTextualID() {
+        return textualId;
+    }
+    
     /**
      * Assigns call object to which this connection belongs.
      * 
@@ -134,7 +141,7 @@ public class MgcpConnection implements ConnectionFailureListener {
 		MgcpRequest msg = (MgcpRequest) evt.getMessage();        
 		msg.setCommand(new Text("DLCX"));
 		msg.setEndpoint(mgcpEndpoint.fullName);
-		msg.setParameter(Parameter.CONNECTION_ID, id);
+		msg.setParameter(Parameter.CONNECTION_ID, textualId);
 		msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
 		msg.setParameter(Parameter.REASON_CODE,this.REASON_CODE);
 		mgcpEndpoint.send(evt, callAgent);		

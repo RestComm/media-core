@@ -1,6 +1,6 @@
-2013-01-24 22:15:55,927 DEBUG [TestBase] (main) Loading file:/opt/mobsource/medianew/client/jsr-309/tck/exclude-list.properties
-2013-01-24 22:15:55,929 INFO  [Runner] (main) Start    mandatory.functional.mediagroup.PlayerTest.test_2_1_1_1_Play javadoc::Joinable::1 javadoc::MediaGroup::1 javadoc::MediaGroup::6 javadoc::Player::1 javadoc::PlayerEvent::15
-2013-01-24 22:15:55,929 DEBUG [TestBase] (main) Getting a MsControlFactory instance
-2013-01-24 22:15:55,952 INFO  [DriverImpl] (main) Initializing MGCP on /127.0.0.1:2729
-2013-01-24 22:15:55,966 WARN  [JainMgcpStackImpl] (main) Failed to locate properties file, using default values
-2013-01-24 22:15:55,976 INFO  [JainMgcpStackImpl] (main) Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729
+2013-02-01 17:34:51,286 DEBUG [TestBase] (main) Loading file:/opt/mobsource/medianew/client/jsr-309/tck/exclude-list.properties
+2013-02-01 17:34:51,289 INFO  [Runner] (main) Start    mandatory.functional.mediagroup.PlayerTest.test_2_1_1_1_Play javadoc::Joinable::1 javadoc::MediaGroup::1 javadoc::MediaGroup::6 javadoc::Player::1 javadoc::PlayerEvent::15
+2013-02-01 17:34:51,289 DEBUG [TestBase] (main) Getting a MsControlFactory instance
+2013-02-01 17:34:51,311 INFO  [DriverImpl] (main) Initializing MGCP on /127.0.0.1:2729
+2013-02-01 17:34:51,333 WARN  [JainMgcpStackImpl] (main) Failed to locate properties file, using default values
+2013-02-01 17:34:51,344 INFO  [JainMgcpStackImpl] (main) Jain Mgcp stack bound to IP /127.0.0.1 and UDP port 2729

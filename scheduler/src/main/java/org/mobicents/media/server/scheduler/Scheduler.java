@@ -23,16 +23,10 @@
 package org.mobicents.media.server.scheduler;
 
 import java.lang.InterruptedException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 import org.apache.log4j.Logger;
 
 /**

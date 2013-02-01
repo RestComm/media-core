@@ -84,7 +84,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     
     private ChannelsManager channelsManager;
     
-    public RtpConnectionImpl(String id,ChannelsManager channelsManager,DspFactory dspFactory)
+    public RtpConnectionImpl(int id,ChannelsManager channelsManager,DspFactory dspFactory)
     {
         super(id,channelsManager.getScheduler());
 

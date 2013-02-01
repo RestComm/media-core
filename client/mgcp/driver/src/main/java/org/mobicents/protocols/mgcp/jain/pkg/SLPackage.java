@@ -19,41 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.mgcp.controller;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Enumeration;
-import org.mobicents.media.server.utils.Text;
+package org.mobicents.protocols.mgcp.jain.pkg;
+
+import jain.protocol.ip.mgcp.pkg.PackageName;
 
 /**
- * Maintains MGCP calls.
  * 
  * @author yulian oifa
+ *
  */
-public class CallManager {
-    //list of active calls
-	private ConcurrentHashMap<Integer,MgcpCall> calls=new ConcurrentHashMap();
-    
-    public MgcpCall getCall(int id, boolean allowNew) {
-    	MgcpCall result=calls.get(id);
-    	if(result!=null)
-    		return result;
-    	
-    	if (!allowNew) return null;
-        
-    	MgcpCall call = new MgcpCall(this, id);
-    	calls.put(call.id,call); 
-        
-    	return call;
-    }
-    
-    /**
-     * Terminates specified call.
-     * 
-     * @param call the call to be terminated
-     */
-    protected void terminate(MgcpCall call) {
-    	calls.remove(call.id);    	
-    }    
-    
+public class SLPackage {
+	public static final int SL_PACKAGE = 201;
+	public static final PackageName SL = PackageName.factory("SL", SL_PACKAGE);
 }

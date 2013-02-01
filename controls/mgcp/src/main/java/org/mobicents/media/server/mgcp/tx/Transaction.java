@@ -89,7 +89,7 @@ public class Transaction implements ActionListener {
         return txManager.provider;
     }
 
-    public MgcpCall getCall(Text id, boolean isNew) {
+    public MgcpCall getCall(Integer id, boolean isNew) {
         return txManager.callManager.getCall(id, isNew);
     }
     

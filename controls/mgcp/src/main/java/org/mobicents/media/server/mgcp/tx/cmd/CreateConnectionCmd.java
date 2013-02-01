@@ -214,7 +214,7 @@ public class CreateConnectionCmd extends Action {
             connections[0]=null;
             connections[1]=null;
             
-            call = transaction().getCall(callID.getValue(), true);
+            call = transaction().getCall(callID.getValue().hexToInteger(), true);
             
             try {
                 //searching endpoint
@@ -329,7 +329,7 @@ public class CreateConnectionCmd extends Action {
                 response.setResponseString(SUCCESS);
 
                 //set parameters
-                response.setParameter(Parameter.CONNECTION_ID, connections[0].getID());
+                response.setParameter(Parameter.CONNECTION_ID, connections[0].getTextualID());
                 response.setParameter(Parameter.ENDPOINT_ID, endpoint.getFullName());
 
                 if (endpoint2 == null) {
@@ -343,7 +343,7 @@ public class CreateConnectionCmd extends Action {
                 }
 
                 if (connections[1] != null) {
-                    response.setParameter(Parameter.CONNECTION_ID2, connections[1].getID());
+                    response.setParameter(Parameter.CONNECTION_ID2, connections[1].getTextualID());
                 }
 
                 transaction().getProvider().send(evt);

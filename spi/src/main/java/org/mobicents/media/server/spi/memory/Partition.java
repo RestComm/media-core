@@ -22,7 +22,7 @@
 
 package org.mobicents.media.server.spi.memory;
 
-import org.mobicents.media.server.scheduler.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 
 /**
  *
