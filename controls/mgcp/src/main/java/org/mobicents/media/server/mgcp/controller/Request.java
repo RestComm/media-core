@@ -31,7 +31,7 @@ import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.utils.Text;
@@ -59,7 +59,7 @@ public class Request {
      * The list of signals/events requested.
      * This list is cleared each time before accept new request.
      */ 
-    private ConcurrentLinkedList<Signal> executors = new ConcurrentLinkedList();
+    private ConcurrentCyclicFIFO<Signal> executors = new ConcurrentCyclicFIFO<Signal>();
     
     //notified entity address
     private InetSocketAddress address;

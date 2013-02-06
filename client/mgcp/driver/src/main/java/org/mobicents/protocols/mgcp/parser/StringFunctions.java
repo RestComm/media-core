@@ -24,7 +24,7 @@ package org.mobicents.protocols.mgcp.parser;
 
 import java.util.ArrayList;
 
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 public class StringFunctions 
 {
@@ -111,8 +111,8 @@ public class StringFunctions
 	
 	public static final byte CASE_STEP=HIGH_A_BYTE-LOW_A_BYTE;
 	
-	private static final ConcurrentLinkedList<byte[]> intParsers=new ConcurrentLinkedList<byte[]>();
-	private static final ConcurrentLinkedList<ArrayList<SplitDetails>> splitParsers=new ConcurrentLinkedList<ArrayList<SplitDetails>>();
+	private static final ConcurrentCyclicFIFO<byte[]> intParsers=new ConcurrentCyclicFIFO<byte[]>();
+	private static final ConcurrentCyclicFIFO<ArrayList<SplitDetails>> splitParsers=new ConcurrentCyclicFIFO<ArrayList<SplitDetails>>();
 	
 	public static int encodeInt(byte[] destination,int offset,int data)
 	{

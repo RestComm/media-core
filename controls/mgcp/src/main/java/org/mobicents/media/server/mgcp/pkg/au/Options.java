@@ -87,15 +87,15 @@ public class Options {
     private int cursor;
     
     //max duration in milliseconds
-    private int duration = -1;
+    private long duration = -1;
     
     //intial offset in milliseconds
-    private int offset = 0;
+    private long offset = 0;
     
     //repeat count
     private int repeatCount;
     
-    private int interval;
+    private long interval;
     
     private int digitsNumber,maxDigitsNumber;
     private long postSpeechTimer = -1,preSpeechTimer = -1;
@@ -117,7 +117,7 @@ public class Options {
     
     private long firstDigitTimer=0;
     private long interDigitTimer=0;
-    private long maxDuration=0;
+    private int maxDuration=0;
     private int numberOfAttempts=0;
     
     private Text tempSequence;
@@ -167,7 +167,7 @@ public class Options {
     	            		{
     	            			case 'u':
     	            			case 'U':
-    	            				this.duration = value.toInteger();            		            
+    	            				this.duration = value.toInteger() * 1000000L;            		            
     	            				break;
     	            			case 'p':
     	            			case 'P':
@@ -182,7 +182,7 @@ public class Options {
     	            		{
     	            			case 'f':
     	            			case 'F':
-    	            				this.offset = value.toInteger();            	            
+    	            				this.offset = value.toInteger() * 1000000L;            	            
     	            				break;
     	            			case 'a':
     	            			case 'A':
@@ -205,7 +205,7 @@ public class Options {
     	            		        break;
     	            			case 'v':
     	            			case 'V':
-    	            				this.interval = value.toInteger();            		            
+    	            				this.interval = value.toInteger() * 1000000L;            		            
     	            				break;    	            			
     	            		}
     	            		break;
@@ -311,7 +311,7 @@ public class Options {
     	            			case 'd':
     	            			case 'D':
     	            				if(name.charAt(2)=='t' || name.charAt(2)=='T')
-    	            					this.interDigitTimer = value.toInteger() * 100000000L;            		            
+    	            					this.interDigitTimer = value.toInteger();            		            
     	            				break;
     	            			case 'e':
     	            			case 'E':
@@ -338,7 +338,7 @@ public class Options {
     	            			case 'd':
     	            			case 'D':
     	            				if(name.charAt(2)=='t' || name.charAt(2)=='T')
-    	            					this.firstDigitTimer = value.toInteger() * 100000000L;            		            
+    	            					this.firstDigitTimer = value.toInteger();            		            
     	            				break;
     	            		}
     	            		break;
@@ -426,7 +426,7 @@ public class Options {
     	            }  
             	}
             	else if (name.equals(x_md))
-                    this.maxDuration = value.toInteger() * 100000000L;        		
+                    this.maxDuration = value.toInteger();        		
             }
         }
     }
@@ -491,11 +491,11 @@ public class Options {
         return this.failureAnnouncement;
     }
     
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
     
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
     
@@ -503,7 +503,7 @@ public class Options {
         return repeatCount;
     }
     
-    public int getInterval() {
+    public long getInterval() {
         return interval;
     }
     
@@ -551,7 +551,7 @@ public class Options {
         return this.interDigitTimer;
     }
     
-    public long getMaxDuration() {
+    public int getMaxDuration() {
         return this.maxDuration;
     }
     

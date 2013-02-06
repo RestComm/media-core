@@ -26,7 +26,7 @@ import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.Lock;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -243,22 +243,5 @@ public class GlobalTransactionManager
 			
 			lock.unlock();
 		}
-    }
-    
-    private class Lock {
-        protected boolean locked;
-        public Lock() {
-            locked=false;
-        }
-        
-        public synchronized void lock() throws InterruptedException {
-            while (locked) wait();
-            locked=true;
-        }
-        
-        public synchronized void unlock() {
-            locked=false;
-            notify();
-        }
-    }
+    }    
 }

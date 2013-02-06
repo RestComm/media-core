@@ -22,7 +22,7 @@
 
 package org.mobicents.media.server.spi.memory;
 
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  *
@@ -31,7 +31,7 @@ import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
 public class Partition {
 
     protected int size;
-    private ConcurrentLinkedList<Frame> heap = new ConcurrentLinkedList();
+    private ConcurrentCyclicFIFO<Frame> heap = new ConcurrentCyclicFIFO();
 
     protected Partition(int size) {
         this.size = size;

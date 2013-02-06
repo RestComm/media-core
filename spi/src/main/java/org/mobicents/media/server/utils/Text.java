@@ -56,6 +56,7 @@ public class Text implements CharSequence {
     private byte f_byte=(byte)'f';
     private byte A_byte=(byte)'A';
     private byte F_byte=(byte)'F';
+    private byte minus_byte=(byte)'-';
     
     /**
      * Create an empty text object.
@@ -314,6 +315,34 @@ public class Text implements CharSequence {
         return tokens;
     }
     
+    public int indexOf(Text value) {
+    	int pointer = pos;
+        int limit = pos + len;
+        int mark = pointer;
+        
+        if(value.length()==0)
+    		return 0;
+    	
+        int index=0;
+        while (pointer < limit) {
+            if (chars[pointer] == value.charAt(index))
+                index++;
+            else 
+            {
+            	index=0;
+            	mark++;
+            	pointer=mark;
+            }
+            
+            if(index==value.length())
+            	return mark;
+            
+            pointer++;                    
+        }
+        
+        return -1;
+    }
+    
     /**
      * Removes whitespace from the head and tail of the string.
      * 
@@ -437,26 +466,54 @@ public class Text implements CharSequence {
      * Converts string value to integer
      * @return integer value
      */
-    public int toInteger() {
+    public int toInteger() throws NumberFormatException {
         int res = 0;
-        for (int i = 0; i < len; i++) {
-            res += digit(pos + i) * pow(len - i - 1);
+        byte currChar;
+        int i=1;
+        currChar=chars[pos];
+        boolean isMinus=false;
+        
+        if(currChar==minus_byte)
+        	isMinus=true;
+        else if(currChar>=zero_byte && currChar<=nine_byte)
+    		res+=currChar-zero_byte;
+    	else
+    		throw new NumberFormatException("value is not numeric");
+    	
+        for (; i < len; i++) {
+        	currChar=chars[pos+i];        		
+        	if(currChar>=zero_byte && currChar<=nine_byte)
+        	{
+        		res*=10;
+        		res+=currChar-zero_byte;
+        	}        
+        	else
+        		throw new NumberFormatException("value is not numeric");
         }
-        return res;
+        
+        if(isMinus)
+        	return 0-res;
+        else
+        	return res;
     }
 
-    public int hexToInteger() {
+    public int hexToInteger() throws NumberFormatException {
     	int res = 0;
     	byte currChar;
         for (int i = 0; i < len; i++) {
         	res<<=4;
         	currChar=chars[pos+i];
-        	if(currChar>=zero_byte && chars[pos+i]<=nine_byte)
+        	if(currChar>=zero_byte && currChar<=nine_byte)
         		res|=currChar-zero_byte;
-        	else if(currChar>=a_byte && chars[pos+i]<=f_byte)
+        	else if(currChar>=a_byte && currChar<=f_byte)
         		res|=currChar-a_byte+10;
-        	else if(currChar>=A_byte && chars[pos+i]<=F_byte)
+        	else if(currChar>=A_byte && currChar<=F_byte)
         		res|=currChar-a_byte+10;
+        	else 
+        	{
+        		System.out.println("THROWING 1");
+        		throw new NumberFormatException("value is not numeric");
+        	}
         }
         
         return res;

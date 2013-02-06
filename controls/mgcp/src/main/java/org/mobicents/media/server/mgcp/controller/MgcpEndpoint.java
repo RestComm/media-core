@@ -32,7 +32,7 @@ import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
@@ -66,7 +66,7 @@ public class MgcpEndpoint {
     Request request;
     
     //pool of connection activities, limited to 15
-    private ConcurrentLinkedList<MgcpConnection> connections = new ConcurrentLinkedList();
+    private ConcurrentCyclicFIFO<MgcpConnection> connections = new ConcurrentCyclicFIFO();
     
     //list of active connections
     private ConcurrentHashMap<Integer,MgcpConnection> activeConnections=new ConcurrentHashMap(N);

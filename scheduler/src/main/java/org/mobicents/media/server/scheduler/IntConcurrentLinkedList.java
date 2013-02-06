@@ -30,6 +30,9 @@ import java.util.NoSuchElementException;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.BlockingQueue;
+
+import org.mobicents.media.server.concurrent.Lock;
+
 /**
  *
  * @author oifa yulian
@@ -318,22 +321,5 @@ public class IntConcurrentLinkedList<E> {
     		
     		releaseAccess();
     	}
-    }
-    
-    private class Lock {
-        protected boolean locked;
-        public Lock() {
-            locked=false;
-        }
-        
-        public synchronized void lock() throws InterruptedException {
-            while (locked) wait();
-            locked=true;
-        }
-        
-        public synchronized void unlock() {
-            locked=false;
-            notify();
-        }
-    }
+    }    
 }

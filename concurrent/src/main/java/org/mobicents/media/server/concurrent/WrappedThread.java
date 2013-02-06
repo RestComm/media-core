@@ -20,46 +20,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.scheduler;
-
-import java.util.concurrent.TimeUnit;
+package org.mobicents.media.server.concurrent;
 
 /**
- * Clock implementation wich uses the default OS clock.
- * 
- * @author kulikov
+ *
+ * @author oifa yulian
  */
-public class DefaultClock implements Clock {
 
-    /**
-     * The default time unit: nanoseconds.
-     */
-    private TimeUnit timeUnit = TimeUnit.NANOSECONDS;
-
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.scheduler.Clock.getTime().
-     */
-    public long getTime() {
-        return System.nanoTime();
+public class WrappedThread extends Thread 
+{
+    private Object value;
+    
+    public void setValue(Object value)
+    {
+    	this.value=value;
     }
-
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.scheduler.Clock.getTimeUnit().
-     */
-    public TimeUnit getTimeUnit() {
-        return timeUnit;
-    }
-
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.scheduler.Clock.getTime().
-     */
-    public long getTime(TimeUnit timeUnit) {
-        return timeUnit.convert(System.nanoTime(), this.timeUnit);
+    
+    public Object getValue()
+    {
+    	return value;
     }
 }

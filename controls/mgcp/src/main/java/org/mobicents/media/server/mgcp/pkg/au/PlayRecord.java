@@ -438,7 +438,7 @@ public class PlayRecord extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player next with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -461,7 +461,7 @@ public class PlayRecord extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player prev with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -483,7 +483,7 @@ public class PlayRecord extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player curr with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -506,7 +506,7 @@ public class PlayRecord extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player first with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -529,7 +529,7 @@ public class PlayRecord extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player last with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 

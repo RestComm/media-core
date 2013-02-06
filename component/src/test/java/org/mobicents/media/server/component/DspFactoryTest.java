@@ -124,7 +124,7 @@ public class DspFactoryTest {
 
     @Test
     public void testEncoding() throws Exception {
-        Format fmt = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
+    	Format fmt = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
         Format fmt2 = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
 
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
@@ -138,7 +138,6 @@ public class DspFactoryTest {
         Frame frame2 = dsp.process(frame,fmt,fmt2);
 
         System.out.println("fmt=" + frame2.getFormat().getName());
-        assertTrue("Format missmatch", fmt2.matches(frame2.getFormat()));
+        assertTrue("Format missmatch", fmt2.matches(frame2.getFormat()));    	
     }
-
 }

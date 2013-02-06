@@ -26,7 +26,8 @@ import java.lang.InterruptedException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.WrappedThread;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.apache.log4j.Logger;
 
 /**
@@ -79,8 +80,8 @@ public class Scheduler  {
 
     private Logger logger = Logger.getLogger(Scheduler.class) ;
     
-    private ConcurrentLinkedList<Task> waitingTasks=new ConcurrentLinkedList<Task>();
-    private ConcurrentLinkedList<Task> criticalTasks=new ConcurrentLinkedList<Task>();
+    private ConcurrentCyclicFIFO<Task> waitingTasks=new ConcurrentCyclicFIFO<Task>();
+    private ConcurrentCyclicFIFO<Task> criticalTasks=new ConcurrentCyclicFIFO<Task>();
     
     private WorkerThread[] workerThreads;
     private CriticalWorkerThread[] criticalWorkerThreads;
@@ -263,12 +264,12 @@ public class Scheduler  {
         	{
         		currQueue=MANAGEMENT_QUEUE;
         		while(currQueue<=OUTPUT_QUEUE)
-    			{    				    				
+    			{    		
         			executeQueue(taskQueues[currQueue]);
 					while(activeTasksCount.get()!=0)
 						LockSupport.park();
 					
-    				currQueue++;
+					currQueue++;
     			}				        		
         		
         		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
@@ -276,11 +277,10 @@ public class Scheduler  {
 					LockSupport.park();					
         		
         		runIndex=(runIndex+1)%5;        		
-        		executeQueue(heartBeatQueue[runIndex]);
+    			executeQueue(heartBeatQueue[runIndex]);
         		while(activeTasksCount.get()!=0)
 					LockSupport.park();
         		
-				
         		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
         		while(activeTasksCount.get()!=0)
 					LockSupport.park();	
@@ -399,7 +399,7 @@ public class Scheduler  {
         }
     }
     
-    private class WorkerThread extends Thread {
+    private class WorkerThread extends WrappedThread {
     	private volatile boolean active;
         
     	public void run() {
@@ -423,7 +423,7 @@ public class Scheduler  {
         }
     }
     
-    private class CriticalWorkerThread extends Thread {
+    private class CriticalWorkerThread extends WrappedThread {
     	private volatile boolean active;
         
     	public void run() {

@@ -24,7 +24,7 @@ package org.mobicents.media.server.impl.resource.dtmf;
 
 import java.io.Serializable;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements digit buffer.
@@ -38,7 +38,7 @@ public class DtmfBuffer implements Serializable {
     public int interdigitInterval = 160;
     
     //Queue for buffered events
-    private ConcurrentLinkedList<DtmfEventImpl> queue = new ConcurrentLinkedList();
+    private ConcurrentCyclicFIFO<DtmfEventImpl> queue = new ConcurrentCyclicFIFO();
     
     //buffer size
     private int size = 20;

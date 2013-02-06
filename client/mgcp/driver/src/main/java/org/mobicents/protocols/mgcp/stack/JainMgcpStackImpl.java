@@ -67,7 +67,8 @@ import org.mobicents.protocols.mgcp.handlers.TransactionHandler;
 import org.mobicents.protocols.mgcp.utils.PacketRepresentation;
 import org.mobicents.protocols.mgcp.utils.PacketRepresentationFactory;
 
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.WrappedThread;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 /**
  * 
  * @author Oleg Kulikov
@@ -113,12 +114,12 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	 * holds current active transactions (RFC 3435 [$3.2.1.2]: for tx sent & received).
 	 * 
 	 */
-	private ConcurrentHashMap<Integer, TransactionHandler> localTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
-	private ConcurrentHashMap<Integer, Integer> remoteTxToLocalTxMap = new ConcurrentHashMap<Integer, Integer>();
+	private ConcurrentHashMap<Integer,TransactionHandler> localTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
+	private ConcurrentHashMap<Integer,Integer> remoteTxToLocalTxMap = new ConcurrentHashMap<Integer, Integer>();
 
-	private ConcurrentHashMap<Integer, TransactionHandler> completedTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
+	private ConcurrentHashMap<Integer,TransactionHandler> completedTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
 
-	private ConcurrentLinkedList<PacketRepresentation> inputQueue=new ConcurrentLinkedList<PacketRepresentation>();	
+	private ConcurrentCyclicFIFO<PacketRepresentation> inputQueue=new ConcurrentCyclicFIFO<PacketRepresentation>();	
 	
 	private DatagramSocket socket;
 
@@ -416,7 +417,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		return completedTransactions;
 	}
 
-	private class DecodingThread extends Thread
+	private class DecodingThread extends WrappedThread
 	{
 		private volatile boolean active;
         private JainMgcpStackImpl stack;

@@ -69,7 +69,8 @@ import org.mobicents.protocols.mgcp.parser.commands.NotificationRequestHandler;
 import org.mobicents.protocols.mgcp.parser.commands.RestartInProgressHandler;
 import org.mobicents.protocols.mgcp.parser.commands.RespUnknownHandler;
 
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.WrappedThread;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 
@@ -89,7 +90,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 
 	protected NotifiedEntity notifiedEntity = null;
 
-	private ConcurrentLinkedList<EventWrapper> waitingQueue=new ConcurrentLinkedList<EventWrapper>();
+	private ConcurrentCyclicFIFO<EventWrapper> waitingQueue=new ConcurrentCyclicFIFO<EventWrapper>();
 	
 	private DispatcherThread dispatcher;
 	
@@ -328,7 +329,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 		}			
 	}
 	
-	private class DispatcherThread extends Thread
+	private class DispatcherThread extends WrappedThread
 	{
 		private volatile boolean active;
         JainMgcpCommandEvent command;

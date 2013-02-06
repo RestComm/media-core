@@ -268,14 +268,8 @@ public abstract class TransactionHandler {
 				} catch (Exception e) {
 					logger.error("Failed to delete the jainMgcpResponseEvent for txId", e);
 				}
-			} else {
-				Integer key = new Integer(remoteTID);
-				TransactionHandler obj = stack.getCompletedTransactions().remove(key);
-				if (logger.isDebugEnabled()) {
-					logger.debug("T-HIST timeout deleting Response for Tx = " + remoteTID + " Response = " + obj);
-				}
-				obj = null;
-			}
+			} else 
+				stack.getCompletedTransactions().remove(remoteTID);			
 		}
 	}
 

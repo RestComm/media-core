@@ -86,7 +86,7 @@ public class PlayCollect extends Signal {
     
     private long firstDigitTimer=0;
     private long nextDigitTimer=0;
-    private long maxDuration=0;
+    private int maxDuration=0;
     private int numberOfAttempts=1;
     
     private Heartbeat heartbeat;
@@ -281,12 +281,12 @@ public class PlayCollect extends Signal {
     	if(this.firstDigitTimer>0 || this.maxDuration>0)
     	{
     		if(this.firstDigitTimer>0)
-    			heartbeat.setTtl((int)(this.firstDigitTimer/100000000L));
+    			heartbeat.setTtl((int)(this.firstDigitTimer));
     		else
     			heartbeat.setTtl(-1);
     		
     		if(this.maxDuration>0)
-    			heartbeat.setOverallTtl((int)(this.maxDuration/100000000L));
+    			heartbeat.setOverallTtl(this.maxDuration);
     		else
     			heartbeat.setOverallTtl(-1);
     		
@@ -378,7 +378,7 @@ public class PlayCollect extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player next with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -401,7 +401,7 @@ public class PlayCollect extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player prev with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         }
@@ -423,7 +423,7 @@ public class PlayCollect extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player curr with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -446,7 +446,7 @@ public class PlayCollect extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player first with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -469,7 +469,7 @@ public class PlayCollect extends Signal {
         	String url = prompt[promptIndex].toString(); 
         	logger.info(String.format("(%s) Processing player last with url - %s", getEndpoint().getLocalName(), url));
             player.setURL(url);
-            player.setInitialDelay(delay * 1000000L);
+            player.setInitialDelay(delay);
             //start playback
             player.start();
         } 
@@ -723,7 +723,7 @@ public class PlayCollect extends Signal {
             
             if(nextDigitTimer>0)
         	{
-        		heartbeat.setTtl((int)(nextDigitTimer/100000000L));
+        		heartbeat.setTtl((int)(nextDigitTimer));
         		if(!heartbeat.isActive())
         		{
         			heartbeat.activate();

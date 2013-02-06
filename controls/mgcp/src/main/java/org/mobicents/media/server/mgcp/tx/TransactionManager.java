@@ -27,7 +27,7 @@ import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,11 +44,11 @@ public class TransactionManager {
     private static java.util.concurrent.atomic.AtomicInteger ID = new AtomicInteger(1);
     
     //pool of transaction objects
-    private  ConcurrentLinkedList<Transaction> pool=new ConcurrentLinkedList();
+    private  ConcurrentCyclicFIFO<Transaction> pool=new ConcurrentCyclicFIFO();
     
     //cache size in 100ms units    
     private static final int cacheSize=5;
-    private ConcurrentLinkedList<Transaction>[] cache=new ConcurrentLinkedList[cacheSize];
+    private ConcurrentCyclicFIFO<Transaction>[] cache=new ConcurrentCyclicFIFO[cacheSize];
     private int cleanIndex=0;
     
     //currently active transactions.
@@ -85,7 +85,7 @@ public class TransactionManager {
         }      
         
         for(int i=0;i<cache.length;i++)
-        	cache[i]=new ConcurrentLinkedList<Transaction>();
+        	cache[i]=new ConcurrentCyclicFIFO<Transaction>();
         
         cacheHeartbeat = new Heartbeat();        
     }

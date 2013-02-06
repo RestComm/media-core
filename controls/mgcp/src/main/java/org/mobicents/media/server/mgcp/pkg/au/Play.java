@@ -124,16 +124,16 @@ public class Play extends Signal implements PlayerListener {
         
         //set max duration if present
         if (options.getDuration() != -1) {
-            player.setDuration(options.getDuration() * 1000000L);
+            player.setDuration(options.getDuration());
         }
 
         //set initial offset
         if (options.getOffset() > 0) {
-            player.setMediaTime(options.getOffset() * 1000000L);
+            player.setMediaTime(options.getOffset());
         }
 
         //initial delay
-        player.setInitialDelay(delay * 1000000L);
+        player.setInitialDelay(delay);
 
         //starting
         player.activate();

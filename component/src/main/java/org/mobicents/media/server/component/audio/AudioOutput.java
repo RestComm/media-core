@@ -34,7 +34,7 @@ import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.memory.Frame;
 
 import org.apache.log4j.Logger;
@@ -45,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public class AudioOutput extends AbstractSource {
 	private int outputId;
-    private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
+    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO();
     
     /**
      * Creates new instance with default name.

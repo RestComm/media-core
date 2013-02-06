@@ -25,7 +25,7 @@ package org.mobicents.media.server.component.oob;
 import java.io.IOException;
 
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -37,7 +37,7 @@ import org.mobicents.media.server.spi.memory.Memory;
 public class OOBInput extends AbstractSink {
     private int inputId;
     private int limit=10;
-    private ConcurrentLinkedList<Frame> buffer = new ConcurrentLinkedList();
+    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO();
     
     /**
      * Creates new stream

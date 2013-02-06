@@ -33,7 +33,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 
@@ -60,12 +60,12 @@ public class ResourcesPool implements ComponentFactory {
 	private ChannelsManager channelsManager;
 	private DspFactory dspFactory;
 	
-	private ConcurrentLinkedList<Component> players;
-	private ConcurrentLinkedList<Component> recorders;
-	private ConcurrentLinkedList<Component> dtmfDetectors;
-	private ConcurrentLinkedList<Component> dtmfGenerators;
-	private ConcurrentLinkedList<Component> signalDetectors;
-	private ConcurrentLinkedList<Component> signalGenerators;
+	private ConcurrentCyclicFIFO<Component> players;
+	private ConcurrentCyclicFIFO<Component> recorders;
+	private ConcurrentCyclicFIFO<Component> dtmfDetectors;
+	private ConcurrentCyclicFIFO<Component> dtmfGenerators;
+	private ConcurrentCyclicFIFO<Component> signalDetectors;
+	private ConcurrentCyclicFIFO<Component> signalGenerators;
 	
 	private int defaultPlayers;
 	private int defaultRecorders;
@@ -76,8 +76,8 @@ public class ResourcesPool implements ComponentFactory {
 	
 	private int dtmfDetectorDbi=-35;
 	
-	private ConcurrentLinkedList<Connection> localConnections;
-	private ConcurrentLinkedList<Connection> remoteConnections;
+	private ConcurrentCyclicFIFO<Connection> localConnections;
+	private ConcurrentCyclicFIFO<Connection> remoteConnections;
 	
 	private int defaultLocalConnections;
 	private int defaultRemoteConnections;
@@ -102,14 +102,14 @@ public class ResourcesPool implements ComponentFactory {
 		this.channelsManager=channelsManager;
 		this.dspFactory=dspFactory;
 		
-		players=new ConcurrentLinkedList();
-		recorders=new ConcurrentLinkedList();
-		dtmfDetectors=new ConcurrentLinkedList();
-		dtmfGenerators=new ConcurrentLinkedList();
-		signalDetectors=new ConcurrentLinkedList();
-		signalGenerators=new ConcurrentLinkedList();
-		localConnections=new ConcurrentLinkedList();
-		remoteConnections=new ConcurrentLinkedList();
+		players=new ConcurrentCyclicFIFO();
+		recorders=new ConcurrentCyclicFIFO();
+		dtmfDetectors=new ConcurrentCyclicFIFO();
+		dtmfGenerators=new ConcurrentCyclicFIFO();
+		signalDetectors=new ConcurrentCyclicFIFO();
+		signalGenerators=new ConcurrentCyclicFIFO();
+		localConnections=new ConcurrentCyclicFIFO();
+		remoteConnections=new ConcurrentCyclicFIFO();
 	}
 	
 	public DspFactory getDspFactory()
