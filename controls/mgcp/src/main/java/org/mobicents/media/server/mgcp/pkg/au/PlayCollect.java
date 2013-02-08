@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Semaphore;
 
 /**
  * Implements play announcement signal.
@@ -100,6 +101,8 @@ public class PlayCollect extends Signal {
     private Boolean dtmfListenerAdded=false;
     private Boolean playerListenerAdded=false;
     
+    private Semaphore terminateSemaphore=new Semaphore(1);
+    
     public PlayCollect(String name) {
         super(name);
         oc.add(new NotifyImmediately("N"));
@@ -127,7 +130,7 @@ public class PlayCollect extends Signal {
     	heartbeat=new Heartbeat(this);
     	
         //get options of the request
-        options = new Options(getTrigger().getParams());
+        options = Options.allocate(getTrigger().getParams());
 
         logger.info(String.format("(%s) Prepare digit collect phase", getEndpoint().getLocalName()));
         //Initializes resources for DTMF detection
@@ -318,12 +321,32 @@ public class PlayCollect extends Signal {
      * Terminates any activity. 
      */
     private void terminate() {
+    	try
+    	{
+    		terminateSemaphore.acquire();
+    	}
+    	catch(InterruptedException e)
+    	{
+    		
+    	}
+    	    	
     	this.isPromptActive=false;
     	this.terminatePrompt();
         this.terminateCollectPhase();
         
         if(this.heartbeat!=null)
+        {
     		this.heartbeat.disable();
+    		this.heartbeat=null;
+        }
+        
+        if(options!=null)
+        {
+    		Options.recycle(options);    	
+    		options=null;
+        }
+        
+        terminateSemaphore.release();
     }
     
 

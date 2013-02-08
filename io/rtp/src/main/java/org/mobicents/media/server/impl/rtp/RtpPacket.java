@@ -168,7 +168,7 @@ public class RtpPacket implements Serializable {
      * @return the sequence number value.
      */
     public int getSeqNumber() {
-        return buffer.getShort(2);
+        return buffer.getShort(2) & 0xFFFF;
     }
 
     /**

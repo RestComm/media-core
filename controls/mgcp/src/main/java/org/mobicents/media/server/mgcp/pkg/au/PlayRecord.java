@@ -48,6 +48,8 @@ import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
 import org.mobicents.media.server.utils.Text;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * Implements play announcement signal.
  * 
@@ -96,6 +98,8 @@ public class PlayRecord extends Signal {
     private Text eventContent;
     private Boolean playerListenerAdded=false;
     
+    private Semaphore terminateSemaphore=new Semaphore(1);
+    
     public PlayRecord(String name) {
         super(name);
         oc.add(new NotifyImmediately("N"));
@@ -125,7 +129,7 @@ public class PlayRecord extends Signal {
     	//set flag active signal
         this.isActive = true;
         //get options of the request
-        options = new Options(getTrigger().getParams());        
+        options = Options.allocate(getTrigger().getParams());        
         
         //check if has delete persistent audio , if yes verify all files and delete
     	if(options.hasDeletePresistentAudio())
@@ -384,10 +388,27 @@ public class PlayRecord extends Signal {
      * Terminates any activity. 
      */
     private void terminate() {
+    	try
+    	{
+    		terminateSemaphore.acquire();
+    	}
+    	catch(InterruptedException e)
+    	{
+    		
+    	}
+    	
     	this.isPromptActive = false;
         this.terminatePrompt();
         this.terminateRecordPhase();
         this.terminateCollectPhase();
+        
+        if(options!=null)
+        {
+    		Options.recycle(options);    	
+    		options=null;	
+        }
+        
+        terminateSemaphore.release();
     }
     
     private void decreaseNa()
@@ -783,12 +804,12 @@ public class PlayRecord extends Signal {
         		}
         		else if(options.nextKeyValid() && options.getNextKey()==s.charAt(0))
         		{
-        			first(options.getInterval());
+        			next(options.getInterval());
         			return false;
         		}
         		else if(options.lastKeyValid() && options.getLastKey()==s.charAt(0))
         		{
-        			curr(options.getInterval());
+        			last(options.getInterval());
         			return false;
         		}
         	}

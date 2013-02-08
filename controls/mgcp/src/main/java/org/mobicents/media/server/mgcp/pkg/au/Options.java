@@ -25,12 +25,15 @@ package org.mobicents.media.server.mgcp.pkg.au;
 import java.util.Collection;
 import org.mobicents.media.server.utils.Text;
 
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 /**
  * Represents parameters supplied with command.
  * 
  * @author oifa yulian
  */
 public class Options {
+	public static ConcurrentCyclicFIFO<Options> cache = new ConcurrentCyclicFIFO();
+    
     private final static Text ann = new Text("an");
     private final static Text du = new Text("du");
     private final static Text of = new Text("of");
@@ -74,6 +77,15 @@ public class Options {
     
     private boolean isPrompt,isReprompt,isDeletePersistentAudio=false,isFailureAnnouncement=false,isSuccessAnnouncement=false,isNoSpeechReprompt=false,isNoDigitsReprompt=false;
     private boolean override = true;
+    
+    private Text segmentsBuffer = new Text(new byte[2048], 0, 2048);
+    private Text promptBuffer = new Text(new byte[2048], 0, 2048);
+    private Text repromptBuffer = new Text(new byte[2048], 0, 2048);
+    private Text failureAnnouncementBuffer = new Text(new byte[2048], 0, 2048);
+    private Text successAnnouncementBuffer = new Text(new byte[2048], 0, 2048);
+    private Text noSpeechRepromptBuffer = new Text(new byte[2048], 0, 2048);
+    private Text noDigitsRepromptBuffer = new Text(new byte[2048], 0, 2048);
+    private Text deletePersistentAudioBuffer = new Text(new byte[2048], 0, 2048);
     
     private Collection<Text> segments;
     private Collection<Text> prompt;
@@ -133,12 +145,92 @@ public class Options {
     private boolean hasCurrKey=false;
     private char currKey=' ';
     
+    static
+    {
+    	for(int i=0;i<100;i++)
+    		cache.offer(new Options(null));
+    }
+    
+    public static Options allocate(Text options)
+    {
+    	Options currOptions=cache.poll();
+    	
+    	if(currOptions==null)
+    		currOptions=new Options(options);
+    	else
+    		currOptions.init(options);
+    	
+    	return currOptions;
+    }
+    
+    public static void recycle(Options options)
+    {
+    	options.isPrompt=false;
+    	options.isReprompt=false;
+    	options.isDeletePersistentAudio=false;
+    	options.isFailureAnnouncement=false;
+    	options.isSuccessAnnouncement=false;
+    	options.isNoSpeechReprompt=false;
+    	options.isNoDigitsReprompt=false;
+    	options.override = true;
+        
+    	options.segments=null;
+    	options.prompt=null;
+    	options.reprompt=null;
+    	options.failureAnnouncement=null;
+    	options.successAnnouncement=null;
+    	options.noSpeechReprompt=null;
+    	options.noDigitsReprompt=null;
+    	options.deletePersistentAudio=null;
+        
+    	options.cursor=0;        
+        options.duration = -1;
+        options.offset = 0;
+        options.repeatCount=0;
+        options.interval=0;
+        options.digitsNumber=0;
+        options.maxDigitsNumber=0;
+        options.postSpeechTimer = -1;
+        options.preSpeechTimer = -1;
+        
+        options.digitPatterns=null;
+        
+        options.nonInterruptable = false;
+        options.recordDuration = -1;
+        options.clearDigits = false;
+        options.includeEndInput = false;
+        
+        options.endInputKey='#';
+        
+        options.firstDigitTimer=0;
+        options.interDigitTimer=0;
+        options.maxDuration=0;
+        options.numberOfAttempts=0;
+        
+        options.hasNextKey=false;
+        options.nextKey=' ';
+        options.hasPrevKey=false;
+        options.prevKey=' ';
+        options.hasFirstKey=false;
+        options.firstKey=' ';
+        options.hasLastKey=false;
+        options.lastKey=' ';
+        options.hasCurrKey=false;
+        options.currKey=' ';
+        
+    	cache.offer(options);
+    }
+    
     /**
      * Creates options.
      * 
      * @param options the text representation of options.
      */
-    public Options(Text options) {
+    private Options(Text options) {
+    	init(options);
+    }
+    
+    private void init(Text options) {
         if (options == null || options.length() == 0) {
             return;
         }
@@ -159,7 +251,10 @@ public class Options {
     	            	case 'a':
     	            	case 'A':
     	            		if(name.charAt(1)=='n' || name.charAt(1)=='N')
-    	                        this.segments = value.split(';');
+    	            		{
+    	            			value.duplicate(segmentsBuffer);
+    	                        this.segments = segmentsBuffer.split(';');
+    	            		}
     	            		break;
     	            	case 'd':
     	            	case 'D':
@@ -200,7 +295,8 @@ public class Options {
     	            				break;
     	            			case 'p':
     	            			case 'P':
-    	            				this.prompt = value.split(';');
+    	            				value.duplicate(promptBuffer);
+    	            				this.prompt = promptBuffer.split(';');
     	            		        this.isPrompt = true;
     	            		        break;
     	            			case 'v':
@@ -215,7 +311,8 @@ public class Options {
     	            		{
     	            			case 'p':
     	            			case 'P':
-    	            				this.reprompt = value.split(';');
+    	            				value.duplicate(repromptBuffer);
+    	            				this.reprompt = repromptBuffer.split(';');
     	            		        this.isReprompt = true;
     	            		        break;
     	            			case 'i':
@@ -248,7 +345,8 @@ public class Options {
     	            				break;
     	            			case 'd':
     	            			case 'D':
-    	            				this.noDigitsReprompt = value.split(';');
+    	            				value.duplicate(noDigitsRepromptBuffer);
+    	            				this.noDigitsReprompt = noDigitsRepromptBuffer.split(';');
     	        		            this.isNoDigitsReprompt = true;                
     	        		            break;
     	            			case 'a':
@@ -257,7 +355,8 @@ public class Options {
     	            				break;
     	            			case 's':
     	            			case 'S':
-    	            				this.noSpeechReprompt = value.split(';');
+    	            				value.duplicate(noSpeechRepromptBuffer);
+    	            				this.noSpeechReprompt = noSpeechRepromptBuffer.split(';');
     	        		            this.isNoSpeechReprompt = true;                
     	        		            break;            			
     	            		}
@@ -268,7 +367,8 @@ public class Options {
     	            		{
     	            			case 'a':
     	            			case 'A':
-    	            				this.failureAnnouncement = value.split(';');
+    	            				value.duplicate(failureAnnouncementBuffer);
+    	            				this.failureAnnouncement = failureAnnouncementBuffer.split(';');
     	            				this.isFailureAnnouncement = true;                
     	            				break;    	            			
     	            		}
@@ -276,7 +376,8 @@ public class Options {
     	            	case 's':
     	            	case 'S':
     	            		if(name.charAt(1)=='a' || name.charAt(1)=='A') {
-    	            			this.successAnnouncement = value.split(';');
+    	            			value.duplicate(successAnnouncementBuffer);
+    	            			this.successAnnouncement = successAnnouncementBuffer.split(';');
     	                    	this.isSuccessAnnouncement = true;                
     	                    } 
     	            		break;
@@ -298,7 +399,8 @@ public class Options {
     	            			case 'p':
     	            			case 'P':
     	            				if(name.charAt(2)=='a' || name.charAt(2)=='A') {
-    	            		            this.deletePersistentAudio = value.split(';');
+    	            					value.duplicate(deletePersistentAudioBuffer);
+    	            		            this.deletePersistentAudio = deletePersistentAudioBuffer.split(';');
     	            		            this.isDeletePersistentAudio = true;                
     	            		        } 
     	            				break;

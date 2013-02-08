@@ -40,6 +40,8 @@ import org.mobicents.media.server.spi.player.PlayerListener;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
 
+import java.util.concurrent.Semaphore;
+
 /**
  * Implements play announcement signal.
  * 
@@ -62,6 +64,8 @@ public class Play extends Signal implements PlayerListener {
     
     private Iterator<Text> segments;
     private final static Logger logger = Logger.getLogger(Play.class);
+    
+    private Semaphore terminateSemaphore=new Semaphore(1);
     
     public Play(String name) {
         super(name);
@@ -89,7 +93,7 @@ public class Play extends Signal implements PlayerListener {
         } 
         
         //get options of the request
-        options = new Options(getTrigger().getParams());        
+        options = Options.allocate(getTrigger().getParams());        
                 
         //set initial delay
         delay = 0;
@@ -172,13 +176,31 @@ public class Play extends Signal implements PlayerListener {
         
     }
     
-    private void terminate() {
-    	Player currPlayer=player;
-    	if (currPlayer != null) {
-    		currPlayer.removeListener(this);
-    		currPlayer.deactivate();
+    private void terminate() 
+    {    	
+    	try
+    	{
+    		terminateSemaphore.acquire();
+    	}
+    	catch(InterruptedException e)
+    	{
+    		
+    	}
+    	
+    	if (player != null) 
+    	{    		
+    		player.removeListener(this);
+    		player.deactivate();
     		player=null;
-        }                
+        }    	    	
+    	
+    	if(options!=null)
+    	{
+    		Options.recycle(options);    	
+    		options=null;
+    	}
+    	
+    	terminateSemaphore.release();    	    	
     }
     
     private void repeat(long delay) {

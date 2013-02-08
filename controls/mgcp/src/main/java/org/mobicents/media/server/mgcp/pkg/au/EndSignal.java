@@ -52,7 +52,7 @@ public class EndSignal extends Signal {
     public void execute() {
     	logger.info("Terminating signals");
         //get options of the request
-        options = new Options(getTrigger().getParams());
+        options = Options.allocate(getTrigger().getParams());
         
         Endpoint endpoint = getEndpoint();        
         if (options.isClearDigits() && endpoint.hasResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR)) {
