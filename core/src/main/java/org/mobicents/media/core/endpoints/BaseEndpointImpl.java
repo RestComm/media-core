@@ -24,14 +24,14 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.core.connections.RtpConnectionImpl;
 import org.mobicents.media.core.connections.LocalConnectionImpl;
@@ -74,7 +74,8 @@ public abstract class BaseEndpointImpl implements Endpoint {
     //logger instance
     private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
     
-    private ConcurrentHashMap<Integer,Connection> connections;
+    private ConcurrentMap<Connection> connections=new ConcurrentMap();
+    private Iterator<Connection> connectionsIterator = connections.values();
     
     public BaseEndpointImpl(String localName) {
         this.localName = localName;              
@@ -160,8 +161,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
         }
         
         //create connections subsystem
-        mediaGroup=new MediaGroup(resourcesPool,this);
-    	connections=new ConcurrentHashMap();
+        mediaGroup=new MediaGroup(resourcesPool,this);    	
     }
 
     /**
@@ -241,15 +241,13 @@ public abstract class BaseEndpointImpl implements Endpoint {
      * @see org.mobicents.media.server.spi.Endpoint#deleteAllConnections();
      */
     public void deleteAllConnections() {
-    	Connection currConnection;
-        for(Enumeration<Integer> e = connections.keys() ; e.hasMoreElements() ;) {
-                currConnection=connections.get(e.nextElement());
-                ((BaseConnection)currConnection).close();                
-        }
+    	connections.resetIterator(connectionsIterator);
+    	while(connectionsIterator.hasNext())
+    		((BaseConnection)connectionsIterator.next()).close();    	
     }
 
 
-    public Connection getConnection(String connectionID) {
+    public Connection getConnection(int connectionID) {
         return connections.get(connectionID);
     }
     

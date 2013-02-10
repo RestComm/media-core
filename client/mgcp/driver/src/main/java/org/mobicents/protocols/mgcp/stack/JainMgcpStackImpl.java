@@ -54,8 +54,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Level;
@@ -69,6 +67,7 @@ import org.mobicents.protocols.mgcp.utils.PacketRepresentationFactory;
 
 import org.mobicents.media.server.concurrent.WrappedThread;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 /**
  * 
  * @author Oleg Kulikov
@@ -114,10 +113,10 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	 * holds current active transactions (RFC 3435 [$3.2.1.2]: for tx sent & received).
 	 * 
 	 */
-	private ConcurrentHashMap<Integer,TransactionHandler> localTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
-	private ConcurrentHashMap<Integer,Integer> remoteTxToLocalTxMap = new ConcurrentHashMap<Integer, Integer>();
+	private ConcurrentMap<TransactionHandler> localTransactions = new ConcurrentMap<TransactionHandler>();
+	private ConcurrentMap<Integer> remoteTxToLocalTxMap = new ConcurrentMap<Integer>();
 
-	private ConcurrentHashMap<Integer,TransactionHandler> completedTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
+	private ConcurrentMap<TransactionHandler> completedTransactions = new ConcurrentMap<TransactionHandler>();
 
 	private ConcurrentCyclicFIFO<PacketRepresentation> inputQueue=new ConcurrentCyclicFIFO<PacketRepresentation>();	
 	
@@ -131,9 +130,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 	private DecodingThread[] decodingThreads;
 	
 	public void printStats() {
-		System.out.println("localTransactions size = " + localTransactions.size());
-		System.out.println("remoteTxToLocalTxMap size = " + remoteTxToLocalTxMap.size());
-		System.out.println("completedTransactions size = " + completedTransactions.size());
+		//System.out.println("localTransactions size = " + localTransactions.size());
+		//System.out.println("remoteTxToLocalTxMap size = " + remoteTxToLocalTxMap.size());
+		//System.out.println("completedTransactions size = " + completedTransactions.size());
 	}
 
 	// Defualt constructor for TCK
@@ -405,15 +404,15 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		}
 	}
 
-	public Map<Integer, TransactionHandler> getLocalTransactions() {
+	public ConcurrentMap<TransactionHandler> getLocalTransactions() {
 		return localTransactions;
 	}
 
-	public Map<Integer, Integer> getRemoteTxToLocalTxMap() {
+	public ConcurrentMap<Integer> getRemoteTxToLocalTxMap() {
 		return remoteTxToLocalTxMap;
 	}
 
-	public Map<Integer, TransactionHandler> getCompletedTransactions() {
+	public ConcurrentMap<TransactionHandler> getCompletedTransactions() {
 		return completedTransactions;
 	}
 

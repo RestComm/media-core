@@ -87,7 +87,7 @@ public class MemoryTest {
     public void testGC() throws InterruptedException {
         for (int i = 0; i < 5000; i++) {
             Frame frame = Memory.allocate(160);
-            frame.setTimestamp(Memory.clock.getTime());
+            //frame.setTimestamp(Memory.clock.getTime());
             frame.setDuration(20000000L);
             Thread.sleep(20);
         }

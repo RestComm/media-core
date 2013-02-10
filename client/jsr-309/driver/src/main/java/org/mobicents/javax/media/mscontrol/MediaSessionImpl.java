@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.media.mscontrol.Configuration;
 import javax.media.mscontrol.MediaConfig;
@@ -32,6 +33,8 @@ public class MediaSessionImpl extends MediaObjectImpl implements MediaSession {
 
     public static final int SESSION_TIMEOUT = 30000;
 
+    public static AtomicInteger lastCallId=new AtomicInteger(0);
+    
     //call identifier associated with this session
     private CallIdentifier callID = null;
     
@@ -69,7 +72,7 @@ public class MediaSessionImpl extends MediaObjectImpl implements MediaSession {
      * @return hexidecimal integer as string
      */
     private String genCallID() {
-        return Long.toHexString(System.nanoTime());
+        return Integer.toHexString(lastCallId.incrementAndGet());
     }
     
     public synchronized int getUniqueHandler() {

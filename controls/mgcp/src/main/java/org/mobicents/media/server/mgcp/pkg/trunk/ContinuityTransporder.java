@@ -68,6 +68,8 @@ public class ContinuityTransporder extends Signal implements ToneDetectorListene
     
     private Scheduler scheduler;
 	
+    private Boolean hasReceivingTone=false;
+	
     public ContinuityTransporder(String name) {
         super(name);         
         of.add(new NotifyImmediately("N"));
@@ -163,7 +165,15 @@ public class ContinuityTransporder extends Signal implements ToneDetectorListene
     			phoneDetector.activate();
     			break;
     		}    	
-    	    	
+    	        
+    	for(int i=0;i<toneOptions.length;i++)
+    		if(toneOptions[i].equals(options.getOutTone()))
+    		{
+    			hasReceivingTone=true;
+    			phoneGenerator.setFrequency(new int[] {toneValues[i]});
+    			break;
+    		}
+    	
     	if(!found) {
             of.fire(this, new Text("t/co1"));
             complete();
@@ -214,22 +224,13 @@ public class ContinuityTransporder extends Signal implements ToneDetectorListene
     	
     	heartbeat.disable();
     	
-    	//tone detected , generate tone
-    	Boolean found=false;
-    	for(int i=0;i<toneOptions.length;i++)
-    		if(toneOptions[i].equals(options.getOutTone()))
-    		{
-    			found=true;
-    			phoneGenerator.setFrequency(new int[] {toneValues[i]});
-    			phoneGenerator.activate();
-    			break;
-    		}
-    	
-    	if(!found) {
+    	if(!hasReceivingTone) {
             of.fire(this, new Text("t/co2"));
             complete();
             return;
         }
+    	
+    	phoneGenerator.activate();		
     }
     
     private class Heartbeat extends Task {

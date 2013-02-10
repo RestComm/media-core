@@ -29,8 +29,8 @@ package org.mobicents.media.server.mgcp;
 
 
 import java.net.SocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Clock;
@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
 public class MgcpProviderLoadTest {
     
@@ -63,7 +63,7 @@ public class MgcpProviderLoadTest {
     
     private Server server;
     
-    private ConcurrentHashMap<Integer, Client> clients = new ConcurrentHashMap();
+    private ConcurrentMap<Client> clients = new ConcurrentMap();
     private ClientListener demux;
     
     private volatile int errorCount;

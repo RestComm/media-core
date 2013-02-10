@@ -216,7 +216,6 @@ public class Scheduler  {
         	heartBeatQueue[i].clear();
     }
 
-    //removed statistics to increase perfomance
     /**
      * Shows the miss rate.
      * 
@@ -247,7 +246,6 @@ public class Scheduler  {
         
         public void activate() {        	        	
         	this.active = true;
-        	cycleStart = clock.getTime();
         	this.start();
         }
         
@@ -260,8 +258,10 @@ public class Scheduler  {
         public void run() {        	
         	long cycleDuration;
         	
+        	cycleStart = clock.getTime();
         	while(active)
         	{
+        		long taskStart=cycleStart;
         		currQueue=MANAGEMENT_QUEUE;
         		while(currQueue<=OUTPUT_QUEUE)
     			{    		
@@ -269,7 +269,7 @@ public class Scheduler  {
 					while(activeTasksCount.get()!=0)
 						LockSupport.park();
 					
-					currQueue++;
+					currQueue++;															
     			}				        		
         		
         		executeQueue(taskQueues[MANAGEMENT_QUEUE]);

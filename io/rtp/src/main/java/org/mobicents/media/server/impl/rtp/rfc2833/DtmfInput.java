@@ -112,7 +112,7 @@ public class DtmfInput extends AbstractSource {
         {
         	if(hasEndOfEvent)
         	{
-        		if(event.getSeqNumber()<=endSeq || event.getTimestamp()<=endTime)
+        		if((event.getSeqNumber()<=endSeq && event.getSeqNumber()>(endSeq-8)) || (event.getTimestamp()<=endTime && event.getTimestamp()>(endTime-160)))
         			//out of order , belongs to same event 
         			//if comes after end of event then its new one
         			return;
@@ -141,7 +141,7 @@ public class DtmfInput extends AbstractSource {
         			return;
         		}
         	}
-        }        
+        }
         
         hasEndOfEvent=false;
     	endTime=0;

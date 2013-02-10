@@ -317,7 +317,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 
 		s1 = a1.getSpectra();
 		s2 = a2.getSpectra();
-
+		
 		endpointRTP1.deleteConnection(connectionRTP1);
 		endpointLocal1.deleteConnection(connectionEPLocal1);
 		bridgeEndpoint.deleteAllConnections();

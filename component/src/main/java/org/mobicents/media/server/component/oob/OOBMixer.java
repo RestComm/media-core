@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -43,9 +43,9 @@ public class OOBMixer {
     private Scheduler scheduler;
     
     //The pool of components
-    private IntConcurrentLinkedList<OOBComponent> components = new IntConcurrentLinkedList();
+    private ConcurrentMap<OOBComponent> components = new ConcurrentMap();
     
-    Iterator<OOBComponent> activeComponents=components.iterator();
+    Iterator<OOBComponent> activeComponents=components.values();
     
     private MixTask mixer;
     private volatile boolean started = false;
@@ -63,7 +63,7 @@ public class OOBMixer {
 
     public void addComponent(OOBComponent component)
     {
-    	components.offer(component,component.getComponentId());    	
+    	components.put(component.getComponentId(),component);    	
     }
     
     /**

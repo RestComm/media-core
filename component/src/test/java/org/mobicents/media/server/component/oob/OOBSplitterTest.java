@@ -118,7 +118,7 @@ public class OOBSplitterTest {
     @Test
     public void testTransfer() throws InterruptedException {
     	sender.activate();
-        splitter.start();
+    	splitter.start();
         receiver1.activate();
         receiver2.activate();
         receiver3.activate();

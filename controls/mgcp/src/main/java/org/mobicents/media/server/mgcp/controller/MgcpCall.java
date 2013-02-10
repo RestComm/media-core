@@ -21,10 +21,9 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
-import org.mobicents.media.server.utils.Text;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
+
+import java.util.Iterator;
 
 /**
  * MGCP call.
@@ -35,8 +34,9 @@ public class MgcpCall {
 
     private CallManager callManager;
     protected int id;
-    protected ConcurrentHashMap<Integer,MgcpConnection> connections=new ConcurrentHashMap(20);
-    
+    protected ConcurrentMap<MgcpConnection> connections=new ConcurrentMap();
+    private Iterator<Integer> keyIterator = connections.keys();
+        
     protected MgcpCall(CallManager callManager, int id) {
         this.id=id;        
         this.callManager = callManager;
@@ -69,12 +69,14 @@ public class MgcpCall {
         return connections.size();
     }
     
-    public void deleteConnections() { 
+    public void deleteConnections() {     	
     	MgcpConnection currConnection;
-    	for (Enumeration<Integer> e = connections.keys() ; e.hasMoreElements() ;) {
-    		currConnection=connections.remove(e.nextElement());
-    		currConnection.mgcpEndpoint.deleteConnection(currConnection.getID());    
-        }   
+    	connections.resetKeyIterator(keyIterator);
+    	while(keyIterator.hasNext())
+    	{
+    		currConnection=connections.remove(keyIterator.next());
+    		currConnection.mgcpEndpoint.deleteConnection(currConnection.getID());        
+    	}
     	
     	if (connections.isEmpty()) {
             callManager.terminate(this);

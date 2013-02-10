@@ -22,8 +22,8 @@
 
 package org.mobicents.media.server.scheduler;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 /**
@@ -32,19 +32,24 @@ import org.apache.log4j.Logger;
  * @author Oifa Yulian
  */
 public abstract class Task implements Runnable {
+	private static AtomicInteger id=new AtomicInteger(0);
+	
     private volatile boolean isActive = true;
     private volatile boolean isHeartbeat = true;
     //error handler instance
     protected TaskListener listener;
     
     private final Object LOCK = new Object();    
-    
+        
     private AtomicBoolean inQueue0=new AtomicBoolean(false);
     private AtomicBoolean inQueue1=new AtomicBoolean(false);
     
     private Logger logger = Logger.getLogger(Task.class);
     
-    public Task() {               
+    protected int taskId;
+    
+    public Task() {
+    	taskId=id.incrementAndGet();
     }
 
     public void storedInQueue0()

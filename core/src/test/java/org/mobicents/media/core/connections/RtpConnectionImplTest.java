@@ -99,16 +99,23 @@ public class RtpConnectionImplTest {
 
     @After
     public void tearDown() {
+    	try
+    	{
         endpoint.deleteAllConnections();
         endpoint.stop();
-        scheduler.stop();        
+        scheduler.stop();
+    	}
+    	catch(Exception ex)
+    	{
+    		ex.printStackTrace();
+    	}
     }
 
     /**
      * Test of setOtherParty method, of class RtpConnectionImpl.
      */
     @Test
-    public void testDescription() throws Exception {
+    public void testDescription() throws Exception {    	
         connection = (RtpConnectionImpl) endpoint.createConnection(ConnectionType.RTP,false);
 //        connection.bind();
         Thread.sleep(1000);

@@ -135,8 +135,8 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         }
         this.level = DEFAULT_SIGNAL_LEVEL;
         
-        output=new AudioOutput(scheduler,ComponentType.RECORDER.getType());
-        oobOutput=new OOBOutput(scheduler,ComponentType.RECORDER.getType());
+        output=new AudioOutput(scheduler,ComponentType.DTMF_DETECTOR.getType());
+        oobOutput=new OOBOutput(scheduler,ComponentType.DTMF_DETECTOR.getType());
         output.join(this);
         
         oobDetector=new OOBDetector();
@@ -445,9 +445,11 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
             	if(hasEndOfEvent)
             	{
             		if(buffer.getSequenceNumber()<=endSeq && buffer.getSequenceNumber()>(endSeq-8))
+            		{
             			//out of order , belongs to same event 
             			//if comes after end of event then its new one
             			return;
+            		}
             	}
             	else if((buffer.getSequenceNumber()<(latestSeq+8)) && buffer.getSequenceNumber()>(latestSeq-8))
             	{
@@ -461,7 +463,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
             hasEndOfEvent=false;
         	endSeq=0;
         	
-            latestSeq=buffer.getSequenceNumber();
+        	latestSeq=buffer.getSequenceNumber();
             currTone=data[0];
             dtmfBuffer.push(oobEvtID[currTone]);             
     	}

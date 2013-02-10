@@ -24,7 +24,7 @@ package org.mobicents.media.server.mgcp.controller.naming;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpointStateListener;
 import org.mobicents.media.server.utils.Text;
@@ -46,7 +46,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     
     //queue of endpoints
     private ArrayList<Holder> completeList=new ArrayList(SIZE);
-    private ConcurrentLinkedList<MgcpEndpoint> queue = new ConcurrentLinkedList();
+    private ConcurrentCyclicFIFO<MgcpEndpoint> queue = new ConcurrentCyclicFIFO();
     
     //reference for just found endpoind
     //private Holder holder;
@@ -80,16 +80,14 @@ public class EndpointQueue implements MgcpEndpointStateListener {
      * 
      * @param endpoint the endpoint to be removed.
      */
-    public void remove(MgcpEndpoint endpoint) {
+    /*public void remove(MgcpEndpoint endpoint) {
     	for(int i=0;i<completeList.size();i++)
     		if(completeList.get(i).endpoint==endpoint)
     		{
     			completeList.remove(i);
     			break;
-    		}
-    	
-    	queue.remove(endpoint);
-    }
+    		}    	    	
+    }*/
      
     /**
      * Finds endpoints matching to name pattern.

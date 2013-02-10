@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -46,14 +46,14 @@ public class AudioSplitter {
     private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     
     //The pools of components
-    private IntConcurrentLinkedList<AudioComponent> insideComponents = new IntConcurrentLinkedList();
-    private IntConcurrentLinkedList<AudioComponent> outsideComponents = new IntConcurrentLinkedList();
+    private ConcurrentMap<AudioComponent> insideComponents = new ConcurrentMap();
+    private ConcurrentMap<AudioComponent> outsideComponents = new ConcurrentMap();
     
-    private Iterator<AudioComponent> insideRIterator=insideComponents.iterator();
-    private Iterator<AudioComponent> insideSIterator=insideComponents.iterator();
+    private Iterator<AudioComponent> insideRIterator=insideComponents.values();
+    private Iterator<AudioComponent> insideSIterator=insideComponents.values();
     
-    private Iterator<AudioComponent> outsideRIterator=outsideComponents.iterator();
-    private Iterator<AudioComponent> outsideSIterator=outsideComponents.iterator();
+    private Iterator<AudioComponent> outsideRIterator=outsideComponents.values();
+    private Iterator<AudioComponent> outsideSIterator=outsideComponents.values();
     
     private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;    
@@ -76,12 +76,12 @@ public class AudioSplitter {
 
     public void addInsideComponent(AudioComponent component)
     {
-    	insideComponents.offer(component,component.getComponentId());    	
+    	insideComponents.put(component.getComponentId(),component);    	
     }
     
     public void addOutsideComponent(AudioComponent component)
     {
-    	outsideComponents.offer(component,component.getComponentId());    	
+    	outsideComponents.put(component.getComponentId(),component);    	
     }
     
     protected int getPacketSize() {

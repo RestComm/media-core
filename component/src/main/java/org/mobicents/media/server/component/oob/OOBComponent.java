@@ -23,7 +23,7 @@
 package org.mobicents.media.server.component.oob;
 
 import java.util.Iterator;
-import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -39,11 +39,11 @@ public class OOBComponent {
 	//the format of the output stream.
 	private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
 
-    private IntConcurrentLinkedList<OOBInput> inputs = new IntConcurrentLinkedList();
-	private IntConcurrentLinkedList<OOBOutput> outputs = new IntConcurrentLinkedList();
+    private ConcurrentMap<OOBInput> inputs = new ConcurrentMap();
+	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap();
     
-	Iterator<OOBInput> activeInputs=inputs.iterator();
-	Iterator<OOBOutput> activeOutputs=outputs.iterator();
+	Iterator<OOBInput> activeInputs=inputs.values();
+	Iterator<OOBOutput> activeOutputs=outputs.values();
 	
 	protected Boolean shouldRead=false;
 	protected Boolean shouldWrite=false;
@@ -70,11 +70,11 @@ public class OOBComponent {
     }
     
     public void addInput(OOBInput input) {
-    	inputs.offer(input,input.getInputId());
+    	inputs.put(input.getInputId(),input);
     }
 
     public void addOutput(OOBOutput output) {
-    	outputs.offer(output,output.getOutputId());
+    	outputs.put(output.getOutputId(),output);
     }
     
     public void remove(OOBInput input)

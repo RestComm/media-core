@@ -19,41 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.mgcp.controller;
 
-import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.utils.Text;
+package org.mobicents.media.server.concurrent;
 
 /**
- * Maintains MGCP calls.
- * 
- * @author yulian oifa
+ *
+ * @author oifa yulian
  */
-public class CallManager {
-    //list of active calls
-	private ConcurrentMap<MgcpCall> calls=new ConcurrentMap();
-    
-    public MgcpCall getCall(int id, boolean allowNew) {
-    	MgcpCall result=calls.get(id);
-    	
-    	if(result!=null)
-    		return result;
-    	
-    	if (!allowNew) return null;
-        
-    	MgcpCall call = new MgcpCall(this, id);
-    	call=calls.putIfAbscent(id,call); 
-        
-    	return call;
-    }
-    
-    /**
-     * Terminates specified call.
-     * 
-     * @param call the call to be terminated
-     */
-    protected void terminate(MgcpCall call) {
-    	calls.remove(call.id);    	
-    }    
-    
+
+public class MapNode 
+{
+	protected int key; 
+	protected Object value;
+	
+	protected MapNode next;
+	protected MapNode prev;
+	
+	protected int id;
+	
+	
+	public MapNode(int id)
+	{
+		this.id=id;
+	}
 }

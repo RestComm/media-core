@@ -23,7 +23,7 @@
 package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
-import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -41,11 +41,11 @@ public class AudioComponent {
     private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;    
 
-    private IntConcurrentLinkedList<AudioInput> inputs = new IntConcurrentLinkedList();
-	private IntConcurrentLinkedList<AudioOutput> outputs = new IntConcurrentLinkedList();
+    private ConcurrentMap<AudioInput> inputs = new ConcurrentMap();
+	private ConcurrentMap<AudioOutput> outputs = new ConcurrentMap();
 	
-	private Iterator<AudioInput> activeInputs=inputs.iterator();
-	private Iterator<AudioOutput> activeOutputs=outputs.iterator();
+	private Iterator<AudioInput> activeInputs=inputs.values();
+	private Iterator<AudioOutput> activeOutputs=outputs.values();
 	
 	protected Boolean shouldRead=false;
 	protected Boolean shouldWrite=false;
@@ -82,11 +82,11 @@ public class AudioComponent {
     }
     
     public void addInput(AudioInput input) {
-    	inputs.offer(input,input.getInputId());
+    	inputs.put(input.getInputId(),input);
     }
 
     public void addOutput(AudioOutput output) {
-    	outputs.offer(output,output.getOutputId());
+    	outputs.put(output.getOutputId(),output);
     }
     
     public void remove(AudioInput input)

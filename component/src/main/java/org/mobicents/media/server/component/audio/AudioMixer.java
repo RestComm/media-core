@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -46,9 +46,9 @@ public class AudioMixer {
     private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     
     //The pool of components
-    private IntConcurrentLinkedList<AudioComponent> components = new IntConcurrentLinkedList();
+    private ConcurrentMap<AudioComponent> components = new ConcurrentMap();
     
-    Iterator<AudioComponent> activeComponents=components.iterator();
+    Iterator<AudioComponent> activeComponents=components.values();
     
     private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;    
@@ -69,7 +69,7 @@ public class AudioMixer {
 
     public void addComponent(AudioComponent component)
     {
-    	components.offer(component,component.getComponentId());    	
+    	components.put(component.getComponentId(),component);    	
     }
     
     protected int getPacketSize() {
@@ -82,7 +82,7 @@ public class AudioMixer {
      * @param input the input stream previously created
      */
     public void release(AudioComponent component) {
-    	components.remove(component.getComponentId());        
+    	components.remove(component.getComponentId());    	
     }
 
     /**

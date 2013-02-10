@@ -132,6 +132,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
 		else
 			return;   
     	
+    	oobGenerator.index=0;
     	this.oobDigit=digit;
     	this.digit=null;
     }
@@ -221,10 +222,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     @Override
     public void wakeup() {
         if(this.oobDigit!=null)
-        {
-        	oobGenerator.index=0;
         	oobGenerator.wakeup();
-        }
         else if(this.digit!=null)
         	super.wakeup();
     }

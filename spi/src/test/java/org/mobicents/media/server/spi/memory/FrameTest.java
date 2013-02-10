@@ -93,7 +93,7 @@ public class FrameTest {
 
         //change frame2 and check that frame1 remains constant
         frame2.getData()[1] = 100;
-        assertEquals(2, (int)(frame1.getData()[1]));
+        assertEquals(2, (int)(frame1.getData()[1]));    	
     }
 
 }

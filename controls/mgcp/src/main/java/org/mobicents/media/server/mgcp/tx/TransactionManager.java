@@ -28,8 +28,8 @@ import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java.util.Enumeration;
@@ -52,7 +52,7 @@ public class TransactionManager {
     private int cleanIndex=0;
     
     //currently active transactions.
-    private ConcurrentHashMap<Integer,Transaction> active;
+    private ConcurrentMap<Transaction> active;
     
     //scheduler instance
     private Scheduler scheduler;
@@ -78,7 +78,7 @@ public class TransactionManager {
     public TransactionManager(Scheduler scheduler, int size) {
         this.scheduler = scheduler;
         
-        active = new ConcurrentHashMap(size);
+        active = new ConcurrentMap();
         
         for (int i = 0; i < size; i++) {
         	pool.offer(new Transaction(this));            

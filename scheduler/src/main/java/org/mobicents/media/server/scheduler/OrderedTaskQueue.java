@@ -22,26 +22,26 @@
 
 package org.mobicents.media.server.scheduler;
 
-import org.mobicents.media.server.concurrent.ConcurrentLinkedList;
+import java.util.Iterator;
 
-import java.util.Collection;
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**
  * Implements queue of tasks.
  * 
  * 
- * @author kulikov
+ * @author yulian oifa
  */
 public class OrderedTaskQueue {
 	//inner holder for tasks
-    private ConcurrentLinkedList<Task>[] taskList=new ConcurrentLinkedList[2];
+    private ConcurrentCyclicFIFO<Task>[] taskList=new ConcurrentCyclicFIFO[2];
     
     private Integer activeIndex=0;
     
     public OrderedTaskQueue() {
         //intitalize task list
-    	taskList[0] = new ConcurrentLinkedList<Task>();
-    	taskList[1] = new ConcurrentLinkedList<Task>();
+    	taskList[0] = new ConcurrentCyclicFIFO<Task>();
+    	taskList[1] = new ConcurrentCyclicFIFO<Task>();    
     }    
 
     /**
@@ -84,21 +84,26 @@ public class OrderedTaskQueue {
      * @return task which has earliest dead line
      */
     public Task poll() {
-    	Task result=taskList[activeIndex].poll();
-    	if(result!=null)
+    	Task result=null;
+    	if(activeIndex==0)
     	{
-    		if(activeIndex==0)
-    			result.removeFromQueue0();
-    		else
+    		result=taskList[0].poll();
+    		if(result!=null)
+    			result.removeFromQueue0();    		
+    	}
+    	else
+    	{
+    		result=taskList[1].poll();
+    		if(result!=null)
     			result.removeFromQueue1();
     	}
     	
     	return result;     		    
-    }    
+    } 
 
     public void changePool()
     {
-    	activeIndex=(activeIndex+1)%2;    
+    	activeIndex=(activeIndex+1)%2;      	
     }
     
     /**
@@ -106,7 +111,7 @@ public class OrderedTaskQueue {
      */
     public void clear() {
     	taskList[0].clear();
-    	taskList[1].clear();    	
+    	taskList[1].clear();    	    	    
     }
     
     /**
@@ -116,20 +121,6 @@ public class OrderedTaskQueue {
      */
     public int size() {
     	return taskList[activeIndex].size();    	
-    }
-
-    protected void remove(Task task) {
-    	if(task.isInQueue0())
-    	{
-    		taskList[0].remove(task);
-    		task.removeFromQueue0();
-    	}
-    	
-    	if(task.isInQueue1())
-    	{
-    		taskList[1].remove(task);    		
-    		task.removeFromQueue1();
-    	}
     }
 
     @Override

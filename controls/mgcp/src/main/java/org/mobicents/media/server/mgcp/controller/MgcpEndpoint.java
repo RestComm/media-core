@@ -23,9 +23,8 @@ package org.mobicents.media.server.mgcp.controller;
 
 import java.net.SocketAddress;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.Iterator;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
@@ -33,6 +32,7 @@ import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
@@ -69,7 +69,9 @@ public class MgcpEndpoint {
     private ConcurrentCyclicFIFO<MgcpConnection> connections = new ConcurrentCyclicFIFO();
     
     //list of active connections
-    private ConcurrentHashMap<Integer,MgcpConnection> activeConnections=new ConcurrentHashMap(N);
+    private ConcurrentMap<MgcpConnection> activeConnections=new ConcurrentMap();
+    private Iterator<Integer> keyIterator = activeConnections.keys();
+    
     protected MgcpProvider mgcpProvider;
     
     private MgcpListener listener;
@@ -218,10 +220,10 @@ public class MgcpEndpoint {
     }
 
     public void deleteAllConnections() {
-    	for (Enumeration<Integer> e = activeConnections.keys() ; e.hasMoreElements() ;) {
-    		connections.offer(activeConnections.remove(e.nextElement()));    
-        }
-    	    
+    	activeConnections.resetKeyIterator(keyIterator);
+    	while(keyIterator.hasNext())
+    		connections.offer(activeConnections.remove(keyIterator.next()));        
+    	
         endpoint.deleteAllConnections();
         
         int oldValue=this.state.getAndSet(STATE_FREE);

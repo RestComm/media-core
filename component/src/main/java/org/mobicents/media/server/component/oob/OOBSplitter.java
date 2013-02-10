@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.scheduler.IntConcurrentLinkedList;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -43,14 +43,14 @@ public class OOBSplitter {
     private Scheduler scheduler;
     
     //The pools of components
-    private IntConcurrentLinkedList<OOBComponent> insideComponents = new IntConcurrentLinkedList();
-    private IntConcurrentLinkedList<OOBComponent> outsideComponents = new IntConcurrentLinkedList();
+    private ConcurrentMap<OOBComponent> insideComponents = new ConcurrentMap();
+    private ConcurrentMap<OOBComponent> outsideComponents = new ConcurrentMap();
         
-    private Iterator<OOBComponent> insideRIterator=insideComponents.iterator();
-    private Iterator<OOBComponent> insideSIterator=insideComponents.iterator();
+    private Iterator<OOBComponent> insideRIterator=insideComponents.values();
+    private Iterator<OOBComponent> insideSIterator=insideComponents.values();
     
-    private Iterator<OOBComponent> outsideRIterator=outsideComponents.iterator();
-    private Iterator<OOBComponent> outsideSIterator=outsideComponents.iterator();
+    private Iterator<OOBComponent> outsideRIterator=outsideComponents.values();
+    private Iterator<OOBComponent> outsideSIterator=outsideComponents.values();
     
     private InsideMixTask insideMixer;
     private OutsideMixTask outsideMixer;
@@ -67,12 +67,12 @@ public class OOBSplitter {
 
     public void addInsideComponent(OOBComponent component)
     {
-    	insideComponents.offer(component,component.getComponentId());    	
+    	insideComponents.put(component.getComponentId(),component);    	
     }
     
     public void addOutsideComponent(OOBComponent component)
     {
-    	outsideComponents.offer(component,component.getComponentId());    	
+    	outsideComponents.put(component.getComponentId(),component);    	
     }
     
     /**
@@ -81,7 +81,7 @@ public class OOBSplitter {
      * @param component
      */
     public void releaseInsideComponent(OOBComponent component) {
-    	insideComponents.remove(component.getComponentId());        
+    	insideComponents.remove(component.getComponentId());    	
     }
     
     /**
@@ -90,7 +90,7 @@ public class OOBSplitter {
      * @param component
      */
     public void releaseOutsideComponent(OOBComponent component) {
-    	outsideComponents.remove(component.getComponentId());        
+    	outsideComponents.remove(component.getComponentId());    	
     }
     
     public void start() {
@@ -121,13 +121,13 @@ public class OOBSplitter {
         public long perform() {
         	//summarize all
         	current=null;
-        	insideComponents.resetIterator(insideRIterator);            
-            while(insideRIterator.hasNext())
+        	insideComponents.resetIterator(insideRIterator);
+        	while(insideRIterator.hasNext())
             {
             	OOBComponent component=insideRIterator.next();
             	component.perform();
             	current=component.getData();
-            	if(current!=null)
+            	if(current!=null)            	
             		break;            	
             }
 
@@ -139,8 +139,7 @@ public class OOBSplitter {
             }
             
             //get data for each component
-            outsideComponents.resetIterator(outsideSIterator);
-            
+            outsideComponents.resetIterator(outsideSIterator);            
             while(outsideSIterator.hasNext())
             {
             	OOBComponent component=outsideSIterator.next();

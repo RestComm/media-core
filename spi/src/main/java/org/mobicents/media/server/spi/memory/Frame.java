@@ -29,9 +29,9 @@ import org.mobicents.media.server.spi.format.Format;
 
 /**
  *
- * @author kulikov
+ * @author yulian oifa
  */
-public class Frame implements Delayed {
+public class Frame {
     private Partition partition;
     private byte[] data;
 
@@ -126,21 +126,7 @@ public class Frame implements Delayed {
 
     public void setFormat(Format format) {
         this.format = format;
-    }
-    
-    public long getDelay(TimeUnit unit) {
-        return unit.convert(timestamp + duration +60000000L- Memory.clock.getTime(), TimeUnit.NANOSECONDS);
-    }
-
-    public int compareTo(Delayed o) {
-        if (this.getDelay(TimeUnit.NANOSECONDS) < o.getDelay(TimeUnit.NANOSECONDS)) {
-            return -1;
-        }
-        if (this.getDelay(TimeUnit.NANOSECONDS) > o.getDelay(TimeUnit.NANOSECONDS)) {
-            return 1;
-        }
-        return 0;
-    }
+    }    
 
     public void recycle() {
         partition.recycle(this);

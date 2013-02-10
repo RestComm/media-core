@@ -73,11 +73,10 @@ public class OOBReceiver extends AbstractSink {
     public void onMediaTransfer(Frame frame) throws IOException {
         byte[] data = frame.getData();
         if(frame.getLength()==packetSize)
-        	count++;                
+        	count++;        
     }
 
     public int getPacketsCount() {
         return this.count;
     }    
 }
-
