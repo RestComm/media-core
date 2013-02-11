@@ -65,7 +65,6 @@ import org.mobicents.protocols.mgcp.handlers.TransactionHandler;
 import org.mobicents.protocols.mgcp.utils.PacketRepresentation;
 import org.mobicents.protocols.mgcp.utils.PacketRepresentationFactory;
 
-import org.mobicents.media.server.concurrent.WrappedThread;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 /**
@@ -416,7 +415,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		return completedTransactions;
 	}
 
-	private class DecodingThread extends WrappedThread
+	private class DecodingThread extends Thread
 	{
 		private volatile boolean active;
         private JainMgcpStackImpl stack;
@@ -429,9 +428,22 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		}
 		
     	public void run() {
+    		PacketRepresentation current;
     		while(active)
+    		{
+    			current=null;
+    			while(current==null)
+    			{
+    				try {        				
+    					current=inputQueue.take();        				
+        			}
+    				catch(Exception e)
+        			{
+    					
+        			}
+    			}
+    			
     			try {
-    				PacketRepresentation current=inputQueue.take();
     				messageHandler.scheduleMessages(current);
     			}
     			catch(Exception e)
@@ -440,6 +452,7 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
     				if(logger.isEnabledFor(Level.ERROR))
     					logger.error("Unexpected exception occured:", e);    				    		
     			}
+    		}
     	}
     	
     	public void activate() {        	        	

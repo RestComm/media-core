@@ -42,8 +42,8 @@ public class OOBComponent {
     private ConcurrentMap<OOBInput> inputs = new ConcurrentMap();
 	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap();
     
-	Iterator<OOBInput> activeInputs=inputs.values();
-	Iterator<OOBOutput> activeOutputs=outputs.values();
+	Iterator<OOBInput> activeInputs;
+	Iterator<OOBOutput> activeOutputs;
 	
 	protected Boolean shouldRead=false;
 	protected Boolean shouldWrite=false;
@@ -90,7 +90,7 @@ public class OOBComponent {
     public void perform()
     {
     	frame=null;    	
-    	inputs.resetIterator(activeInputs);
+    	activeInputs=inputs.valuesIterator();
     	while(activeInputs.hasNext())
         {
         	OOBInput input=activeInputs.next();
@@ -121,7 +121,7 @@ public class OOBComponent {
     		return;
     	}
     	
-    	outputs.resetIterator(activeOutputs);    	
+    	activeOutputs=outputs.valuesIterator();
     	while(activeOutputs.hasNext())
         {
     		OOBOutput output=activeOutputs.next();

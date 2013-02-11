@@ -38,7 +38,9 @@ public class Memory
     	if(currPartition==null)
     	{
     		currPartition=new Partition(size);
-    		currPartition=partitions.putIfAbscent(size,currPartition);    			
+    		Partition oldPartition=partitions.putIfAbsent(size,currPartition);
+    		if(oldPartition!=null)
+    			currPartition=oldPartition;		
     	}
     	
     	return currPartition.allocate();

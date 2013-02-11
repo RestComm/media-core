@@ -205,7 +205,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     /**
      * (Non Java-doc.)
      * 
-     * @see org.mobicents.media.server.spi.resource.Recorder;
+     * @see org.mobicents.media.server.spi.recorder.Recorder;
      */
     public void setPreSpeechTimer(long value) {
         this.preSpeechTimer = value;
@@ -214,7 +214,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     /**
      * (Non Java-doc.)
      * 
-     * @see org.mobicents.media.server.spi.resource.Recorder;
+     * @see org.mobicents.media.server.spi.recorder.Recorder;
      */
     public void setPostSpeechTimer(long value) {
         this.postSpeechTimer = value;
@@ -223,7 +223,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     /**
      * (Non Java-doc.)
      * 
-     * @see org.mobicents.media.server.spi.resource.Recorder;
+     * @see org.mobicents.media.server.spi.recorder.Recorder;
      */
     public void setMaxRecordTime(long maxRecordTime) {
         this.maxRecordTime = maxRecordTime;

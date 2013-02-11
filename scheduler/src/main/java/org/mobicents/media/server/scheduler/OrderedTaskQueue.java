@@ -45,15 +45,6 @@ public class OrderedTaskQueue {
     }    
 
     /**
-     * Shows if this queue is empty.
-     * 
-     * @return true if queue is currently empty
-     */
-    public boolean isEmpty() {
-    		return taskList[activeIndex].isEmpty();    	
-    }
-    
-    /**
      * Queues specified task using tasks dead line time.
      * 
      * @param task the task to be queued.

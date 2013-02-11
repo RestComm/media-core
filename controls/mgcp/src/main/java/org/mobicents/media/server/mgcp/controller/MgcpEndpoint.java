@@ -70,7 +70,7 @@ public class MgcpEndpoint {
     
     //list of active connections
     private ConcurrentMap<MgcpConnection> activeConnections=new ConcurrentMap();
-    private Iterator<Integer> keyIterator = activeConnections.keys();
+    private Iterator<Integer> keyIterator;
     
     protected MgcpProvider mgcpProvider;
     
@@ -220,7 +220,7 @@ public class MgcpEndpoint {
     }
 
     public void deleteAllConnections() {
-    	activeConnections.resetKeyIterator(keyIterator);
+    	keyIterator = activeConnections.keysIterator();
     	while(keyIterator.hasNext())
     		connections.offer(activeConnections.remove(keyIterator.next()));        
     	

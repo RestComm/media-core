@@ -42,7 +42,9 @@ public class CallManager {
     	if (!allowNew) return null;
         
     	MgcpCall call = new MgcpCall(this, id);
-    	call=calls.putIfAbscent(id,call); 
+    	result=calls.putIfAbsent(id,call); 
+        if(result!=null)
+        	return result;
         
     	return call;
     }

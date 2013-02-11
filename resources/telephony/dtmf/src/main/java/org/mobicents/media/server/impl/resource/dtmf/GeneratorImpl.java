@@ -32,7 +32,11 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.spi.resource.DtmfGenerator;
+import org.mobicents.media.server.spi.listener.Listeners;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
+import org.mobicents.media.server.spi.dtmf.DtmfGeneratorEvent;
+import org.mobicents.media.server.spi.dtmf.DtmfGeneratorListener;
 
 /**
  * InbandGenerator generates Inband DTMF Tone only for uncompressed LINEAR
@@ -84,6 +88,9 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     private OOBInput oobInput;
     private OOBGenerator oobGenerator;
     
+    private final Listeners<DtmfGeneratorListener> listeners;
+    DtmfGeneratorEvent event=new DtmfGeneratorEvent(GeneratorImpl.this,DtmfGeneratorEvent.COMPLETED);
+    
     public GeneratorImpl(String name, Scheduler scheduler) {
         super(name, scheduler,scheduler.INPUT_QUEUE);
         dt = 1.0 / linear.getSampleRate();
@@ -92,9 +99,32 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         this.connect(this.input);
         
         this.oobInput=new OOBInput(ComponentType.DTMF_GENERATOR.getType());
-        this.oobGenerator=new OOBGenerator(scheduler,oobInput);        
+        this.oobGenerator=new OOBGenerator(scheduler,oobInput); 
+        this.listeners = new Listeners<DtmfGeneratorListener>();        
     }
 
+    public void addListener(final DtmfGeneratorListener listener) 
+    {
+        try 
+        {
+          listeners.add(listener);
+        } 
+        catch(final TooManyListenersException ignored) 
+        {
+          // This exception is never thrown by Listeners.add();
+        }
+    }
+
+    public void removeListener(final DtmfGeneratorListener listener) 
+    {
+        listeners.remove(listener);
+    }
+
+    public void clearAllListeners() 
+    {
+        listeners.clear();
+    }
+      
     public AudioInput getAudioInput()
     {
     	return this.input;
@@ -151,6 +181,13 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         }
     }
 
+    @Override 
+    public void completed() 
+    {
+        super.completed();
+        listeners.dispatch(event);
+    }
+    
     public String getDigit() {
         return this.digit;
     }
@@ -210,6 +247,9 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         frame.setDuration(20000000L);
 
         time += ((double) 20) / 1000.0;
+        if(time >= (double)toneDuration / 1000.0) 
+            listeners.dispatch(event);
+        
         return frame;
     }
 
@@ -264,6 +304,9 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
             frame.setDuration(20000000L);
             
             index++;
+            if(index == ((toneDuration / 20) + 2)) 
+                listeners.dispatch(event);
+        
             return frame;
     	}
     	

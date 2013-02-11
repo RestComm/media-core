@@ -69,7 +69,6 @@ import org.mobicents.protocols.mgcp.parser.commands.NotificationRequestHandler;
 import org.mobicents.protocols.mgcp.parser.commands.RestartInProgressHandler;
 import org.mobicents.protocols.mgcp.parser.commands.RespUnknownHandler;
 
-import org.mobicents.media.server.concurrent.WrappedThread;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
@@ -329,16 +328,29 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
 		}			
 	}
 	
-	private class DispatcherThread extends WrappedThread
+	private class DispatcherThread extends Thread
 	{
 		private volatile boolean active;
         JainMgcpCommandEvent command;
 		JainMgcpResponseEvent response;
 		
+		EventWrapper currEvent;
 		public void run() {
     		while(active)
-    			try {    				
-    				EventWrapper currEvent=waitingQueue.take();
+    		{
+    			currEvent=null;
+    			while(currEvent==null)
+    			{
+    				try {
+    					currEvent=waitingQueue.take();
+    				}
+    				catch(Exception e)
+    				{
+    					
+    				}
+    			}
+    			
+    			try {    				    			
     				switch(currEvent.eventType)
     				{
     					case EventWrapper.request:
@@ -435,6 +447,7 @@ public class JainMgcpStackProviderImpl implements ExtendedJainMgcpProvider {
     				if(logger.isEnabledFor(Level.ERROR))
     					logger.error("Unexpected exception occured:", e);    				    		
     			}
+    		}
     	}    
 		
 		public void activate() {        	        	

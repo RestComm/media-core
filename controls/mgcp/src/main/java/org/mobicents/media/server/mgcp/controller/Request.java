@@ -137,12 +137,9 @@ public class Request {
      * Starts the execution of 
      */
     public void execute() {
-        if (!executors.isEmpty()) {
-        	currentSignal = executors.poll();
-        	
-        	if(currentSignal!=null)
-        		currentSignal.execute();                    
-        }
+    	currentSignal = executors.poll();
+    	if(currentSignal!=null)
+    		currentSignal.execute();
     }
     
     public void onEvent(Text event) { 

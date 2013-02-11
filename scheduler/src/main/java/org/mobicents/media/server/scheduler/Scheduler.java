@@ -26,7 +26,6 @@ import java.lang.InterruptedException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
-import org.mobicents.media.server.concurrent.WrappedThread;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.apache.log4j.Logger;
 
@@ -399,13 +398,26 @@ public class Scheduler  {
         }
     }
     
-    private class WorkerThread extends WrappedThread {
+    private class WorkerThread extends Thread {
     	private volatile boolean active;
-        
+    	private Task current;
+    	
     	public void run() {
     		while(active)
     		{
-    			waitingTasks.take().run();
+    			current=null;
+    			while(current==null)
+    			{
+    				try
+    				{
+    					current=waitingTasks.take();
+    				}
+    				catch(Exception ex)
+    				{
+    					
+    				}    				
+    			}
+    			current.run();
     			coreThread.notifyCompletion();    			
     		}
     	}
@@ -423,13 +435,26 @@ public class Scheduler  {
         }
     }
     
-    private class CriticalWorkerThread extends WrappedThread {
+    private class CriticalWorkerThread extends Thread {
     	private volatile boolean active;
+        private Task current;
         
     	public void run() {
     		while(active)
     		{
-    			criticalTasks.take().run();
+    			current=null;
+    			while(current==null)
+    			{
+    				try
+    				{
+    					current=criticalTasks.take();
+    				}
+    				catch(Exception ex)
+    				{
+    					
+    				}    				
+    			}
+    			current.run();
     			criticalThread.notifyCompletion();
     		}
     	}

@@ -20,26 +20,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.concurrent;
+package org.mobicents.media.server.spi.dtmf;
+
+import org.mobicents.media.server.spi.listener.Event;
 
 /**
  *
- * @author oifa yulian
+ * @author quintana.thomas@gmail.com (Thomas Quintana)
+ * @author Yulian Oifa
  */
+public class DtmfGeneratorEvent implements Event<DtmfGenerator> {
+    public static final int COMPLETED = 1;
+    
+    private final DtmfGenerator generator;
+    private final int id;
+    
+    public DtmfGeneratorEvent(final DtmfGenerator generator, final int id) {
+            super();
+            this.generator = generator;
+            this.id = id;
+    }
+    
+    public int getId() {
+            return id;
+    }
 
-public class MapNode 
-{
-	protected int key; 
-	protected Object value;
-	
-	protected MapNode next;
-	protected MapNode prev;
-	
-	protected int id;
-	
-	
-	public MapNode(int id)
-	{
-		this.id=id;
-	}
+    public DtmfGenerator getSource() {
+            return generator;
+    }
 }

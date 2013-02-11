@@ -46,11 +46,11 @@ public class OOBSplitter {
     private ConcurrentMap<OOBComponent> insideComponents = new ConcurrentMap();
     private ConcurrentMap<OOBComponent> outsideComponents = new ConcurrentMap();
         
-    private Iterator<OOBComponent> insideRIterator=insideComponents.values();
-    private Iterator<OOBComponent> insideSIterator=insideComponents.values();
+    private Iterator<OOBComponent> insideRIterator=insideComponents.valuesIterator();
+    private Iterator<OOBComponent> insideSIterator=insideComponents.valuesIterator();
     
-    private Iterator<OOBComponent> outsideRIterator=outsideComponents.values();
-    private Iterator<OOBComponent> outsideSIterator=outsideComponents.values();
+    private Iterator<OOBComponent> outsideRIterator=outsideComponents.valuesIterator();
+    private Iterator<OOBComponent> outsideSIterator=outsideComponents.valuesIterator();
     
     private InsideMixTask insideMixer;
     private OutsideMixTask outsideMixer;
@@ -121,8 +121,8 @@ public class OOBSplitter {
         public long perform() {
         	//summarize all
         	current=null;
-        	insideComponents.resetIterator(insideRIterator);
-        	while(insideRIterator.hasNext())
+        	insideRIterator=insideComponents.valuesIterator();
+            while(insideRIterator.hasNext())
             {
             	OOBComponent component=insideRIterator.next();
             	component.perform();
@@ -139,7 +139,7 @@ public class OOBSplitter {
             }
             
             //get data for each component
-            outsideComponents.resetIterator(outsideSIterator);            
+            outsideSIterator=outsideComponents.valuesIterator();            
             while(outsideSIterator.hasNext())
             {
             	OOBComponent component=outsideSIterator.next();
@@ -170,7 +170,7 @@ public class OOBSplitter {
         public long perform() {
         	//summarize all
             current=null;
-            outsideComponents.resetIterator(outsideRIterator);            
+            outsideRIterator=outsideComponents.valuesIterator();
             while(outsideRIterator.hasNext())
             {
             	OOBComponent component=outsideRIterator.next();
@@ -188,7 +188,7 @@ public class OOBSplitter {
             }
             
             //get data for each component
-            insideComponents.resetIterator(insideSIterator);            
+            insideSIterator=insideComponents.valuesIterator();
             while(insideSIterator.hasNext())
             {
             	OOBComponent component=insideSIterator.next();

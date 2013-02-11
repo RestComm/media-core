@@ -20,34 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.spi.resource;
+package org.mobicents.media.server.spi.dtmf;
 
-import org.mobicents.media.MediaSource;
+import org.mobicents.media.server.spi.listener.Listener;
 
 /**
- * 
- * @author amit bhayani
  *
+ * @author quintana.thomas@gmail.com (Thomas Quintana)
+ * @author Yulian Oifa
  */
-public interface DtmfGenerator extends MediaSource {
-	
-	public void setDigit(String digit);
-	public void setOOBDigit(String digit);
-	public String getDigit();
-	public String getOOBDigit();
-	
-	public void setToneDuration(int duration);
-	public int getToneDuration();
-	
-	public void setVolume(int volume);
-	public int getVolume();
-	/**
-     * Starts media processing.
-     */
-    public void start();
+public interface DtmfGeneratorListener extends Listener<DtmfGeneratorEvent> {
     
-    /**
-     * Terminates media processing.
-     */
-    public void stop();
 }

@@ -20,27 +20,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.spi.resource;
+package org.mobicents.media.server.spi.dtmf;
 
-import java.io.IOException;
-import org.mobicents.media.Component;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.MediaSource;
 
 /**
  * 
  * @author amit bhayani
+ * @author quintana.thomas@gmail.com (Thomas Quintana)
+ * @author Yulian Oifa
+ *
  */
-public interface Player extends Component {
-    /**
-     * Assigns URL to play media from.
-     * 
-     * @param url the url to media file.
-     * @throws java.io.IOException if file can not be read
-     * @throws java.io.ResourceUnavailableException if file is not supported.
-     */
-    public void setURL(String url) throws IOException, ResourceUnavailableException;
-    
-    /**
+public interface DtmfGenerator extends MediaSource 
+{	
+	public void addListener(DtmfGeneratorListener listener);
+    public void removeListener(DtmfGeneratorListener listener);
+    public void clearAllListeners();
+     
+	public void setDigit(String digit);
+	public void setOOBDigit(String digit);
+	public String getDigit();
+	public String getOOBDigit();
+	
+	public void setToneDuration(int duration);
+	public int getToneDuration();
+	
+	public void setVolume(int volume);
+	public int getVolume();
+	/**
      * Starts media processing.
      */
     public void start();
@@ -49,10 +56,4 @@ public interface Player extends Component {
      * Terminates media processing.
      */
     public void stop();
-    
-    public void setMaxDuration(long duration);
-    public void setMediaTime(long timestamp);
-    
-    public void setInitialDelay(long delay);
-    
 }

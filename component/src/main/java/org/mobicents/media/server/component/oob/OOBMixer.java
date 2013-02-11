@@ -45,7 +45,7 @@ public class OOBMixer {
     //The pool of components
     private ConcurrentMap<OOBComponent> components = new ConcurrentMap();
     
-    Iterator<OOBComponent> activeComponents=components.values();
+    Iterator<OOBComponent> activeComponents;
     
     private MixTask mixer;
     private volatile boolean started = false;
@@ -101,7 +101,7 @@ public class OOBMixer {
         
         public long perform() {
         	//summarize all
-        	components.resetIterator(activeComponents);
+        	activeComponents=components.valuesIterator();
         	while(activeComponents.hasNext())
             {
             	OOBComponent component=activeComponents.next();
@@ -122,7 +122,7 @@ public class OOBMixer {
             }
             
             //get data for each component
-            components.resetIterator(activeComponents);
+            activeComponents=components.valuesIterator();
         	while(activeComponents.hasNext())
             {        		
             	OOBComponent component=activeComponents.next();

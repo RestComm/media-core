@@ -117,7 +117,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
     /**
      * (Non Java-doc.)
      * 
-     * @see org.mobicents.media.server.spi.resource.AudioPlayer#setURL(java.lang.String)
+     * @see org.mobicents.media.server.spi.player.Player#setURL(java.lang.String)
      */
     public void setURL(String passedURI) throws ResourceUnavailableException, MalformedURLException {
     	//close previous track if was opened

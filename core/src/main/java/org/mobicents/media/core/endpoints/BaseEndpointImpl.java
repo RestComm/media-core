@@ -75,7 +75,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
     private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
     
     private ConcurrentMap<Connection> connections=new ConcurrentMap();
-    private Iterator<Connection> connectionsIterator = connections.values();
+    private Iterator<Connection> connectionsIterator;
     
     public BaseEndpointImpl(String localName) {
         this.localName = localName;              
@@ -241,7 +241,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
      * @see org.mobicents.media.server.spi.Endpoint#deleteAllConnections();
      */
     public void deleteAllConnections() {
-    	connections.resetIterator(connectionsIterator);
+    	connectionsIterator = connections.valuesIterator();
     	while(connectionsIterator.hasNext())
     		((BaseConnection)connectionsIterator.next()).close();    	
     }

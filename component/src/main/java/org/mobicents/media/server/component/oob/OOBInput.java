@@ -76,7 +76,7 @@ public class OOBInput extends AbstractSink {
      * @return true if input buffer has no frames.
      */
     public boolean isEmpty() {
-        return buffer.isEmpty();
+        return buffer.size()==0;
     }
 
     /**

@@ -48,8 +48,8 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
+import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.resource.DtmfGenerator;
 import org.mobicents.media.server.utils.Text;
 
 /**

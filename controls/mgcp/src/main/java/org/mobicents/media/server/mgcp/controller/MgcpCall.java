@@ -35,7 +35,7 @@ public class MgcpCall {
     private CallManager callManager;
     protected int id;
     protected ConcurrentMap<MgcpConnection> connections=new ConcurrentMap();
-    private Iterator<Integer> keyIterator = connections.keys();
+    private Iterator<Integer> keyIterator;
         
     protected MgcpCall(CallManager callManager, int id) {
         this.id=id;        
@@ -71,7 +71,7 @@ public class MgcpCall {
     
     public void deleteConnections() {     	
     	MgcpConnection currConnection;
-    	connections.resetKeyIterator(keyIterator);
+    	keyIterator = connections.keysIterator();
     	while(keyIterator.hasNext())
     	{
     		currConnection=connections.remove(keyIterator.next());

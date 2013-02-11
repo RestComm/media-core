@@ -224,7 +224,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
                     String tone = getTone(p, P);
                     
                     if (tone != null)
-                    	dtmfBuffer.push(tone);               
+                    	dtmfBuffer.push(tone);                    
                 }                            
             }            
         }
@@ -464,7 +464,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
         	endSeq=0;
         	
         	latestSeq=buffer.getSequenceNumber();
-            currTone=data[0];
+            currTone=data[0];            
             dtmfBuffer.push(oobEvtID[currTone]);             
     	}
     	

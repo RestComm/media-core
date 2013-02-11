@@ -44,8 +44,8 @@ public class AudioComponent {
     private ConcurrentMap<AudioInput> inputs = new ConcurrentMap();
 	private ConcurrentMap<AudioOutput> outputs = new ConcurrentMap();
 	
-	private Iterator<AudioInput> activeInputs=inputs.values();
-	private Iterator<AudioOutput> activeOutputs=outputs.values();
+	private Iterator<AudioInput> activeInputs;
+	private Iterator<AudioOutput> activeOutputs;
 	
 	protected Boolean shouldRead=false;
 	protected Boolean shouldWrite=false;
@@ -102,7 +102,7 @@ public class AudioComponent {
     public void perform()
     {
     	first=true;  
-    	inputs.resetIterator(activeInputs);  	
+    	activeInputs=inputs.valuesIterator();
     	while(activeInputs.hasNext())
         {
         	AudioInput input=activeInputs.next();
@@ -161,7 +161,7 @@ public class AudioComponent {
         outputFrame.setDuration(period);
         outputFrame.setFormat(format);
         
-        outputs.resetIterator(activeOutputs);
+        activeOutputs=outputs.valuesIterator();
         while(activeOutputs.hasNext())
         {
         	AudioOutput output=activeOutputs.next();

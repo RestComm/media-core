@@ -26,7 +26,7 @@ package org.mobicents.media.server.spi.resource;
  *
  * @author kulikov
  */
-public interface TTSEngine extends Player {
+public interface TTSEngine {
     /**
      * Assign the voice name to speak
      * 

@@ -73,8 +73,8 @@ public class EventBuffer implements DtmfDetectorListener {
             return;
         }
         
-        //process buffered events
-        while (!queue.isEmpty()) {
+        //process buffered events        
+        while (queue.size()!=0) {
             this.process(queue.poll());
         }
     }
