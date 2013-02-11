@@ -282,6 +282,8 @@ public final class Options
                 		throw new IllegalArgumentException();
                 	}			
         		}
+        		
+        		result.offer(new DtmfSignal(currentTone,defaultDuration));
         	}
         	
         	if(index!=length)
