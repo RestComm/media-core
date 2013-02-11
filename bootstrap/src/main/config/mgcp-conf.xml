@@ -43,12 +43,17 @@
             <signal name="#" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfHash"/>
             <signal name="*" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfStar"/>
         </package>
+        
+        <package name="SL">
+                <signal name="s" handler="org.mobicents.media.server.mgcp.pkg.sl.SignalRequest"/>
+        </package>
+        
     </packages>
 
     <!-- Mapping packages to endpoints -->
     <endpoints>
         <endpoint local-name="mobicents/aap/$" packages="A"/>
-        <endpoint local-name="mobicents/ivr/$" packages="A,AU,D"/>
+        <endpoint local-name="mobicents/ivr/$" packages="A,AU,D,SL"/>
         <endpoint local-name="mobicents/ds0/$" packages="T"/>
     </endpoints>
 </mgcp>
