@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -62,7 +63,7 @@ public class ConcurrentCyclicFIFOTest
     public static void tearDownClass() throws Exception {
     }
     
-    @Test
+    @Test @Ignore
     public void testSpeed() {
     	long endTime,startTime;
     	long totalGCTime=0,totalTime=0;
