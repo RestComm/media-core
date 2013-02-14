@@ -113,6 +113,7 @@
 	    <modules>
 		<module>hardware</module>
 		<module>spi</module>
+		<module>concurrent</module>
 		<module>scheduler</module>
 		<module>codecs</module>
 		<module>component</module>
