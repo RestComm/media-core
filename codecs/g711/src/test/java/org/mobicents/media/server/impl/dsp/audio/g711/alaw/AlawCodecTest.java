@@ -22,7 +22,12 @@
 
 package org.mobicents.media.server.impl.dsp.audio.g711.alaw;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -30,7 +35,7 @@ import org.mobicents.media.server.spi.memory.Memory;
  *
  * @author Oleg Kulikov
  */
-public class AlawCodecTest extends TestCase {
+public class AlawCodecTest {
     private Frame buffer = Memory.allocate(512);
 
     private static short aLawDecompressTable[] = new short[]{
@@ -68,16 +73,22 @@ public class AlawCodecTest extends TestCase {
         944, 912, 1008, 976, 816, 784, 880, 848
     };
     
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+    }
+    
     private byte[] src = new byte[512];
     
-    public AlawCodecTest(String testName) {
-        super(testName);
+    public AlawCodecTest() {        
     }            
 
-    @Override
-    protected void setUp() throws Exception {
-    	super.setUp();
-        int k = 0;
+    @Before
+    public void setUp() throws Exception {
+    	int k = 0;
         int l = 0;
         byte[] src1 = buffer.getData();
         for (int i = 0; i < 256; i++) {
@@ -91,13 +102,13 @@ public class AlawCodecTest extends TestCase {
         buffer.setLength(512);         
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {        
     }
     /**
      * Test of process method, of class Decoder.
      */
+    @Test
     public void testCodec() {
         org.mobicents.media.server.spi.dsp.Codec compressor = new Encoder();
         long s = System.nanoTime();
@@ -113,6 +124,5 @@ public class AlawCodecTest extends TestCase {
                 fail("mismatch found at " + i);
             }
         }        
-    }
-
+    }    
 }
