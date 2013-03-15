@@ -24,7 +24,7 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY MS_JBOSS_HOME_BIN_WIN "jboss-4.2.3.GA\bin\">
 <!ENTITY MS_EMB_SIZE "110 MB"> 
 <!ENTITY MS_STA_SIZE "11.5 MB">
-<!ENTITY MS_EMB_ZIP "mms-jboss-5.1.0.GA-2.0.0.BETA1-0906151159.zip">
-<!ENTITY MS_STA_ZIP "mms-standalone-2.0.0.BETA1-0907120424.zip">
+<!ENTITY MS_EMB_ZIP "mms-3.0.0.FINAL.zip">
+<!ENTITY MS_STA_ZIP "mms-3.0.0.FINAL.zip">
 <!ENTITY MS_JBOSS_HOME_BIN_LIN "jboss-5.1.0.GA/bin/">
 <!ENTITY MS_JBOSS_HOME_BIN_WIN "jboss-5.1.0.GA\bin\">

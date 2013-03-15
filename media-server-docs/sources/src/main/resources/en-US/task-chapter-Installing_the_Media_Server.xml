@@ -8,9 +8,8 @@
 	<para>
 		The Mobicents Media Server distribution is available in two
 		forms: Standalone and Embedded in JBoss Application Server 5.
-		The standalone version is more preferred for carrier production
-		deployment while JBoss Application Server 5 version is most
-		useful for development
+		The standalone version is preferred for carrier production
+		deployment while JBoss Application Server 5 version is convenient for development
 	</para>
 	<para>
 		The Media Server is available in both binary and source code
@@ -20,9 +19,8 @@
 		obtained by checking it out from its repository using the
 		Subversion version control system (
 		<acronym>SVN</acronym>
-		), and then built using the Maven build system. Whereas
-		installing the binary distribution is recommended for most
-		users, obtaining and building the source code is recommended for
+		). You can later run a build using Maven. The binary distribution is recommended for most
+		users. Downloading and building the source code is recommended for
 		those who want access to the latest revisions and Media Server
 		capabilities.
 	</para>
@@ -41,7 +39,7 @@
 			Distribution: Installing, Configuring and Running
 		</title>
 		<para>
-			The Mobicents Media Server either comes bundled with the
+			Mobicents Media Server either comes bundled with the
 			JBoss Application Server or Standalone. This section details
 			how to install the Mobicents Media Server that comes bundled
 			with JBoss Application Server 5. For installation of
@@ -53,7 +51,7 @@
 			<title>Pre-Install Requirements and Prerequisites</title>
 			<para>
 				Ensure that the following requirements have been met
-				before continuing with the install.
+				before continuing with the installation.
 			</para>
 			<variablelist
 				id="itms-binary-JBoss_Media_Server-Hardware_Requirements">
@@ -67,13 +65,12 @@
 							<emphasis>at least</emphasis>
 							&MS_EMB_SIZE;
 							of free disk space. Keep in mind that disk
-							space requirements may change from release
-							to release.
+							space requirements may change in future iterations.
 						</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>Anything Java Itself Will Run On</term>
+					<term>Anything built for Java</term>
 					<listitem>
 						<para>
 							The JBoss embedded Media Server and its
@@ -138,7 +135,7 @@
 				</para>
 				<step>
 					<para>
-						Create a subdirectory to extract the files into.
+						Create a subdirectory into which the files can be extracted.
 						For ease of identification, it is recommended
 						that the version number of the binary is
 						included in this directory name.
@@ -202,7 +199,7 @@
 						For this procedure, it is assumed that the
 						downloaded archive is saved in the
 						<filename>My Downloads</filename>
-						folder.
+						folder. You can also choose any convenient folder of your choice.
 					</para>
 				</step>
 				<step>
@@ -284,10 +281,11 @@
 				</step>
 			</procedure>
 		</section>
-
+<!--   
 		<xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
 			href="mob-task-section-Setting_the_JBOSS_HOME_Environment_Variable.xml">
 		</xi:include>
+-->
 
 		<section id="itms-binary-JBoss_Media_Server-Running">
 			<title>Running</title>
@@ -305,11 +303,11 @@
 				<step>
 					<para>
 						Change the working directory to installation
-						directory (the one in which the zip file's
-						contents was extracted to)
+						directory (the one into which the zip file's
+						contents was extracted)
 					</para>
 					<screen>
-						downloads]$ cd &quot;ms-&lt;version&gt;&quot;
+						downloads]$ cd &quot;mms-server&quot;
 					</screen>
 				</step>
 				<step>
@@ -365,7 +363,7 @@
 						<guilabel>Start</guilabel>
 						menu and navigate to the correct folder:
 					</para>
-					<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My	Downloads&gt; cd &quot;ms-&lt;version&gt;&quot;</screen>
+					<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My	Downloads&gt; cd &quot;mms-server&quot;</screen>
 				</step>
 				<step>
 					<para>
@@ -391,6 +389,7 @@
 				</step>
 			</procedure>
 		</section>
+		<!-- 
 		<section id="itms-binary-JBoss_Media_Server-Stopping">
 			<title>Stopping</title>
 			<para>
@@ -426,7 +425,7 @@
 						executable Bourne shell script with the
 						<option>-S</option>
 						option (the short option for
-						<option>--shutdown</option>
+						<option>shutdown</option>
 						) as a command line argument:
 					</para>
 					<screen>ms-&lt;version&gt;]$ ./bin/shutdown.sh -S</screen>
@@ -459,7 +458,7 @@
 						distribution. Ensure the
 						<option>-S</option>
 						option (the short option for
-						<option>--shutdown</option>
+						<option>shutdown</option>
 						) is included in the command line argument.
 					</para>
 					<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My	Downloads&bsol;ms-&lt;version&gt;&gt;bin&bsol;shutdown.bat -S</screen>
@@ -479,6 +478,9 @@
 				</step>
 			</procedure>
 		</section>
+		
+		-->
+		
 		<section id="itms-JBoss_Server_Structure">
 			<title>Server Structure</title>
 			<para>
@@ -589,67 +591,46 @@
 					</thead>
 					<tbody>
 						<row>
-							<entry>mobicents-media-server.sar/META-INF/jboss-beans.xml</entry>
+							<entry>conf/bootstrap-beans.xml</entry>
 							<entry>
-								Specifies which additional
-								microcontainer deployments are loaded as
-								part of the bootstrap phase.
-								bootstrap-beans.xml references other
-								configuration files contained in the
-								<filename>/conf/bootstrap/</filename>
-								directory. For a standard configuration,
-								the bootstrap configuration files
-								require no alteration.
+								Specifies which additional microcontainer
+deployments are loaded as part of the
+bootstrap phase. bootstrap-beans.xml
+references other configuration files contained
+in the <filename>/conf/bootstrap/</filename> directory. For
+a standard configuration, the bootstrap
+configuration files require no alteration.
 							</entry>
 						</row>						
 						<row>
-							<entry>mobicents-media-server/ann-beans.xml</entry>
+							<entry>conf/log4j.properties</entry>
 							<entry>
-								Specifies the configuration for
-								announcement access points.
+								Specifies the Apache log4j framework
+category priorities and appenders used by the
+Media Server.
 							</entry>
 						</row>
 						<row>
-							<entry>mobicents-media-server/ivr-beans.xml</entry>
-							<entry>
-								Specifies the configuration for
-								Interactive Voice Response (IVR)
-								endpoints.
-							</entry>
-						</row>
-						<row>
-							<entry>mobicents-media-server/prelay-beans.xml</entry>
-							<entry>
-								Specifies the configuration for Packet
-								Relay endpoints.
-							</entry>
-						</row>
-						<row>
-							<entry>mobicents-media-server/cnf-beans.xml</entry>
-							<entry>
-								Specifies the configuration for
-								Conference endpoints.
-							</entry>
-						</row>
-						<row>
-							<entry>mobicents-media-server/test-beans.xml</entry>
-							<entry>
-								Specifies the endpoint for test
-								capabilities.
-							</entry>
-						</row>
-						<row>
-							<entry>mgcp-controller-service.sar/META-INF/jboss-beans.xml</entry>
+							<entry>conf/mgcp-conf.xml</entry>
 							<entry>
 								Specifies the configuration for the MGCP
-								controller.
+controller.
 							</entry>
 						</row>
+						<row>
+							<entry>deploy/server-beans.xml</entry>
+							<entry>
+								Configuration file for mms.For more
+information please see chapter 3.
+							</entry>
+						</row>
+						
 					</tbody>
 				</tgroup>
 			</table>
 		</section>
 
+<!--
 		<section id="itms-binary-JBoss_Media_Server-Testing">
 			<title>Testing</title>
 			<para>
@@ -659,7 +640,7 @@
 				.
 			</para>
 		</section>
-
+ 
 		<section id="itms-binary-JBoss_Media_Server-Uninstalling">
 			<title>Uninstalling</title>
 			<para>
@@ -669,8 +650,7 @@
 		</section>
 	</section>
 
-
-
+ 
 	<section
 		id="itms-binary-Standalone_Media_Server-Installing_Configuring_and_Running">
 		<title>
@@ -741,11 +721,10 @@
 				The latest version of the Standalone Media Server is
 				available from
 				<ulink
-					url="http://www.mobicents.org/mms-downloads.html" />
+					url="http://code.google.com/p/mediaserver/downloads/list" />
 				. The top row of the table holds the latest version.
 				Click the
-				<literal>Download</literal>
-				link to start the download.
+				<literal>Download</literal>mms-3.0.0.FINAL.zipmms-3.0.0.FINAL.zip				link to start the download.
 			</para>
 		</section>
 		<section id="itms-binary-Standalone_Media_Server-Installing">
@@ -1064,7 +1043,7 @@
 						executable Bourne shell script with the
 						<option>-S</option>
 						option (the short option for
-						<option>--shutdown</option>
+						<option>shutdown</option>
 						) as a command line argument:
 					</para>
 					<screen>mms-standalone-&lt;version&gt;]$./bin/shutdown.sh -S</screen>
@@ -1097,7 +1076,7 @@
 						distribution. Ensure the
 						<option>-S</option>
 						option (the short option for
-						<option>--shutdown</option>
+						<option>shutdown</option>
 						) is included in the command line argument.
 					</para>
 					<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;mms-standalone-&lt;version&gt;&gt;bin&bsol;shutdown.bat -S</screen>
@@ -1117,9 +1096,13 @@
 				</step>
 			</procedure>
 		</section>
+		-->
+		<!-- 
 		<section id="itms-JBoss_Server_Structure1">
+		-->
 		<!--Amit, this duplicate ID was causing validation errors and causing builds to fail.  Ensure that you don't have any duplicate id in your entire document.  Cheers, Jared.-->
-			<title>Server Structure</title>
+
+<!-- 			<title>Server Structure</title>
 			<para>
 				Now the server is installed, it is important to
 				understand the layout of the server directories. An
@@ -1309,7 +1292,7 @@
 				
 			</para>
 		</section>
-
+  
 		<section id="itms-binary-Standalone_Media_Server-Uninstalling">
 			<title>Uninstalling</title>
 			<para>
@@ -1318,7 +1301,9 @@
 			</para>
 		</section>
 	</section>
-
+	
+	-->
+	
 	<section
 		id="itms-Writing_and_Running_Tests_Against_the_Media_Server">
 		<title>
@@ -1334,4 +1319,5 @@
 			
 		</para>
 	</section>
+</section>
 </chapter>
