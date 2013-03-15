@@ -91,7 +91,7 @@
                                         </dependency>
                                 </dependencies>
 				<configuration>
-					<sourceDocumentName>all-Media_Server_User_Guide.xml</sourceDocumentName>
+					<sourceDocumentName>Media_Server_User_Guide.xml</sourceDocumentName>
 					<sourceDirectory>${project.build.directory}/docbook/resources</sourceDirectory>
 					<imageResource>
 						<directory>${project.build.directory}/docbook/resources/en-US</directory>
