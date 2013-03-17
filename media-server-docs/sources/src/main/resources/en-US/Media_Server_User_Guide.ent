@@ -17,7 +17,10 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY JBCP_JBOSS_HOME_LIN "jboss-eap-4.3/jboss-as/">
 
 <!-- Media Server User Guide -->
-<!ENTITY MS_VERSION "1.0.3">
+<!ENTITY MS_VERSION "3.0.0.FINAL">
+<!ENTITY MMS_SHORT_NAME "Media Server">
+<!ENTITY MMS_LONG_NAME "Mobicents Media Server">
+
 <!ENTITY MS_SIZE "110 MB">
 <!ENTITY MS_ZIP "jbcp-media-server-all-1.0.3.zip">
 <!ENTITY MS_JBOSS_HOME_BIN_LIN "jboss-4.2.3.GA/bin/">

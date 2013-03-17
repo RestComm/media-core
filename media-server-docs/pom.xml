@@ -13,7 +13,7 @@
 	<groupId>org.mobicents.media.docs</groupId>	
 	<packaging>pom</packaging>
   <name>
-    Mobicents Media :: Docs :: Parent :: ${pom.artifactId}
+    Mobicents Media :: Docs :: Parent :: ${project.artifactId}
   </name>
   
 	<properties>

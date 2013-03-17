@@ -2,9 +2,123 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
 <!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
 %BOOK_ENTITIES;
-]><!-- chapter id nickname: msde -->
+]><!--chapter id=nickname: msde -->
+
 <chapter id="msde-MS_Demonstration_Example">
 	<title>MMS Demonstration Example</title>
+	
+	<para>
+	MMS 3.0.0.FINAL is a standalone media software. Control panels servers are required in order
+	to make MMS part of your network architecture. Two controlling protocols (JSR-309 and MGCP) are
+	currently enabled to work with MMS 3.0.0.FINAL.
+</para>
+<para>
+Depending on your needs, <ulink url="https://code.google.com/p/jain-slee/">Jain-slee </ulink> ,
+ <ulink url="http://code.google.com/p/sipservlets/">Sip Servlets </ulink> or
+ <ulink url="http://code.google.com/p/restcomm/">RestComm</ulink> can be used to control the media
+server. The examples below are included in the &MMS_SHORT_NAME; software.
+	</para>
+	
+<para>To get Jain-Slee examples please see following examples that are part of mobicents / telestax jain
+Slee release :</para>	
+	
+ 
+
+ 
+	<table id="msde-jain-slee"	frame="all">
+	<title>Example for Jain-Slee </title>
+		<tgroup cols="1" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+			<thead>
+				<row>
+					<entry>Jain-Slee Example List</entry>
+	  				</row>
+			</thead>
+			<tbody>
+				<row>
+				<entry>call-controller2 which uses MGCP to control &MMS_SHORT_NAME;</entry>
+				</row>
+				<row>
+					<entry>mgcp-demo which uses MGCP to control &MMS_SHORT_NAME;</entry>
+				</row>
+				<row>
+					<entry>mscontrol-demo which uses JSR-309 to control &MMS_SHORT_NAME;</entry>
+				</row>
+				 
+			</tbody>
+		</tgroup>
+	</table>
+	
+	<para>For more information please see <ulink url="https://code.google.com/p/jain-slee/source/browse?repo=media#git%2Fexamples">Jain-Slee documentation </ulink>that comes with this examples.
+	</para>
+	
+	<para>The following examples use MMS with Mobicents/TELESTAX SIP Servlets :</para>
+	
+	<table id="msde-sip-servlets-examples"	frame="all">
+	<title>Examples for SIP Servlets </title>
+		<tgroup cols="1" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+
+			<thead>
+				<row>
+					<entry>SIP Servlets Example List</entry>
+	 
+ 				</row>
+			</thead>
+			<tbody>
+				<row>
+				<entry>conference-demo jsr-309</entry>
+				</row>
+				<row>
+					<entry>media-jsr-309-servlet</entry>
+				</row>
+				<row>
+					<entry>shopping-demo-jsr309</entry>
+				</row>
+				 
+			</tbody>
+		</tgroup>
+	</table>
+	
+	<para>All servlets examples are using jsr-309 control protocol.</para>
+	<para>For more information please see
+	 <ulink url="http://code.google.com/p/sipservlets/source/browse/?name=ts1-snmp#git%2Fsip-servlets-examples">SIP Servlets documentation
+	 </ulink> 
+	 that comes with these examples.
+	</para>
+	
+	
+		<table id="msde-restcomm-examples"	frame="all">
+	<title>	Using MMS with RestComm </title>
+		<tgroup cols="1" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+
+			<thead>
+				<row>
+					<entry>&MMS_SHORT_NAME; with RestComm</entry>
+	 
+ 				</row>
+			</thead>
+			<tbody>
+				<row>
+				<entry>
+MMS is required in order to successfully work with RestComm. Consequently,
+any example created to demonstrate the use of RestComm will incorporate &MMS_LONG_NAME; (MMS). RestComm use MGCP as the controlling 
+protocol for MMS.
+
+</entry>
+				</row>
+			 
+				 
+			</tbody>
+		</tgroup>
+	</table>
+
+<para>
+For more information please see Mobicents/Telestax <ulink url="http://code.google.com/p/restcomm-demo/source/browse/#git%2Fapp">RestComm documentation.</ulink>
+	</para>
+	
+<!--	
 	<para>The motive of this example is to demonstrate the capabilities of new Media Server (MS) and Media Server Resource Adapters (MSC-RA).</para>
 	<para>The example demonstrates the usage of the following Endpoints:</para>
 	<itemizedlist>
@@ -189,4 +303,6 @@ link.join(endpointName, CNF_ENDPOINT);]]>
 		<title>Recording Usage Demonstration</title>
 		<para>As soon as the call is established, <literal>CallSbb</literal> creates a Connection using <literal>PREndpointImpl</literal>. <literal>PREndpointImpl</literal> has two Connections, one connection to the calling User Agent by calling <methodname>msConnection.modify("$", sdp)</methodname>. Once the connection is established, <literal>CallSbb</literal> creates child <literal>RecorderDemoSbb</literal> and calls <methodname>startDemo()</methodname> on it, passing the <literal>PREndpoint</literal> name as an argument. <literal>RecorderDemoSbb</literal> creates child <literal>AnnouncementSbb</literal> which uses the <literal>AnnEndpointImpl</literal> to make an announcement. The other Connection of <literal>PREndpointImpl</literal> is connected to Connection from <literal>AnnEndpointImpl</literal> using the <literal>MsLink</literal>.</para>
 	</formalpara>
+-->	
+	
 </chapter>
