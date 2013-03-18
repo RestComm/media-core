@@ -6,7 +6,7 @@
 <chapter id="chapter-Installing_the_Media_Server">
 	<title>Installing the Media Server</title>
 	<para>
-		The Mobicents Media Server distribution is available in two
+		The &MMS_LONG_NAME; distribution is available in two
 		forms: Standalone and Embedded in JBoss Application Server 5.
 		The standalone version is preferred for carrier production
 		deployment while JBoss Application Server 5 version is convenient for development
@@ -39,11 +39,11 @@
 			Distribution: Installing, Configuring and Running
 		</title>
 		<para>
-			Mobicents Media Server either comes bundled with the
+			&MMS_LONG_NAME; either comes bundled with the
 			JBoss Application Server or Standalone. This section details
-			how to install the Mobicents Media Server that comes bundled
+			how to install the &MMS_LONG_NAME; that comes bundled
 			with JBoss Application Server 5. For installation of
-			Standalone Mobicents Media Server, refer to <xref linkend="itms-binary-Standalone_Media_Server-Installing_Configuring_and_Running" />
+			Standalone &MMS_LONG_NAME;, refer to <xref linkend="itms-binary-Standalone_Media_Server-Installing_Configuring_and_Running" />
 		</para>
 
 		<section
@@ -658,10 +658,10 @@ information please see chapter 3.
 			Configuring and Running
 		</title>
 		<para>
-			The Mobicents Media Server either comes bundled with the
+			The &MMS_LONG_NAME; either comes bundled with the
 			JBoss Application Server or Standalone. This section details
-			how to install the Standalone Mobicents Media Server. For
-			installation of JBoss embedded Mobicents Media Server, refer
+			how to install the Standalone &MMS_LONG_NAME;. For
+			installation of JBoss embedded &MMS_LONG_NAME;, refer
 			to <xref linkend="itms-binary-JBoss_Media_Server-Installing_Configuring_and_Running" />
 		</para>
 

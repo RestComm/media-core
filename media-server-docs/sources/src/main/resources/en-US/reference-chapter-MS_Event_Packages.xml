@@ -3,7 +3,7 @@
 <!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
 %BOOK_ENTITIES;
 ]><!-- chapter id nickname: msep -->
-<chapter id="msep-MS-Event_Packages">
+<chapter id="S-Event_Packages">
 	<title>MMS: Event Packages</title>
 	
 	
