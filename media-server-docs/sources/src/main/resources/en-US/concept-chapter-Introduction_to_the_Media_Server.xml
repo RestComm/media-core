@@ -2,11 +2,11 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <!-- chapter id nickname: ittms -->
 <chapter id="ittms-Introduction_to_the_Media_Server">
-	<title>Introduction to the &MMS_LONG_NAME;</title>
+	<title>Introduction to the Mobicents Media Server</title>
 	<section
 		id="ittms-Overview-the_Reasoning_and_Need_for_Media_Servers">
 		<title>
-			Overview: the Reasoning and Need for &MMS_SHORT_NAME;
+			Overview: the Reasoning and Need for Media Server
 		</title>
 		<formalpara>
 			<title>Media Gateways Bridge Multiple Technologies</title>
@@ -94,9 +94,9 @@
 			</varlistentry>
 		</variablelist>
 		<formalpara>
-			<title>What Is the &MMS_LONG_NAME;?</title>
+			<title>What Is the Mobicents Media Server?</title>
 			<para>
-				The &MMS_LONG_NAME; is an open source Media
+				The Mobicents Media Server is an open source Media
 				Server aimed at:
 			</para>
 		</formalpara>
@@ -128,7 +128,7 @@
 			</listitem>
 		</itemizedlist>
 		<para>
-			Because &MMS_LONG_NAME; is Java based, it is cross
+			Because Mobicents Media Server is Java based, it is cross
 			platform, easy to install and run on any operating system
 			that supports Java. The available source code is a powerful
 			tool to debug the server and understand processing logic. It
@@ -136,7 +136,7 @@
 			components and configurations.
 		</para>
 		<para>
-			Form version 2.0.0, the &MMS_LONG_NAME; is available
+			Form version 2.0.0, the Mobicents Media Server is available
 			either as embedded in JBoss AS 5.x.y or Standalone.
 		</para>
 	</section>
@@ -144,7 +144,7 @@
 	<section id="ittms-Technical_specification_and_capacity">
 		<title>Technical Specification and Capacity</title>
 
-		<para>The &MMS_LONG_NAME; is capable of</para>
+		<para>The Mobicents Media Server is capable of</para>
 
 		<itemizedlist>
 			<listitem>
@@ -222,7 +222,7 @@
 
 
 	<section id="ittms-Media_Server_Architecture">
-		<title>&MMS_SHORT_NAME; Architecture</title>
+		<title>Media Server Architecture</title>
 		<para>
 			Media services have played an important role in the
 			traditional Time Division Multiplexing (
@@ -249,14 +249,14 @@
 
 
 			<para>
-				The &MMS_SHORT_NAME;'s high degree of modularity benefits
+				The Media Server's high degree of modularity benefits
 				the application developer in several ways. The
 				already-tight code can be further optimized to support
 				applications that require small footprints. For example,
 				if
 				<acronym>PSTN</acronym>
 				interconnection is unnecessary in an application, then
-				the D-channel feature can be removed from the &MMS_SHORT_NAME;. In the future, if the same application is
+				the D-channel feature can be removed from the Media Server. In the future, if the same application is
 				deployed within a Signaling System 7 (
 				<acronym>SS7</acronym>
 				) network, then the appropriate endpoint can be enabled,
@@ -269,9 +269,9 @@
 				</imageobject>
 			</mediaobject>
 			<para>
-				The &MMS_SHORT_NAME; architecture assumes that call control
-				intelligence lies outside of the &MMS_SHORT_NAME;, and is
-				handled by an external entity. The &MMS_SHORT_NAME; also
+				The Media Server architecture assumes that call control
+				intelligence lies outside of the Media Server, and is
+				handled by an external entity. The Media Server also
 				assumes that call controllers will use control
 				procedures such as
 				<acronym>MGCP</acronym>
@@ -292,7 +292,7 @@
 				s.
 			</para>
 			<para>
-				The &MMS_LONG_NAME; call control intelligence can
+				The Mobicents Media Server call control intelligence can
 				be a JSLEE Application deployed on Mobicents JAIN SLEE
 				Server or any other JAIN SLEE container. In case of
 				Mobicents JSLEE Server there is already MGCP Resource
@@ -300,12 +300,12 @@
 			</para>
 
 			<para>
-				&MMS_LONG_NAME; can also be controlled from
+				Mobicents Media Server can also be controlled from
 				Mobicents SIP Servlets or any other SIP Servlets
 				container using any of the above call control procedures
 				or using the Mobicents JSR-309 Implementation. Mobicents
 				JSR-309 Implementation internally leverages MGCP
-				protocol to controll &MMS_SHORT_NAME;. Mobicents JSR-309
+				protocol to controll Media Server. Mobicents JSR-309
 				implementation details is out of scope of this document.
 			</para>
 
@@ -316,12 +316,12 @@
 				etc as far as they follow standrad protocols like MGCP,
 				MEGACO etc. There is no dependency on call controller
 				but the protocol used between the call controller and
-				&MMS_LONG_NAME;.
+				Mobicents Media Server.
 			</para>
 
 
 			<para>
-				Many key features of &MMS_LONG_NAME; are provided
+				Many key features of Mobicents Media Server are provided
 				by integrating individual components operating using
 				generic Service Provider Interface. There are two of
 				types of high level components: Endpoints and
@@ -514,7 +514,7 @@
 				<title>Controller Modules</title>
 				<para>
 					Controller Modules allows external interfaces to be
-					implemented for the &MMS_SHORT_NAME;. Each controller
+					implemented for the Media Server. Each controller
 					module implements an industry standard control
 					protocol, and uses a generic SPI to control
 					processing components or endpoints.
@@ -540,7 +540,7 @@
 			<formalpara>
 				<title>Base Architecture:</title>
 				<para>
-					The &MMS_LONG_NAME; is developed on top of
+					The Mobicents Media Server is developed on top of
 					existing Java technologies. The Java platform is
 					ideal for network computing. It offers a single,
 					unified-and-unifying programming model that can
@@ -562,7 +562,7 @@
 			<section id="ittms-Service_Provider_Interface">
 				<title>Service Provider Interface</title>
 				<para>
-					A common theme for Mobicents &MMS_SHORT_NAME; is the
+					A common theme for Mobicents Media Server is the
 					breaking out of internal fixed subsystems into
 					stand-alone components implemented as POJOs and the
 					introduction of SPIs throughout the server codebase.
@@ -590,7 +590,7 @@
 
 
 				<para>
-					&MMS_LONG_NAME; architecture promotes the
+					Mobicents Media Server architecture promotes the
 					usage of Service Objects to represent the media flow
 					path. The component architecture divides the process
 					of constructing media services into two major parts:
@@ -869,7 +869,7 @@ public interface Outlet extends Component {
 							merged or split. Within the stream,
 							different signal processors can be connected
 							to increase performance or provide greater
-							flexibility. &MMS_SHORT_NAME; uses declarative
+							flexibility. Media Server uses declarative
 							channel construction to construct customized
 							media flow paths by utilizing pipes.
 						</para>
@@ -1010,11 +1010,11 @@ public interface Outlet extends Component {
 						Time Division Multiplexing (TDM) network, a
 						circuit channel is used for transmission. For
 						exchanging media data between components within
-						the &MMS_SHORT_NAME;, a special container is used.
+						the Media Server, a special container is used.
 					</para>
 					<para>
 						A Media Buffer is a media-data container within
-						the &MMS_SHORT_NAME;, which carries data from one
+						the Media Server, which carries data from one
 						processing component to the next. A Buffer
 						object maintains information such as the time
 						stamp, length, data format, and header
