@@ -447,9 +447,7 @@ generator(used to generate ss7 tones).
 		<note>
 		<title>When the specified resource type is not available</title>
 		<para>
-		A resource will be automatically allocated if the specified resource type is not available in the resource
-		pool. This will require more memory allocation and in some cases may impact performance. The more resources 
-		you have in the resource pool, the more memory the Media Server will require on startup. 
+		Please note that a resource will be automatically allocated if the specified resource type is not available in the resource pool. This will require more memory allocation and in some cases may impact performance. The more resources you have preconfigured on startup in the resource pool, the more memory the media server will require on startup. Its up to you to decide the best tradeoff for your setup( greater memory usage on startup vs slower response when new resources are required in runtime )
 		 </para>
 		 </note>
 	 
@@ -673,8 +671,8 @@ Mixer Type means all connections and resources data will be mixed together. This
  it will still be available even without the appropriate setting mode.
 </para>
 <para>
-Bridge endpoint is not the same as the MGCP standard endpoint type. This means that there 
-are 2 groups. The first group deals with local connections whereas the second group uses RTP connections.
+Bridge endpoint is not the same as the MGCP standard endpoint type. This means that there
+are 2 resources groups. The first group uses local connections whereas the second group uses RTP connections.
 This implies that non RTP connections can communicate with RTP endpoints and none local connections can still
 access local endpoints. The Bridge endpoint type is useful in the scenarios shown below:
 </para>
@@ -684,10 +682,7 @@ Bridge Endpoint --------> IVR
 Bridge Endpoint---------> Conference
 </para>
 <para>
-IVR and Conference endpoints will be connected through Local connection pair (which is
-recommended). There will be no crossover of connected RTP users from IVR announcement to conference.
-The same applies to any conference traffic that will cross over to IVR. This is useful for
-recording RTP data for specific groups of users.
+IVR and Conference endpoints will be connected through Local connection pair to Bridge Endpoint (which is recommended). There will be no cross over of IVR Resources ( player , recorder , etc ) to conference. The same applies to any conference traffic, it will not cross over to IVR. This is useful for recording RTP data for specific groups of users.
 </para>
 <para>
 DS0 endpoint is a type Splitter. All connections, signal detector and signal generator are in group 1, 
