@@ -7,11 +7,11 @@
 	<xi:include href="Book_Info.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 	
 	<xi:include href="Preface.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-	
+	 
 	<xi:include href="concept-chapter-Introduction_to_the_Media_Server.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-	
+ 
 	<xi:include href="task-chapter-Installing_the_Media_Server.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
-	
+	 
 	<xi:include href="concept-chapter-Configuring_the_Media_Server.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
 	
 	<xi:include href="concept-chapter-Controlling_and_Programming_the_Media_Server.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />

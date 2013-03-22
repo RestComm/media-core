@@ -3,119 +3,354 @@
 <!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
 %BOOK_ENTITIES;
 ]><!-- chapter id nickname: msep -->
-<chapter id="msep-MS-Event_Packages">
+<chapter id="S-Event_Packages">
 	<title>MMS: Event Packages</title>
-	<formalpara>
-		<title>The Basic Package</title>
-		<para>Package name: <literal>org.mobicents.media.server.spi.events.Basic</literal>
-		</para>
-	</formalpara>
-	<informaltable id="msep-The_Basic_Package"	frame="all">
-		<tgroup cols="4" align="left" colsep="1" rowsep="1">
+	
+	
+
+ 
+<para>
+Announcement Package(A): <literal>org.mobicents.media.server.mgcp.pkg.ann</literal>
+ </para>	
+ 
+	<table id="msep-announcement_Package"	frame="all">
+	<title>Announcement Package(A): </title>
+		<tgroup cols="2" align="left" colsep="1" rowsep="1">
 			<colspec colnum="1" colname="col1"/>
 			<colspec colnum="2" colname="col2"/>
-			<colspec colnum="3" colname="col3"/>
-			<colspec colnum="4" colname="col4"/>
+
 			<thead>
 				<row>
-					<entry>Event ID</entry>
+					<entry>Signal Name</entry>
 					<entry>Description</entry>
-					<entry>Type</entry>
-					<entry>Duration</entry>
-				</row>
+ 				</row>
 			</thead>
 			<tbody>
 				<row>
-					<entry><literal>org.mobicents.media.server.spi.events.Basic.DTMF</literal></entry>
-					<entry>DTMF Event</entry>
-					<entry>BR</entry>
-					<entry/>
+					<entry> Ann</entry>
+					<entry>Play Announcement</entry>
 				</row>
+				<row>
+					<entry> oc</entry>
+					<entry>Operation Completed</entry>
+				</row>
+				<row>
+					<entry>of</entry>
+					<entry>Operation Failed</entry>
+				</row>
+				 
 			</tbody>
 		</tgroup>
-	</informaltable>
-	<formalpara>
-		<title>The Announcement Package</title>
-		<para>Package name: <literal>org.mobicents.media.server.spi.event.Announcement</literal>
+	</table>
+	
+	<para> 
+	For more information please see: <ulink url="https://tools.ietf.org/html/rfc3660#section-2.12">https://tools.ietf.org/html/rfc3660#section-2.12</ulink>
+	</para>
+	
+<para></para>
+
+
+		<para> 
+		<literal>Advanced Audio Package(AU): org.mobicents.media.server.mgcp.pkg.au</literal>
 		</para>
-	</formalpara>
-	<informaltable id="msep-The_Announcement_Package" frame="all">
-		<tgroup cols="4" align="left" colsep="1" rowsep="1">
+	 
+	
+	<table id="msep-advanced_audio_Package"	frame="all">
+			<title>Advanced Audio Package(AU): </title>
+		<tgroup cols="2" align="left" colsep="1" rowsep="1">
 			<colspec colnum="1" colname="col1"/>
 			<colspec colnum="2" colname="col2"/>
-			<colspec colnum="3" colname="col3"/>
-			<colspec colnum="4" colname="col4"/>
+
 			<thead>
 				<row>
-					<entry>Event ID</entry>
+					<entry>Signal Name</entry>
 					<entry>Description</entry>
-					<entry>Type</entry>
-					<entry>Duration</entry>
-				</row>
+ 				</row>
 			</thead>
 			<tbody>
 				<row>
-					<entry><literal>org.mobicents.media.server.spi.event.Announcement.PLAY</literal></entry>
-					<entry>play an announcement</entry>
-					<entry>TO</entry>
-					<entry>Variable</entry>
+					<entry> pa</entry>
+					<entry>Play Announcement</entry>
 				</row>
 				<row>
-					<entry><literal>org.mobicents.media.server.spi.event.Announcement.COMPLETED</literal></entry>
-					<entry/>
-					<entry/>
-					<entry/>
+					<entry> pc</entry>
+					<entry>Play Collect</entry>
 				</row>
 				<row>
-					<entry><literal>org.mobicents.media.server.spi.event.Announcement.FAILED</literal></entry>
-					<entry/>
-					<entry/>
-					<entry/>
+					<entry>pr</entry>
+					<entry>Play Record</entry>
+				</row>
+				<row>
+					<entry>es</entry>
+					<entry>End Signal</entry>
+				</row>
+				<row>
+					<entry>oc</entry>
+					<entry>Operation Completed</entry>
+				</row>
+				<row>
+					<entry>of</entry>
+					<entry>Operation Failed</entry>
 				</row>
 			</tbody>
 		</tgroup>
-	</informaltable>
-	<para>Announcement actions are qualified by URLs and by sets of initial parameters. The <quote>operation completed</quote> (<literal>COMPLETED</literal>) event will be detected once an announcement has finished playing. If the announcement cannot be played in its entirety, an <quote>operation failure</quote> (<literal>FAILED</literal>) event can be returned. The failure can also be explained with a commentary.</para>
-	<formalpara>
-		<title>The Advanced Audio Package</title>
-		<para>Package name: <literal>org.mobicents.media.server.spi.events.AU</literal>
+	</table>
+	<para>
+	For more information please see: <ulink url="https://tools.ietf.org/html/rfc2897">https://tools.ietf.org/html/rfc2897</ulink> 
+	</para>
+	
+<para></para>
+		
+		<para> 
+		<literal>Trunk Package(T): org.mobicents.media.server.mgcp.pkg.trunk</literal>
 		</para>
-	</formalpara>
-	<informaltable id="msep-The_Advanced_Audio_Package" frame="all">
-		<tgroup cols="4" align="left" colsep="1" rowsep="1">
+	 
+	
+	<table id="msep-trunk_package"	frame="all">
+	<title>Trunk Package(T): </title>
+		<tgroup cols="2" align="left" colsep="1" rowsep="1">
 			<colspec colnum="1" colname="col1"/>
 			<colspec colnum="2" colname="col2"/>
-			<colspec colnum="3" colname="col3"/>
-			<colspec colnum="4" colname="col4"/>
+
 			<thead>
 				<row>
-					<entry>Event ID</entry>
+					<entry>Signal Name</entry>
 					<entry>Description</entry>
-					<entry>Type</entry>
-					<entry>Duration</entry>
-				</row>
+ 				</row>
 			</thead>
 			<tbody>
 				<row>
-					<entry><literal>org.mobicents.media.server.spi.event.AU.PLAY_RECORD</literal></entry>
-					<entry>Play a prompt (optional) and then record some speech</entry>
-					<entry>TO</entry>
-					<entry>Variable</entry>
+					<entry> co1</entry>
+					<entry>Continuity 1</entry>
 				</row>
 				<row>
-					<entry><literal>org.mobicents.media.server.spi.event.AU.PROMPT_AND_COLLECT</literal></entry>
-					<entry/>
-					<entry/>
-					<entry/>
+					<entry> co2</entry>
+					<entry>Continuity 2</entry>
 				</row>
 				<row>
-					<entry><literal>org.mobicents.media.server.spi.event.Announcement.FAILED</literal></entry>
-					<entry/>
-					<entry/>
-					<entry/>
+					<entry>lp</entry>
+					<entry>Loopback</entry>
 				</row>
+				<row>
+					<entry>ct</entry>
+					<entry>Continuity Transpoder</entry>
+				</row>
+				<row>
+					<entry>oc</entry>
+					<entry>Operation Completed</entry>
+				</row>
+				<row>
+					<entry>of</entry>
+					<entry>Operation Failed</entry>
+				</row>
+		
 			</tbody>
 		</tgroup>
-	</informaltable>
-	<para>The function of <literal>PLAY_RECORD</literal> is to play a prompt and record the user's speech. If the user does not speak, the user may be re-prompted and given another chance to record. By default, <literal>PLAY_RECORD</literal> does not play an initial prompt, makes only one attempt to record, and therefore functions as a simple record operation</para>
-</chapter>
+	</table>
+	<para>
+	For more information please see: <ulink url="https://tools.ietf.org/html/rfc3660#section-2.3"></ulink>
+	</para>
+ 
+<para></para>
+
+
+
+		<para> Dtmf Package(D): <literal>org.mobicents.media.server.mgcp.pkg.dtmf</literal>
+		</para>
+ 
+	
+	<table id="msep-dtmf_package"	frame="all">
+			<title>Dtmf Package(D): </title>
+		<tgroup cols="2" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+			<colspec colnum="2" colname="col2"/>
+
+			<thead>
+				<row>
+					<entry>Signal Name</entry>
+					<entry>Description</entry>
+ 				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>0</entry>
+					<entry>Tone 0</entry>
+				</row>
+				<row>
+					<entry>1</entry>
+					<entry>Tone 1</entry>
+				</row>
+				<row>
+					<entry>2</entry>
+					<entry>Tone 2</entry>
+				</row>
+				<row>
+					<entry>3</entry>
+					<entry>Tone 3</entry>
+				</row>
+				<row>
+					<entry>4</entry>
+					<entry>Tone 4</entry>
+				</row>
+				<row>
+					<entry>5</entry>
+					<entry>Tone 5</entry>
+				</row>
+				<row>
+					<entry>6</entry>
+					<entry>Tone 6</entry>
+				</row>
+				<row>
+					<entry>7</entry>
+					<entry>Tone 7</entry>
+				</row>
+				<row>
+					<entry>8</entry>
+					<entry>Tone 8</entry>
+				</row>
+				<row>
+					<entry>9</entry>
+					<entry>Tone 9</entry>
+				</row>
+				<row>
+					<entry>*</entry>
+					<entry>Tone *</entry>
+				</row>
+				<row>
+					<entry>#</entry>
+					<entry>Tone #</entry>
+				</row>
+				<row>
+					<entry>A</entry>
+					<entry>Tone A</entry>
+				</row>
+				<row>
+					<entry>B</entry>
+					<entry>Tone B</entry>
+				</row>
+				<row>
+					<entry>C</entry>
+					<entry>Tone C</entry>
+				</row>
+				<row>
+					<entry>D</entry>
+					<entry>Tone D</entry>
+				</row>
+				<row>
+					<entry>oc</entry>
+					<entry>Tone Operation Completed</entry>
+				</row>
+				<row>
+					<entry>oc</entry>
+					<entry>Operation Failed</entry>
+				</row>
+		
+			</tbody>
+		</tgroup>
+	</table>
+ <para>
+ For more information please see: <ulink url="https://tools.ietf.org/html/rfc3660#section-2.2"></ulink>
+ </para>
+ 
+ 	<para></para>
+ 	
+		<para>
+  <literal>Signal List Package (SL): org.mobicents.media.server.mgcp.pkg.sl </literal>
+		</para>
+ 
+	
+ 
+	
+	<table id="msep-signal_list_Package"	frame="all">
+			<title>Signal List Package (SL): </title>
+		<tgroup cols="2" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+			<colspec colnum="2" colname="col2"/>
+
+			<thead>
+				<row>
+					<entry>Signal Name</entry>
+					<entry>Description</entry>
+ 				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>s</entry>
+					<entry>List of signals to be generated</entry>
+				</row>
+				<row>
+					<entry>oc</entry>
+					<entry>Operation Completed</entry>
+				</row>
+				<row>
+					<entry>of</entry>
+					<entry>Operation Failed</entry>
+				</row>
+				 
+				 				 
+			</tbody>
+		</tgroup>
+	</table>
+<para>
+For more information please see: <ulink url="https://tools.ietf.org/html/rfc3660#section-2.8"></ulink>
+</para>
+<section>
+<title>List of supported packages per Endpoint</title>
+
+<para>
+Configuration of supported packages and events can be done through the mgcp-conf.xml
+configuration file that is located in the <filename>conf</filename> directory.
+</para>
+<para>
+The table belows shows supported packages and the related enabled endpoints
+</para>
+
+
+	<table id="msep-supported_Packages"	frame="all">
+	<title>List of Supported Packages per Endpoint</title>
+		<tgroup cols="2" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+			<colspec colnum="2" colname="col2"/>
+
+			<thead>
+				<row>
+					<entry>Package name</entry>
+					<entry>Endpoints</entry>
+ 				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry> Ann</entry>
+					<entry>Play announcement</entry>
+				</row>
+				<row>
+					<entry>Announcement</entry>
+					<entry>IVR, Announcements</entry>
+				</row>
+				<row>
+					<entry>Advanced Audio</entry>
+					<entry>IVR</entry>
+				</row>
+				<row>
+					<entry>Trunk</entry>
+					<entry>DSO</entry>
+				</row>
+				<row>
+					<entry>Dtmf</entry>
+					<entry>IVR</entry>
+				</row>
+				<row>
+					<entry>Signal List</entry>
+					<entry>IVR</entry>
+				</row>
+				 
+			</tbody>
+		</tgroup>
+	</table>
+
+
+</section>	
+	
+	
+	
+ </chapter>

@@ -6,13 +6,12 @@
 	<section
 		id="ittms-Overview-the_Reasoning_and_Need_for_Media_Servers">
 		<title>
-			Overview: the Reasoning and Need for Media Servers
+			Overview: the Reasoning and Need for Media Server
 		</title>
 		<formalpara>
 			<title>Media Gateways Bridge Multiple Technologies</title>
 			<para>
-				Today, all communications can be routed through
-				computers. Widespread access to broadband Internet and
+				Today, computers play an important role in modern communications. Widespread access to broadband Internet and
 				the ubiquity of Internet Protocol (
 				<acronym>IP</acronym>
 				) enable the convergence of voice, data and video. Media
@@ -30,14 +29,13 @@
 			</para>
 		</formalpara>
 		<formalpara>
-			<title>The Justification for Media Gateways for VoIP</title>
+			<title>Why Media Gateways for VoIP Is Needed</title>
 			<para>
 				Multiple market demands are pushing companies to
 				converge all of their media services using media
 				gateways with Voice-over-IP (
 				<acronym>VoIP</acronym>
-				) capabilities. Companies have expectations for such
-				architectures, which include:
+				) capabilities. Some of the expected benefits of the architecture are as follows:
 			</para>
 		</formalpara>
 		<variablelist>
@@ -69,9 +67,7 @@
 					<para>
 						Companies want
 						<acronym>VoIP</acronym>
-						solutions today, but also need to choose
-						extensible solutions that will handle video in
-						the near future.
+						solutions that are extensible and that will be ready to handle future needs like, video.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -100,7 +96,7 @@
 		<formalpara>
 			<title>What Is the Mobicents Media Server?</title>
 			<para>
-				The Mobicents Media Gateway is an open source Media
+				The Mobicents Media Server is an open source Media
 				Server aimed at:
 			</para>
 		</formalpara>
@@ -137,8 +133,7 @@
 			that supports Java. The available source code is a powerful
 			tool to debug the server and understand processing logic. It
 			also gives you the flexibility to create customized
-			components and configurations for your personal or business
-			use.
+			components and configurations.
 		</para>
 		<para>
 			Form version 2.0.0, the Mobicents Media Server is available
@@ -242,7 +237,7 @@
 			One of the most exciting trends is the emergence and
 			adoption of complementary modular standards that leverage
 			the Internet to enable media services to be developed,
-			deployed and updated more rapidly than before in a network
+			deployed and updated rapidly. This is carried out in a network
 			architecture that supports the two concepts called
 			<emphasis>provisioning-on-demand</emphasis>
 			and
@@ -261,8 +256,7 @@
 				if
 				<acronym>PSTN</acronym>
 				interconnection is unnecessary in an application, then
-				the D-channel feature can be removed from the Media
-				Server. In the future, if the same application is
+				the D-channel feature can be removed from the Media Server. In the future, if the same application is
 				deployed within a Signaling System 7 (
 				<acronym>SS7</acronym>
 				) network, then the appropriate endpoint can be enabled,
@@ -311,7 +305,7 @@
 				container using any of the above call control procedures
 				or using the Mobicents JSR-309 Implementation. Mobicents
 				JSR-309 Implementation internally leverages MGCP
-				protocol to controll media server. Mobicents JSR-309
+				protocol to controll Media Server. Mobicents JSR-309
 				implementation details is out of scope of this document.
 			</para>
 
@@ -355,8 +349,7 @@
 
 				<para>
 					The type of the endpoint determines its
-					functionality. Our analysis, so far, has led us to
-					isolate the following basic endpoint types:
+					functionality. From the points considered so far, the following basic endpoint types have been identified:
 				</para>
 				<itemizedlist>
 					<listitem>
@@ -387,7 +380,7 @@
 					</listitem>
 				</itemizedlist>
 				<para>
-					This list is not final: other endpoint types may be
+					This list is not comprehensive. Other endpoint types may be
 					defined in the future, such as test endpoints which
 					could be used to check network quality, or
 					frame-relay endpoints that could be used to manage
@@ -534,7 +527,7 @@
 					MGCP is composed of a Call Agent, and set of
 					gateways including at least one "media gateway" that
 					perform the conversion of media signal between
-					circuit and packets, and atleast one "signalling
+					circuit and packets, and at least one "signalling
 					gateway" when connecting to an SS7 controlled
 					network. The Call Agent can be distributed over
 					several computer platforms.
@@ -545,7 +538,7 @@
 		<section id="ittms-Design_Overview">
 			<title>Design Overview</title>
 			<formalpara>
-				<title>Base Architecture</title>
+				<title>Base Architecture:</title>
 				<para>
 					The Mobicents Media Server is developed on top of
 					existing Java technologies. The Java platform is
@@ -553,15 +546,14 @@
 					unified-and-unifying programming model that can
 					connect all elements of a business infrastructure.
 					The modularization effort is supported by the use of
-					the JBoss Microcontainer which allows to deploy
+					the JBoss Microcontainer which allows the deployment of
 					services written as Plain Java Objects into a
-					Standard Java SE runtime environment in controlled
-					manner and achieve a great level of customization.
+					Standard Java SE runtime environment. This is done in a controlled
+					manner to achieve greater level of customization.
 					Dependencies are fully managed to ensure that new
 					services cannot be deployed until services they
-					depend on have first been deployed. Where it makes
-					sense to do so you can even re-deploy services at
-					runtime providing that you access them via the
+					depend on have first been deployed. it is also possible to re-deploy services at
+					runtime as long as you access them via the
 					microcontainer bus. Undeploying a service causes all
 					dependent services to be undeployed first in order
 					to maintain the integrity of the system.
@@ -574,10 +566,9 @@
 					breaking out of internal fixed subsystems into
 					stand-alone components implemented as POJOs and the
 					introduction of SPIs throughout the server codebase.
-					Those changes should not affect directly the end
-					user but they are an important part of the Mobicents
-					Media Server strategy for making available the
-					various voice/video services as independent
+					Those changes should not affect the end
+					user directly but, they are an important part of Mobicents
+					Media Server strategy for making various voice/video services available as independent
 					components, so that they can be wired-together on
 					demand
 				</para>
@@ -599,7 +590,7 @@
 
 
 				<para>
-					Mobicents Media server architecture promotes the
+					Mobicents Media Server architecture promotes the
 					usage of Service Objects to represent the media flow
 					path. The component architecture divides the process
 					of constructing media services into two major parts:
@@ -1023,7 +1014,7 @@ public interface Outlet extends Component {
 					</para>
 					<para>
 						A Media Buffer is a media-data container within
-						the Media server, which carries data from one
+						the Media Server, which carries data from one
 						processing component to the next. A Buffer
 						object maintains information such as the time
 						stamp, length, data format, and header
