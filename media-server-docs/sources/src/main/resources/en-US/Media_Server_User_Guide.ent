@@ -9,8 +9,8 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!-- Common entities: same across all books except for BOOKID -->
 <!ENTITY PRODUCT "JBoss Communications Platform">
 <!ENTITY BOOKID "Media_Server_User_Guide">
-<!ENTITY YEAR "2009">
-<!ENTITY HOLDER "Red Hat Inc">
+<!ENTITY YEAR "2013">
+<!ENTITY HOLDER "Telestax Inc">
 
 <!-- Shared: Configuring the JBOSS_HOME Environment Variable -->
 <!ENTITY MOB_JBOSS_HOME_LIN "mobicents-all-1.2.1.GA-jboss-4.2.3.GA/jboss/">

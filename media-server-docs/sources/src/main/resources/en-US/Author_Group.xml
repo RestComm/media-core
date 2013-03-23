@@ -178,4 +178,21 @@
 		<email
 			condition="jbcp">pslegr@redhat.com</email>
 	</author>
+
+<author>
+		<firstname>Oifa</firstname>
+		<surname>Yulian</surname>
+		<affiliation>
+			<orgname>Sipme Israel</orgname>
+			<orgdiv
+				condition="mob">Mobicents</orgdiv>
+			<orgdiv
+				condition="jbcp">JBoss Communications Platform</orgdiv>
+		</affiliation>
+		<email
+			condition="mob">oifa.yulian@gmail.com</email>
+		<email
+			condition="jbcp">yulian.oifa@telestax.com</email>
+	</author>
+
 </authorgroup>
