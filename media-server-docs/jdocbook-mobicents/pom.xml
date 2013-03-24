@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>mobicents-mms-docs</artifactId>
 		<groupId>org.mobicents.media.docs</groupId>
-		<version>3.0.1-SNAPSHOT</version>
+		<version>3.0.0.Final-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>mobicents-mms-docs-jdocbook-mobicents</artifactId>
