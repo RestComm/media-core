@@ -37,47 +37,80 @@ public class Decoder implements Codec {
     private final static Format ulaw = FormatFactory.createAudioFormat("pcmu", 8000, 8, 1);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
-    private final static int cBias = 0x84;
-    private int QUANT_MASK = 0xf;
-    private final static int SEG_SHIFT = 4;
-    private final static int SEG_MASK = 0x70;
-    private final static int SIGN_BIT = 0x80;
-    private static short muLawDecompressTable[] = new short[]{
-        -32124, -31100, -30076, -29052, -28028, -27004, -25980, -24956,
-        -23932, -22908, -21884, -20860, -19836, -18812, -17788, -16764,
-        -15996, -15484, -14972, -14460, -13948, -13436, -12924, -12412,
-        -11900, -11388, -10876, -10364, -9852, -9340, -8828, -8316,
-        -7932, -7676, -7420, -7164, -6908, -6652, -6396, -6140,
-        -5884, -5628, -5372, -5116, -4860, -4604, -4348, -4092,
-        -3900, -3772, -3644, -3516, -3388, -3260, -3132, -3004,
-        -2876, -2748, -2620, -2492, -2364, -2236, -2108, -1980,
-        -1884, -1820, -1756, -1692, -1628, -1564, -1500, -1436,
-        -1372, -1308, -1244, -1180, -1116, -1052, -988, -924,
-        -876, -844, -812, -780, -748, -716, -684, -652,
-        -620, -588, -556, -524, -492, -460, -428, -396,
-        -372, -356, -340, -324, -308, -292, -276, -260,
-        -244, -228, -212, -196, -180, -164, -148, -132,
-        -120, -112, -104, -96, -88, -80, -72, -64,
-        -56, -48, -40, -32, -24, -16, -8, 0,
-        32124, 31100, 30076, 29052, 28028, 27004, 25980, 24956,
-        23932, 22908, 21884, 20860, 19836, 18812, 17788, 16764,
-        15996, 15484, 14972, 14460, 13948, 13436, 12924, 12412,
-        11900, 11388, 10876, 10364, 9852, 9340, 8828, 8316,
-        7932, 7676, 7420, 7164, 6908, 6652, 6396, 6140,
-        5884, 5628, 5372, 5116, 4860, 4604, 4348, 4092,
-        3900, 3772, 3644, 3516, 3388, 3260, 3132, 3004,
-        2876, 2748, 2620, 2492, 2364, 2236, 2108, 1980,
-        1884, 1820, 1756, 1692, 1628, 1564, 1500, 1436,
-        1372, 1308, 1244, 1180, 1116, 1052, 988, 924,
-        876, 844, 812, 780, 748, 716, 684, 652,
-        620, 588, 556, 524, 492, 460, 428, 396,
-        372, 356, 340, 324, 308, 292, 276, 260,
-        244, 228, 212, 196, 180, 164, 148, 132,
-        120, 112, 104, 96, 88, 80, 72, 64,
-        56, 48, 40, 32, 24, 16, 8, 0
+    private int j=0,i=0;
+    private int sourceLen=0,destinationLen=0;
+    private int currentIndex;
+    
+    private static byte[] muLawDecompressTable_low = new byte[]{
+    	(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,
+    	(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,
+    	(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,
+    	(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,(byte)0x84,
+    	(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,
+    	(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,
+    	(byte)0xc4,(byte)0x44,(byte)0xc4,(byte)0x44,(byte)0xc4,(byte)0x44,(byte)0xc4,(byte)0x44,
+    	(byte)0xc4,(byte)0x44,(byte)0xc4,(byte)0x44,(byte)0xc4,(byte)0x44,(byte)0xc4,(byte)0x44,
+    	(byte)0xa4,(byte)0xe4,(byte)0x24,(byte)0x64,(byte)0xa4,(byte)0xe4,(byte)0x24,(byte)0x64,
+    	(byte)0xa4,(byte)0xe4,(byte)0x24,(byte)0x64,(byte)0xa4,(byte)0xe4,(byte)0x24,(byte)0x64,
+    	(byte)0x94,(byte)0xb4,(byte)0xd4,(byte)0xf4,(byte)0x14,(byte)0x34,(byte)0x54,(byte)0x74,
+    	(byte)0x94,(byte)0xb4,(byte)0xd4,(byte)0xf4,(byte)0x14,(byte)0x34,(byte)0x54,(byte)0x74,
+    	(byte)0x8c,(byte)0x9c,(byte)0xac,(byte)0xbc,(byte)0xcc,(byte)0xdc,(byte)0xec,(byte)0xfc,
+    	(byte)0xc,(byte)0x1c,(byte)0x2c,(byte)0x3c,(byte)0x4c,(byte)0x5c,(byte)0x6c,(byte)0x7c,
+    	(byte)0x88,(byte)0x90,(byte)0x98,(byte)0xa0,(byte)0xa8,(byte)0xb0,(byte)0xb8,(byte)0xc0,
+    	(byte)0xc8,(byte)0xd0,(byte)0xd8,(byte)0xe0,(byte)0xe8,(byte)0xf0,(byte)0xf8,(byte)0x0,
+    	(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,
+    	(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,
+    	(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,
+    	(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,(byte)0x7c,
+    	(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,
+    	(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,
+    	(byte)0x3c,(byte)0xbc,(byte)0x3c,(byte)0xbc,(byte)0x3c,(byte)0xbc,(byte)0x3c,(byte)0xbc,
+    	(byte)0x3c,(byte)0xbc,(byte)0x3c,(byte)0xbc,(byte)0x3c,(byte)0xbc,(byte)0x3c,(byte)0xbc,
+    	(byte)0x5c,(byte)0x1c,(byte)0xdc,(byte)0x9c,(byte)0x5c,(byte)0x1c,(byte)0xdc,(byte)0x9c,
+    	(byte)0x5c,(byte)0x1c,(byte)0xdc,(byte)0x9c,(byte)0x5c,(byte)0x1c,(byte)0xdc,(byte)0x9c,
+    	(byte)0x6c,(byte)0x4c,(byte)0x2c,(byte)0xc,(byte)0xec,(byte)0xcc,(byte)0xac,(byte)0x8c,
+    	(byte)0x6c,(byte)0x4c,(byte)0x2c,(byte)0xc,(byte)0xec,(byte)0xcc,(byte)0xac,(byte)0x8c,
+    	(byte)0x74,(byte)0x64,(byte)0x54,(byte)0x44,(byte)0x34,(byte)0x24,(byte)0x14,(byte)0x4,
+    	(byte)0xf4,(byte)0xe4,(byte)0xd4,(byte)0xc4,(byte)0xb4,(byte)0xa4,(byte)0x94,(byte)0x84,
+    	(byte)0x78,(byte)0x70,(byte)0x68,(byte)0x60,(byte)0x58,(byte)0x50,(byte)0x48,(byte)0x40,
+    	(byte)0x38,(byte)0x30,(byte)0x28,(byte)0x20,(byte)0x18,(byte)0x10,(byte)0x8,(byte)0x0,
     };
-    private byte[] temp = new byte[8192];
-
+    
+    private static byte[] muLawDecompressTable_high = new byte[]{
+    	(byte)0x82,(byte)0x86,(byte)0x8a,(byte)0x8e,(byte)0x92,(byte)0x96,(byte)0x9a,(byte)0x9e,
+    	(byte)0xa2,(byte)0xa6,(byte)0xaa,(byte)0xae,(byte)0xb2,(byte)0xb6,(byte)0xba,(byte)0xbe,
+    	(byte)0xc1,(byte)0xc3,(byte)0xc5,(byte)0xc7,(byte)0xc9,(byte)0xcb,(byte)0xcd,(byte)0xcf,
+    	(byte)0xd1,(byte)0xd3,(byte)0xd5,(byte)0xd7,(byte)0xd9,(byte)0xdb,(byte)0xdd,(byte)0xdf,
+    	(byte)0xe1,(byte)0xe2,(byte)0xe3,(byte)0xe4,(byte)0xe5,(byte)0xe6,(byte)0xe7,(byte)0xe8,
+    	(byte)0xe9,(byte)0xea,(byte)0xeb,(byte)0xec,(byte)0xed,(byte)0xee,(byte)0xef,(byte)0xf0,
+    	(byte)0xf0,(byte)0xf1,(byte)0xf1,(byte)0xf2,(byte)0xf2,(byte)0xf3,(byte)0xf3,(byte)0xf4,
+    	(byte)0xf4,(byte)0xf5,(byte)0xf5,(byte)0xf6,(byte)0xf6,(byte)0xf7,(byte)0xf7,(byte)0xf8,
+    	(byte)0xf8,(byte)0xf8,(byte)0xf9,(byte)0xf9,(byte)0xf9,(byte)0xf9,(byte)0xfa,(byte)0xfa,
+    	(byte)0xfa,(byte)0xfa,(byte)0xfb,(byte)0xfb,(byte)0xfb,(byte)0xfb,(byte)0xfc,(byte)0xfc,
+    	(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfc,(byte)0xfd,(byte)0xfd,(byte)0xfd,(byte)0xfd,
+    	(byte)0xfd,(byte)0xfd,(byte)0xfd,(byte)0xfd,(byte)0xfe,(byte)0xfe,(byte)0xfe,(byte)0xfe,
+    	(byte)0xfe,(byte)0xfe,(byte)0xfe,(byte)0xfe,(byte)0xfe,(byte)0xfe,(byte)0xfe,(byte)0xfe,
+    	(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,
+    	(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,
+    	(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,(byte)0x0,
+    	(byte)0x7d,(byte)0x79,(byte)0x75,(byte)0x71,(byte)0x6d,(byte)0x69,(byte)0x65,(byte)0x61,
+    	(byte)0x5d,(byte)0x59,(byte)0x55,(byte)0x51,(byte)0x4d,(byte)0x49,(byte)0x45,(byte)0x41,
+    	(byte)0x3e,(byte)0x3c,(byte)0x3a,(byte)0x38,(byte)0x36,(byte)0x34,(byte)0x32,(byte)0x30,
+    	(byte)0x2e,(byte)0x2c,(byte)0x2a,(byte)0x28,(byte)0x26,(byte)0x24,(byte)0x22,(byte)0x20,
+    	(byte)0x1e,(byte)0x1d,(byte)0x1c,(byte)0x1b,(byte)0x1a,(byte)0x19,(byte)0x18,(byte)0x17,
+    	(byte)0x16,(byte)0x15,(byte)0x14,(byte)0x13,(byte)0x12,(byte)0x11,(byte)0x10,(byte)0xf,
+    	(byte)0xf,(byte)0xe,(byte)0xe,(byte)0xd,(byte)0xd,(byte)0xc,(byte)0xc,(byte)0xb,
+    	(byte)0xb,(byte)0xa,(byte)0xa,(byte)0x9,(byte)0x9,(byte)0x8,(byte)0x8,(byte)0x7,
+    	(byte)0x7,(byte)0x7,(byte)0x6,(byte)0x6,(byte)0x6,(byte)0x6,(byte)0x5,(byte)0x5,
+    	(byte)0x5,(byte)0x5,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x4,(byte)0x3,(byte)0x3,
+    	(byte)0x3,(byte)0x3,(byte)0x3,(byte)0x3,(byte)0x2,(byte)0x2,(byte)0x2,(byte)0x2,
+    	(byte)0x2,(byte)0x2,(byte)0x2,(byte)0x2,(byte)0x1,(byte)0x1,(byte)0x1,(byte)0x1,
+    	(byte)0x1,(byte)0x1,(byte)0x1,(byte)0x1,(byte)0x1,(byte)0x1,(byte)0x1,(byte)0x1,
+    	(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,
+    	(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,
+    	(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,(byte)0x0,
+    };
+    
     /**
      * (Non Java-doc)
      * 
@@ -102,13 +135,22 @@ public class Decoder implements Codec {
      * @see org.mobicents.media.server.impl.jmf.dsp.Codec#process(Buffer).
      */
     public Frame process(Frame frame) {
-        byte[] data = frame.getData();
-
-        Frame res = Memory.allocate(data.length * 2);
-
-        int len = process(data, 0, data.length, res.getData());
+    	sourceLen=frame.getLength();
+    	destinationLen=sourceLen * 2;
+        Frame res = Memory.allocate(destinationLen);
+        
+        byte[] data=frame.getData();
+        byte[] resData=res.getData();
+        
+        for (i = 0,j = 0; i < sourceLen; i++) 
+        {
+        	currentIndex = data[i] & 0xff;
+            resData[j++] = muLawDecompressTable_low[currentIndex];             	
+            resData[j++] = muLawDecompressTable_high[currentIndex];
+        }
+        
         res.setOffset(0);
-        res.setLength(len);
+        res.setLength(destinationLen);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());
         res.setSequenceNumber(frame.getSequenceNumber());
@@ -116,47 +158,5 @@ public class Decoder implements Codec {
         res.setFormat(linear);
 
         return res;
-    }
-
-    /**
-     * Perform decopression
-     * 
-     * @param media the compressed media.
-     * @param uncompressed media.
-     */
-    private int process(byte[] media, int offset, int len, byte[] res) {
-        int j = 0;
-        for (int i = 0; i < len; i++) {
-            short s = muLawDecompressTable[media[i + offset] & 0xff];
-            res[j++] = (byte) s;
-            res[j++] = (byte) (s >> 8);
-        }
-        return 2 * len;
-    }
-
-    /*
-     * ulaw2linear() - Convert a u-law value to 16-bit linear PCM
-     *
-     * First, a biased linear code is derived from the code word. An unbiased
-     * output can then be obtained by subtracting 33 from the biased code.
-     *
-     * Note that this function expects to be passed the complement of the
-     * original code word. This is in keeping with ISDN conventions.
-     */
-    private short ulaw2linear(byte u_val) {
-        int t;
-
-        /* Complement to obtain normal u-law value. */
-        u_val = (byte) ~u_val;
-
-        /*
-         * Extract and bias the quantization bits. Then
-         * shift up by the segment number and subtract out the bias.
-         */
-        t = ((u_val & QUANT_MASK) << 3) + cBias;
-        t <<= (u_val & SEG_MASK) >> SEG_SHIFT;
-
-        boolean s = (u_val & SIGN_BIT) == SIGN_BIT;
-        return (short) (s ? (cBias - t) : (t - cBias));
-    }
+    }    
 }

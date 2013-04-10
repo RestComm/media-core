@@ -31,33 +31,14 @@ import org.mobicents.media.server.spi.memory.Memory;
 /**
  * Implements G.711 A-law compressor.
  * 
- * @author Oleg Kulikov
+ * @author Yulian Oifa
  */
 public class Encoder implements Codec {
 
     private final static Format alaw = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
     private final static Format linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
 
-    private final static int cClip = 32635;
-    private static byte aLawCompressTable[] = new byte[]{
-        1, 1, 2, 2, 3, 3, 3, 3,
-        4, 4, 4, 4, 4, 4, 4, 4,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        5, 5, 5, 5, 5, 5, 5, 5,
-        6, 6, 6, 6, 6, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 6, 6,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7
-    };
-
+    private int i,j,count;
     /**
      * (Non Java-doc)
      * 
@@ -82,11 +63,17 @@ public class Encoder implements Codec {
      * @see org.mobicents.media.server.impl.jmf.dsp.Codec#process(Buffer).
      */
     public Frame process(Frame frame) {
-        Frame res = Memory.allocate(frame.getLength() / 2);
-        int len = process(frame.getData(), 0, frame.getLength(), res.getData());
-
+    	count = frame.getLength() / 2;
+        Frame res = Memory.allocate(count);
+        
+        byte[] data=frame.getData();
+        byte[] resData=res.getData();
+        
+        for (i = 0,j = 0; i < count; i++,j++)
+        	resData[i]=EncoderData.aLawCompressTable[data[j+1] & 0xff][data[j++] & 0xff];        	
+        
         res.setOffset(0);
-        res.setLength(len);
+        res.setLength(count);
         res.setFormat(alaw);
         res.setTimestamp(frame.getTimestamp());
         res.setDuration(frame.getDuration());
@@ -94,47 +81,5 @@ public class Encoder implements Codec {
         res.setSequenceNumber(frame.getSequenceNumber());
 
         return res;
-    }
-
-    private int process(byte[] src, int offset, int len, byte[] res) {
-        int j = offset;
-        int count = len / 2;
-        short sample = 0;
-
-        for (int i = 0; i < count; i++) {
-            sample = (short) (((src[j++] & 0xff) | (src[j++]) << 8));
-            res[i] = linearToALawSample(sample);
-        }
-        return count;
-    }
-
-    /**
-     * Compress 16bit value to 8bit value
-     * 
-     * @param sample 16-bit sample
-     * @return compressed 8-bit value.
-     */
-    private byte linearToALawSample(short sample) {
-        int sign;
-        int exponent;
-        int mantissa;
-        int s;
-
-        sign = ((~sample) >> 8) & 0x80;
-        if (!(sign == 0x80)) {
-            sample = (short) -sample;
-        }
-        if (sample > cClip) {
-            sample = cClip;
-        }
-        if (sample >= 256) {
-            exponent = (int) aLawCompressTable[(sample >> 8) & 0x7F];
-            mantissa = (sample >> (exponent + 3)) & 0x0F;
-            s = (exponent << 4) | mantissa;
-        } else {
-            s = sample >> 4;
-        }
-        s ^= (sign ^ 0x55);
-        return (byte) s;
-    }
+    }    
 }
