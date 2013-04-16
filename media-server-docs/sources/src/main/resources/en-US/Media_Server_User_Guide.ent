@@ -18,7 +18,7 @@ If this final separator is missing, then the documentation will be wrong. -->
 
 <!-- Media Server User Guide -->
 <!ENTITY MS_VERSION "3.0.0.FINAL">
-<!ENTITY MMS_LONG_NAME "Mobicents Media Server">
+<!ENTITY MMS_LONG_NAME "Telscale Media Server">
 <!ENTITY MS_SIZE "110 MB">
 <!ENTITY MS_ZIP "jbcp-media-server-all-1.0.3.zip">
 <!ENTITY MS_JBOSS_HOME_BIN_LIN "jboss-4.2.3.GA/bin/">

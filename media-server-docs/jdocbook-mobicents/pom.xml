@@ -8,7 +8,7 @@
 
         <artifactId>mobicents-mms-docs-jdocbook-mobicents</artifactId>
   <name>
-    Mobicents Media :: Docs :: JDocbook-Mobicents :: ${pom.artifactId}
+    Telscale Media :: Docs :: JDocbook-Telscale :: ${pom.artifactId}
   </name>
         <modelVersion>4.0.0</modelVersion>
 
@@ -102,7 +102,7 @@
                                                 <format>
                                                         <formatName>pdf</formatName>
                                                         <stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-                                                        <finalName>Mobicents_${docs.bookid}_User_Guide.pdf</finalName>
+                                                        <finalName>Telscale_${docs.bookid}_User_Guide.pdf</finalName>
                                                 </format>
                                                 <format>
                                                         <formatName>html</formatName>

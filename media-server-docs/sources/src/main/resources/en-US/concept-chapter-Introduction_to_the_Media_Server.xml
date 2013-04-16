@@ -2,7 +2,7 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <!-- chapter id nickname: ittms -->
 <chapter id="ittms-Introduction_to_the_Media_Server">
-	<title>Introduction to the Mobicents Media Server</title>
+	<title>Introduction to the Telscale Media Server</title>
 	<section
 		id="ittms-Overview-the_Reasoning_and_Need_for_Media_Servers">
 		<title>
@@ -94,9 +94,9 @@
 			</varlistentry>
 		</variablelist>
 		<formalpara>
-			<title>What Is the Mobicents Media Server?</title>
+			<title>What Is the Telscale Media Server?</title>
 			<para>
-				The Mobicents Media Server is an open source Media
+				The Telscale Media Server is an open source Media
 				Server aimed at:
 			</para>
 		</formalpara>
@@ -128,7 +128,7 @@
 			</listitem>
 		</itemizedlist>
 		<para>
-			Because Mobicents Media Server is Java based, it is cross
+			Because Telscale Media Server is Java based, it is cross
 			platform, easy to install and run on any operating system
 			that supports Java. The available source code is a powerful
 			tool to debug the server and understand processing logic. It
@@ -136,7 +136,7 @@
 			components and configurations.
 		</para>
 		<para>
-			Form version 2.0.0, the Mobicents Media Server is available
+			Form version 2.0.0, the Telscale Media Server is available
 			either as embedded in JBoss AS 5.x.y or Standalone.
 		</para>
 	</section>
@@ -144,7 +144,7 @@
 	<section id="ittms-Technical_specification_and_capacity">
 		<title>Technical Specification and Capacity</title>
 
-		<para>The Mobicents Media Server is capable of</para>
+		<para>The Telscale Media Server is capable of</para>
 
 		<itemizedlist>
 			<listitem>
@@ -297,36 +297,36 @@ All benchmark tests  where done on Amazon EC2 cloud instances.
 				s.
 			</para>
 			<para>
-				The Mobicents Media Server call control intelligence can
-				be a JSLEE Application deployed on Mobicents JAIN SLEE
+				The Telscale Media Server call control intelligence can
+				be a JSLEE Application deployed on Telscale JAIN SLEE
 				Server or any other JAIN SLEE container. In case of
-				Mobicents JSLEE Server there is already MGCP Resource
+				Telscale JSLEE Server there is already MGCP Resource
 				Adaptor available.
 			</para>
 
 			<para>
-				Mobicents Media Server can also be controlled from
-				Mobicents SIP Servlets or any other SIP Servlets
+				Telscale Media Server can also be controlled from
+				Telscale SIP Servlets or any other SIP Servlets
 				container using any of the above call control procedures
-				or using the Mobicents JSR-309 Implementation. Mobicents
+				or using the Telscale JSR-309 Implementation. Telscale
 				JSR-309 Implementation internally leverages MGCP
-				protocol to controll Media Server. Mobicents JSR-309
+				protocol to controll Media Server. Telscale JSR-309
 				implementation details is out of scope of this document.
 			</para>
 
 			<para>
-				It is also possible to control the Mobicents Media
+				It is also possible to control the Telscale Media
 				Server from any third party Java application (including
 				standalone Java apps) or other technologies like .NET
 				etc as far as they follow standrad protocols like MGCP,
 				MEGACO etc. There is no dependency on call controller
 				but the protocol used between the call controller and
-				Mobicents Media Server.
+				Telscale Media Server.
 			</para>
 
 
 			<para>
-				Many key features of Mobicents Media Server are provided
+				Many key features of Telscale Media Server are provided
 				by integrating individual components operating using
 				generic Service Provider Interface. There are two of
 				types of high level components: Endpoints and

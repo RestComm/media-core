@@ -56,20 +56,20 @@ If this final separator is missing, then the documentation will be wrong. --><!-
 <book lang="en-US">
 	<bookinfo id="msug-Media_Server_User_Guide" lang="en-US">
 	<title>Media Server User Guide</title>
-	<subtitle>The <application>Mobicents Platform</application> Media Server Gateway Guide</subtitle>
-	<productname>Mobicents Platform</productname>
+	<subtitle>The <application>Telscale Platform</application> Media Server Gateway Guide</subtitle>
+	<productname>Telscale Platform</productname>
 	<productnumber>1.2.1</productnumber>
 	<edition>2.0</edition>
 	<pubsnumber>1</pubsnumber>
 	<abstract>
-		<para><application>The Mobicents Platform</application> is the first and only open source <acronym>VoIP</acronym> platform certified for <acronym>JAIN SLEE</acronym> 1.0 and <acronym>SIP</acronym> Servlets 1.1 compliance. <application>Mobicents</application> serves as a high-performance core for Service Delivery Platforms (<acronym>SDP</acronym>s) and <acronym>IP</acronym> Multimedia Subsystems (<acronym>IMS</acronym>s) by leveraging <acronym>J2EE</acronym> to enable the convergence of data and video in Next-Generation
+		<para><application>The Telscale Platform</application> is the first and only open source <acronym>VoIP</acronym> platform certified for <acronym>JAIN SLEE</acronym> 1.0 and <acronym>SIP</acronym> Servlets 1.1 compliance. <application>Telscale</application> serves as a high-performance core for Service Delivery Platforms (<acronym>SDP</acronym>s) and <acronym>IP</acronym> Multimedia Subsystems (<acronym>IMS</acronym>s) by leveraging <acronym>J2EE</acronym> to enable the convergence of data and video in Next-Generation
 Intelligent Network (<acronym>NGIN</acronym>) applications.</para>
-			<para>The <application>Mobicents Platform</application> enables the composition of predefined Service Building Blocks (<acronym>SBB</acronym>s) such as Call-Control, Billing, User-Provisioning, Administration
-and Presence-Sensing. Out-of-the-box monitoring and management of <application>Mobicents</application> components is achieved through <acronym>JMX</acronym> Consoles. <acronym>JSLEE</acronym> allows popular protocol stacks such as <acronym>SIP</acronym> to be plugged in as Resource Adapters (<acronym>RA</acronym>s), and Service Building Blocks—which share many similarities with <acronym>EJB</acronym>s—allow the easy accommodation and integration of enterprise
+			<para>The <application>Telscale Platform</application> enables the composition of predefined Service Building Blocks (<acronym>SBB</acronym>s) such as Call-Control, Billing, User-Provisioning, Administration
+and Presence-Sensing. Out-of-the-box monitoring and management of <application>Telscale</application> components is achieved through <acronym>JMX</acronym> Consoles. <acronym>JSLEE</acronym> allows popular protocol stacks such as <acronym>SIP</acronym> to be plugged in as Resource Adapters (<acronym>RA</acronym>s), and Service Building Blocks—which share many similarities with <acronym>EJB</acronym>s—allow the easy accommodation and integration of enterprise
 applications with end points such as the Web, Customer Relationship
-Management (<acronym>CRM</acronym>) systems and Service-Oriented Architectures (<acronym>SOA</acronym>s). The <application>Mobicents Platform</application> is the natural choice for telecommunication Operations Support
+Management (<acronym>CRM</acronym>) systems and Service-Oriented Architectures (<acronym>SOA</acronym>s). The <application>Telscale Platform</application> is the natural choice for telecommunication Operations Support
 Systems (OSSs) and Network Management Systems (NMSs).</para>
-				<para>In addition to the telecommunication industry, the <application>Mobicents Platform</application> is suitable for a variety of problem domains demanding an
+				<para>In addition to the telecommunication industry, the <application>Telscale Platform</application> is suitable for a variety of problem domains demanding an
 Event-Driven Architecture (<acronym>EDA</acronym>) for high-volume, low-latency signaling, such as financial
 trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, and distributed control.</para></abstract>
 					<corpauthor>
@@ -122,7 +122,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Ivanov</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">ivelin.atanasoff.ivanov@gmail.com</email>
 	</author>
@@ -131,7 +131,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Ralev</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">vladimir.ralev@gmail.com</email>
 	</author>
@@ -140,7 +140,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Martins</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">emmartins@gmail.com</email>
 	</author>
@@ -149,7 +149,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Deruelle</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">jean.deruelle@gmail.com</email>
 	</author>
@@ -158,7 +158,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Kulikov</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">oleg.kulikoff@gmail.com</email>
 	</author>
@@ -167,7 +167,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Bhayani</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">amit.bhayani@gmail.com</email>
 	</author>
@@ -176,7 +176,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Barreiro</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">lbbbarreiro@gmail.com</email>
 	</author>
@@ -185,7 +185,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Mendonça</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">brainslog@gmail.com</email>
 	</author>
@@ -194,7 +194,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Baranowski</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">baranowb@gmail.com</email>
 	</author>
@@ -203,7 +203,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>Šlégr</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">pavel.slegr@gmail.com</email>
 	</author>
@@ -212,7 +212,7 @@ trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, an
 		<surname>OIfa</surname>
 		<affiliation>
 			<orgname>Red Hat, </orgname>
-			<orgdiv condition="mob">Mobicents</orgdiv>
+			<orgdiv condition="mob">Telscale</orgdiv>
 		</affiliation>
 		<email condition="mob">oifa.yulian@gmail.com</email>
 	</author>
@@ -401,7 +401,7 @@ public class ExClient
 	</xi:include> -->
 </preface>
 	<chapter id="ittms-Introduction_to_the_Media_Server" lang="en-US">
-	<!--  chapter id nickname: ittms  --><title>Introduction to the Mobicents Media Server</title>
+	<!--  chapter id nickname: ittms  --><title>Introduction to the Telscale Media Server</title>
 	<section id="ittms-Overview-the_Reasoning_and_Need_for_Media_Servers">
 		<title>Overview: the Reasoning and Need for Media Servers</title>
 		<formalpara>
@@ -459,9 +459,9 @@ public class ExClient
 			</varlistentry>
 		</variablelist>
 		<formalpara>
-			<title>What Is the Mobicents Media Server?</title>
+			<title>What Is the Telscale Media Server?</title>
 			<para>
-				The Mobicents Media Gateway is an open source Media Server aimed at:
+				The Telscale Media Gateway is an open source Media Server aimed at:
 			</para>
 		</formalpara>
 		<itemizedlist>
@@ -615,7 +615,7 @@ public class ExClient
 					</listitem>
 				</itemizedlist>
 				<para>
-					The gateway is able to provide signaling conversation and can operate as a Session Border Controller at the boundaries of Local Access Networks (<acronym>LAN</acronym>s). The Media Server is always controlled by an external <application condition="mob">Mobicents Platform</application> application server, which implements the call control logic.
+					The gateway is able to provide signaling conversation and can operate as a Session Border Controller at the boundaries of Local Access Networks (<acronym>LAN</acronym>s). The Media Server is always controlled by an external <application condition="mob">Telscale Platform</application> application server, which implements the call control logic.
 				</para>
 				<mediaobject id="ittms-mms-MMSArchitecture-MSDeployment">
 					<imageobject>
@@ -735,7 +735,7 @@ public class ExClient
 				A resource is statically prepared if the preparation takes place at the time of creation. A resource is dynamically prepared if preparation of a particular resource (and its associated media streams) does not occur until it is required by a media operation. Static preparation can lead to less efficient usage of the Media Server's resources, because those resources tend to be allocated for a longer time before use. However, once a resource has been prepared, it is guaranteed to be available for use. Dynamic preparation may utilize resources more efficiently because just-in-time (<acronym>JIT</acronym>) allocation algorithms may be used.
 			</para>
 			<para>
-				An endpoint is divided logically into a Service Provider Interface that is used to implement a specific endpoint, and a management interface, which is used to implement the manageable resources of that endpoint. All endpoints are plugged into the Mobicents <acronym>SLEE</acronym> server by registering each endpoint with the appropriate JBoss Microcontainer. All major endpoints are manageable JBoss Microcontainers which are interconnected through the server. The most effective way to add endpoints to a Media Server is to create the endpoint application within a JBoss Microcontainer.
+				An endpoint is divided logically into a Service Provider Interface that is used to implement a specific endpoint, and a management interface, which is used to implement the manageable resources of that endpoint. All endpoints are plugged into the Telscale <acronym>SLEE</acronym> server by registering each endpoint with the appropriate JBoss Microcontainer. All major endpoints are manageable JBoss Microcontainers which are interconnected through the server. The most effective way to add endpoints to a Media Server is to create the endpoint application within a JBoss Microcontainer.
 			</para>
 			<para>
 				The <acronym>SPI</acronym> layer is an abstraction that endpoint providers must implement in order to enable their media-processing features. An implementation of an <acronym>SPI</acronym> for an endpoint is referred to as an <emphasis>Endpoint Provider</emphasis>.
@@ -954,15 +954,15 @@ public class ExClient
 	<bridgehead id="itms-Installing_the_Java_Development_Kit">Installing the Java Development Kit</bridgehead><section lang="en-US">
 	<!--  chapter id nickname: jdkicar  --><title>Java Development Kit: Installing, Configuring and Running</title>
 	<para>
-		The <application condition="mob">Mobicents</application> platform is written in Java. A working Java Runtime Environment (<acronym>JRE</acronym>) or Java Development Kit (<acronym>JDK</acronym>) must be installed prior to running the server. The required versiom must be version 5 or higher.
+		The <application condition="mob">Telscale</application> platform is written in Java. A working Java Runtime Environment (<acronym>JRE</acronym>) or Java Development Kit (<acronym>JDK</acronym>) must be installed prior to running the server. The required versiom must be version 5 or higher.
 	</para>
 	<para>
-		It is possible to run most <application condition="mob">Mobicents</application> servers, such as the JAIN SLEE Server, using a Java 6 JRE or JDK. However, the XML Document Management Server does not run on Java 6. Check the <ulink url="http://groups.google.com/group/mobicents-public/topics">public support forum</ulink> and <ulink url="http://www.mobicents.org/roadmap.html">project roadmap</ulink> pages to verify Java 6 support prior to running the XML Document Management Server with Java 6.
+		It is possible to run most <application condition="mob">Telscale</application> servers, such as the JAIN SLEE Server, using a Java 6 JRE or JDK. However, the XML Document Management Server does not run on Java 6. Check the <ulink url="http://groups.google.com/group/mobicents-public/topics">public support forum</ulink> and <ulink url="http://www.mobicents.org/roadmap.html">project roadmap</ulink> pages to verify Java 6 support prior to running the XML Document Management Server with Java 6.
 	</para>
 	<formalpara>
 		<title>JRE or JDK?</title>
 		<para>
-			Although <application condition="mob">Mobicents</application> servers are capable of running on the Java Runtime Environment, this guide assumes the audience is mainly developers interested in developing Java-based, <application condition="mob">Mobicents</application>-driven solutions. Therefore, installing the Java Development Kit is covered due to the anticipated audience requirements.
+			Although <application condition="mob">Telscale</application> servers are capable of running on the Java Runtime Environment, this guide assumes the audience is mainly developers interested in developing Java-based, <application condition="mob">Telscale</application>-driven solutions. Therefore, installing the Java Development Kit is covered due to the anticipated audience requirements.
 		</para>
 	</formalpara>
 	<formalpara>
@@ -1043,7 +1043,7 @@ public class ExClient
 		</itemizedlist>
 	</para>
 	<para>
-		If installing the JDK on Red Hat Enterprise Linux, Fedora, or another RPM-based Linux system, it is recommended that the self-extracting file containing the RPM package is selected. This option will set up and use the SysV service scripts in addition to installing the JDK. The RPM option is also recommended if the <application condition="mob">Mobicents</application> platform is being set up in a production environment.
+		If installing the JDK on Red Hat Enterprise Linux, Fedora, or another RPM-based Linux system, it is recommended that the self-extracting file containing the RPM package is selected. This option will set up and use the SysV service scripts in addition to installing the JDK. The RPM option is also recommended if the <application condition="mob">Telscale</application> platform is being set up in a production environment.
 	</para>
 	<formalpara>
 		<!--  id="jdkicar-binary-Java_Development_Kit-Installing">  --><title>Installing</title>
@@ -1114,7 +1114,7 @@ public class ExClient
 <programlisting>export JAVA_HOME="/usr/lib/jvm/jdk1.5.0_&lt;version&gt;"
 </programlisting>
 				<para>
-					The changes should also be applied for other users who will be running the <application condition="mob">Mobicents</application> on the machine (any environment variables <command>export</command>ed from <filename>~/.bashrc</filename> files are local to that user).
+					The changes should also be applied for other users who will be running the <application condition="mob">Telscale</application> on the machine (any environment variables <command>export</command>ed from <filename>~/.bashrc</filename> files are local to that user).
 				</para>
 			</listitem>
 		</varlistentry>
@@ -1395,7 +1395,7 @@ Java HotSpot(TM) Client VM (build 1.5.0_16-b03, mixed mode, sharing)
 		<section lang="en-US">
 	<title>Setting the JBOSS_HOME Environment Variable</title>
 	<para>
-		The <application>Mobicents Platform</application> (<application>Mobicents</application>) is built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). You do not need to set the <envar>JBOSS_HOME</envar> environment variable to run any of the <application>Mobicents Platform</application> servers <emphasis>unless</emphasis> <envar>JBOSS_HOME</envar> is <emphasis>already</emphasis> set.
+		The <application>Telscale Platform</application> (<application>Telscale</application>) is built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). You do not need to set the <envar>JBOSS_HOME</envar> environment variable to run any of the <application>Telscale Platform</application> servers <emphasis>unless</emphasis> <envar>JBOSS_HOME</envar> is <emphasis>already</emphasis> set.
 	</para>
 	<para>
 		The best way to know for sure whether <envar>JBOSS_HOME</envar> was set previously or not is to perform a simple check which may save you time and frustration.
@@ -1410,10 +1410,10 @@ Java HotSpot(TM) Client VM (build 1.5.0_16-b03, mixed mode, sharing)
 <screen>~]$ echo $JBOSS_HOME
 </screen>
 	<para>
-		The <application>Mobicents Platform</application> and most Mobicents servers are built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). When the <application>Mobicents Platform</application> or Mobicents servers are built <emphasis>from source</emphasis>, then <envar>JBOSS_HOME</envar> <emphasis>must</emphasis> be set, because the Mobicents files are installed into (or <quote>over top of</quote> if you prefer) a clean <application>JBoss AS</application> installation, and the build process assumes that the location pointed to by the <envar>JBOSS_HOME</envar> environment variable at the time of building is the <application>JBoss AS</application> installation into which you want it to install the Mobicents files.
+		The <application>Telscale Platform</application> and most Telscale servers are built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). When the <application>Telscale Platform</application> or Telscale servers are built <emphasis>from source</emphasis>, then <envar>JBOSS_HOME</envar> <emphasis>must</emphasis> be set, because the Telscale files are installed into (or <quote>over top of</quote> if you prefer) a clean <application>JBoss AS</application> installation, and the build process assumes that the location pointed to by the <envar>JBOSS_HOME</envar> environment variable at the time of building is the <application>JBoss AS</application> installation into which you want it to install the Telscale files.
 	</para>
 	<para>
-		This guide does not detail building the <application>Mobicents Platform</application> or any Mobicents servers from source. It is nevertheless useful to understand the role played by <application>JBoss AS</application> and <envar>JBOSS_HOME</envar> in the Mobicents ecosystem.
+		This guide does not detail building the <application>Telscale Platform</application> or any Telscale servers from source. It is nevertheless useful to understand the role played by <application>JBoss AS</application> and <envar>JBOSS_HOME</envar> in the Telscale ecosystem.
 	</para>
 	<para>
 		The immediately-following section considers whether you need to set <envar>JBOSS_HOME</envar> at all and, if so, when. The subsequent sections detail how to set <envar>JBOSS_HOME</envar> on Linux and Windows
@@ -1427,12 +1427,12 @@ Java HotSpot(TM) Client VM (build 1.5.0_16-b03, mixed mode, sharing)
 	<itemizedlist>
 		<listitem>
 			<para>
-				...you have installed the <application>Mobicents Platform</application> binary distribution.
+				...you have installed the <application>Telscale Platform</application> binary distribution.
 			</para>
 		</listitem>
 		<listitem>
 			<para>
-				...you have installed a Mobicents server binary distribution <emphasis>which bundles <application>JBoss AS</application>.</emphasis>
+				...you have installed a Telscale server binary distribution <emphasis>which bundles <application>JBoss AS</application>.</emphasis>
 			</para>
 		</listitem>
 	</itemizedlist>
@@ -1440,22 +1440,22 @@ Java HotSpot(TM) Client VM (build 1.5.0_16-b03, mixed mode, sharing)
 	<itemizedlist>
 		<listitem>
 			<para>
-				installing the <application>Mobicents Platform</application> or any of the Mobicents servers <emphasis>from source</emphasis>.
+				installing the <application>Telscale Platform</application> or any of the Telscale servers <emphasis>from source</emphasis>.
 			</para>
 		</listitem>
 		<listitem>
 			<para>
-				installing the <application>Mobicents Platform</application> binary distribution, or one of the Mobicents server binary distributions, which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>.
+				installing the <application>Telscale Platform</application> binary distribution, or one of the Telscale server binary distributions, which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>.
 			</para>
 		</listitem>
 	</itemizedlist>
 	<para>
-		Naturally, if you installed the <application>Mobicents Platform</application> or one of the Mobicents server binary releases which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>, yet requires it to run, then you should <ulink url="http://www.jboss.org/file-access/default/members/jbossas/freezone/docs/Installation_Guide/4/html/index.html">install <application>JBoss AS</application></ulink> before setting <envar>JBOSS_HOME</envar> or proceeding with anything else.
+		Naturally, if you installed the <application>Telscale Platform</application> or one of the Telscale server binary releases which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>, yet requires it to run, then you should <ulink url="http://www.jboss.org/file-access/default/members/jbossas/freezone/docs/Installation_Guide/4/html/index.html">install <application>JBoss AS</application></ulink> before setting <envar>JBOSS_HOME</envar> or proceeding with anything else.
 	</para>
 	<formalpara>
 		<title>Setting the JBOSS_HOME Environment Variable on Linux</title>
 		<para>
-			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase><application>Mobicents Platform</application> or individual Mobicents server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase><application>Telscale Platform</application> or individual Telscale server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
 		</para>
 	</formalpara>
 	<para>
@@ -1490,7 +1490,7 @@ Java HotSpot(TM) Client VM (build 1.5.0_16-b03, mixed mode, sharing)
 			</para>
 			<note>
 				<para>
-					The command line usage below is based upon a binary installation of the <application>Mobicents Platform</application>. In this sample output, <envar>JBOSS_HOME</envar> has been set correctly to the <replaceable>topmost_directory</replaceable> of the <application>Mobicents</application> installation. Note that if you are installing one of the standalone <application>Mobicents</application> servers (with <application>JBoss AS</application> bundled!), then <envar>JBOSS_HOME</envar> would point to the <replaceable>topmost_directory</replaceable> of your server installation.
+					The command line usage below is based upon a binary installation of the <application>Telscale Platform</application>. In this sample output, <envar>JBOSS_HOME</envar> has been set correctly to the <replaceable>topmost_directory</replaceable> of the <application>Telscale</application> installation. Note that if you are installing one of the standalone <application>Telscale</application> servers (with <application>JBoss AS</application> bundled!), then <envar>JBOSS_HOME</envar> would point to the <replaceable>topmost_directory</replaceable> of your server installation.
 				</para>
 			</note>
 			
@@ -1503,7 +1503,7 @@ Java HotSpot(TM) Client VM (build 1.5.0_16-b03, mixed mode, sharing)
 	<formalpara>
 		<title>Setting the JBOSS_HOME Environment Variable on Windows</title>
 		<para>
-			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase>Mobicents Platform or individual Mobicents server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase>Telscale Platform or individual Telscale server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
 		</para>
 	</formalpara>
 	<para>
@@ -2937,7 +2937,7 @@ dtmf.payload = 101
 	<section id="ctms-Conference_Bridge_Endpoint">
 		<title>Conference Bridge Endpoint</title>
 		<para>
-			The Mobicents Media Server should be able to establish several connections between the endpoint and packet networks, or between the endpoint and other endpoints in the same gateway. The signals originating from these connections shall be mixed according to the connection <quote>mode</quote>. The precise number of connections an endpoint supports is a characteristic of the gateway, and may in fact vary according with the allocation of resources within the gateway. The conf endpoint can play an announcement directly on connections and hence only for the participant listening to an announcement, and can even detect DTMF for connection.
+			The Telscale Media Server should be able to establish several connections between the endpoint and packet networks, or between the endpoint and other endpoints in the same gateway. The signals originating from these connections shall be mixed according to the connection <quote>mode</quote>. The precise number of connections an endpoint supports is a characteristic of the gateway, and may in fact vary according with the allocation of resources within the gateway. The conf endpoint can play an announcement directly on connections and hence only for the participant listening to an announcement, and can even detect DTMF for connection.
 		</para>
 		<example id="ctms-The_ConfEndpointManagement_MBean">
 			<title>The ConfEndpointManagement MBean</title>
@@ -3076,7 +3076,7 @@ dtmf.payload = 101
 	<section id="ctms-MMS_STUN_Support">
 		<title>MMS STUN Support</title>
 		<para>
-			When using Mobicents Media Server behind a routing device performing Network Address Translation, you may need to employ the Simple Traversal of User Datagram Protocol through Network Address Translators (abbreviated: <acronym>STUN</acronym>) protocol in order for the server to operate correctly. In general, it is recommended to avoid deploying the MMS behind a NAT, since doing so can incur significant performance penalties and failures. Nevertheless, the current MMS implementation does work with a static NAT, a.k.a. a one-to-one (1-1) NAT, in which no port-mapping occurs. Full Cone NAT should also work with Address-Restricted NAT.
+			When using Telscale Media Server behind a routing device performing Network Address Translation, you may need to employ the Simple Traversal of User Datagram Protocol through Network Address Translators (abbreviated: <acronym>STUN</acronym>) protocol in order for the server to operate correctly. In general, it is recommended to avoid deploying the MMS behind a NAT, since doing so can incur significant performance penalties and failures. Nevertheless, the current MMS implementation does work with a static NAT, a.k.a. a one-to-one (1-1) NAT, in which no port-mapping occurs. Full Cone NAT should also work with Address-Restricted NAT.
 		</para>
 		<para>
 			For more information STUN NAT classification, refer to chapter 5 of <ulink url="http://www.faqs.org/rfcs/rfc3489.html">RFC3489 - STUN - Simple Traversal of User Datagram Protocol (UDP)</ulink>.
@@ -3163,11 +3163,11 @@ dtmf.payload = 101
 
 </chapter>
 	<chapter id="captms-Controlling_and_Programming_the_Media_Server" lang="en-US">
-	<!--  chapter id nickname: captms  --><title>Controlling and Programming the Mobicents Media Server</title>
+	<!--  chapter id nickname: captms  --><title>Controlling and Programming the Telscale Media Server</title>
 	<section id="captms-MMS_Control_Protocols">
 		<title>MMS Control Protocols</title>
 		<para>
-			The Mobicents Media Server adopts a call control architecture where the call control <quote>intelligence</quote> is located outside of the Media Server itself, and is handled by external call control elements collectively known as Call State Control Function (CSCF).The media server assumes that these call control elements will synchronize with each other to send coherent commands and responses to the media servers under their control. Server Control Protocols is, in essence, an asynchronous master/slave protocol, where the Server Control Modules are expected to execute commands sent by CSCF. Each Server Control Module is implemented as a JSLEE application, and consists of a set of Service Building Blocks (<acronym>SBB</acronym>)s, which are in charge of communicating with media server endpoints via SPI. Such an architecture avoids difficulties with programming concurrency, low-level transaction and state-management details, connection-pooling and other complex APIs.
+			The Telscale Media Server adopts a call control architecture where the call control <quote>intelligence</quote> is located outside of the Media Server itself, and is handled by external call control elements collectively known as Call State Control Function (CSCF).The media server assumes that these call control elements will synchronize with each other to send coherent commands and responses to the media servers under their control. Server Control Protocols is, in essence, an asynchronous master/slave protocol, where the Server Control Modules are expected to execute commands sent by CSCF. Each Server Control Module is implemented as a JSLEE application, and consists of a set of Service Building Blocks (<acronym>SBB</acronym>)s, which are in charge of communicating with media server endpoints via SPI. Such an architecture avoids difficulties with programming concurrency, low-level transaction and state-management details, connection-pooling and other complex APIs.
 		</para>
 		<section id="captms-Media_Gateway_Control_Protocol_Interface">
 			<title>Media Gateway Control Protocol Interface</title>
@@ -3351,7 +3351,7 @@ dtmf.payload = 101
 		<note id="captms-The_JavaDoc_for_the_MMS_Control_API">
 			<title>The JavaDoc for the MMS Control API</title>
 			<para>
-				The JavaDoc documentation for the Mobicents Media Server Control API is available here: <ulink url="http://hudson.jboss.org/hudson/job/MobicentsDocumentation/lastSuccessfulBuild/artifact/msc-api/apidocs/index.html"/>.
+				The JavaDoc documentation for the Telscale Media Server Control API is available here: <ulink url="http://hudson.jboss.org/hudson/job/TelscaleDocumentation/lastSuccessfulBuild/artifact/msc-api/apidocs/index.html"/>.
 			</para>
 		</note>
 		<section id="captms-Basic_Components_of_the_MMS_API">
@@ -4359,7 +4359,7 @@ public class IVRExample implements MsSessionListener, MsConnectionListener, MsNo
 	<formalpara>
 		<title>Install and Run</title>
 		<para>
-			Start the Mobicents Server (this will also start Media Server). Make sure you have <filename>server/default/deploy/mobicents.sar</filename> and <filename>server/default/deploy/mediaserver.sar</filename> in your Mobicents Server
+			Start the Telscale Server (this will also start Media Server). Make sure you have <filename>server/default/deploy/mobicents.sar</filename> and <filename>server/default/deploy/mediaserver.sar</filename> in your Telscale Server
 		</para>
 	</formalpara>
 	<formalpara>
@@ -4599,14 +4599,14 @@ link.join(endpointName, CNF_ENDPOINT);
 	<chapter id="msbp-MS-Best_Practices" lang="en-US">
 	<!--  chapter id nickname: msbp  --><title>MMS: Best Practices</title>
 	<section>
-		<title>Mobicents Media Server Best Practices</title>
+		<title>Telscale Media Server Best Practices</title>
 		<para>
-			Note: these best practices apply to Mobicents Media Server version 1.0.0.CR6 and later
+			Note: these best practices apply to Telscale Media Server version 1.0.0.CR6 and later
 		</para>
 		<section>
 			<title>DTMF Detection Mode: RFC2833 versus Inband versus Auto</title>
 			<para>
-				The Mobicents Media Server will block the resource depending on the DTMF detection mode configured in <emphasis>jboss-service.xml</emphasis> at start-up time. Inband is highly resource-intensive and must perform many more calculations in order to detect DTMF when compared to RFC2833. So if your application already knows that User Agents (UAs) support RFC2833, it is always better to configure DTMF mode as <emphasis>RFC2833</emphasis> rather than as <emphasis>Inband</emphasis> or <emphasis>Auto</emphasis>. Also, please note that <emphasis>Auto</emphasis> is even more resource-intensive because it does not know beforehand whether DTMF would be Inband or <emphasis>RFC2833</emphasis>, and hence both detection methods must be started. The default detection mode is <emphasis>RFC2833</emphasis>.
+				The Telscale Media Server will block the resource depending on the DTMF detection mode configured in <emphasis>jboss-service.xml</emphasis> at start-up time. Inband is highly resource-intensive and must perform many more calculations in order to detect DTMF when compared to RFC2833. So if your application already knows that User Agents (UAs) support RFC2833, it is always better to configure DTMF mode as <emphasis>RFC2833</emphasis> rather than as <emphasis>Inband</emphasis> or <emphasis>Auto</emphasis>. Also, please note that <emphasis>Auto</emphasis> is even more resource-intensive because it does not know beforehand whether DTMF would be Inband or <emphasis>RFC2833</emphasis>, and hence both detection methods must be started. The default detection mode is <emphasis>RFC2833</emphasis>.
 			</para>
 			<para>
 				All of the Conference, Packet Relay and IVR endpoints have DTMF detection enabled; the mode can be configured using <emphasis>jboss-service.xml</emphasis>. We advise retaining the same mode for all three, but this is not a necessity.

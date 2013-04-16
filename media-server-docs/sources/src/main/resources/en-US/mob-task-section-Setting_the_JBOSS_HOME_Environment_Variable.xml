@@ -6,7 +6,7 @@
 <section>
 	<title>Setting the JBOSS_HOME Environment Variable</title>
 	<para>
-		The <application>Mobicents Platform</application> (<application>Mobicents</application>) is built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). You do not need to set the <envar>JBOSS_HOME</envar> environment variable to run any of the <application>Mobicents Platform</application> servers <emphasis>unless</emphasis> <envar>JBOSS_HOME</envar> is <emphasis>already</emphasis> set.
+		The <application>Telscale Platform</application> (<application>Telscale</application>) is built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). You do not need to set the <envar>JBOSS_HOME</envar> environment variable to run any of the <application>Telscale Platform</application> servers <emphasis>unless</emphasis> <envar>JBOSS_HOME</envar> is <emphasis>already</emphasis> set.
 	</para>
 	<para>The best way to know for sure whether <envar>JBOSS_HOME</envar> was set previously or not is to perform a simple check which may save you time and frustration.</para>
 	<formalpara>
@@ -16,8 +16,8 @@
 	</formalpara>
 	<!--  ~]$ echo $JBOSS_HOME  -->
 	<screen>~]$ echo $JBOSS_HOME</screen>
-	<para>The <application>Mobicents Platform</application> and most Mobicents servers are built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). When the <application>Mobicents Platform</application> or Mobicents servers are built <emphasis>from source</emphasis>, then <envar>JBOSS_HOME</envar> <emphasis>must</emphasis> be set, because the Mobicents files are installed into (or <quote>over top of</quote> if you prefer) a clean <application>JBoss AS</application> installation, and the build process assumes that the location pointed to by the <envar>JBOSS_HOME</envar> environment variable at the time of building is the <application>JBoss AS</application> installation into which you want it to install the Mobicents files.</para>
-	<para>This guide does not detail building the <application>Mobicents Platform</application> or any Mobicents servers from source. It is nevertheless useful to understand the role played by <application>JBoss AS</application> and <envar>JBOSS_HOME</envar> in the Mobicents ecosystem.</para>
+	<para>The <application>Telscale Platform</application> and most Telscale servers are built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). When the <application>Telscale Platform</application> or Telscale servers are built <emphasis>from source</emphasis>, then <envar>JBOSS_HOME</envar> <emphasis>must</emphasis> be set, because the Telscale files are installed into (or <quote>over top of</quote> if you prefer) a clean <application>JBoss AS</application> installation, and the build process assumes that the location pointed to by the <envar>JBOSS_HOME</envar> environment variable at the time of building is the <application>JBoss AS</application> installation into which you want it to install the Telscale files.</para>
+	<para>This guide does not detail building the <application>Telscale Platform</application> or any Telscale servers from source. It is nevertheless useful to understand the role played by <application>JBoss AS</application> and <envar>JBOSS_HOME</envar> in the Telscale ecosystem.</para>
 	<para>
 		The immediately-following section considers whether you need to set <envar>JBOSS_HOME</envar> at all and, if so, when. The subsequent sections detail how to set <envar>JBOSS_HOME</envar> on Linux and Windows
 	</para>
@@ -30,31 +30,31 @@
 	<itemizedlist>
 		<listitem>
 			<para>
-				...you have installed the <application>Mobicents Platform</application> binary distribution.
+				...you have installed the <application>Telscale Platform</application> binary distribution.
 			</para>
 		</listitem>
 		<listitem>
 			<para>
-				...you have installed a Mobicents server binary distribution <emphasis>which bundles <application>JBoss AS</application>.</emphasis>
+				...you have installed a Telscale server binary distribution <emphasis>which bundles <application>JBoss AS</application>.</emphasis>
 			</para>
 		</listitem>
 	</itemizedlist>
 	<bridgehead>You <emphasis>MUST</emphasis> set <envar>JBOSS_HOME</envar> if you are:</bridgehead>
 	<itemizedlist>
 		<listitem>
-			<para>installing the <application>Mobicents Platform</application> or any of the Mobicents servers <emphasis>from source</emphasis>.
+			<para>installing the <application>Telscale Platform</application> or any of the Telscale servers <emphasis>from source</emphasis>.
 			</para>
 		</listitem>
 		<listitem>
-			<para>installing the <application>Mobicents Platform</application> binary distribution, or one of the Mobicents server binary distributions, which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>.
+			<para>installing the <application>Telscale Platform</application> binary distribution, or one of the Telscale server binary distributions, which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>.
 			</para>
 		</listitem>
 	</itemizedlist>
-	<para>Naturally, if you installed the <application>Mobicents Platform</application> or one of the Mobicents server binary releases which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>, yet requires it to run, then you should <ulink url="http://www.jboss.org/file-access/default/members/jbossas/freezone/docs/Installation_Guide/4/html/index.html">install <application>JBoss AS</application></ulink> before setting <envar>JBOSS_HOME</envar> or proceeding with anything else.</para>
+	<para>Naturally, if you installed the <application>Telscale Platform</application> or one of the Telscale server binary releases which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>, yet requires it to run, then you should <ulink url="http://www.jboss.org/file-access/default/members/jbossas/freezone/docs/Installation_Guide/4/html/index.html">install <application>JBoss AS</application></ulink> before setting <envar>JBOSS_HOME</envar> or proceeding with anything else.</para>
 	<formalpara>
 		<title>Setting the JBOSS_HOME Environment Variable on Linux</title>
 		<para>
-			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase><application>Mobicents Platform</application> or individual Mobicents server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase><application>Telscale Platform</application> or individual Telscale server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
 		</para>
 	</formalpara>
 	<para>Setting <envar>JBOSS_HOME</envar> in your personal <filename>~/.bashrc</filename> startup script carries the advantage of retaining effect over reboots. Each time you log in, the environment variable is sure to be set for you, as a user. On Linux, it is possible to set <envar>JBOSS_HOME</envar> as a system-wide environment variable, by defining it in <filename>/etc/bashrc</filename>, but this method is neither recommended nor detailed in these instructions.</para>
@@ -77,7 +77,7 @@
 			</para>
 			<note>
 				<para>
-					The command line usage below is based upon a binary installation of the <application>Mobicents Platform</application>. In this sample output, <envar>JBOSS_HOME</envar> has been set correctly to the <replaceable>topmost_directory</replaceable> of the <application>Mobicents</application> installation. Note that if you are installing one of the standalone <application>Mobicents</application> servers (with <application>JBoss AS</application> bundled!), then <envar>JBOSS_HOME</envar> would point to the <replaceable>topmost_directory</replaceable> of your server installation.
+					The command line usage below is based upon a binary installation of the <application>Telscale Platform</application>. In this sample output, <envar>JBOSS_HOME</envar> has been set correctly to the <replaceable>topmost_directory</replaceable> of the <application>Telscale</application> installation. Note that if you are installing one of the standalone <application>Telscale</application> servers (with <application>JBoss AS</application> bundled!), then <envar>JBOSS_HOME</envar> would point to the <replaceable>topmost_directory</replaceable> of your server installation.
 				</para>
 			</note>
 			<screen>~]$ echo $JBOSS_HOME
@@ -88,7 +88,7 @@
 	<formalpara>
 		<title>Setting the JBOSS_HOME Environment Variable on Windows</title>
 		<para>
-			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase>Mobicents Platform or individual Mobicents server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase>Telscale Platform or individual Telscale server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
 		</para>
 	</formalpara>
 	<para>For information on how to set environment variables in recent versions of Windows, refer to <ulink url="http://support.microsoft.com/kb/931715"></ulink>.</para>

@@ -11,7 +11,7 @@
 
   <artifactId>mobicents-mms-docs-sources</artifactId>
   <name>
-    Mobicents Media :: Docs :: Sources :: ${project.artifactId}
+    Telscale Media :: Docs :: Sources :: ${project.artifactId}
   </name>
 	<properties>
 

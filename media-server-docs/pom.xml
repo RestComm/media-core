@@ -12,11 +12,11 @@
         <groupId>org.mobicents.media.docs</groupId>    
         <packaging>pom</packaging>
   <name>
-    Mobicents Media :: Docs :: Parent :: ${project.artifactId}
+    Telscale Media :: Docs :: Parent :: ${project.artifactId}
   </name>
  
         <properties>
-                <docs.application.name>Mobicents Media Server</docs.application.name>
+                <docs.application.name>Telscale Media Server</docs.application.name>
                 <docs.application.dirname>mms</docs.application.dirname>
                 <docs.bookid>MediaServer</docs.bookid>
         </properties>

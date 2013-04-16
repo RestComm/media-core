@@ -52,7 +52,7 @@ Slee release :</para>
 	<para>For more information please see <ulink url="https://code.google.com/p/jain-slee/source/browse?repo=media#git%2Fexamples">Jain-Slee documentation </ulink>that comes with this examples.
 	</para>
 	
-	<para>The following examples use MMS with Mobicents/TELESTAX SIP Servlets :</para>
+	<para>The following examples use MMS with Telscale/TELESTAX SIP Servlets :</para>
 	
 	<table id="msde-sip-servlets-examples"	frame="all">
 	<title>Examples for SIP Servlets </title>
@@ -115,7 +115,7 @@ protocol for MMS.
 	</table>
 
 <para>
-For more information please see Mobicents/Telestax <ulink url="http://code.google.com/p/restcomm-demo/source/browse/#git%2Fapp">RestComm documentation.</ulink>
+For more information please see Telscale/Telestax <ulink url="http://code.google.com/p/restcomm-demo/source/browse/#git%2Fapp">RestComm documentation.</ulink>
 	</para>
 	
 <!--	
@@ -145,7 +145,7 @@ For more information please see Mobicents/Telestax <ulink url="http://code.googl
 	</formalpara>
 	<formalpara>
 		<title>Install and Run</title>
-		<para>Start the Mobicents Server (this will also start Media Server). Make sure you have <filename>server/default/deploy/mobicents.sar</filename> and <filename>server/default/deploy/mediaserver.sar</filename> in your Mobicents Server</para>
+		<para>Start the Telscale Server (this will also start Media Server). Make sure you have <filename>server/default/deploy/mobicents.sar</filename> and <filename>server/default/deploy/mediaserver.sar</filename> in your Telscale Server</para>
 	</formalpara>
 	<formalpara>
 		<title>From Binary</title>
