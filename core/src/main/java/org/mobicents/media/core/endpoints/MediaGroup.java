@@ -38,6 +38,7 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 
+import java.util.concurrent.Semaphore;
 /**
  * Implements Local Components Holder for endpoint
  * Usefull for jsr 309 structure
@@ -63,6 +64,8 @@ public class MediaGroup {
 	private int readComponents=0,writeComponents=0;
 	private int readDtmfComponents=0,writeDtmfComponents=0;
 	
+	private Semaphore resourceSemaphore=new Semaphore(1);
+	
 	public MediaGroup(ResourcesPool resourcesPool,Endpoint endpoint)
 	{
 		this.resourcesPool=resourcesPool;
@@ -83,31 +86,66 @@ public class MediaGroup {
 	
 	public Component getPlayer()
 	{
-		if(this.player==null)
+		try
 		{
-			this.player=resourcesPool.newAudioComponent(ComponentType.PLAYER);
-			this.player.setEndpoint(endpoint);
-			audioComponent.addInput(((AudioPlayerImpl)this.player).getAudioInput());
-			readComponents++;
-			audioComponent.updateMode(true,writeComponents!=0);
-			updateEndpoint(1,0);
+			resourceSemaphore.acquire();
 		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		
+		try
+		{
+			if(this.player==null)
+			{
+				this.player=resourcesPool.newAudioComponent(ComponentType.PLAYER);
+				this.player.setEndpoint(endpoint);
+				audioComponent.addInput(((AudioPlayerImpl)this.player).getAudioInput());
+				readComponents++;
+				audioComponent.updateMode(true,writeComponents!=0);
+				updateEndpoint(1,0);
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
+		}
+		
 		return this.player;
 	}
 	
 	public void releasePlayer()
 	{
-		if(this.player!=null)
+		try
 		{
-			audioComponent.remove(((AudioPlayerImpl)this.player).getAudioInput());
-			readComponents--;
-			audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
-			updateEndpoint(-1,0);
-			this.player.clearEndpoint();
-			((AudioPlayerImpl)this.player).clearAllListeners();
-			this.player.deactivate();			
-			resourcesPool.releaseAudioComponent(this.player,ComponentType.PLAYER);
-			this.player=null;
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		
+		try
+		{
+			if(this.player!=null)		
+			{
+				audioComponent.remove(((AudioPlayerImpl)this.player).getAudioInput());
+				readComponents--;
+				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
+				updateEndpoint(-1,0);
+				this.player.clearEndpoint();
+				((AudioPlayerImpl)this.player).clearAllListeners();
+				this.player.deactivate();			
+				resourcesPool.releaseAudioComponent(this.player,ComponentType.PLAYER);
+				this.player=null;
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 	}
 	
@@ -118,17 +156,33 @@ public class MediaGroup {
 	
 	public Component getRecorder()
 	{
-		if(this.recorder==null)
+		try
 		{
-			this.recorder=resourcesPool.newAudioComponent(ComponentType.RECORDER);
-			this.recorder.setEndpoint(endpoint);
-			audioComponent.addOutput(((AudioRecorderImpl)this.recorder).getAudioOutput());
-			oobComponent.addOutput(((AudioRecorderImpl)this.recorder).getOOBOutput());
-			writeComponents++;
-			writeDtmfComponents++;
-			audioComponent.updateMode(readComponents!=0,true);
-			oobComponent.updateMode(readDtmfComponents!=0,true);
-			updateEndpoint(0,1);
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.recorder==null)		
+			{
+				this.recorder=resourcesPool.newAudioComponent(ComponentType.RECORDER);
+				this.recorder.setEndpoint(endpoint);
+				audioComponent.addOutput(((AudioRecorderImpl)this.recorder).getAudioOutput());
+				oobComponent.addOutput(((AudioRecorderImpl)this.recorder).getOOBOutput());
+				writeComponents++;
+				writeDtmfComponents++;
+				audioComponent.updateMode(readComponents!=0,true);
+				oobComponent.updateMode(readDtmfComponents!=0,true);
+				updateEndpoint(0,1);
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 		
 		return this.recorder;
@@ -136,20 +190,36 @@ public class MediaGroup {
 	
 	public void releaseRecorder()
 	{
-		if(this.recorder!=null)
+		try
 		{
-			audioComponent.remove(((AudioRecorderImpl)this.recorder).getAudioOutput());
-			oobComponent.remove(((AudioRecorderImpl)this.recorder).getOOBOutput());
-			writeComponents--;
-			writeDtmfComponents--;
-			audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
-			oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
-			updateEndpoint(0,-1);
-			this.recorder.clearEndpoint();
-			((AudioRecorderImpl)this.recorder).clearAllListeners();
-			this.recorder.deactivate();
-			resourcesPool.releaseAudioComponent(this.recorder,ComponentType.RECORDER);
-			this.recorder=null;
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.recorder!=null)
+			{
+				audioComponent.remove(((AudioRecorderImpl)this.recorder).getAudioOutput());
+				oobComponent.remove(((AudioRecorderImpl)this.recorder).getOOBOutput());
+				writeComponents--;
+				writeDtmfComponents--;
+				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
+				oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
+				updateEndpoint(0,-1);
+				this.recorder.clearEndpoint();
+				((AudioRecorderImpl)this.recorder).clearAllListeners();
+				this.recorder.deactivate();
+				resourcesPool.releaseAudioComponent(this.recorder,ComponentType.RECORDER);
+				this.recorder=null;
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 	}
 	
@@ -160,39 +230,71 @@ public class MediaGroup {
 	
 	public Component getDtmfDetector()
 	{
-		if(this.dtmfDetector==null)	
+		try
 		{
-			this.dtmfDetector=resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
-			this.dtmfDetector.setEndpoint(endpoint);
-			audioComponent.addOutput(((DetectorImpl)this.dtmfDetector).getAudioOutput());
-			oobComponent.addOutput(((DetectorImpl)this.dtmfDetector).getOOBOutput());
-			writeComponents++;
-			writeDtmfComponents++;
-			audioComponent.updateMode(readComponents!=0,true);
-			oobComponent.updateMode(readDtmfComponents!=0,true);
-			updateEndpoint(0,1);
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.dtmfDetector==null)			
+			{
+				this.dtmfDetector=resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
+				this.dtmfDetector.setEndpoint(endpoint);
+				audioComponent.addOutput(((DetectorImpl)this.dtmfDetector).getAudioOutput());
+				oobComponent.addOutput(((DetectorImpl)this.dtmfDetector).getOOBOutput());
+				writeComponents++;
+				writeDtmfComponents++;
+				audioComponent.updateMode(readComponents!=0,true);
+				oobComponent.updateMode(readDtmfComponents!=0,true);
+				updateEndpoint(0,1);
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 		
 		return this.dtmfDetector;
 	}
 	
 	public void releaseDtmfDetector()
-	{
-		if(this.dtmfDetector!=null)
+	{		
+		try
 		{
-			audioComponent.remove(((DetectorImpl)this.dtmfDetector).getAudioOutput());
-			oobComponent.remove(((DetectorImpl)this.dtmfDetector).getOOBOutput());
-			writeComponents--;
-			writeDtmfComponents--;
-			audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
-			oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
-			updateEndpoint(0,-1);
-			this.dtmfDetector.clearEndpoint();			
-			((DetectorImpl)this.dtmfDetector).clearAllListeners();
-			this.dtmfDetector.deactivate();
-			((DetectorImpl)this.dtmfDetector).clearBuffer();			
-			resourcesPool.releaseAudioComponent(this.dtmfDetector,ComponentType.DTMF_DETECTOR);
-			this.dtmfDetector=null;
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.dtmfDetector!=null)		
+			{
+				audioComponent.remove(((DetectorImpl)this.dtmfDetector).getAudioOutput());
+				oobComponent.remove(((DetectorImpl)this.dtmfDetector).getOOBOutput());
+				writeComponents--;
+				writeDtmfComponents--;
+				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
+				oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
+				updateEndpoint(0,-1);
+				this.dtmfDetector.clearEndpoint();			
+				((DetectorImpl)this.dtmfDetector).clearAllListeners();
+				this.dtmfDetector.deactivate();
+				((DetectorImpl)this.dtmfDetector).clearBuffer();			
+				resourcesPool.releaseAudioComponent(this.dtmfDetector,ComponentType.DTMF_DETECTOR);
+				this.dtmfDetector=null;
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 	}
 	
@@ -203,17 +305,33 @@ public class MediaGroup {
 	
 	public Component getDtmfGenerator()
 	{
-		if(this.dtmfGenerator==null)
+		try
 		{
-			this.dtmfGenerator=resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
-			this.dtmfGenerator.setEndpoint(endpoint);
-			audioComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
-			oobComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
-			readComponents++;
-			readDtmfComponents++;
-			audioComponent.updateMode(true,writeComponents!=0);
-			oobComponent.updateMode(true,writeDtmfComponents!=0);
-			updateEndpoint(1,0);
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.dtmfGenerator==null)
+			{
+				this.dtmfGenerator=resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
+				this.dtmfGenerator.setEndpoint(endpoint);
+				audioComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
+				oobComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
+				readComponents++;
+				readDtmfComponents++;
+				audioComponent.updateMode(true,writeComponents!=0);
+				oobComponent.updateMode(true,writeDtmfComponents!=0);
+				updateEndpoint(1,0);
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 		
 		return this.dtmfGenerator;
@@ -221,19 +339,35 @@ public class MediaGroup {
 	
 	public void releaseDtmfGenerator()
 	{
-		if(this.dtmfGenerator!=null)
+		try
 		{
-			audioComponent.remove(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
-			oobComponent.remove(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
-			readComponents--;
-			readDtmfComponents--;
-			audioComponent.updateMode(readComponents!=0,writeComponents!=0);
-			oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);			
-			updateEndpoint(-1,0);
-			this.dtmfGenerator.clearEndpoint();			
-			this.dtmfGenerator.deactivate();
-			resourcesPool.releaseAudioComponent(this.dtmfGenerator,ComponentType.DTMF_GENERATOR);
-			this.dtmfGenerator=null;
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.dtmfGenerator!=null)
+			{
+				audioComponent.remove(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
+				oobComponent.remove(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
+				readComponents--;
+				readDtmfComponents--;
+				audioComponent.updateMode(readComponents!=0,writeComponents!=0);
+				oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);			
+				updateEndpoint(-1,0);
+				this.dtmfGenerator.clearEndpoint();			
+				this.dtmfGenerator.deactivate();
+				resourcesPool.releaseAudioComponent(this.dtmfGenerator,ComponentType.DTMF_GENERATOR);
+				this.dtmfGenerator=null;
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 	}
 	
@@ -244,14 +378,30 @@ public class MediaGroup {
 	
 	public Component getSignalDetector()
 	{
-		if(this.signalDetector==null)
+		try
 		{
-			this.signalDetector=resourcesPool.newAudioComponent(ComponentType.SIGNAL_DETECTOR);
-			this.signalDetector.setEndpoint(endpoint);
-			audioComponent.addOutput(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
-			writeComponents++;
-			audioComponent.updateMode(readComponents!=0,true);
-			updateEndpoint(0,1);			
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.signalDetector==null)
+			{
+				this.signalDetector=resourcesPool.newAudioComponent(ComponentType.SIGNAL_DETECTOR);
+				this.signalDetector.setEndpoint(endpoint);
+				audioComponent.addOutput(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
+				writeComponents++;
+				audioComponent.updateMode(readComponents!=0,true);
+				updateEndpoint(0,1);			
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 		
 		return this.signalDetector;
@@ -259,18 +409,34 @@ public class MediaGroup {
 	
 	public void releaseSignalDetector()
 	{
-		if(this.signalDetector!=null)
+		try
 		{
-			audioComponent.remove(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
-			writeComponents--;
-			audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
-			updateEndpoint(0,-1);
-			this.signalDetector.clearEndpoint();			
-			((PhoneSignalDetector)this.signalDetector).clearAllListeners();
-			this.signalDetector.deactivate();
-			resourcesPool.releaseAudioComponent(this.signalDetector,ComponentType.SIGNAL_DETECTOR);
-			this.signalDetector.deactivate();
-			this.signalDetector=null;
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.signalDetector!=null)
+			{
+				audioComponent.remove(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
+				writeComponents--;
+				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
+				updateEndpoint(0,-1);
+				this.signalDetector.clearEndpoint();			
+				((PhoneSignalDetector)this.signalDetector).clearAllListeners();
+				this.signalDetector.deactivate();
+				resourcesPool.releaseAudioComponent(this.signalDetector,ComponentType.SIGNAL_DETECTOR);
+				this.signalDetector.deactivate();
+				this.signalDetector=null;
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 	}
 	
@@ -281,14 +447,30 @@ public class MediaGroup {
 	
 	public Component getSignalGenerator()
 	{
-		if(this.signalGenerator==null)
+		try
 		{
-			this.signalGenerator=resourcesPool.newAudioComponent(ComponentType.SIGNAL_GENERATOR);
-			this.signalGenerator.setEndpoint(endpoint);
-			audioComponent.addInput(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
-			readComponents++;
-			audioComponent.updateMode(true,writeComponents!=0);
-			updateEndpoint(1,0);			
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.signalGenerator==null)
+			{
+				this.signalGenerator=resourcesPool.newAudioComponent(ComponentType.SIGNAL_GENERATOR);
+				this.signalGenerator.setEndpoint(endpoint);
+				audioComponent.addInput(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
+				readComponents++;
+				audioComponent.updateMode(true,writeComponents!=0);
+				updateEndpoint(1,0);			
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 		
 		return this.signalGenerator;
@@ -296,16 +478,32 @@ public class MediaGroup {
 	
 	public void releaseSignalGenerator()
 	{
-		if(this.signalGenerator!=null)
+		try
 		{
-			audioComponent.remove(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
-			readComponents--;
-			audioComponent.updateMode(readComponents!=0,writeComponents!=0);
-			updateEndpoint(-1,0);
-			this.signalGenerator.clearEndpoint();			
-			this.signalGenerator.deactivate();
-			resourcesPool.releaseAudioComponent(this.signalGenerator,ComponentType.SIGNAL_GENERATOR);
-			this.signalGenerator=null;
+			resourceSemaphore.acquire();
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		
+		try
+		{
+			if(this.signalGenerator!=null)
+			{
+				audioComponent.remove(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
+				readComponents--;
+				audioComponent.updateMode(readComponents!=0,writeComponents!=0);
+				updateEndpoint(-1,0);
+				this.signalGenerator.clearEndpoint();			
+				this.signalGenerator.deactivate();
+				resourcesPool.releaseAudioComponent(this.signalGenerator,ComponentType.SIGNAL_GENERATOR);
+				this.signalGenerator=null;
+			}
+		}
+		finally
+		{
+			resourceSemaphore.release();
 		}
 	}
 	

@@ -94,6 +94,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 
         //create audio and video channel
         rtpAudioChannel = channelsManager.getChannel();
+        rtpAudioChannel.setRtpChannelListener(this);
         
         try {
         	rtpAudioChannel.setInputDsp(dspFactory.newProcessor());

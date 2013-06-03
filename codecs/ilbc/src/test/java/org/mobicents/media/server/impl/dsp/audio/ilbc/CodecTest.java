@@ -40,8 +40,8 @@ import org.mobicents.media.server.spi.memory.Memory;
  *
  * @author oifa yulian
  */
-public class CodecTest {
-	
+public class CodecTest 
+{
 	public CodecTest() {
     }
 
@@ -75,15 +75,13 @@ public class CodecTest {
     	Frame resFrame=Memory.allocate(38);
     	byte[] resData=resFrame.getData();
     	
-    	Frame returnFrame;
-    	byte[] returnData;
-    	Encoder encoder=new Encoder();    	    
-    	Decoder decoder=new Decoder();
+    	Frame returnFrame,decodedFrame;
+    	byte[] decodedData;
     	
     	URL url = this.getClass().getResource("/iLBC.INP");
     	File input = new File(url.getFile());
     	FileInputStream fin = new FileInputStream(input);
-    	URL resURL = this.getClass().getResource("/iLBC_Fix.enc");
+    	URL resURL = this.getClass().getResource("/iLBC_20ms.BIT");
     	File result = new File(resURL.getFile());
     	FileInputStream fRes = new FileInputStream(result);
     	
@@ -91,36 +89,43 @@ public class CodecTest {
     	int errors=0;
     	int framesCount=0;
     	int framesEqual=0,currEqual;
-    	while(currPos<6400)
+    	while(currPos<320)
+    	//while(currPos<6400)
     	{    	    	
-    		currPos+=fin.read(data);
-    		    		
+    		Encoder encoder=new Encoder();    	    
+    		Decoder decoder=new Decoder();
+        	
+    		currPos+=fin.read(data);    		    	
     		fRes.read(resData);
-    		System.out.println("ENCODING:" + (++framesCount) + " FRAME");
-    		returnFrame=encoder.process(frame);
-    		returnData=returnFrame.getData();
     		
+    		returnFrame=encoder.process(frame);
+    		decodedFrame=decoder.process(returnFrame);
+    		decodedData=decodedFrame.getData();
     		currEqual=0;
-    		for(int i=0;i<resData.length/2;i++)
+    		for(int i=0;i<returnFrame.getData().length/2;i++)
     		{
-    			if(resData[i*2]==returnData[i*2+1])
+    			if(returnFrame.getData()[i*2]==resData[i*2+1])
     				currEqual++;
     			
-    			if(resData[i*2+1]==returnData[i*2])
-    				currEqual++;
+    			if(returnFrame.getData()[i*2+1]==resData[i*2])
+    				currEqual++;    			    			    		
     		}
     		
     		if(currEqual==resData.length)
     		{
     			//good frame
+    			System.out.println("GOOD FRAME!!!!");
     			framesEqual++;
-    		}    		
+    		}   
+    		else
+    			System.out.println("EQUAL DATA:" + currEqual);
+    		
+    		framesCount++;
     	}   	
     	    	
     	fin.close();
-    	fRes.close();
+    	//fRes.close();
     	
-    	System.out.println("FRAMES:" + framesCount + ",EQUAL:" + framesEqual);
     	}
     	catch(Exception e)
     	{

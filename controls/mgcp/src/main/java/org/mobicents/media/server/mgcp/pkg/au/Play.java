@@ -220,14 +220,23 @@ public class Play extends Signal implements PlayerListener {
         switch (event.getID()) {
             case PlayerEvent.STOP :
                 logger.info(String.format("(%s) Announcement (segment=%d) has completed", getEndpoint().getLocalName(), segCount));
-                repeatCount--;
-                
-                if (repeatCount > 0) {
-                    repeat(options.getInterval());
-                    return;
+                if(repeatCount==-1)
+                {
+                	repeat(options.getInterval());
+            		return;            		                	
+                }
+                else
+                {
+                	repeatCount--;
+                    
+                	if (repeatCount > 0) {
+                		repeat(options.getInterval());
+                		return;
+                	}
                 }
                 
                 if (segments.hasNext()) {
+                	repeatCount = options.getRepeatCount();
                     next(options.getInterval());
                     return;
                 }

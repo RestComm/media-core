@@ -51,7 +51,19 @@ public class DecoderState
 	private short perSquare,prevScale,prevPli,prevLag,seed;				
 	
 	public DecoderState()
-	{			 		
+	{
+		for(int i=0;i<enhancementPeriod.length;i++)
+			enhancementPeriod[i]=160;
+		
+		for(int i=0;i<6;i++)
+			oldSyntDenum[i*11]=4096;
+		
+		seed=777;
+		prevLag=120;
+		lastTag=20;
+		prevLpc[0]=4096;
+		useEnhancer=1;
+		System.arraycopy(Constants.LSF_MEAN, 0, lsfDeqOld, 0, lsfDeqOld.length);
 	}
 	
 	public void setMode(int mode)
@@ -69,7 +81,7 @@ public class DecoderState
 		}
 		else
 		{
-			DECODER_MODE=20;
+			DECODER_MODE=30;
 			SIZE=240;
 			SUBFRAMES=6;
 			NASUB=4;
