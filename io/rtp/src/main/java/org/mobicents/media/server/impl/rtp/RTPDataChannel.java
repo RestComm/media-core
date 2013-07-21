@@ -789,9 +789,9 @@ public class RTPDataChannel {
         
         @Override
         public long perform() {        	
-            if (scheduler.getClock().getTime()-lastPacketReceived>udpManager.getRtpTimeout()*1000000000L) {
-            	if(rtpChannelListener!=null)
-            		rtpChannelListener.onRtpFailure();
+        	if (scheduler.getClock().getTime()-lastPacketReceived>udpManager.getRtpTimeout()*1000000000L) {
+                if(rtpChannelListener!=null)
+            		rtpChannelListener.onRtpFailure();                
             } else {
                 scheduler.submitHeatbeat(this);
             }
