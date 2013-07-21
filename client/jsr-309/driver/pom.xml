@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>jsr-309</artifactId>
-        <version>6.1.2.GA-TelScale-SNAPSHOT</version>
+        <version>6.1.2.GA-TelScale</version>
     </parent>
 
 	<groupId>org.mobicents.media.client</groupId>
 	<artifactId>jsr-309-driver</artifactId>
-	<version>6.1.2.GA-TelScale-SNAPSHOT</version>
+	<version>6.1.2.GA-TelScale</version>
 	<name>Mobicents JSR-309 Impl</name>
 	<url>http://www.mobicents.org/products_media_server.html</url>
 
