@@ -393,7 +393,7 @@ public class SRTPCryptoContext
         }
 
         /* Update the ROC if necessary */
-        int seqNo = pkt.getSequenceNumber();
+        int seqNo = pkt.getSeqNumber();
         if (seqNo == 0xFFFF)
         {
             roc++;
@@ -522,7 +522,7 @@ public class SRTPCryptoContext
         final int payloadOffset = pkt.getHeaderLength();
         final int payloadLength = pkt.getPayloadLength();
 
-        cipherCtr.process(cipher, pkt.getBuffer(), pkt.getOffset() +
+        cipherCtr.process(cipher, pkt.getBuffer(), 
                 payloadOffset, payloadLength, ivStore);
     }
 
@@ -550,21 +550,28 @@ public class SRTPCryptoContext
         final int payloadOffset = pkt.getHeaderLength();
         final int payloadLength = pkt.getPayloadLength();
 
-        SRTPCipherF8.process(cipher, pkt.getBuffer(), pkt.getOffset() + payloadOffset, 
+        SRTPCipherF8.process(cipher, pkt.getBuffer(), payloadOffset, 
             payloadLength, ivStore, cipherF8);
     }
 
-    /**
+    
+    byte[] tempBuffer = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
+    
+    
+   /**
      * Authenticate a packet.
      * Calculated authentication tag is returned.
      *
      * @param pkt the RTP packet to be authenticated
      * @param rocIn Roll-Over-Counter
      */
-    private void authenticatePacketHMCSHA1(RawPacket pkt, int rocIn)
+    private void authenticatePacketHMCSHA1(RtpPacket pkt, int rocIn)
     {
-        mac.update(pkt.getBuffer(), pkt.getOffset(), pkt.getLength());
-        // byte[] rb = new byte[4];
+    	ByteBuffer buf = pkt.getBuffer();
+    	buf.rewind();
+    	int len = buf.remaining();
+    	buf.get(tempBuffer, 0, len);
+        mac.update(tempBuffer, 0, len);
         rbStore[0] = (byte) (rocIn >> 24);
         rbStore[1] = (byte) (rocIn >> 16);
         rbStore[2] = (byte) (rocIn >> 8);
@@ -690,12 +697,7 @@ public class SRTPCryptoContext
                 mac.init(key);
                 break;
 
-            case SRTPPolicy.SKEIN_AUTHENTICATION:
-                // Skein MAC uses number of bits as MAC size, not just bytes
-                ParametersForSkein pfs = new ParametersForSkein(
-                        new KeyParameter(authKey),
-                        ParametersForSkein.Skein512, tagStore.length*8);
-                mac.init(pfs);
+            default:
                 break;
             }
         }

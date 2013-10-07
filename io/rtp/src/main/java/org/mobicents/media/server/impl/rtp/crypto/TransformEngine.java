@@ -1,10 +1,11 @@
-/*
- * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
+/**
+ * 
+ * Code derived and adapted from the Jitsi client side SRTP framework.
+ * 
+ * Distributed under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.neomedia.transform;
+package org.mobicents.media.server.impl.rtp.crypto;
 
 /**
  * Defines how to get <tt>PacketTransformer</tt>s for RTP and RTCP packets. A

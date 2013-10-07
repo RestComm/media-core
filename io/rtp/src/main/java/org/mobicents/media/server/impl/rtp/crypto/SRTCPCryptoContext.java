@@ -502,7 +502,7 @@ public class SRTCPCryptoContext
             payloadLength, ivStore, cipherF8);
     }
 
-    byte[] tempBuffer = new byte[RtpPacket.EXT_HEADER_SIZE];
+    byte[] tempBuffer = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
     
     /**
      * Authenticate a packet.
@@ -513,7 +513,11 @@ public class SRTCPCryptoContext
      */
     private void authenticatePacket(RtpPacket pkt, int index)
     {
-        mac.update(pkt.getBuffer(), 0, pkt.getLength());
+    	ByteBuffer buf = pkt.getBuffer();
+    	buf.rewind();
+    	int len = buf.remaining();
+    	buf.get(tempBuffer, 0, len);
+        mac.update(tempBuffer, 0, len);
         rbStore[0] = (byte) (index >> 24);
         rbStore[1] = (byte) (index >> 16);
         rbStore[2] = (byte) (index >> 8);
@@ -610,18 +614,13 @@ public class SRTCPCryptoContext
 
             switch ((policy.getAuthType()))
             {
-            case SRTPPolicy.HMACSHA1_AUTHENTICATION:
-                KeyParameter key =  new KeyParameter(authKey);
-                mac.init(key);
-                break;
-
-            case SRTPPolicy.SKEIN_AUTHENTICATION:
-                // Skein MAC uses number of bits as MAC size, not just bytes
-                ParametersForSkein pfs = new ParametersForSkein(
-                    new KeyParameter(authKey),
-                    ParametersForSkein.Skein512, tagStore.length * 8);
-                mac.init(pfs);
-                break;
+	            case SRTPPolicy.HMACSHA1_AUTHENTICATION:
+	                KeyParameter key =  new KeyParameter(authKey);
+	                mac.init(key);
+	                break;
+	
+	            default:
+	                break;
             }
         }
         Arrays.fill(authKey, (byte)0);

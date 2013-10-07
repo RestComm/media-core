@@ -55,13 +55,13 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.utils.Text;
+
 /**
  *
  * @author Oifa Yulian
  */
 public class RTPDataChannel {
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private static final int RTP_PACKET_MAX_SIZE = 8192;
 
     private final static int PORT_ANY = -1;
     private final long ssrc = System.currentTimeMillis();
@@ -548,7 +548,7 @@ public class RTPDataChannel {
     private class RxTask {
 
 		//RTP packet representation
-        private RtpPacket rtpPacket = new RtpPacket(RTP_PACKET_MAX_SIZE, true);
+        private RtpPacket rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
         private RTPFormat format;
         
         private RxTask() {            
@@ -672,8 +672,8 @@ public class RTPDataChannel {
      * Writer job.
      */
     private class TxTask {
-    	private RtpPacket rtpPacket = new RtpPacket(RTP_PACKET_MAX_SIZE, true);
-    	private RtpPacket oobPacket = new RtpPacket(RTP_PACKET_MAX_SIZE, true);
+    	private RtpPacket rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
+    	private RtpPacket oobPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
         private RTPFormat fmt;
         private long timestamp=-1;
         private long dtmfTimestamp=-1;

@@ -39,6 +39,8 @@ import java.nio.ByteBuffer;
  */
 public class RtpPacket implements Serializable {
 
+    public static final int RTP_PACKET_MAX_SIZE = 8192;
+
     /**
 	 * 
 	 */
