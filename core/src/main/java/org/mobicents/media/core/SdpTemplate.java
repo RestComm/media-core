@@ -22,6 +22,7 @@
 
 package org.mobicents.media.core;
 
+import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -66,8 +67,14 @@ public class SdpTemplate {
         builder.append("t=0 0\n");
     }
 
+    protected String getMediaProfile() {
+    	return MediaDescriptorField.RTP_AVP_PROFILE;
+    }
+    
     private void writeAudioDescriptor(StringBuilder builder, RTPFormats formats) {
-        builder.append("m=audio %s RTP/AVP ");
+        builder.append("m=audio %s ");
+        builder.append(getMediaProfile());
+        builder.append(" ");
         builder.append(payloads(formats));
         builder.append("\n");        
         formats.rewind();
@@ -90,9 +97,48 @@ public class SdpTemplate {
             
             if(f.getFormat().shouldSendPTime())
             	builder.append("a=ptime:20\n");
-        }
+            
+            builder.append(getSdpSessionSetupAttribute());
+        };
+        builder.append(getExtendedAudioAttributes());
     }
 
+    /**
+     * 
+     * Intended for subclasses of SdpTemplate
+     * 
+     * @return any additional attributes for the audio SDP part 
+     */
+    protected String getExtendedAudioAttributes() {
+		return "";
+	}
+
+	/**
+     * 
+     * Mobicents Media Server is typically installed on a server with IP address, 
+     * which is reachable by remote UAs that may be behind NAT
+     * Remote UAs are expected to be in setup:active mode according to multiple related RFCs:
+     * http://tools.ietf.org/html/rfc4145#section-4
+     * http://tools.ietf.org/html/rfc6135#section-4.2.2
+     * http://tools.ietf.org/html/rfc5763#section-5
+     * The Media Server being in passive mode automagically solves NAT without the UA using ICE (STUN, TURN)
+     * However this approach can be problematic for the use of early media
+     * http://tools.ietf.org/html/rfc5763#section-6.2
+     * 
+     * @return the "a=setup" attribute value that the Media Server will use  
+     */
+    private String getSdpSessionSetupAttribute() {
+    	return "a=setup:passive\n";
+    }
+    
+    
+    /**
+     * 
+     * TODO: Video support is work in progress.
+     * 
+     * @param builder
+     * @param formats
+     */
     private void writeVideoDescriptor(StringBuilder builder, RTPFormats formats) {
         builder.append("m=video %s RTP/AVP ");
         builder.append(payloads(formats));

@@ -1,9 +1,4 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -22,47 +17,52 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import java.io.IOException;
-import java.net.SocketAddress;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.net.PortUnreachableException;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.text.Format;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
+import java.security.SecureRandom;
+
+import org.apache.log4j.Logger;
+import org.bouncycastle.crypto.tls.DTLSServerProtocol;
+import org.bouncycastle.crypto.tls.DTLSTransport;
+import org.bouncycastle.crypto.tls.DatagramTransport;
+import org.bouncycastle.crypto.tls.UDPTransport;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtp.crypto.DatagramTransportAdaptor;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
-import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.FormatNotSupportedException;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.utils.Text;
-
-import org.apache.log4j.Logger;
 /**
  *
  * @author Oifa Yulian
  */
 public class RTPDataChannel {
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-	
+    private static final int RTP_PACKET_MAX_SIZE = 8192;
+
     private final static int PORT_ANY = -1;
     private final long ssrc = System.currentTimeMillis();
 
@@ -128,6 +128,18 @@ public class RTPDataChannel {
     private OOBComponent oobComponent;
     
     private boolean sendDtmf=false;
+
+    // indicates whether this RTP channel is encrypted via DTLS SRTP
+	public boolean isWebRTCChannel = false;
+	
+	// flags whether a WebRTC DTLS handshake occurred on this UDP channel or not
+	public boolean isWebRTCConnectionEstablished = false;
+
+	private Text remoteWebRTCPeerFingerprint;
+
+	public DTLSTransport dtlsServerTransport;
+
+	private DatagramTransportAdaptor datagramTransportAdaptor;
     
     /**
      * Create RTP channel instance.
@@ -260,6 +272,8 @@ public class RTPDataChannel {
         		input.deactivate();
         		output.deactivate();
         		dtmfOutput.deactivate();
+        		break;
+        	default:
         		break;
     	}
     	
@@ -449,12 +463,8 @@ public class RTPDataChannel {
         private RxTask rx = new RxTask();
         
         private volatile boolean isReading = false;
-        private volatile boolean isWritting;
 
-        private final Integer rxMonitor = new Integer(1);
-        private final Integer txMonitor = new Integer(2);
 
-        private int i;
         /**
          * (Non Java-doc.)
          *
@@ -537,18 +547,18 @@ public class RTPDataChannel {
      */
     private class RxTask {
 
-        //RTP packet representation
-        private RtpPacket rtpPacket = new RtpPacket(8192, true);
+		//RTP packet representation
+        private RtpPacket rtpPacket = new RtpPacket(RTP_PACKET_MAX_SIZE, true);
         private RTPFormat format;
-        private SocketAddress currAddress;
         
         private RxTask() {            
         }
 
         private void flush()
         {
+            SocketAddress currAddress;
         	try {
-        		//lets clear the receiver    	
+        		// lets clear the receiver    	
         		currAddress=dataChannel.receive(rtpPacket.getBuffer());
         		rtpPacket.getBuffer().clear();
         	
@@ -570,19 +580,23 @@ public class RTPDataChannel {
          */
         public long perform() {
         	try {
+    			if (isWebRTCChannel && !isWebRTCConnectionEstablished) {
+    				establishWebRTCConnection();
+    			}
+
                 //clean buffer before read
                 rtpPacket.getBuffer().clear();
-                
-                currAddress=null;
-                
+
                 try {
-                	currAddress=dataChannel.receive(rtpPacket.getBuffer());
-                	if(currAddress!=null && !dataChannel.isConnected())
-                	{
-                		rxBuffer.restart();    	
-                        dataChannel.connect(currAddress);                        
-                	}
-                	else if(currAddress!=null && rxCount==0)
+//                	currAddress = 
+            		receiveRtpPacket(rtpPacket.getBuffer());
+//                	if(currAddress!=null && !dataChannel.isConnected())
+//                	{
+//                		rxBuffer.restart();    	
+//                        dataChannel.connect(currAddress);                        
+//                	}
+//                	else 
+                		if(rtpPacket.getBuffer().remaining() > 0 && rxCount==0)
                 		rxBuffer.restart();
                 }
                 catch(PortUnreachableException e) {
@@ -600,9 +614,9 @@ public class RTPDataChannel {
                 	logger.error(e);                	
                 }
                                 	
-                while (currAddress != null) {
+                while (rtpPacket.getBuffer().remaining() > 0) {
                 	lastPacketReceived=scheduler.getClock().getTime();                	
-                    //put pointer to the begining of the buffer
+                    //put pointer to the beginning of the buffer
                     rtpPacket.getBuffer().flip();
 
                     if(rtpPacket.getVersion()!=0 && (shouldReceive || shouldLoop))
@@ -611,17 +625,19 @@ public class RTPDataChannel {
                     	//discarding since we do not handle them
                     	//queue packet into the receiver's jitter buffer
                     	if (rtpPacket.getBuffer().limit() > 0) {
-                    		if(shouldLoop && dataChannel.isConnected()) {                    			
-                            	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                    		if(shouldLoop && dataChannel.isConnected()) {
+                    			sendRtpPacket(rtpPacket.getBuffer());
                             	rxCount++;
                             	txCount++;
                             }
                     		else if(!shouldLoop) {
                     			format = rtpFormats.find(rtpPacket.getPayloadType());
-                    			if (format != null && format.getFormat().matches(dtmf))
-                    				dtmfInput.write(rtpPacket);
-                    			else
-                    				rxBuffer.write(rtpPacket,format);	
+                    			if (format != null) {
+	                    			if (format.getFormat().matches(dtmf))
+	                    				dtmfInput.write(rtpPacket);
+	                    			else
+	                    				rxBuffer.write(rtpPacket,format);
+                    			}
                     			
                     			rxCount++;                    			
                     		}                    			
@@ -629,7 +645,7 @@ public class RTPDataChannel {
                     }
                     
                     rtpPacket.getBuffer().clear();
-                    currAddress=dataChannel.receive(rtpPacket.getBuffer());
+                    receiveRtpPacket(rtpPacket.getBuffer());
                 }
             }
         	catch(PortUnreachableException e) {
@@ -656,8 +672,8 @@ public class RTPDataChannel {
      * Writer job.
      */
     private class TxTask {
-    	private RtpPacket rtpPacket = new RtpPacket(8192, true);
-    	private RtpPacket oobPacket = new RtpPacket(8192, true);
+    	private RtpPacket rtpPacket = new RtpPacket(RTP_PACKET_MAX_SIZE, true);
+    	private RtpPacket oobPacket = new RtpPacket(RTP_PACKET_MAX_SIZE, true);
         private RTPFormat fmt;
         private long timestamp=-1;
         private long dtmfTimestamp=-1;
@@ -699,7 +715,7 @@ public class RTPDataChannel {
             frame.recycle();
             try {
                 if (dataChannel.isConnected()) {
-                	dataChannel.send(oobPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                	sendRtpPacket(oobPacket.getBuffer());
                 	txCount++;
                 }
             }
@@ -719,7 +735,7 @@ public class RTPDataChannel {
             }
         }
         
-        public void perform(Frame frame) {
+		public void perform(Frame frame) {
             //discard frame if format is unknown
             if (frame.getFormat() == null) {
             	frame.recycle();
@@ -755,7 +771,7 @@ public class RTPDataChannel {
             frame.recycle();
             try {
                 if (dataChannel.isConnected()) {
-                	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                	sendRtpPacket(rtpPacket.getBuffer());
                 	txCount++;
                 }
             }
@@ -784,7 +800,7 @@ public class RTPDataChannel {
 
         public int getQueueNumber()
         {
-        	return scheduler.HEARTBEAT_QUEUE;
+        	return Scheduler.HEARTBEAT_QUEUE;
         }   
         
         @Override
@@ -797,5 +813,94 @@ public class RTPDataChannel {
             }
             return 0;
         }
-    }    
+    }
+
+    
+    /**
+     * 
+     * Indicates whether encryption is enabled for theRTP channel. 
+     * This method is invoked when the RTP connection is negotiated via SDP exchange.  
+     * @param remotePeerFingerprint 
+     * 
+     * @param isWebRTCChannel
+     * @throws IOException 
+     */
+	public void setWebRTCEncryptionEnabled(boolean shouldEncrypt, Text remotePeerFingerprint) throws IOException {
+		this.isWebRTCChannel = shouldEncrypt;
+		this.setRemoteWebRTCPeerFingerprint(remotePeerFingerprint);
+	}
+
+	/**
+	 * 
+	 * Performs DTLS handshake and prepares keying material for the encrypted SRTP channel
+	 * @throws IOException 
+	 * 
+	 */
+	private void establishWebRTCConnection() throws IOException {
+        SecureRandom secureRandom = new SecureRandom();
+        DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
+        DtlsSrtpServer server = new DtlsSrtpServer();
+
+        // block UDP channel until the DTLS handshake takes place then unblock it
+        dataChannel.configureBlocking(true);
+        
+        DatagramSocket socket = dataChannel.socket(); 
+
+        int mtu = 1500;
+        DatagramTransport transport = new UDPTransport(socket, mtu);
+
+        transport = new LoggingDatagramTransport(transport, System.out);
+        dtlsServerTransport = serverProtocol.accept(server, transport);
+
+        // unblock UDP channel
+        dataChannel.configureBlocking(false);
+        
+        // setup SRTP encoder using keying material from the DTLS handshake
+        prepareSrtpEncoder();
+	}
+
+	
+	private void prepareSrtpEncoder() {
+		
+		// TODO Auto-generated method stub
+
+		
+	}
+
+	private void receiveRtpPacket(ByteBuffer buf) throws IOException {
+		buf.clear();
+		if (isWebRTCChannel) {
+			// receive and decrypt 
+	        int length = srtpEncoder.receive(buf.array(), 0, buf.capacity(), 1000);
+	        buf.limit(length);
+	        buf.rewind();
+		} else {
+			// receive plaintext
+			dataChannel.receive(buf);
+		}
+	}
+	
+    private void sendRtpPacket(ByteBuffer buf) throws IOException {
+		buf.flip();
+		buf.compact();
+    	if (isWebRTCChannel) {
+    		// encrypt and send
+			int length = buf.limit();
+	        srtpEncoder.send(buf.array(), 0, length);
+	        buf.flip(); 
+    	} else {
+    		// send plaintext
+        	dataChannel.send(buf,dataChannel.socket().getRemoteSocketAddress());
+    	}
+	}
+
+	
+	public Text getRemoteWebRTCPeerFingerprint() {
+		return remoteWebRTCPeerFingerprint;
+	}
+
+	public void setRemoteWebRTCPeerFingerprint(
+			Text remoteWebRTCPeerFingerprint) {
+		this.remoteWebRTCPeerFingerprint = remoteWebRTCPeerFingerprint;
+	}    
 }

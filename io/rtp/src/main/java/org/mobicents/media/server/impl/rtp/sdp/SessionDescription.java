@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -39,6 +40,7 @@ public class SessionDescription {
 
     protected final static Text RTPMAP = new Text("a=rtpmap");
     protected final static Text FMTP = new Text("a=fmtp");
+	public static final Object WEBRTC_FINGERPRINT = new Text("a=fingerprint");
 
     private Text version;
     private OriginField origin = new OriginField();
@@ -58,62 +60,9 @@ public class SessionDescription {
      * @throws ParseException
      */
     public void parse(byte[] data) throws ParseException {
-        //clean previous data
-        md = null;
-        mds.clear();
-        
         Text text = new Text();
         text.strain(data, 0, data.length);
-
-        while (text.hasMoreLines()) {
-            Text line = text.nextLine();
-            if (line.length() == 0) continue;
-            switch (line.charAt(0)) {
-                case 'v':
-                    Iterator<Text> it = line.split('=').iterator();
-                    it.next();
-
-                    version = it.next();
-                    version.trim();
-                    break;
-                case 'o':
-                    origin.strain(line);
-                    break;
-                case 's':
-                    it = line.split('=').iterator();
-                    it.next();
-                    
-                    session = it.next();
-                    session.trim();
-                    break;
-                case 'c':
-                    if (md == null) {
-                        connection.strain(line);
-                    } else {
-                        md.setConnection(line);
-                    }
-                    break;
-                case 't':
-                    time.strain(line);
-                    break;
-                case 'm':
-                    md = new MediaDescriptorField();
-                    mds.add(md);
-                    md.setDescriptor(line);
-
-                    if (md.getMediaType().equals(AUDIO)) {
-                        this.audioDescriptor = md;
-                    } else {
-                        this.videoDescriptor = md;
-                    }
-                    break;
-                case 'a':
-                	if (md != null) {
-                		md.addAttribute(line);
-                	}
-                    break;
-            }
-        }
+        init(text);
     }
 
     public void init(Text text) throws ParseException {

@@ -24,6 +24,7 @@ package org.mobicents.media.server.impl.rtp.sdp;
 
 import java.text.ParseException;
 import java.util.Iterator;
+
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.EncodingName;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -42,6 +43,15 @@ public class MediaDescriptorField {
     private ConnectionField connection;
 
     private RTPFormats formats = new RTPFormats(15);
+
+    // optional SDP attribute used for WebRTC session encryption
+	private Text webRTCFingerprint;    
+
+    // legacy unencrypted RTP media profile
+    public final static String RTP_AVP_PROFILE = "RTP/AVP";
+
+    // WebRTC (DTLS SRTP encrypted) RTP media profile
+    public final static String RTP_SAVPF_PROFILE = "RTP/SAVPF";
 
     /**
      * Reads values from specified text line
@@ -144,6 +154,12 @@ public class MediaDescriptorField {
                 //TODO : replace string with text
                 fmt.getFormat().setOptions(token);
             }
+            
+            if (token.equals(SessionDescription.WEBRTC_FINGERPRINT)) {
+                token = it.next();
+                token.trim();
+            	setWebRTCFingerprint(token);
+            }
 
             return;
         }
@@ -214,11 +230,6 @@ public class MediaDescriptorField {
     private RTPFormat getFormat(int payload) {
         return formats.find(payload);
     }
-
-    private String intersection(MediaDescriptorField md) {
-        return null;
-    }
-
 
     /**
      * Creates or updates format using payload number and text format description.
@@ -311,5 +322,23 @@ public class MediaDescriptorField {
 
         return rtpFormat;
     }
+
+    
+    /**
+     * 
+     * @return true if the media profile requires encryption
+     */
+	public boolean isWebRTCProfile() {
+		boolean isEcryptionRequired = getProfile().equals(RTP_SAVPF_PROFILE);
+		return isEcryptionRequired;
+	}
+
+	public Text getWebRTCFingerprint() {
+		return webRTCFingerprint;
+	}
+
+	public void setWebRTCFingerprint(Text webRTCFingerprint) {
+		this.webRTCFingerprint = webRTCFingerprint;
+	}
 
 }

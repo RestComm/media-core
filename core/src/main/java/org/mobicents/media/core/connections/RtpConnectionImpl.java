@@ -27,30 +27,29 @@ import java.net.InetSocketAddress;
 import java.text.ParseException;
 
 import org.apache.log4j.Logger;
-
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.core.SdpTemplate;
+import org.mobicents.media.core.WebRTCSdpTemplate;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
+import org.mobicents.media.server.impl.rtp.RTPDataChannel;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
-import org.mobicents.media.server.spi.dsp.Codec;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.dsp.Codec;
+import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -102,6 +101,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         }
         catch(Exception e) {
         	//exception may happen only if invalid classes have been set in config
+        	throw new RuntimeException("There are probably invalid classes specified in the configuration.", e);
         }
         
         //create sdp template
@@ -175,7 +175,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     
     @Override
     public void setOtherParty(Connection other) throws IOException {
-        throw new IOException("Applicable on locale connections only");        
+        throw new IOException("Applicable only for a local connection");        
     }
 
     @Override
@@ -184,64 +184,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     	super.setMode(mode);
     }
     
-    public void setOtherParty(byte[] descriptor) throws IOException {
-        try {
-            sdp.parse(descriptor);
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
-
-        sdpComparator.negotiate(sdp, this.audioFormats, null);
-
-        RTPFormats audio = sdpComparator.getAudio();
-        if (audio.isEmpty() || !audio.hasNonDTMF()) {
-            throw new IOException("Codecs are not negotiated");
-        }
-        
-        if (!audio.isEmpty()) {
-        	rtpAudioChannel.setFormatMap(audioFormats);
-            try {
-            	rtpAudioChannel.setOutputFormats(audio.getFormats());            	
-            }
-        	catch (FormatNotSupportedException e) {
-        		//never happen
-        		throw new IOException(e);
-        	}
-        }
-
-        String address = null;
-        if (sdp.getConnection() != null) {
-            address = sdp.getConnection().getAddress();
-        }
-
-        if (sdp.getAudioDescriptor() != null) {
-            rtpAudioChannel.setPeer(new InetSocketAddress(address,sdp.getAudioDescriptor().getPort()));
-        }
-
-        if(!isLocal)
-        	descriptor2 = new SdpTemplate(audio,null).getSDP(channelsManager.getBindAddress(),
-                "IN", "IP4",
-                channelsManager.getBindAddress(),
-                rtpAudioChannel.getLocalPort(),0);
-        else
-        	descriptor2 = new SdpTemplate(audio,null).getSDP(channelsManager.getLocalBindAddress(),
-                    "IN", "IP4",
-                    channelsManager.getLocalBindAddress(),
-                    rtpAudioChannel.getLocalPort(),0);
-        try {
-            this.join();
-        } catch (Exception e) {
-        	//exception is possible here when already joined , should not log
-        }
-    }
-
-    public void setOtherParty(Text descriptor) throws IOException {
-    	try {
-            sdp.init(descriptor);
-        } catch (ParseException e) {
-            throw new IOException(e.getMessage());
-        }
-
+    private void setOtherParty() throws IOException {
         if (sdp != null && sdp.getAudioDescriptor() != null && sdp.getAudioDescriptor().getFormats() != null) {
             logger.info("Formats" + sdp.getAudioDescriptor().getFormats());
         }
@@ -250,6 +193,12 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         RTPFormats audio = sdpComparator.getAudio();
         if (audio.isEmpty() || !audio.hasNonDTMF()) {
             throw new IOException("Codecs are not negotiated");
+        }
+        
+        boolean isWebRTCProfile = sdp.getAudioDescriptor().isWebRTCProfile();
+        if (isWebRTCProfile) {
+        	Text remotePeerFingerprint = sdp.getAudioDescriptor().getWebRTCFingerprint();
+        	rtpAudioChannel.setWebRTCEncryptionEnabled(isWebRTCProfile, remotePeerFingerprint);
         }
         
         if (!audio.isEmpty()) {
@@ -271,12 +220,19 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
             rtpAudioChannel.setPeer(new InetSocketAddress(address,sdp.getAudioDescriptor().getPort()));
         }
 
-        if(!isLocal)
-        	descriptor2 = new SdpTemplate(audio,null).getSDP(channelsManager.getBindAddress(),
-                "IN", "IP4",
-                channelsManager.getBindAddress(),
-                rtpAudioChannel.getLocalPort(),0);
-        else
+        if(!isLocal) {
+        	if (isWebRTCProfile) {
+	        	descriptor2 = new WebRTCSdpTemplate(audio,null).getSDP(channelsManager.getBindAddress(),
+		                "IN", "IP4",
+		                channelsManager.getBindAddress(),
+		                rtpAudioChannel.getLocalPort(),0);
+        	} else {
+	        	descriptor2 = new SdpTemplate(audio,null).getSDP(channelsManager.getBindAddress(),
+		                "IN", "IP4",
+		                channelsManager.getBindAddress(),
+		                rtpAudioChannel.getLocalPort(),0);
+        	}
+        } else
         	descriptor2 = new SdpTemplate(audio,null).getSDP(channelsManager.getLocalBindAddress(),
                     "IN", "IP4",
                     channelsManager.getLocalBindAddress(),
@@ -285,7 +241,25 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
             this.join();
         } catch (Exception e) {
         	//exception is possible here when already joined , should not log
-        }                      
+        }      
+    }
+    
+    public void setOtherParty(byte[] descriptor) throws IOException {
+        try {
+            sdp.parse(descriptor);
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        };
+        setOtherParty();
+    }
+
+    public void setOtherParty(Text descriptor) throws IOException {
+    	try {
+            sdp.init(descriptor);
+        } catch (ParseException e) {
+            throw new IOException(e.getMessage());
+        };
+    	setOtherParty();                
     }
     
 
