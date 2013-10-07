@@ -1,0 +1,308 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "Media_Server_User_Guide.ent">
+%BOOK_ENTITIES;
+]><!--chapter id=nickname: msde -->
+
+<chapter id="msde-MS_Demonstration_Example">
+	<title>MMS Demonstration Example</title>
+	
+	<para>
+	MMS 3.0.0.FINAL is a standalone media software. Control panels servers are required in order
+	to make MMS part of your network architecture. Two controlling protocols (JSR-309 and MGCP) are
+	currently enabled to work with MMS 3.0.0.FINAL.
+</para>
+<para>
+Depending on your needs, <ulink url="https://code.google.com/p/jain-slee/">Jain-slee </ulink> ,
+ <ulink url="http://code.google.com/p/sipservlets/">Sip Servlets </ulink> or
+ <ulink url="http://code.google.com/p/restcomm/">RestComm</ulink> can be used to control the media
+server. The examples below are included in the &MMS_SHORT_NAME; software.
+	</para>
+	
+<para>To get Jain-Slee examples please see following examples that are part of mobicents / telestax jain
+Slee release :</para>	
+	
+ 
+
+ 
+	<table id="msde-jain-slee"	frame="all">
+	<title>Example for Jain-Slee </title>
+		<tgroup cols="1" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+			<thead>
+				<row>
+					<entry>Jain-Slee Example List</entry>
+	  				</row>
+			</thead>
+			<tbody>
+				<row>
+				<entry>call-controller2 which uses MGCP to control &MMS_SHORT_NAME;</entry>
+				</row>
+				<row>
+					<entry>mgcp-demo which uses MGCP to control &MMS_SHORT_NAME;</entry>
+				</row>
+				<row>
+					<entry>mscontrol-demo which uses JSR-309 to control &MMS_SHORT_NAME;</entry>
+				</row>
+				 
+			</tbody>
+		</tgroup>
+	</table>
+	
+	<para>For more information please see <ulink url="https://code.google.com/p/jain-slee/source/browse?repo=media#git%2Fexamples">Jain-Slee documentation </ulink>that comes with this examples.
+	</para>
+	
+	<para>The following examples use MMS with Telscale/TELESTAX SIP Servlets :</para>
+	
+	<table id="msde-sip-servlets-examples"	frame="all">
+	<title>Examples for SIP Servlets </title>
+		<tgroup cols="1" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+
+			<thead>
+				<row>
+					<entry>SIP Servlets Example List</entry>
+	 
+ 				</row>
+			</thead>
+			<tbody>
+				<row>
+				<entry>conference-demo jsr-309</entry>
+				</row>
+				<row>
+					<entry>media-jsr-309-servlet</entry>
+				</row>
+				<row>
+					<entry>shopping-demo-jsr309</entry>
+				</row>
+				 
+			</tbody>
+		</tgroup>
+	</table>
+	
+	<para>All servlets examples are using jsr-309 control protocol.</para>
+	<para>For more information please see
+	 <ulink url="http://code.google.com/p/sipservlets/source/browse/?name=ts1-snmp#git%2Fsip-servlets-examples">SIP Servlets documentation
+	 </ulink> 
+	 that comes with these examples.
+	</para>
+	
+	
+		<table id="msde-restcomm-examples"	frame="all">
+	<title>	Using MMS with RestComm </title>
+		<tgroup cols="1" align="left" colsep="1" rowsep="1">
+			<colspec colnum="1" colname="col1"/>
+
+			<thead>
+				<row>
+					<entry>&MMS_SHORT_NAME; with RestComm</entry>
+	 
+ 				</row>
+			</thead>
+			<tbody>
+				<row>
+				<entry>
+MMS is required in order to successfully work with RestComm. Consequently,
+any example created to demonstrate the use of RestComm will incorporate &MMS_LONG_NAME; (MMS). RestComm use MGCP as the controlling 
+protocol for MMS.
+
+</entry>
+				</row>
+			 
+				 
+			</tbody>
+		</tgroup>
+	</table>
+
+<para>
+For more information please see Telscale/Telestax <ulink url="http://code.google.com/p/restcomm-demo/source/browse/#git%2Fapp">RestComm documentation.</ulink>
+	</para>
+	
+<!--	
+	<para>The motive of this example is to demonstrate the capabilities of new Media Server (MS) and Media Server Resource Adapters (MSC-RA).</para>
+	<para>The example demonstrates the usage of the following Endpoints:</para>
+	<itemizedlist>
+		<listitem>
+			<para>Announcement</para>
+		</listitem>
+		<listitem>
+			<para>Packet Relay</para>
+		</listitem>
+		<listitem>
+			<para>Loop</para>
+		</listitem>
+		<listitem>
+			<para>Conference</para>
+		</listitem>
+		<listitem>
+			<para>IVR</para>
+		</listitem>
+	</itemizedlist>
+	<para>For more information on each of these types of endpoints, refer to <xref linkend="ittms-Media_Server_Architecture"/>.</para>
+	<formalpara>
+		<title>Where is the Code?</title>
+		<para>Check out the 'mms-demo' example from <ulink url="http://code.google.com/p/mobicents/source/browse/#svn/branches/servers/media/1.x.y/examples/mms-demo"/>.</para>
+	</formalpara>
+	<formalpara>
+		<title>Install and Run</title>
+		<para>Start the Telscale Server (this will also start Media Server). Make sure you have <filename>server/default/deploy/mobicents.sar</filename> and <filename>server/default/deploy/mediaserver.sar</filename> in your Telscale Server</para>
+	</formalpara>
+	<formalpara>
+		<title>From Binary</title>
+		<para>Go to <filename>/examples/mms-demo</filename> and call 'ant deploy-all'. This will deploy the SIP RA, MSC RA, the mms-demo example and also mms-demo-audio.war. The war file contains the audio *.wav files that are used by mms-demo example.</para>
+	</formalpara>
+	<formalpara>
+		<title>From Source Code</title>
+		<para>If you are deploying from source code, you may deploy each of the resource adapters individually</para>
+	</formalpara>
+	<itemizedlist>
+		<listitem>
+			<para>make sure <envar>JBOSS_HOME</envar> is set and the server is running.</para>
+		</listitem>
+		<listitem>
+			<para>Call mvn install from <filename>servers/jain-slee/resources/sip</filename> to deploy SIP RA </para>
+		</listitem>
+		<listitem>
+			<para>Call mvn install from <filename>servers/media/controllers/msc</filename> to deploy media RA</para>
+		</listitem>
+		<listitem>
+			<para>Call mvn install from <filename>servers/media/examples/mms-demo</filename> to deploy example</para>
+		</listitem>
+	</itemizedlist>
+	<para>Once the example is deployed, make a call from your SIP Phone to TBD.</para>
+	<formalpara>
+		<title>1010: Loop Endpoint Usage Demonstration</title>
+		<para>As soon as the call is established CallSbb creates a Connection using PREndpointImpl. PREndpointImpl has two Connections, one connected to calling UA by calling msConnection.modify("$", sdp). Once the connection is established CallSbb creates child LoopDemoSbb and calls startDemo() on it passing the PREndpoint name as argument. LoopDemoSbb creates child AnnouncementSbb which uses the AnnEndpointImpl to make an announcement. The other Connection of PREndpointImpl is connected to Connection from AnnEndpointImpl using the MsLink.</para>
+	</formalpara>
+	<programlisting
+		linenumbering="unnumbered" role="JAVA">
+		<![CDATA[
+MsLink link = session.createLink(MsLink.MODE_FULL_DUPLEX);
+....
+...
+link.join(userEndpoint, ANNOUNCEMENT_ENDPOINT);]]>
+  </programlisting>
+	<para>Once the link is created (look at onLinkConnected() ) <literal>AnnouncementSbb</literal> creates the instance of <literal>MsPlayRequestedSignal</literal>  and sets the path of audio url. <literal>AnnouncementSbb</literal> also creates an instance of <literal>MsRequestedEvent</literal> for <constant>MsAnnouncement.COMPLETED</constant> and <constant>MsAnnouncement.FAILED</constant> such that the Media resource adapter fires respective events and the SBB has a handler for the <constant>org.mobicents.media.events.announcement.COMPLETED</constant> event to handle <literal>Announcement Complete</literal>.</para>
+	<programlisting linenumbering="unnumbered" role="JAVA"><![CDATA[
+MsEventFactory eventFactory = msProvider.getEventFactory();
+
+MsPlayRequestedSignal play = null;
+play = (MsPlayRequestedSignal) eventFactory.createRequestedSignal(MsAnnouncement.PLAY);
+play.setURL(url);
+
+MsRequestedEvent onCompleted = null;
+MsRequestedEvent onFailed = null;
+
+onCompleted = eventFactory.createRequestedEvent(MsAnnouncement.COMPLETED);
+onCompleted.setEventAction(MsEventAction.NOTIFY);
+
+onFailed = eventFactory.createRequestedEvent(MsAnnouncement.FAILED);
+onFailed.setEventAction(MsEventAction.NOTIFY);
+
+MsRequestedSignal[] requestedSignals = new MsRequestedSignal[]{play};
+MsRequestedEvent[] requestedEvents = new MsRequestedEvent[]{onCompleted, onFailed};
+
+link.getEndpoints()[1].execute(requestedSignals, requestedEvents, link);]]></programlisting>
+	<mediaobject id="msde-mms-MMSDemonstrationEx-dia-AnnEndpointImpl">
+		<imageobject>
+			<imagedata align="center" width="450" fileref="images/mms-MMSDemonstrationEx-dia-AnnEndpointImpl.png" format="PNG" />
+		</imageobject>
+		<caption><para>Announcement Endpoint</para></caption>
+	</mediaobject>
+	<para>As soon as the announcement is over <literal>LoopDemoSbb</literal> creates child <literal>LoopbackSbb</literal> and calls <methodname>startConversation()</methodname> on it, passing the <literal>PREndpoint</literal> name as argument. <literal>LoopbackSbb</literal> uses <literal>MsLink</literal> to associate the other connection of <literal>PREndpointImpl</literal> to <literal>LoopEndpointImpl</literal>. <literal>LoopEndpointImpl</literal> simply forwards the voice packet received from caller back to caller.</para>
+	<programlisting linenumbering="unnumbered" role="JAVA"><![CDATA[
+MsLink link = session.createLink(MsLink.MODE_FULL_DUPLEX);
+.......
+...
+link.join(endpointName, LOOP_ENDPOINT);]]></programlisting>
+
+	<mediaobject id="msde-mms-MMSDemonstrationEx-dia-LoopEndpointImpl">
+		<imageobject>
+			<imagedata align="center" width="450" fileref="images/mms-MMSDemonstrationEx-dia-LoopEndpointImpl.png" format="PNG" />
+		</imageobject>
+		<caption><para>Loop Endpoint</para></caption>
+	</mediaobject>
+
+	<mediaobject id="msde-mms-MMSDemonstrationEx-dia-LoopDemoSbb">
+		<imageobject>
+			<imagedata width="432" align="center" fileref="images/mms-MMSDemonstrationEx-dia-LoopDemoSbb.png" format="PNG" />
+		</imageobject>
+		<caption><para>The SBB Child Relation Diagram</para></caption>
+	</mediaobject>
+	<formalpara>
+		<title>1011: DTMF Usage Demonstration</title>
+		<para>As soon as the call is established CallSbb creates a Connection using PREndpointImpl. PREndpointImpl has two Connections, one connected to calling UA by calling msConnection.modify("$", sdp). Once the connection is established CallSbb creates child DtmfDemoSbb and calls startDemo() on it passing the PREndpoint name as argument. DtmfDemoSbb creates child AnnouncementSbb which uses the AnnEndpointImpl to make an announcement. The other Connection of PREndpointImpl is connected to Connection from AnnEndpointImpl using the MsLink.</para>
+	</formalpara>
+	<programlisting linenumbering="unnumbered" role="JAVA"><![CDATA[
+MsLink link = session.createLink(MsLink.MODE_FULL_DUPLEX);
+....
+...
+link.join(userEndpoint, ANNOUNCEMENT_ENDPOINT);]]></programlisting>
+	<para>Once the link is created the flow is the same as that of 1010 to play the announcement.</para>
+
+	<mediaobject id="msde-mms-MMSDemonstrationEx-dia-AnnEndpointImpl-2">
+		<imageobject>
+			<imagedata align="center" width="450" fileref="images/mms-MMSDemonstrationEx-dia-AnnEndpointImpl.png" format="PNG" />
+		</imageobject>
+		<caption><para>Announcement Endpoint Implementation</para></caption>
+	</mediaobject>
+	<para>As soon as announcement is over DtmfDemoSbb creates instance of MsDtmfRequestedEvent and applies it on IVREndpoint. Look at onAnnouncementComplete() method of DtmfDemoSbb</para>
+	<programlisting linenumbering="unnumbered" role="JAVA"><![CDATA[
+MsLink link = (MsLink) evt.getSource();
+MsEndpoint ivr = link.getEndpoints()[1];
+
+MsEventFactory factory = msProvider.getEventFactory();
+MsDtmfRequestedEvent dtmf = (MsDtmfRequestedEvent) factory.createRequestedEvent(DTMF.TONE);
+MsRequestedSignal[] signals = new MsRequestedSignal[]{};
+MsRequestedEvent[] events = new MsRequestedEvent[]{dtmf};
+
+ivr.execute(signals, events, link);]]></programlisting>
+	<para>On every DTMF received DtmfDemoSbb plays corresponding WAV file using the AnnouncementSbb as explained above.</para>
+	<mediaobject id="msde-mms-MMSDemonstrationEx-dia-DTMFDemoSbb">
+		<imageobject>
+			<imagedata width="192" align="center" fileref="images/mms-MMSDemonstrationEx-dia-DTMFDemoSbb.png" format="PNG" />
+		</imageobject>
+		<caption><para>The SBB Child Relation Diagram</para></caption>
+	</mediaobject>
+	<formalpara>
+		<title>1012: ConfEndpointImpl Usage Demonstration</title>
+		<para>As soon as the call is established CallSbb creates a Connection using PREndpointImpl. PREndpointImpl has two Connections, one connected to calling UA by calling msConnection.modify("$", sdp). Once the connection is established CallSbb creates child ConfDemoSbb and calls startDemo() on it passing the PREndpoint name as argument. ConfDemoSbb creates child AnnouncementSbb which uses the AnnEndpointImpl to make an announcement. The other Connection of PREndpointImpl is connected to Connection from AnnEndpointImpl using the MsLink.</para>
+	</formalpara>
+	<programlisting linenumbering="unnumbered" role="JAVA"><![CDATA[....
+MsLink link = session.createLink(MsLink.MODE_FULL_DUPLEX);
+....
+...
+link.join(userEndpoint, ANNOUNCEMENT_ENDPOINT);]]></programlisting>
+	<para>Once the link is created the flow is the same as that of 1010 to play the announcement.</para>
+	<mediaobject
+		id="msde-mms-MMSDemonstrationEx-dia-AnnEndpointImpl-3">
+		<imageobject>
+			<imagedata align="center" width="450" fileref="images/mms-MMSDemonstrationEx-dia-AnnEndpointImpl.png" format="PNG" />
+		</imageobject>
+		<caption><para>Announcement Endpoint Implementation</para></caption>
+	</mediaobject>
+	<para>As soon as announcement is over ConfDemoSbb creates child ForestSbb and calls enter() on it passing the PREndpoint name as argument. ForestSbb uses MsLink to associate the other Connection of PREndpointImpl to ConfEndpointImpl:</para>
+	<programlisting linenumbering="unnumbered" role="JAVA">
+	<![CDATA[MsLink link = session.createLink(MsLink.MODE_FULL_DUPLEX);
+link.join(endpointName, CNF_ENDPOINT);]]>
+  </programlisting>
+	<para>Once the link is established (Look at onConfBridgeCreated() ) ForestSbb creates many child AnnouncementSbb each responsible for unique announcement (in this case playing crickets.wav and mocking.wav). So now UA is actually listening to many announcements at same go.</para>
+	<mediaobject id="msde-mms-MMSDemonstrationEx-dia-ConfEndpointImpl">
+		<imageobject>
+			<imagedata align="center" width="450" fileref="images/mms-MMSDemonstrationEx-dia-ConfEndpointImpl.png" format="PNG" />
+		</imageobject>
+		<caption><para>Conference Endpoint Implementation</para></caption>
+	</mediaobject>
+	<mediaobject id="msde-mms-MMSDemonstrationEx-dia-ConfDemoSbb">
+	<imageobject>
+			<imagedata width="450" align="center" fileref="images/mms-MMSDemonstrationEx-dia-ConfDemoSbb.png" format="PNG" />
+		</imageobject>
+		<caption><para>SBB Child Relation</para></caption>
+	</mediaobject>
+	<formalpara>
+		<title>Recording Usage Demonstration</title>
+		<para>As soon as the call is established, <literal>CallSbb</literal> creates a Connection using <literal>PREndpointImpl</literal>. <literal>PREndpointImpl</literal> has two Connections, one connection to the calling User Agent by calling <methodname>msConnection.modify("$", sdp)</methodname>. Once the connection is established, <literal>CallSbb</literal> creates child <literal>RecorderDemoSbb</literal> and calls <methodname>startDemo()</methodname> on it, passing the <literal>PREndpoint</literal> name as an argument. <literal>RecorderDemoSbb</literal> creates child <literal>AnnouncementSbb</literal> which uses the <literal>AnnEndpointImpl</literal> to make an announcement. The other Connection of <literal>PREndpointImpl</literal> is connected to Connection from <literal>AnnEndpointImpl</literal> using the <literal>MsLink</literal>.</para>
+	</formalpara>
+-->	
+	
+</chapter>
