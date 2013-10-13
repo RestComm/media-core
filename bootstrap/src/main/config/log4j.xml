@@ -4,9 +4,6 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
 	debug="false">
 
-
-
-
 	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.out" />
 		<param name="Threshold" value="INFO" />
@@ -24,6 +21,8 @@
 		<param name="File" value="../log/server.log" />
 		<param name="Append" value="false" />
 		<param name="Threshold" value="INFO" />
+		
+		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
 		
 		<layout class="org.apache.log4j.PatternLayout">
 			<!--

@@ -21,5 +21,9 @@ classes
 /**/.project
 /**/.settings
 
+.project
+.classpath
+.settings
+
 media-server-docs/sources-mobicents/src
 client/jsr-309/tck/tck-run
