@@ -7,19 +7,29 @@ public enum SRTPParameters {
 	// DTLS derived key and salt lengths for SRTP 
 	// http://tools.ietf.org/html/rfc5764#section-4.1.2
 	
-	SRTP_AES128_CM_HMAC_SHA1_80 (SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80, 128, 112),
-	SRTP_AES128_CM_HMAC_SHA1_32 (SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_32, 128, 112),
-	SRTP_NULL_HMAC_SHA1_80 (SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_80, 0, 0),
-	SRTP_NULL_HMAC_SHA1_32 (SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_32, 0, 0);
+	SRTP_AES128_CM_HMAC_SHA1_80 (SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80, SRTPPolicy.AESCM_ENCRYPTION, 128, SRTPPolicy.HMACSHA1_AUTHENTICATION, 160, 80, 80, 112),
+	SRTP_AES128_CM_HMAC_SHA1_32 (SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_32, SRTPPolicy.AESCM_ENCRYPTION, 128, SRTPPolicy.HMACSHA1_AUTHENTICATION, 160, 32, 80, 112),
+	SRTP_NULL_HMAC_SHA1_80 (SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_80, SRTPPolicy.NULL_ENCRYPTION, 0, SRTPPolicy.HMACSHA1_AUTHENTICATION, 160, 80, 80, 0),
+	SRTP_NULL_HMAC_SHA1_32 (SRTPProtectionProfile.SRTP_NULL_HMAC_SHA1_32, SRTPPolicy.NULL_ENCRYPTION, 0, SRTPPolicy.HMACSHA1_AUTHENTICATION, 160, 32, 80, 0);
 	
 	private int profile;
-	private int cipherKeyLength;
-	private int cipherSaltLength;
+	private int encType;
+	private int encKeyLength;
+	private int authType;
+	private int authKeyLength;
+	private int authTagLength;
+	private int rtcpAuthTagLength;
+	private int saltLength;
 	
-	private SRTPParameters(int newProfile, int newCipherKeyLength, int newCipherSaltLength) {
+	private SRTPParameters(int newProfile, int newEncType, int newEncKeyLength, int newAuthType, int newAuthKeyLength, int newAuthTagLength, int newRtcpAuthTagLength, int newSaltLength) {
 		this.profile = newProfile;
-		this.cipherKeyLength = newCipherKeyLength;
-		this.cipherSaltLength = newCipherSaltLength;
+		this.encType = newEncType;
+		this.encKeyLength = newEncKeyLength;
+		this.authType = newAuthType;
+		this.authKeyLength = newAuthKeyLength;
+		this.authTagLength = newAuthTagLength;
+		this.rtcpAuthTagLength = newRtcpAuthTagLength;
+		this.saltLength = newSaltLength;
 	}
 
 	public int getProfile() {
@@ -27,11 +37,11 @@ public enum SRTPParameters {
 	}
 	
 	public int getCipherKeyLength() {
-		return cipherKeyLength;
+		return encKeyLength;
 	}
 	
 	public int getCipherSaltLength() {
-		return cipherSaltLength;
+		return saltLength;
 	}
 	
 	public static SRTPParameters getSrtpParametersForProfile(int profileValue) {
@@ -48,15 +58,25 @@ public enum SRTPParameters {
 				throw new IllegalArgumentException("SRTP Protection Profile value %d is not allowed for DTLS SRTP. See http://tools.ietf.org/html/rfc5764#section-4.1.2 for valid values.");
 		}
 	}
+
+	/**
+	 * 
+	 * @return an initialized SRTPPolicy instance that matches the current SRTPParameter values for the SRTP stream 
+	 * 
+	 */
+	public SRTPPolicy getSrtpPolicy() {
+		SRTPPolicy sp = new SRTPPolicy(encType, encKeyLength, authType, authKeyLength, authTagLength, saltLength);
+		return sp;
+	}	
 	
-	short SRTP_AES128_CM_HMAC_SHA1_80_CIPHER_KEY_LENGTH = 128;
-	short SRTP_AES128_CM_HMAC_SHA1_80_SALT_KEY_LENGTH =  112;
-	short SRTP_AES128_CM_HMAC_SHA1_32_CIPHER_KEY_LENGTH = 128; 
-	short SRTP_AES128_CM_HMAC_SHA1_32_SALT_KEY_LENGTH =  112;
-	short SRTP_NULL_HMAC_SHA1_80_CIPHER_KEY_LENGTH = 0; 
-	short SRTP_NULL_HMAC_SHA1_80_SALT_KEY_LENGTH =  0;
-	short SRTP_NULL_HMAC_SHA1_32_CIPHER_KEY_LENGTH = 0; 
-	short SRTP_NULL_HMAC_SHA1_32_SALT_KEY_LENGTH =  0;
-	
+	/**
+	 * 
+	 * @return an initialized SRTPPolicy instance that matches the current SRTPParameter values for the SRTCP stream
+	 * 
+	 */
+	public SRTPPolicy getSrtcpPolicy() {
+		SRTPPolicy sp = new SRTPPolicy(encType, encKeyLength, authType, authKeyLength, rtcpAuthTagLength, saltLength);
+		return sp;
+	}	
 	
 }

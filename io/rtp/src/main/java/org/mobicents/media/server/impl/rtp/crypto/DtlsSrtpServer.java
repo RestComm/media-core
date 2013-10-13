@@ -38,10 +38,14 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	private UseSRTPData serverSrtpData;
 
 	// Asymmetric shared keys derived from the DTLS handshake and used for the SRTP encryption/
-	private byte[] clientKey;
-	private byte[] serverKey;
-	private byte[] clientSalt;
-	private byte[] serverSalt;
+	private byte[] srtpMasterClientKey;
+	private byte[] srtpMasterServerKey;
+	private byte[] srtpMasterClientSalt;
+	private byte[] srtpMasterServerSalt;
+
+	private SRTPPolicy srtpPolicy;
+
+	private SRTPPolicy srtcpPolicy;
 	
 	public void notifyAlertRaised(short alertLevel, short alertDescription, String message, Exception cause)
     {
@@ -98,17 +102,18 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     }
     
     // Hashtable is (Integer -> byte[])
-    @Override
-    public Hashtable getServerExtensions()
+    @SuppressWarnings("unchecked")
+	@Override
+    public Hashtable<Integer, byte[]> getServerExtensions()
         throws IOException
     {
-        Hashtable serverExtensions = super.getServerExtensions();
+    	Hashtable<Integer, byte[]> serverExtensions = (Hashtable<Integer, byte[]>)super.getServerExtensions();
         if (TlsSRTPUtils.getUseSRTPExtension(serverExtensions) == null)
         {
 
             if (serverExtensions == null)
             {
-            	serverExtensions = new Hashtable();
+            	serverExtensions = new Hashtable<Integer, byte[]>();
             }
 
             TlsSRTPUtils.addUseSRTPExtension(serverExtensions, serverSrtpData );
@@ -116,7 +121,8 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         return serverExtensions;
     }
     
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public void processClientExtensions(Hashtable newClientExtensions) throws IOException {
     	super.processClientExtensions(newClientExtensions);
     	int chosenProfile = SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80; // set to some reasonable default value
@@ -146,21 +152,22 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 
     /**
      * 
-     * 
-     * 
      * @return the shared secret key that will be used for the SRTP session
      */
-    public byte[] prepareSrtpSharedSecret() {
+    public void prepareSrtpSharedSecret() {
     	byte[] sharedSecret = null;
 		// preparing keys for SRTP. Length of keys is in bits, not bytes. So, we must divide by 8.
     	SRTPParameters srtpParams = SRTPParameters.getSrtpParametersForProfile(serverSrtpData.getProtectionProfiles()[0]);
     	final int keyLen = srtpParams.getCipherKeyLength();
     	final int saltLen = srtpParams.getCipherSaltLength();
     	
-        clientKey = new byte[keyLen/8];
-        serverKey = new byte[keyLen/8];
-        clientSalt = new byte[saltLen/8];
-        serverSalt = new byte[saltLen/8];
+    	srtpPolicy = srtpParams.getSrtpPolicy();
+    	srtcpPolicy = srtpParams.getSrtcpPolicy();
+    	
+        srtpMasterClientKey = new byte[keyLen/8];
+        srtpMasterServerKey = new byte[keyLen/8];
+        srtpMasterClientSalt = new byte[saltLen/8];
+        srtpMasterServerSalt = new byte[saltLen/8];
         // 2* (key + salt lenght) / 8. From http://tools.ietf.org/html/rfc5764#section-4-2
         sharedSecret = getKeyingMaterial((keyLen + saltLen)/4);
         
@@ -191,11 +198,34 @@ public class DtlsSrtpServer extends DefaultTlsServer {
          * + local key           |    remote key    | local salt   | remote salt   |
          * +------------------------+------------------------+---------------+-------------------+
          */
-        System.arraycopy(sharedSecret, 0, clientKey, 0, keyLen/8); 
-        System.arraycopy(sharedSecret, keyLen/8, serverKey, 0, keyLen/8);
-        System.arraycopy(sharedSecret, 2*keyLen/8, clientSalt, 0, saltLen/8);
-        System.arraycopy(sharedSecret, (2*keyLen/8+saltLen/8), serverSalt, 0, saltLen/8);    	
-    	return sharedSecret;
+        System.arraycopy(sharedSecret, 0, srtpMasterClientKey, 0, keyLen/8); 
+        System.arraycopy(sharedSecret, keyLen/8, srtpMasterServerKey, 0, keyLen/8);
+        System.arraycopy(sharedSecret, 2*keyLen/8, srtpMasterClientSalt, 0, saltLen/8);
+        System.arraycopy(sharedSecret, (2*keyLen/8+saltLen/8), srtpMasterServerSalt, 0, saltLen/8);    	
+    }
+    
+    public SRTPPolicy getSrtpPolicy() {
+    	return srtpPolicy;
+    }
+    
+    public SRTPPolicy getSrtcpPolicy() {
+    	return srtcpPolicy;
+    }
+    
+    public byte[] getSrtpMasterServerKey() {
+    	return srtpMasterServerKey;
+    }
+    
+    public byte[] getSrtpMasterServerSalt() {
+    	return srtpMasterServerSalt;
+    }
+    
+    public byte[] getSrtpMasterClientKey() {
+    	return srtpMasterClientKey;
+    }
+    
+    public byte[] getSrtpMasterClientSalt() {
+    	return srtpMasterClientSalt;
     }
     
 }

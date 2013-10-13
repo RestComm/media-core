@@ -23,7 +23,6 @@ import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -38,6 +37,9 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.crypto.DatagramTransportAdaptor;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.PacketTransformer;
+import org.mobicents.media.server.impl.rtp.crypto.SRTPPolicy;
+import org.mobicents.media.server.impl.rtp.crypto.SRTPTransformEngine;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -140,6 +142,14 @@ public class RTPDataChannel {
 	public DTLSTransport dtlsServerTransport;
 
 	private DatagramTransportAdaptor datagramTransportAdaptor;
+
+	// handles encryption of outbound RTP packets for a given RTP stream identified by its SSRC
+	// See DTLS-SRTP RFC http://tools.ietf.org/html/rfc5764#section-4.2
+	private PacketTransformer txSrtpEncoder;
+
+	// handles decryption of inbound RTP packets for a given RTP stream identified by its SSRC
+	// See DTLS-SRTP RFC http://tools.ietf.org/html/rfc5764#section-4.2
+	private PacketTransformer rxSrtpDecoder;
     
     /**
      * Create RTP channel instance.
@@ -589,7 +599,7 @@ public class RTPDataChannel {
 
                 try {
 //                	currAddress = 
-            		receiveRtpPacket(rtpPacket.getBuffer());
+            		receiveRtpPacket(rtpPacket);
 //                	if(currAddress!=null && !dataChannel.isConnected())
 //                	{
 //                		rxBuffer.restart();    	
@@ -626,7 +636,7 @@ public class RTPDataChannel {
                     	//queue packet into the receiver's jitter buffer
                     	if (rtpPacket.getBuffer().limit() > 0) {
                     		if(shouldLoop && dataChannel.isConnected()) {
-                    			sendRtpPacket(rtpPacket.getBuffer());
+                    			sendRtpPacket(rtpPacket);
                             	rxCount++;
                             	txCount++;
                             }
@@ -645,7 +655,7 @@ public class RTPDataChannel {
                     }
                     
                     rtpPacket.getBuffer().clear();
-                    receiveRtpPacket(rtpPacket.getBuffer());
+                    receiveRtpPacket(rtpPacket);
                 }
             }
         	catch(PortUnreachableException e) {
@@ -715,7 +725,7 @@ public class RTPDataChannel {
             frame.recycle();
             try {
                 if (dataChannel.isConnected()) {
-                	sendRtpPacket(oobPacket.getBuffer());
+                	sendRtpPacket(oobPacket);
                 	txCount++;
                 }
             }
@@ -771,7 +781,7 @@ public class RTPDataChannel {
             frame.recycle();
             try {
                 if (dataChannel.isConnected()) {
-                	sendRtpPacket(rtpPacket.getBuffer());
+                	sendRtpPacket(rtpPacket);
                 	txCount++;
                 }
             }
@@ -855,43 +865,53 @@ public class RTPDataChannel {
         // unblock UDP channel
         dataChannel.configureBlocking(false);
         
-        // setup SRTP encoder using keying material from the DTLS handshake
-        prepareSrtpEncoder();
+        server.prepareSrtpSharedSecret();
+        
+        SRTPPolicy srtpPolicy = server.getSrtpPolicy();
+        SRTPPolicy srtcpPolicy = server.getSrtcpPolicy();
+
+        byte[] txMasterKey = server.getSrtpMasterServerKey();
+        byte[] txMasterSalt = server.getSrtpMasterServerSalt();
+        
+        // setup SRTP encoder for outgoing RTP packets using keying material from the DTLS handshake
+		SRTPTransformEngine txSrtpEngine = new SRTPTransformEngine(txMasterKey, txMasterSalt, srtpPolicy, srtcpPolicy);
+		txSrtpEncoder = txSrtpEngine.getRTPTransformer();
+        
+        byte[] rxMasterKey = server.getSrtpMasterClientKey();
+        byte[] rxMasterSalt = server.getSrtpMasterClientSalt();
+        
+		SRTPTransformEngine rxSrtpEngine = new SRTPTransformEngine(rxMasterKey,rxMasterSalt, srtpPolicy, srtcpPolicy);
+		rxSrtpDecoder = rxSrtpEngine.getRTPTransformer();
 	}
 
 	
-	private void prepareSrtpEncoder() {
-		
-		// TODO Auto-generated method stub
-
+	private void prepareSrtpEncoder(byte[] masterKey, byte[] masterSalt, SRTPPolicy srtpPolicy, SRTPPolicy srtcpPolicy) {
 		
 	}
 
-	private void receiveRtpPacket(ByteBuffer buf) throws IOException {
+	private void receiveRtpPacket(RtpPacket packet) throws IOException {
+		ByteBuffer buf = packet.getBuffer();
 		buf.clear();
+		// receive RTP packet from the network
+		dataChannel.receive(buf);
+		buf.rewind();
 		if (isWebRTCChannel) {
-			// receive and decrypt 
-	        int length = srtpEncoder.receive(buf.array(), 0, buf.capacity(), 1000);
-	        buf.limit(length);
-	        buf.rewind();
-		} else {
-			// receive plaintext
-			dataChannel.receive(buf);
-		}
+			// decrypt if WebRTC session is in effect 
+	        rxSrtpDecoder.reverseTransform(packet);
+		};
 	}
 	
-    private void sendRtpPacket(ByteBuffer buf) throws IOException {
+    private void sendRtpPacket(RtpPacket packet) throws IOException {
+    	ByteBuffer buf = packet.getBuffer();
 		buf.flip();
 		buf.compact();
     	if (isWebRTCChannel) {
-    		// encrypt and send
-			int length = buf.limit();
-	        srtpEncoder.send(buf.array(), 0, length);
+    		// encrypt packet if WebRTC session is in effect
+	        txSrtpEncoder.transform(packet);
 	        buf.flip(); 
-    	} else {
-    		// send plaintext
-        	dataChannel.send(buf,dataChannel.socket().getRemoteSocketAddress());
-    	}
+    	} 
+		// send RTP packet to the network
+    	dataChannel.send(buf,dataChannel.socket().getRemoteSocketAddress());
 	}
 
 	
