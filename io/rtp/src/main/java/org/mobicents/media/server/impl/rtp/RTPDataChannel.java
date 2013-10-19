@@ -481,7 +481,7 @@ public class RTPDataChannel {
          * @see org.mobicents.media.server.io.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel)
          */
         public void receive(DatagramChannel channel) {
-        		count++;
+        		RTPDataChannel.this.count++;
         		rx.perform();        		        	
         }
 
@@ -627,7 +627,7 @@ public class RTPDataChannel {
                 while (rtpPacket.getBuffer().remaining() > 0) {
                 	lastPacketReceived=scheduler.getClock().getTime();                	
                     //put pointer to the beginning of the buffer
-                    rtpPacket.getBuffer().flip();
+                    rtpPacket.getBuffer().rewind();
 
                     if(rtpPacket.getVersion()!=0 && (shouldReceive || shouldLoop))
                     {
@@ -894,7 +894,7 @@ public class RTPDataChannel {
 		buf.clear();
 		// receive RTP packet from the network
 		dataChannel.receive(buf);
-		buf.rewind();
+		buf.flip();
 		if (isWebRTCChannel) {
 			// decrypt if WebRTC session is in effect 
 	        rxSrtpDecoder.reverseTransform(packet);
@@ -903,12 +903,11 @@ public class RTPDataChannel {
 	
     private void sendRtpPacket(RtpPacket packet) throws IOException {
     	ByteBuffer buf = packet.getBuffer();
-		buf.flip();
-		buf.compact();
+		buf.rewind();
     	if (isWebRTCChannel) {
     		// encrypt packet if WebRTC session is in effect
 	        txSrtpEncoder.transform(packet);
-	        buf.flip(); 
+	        buf.rewind(); 
     	} 
 		// send RTP packet to the network
     	dataChannel.send(buf,dataChannel.socket().getRemoteSocketAddress());
