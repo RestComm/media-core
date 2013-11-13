@@ -13,6 +13,9 @@ classes
 # temp files
 *~
 
+# OS files
+.DS_Store
+
 # Ignore Maven target/ dirs
 /**/target/**/* 
 
