@@ -94,8 +94,9 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 
 	private PacketRepresentationFactory prFactory = null;
 
-	// Should we ever get data more than 5000 bytes?
-	private static final int BUFFER_SIZE = 5000;
+	// issue #7: https://bitbucket.org/telestax/telscale-media-server/issue/7/buffer-size-for-webrtc-calls-is-too-small
+	// hrosa - Increased the buffer size from 5000 to 11000 to accommodate SDP in WebRTC calls
+	private static final int BUFFER_SIZE = 11000;
 
 	private DatagramChannel channel;
 	// private Selector selector;
