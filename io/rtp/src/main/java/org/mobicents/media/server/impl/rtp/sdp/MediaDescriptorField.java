@@ -329,7 +329,7 @@ public class MediaDescriptorField {
      * @return true if the media profile requires encryption
      */
 	public boolean isWebRTCProfile() {
-		boolean isEcryptionRequired = getProfile().equals(RTP_SAVPF_PROFILE);
+		boolean isEcryptionRequired = getProfile().toString().equals(RTP_SAVPF_PROFILE);
 		return isEcryptionRequired;
 	}
 
