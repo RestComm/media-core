@@ -108,61 +108,115 @@ public class MediaDescriptorField {
      * @param attribute the attribute to parse
      */
     protected void addAttribute(Text attribute) {
-        Iterator<Text> it = attribute.split(':').iterator();
-        Text token = it.next();
-
-        if (token.equals(SessionDescription.RTPMAP)) {
-            token = it.next();
-            token.trim();
-
-            //payload and format descriptor
-            it = token.split(' ').iterator();
-
-            //payload
-            token = it.next();
-            token.trim();
-
-            int payload = token.toInteger();
-
-            //format descriptor
-            token = it.next();
-            token.trim();
-
-            createFormat(payload, token);
+        if (attribute.startsWith(SessionDescription.RTPMAP)) {
+            addRtpMapAttribute(attribute);
             return;
         }
 
-        if (token.equals(SessionDescription.FMTP)) {
-            token = it.next();
-            token.trim();
-
-            //payload and format descriptor
-            it = token.split(' ').iterator();
-
-            //payload
-            token = it.next();
-            token.trim();
-
-            int payload = token.toInteger();
-
-            //format descriptor
-            token = it.next();
-            token.trim();
-
-            RTPFormat fmt = getFormat(payload);
-            if (fmt != null) {
-                //TODO : replace string with text
-                fmt.getFormat().setOptions(token);
-            }
-            
-            if (token.equals(SessionDescription.WEBRTC_FINGERPRINT)) {
-                token = it.next();
-                token.trim();
-            	setWebRTCFingerprint(token);
-            }
-
+        if (attribute.startsWith(SessionDescription.FMTP)) {
+        	addFmtAttribute(attribute);
             return;
         }
+        
+        if (attribute.startsWith(SessionDescription.WEBRTC_FINGERPRINT)) {
+        	addFingerprintAttribute(attribute);
+        	return;
+        }
+    }
+    
+	/**
+	 * Register a new RTP MAP attribute.
+	 * <p>Example: <code>a=rtpmap:126 telephone-event/8000</code></p>
+	 * 
+	 * @param attribute
+	 *            The attribute line to be registered.
+	 * @throws IllegalArgumentException
+	 *             If the attribute is not a valid RTP MAP line.
+	 */
+    private void addRtpMapAttribute(Text attribute) throws IllegalArgumentException {
+    	if (!attribute.startsWith(SessionDescription.RTPMAP)) {
+    		throw new IllegalArgumentException("Not a valid RTP MAP attribute"+attribute);
+    	}
+
+    	Iterator<Text> it = attribute.split(':').iterator();
+    	Text token = it.next();
+    	
+        token = it.next();
+        token.trim();
+
+        //payload and format descriptor
+        it = token.split(' ').iterator();
+
+        //payload
+        token = it.next();
+        token.trim();
+
+        int payload = token.toInteger();
+
+        //format descriptor
+        token = it.next();
+        token.trim();
+
+        createFormat(payload, token);
+    }
+    
+	/**
+	 * Register a new FMT attribute.<br>
+	 * Example: <code>a=fmtp:111 minptime=10</code>
+	 * 
+	 * @param attribute
+	 *            The attribute line to be registered.
+	 * @throws IllegalArgumentException
+	 *             If the attribute is not a valid FMT line.
+	 */
+    private void addFmtAttribute(Text attribute) throws IllegalArgumentException {
+    	if (!attribute.startsWith(SessionDescription.FMTP)) {
+    		throw new IllegalArgumentException("Not a valid FMT attribute"+attribute);
+    	}
+    	
+    	Iterator<Text> it = attribute.split(':').iterator();
+    	Text token = it.next();
+        
+    	token = it.next();
+        token.trim();
+
+        //payload and format descriptor
+        it = token.split(' ').iterator();
+
+        //payload
+        token = it.next();
+        token.trim();
+
+        int payload = token.toInteger();
+
+        //format descriptor
+        token = it.next();
+        token.trim();
+
+        RTPFormat fmt = getFormat(payload);
+        if (fmt != null) {
+            //TODO : replace string with text
+            fmt.getFormat().setOptions(token);
+        }
+    }
+    
+	/**
+	 * Register a new fingerprint attribute for WebRTC calls.<br>
+	 * Example: <code>a=fingerprint:sha-256 E5:52:E5:88:CC:B6:7A:D7:8E:...</code>
+	 * 
+	 * @param attribute
+	 *            The attribute line to be registered.
+	 * @throws IllegalArgumentException
+	 *             If the attribute is not a valid FMT line.
+	 */
+    private void addFingerprintAttribute(Text attribute) throws IllegalArgumentException {
+    	if (!attribute.startsWith(SessionDescription.WEBRTC_FINGERPRINT)) {
+    		throw new IllegalArgumentException("Not a valid fingerprint attribute"+attribute);
+    	}
+
+    	// Remove line type 'a=fingerprint:'
+    	Text fingerprint = (Text) attribute.subSequence(SessionDescription.WEBRTC_FINGERPRINT.length(),attribute.length());
+    	setWebRTCFingerprint(fingerprint);
     }
 
     /**

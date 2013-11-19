@@ -40,7 +40,7 @@ public class SessionDescription {
 
     protected final static Text RTPMAP = new Text("a=rtpmap");
     protected final static Text FMTP = new Text("a=fmtp");
-	public static final Object WEBRTC_FINGERPRINT = new Text("a=fingerprint");
+    protected final static Text WEBRTC_FINGERPRINT = new Text("a=fingerprint");
 
     private Text version;
     private OriginField origin = new OriginField();

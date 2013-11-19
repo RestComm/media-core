@@ -416,7 +416,7 @@ public class Text implements CharSequence {
         //return this.hashCode() == t.hashCode();
         return compareChars(t.chars, t.pos);
     }
-
+    
     @Override
     public int hashCode() {
         if (hash == -1) {
@@ -437,6 +437,22 @@ public class Text implements CharSequence {
             if (differentChars((char) this.chars[i + this.pos], (char) chars[i + pos])) return false;
         }
         return true;
+    }
+    
+	/**
+	 * Indicates whether the text starts with a certain pattern.
+	 * 
+	 * @param pattern
+	 *            The pattern to match
+	 * @return <code>true</code> if this text starts with the pattern.
+	 *         Otherwise, or if the pattern is null, returns <code>false</code>.
+	 * @author hrosa
+	 */
+    public boolean startsWith(Text pattern) {
+    	if (pattern == null) {
+    		return false;
+    	}
+    	return this.subSequence(0, pattern.len).equals(pattern);
     }
 
     /**
