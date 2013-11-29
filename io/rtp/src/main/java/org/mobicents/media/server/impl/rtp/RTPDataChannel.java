@@ -473,6 +473,8 @@ public class RTPDataChannel {
         private RxTask rx = new RxTask();
         
         private volatile boolean isReading = false;
+        
+        private SelectionKey selectionKey;
 
 
         /**
@@ -517,6 +519,7 @@ public class RTPDataChannel {
         }
 
         public void setKey(SelectionKey key) {
+        	this.selectionKey = key;
         }
     }
 
@@ -745,7 +748,7 @@ public class RTPDataChannel {
             }
         }
         
-		public void perform(Frame frame) {
+		public void perform(Frame frame) {			
             //discard frame if format is unknown
             if (frame.getFormat() == null) {
             	frame.recycle();
@@ -851,9 +854,13 @@ public class RTPDataChannel {
         DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
         DtlsSrtpServer server = new DtlsSrtpServer();
 
+		// Remove key set by udpManager so we can change blocking mode
+		// SelectionKey key = rtpHandler.getKey();
+		// key.cancel();
+        
         // block UDP channel until the DTLS handshake takes place then unblock it
         dataChannel.configureBlocking(true);
-        
+
         DatagramSocket socket = dataChannel.socket(); 
 
         int mtu = 1500;

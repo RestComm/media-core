@@ -131,4 +131,26 @@ public class FormatFactory {
         return new VideoFormat(name, frameRate);
     }
 
+	/**
+	 * Creates a new format descriptor for application line
+	 * 
+	 * @param name
+	 *            format encoding name
+	 * @return the format descriptor
+	 */
+    public static ApplicationFormat createApplicationFormat(EncodingName name) {
+    	return new ApplicationFormat(name);
+    }
+    
+	/**
+	 * Creates a new format descriptor for application line
+	 * 
+	 * @param name
+	 *            format encoding name
+	 * @return the format descriptor
+	 */
+    public static ApplicationFormat createApplicationFormat(String name) {
+    	return new ApplicationFormat(name);
+    }
+
 }

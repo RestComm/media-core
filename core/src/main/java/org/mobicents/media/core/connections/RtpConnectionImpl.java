@@ -37,7 +37,6 @@ import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
@@ -62,13 +61,16 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 	private final static AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);	
     
 	private RTPDataChannel rtpAudioChannel;
+	// TODO Add a video RTP Channel - hrosa
     
     private SessionDescription sdp = new SessionDescription();
-    private SdpComparator sdpComparator = new SdpComparator();
 
     private boolean isAudioCapabale;
+    // TODO Add a flag to define whether is capable of video - hrosa
     
     protected RTPFormats audioFormats;
+    protected RTPFormats videoFormats;
+    protected RTPFormats applicationFormats;
     
     //SDP template
     protected SdpTemplate template;
@@ -105,9 +107,11 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         }
         
         //create sdp template
-        audioFormats = getRTPMap(AVProfile.audio);
+        this.audioFormats = getRTPMap(AVProfile.audio);
+        this.videoFormats = getRTPMap(AVProfile.video);
+        this.applicationFormats = getRTPMap(AVProfile.application);
         
-        template = new SdpTemplate(audioFormats,null);
+        template = new SdpTemplate(this.audioFormats,this.videoFormats);
     }
 
     public AudioComponent getAudioComponent()
@@ -186,13 +190,15 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     
     private void setOtherParty() throws IOException {
         if (sdp != null && sdp.getAudioDescriptor() != null && sdp.getAudioDescriptor().getFormats() != null) {
-            logger.info("Formats" + sdp.getAudioDescriptor().getFormats());
+            logger.info("Audio Formats" + sdp.getAudioDescriptor().getFormats());
         }
-        sdpComparator.negotiate(sdp, this.audioFormats, null);
-
-        RTPFormats audio = sdpComparator.getAudio();
-        if (audio.isEmpty() || !audio.hasNonDTMF()) {
-            throw new IOException("Codecs are not negotiated");
+        
+        if (sdp != null && sdp.getVideoDescriptor() != null && sdp.getVideoDescriptor().getFormats() != null) {
+            logger.info("Video Formats" + sdp.getVideoDescriptor().getFormats());
+        }
+        
+        if (sdp != null && sdp.getApplicationDescriptor() != null && sdp.getApplicationDescriptor().getFormats() != null) {
+            logger.info("Application Formats" + sdp.getApplicationDescriptor().getFormats());
         }
         
         boolean isWebRTCProfile = sdp.getAudioDescriptor().isWebRTCProfile();
@@ -201,6 +207,39 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
         	rtpAudioChannel.setWebRTCEncryptionEnabled(isWebRTCProfile, remotePeerFingerprint);
         }
         
+        /*
+         * Build SDP answer
+         */
+        SdpTemplate sdpTemplate = (!isLocal && isWebRTCProfile) ? new WebRTCSdpTemplate(this.sdp) : new SdpTemplate(this.sdp);
+
+        // Session-level descriptors
+        sdpTemplate.setBindAddress(isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress());
+        sdpTemplate.setNetworkType("IN");
+        sdpTemplate.setAddressType("IP4");
+        sdpTemplate.setConnectionAddress(isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress());
+
+		// Media Descriptors
+        sdpTemplate.setSupportedAudioFormats(this.audioFormats);
+        sdpTemplate.setAudioPort(rtpAudioChannel.getLocalPort());
+        
+        if(sdpTemplate instanceof WebRTCSdpTemplate) {
+    		// TODO Update video port based on video channel configuration - hrosa
+        	sdpTemplate.setSupportedVideoFormats(this.videoFormats);
+            sdpTemplate.setVideoPort(0);
+    		// TODO Update application port based on video channel configuration - hrosa
+            sdpTemplate.setSupportedApplicationFormats(this.applicationFormats);
+            sdpTemplate.setApplicationPort(0);        	
+        }
+        
+        descriptor2 = sdpTemplate.build();
+        
+        /*
+         * Configure RTP Audio Channel
+         */
+//        sdpComparator.negotiate(sdp, this.audioFormats, this.videoFormats);
+//        RTPFormats audio = sdpComparator.getAudio();
+        RTPFormats audio = sdpTemplate.getNegotiatedAudioFormats();
+
         if (!audio.isEmpty()) {
         	rtpAudioChannel.setFormatMap(audioFormats);
             try {
@@ -219,24 +258,12 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
                     sdp.getConnection().getAddress();
             rtpAudioChannel.setPeer(new InetSocketAddress(address,sdp.getAudioDescriptor().getPort()));
         }
-
-        if(!isLocal) {
-        	if (isWebRTCProfile) {
-	        	descriptor2 = new WebRTCSdpTemplate(audio,null).getSDP(channelsManager.getBindAddress(),
-		                "IN", "IP4",
-		                channelsManager.getBindAddress(),
-		                rtpAudioChannel.getLocalPort(),0);
-        	} else {
-	        	descriptor2 = new SdpTemplate(audio,null).getSDP(channelsManager.getBindAddress(),
-		                "IN", "IP4",
-		                channelsManager.getBindAddress(),
-		                rtpAudioChannel.getLocalPort(),0);
-        	}
-        } else
-        	descriptor2 = new SdpTemplate(audio,null).getSDP(channelsManager.getLocalBindAddress(),
-                    "IN", "IP4",
-                    channelsManager.getLocalBindAddress(),
-                    rtpAudioChannel.getLocalPort(),0);
+        
+        // TODO Should reply with a m=audio line with port=0 to reject the audio offer - hrosa
+        if (audio.isEmpty() || !audio.hasNonDTMF()) {
+            throw new IOException("Codecs are not negotiated");
+        }
+        
         try {
             this.join();
         } catch (Exception e) {

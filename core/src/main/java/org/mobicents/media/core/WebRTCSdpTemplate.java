@@ -23,9 +23,7 @@
 package org.mobicents.media.core;
 
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
 
 /**
  *
@@ -33,22 +31,15 @@ import org.mobicents.media.server.spi.format.AudioFormat;
  */
 public class WebRTCSdpTemplate extends SdpTemplate {
 
-    private String template;
-
-    private boolean isAudioSupported;
-    private boolean isVideoSupported;
-
-    public WebRTCSdpTemplate(RTPFormats audio, RTPFormats video) {
-    	super(audio, video);
+    public WebRTCSdpTemplate(SessionDescription sessionDescription) {
+    	super(sessionDescription);
     }
-
     
     @Override
     protected String getMediaProfile() {
     	return MediaDescriptorField.RTP_SAVPF_PROFILE;
-    	
     }
-    
+
     
     /**
      * 

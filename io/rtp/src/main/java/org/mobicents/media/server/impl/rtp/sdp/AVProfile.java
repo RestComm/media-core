@@ -38,6 +38,7 @@ public class AVProfile {
     }
     public final static RTPFormats audio = new RTPFormats();
     public final static RTPFormats video = new RTPFormats();
+    public final static RTPFormats application = new RTPFormats();
     
     private final static RTPFormat pcmu = new RTPFormat(0, FormatFactory.createAudioFormat("pcmu", 8000, 8, 1), 8000);
     private final static RTPFormat pcma = new RTPFormat(8, FormatFactory.createAudioFormat("pcma", 8000, 8, 1), 8000);

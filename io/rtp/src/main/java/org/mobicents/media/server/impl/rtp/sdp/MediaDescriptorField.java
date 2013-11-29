@@ -25,6 +25,7 @@ package org.mobicents.media.server.impl.rtp.sdp;
 import java.text.ParseException;
 import java.util.Iterator;
 
+import org.mobicents.media.server.spi.format.ApplicationFormat;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.EncodingName;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -293,13 +294,17 @@ public class MediaDescriptorField {
      * @return format object
      */
     private RTPFormat createFormat(int payload, Text description) {
-        if (mediaType.equals(SessionDescription.AUDIO)) {
-            return createAudioFormat(payload, description);
-        } else if (mediaType.equals(SessionDescription.VIDEO)) {
-            return createVideoFormat(payload, description);
-        } else {
-            return null;
-        }
+		MediaType mtype = MediaType.fromDescription(mediaType);
+		switch (mtype) {
+		case AUDIO:
+			return createAudioFormat(payload, description);
+		case VIDEO:
+			return createVideoFormat(payload, description);
+		case APPLICATION:
+			return createApplicationFormat(payload, description);
+		default:
+			return null;
+		}
     }
 
     /**
@@ -374,6 +379,34 @@ public class MediaDescriptorField {
             ((VideoFormat)rtpFormat.getFormat()).setFrameRate(clockRate);
         }
 
+        return rtpFormat;
+    }
+    
+    /**
+     * Creates or updates application format using payload number and text format description.
+     *
+     * @param payload the payload number of the format.
+     * @param description text description of the format
+     * @return format object
+     */
+    private RTPFormat createApplicationFormat(int payload, Text description) {
+        Iterator<Text> it = description.split('/').iterator();
+
+        //encoding name
+        Text token = it.next();
+        token.trim();
+        EncodingName name = new EncodingName(token);
+
+        //clock rate
+        token = it.next();
+        token.trim();
+
+        RTPFormat rtpFormat = getFormat(payload);
+        if (rtpFormat == null) {
+            formats.add(new RTPFormat(payload, FormatFactory.createApplicationFormat(name)));
+        } else {
+            ((ApplicationFormat)rtpFormat.getFormat()).setName(name);
+        }
         return rtpFormat;
     }
 

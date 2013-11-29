@@ -35,9 +35,9 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class SessionDescription {
-    protected final static Text AUDIO = new Text("audio");
-    protected final static Text VIDEO = new Text("video");
-
+	public final static Text AUDIO = new Text("audio");
+	public final static Text VIDEO = new Text("video");
+	
     protected final static Text RTPMAP = new Text("a=rtpmap");
     protected final static Text FMTP = new Text("a=fmtp");
     protected final static Text WEBRTC_FINGERPRINT = new Text("a=fingerprint");
@@ -47,10 +47,11 @@ public class SessionDescription {
     private Text session;
     private ConnectionField connection = new ConnectionField();
     private TimeField time = new TimeField();
-    private ArrayList<MediaDescriptorField> mds = new ArrayList(2);
+    private ArrayList<MediaDescriptorField> mds = new ArrayList(3);
 
     private MediaDescriptorField audioDescriptor;
     private MediaDescriptorField videoDescriptor;
+    private MediaDescriptorField applicationDescriptor;
 
     private MediaDescriptorField md;
 
@@ -105,11 +106,22 @@ public class SessionDescription {
                     md = new MediaDescriptorField();
                     mds.add(md);
                     md.setDescriptor(line);
-
-                    if (md.getMediaType().equals(AUDIO)) {
-                        this.audioDescriptor = md;
-                    } else {
-                        this.videoDescriptor = md;
+                    
+                    MediaType mediaType = MediaType.fromDescription(md.getMediaType());
+                    if (mediaType != null) {
+                    	switch (mediaType) {
+    					case AUDIO:
+    						this.audioDescriptor = md;
+    						break;
+    					case VIDEO:
+    						this.videoDescriptor = md;
+    						break;
+    					case APPLICATION:
+    						this.applicationDescriptor = md;
+    						break;
+    					default:
+    						break;
+    					}
                     }
                     break;
                 case 'a':
@@ -201,6 +213,26 @@ public class SessionDescription {
      */
     public MediaDescriptorField getVideoDescriptor() {
         return this.videoDescriptor;
+    }
+    
+    /**
+     * Gets the description of application stream
+     * @return the description object
+     */
+    public MediaDescriptorField getApplicationDescriptor() {
+		return applicationDescriptor;
+	}
+    
+    public boolean hasAudioDescriptor() {
+    	return this.audioDescriptor != null;
+    }
+    
+    public boolean hasVideoDescriptor() {
+    	return this.videoDescriptor != null;
+    }
+    
+    public boolean hasApplicationDescriptor() {
+    	return this.applicationDescriptor != null;
     }
     
     @Override
