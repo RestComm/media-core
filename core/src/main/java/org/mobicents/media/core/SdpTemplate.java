@@ -22,6 +22,9 @@
 
 package org.mobicents.media.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -67,6 +70,7 @@ public class SdpTemplate {
     private RTPFormats supportedAudioFormats;
     private RTPFormats supportedVideoFormats;
     private RTPFormats supportedApplicationFormats;
+    
     private RTPFormats negotiatedAudioFormats;
     private RTPFormats negotiatedVideoFormats;
     private RTPFormats negotiatedApplicationFormats;

@@ -23,7 +23,10 @@
 package org.mobicents.media.server.impl.rtp.sdp;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import org.mobicents.media.server.spi.format.ApplicationFormat;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -42,6 +45,7 @@ public class MediaDescriptorField {
     private int port;
     private Text profile;
     private ConnectionField connection;
+    private List<CandidateField> candidates = new ArrayList<CandidateField>();
 
     private RTPFormats formats = new RTPFormats(15);
 
@@ -123,8 +127,24 @@ public class MediaDescriptorField {
         	addFingerprintAttribute(attribute);
         	return;
         }
+        
+        if(attribute.startsWith(CandidateField.CANDIDATE_FIELD)) {
+        	addCandidate(attribute);
+        	return;
+        }
     }
     
+    /**
+     * Parses a candidate field for ICE and register it on internal list.
+     * @param attribute
+     */
+	private void addCandidate(Text attribute) {
+		CandidateField candidateField = new CandidateField(attribute);
+		this.candidates.add(candidateField);
+		// Candidates must be listed by weight in descending order
+		Collections.sort(this.candidates, Collections.reverseOrder());
+	}
+
 	/**
 	 * Register a new RTP MAP attribute.
 	 * <p>Example: <code>a=rtpmap:126 telephone-event/8000</code></p>
@@ -238,6 +258,7 @@ public class MediaDescriptorField {
     protected void setConnection(Text line) throws ParseException {
         connection = new ConnectionField();
         connection.strain(line);
+        Collections.sort(this.candidates);
     }
 
     /**

@@ -264,6 +264,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
             throw new IOException("Codecs are not negotiated");
         }
         
+        // TODO Only set connection state to open if audio channel has attribute a=setup:active - hrosa
         try {
             this.join();
         } catch (Exception e) {
