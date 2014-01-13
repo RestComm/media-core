@@ -5,7 +5,6 @@ import org.ice4j.TransportAddress;
 import org.ice4j.ice.Agent;
 import org.ice4j.ice.CompatibilityMode;
 import org.ice4j.ice.IceMediaStream;
-import org.ice4j.ice.NominationStrategy;
 import org.ice4j.ice.harvest.StunCandidateHarvester;
 import org.ice4j.ice.harvest.TurnCandidateHarvester;
 import org.ice4j.ice.harvest.UPNPHarvester;
@@ -19,11 +18,16 @@ import org.ice4j.security.LongTermCredential;
  */
 public class IceLite {
 
-	private static final String STUN_SERVER_JITSI = "stun.jitsi.net";
-	private static final String STUN6_SERVER_JITSI = "stun6.jitsi.net";
-	private static final String STUN_SERVER_JITSI_USERNAME = "guest";
-	private static final String STUN_SERVER_JITSI_PASSWORD = "anonymouspower!!";
+	public static final String STUN_SERVER_JITSI = "stun.jitsi.net";
+	public static final String STUN6_SERVER_JITSI = "stun6.jitsi.net";
+	public static final String STUN_SERVER_JITSI_USERNAME = "guest";
+	public static final String STUN_SERVER_JITSI_PASSWORD = "anonymouspower!!";
 
+	// Port range for candidate harvesting
+	private static final int MIN_PORT = 1025;
+	private static final int MAX_PORT = 65534;
+
+	// TODO This should be set in a configuration file - hrosa
 	private boolean stunSupported = false;
 	private boolean turnSupported = false;
 
@@ -76,11 +80,14 @@ public class IceLite {
 	 * @param isTrickling
 	 *            indicates whether the newly created agent should be performing
 	 *            trickle ICE.
+	 * @throws IceException
+	 *             When the components for the media streams cannot be created.
 	 * 
 	 * @throws Throwable
 	 *             if anything goes wrong.
 	 */
-	public Agent createAgent(int rtpPort, boolean isTrickling) throws Throwable {
+	public Agent createAgent(int rtpPort, boolean isTrickling)
+			throws IceException {
 		Agent agent = new Agent(CompatibilityMode.RFC5245);
 		agent.setTrickling(isTrickling);
 
@@ -135,10 +142,10 @@ public class IceLite {
 	 * @return an ICE <tt>Agent</tt> with an audio stream with RTP and RTCP
 	 *         components.
 	 * 
-	 * @throws Throwable
+	 * @throws IceException
 	 *             if anything goes wrong.
 	 */
-	public Agent createAgent(int rtpPort) throws Throwable {
+	public Agent createAgent(int rtpPort) throws IceException {
 		return this.createAgent(rtpPort, false);
 	}
 
@@ -155,33 +162,24 @@ public class IceLite {
 	 *            the <tt>Agent</tt> that should create the stream.
 	 * 
 	 * @return the newly created <tt>IceMediaStream</tt>.
-	 * @throws Throwable
+	 * @throws IceException
 	 *             if anything goes wrong.
 	 */
 	private IceMediaStream createStream(int rtpPort, String streamName,
-			Agent agent) throws Throwable {
+			Agent agent) throws IceException {
 		IceMediaStream stream = agent.createMediaStream(streamName);
-
-		// rtp
-		agent.createComponent(stream, Transport.UDP, rtpPort, rtpPort,
-				rtpPort + 100);
-
-		// rtcp
-		agent.createComponent(stream, Transport.UDP, rtpPort + 1, rtpPort + 1,
-				rtpPort + 101);
+		// TODO Validate port range - hrosa
+		try {
+			// rtp stream
+			agent.createComponent(stream, Transport.UDP, rtpPort, rtpPort,
+					rtpPort + 100);
+			// rtcp stream
+			agent.createComponent(stream, Transport.UDP, rtpPort + 1,
+					rtpPort + 1, rtpPort + 101);
+		} catch (Exception e) {
+			throw new IceException(
+					"Could not create component for media stream", e);
+		}
 		return stream;
 	}
-
-	/*
-	 * "MAIN"
-	 */
-	public void exec() throws Throwable {
-		// TODO Code to be integrated with Media Server
-		Agent localAgent = createAgent(3030);
-		localAgent.setControlling(false);
-		localAgent
-				.setNominationStrategy(NominationStrategy.NOMINATE_HIGHEST_PRIO);
-		localAgent.addStateChangeListener(new IceProcessingListener());
-	}
-
 }

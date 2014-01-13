@@ -23,7 +23,6 @@
 package org.mobicents.media.server.io.network;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
@@ -32,6 +31,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;

@@ -22,9 +22,6 @@
 
 package org.mobicents.media.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;

@@ -10,7 +10,7 @@ import org.ice4j.ice.IceMediaStream;
 import org.ice4j.ice.IceProcessingState;
 
 /**
- * Default listener that captures changes on the state of an ICE connection.
+ * Default listener that captures changes on the state of an ICE process.
  * 
  * @author Henrique Rosa
  * 
