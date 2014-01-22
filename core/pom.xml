@@ -67,11 +67,21 @@
             <artifactId>tones</artifactId>
             <version>${project.version}</version>
 	        </dependency>
-		<dependency>
-			<groupId>org.ice4j</groupId>
-			<artifactId>ice4j</artifactId>
-			<version>1.0.0</version>
-		</dependency>
+	<dependency>
+		<groupId>org.ice4j</groupId>
+		<artifactId>ice4j</artifactId>
+		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+		<groupId>org.bitlet</groupId>
+		<artifactId>weupnp</artifactId>
+		<version>0.1.2</version>
+	</dependency>
+	<dependency>
+		<groupId>xalan</groupId>
+		<artifactId>xalan</artifactId>
+		<version>2.6.0</version>
+	</dependency>
 		<dependency>
 			<groupId>javax.sip</groupId>
 			<artifactId>jain-sip-ri</artifactId>

@@ -23,7 +23,9 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.text.ParseException;
 
 import javax.sdp.SdpException;
@@ -43,6 +45,8 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+import org.mobicents.media.server.impl.rtp.sdp.CandidateField;
+import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
@@ -261,14 +265,14 @@ public class RtpConnectionImpl extends BaseConnection implements
 		 * Integrate with ICE Lite for WebRTC calls
 		 * https://bitbucket.org/telestax/telscale-media-server/issue/13
 		 */
+		Agent iceAgent = null;
 		if (isWebRTCProfile) {
 			try {
 				IceLite iceLite = new IceLite();
-				// TODO the min port for ICE candidate harvesting should be configurable
-				Agent iceAgent = iceLite.createAgent(61000);
-				iceAgent.setControlling(false);
-				iceAgent.setNominationStrategy(NominationStrategy.NOMINATE_HIGHEST_PRIO);
-				iceAgent.addStateChangeListener(new IceProcessingListener());
+				// TODO the min port for ICE candidate harvesting should be
+				// configurable
+				iceAgent = iceLite.createAgent(
+						this.rtpAudioChannel.getLocalPort(), true);
 				descriptor2 = SdpNegotiator.answer(iceAgent, descriptor2);
 			} catch (SdpException e1) {
 				// TODO Auto-generated catch block
@@ -296,13 +300,29 @@ public class RtpConnectionImpl extends BaseConnection implements
 			}
 		}
 
-		String address = null;
+		String peerAddress = null;
+		int peerPort = -1;
 		if (sdp.getAudioDescriptor() != null) {
-			address = sdp.getAudioDescriptor().getConnection() != null ? sdp
-					.getAudioDescriptor().getConnection().getAddress() : sdp
-					.getConnection().getAddress();
-			rtpAudioChannel.setPeer(new InetSocketAddress(address, sdp
-					.getAudioDescriptor().getPort()));
+			MediaDescriptorField audioDescriptor = sdp.getAudioDescriptor();
+			if (isWebRTCProfile) {
+				// For WebRTC connections its necessary to query for the address
+				// of the most relevant candidate
+				CandidateField candidate = audioDescriptor
+						.getMostRelevantCandidate();
+				peerAddress = candidate.getAddress().toString();
+				peerPort = candidate.getPort().toInteger();
+			} else {
+				// For regular calls the connection description defined at media
+				// level takes priority over the session-wide connection line
+				if (audioDescriptor.getConnection() != null) {
+					peerAddress = audioDescriptor.getConnection().getAddress();
+				} else {
+					peerAddress = sdp.getConnection().getAddress();
+				}
+				peerPort = audioDescriptor.getPort();
+			}
+			rtpAudioChannel
+					.setPeer(new InetSocketAddress(peerAddress, peerPort));
 		}
 
 		// FIXME Should reply with a m=audio line with port=0 to reject the

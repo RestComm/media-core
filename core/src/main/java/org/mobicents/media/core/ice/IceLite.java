@@ -5,6 +5,7 @@ import org.ice4j.TransportAddress;
 import org.ice4j.ice.Agent;
 import org.ice4j.ice.CompatibilityMode;
 import org.ice4j.ice.IceMediaStream;
+import org.ice4j.ice.NominationStrategy;
 import org.ice4j.ice.harvest.StunCandidateHarvester;
 import org.ice4j.ice.harvest.TurnCandidateHarvester;
 import org.ice4j.ice.harvest.UPNPHarvester;
@@ -90,6 +91,9 @@ public class IceLite {
 			throws IceException {
 		Agent agent = new Agent(CompatibilityMode.RFC5245);
 		agent.setTrickling(isTrickling);
+		agent.setControlling(false);
+		agent.setNominationStrategy(NominationStrategy.NOMINATE_HIGHEST_PRIO);
+		agent.addStateChangeListener(new IceProcessingListener());
 
 		// TODO Dynamically change port -hrosa
 		final int port = 3478;
@@ -123,7 +127,7 @@ public class IceLite {
 
 		// UPnP: adding an UPnP harvester because they are generally slow which
 		// makes it more convenient to test things like trickle.
-		agent.addCandidateHarvester(new UPNPHarvester());
+		// agent.addCandidateHarvester(new UPNPHarvester());
 
 		// STREAMS
 		createStream(rtpPort, "audio", agent);
@@ -172,10 +176,11 @@ public class IceLite {
 		try {
 			// rtp stream
 			agent.createComponent(stream, Transport.UDP, rtpPort, rtpPort,
-					rtpPort + 100);
+					MAX_PORT);
 			// rtcp stream
-			agent.createComponent(stream, Transport.UDP, rtpPort + 1,
-					rtpPort + 1, rtpPort + 101);
+			// FIXME When RTCP is supported, the port should be RTPport+1 -hrosa
+			// agent.createComponent(stream, Transport.UDP, rtpPort - 1,
+			// rtpPort - 1, rtpPort - 1);
 		} catch (Exception e) {
 			throw new IceException(
 					"Could not create component for media stream", e);

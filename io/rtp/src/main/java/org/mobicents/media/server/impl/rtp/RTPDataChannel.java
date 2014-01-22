@@ -318,6 +318,7 @@ public class RTPDataChannel {
         } catch (IOException e) {
             throw new SocketException(e.getMessage());
         }
+    	
         //bind data channel
     	if(!isLocal) {
     		this.rxBuffer.setBufferInUse(true);

@@ -449,4 +449,15 @@ public class MediaDescriptorField {
 		this.webRTCFingerprint = webRTCFingerprint;
 	}
 
+	public List<CandidateField> getCandidates() {
+		return candidates;
+	}
+	
+	public CandidateField getMostRelevantCandidate() {
+		if(this.candidates == null || this.candidates.isEmpty()) {
+			return null;
+		}
+		return this.candidates.get(0);
+	}
+	
 }
