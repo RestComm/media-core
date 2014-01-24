@@ -23,22 +23,18 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.text.ParseException;
 
 import javax.sdp.SdpException;
 
 import org.apache.log4j.Logger;
 import org.ice4j.ice.Agent;
-import org.ice4j.ice.NominationStrategy;
 import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
 import org.mobicents.media.core.ice.IceException;
-import org.mobicents.media.core.ice.IceLite;
-import org.mobicents.media.core.ice.IceProcessingListener;
-import org.mobicents.media.core.ice.SdpNegotiator;
+import org.mobicents.media.core.ice.IceFactory;
+import org.mobicents.media.core.sdp.SdpNegotiator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -67,18 +63,17 @@ import org.mobicents.media.server.utils.Text;
  * 
  * @author Oifa Yulian
  * @author amit bhayani
+ * @author Henrique Rosa
  */
 public class RtpConnectionImpl extends BaseConnection implements
 		RTPChannelListener {
-	private final static AudioFormat DTMF = FormatFactory.createAudioFormat(
+	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat(
 			"telephone-event", 8000);
-	private final static AudioFormat format = FormatFactory.createAudioFormat(
+	private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat(
 			"LINEAR", 8000, 16, 1);
 
 	private RTPDataChannel rtpAudioChannel;
 	// TODO Add a video RTP Channel - hrosa
-
-	private SessionDescription sdp = new SessionDescription();
 
 	private boolean isAudioCapabale;
 	// TODO Add a flag to define whether is capable of video - hrosa
@@ -88,11 +83,16 @@ public class RtpConnectionImpl extends BaseConnection implements
 	protected RTPFormats applicationFormats;
 
 	// SDP template
-	protected SdpTemplate template;
-	protected String descriptor;
+	private SessionDescription sdp = new SessionDescription();
 
-	// negotiated sdp
-	private String descriptor2;
+	protected SdpTemplate template;
+	protected String sdpOffer;
+	private String sdpAnswer;
+
+	// WebRTC
+	private boolean webRtc;
+	private Agent iceAgent;
+
 	private boolean isLocal = false;
 	private ConnectionFailureListener connectionFailureListener;
 
@@ -130,6 +130,27 @@ public class RtpConnectionImpl extends BaseConnection implements
 		this.applicationFormats = getRTPMap(AVProfile.application);
 
 		template = new SdpTemplate(this.audioFormats, this.videoFormats);
+	}
+
+	/**
+	 * Gets the ICE agent for this connection.<br>
+	 * An ICE agent is only available if the connection is WebRTC and only after
+	 * the remote peer was set.
+	 * 
+	 * @return The ICE-lite agent for the WebRTC connection.
+	 */
+	public Agent getIceAgent() {
+		return iceAgent;
+	}
+
+	/**
+	 * Indicates whether this connection was set for a WebRTC call.<br>
+	 * This can only be known after the SDP offer is received and processed.
+	 * 
+	 * @return Returns whether this connection addresses a WebRTC call.
+	 */
+	public boolean isWebRtc() {
+		return webRtc;
 	}
 
 	public AudioComponent getAudioComponent() {
@@ -177,11 +198,11 @@ public class RtpConnectionImpl extends BaseConnection implements
 		if (rtpAudioChannel.getOutputDsp() != null) {
 			Codec[] currCodecs = rtpAudioChannel.getOutputDsp().getCodecs();
 			for (int i = 0; i < currCodecs.length; i++)
-				if (currCodecs[i].getSupportedInputFormat().matches(format))
+				if (currCodecs[i].getSupportedInputFormat().matches(LINEAR_FORMAT))
 					fmts.add(currCodecs[i].getSupportedOutputFormat());
 		}
 
-		fmts.add(DTMF);
+		fmts.add(DTMF_FORMAT);
 
 		if (fmts != null) {
 			for (int i = 0; i < fmts.size(); i++) {
@@ -211,69 +232,50 @@ public class RtpConnectionImpl extends BaseConnection implements
 			logger.info("Audio Formats" + sdp.getAudioDescriptor().getFormats());
 		}
 
-		if (sdp != null && sdp.getVideoDescriptor() != null
-				&& sdp.getVideoDescriptor().getFormats() != null) {
-			logger.info("Video Formats" + sdp.getVideoDescriptor().getFormats());
-		}
-
-		if (sdp != null && sdp.getApplicationDescriptor() != null
-				&& sdp.getApplicationDescriptor().getFormats() != null) {
-			logger.info("Application Formats"
-					+ sdp.getApplicationDescriptor().getFormats());
-		}
-
-		boolean isWebRTCProfile = sdp.getAudioDescriptor().isWebRTCProfile();
-		if (isWebRTCProfile) {
-			Text remotePeerFingerprint = sdp.getAudioDescriptor()
-					.getWebRTCFingerprint();
-			rtpAudioChannel.setWebRTCEncryptionEnabled(isWebRTCProfile,
-					remotePeerFingerprint);
-		}
-
 		/*
 		 * Build SDP answer
 		 */
-		SdpTemplate sdpTemplate = (!isLocal && isWebRTCProfile) ? new WebRTCSdpTemplate(
-				this.sdp) : new SdpTemplate(this.sdp);
+		this.webRtc = sdp.getAudioDescriptor().isWebRTCProfile();
 
-		// Session-level descriptors
-		sdpTemplate.setBindAddress(isLocal ? channelsManager
-				.getLocalBindAddress() : channelsManager.getBindAddress());
-		sdpTemplate.setNetworkType("IN");
-		sdpTemplate.setAddressType("IP4");
-		sdpTemplate.setConnectionAddress(isLocal ? channelsManager
-				.getLocalBindAddress() : channelsManager.getBindAddress());
-
-		// Media Descriptors
-		sdpTemplate.setSupportedAudioFormats(this.audioFormats);
-		sdpTemplate.setAudioPort(rtpAudioChannel.getLocalPort());
-
-		if (sdpTemplate instanceof WebRTCSdpTemplate) {
-			// TODO Update video port based on video channel configuration -
-			// hrosa
-			sdpTemplate.setSupportedVideoFormats(this.videoFormats);
-			sdpTemplate.setVideoPort(0);
-			// TODO Update application port based on video channel configuration
-			// - hrosa
-			sdpTemplate.setSupportedApplicationFormats(this.applicationFormats);
-			sdpTemplate.setApplicationPort(0);
+		SdpTemplate sdpAnswerTemplate;
+		if (!isLocal && this.webRtc) {
+			sdpAnswerTemplate = new WebRTCSdpTemplate(this.sdp);
+		} else {
+			sdpAnswerTemplate = new SdpTemplate(this.sdp);
 		}
 
-		descriptor2 = sdpTemplate.build();
+		// Session-level descriptors
+		String bindAddress = isLocal ? channelsManager.getLocalBindAddress()
+				: channelsManager.getBindAddress();
+		sdpAnswerTemplate.setBindAddress(bindAddress);
+		sdpAnswerTemplate.setNetworkType("IN");
+		sdpAnswerTemplate.setAddressType("IP4");
+		sdpAnswerTemplate.setConnectionAddress(bindAddress);
+
+		// Media Descriptors
+		sdpAnswerTemplate.setSupportedAudioFormats(this.audioFormats);
+		sdpAnswerTemplate.setAudioPort(rtpAudioChannel.getLocalPort());
+
+		if (sdpAnswerTemplate instanceof WebRTCSdpTemplate) {
+			// TODO Update video port based on video channel configuration
+			sdpAnswerTemplate.setSupportedVideoFormats(this.videoFormats);
+			sdpAnswerTemplate.setVideoPort(0);
+			// TODO Update application port based on video channel configuration
+			sdpAnswerTemplate
+					.setSupportedApplicationFormats(this.applicationFormats);
+			sdpAnswerTemplate.setApplicationPort(0);
+		}
+		sdpAnswer = sdpAnswerTemplate.build();
 
 		/*
 		 * Integrate with ICE Lite for WebRTC calls
 		 * https://bitbucket.org/telestax/telscale-media-server/issue/13
 		 */
-		Agent iceAgent = null;
-		if (isWebRTCProfile) {
+		if (this.webRtc) {
 			try {
-				IceLite iceLite = new IceLite();
-				// TODO the min port for ICE candidate harvesting should be
-				// configurable
-				iceAgent = iceLite.createAgent(
-						this.rtpAudioChannel.getLocalPort(), true);
-				descriptor2 = SdpNegotiator.answer(iceAgent, descriptor2);
+				this.iceAgent = IceFactory.createLiteAgent(this.rtpAudioChannel
+						.getLocalPort());
+				sdpAnswer = SdpNegotiator.answer(iceAgent, sdpAnswer);
 			} catch (SdpException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -286,10 +288,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 		/*
 		 * Configure RTP Audio Channel
 		 */
-		// sdpComparator.negotiate(sdp, this.audioFormats, this.videoFormats);
-		// RTPFormats audio = sdpComparator.getAudio();
-		RTPFormats audio = sdpTemplate.getNegotiatedAudioFormats();
-
+		RTPFormats audio = sdpAnswerTemplate.getNegotiatedAudioFormats();
 		if (!audio.isEmpty()) {
 			rtpAudioChannel.setFormatMap(audioFormats);
 			try {
@@ -300,11 +299,17 @@ public class RtpConnectionImpl extends BaseConnection implements
 			}
 		}
 
+		if (this.webRtc) {
+			Text remotePeerFingerprint = sdp.getAudioDescriptor()
+					.getWebRTCFingerprint();
+			rtpAudioChannel.enableWebRTC(remotePeerFingerprint);
+		}
+
 		String peerAddress = null;
 		int peerPort = -1;
 		if (sdp.getAudioDescriptor() != null) {
 			MediaDescriptorField audioDescriptor = sdp.getAudioDescriptor();
-			if (isWebRTCProfile) {
+			if (this.webRtc) {
 				// For WebRTC connections its necessary to query for the address
 				// of the most relevant candidate
 				CandidateField candidate = audioDescriptor
@@ -365,7 +370,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 */
 	@Override
 	public String getDescriptor() {
-		return descriptor2 != null ? descriptor2 : descriptor;
+		return sdpAnswer != null ? sdpAnswer : sdpOffer;
 	}
 
 	public long getPacketsReceived() {
@@ -420,17 +425,13 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	@Override
 	protected void onCreated() throws Exception {
-		if (this.isAudioCapabale)
+		if (this.isAudioCapabale) {
 			rtpAudioChannel.bind(isLocal);
-
-		if (!isLocal)
-			descriptor = template.getSDP(channelsManager.getBindAddress(),
-					"IN", "IP4", channelsManager.getBindAddress(),
-					rtpAudioChannel.getLocalPort(), 0);
-		else
-			descriptor = template.getSDP(channelsManager.getLocalBindAddress(),
-					"IN", "IP4", channelsManager.getLocalBindAddress(),
-					rtpAudioChannel.getLocalPort(), 0);
+		}
+		String bindAddress = isLocal ? channelsManager.getLocalBindAddress()
+				: channelsManager.getBindAddress();
+		sdpOffer = template.getSDP(bindAddress, "IN", "IP4", bindAddress,
+				rtpAudioChannel.getLocalPort(), 0);
 	}
 
 	@Override
@@ -448,7 +449,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	@Override
 	protected void onClosed() {
-		descriptor2 = null;
+		sdpAnswer = null;
 
 		try {
 			setMode(ConnectionMode.INACTIVE);

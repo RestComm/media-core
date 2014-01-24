@@ -1,4 +1,4 @@
-package org.mobicents.media.core.ice;
+package org.mobicents.media.core.sdp;
 
 import java.util.List;
 import java.util.Vector;

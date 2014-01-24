@@ -12,25 +12,23 @@ import org.ice4j.ice.harvest.UPNPHarvester;
 import org.ice4j.security.LongTermCredential;
 
 /**
- * ICE Lite implementation using ice4j.
  * 
  * @author Henrique Rosa
  * 
  */
-public class IceLite {
+public class IceFull {
+
+	// Port range for candidate harvesting
+	private static final int MIN_PORT = 1025;
+	private static final int MAX_PORT = 65534;
 
 	public static final String STUN_SERVER_JITSI = "stun.jitsi.net";
 	public static final String STUN6_SERVER_JITSI = "stun6.jitsi.net";
 	public static final String STUN_SERVER_JITSI_USERNAME = "guest";
 	public static final String STUN_SERVER_JITSI_PASSWORD = "anonymouspower!!";
 
-	// Port range for candidate harvesting
-	private static final int MIN_PORT = 1025;
-	private static final int MAX_PORT = 65534;
-
-	// TODO This should be set in a configuration file - hrosa
-	private boolean stunSupported = false;
-	private boolean turnSupported = false;
+	protected boolean stunSupported = false;
+	protected boolean turnSupported = false;
 
 	/**
 	 * Indicates whether STUN is supported
@@ -73,7 +71,7 @@ public class IceLite {
 	 * of <tt>isTrickling</tt>) and adds to it an audio stream with RTP and RTCP
 	 * components.
 	 * 
-	 * @param rtpPort
+	 * @param preferredPort
 	 *            the port that we should try to bind the RTP component on (the
 	 *            RTCP one would automatically go to rtpPort + 1)
 	 * @return an ICE <tt>Agent</tt> with an audio stream with RTP and RTCP
@@ -87,13 +85,12 @@ public class IceLite {
 	 * @throws Throwable
 	 *             if anything goes wrong.
 	 */
-	public Agent createAgent(int rtpPort, boolean isTrickling)
-			throws IceException {
+	public Agent createAgent(int preferredPort, boolean isTrickling,
+			boolean isControlling) throws IceException {
 		Agent agent = new Agent(CompatibilityMode.RFC5245);
 		agent.setTrickling(isTrickling);
-		agent.setControlling(false);
+		agent.setControlling(isControlling);
 		agent.setNominationStrategy(NominationStrategy.NOMINATE_HIGHEST_PRIO);
-		agent.addStateChangeListener(new IceProcessingListener());
 
 		// TODO Dynamically change port -hrosa
 		final int port = 3478;
@@ -127,20 +124,19 @@ public class IceLite {
 
 		// UPnP: adding an UPnP harvester because they are generally slow which
 		// makes it more convenient to test things like trickle.
-		// agent.addCandidateHarvester(new UPNPHarvester());
+		agent.addCandidateHarvester(new UPNPHarvester());
 
 		// STREAMS
-		createStream(rtpPort, "audio", agent);
-		// TODO Add support for video - hrosa
+		createStream(preferredPort, "audio", agent);
 
 		return agent;
 	}
 
 	/**
-	 * Creates a Vanilla ICE <tt>Agent</tt> and adds to it an audio stream with
-	 * RTP and RTCP components.
+	 * Creates an ICE <tt>Agent</tt> and adds to it an audio stream with RTP and
+	 * RTCP components.
 	 * 
-	 * @param rtpPort
+	 * @param preferred
 	 *            the port that we should try to bind the RTP component on (the
 	 *            RTCP one would automatically go to rtpPort + 1)
 	 * @return an ICE <tt>Agent</tt> with an audio stream with RTP and RTCP
@@ -149,8 +145,8 @@ public class IceLite {
 	 * @throws IceException
 	 *             if anything goes wrong.
 	 */
-	public Agent createAgent(int rtpPort) throws IceException {
-		return this.createAgent(rtpPort, false);
+	public Agent createAgent(int preferred) throws IceException {
+		return this.createAgent(preferred, true, true);
 	}
 
 	/**
@@ -169,22 +165,23 @@ public class IceLite {
 	 * @throws IceException
 	 *             if anything goes wrong.
 	 */
-	private IceMediaStream createStream(int rtpPort, String streamName,
+	public IceMediaStream createStream(int rtpPort, String streamName,
 			Agent agent) throws IceException {
-		IceMediaStream stream = agent.createMediaStream(streamName);
-		// TODO Validate port range - hrosa
 		try {
-			// rtp stream
+			// Create media stream
+			IceMediaStream stream = agent.createMediaStream(streamName);
+
+			// Create RTP/RTCP components for the media stream
 			agent.createComponent(stream, Transport.UDP, rtpPort, rtpPort,
 					MAX_PORT);
-			// rtcp stream
 			// FIXME When RTCP is supported, the port should be RTPport+1 -hrosa
 			// agent.createComponent(stream, Transport.UDP, rtpPort - 1,
 			// rtpPort - 1, rtpPort - 1);
+			return stream;
 		} catch (Exception e) {
 			throw new IceException(
 					"Could not create component for media stream", e);
 		}
-		return stream;
 	}
+
 }

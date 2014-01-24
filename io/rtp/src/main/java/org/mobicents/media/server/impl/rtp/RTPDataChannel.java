@@ -843,6 +843,15 @@ public class RTPDataChannel {
 		this.isWebRTCChannel = shouldEncrypt;
 		this.setRemoteWebRTCPeerFingerprint(remotePeerFingerprint);
 	}
+	
+	/**
+	 * Enables WebRTC encryption for the RTP channel.
+	 * @param remotePeerFingerprint
+	 */
+	public void enableWebRTC(Text remotePeerFingerprint) {
+		this.isWebRTCChannel = true;
+		this.setRemoteWebRTCPeerFingerprint(remotePeerFingerprint);
+	}
 
 	/**
 	 * 
