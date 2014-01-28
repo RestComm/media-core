@@ -13,12 +13,12 @@ import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;
 
 import org.ice4j.TransportAddress;
-import org.ice4j.ice.Agent;
 import org.ice4j.ice.Candidate;
 import org.ice4j.ice.Component;
 import org.ice4j.ice.IceMediaStream;
 import org.ice4j.ice.sdp.CandidateAttribute;
 import org.ice4j.ice.sdp.IceSdpUtils;
+import org.mobicents.media.core.ice.IceAgent;
 
 /**
  * Negotiates Session Description contents, including ICE candidates.
@@ -28,7 +28,7 @@ import org.ice4j.ice.sdp.IceSdpUtils;
  */
 public class SdpNegotiator {
 
-	public static void updateSDP(SessionDescription sdp, Agent agent)
+	public static void updateSDP(SessionDescription sdp, IceAgent agent)
 			throws SdpException {
 		SdpFactory sdpFactory = SdpFactory.getInstance();
 
@@ -41,8 +41,6 @@ public class SdpNegotiator {
 			iceOptionsBuilder.append(IceSdpUtils.ICE_OPTION_TRICKLE)
 					.append(" ");
 		}
-
-		// TODO add other ice-options as necessary - hrosa
 
 		String iceOptions = iceOptionsBuilder.toString().trim();
 		if (!iceOptions.isEmpty()) {
@@ -172,7 +170,7 @@ public class SdpNegotiator {
 				agent.getLocalPassword());
 	}
 
-	public static String answer(Agent localAgent, String sdp)
+	public static String answer(IceAgent localAgent, String sdp)
 			throws SdpException {
 		SdpFactory factory = SdpFactory.getInstance();
 		SessionDescription sessionDescription = factory

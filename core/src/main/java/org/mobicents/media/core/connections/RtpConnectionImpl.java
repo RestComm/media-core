@@ -29,9 +29,10 @@ import java.text.ParseException;
 import javax.sdp.SdpException;
 
 import org.apache.log4j.Logger;
-import org.ice4j.ice.Agent;
+import org.mobicents.media.core.MediaTypes;
 import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
+import org.mobicents.media.core.ice.IceAgent;
 import org.mobicents.media.core.ice.IceException;
 import org.mobicents.media.core.ice.IceFactory;
 import org.mobicents.media.core.sdp.SdpNegotiator;
@@ -67,39 +68,38 @@ import org.mobicents.media.server.utils.Text;
  */
 public class RtpConnectionImpl extends BaseConnection implements
 		RTPChannelListener {
-	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat(
-			"telephone-event", 8000);
-	private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat(
-			"LINEAR", 8000, 16, 1);
+	private static final Logger logger = Logger
+			.getLogger(RtpConnectionImpl.class);
+	
+	// Registered formats
+	private final static AudioFormat DTMF_FORMAT = FormatFactory
+			.createAudioFormat("telephone-event", 8000);
+	private final static AudioFormat LINEAR_FORMAT = FormatFactory
+			.createAudioFormat("LINEAR", 8000, 16, 1);
 
+	// Audio Channel
+	private ChannelsManager channelsManager;
 	private RTPDataChannel rtpAudioChannel;
-	// TODO Add a video RTP Channel - hrosa
-
 	private boolean isAudioCapabale;
-	// TODO Add a flag to define whether is capable of video - hrosa
 
+	// Session Description
+	private SessionDescription sdp = new SessionDescription();
+	protected SdpTemplate template;
+	protected String sdpOffer;
+	private String sdpAnswer;
+	
+	// Supported formats
 	protected RTPFormats audioFormats;
 	protected RTPFormats videoFormats;
 	protected RTPFormats applicationFormats;
 
-	// SDP template
-	private SessionDescription sdp = new SessionDescription();
-
-	protected SdpTemplate template;
-	protected String sdpOffer;
-	private String sdpAnswer;
-
 	// WebRTC
 	private boolean webRtc;
-	private Agent iceAgent;
+	private IceAgent iceAgent;
 
+	// Connection status
 	private boolean isLocal = false;
 	private ConnectionFailureListener connectionFailureListener;
-
-	private static final Logger logger = Logger
-			.getLogger(RtpConnectionImpl.class);
-
-	private ChannelsManager channelsManager;
 
 	public RtpConnectionImpl(int id, ChannelsManager channelsManager,
 			DspFactory dspFactory) {
@@ -139,7 +139,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 * 
 	 * @return The ICE-lite agent for the WebRTC connection.
 	 */
-	public Agent getIceAgent() {
+	public IceAgent getIceAgent() {
 		return iceAgent;
 	}
 
@@ -198,7 +198,8 @@ public class RtpConnectionImpl extends BaseConnection implements
 		if (rtpAudioChannel.getOutputDsp() != null) {
 			Codec[] currCodecs = rtpAudioChannel.getOutputDsp().getCodecs();
 			for (int i = 0; i < currCodecs.length; i++)
-				if (currCodecs[i].getSupportedInputFormat().matches(LINEAR_FORMAT))
+				if (currCodecs[i].getSupportedInputFormat().matches(
+						LINEAR_FORMAT))
 					fmts.add(currCodecs[i].getSupportedOutputFormat());
 		}
 
@@ -273,8 +274,9 @@ public class RtpConnectionImpl extends BaseConnection implements
 		 */
 		if (this.webRtc) {
 			try {
-				this.iceAgent = IceFactory.createLiteAgent(this.rtpAudioChannel
-						.getLocalPort());
+				this.iceAgent = IceFactory.createLiteAgent();
+				this.iceAgent.createStream(this.rtpAudioChannel.getLocalPort(),
+						MediaTypes.AUDIO.description());
 				sdpAnswer = SdpNegotiator.answer(iceAgent, sdpAnswer);
 			} catch (SdpException e1) {
 				// TODO Auto-generated catch block
@@ -330,8 +332,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 					.setPeer(new InetSocketAddress(peerAddress, peerPort));
 		}
 
-		// FIXME Should reply with a m=audio line with port=0 to reject the
-		// audio offer - hrosa
 		if (audio.isEmpty() || !audio.hasNonDTMF()) {
 			throw new IOException("Codecs are not negotiated");
 		}
@@ -349,7 +349,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 		} catch (ParseException e) {
 			throw new IOException(e.getMessage());
 		}
-		;
 		setOtherParty();
 	}
 
@@ -359,7 +358,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 		} catch (ParseException e) {
 			throw new IOException(e.getMessage());
 		}
-		;
 		setOtherParty();
 	}
 
