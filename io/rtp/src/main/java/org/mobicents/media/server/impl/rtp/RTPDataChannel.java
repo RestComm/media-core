@@ -71,6 +71,8 @@ public class RTPDataChannel {
 	// UDP channels
 	private DatagramChannel dataChannel;
 	private DatagramChannel controlChannel;
+	
+	private boolean dataChannelBound = false;
 
 	// Receiver and transmitter
 	private RTPInput input;
@@ -304,6 +306,7 @@ public class RTPDataChannel {
 			this.rxBuffer.setBufferInUse(false);
 			udpManager.bindLocal(dataChannel, PORT_ANY);
 		}
+		this.dataChannelBound = true;
 
 		// if control enabled open rtcp channel as well
 		if (channelsManager.getIsControlEnabled()) {
@@ -314,6 +317,10 @@ public class RTPDataChannel {
 				udpManager.bindLocal(controlChannel, dataChannel.socket()
 						.getLocalPort() + 1);
 		}
+	}
+	
+	public boolean isDataChannelBound() {
+		return dataChannelBound;
 	}
 
 	/**
@@ -475,7 +482,9 @@ public class RTPDataChannel {
 		}
 
 		private void flush() {
-			rx.flush();
+			if(dataChannelBound) {
+				rx.flush();
+			}
 		}
 
 		public void onClosed() {
