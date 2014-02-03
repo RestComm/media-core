@@ -22,14 +22,29 @@
 
 package org.mobicents.media.core.connections;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.channels.DatagramChannel;
 import java.text.ParseException;
+import java.util.List;
 
 import javax.sdp.SdpException;
+import javax.sdp.SdpParseException;
 
 import org.apache.log4j.Logger;
+import org.ice4j.TransportAddress;
+import org.ice4j.ice.Agent;
+import org.ice4j.ice.Component;
+import org.ice4j.ice.IceMediaStream;
+import org.ice4j.ice.IceProcessingState;
+import org.ice4j.ice.LocalCandidate;
+import org.ice4j.ice.RemoteCandidate;
+import org.ice4j.socket.DatagramSocketFactory;
+import org.ice4j.socket.DelegatingDatagramSocket;
 import org.mobicents.media.core.MediaTypes;
 import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
@@ -86,7 +101,8 @@ public class RtpConnectionImpl extends BaseConnection implements
 	private SessionDescription sdp = new SessionDescription();
 	protected SdpTemplate offerTemplate;
 	protected SdpTemplate answerTemplate;
-	protected String sdpOffer;
+	private SdpNegotiator sdpNegotiator;
+	private String sdpOffer;
 	private String sdpAnswer;
 
 	// Supported formats
@@ -94,9 +110,13 @@ public class RtpConnectionImpl extends BaseConnection implements
 	protected RTPFormats videoFormats;
 	protected RTPFormats applicationFormats;
 
-	// WebRTC
-	private boolean webRtc;
+	// ICE
+	private boolean useIce;
 	private IceAgent iceAgent;
+	private static final DatagramSocketFactory NIO_SOCKET_FACTORY = new IceNioSocketFactory();
+
+	// WebRTC
+	private boolean useWebRtc;
 
 	// Connection status
 	private boolean isLocal = false;
@@ -150,8 +170,18 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 * 
 	 * @return Returns whether this connection addresses a WebRTC call.
 	 */
-	public boolean isWebRtc() {
-		return webRtc;
+	public boolean isUsingWebRtc() {
+		return useWebRtc;
+	}
+
+	/**
+	 * Indicates whether this connection is using ICE.<br>
+	 * This can only be known after the SDP offer is received.
+	 * 
+	 * @return Returns whether this connection uses ICE to process a call.
+	 */
+	public boolean isUsingIce() {
+		return useIce;
 	}
 
 	public AudioComponent getAudioComponent() {
@@ -281,10 +311,12 @@ public class RtpConnectionImpl extends BaseConnection implements
 			throw new IOException(e);
 		}
 
-		// Audio channel will only be initialized in case of regular SIP calls
-		// For WebRTC calls, we need to wait for the ICE agent to provide a
-		// socket
-		if (!webRtc) {
+		/*
+		 * For ICE-enabled calls, we need to wait for the ICE agent to provide a
+		 * socket. This only happens once the SDP has been exchanged between
+		 * both parties and ICE agent replies to remote connectivity checks.
+		 */
+		if (!useIce) {
 			setAudioChannelRemotePeer(this.sdp.getAudioDescriptor());
 		}
 
@@ -308,7 +340,10 @@ public class RtpConnectionImpl extends BaseConnection implements
 	public void setOtherParty(Text descriptor) throws IOException {
 		try {
 			sdp.init(descriptor);
+			this.sdpNegotiator = new SdpNegotiator(descriptor.toString());
 		} catch (ParseException e) {
+			throw new IOException(e.getMessage());
+		} catch (SdpParseException e) {
 			throw new IOException(e.getMessage());
 		}
 		setOtherParty();
@@ -380,6 +415,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 				: channelsManager.getBindAddress();
 		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4",
 				bindAddress, rtpAudioChannel.getLocalPort(), 0);
+		this.sdpNegotiator = new SdpNegotiator(this.sdpOffer);
 	}
 
 	@Override
@@ -425,34 +461,50 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 *             When binding the audio data channel. Non-WebRTC calls only.
 	 */
 	private void processSdpOffer() throws SocketException, IOException {
-		// WebRTC check
-		this.webRtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
-		if (this.webRtc) {
-			/*
-			 * Integrate with ICE Lite for WebRTC calls
-			 * https://bitbucket.org/telestax/telscale-media-server/issue/13
-			 */
-			this.iceAgent = IceFactory.createLiteAgent();
-			try {
-				if (this.isAudioCapabale) {
-					this.iceAgent.createStream(
-							this.rtpAudioChannel.getLocalPort(),
-							MediaTypes.AUDIO.description());
-				}
-			} catch (IceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		this.useWebRtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
+		this.useIce = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
 
-			/*
-			 * Configure WebRTC-related resources on audio channel
-			 */
+		if (this.useWebRtc) {
+			// Configure WebRTC-related resources on audio channel
 			Text remotePeerFingerprint = this.sdp.getAudioDescriptor()
 					.getWebRTCFingerprint();
 			rtpAudioChannel.enableWebRTC(remotePeerFingerprint);
+		}
+
+		/*
+		 * For ICE-enabled calls, the RTP channels can only be bound after the
+		 * ICE agent selected the candidate pairs. Since Media Server only
+		 * implements ICE-lite, we need to wait for the SDP to be exchanged
+		 * before we know which candidate socket to use.
+		 * 
+		 * https://telestax.atlassian.net/browse/MEDIA-16
+		 */
+		if (this.useIce) {
+			// Force ice4j to use a factory that produces NIO sockets
+			DelegatingDatagramSocket
+					.setDefaultDelegateFactory(NIO_SOCKET_FACTORY);
+
+			// Integrate with ICE Lite for WebRTC calls
+			// https://telestax.atlassian.net/browse/MEDIA-13
+			this.iceAgent = IceFactory.createLiteAgent();
+			this.sdpNegotiator.setIceAgent(iceAgent);
+
+			// Create streams for the agent to match the ones in the SDP offer
+			try {
+				this.iceAgent.createStream(61000, MediaTypes.AUDIO.lowerName());
+				this.sdpNegotiator.setIceRemoteCandidates(MediaTypes.AUDIO
+						.lowerName());
+			} catch (IceException e) {
+				throw new IOException(
+						"Cannot create audio stream for ICE agent.", e);
+			}
+
+			Component audioComponent = this.iceAgent
+					.findRtpComponent(MediaTypes.AUDIO.lowerName());
+			// FIXME cannot bind to ICE socket because it does not use NIO - hrosa
+			// this.rtpAudioChannel.bind(audioComponent.getDefaultCandidate().getDatagramSocket());
 		} else {
-			// If this is NOT a WebRTC call, the RTP audio channel can be bound
-			// to a DatagramChannel
+			// For non-ICE calls the RTP audio channel can be bound immediately
 			this.rtpAudioChannel.bind(this.isLocal);
 		}
 	}
@@ -465,7 +517,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 *             In case the SDP is malformed
 	 */
 	private void generateSdpAnswer() throws SdpException {
-		if (!isLocal && this.webRtc) {
+		if (!isLocal && this.useWebRtc) {
 			this.answerTemplate = new WebRTCSdpTemplate(this.sdp);
 		} else {
 			this.answerTemplate = new SdpTemplate(this.sdp);
@@ -494,12 +546,12 @@ public class RtpConnectionImpl extends BaseConnection implements
 		}
 
 		this.sdpAnswer = this.answerTemplate.build();
-		if (this.webRtc) {
-			this.sdpAnswer = SdpNegotiator
-					.answer(this.iceAgent, this.sdpAnswer);
+		if (this.useWebRtc) {
+			this.sdpAnswer = this.sdpNegotiator.answer(this.sdpAnswer)
+					.toString();
 		}
 	}
-	
+
 	/**
 	 * Binds the audio channel to its internal <code>bindAddress</code> and sets
 	 * the remote peer.
@@ -540,6 +592,21 @@ public class RtpConnectionImpl extends BaseConnection implements
 			peerAddress = sdp.getConnection().getAddress();
 		}
 		setAudioChannelRemotePeer(peerAddress, peerPort);
+	}
+
+	private static class IceNioSocketFactory implements
+			org.ice4j.socket.DatagramSocketFactory {
+
+		public DatagramSocket createUnboundDatagramSocket()
+				throws SocketException {
+			try {
+				DatagramChannel channel = DatagramChannel.open();
+				return channel.socket();
+			} catch (IOException e) {
+				throw new RuntimeException(
+						"Could not produce a NIO Socket for ICE agent.", e);
+			}
+		}
 	}
 
 }

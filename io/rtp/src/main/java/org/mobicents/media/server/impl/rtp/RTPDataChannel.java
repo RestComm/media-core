@@ -18,6 +18,7 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.SocketAddress;
@@ -71,7 +72,7 @@ public class RTPDataChannel {
 	// UDP channels
 	private DatagramChannel dataChannel;
 	private DatagramChannel controlChannel;
-	
+
 	private boolean dataChannelBound = false;
 
 	// Receiver and transmitter
@@ -318,11 +319,11 @@ public class RTPDataChannel {
 						.getLocalPort() + 1);
 		}
 	}
-	
+
 	public boolean isDataChannelBound() {
 		return dataChannelBound;
 	}
-
+	
 	/**
 	 * Gets the port number to which this channel is bound.
 	 * 
@@ -374,18 +375,20 @@ public class RTPDataChannel {
 	 * Closes this socket.
 	 */
 	public void close() {
-		if (dataChannel.isConnected())
-			try {
-				dataChannel.disconnect();
-			} catch (IOException e) {
-				logger.error(e);
+		if (dataChannel != null) {
+			if (dataChannel.isConnected()) {
+				try {
+					dataChannel.disconnect();
+				} catch (IOException e) {
+					logger.error(e);
+				}
+				try {
+					dataChannel.socket().close();
+					dataChannel.close();
+				} catch (IOException e) {
+					logger.error(e);
+				}
 			}
-
-		try {
-			dataChannel.socket().close();
-			dataChannel.close();
-		} catch (IOException e) {
-			logger.error(e);
 		}
 
 		if (controlChannel != null) {
@@ -482,7 +485,7 @@ public class RTPDataChannel {
 		}
 
 		private void flush() {
-			if(dataChannelBound) {
+			if (dataChannelBound) {
 				rx.flush();
 			}
 		}

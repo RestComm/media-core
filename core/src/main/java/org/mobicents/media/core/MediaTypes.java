@@ -9,15 +9,9 @@ package org.mobicents.media.core;
  * 
  */
 public enum MediaTypes {
-	AUDIO("audio"), VIDEO("video"), APPLICATION("application");
+	AUDIO, VIDEO, APPLICATION;
 
-	private String name;
-
-	private MediaTypes(String name) {
-		this.name = name;
-	}
-
-	public String description() {
-		return this.name;
+	public String lowerName() {
+		return name().toLowerCase();
 	}
 }

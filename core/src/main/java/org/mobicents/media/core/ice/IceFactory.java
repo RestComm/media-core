@@ -16,6 +16,7 @@ public class IceFactory {
 	 * It will only listen to incoming connectivity checks.
 	 * 
 	 * @return The ice-lite agent
+	 * @see <a href="http://tools.ietf.org/html/rfc5245#section-4.2">RFC5245</a>
 	 */
 	public static IceLiteAgent createLiteAgent() {
 		return new IceLiteAgent();

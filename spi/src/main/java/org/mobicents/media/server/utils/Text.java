@@ -512,6 +512,41 @@ public class Text implements CharSequence {
         else
         	return res;
     }
+    
+    /**
+     * Converts string value to long
+     * @return long value
+     */
+    public long toLong() throws NumberFormatException {
+        long res = 0;
+        byte currChar;
+        int i=1;
+        currChar=chars[pos];
+        boolean isMinus=false;
+        
+        if(currChar==minus_byte)
+        	isMinus=true;
+        else if(currChar>=zero_byte && currChar<=nine_byte)
+    		res+=currChar-zero_byte;
+    	else
+    		throw new NumberFormatException("value is not numeric");
+    	
+        for (; i < len; i++) {
+        	currChar=chars[pos+i];        		
+        	if(currChar>=zero_byte && currChar<=nine_byte)
+        	{
+        		res*=10;
+        		res+=currChar-zero_byte;
+        	}        
+        	else
+        		throw new NumberFormatException("value is not numeric");
+        }
+        
+        if(isMinus)
+        	return 0-res;
+        else
+        	return res;
+    }
 
     public int hexToInteger() throws NumberFormatException {
     	int res = 0;

@@ -68,8 +68,8 @@ public class CandidateField implements Comparable<CandidateField>{
 	 * <b>srflx:</b> Server reflexive address is the NATed IP address<br>
 	 */
 	private Text type;
-	private Text relayAddress;
-	private Text relayPort;
+	private Text relatedAddress;
+	private Text relatedPort;
 	private Text generation;
 
 	public CandidateField(Text line) {
@@ -104,12 +104,16 @@ public class CandidateField implements Comparable<CandidateField>{
 		return type;
 	}
 
-	public Text getRelayAddress() {
-		return relayAddress;
+	public Text getRelatedAddress() {
+		return relatedAddress;
+	}
+	
+	public boolean hasRelatedAddress() {
+		return this.relatedAddress != null;
 	}
 
-	public Text getRelayPort() {
-		return relayPort;
+	public Text getRelatedPort() {
+		return relatedPort;
 	}
 
 	public Text getGeneration() {
@@ -149,10 +153,10 @@ public class CandidateField implements Comparable<CandidateField>{
 			case SRFLX:
 				// skip raddr
 				iterator.next();
-				this.relayAddress = iterator.next();
+				this.relatedAddress = iterator.next();
 				// skip rport
 				iterator.next();
-				this.relayPort = iterator.next();
+				this.relatedPort = iterator.next();
 				break;
 			default:
 				break;
@@ -204,9 +208,9 @@ public class CandidateField implements Comparable<CandidateField>{
 		case RELAY:
 		case SRFLX:
 			builder.append("raddr ");
-			builder.append(this.relayAddress).append(" ");
+			builder.append(this.relatedAddress).append(" ");
 			builder.append("rport ");
-			builder.append(this.relayPort).append(" ");
+			builder.append(this.relatedPort).append(" ");
 			break;
 		default:
 			break;

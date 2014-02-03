@@ -6,17 +6,18 @@ import java.util.List;
 import org.ice4j.Transport;
 import org.ice4j.ice.Agent;
 import org.ice4j.ice.CompatibilityMode;
+import org.ice4j.ice.Component;
 import org.ice4j.ice.IceMediaStream;
 import org.ice4j.ice.LocalCandidate;
 
 public abstract class IceAgent {
 
 	// Port range for candidate harvesting
-	protected static final int MIN_PORT = 1025;
-	protected static final int MAX_PORT = 65534;
+	protected static final int MIN_PORT = 61000;
+	protected static final int MAX_PORT = 62000;
 
 	protected final Agent agent;
-	
+
 	protected IceAgent() {
 		this.agent = new Agent(CompatibilityMode.RFC5245);
 	}
@@ -88,23 +89,27 @@ public abstract class IceAgent {
 		return this.agent.getStreams();
 	}
 
+	public IceMediaStream findStream(String streamName) {
+		return this.agent.getStream(streamName);
+	}
+
+	private Component findComponent(String streamName, int componentId) {
+		return findStream(streamName).getComponent(componentId);
+	}
+
+	public Component findRtpComponent(String streamName) {
+		return findComponent(streamName, Component.RTP);
+	}
+
+	public Component findRtcpComponent(String streamName) {
+		return findComponent(streamName, Component.RTCP);
+	}
+
 	public String getLocalUfrag() {
 		return this.agent.getLocalUfrag();
 	}
 
 	public String getLocalPassword() {
 		return this.agent.getLocalPassword();
-	}
-	
-	protected LocalCandidate getLocalCandidate(String stream) {
-		return this.agent.getSelectedLocalCandidate(stream);
-	}
-
-	public DatagramSocket getUdpSocket(String stream) {
-		LocalCandidate candidate = getLocalCandidate(stream);
-		if(candidate != null) {
-			return candidate.getDatagramSocket();
-		}
-		return null;
 	}
 }

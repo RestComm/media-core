@@ -26,8 +26,8 @@ public class CandidateFieldTest {
 		assertEquals(candidateField.getPort(), new Text("54550"));
 		assertEquals(candidateField.getType(), new Text("host"));
 		assertEquals(candidateField.getGeneration(), new Text("0"));
-		assertNull(candidateField.getRelayAddress());
-		assertNull(candidateField.getRelayPort());
+		assertNull(candidateField.getRelatedAddress());
+		assertNull(candidateField.getRelatedPort());
 		assertEquals(candidateField.toString(), CANDIDATE_HOST.toString());
 	}
 
@@ -41,8 +41,8 @@ public class CandidateFieldTest {
 		assertEquals(candidateField.getAddress(), new Text("85.241.121.60"));
 		assertEquals(candidateField.getPort(), new Text("60495"));
 		assertEquals(candidateField.getType(), new Text("srflx"));
-		assertEquals(candidateField.getRelayAddress(), new Text("192.168.1.65"));
-		assertEquals(candidateField.getRelayPort(), new Text("54550"));
+		assertEquals(candidateField.getRelatedAddress(), new Text("192.168.1.65"));
+		assertEquals(candidateField.getRelatedPort(), new Text("54550"));
 		assertEquals(candidateField.getGeneration(), new Text("0"));
 		assertEquals(candidateField.toString(), CANDIDATE_SRFLX.toString());
 	}
@@ -57,8 +57,8 @@ public class CandidateFieldTest {
 		assertEquals(candidateField.getAddress(), new Text("75.126.93.124"));
 		assertEquals(candidateField.getPort(), new Text("53056"));
 		assertEquals(candidateField.getType(), new Text("relay"));
-		assertEquals(candidateField.getRelayAddress(), new Text("85.241.121.60"));
-		assertEquals(candidateField.getRelayPort(), new Text("55027"));
+		assertEquals(candidateField.getRelatedAddress(), new Text("85.241.121.60"));
+		assertEquals(candidateField.getRelatedPort(), new Text("55027"));
 		assertEquals(candidateField.getGeneration(), new Text("0"));
 		assertEquals(candidateField.toString(), CANDIDATE_RELAY.toString());
 	}
