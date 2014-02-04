@@ -38,7 +38,7 @@ public abstract class IceCandidate extends TransportAddress implements
 	 * algorithm.
 	 * </p>
 	 */
-	private final String foundation;
+	private String foundation;
 
 	/**
 	 * Each candidate <b>must</b> be assigned a unique priority amongst all
@@ -56,24 +56,21 @@ public abstract class IceCandidate extends TransportAddress implements
 	protected IceCandidate base;
 
 	protected IceCandidate(final IceComponent component,
-			final InetAddress address, int port, final CandidateType type,
-			String foundation) {
+			final InetAddress address, int port, final CandidateType type) {
 		super(address, port, TransportProtocol.UDP);
 		this.component = component;
 		this.type = type;
 		this.addressPrecedence = calculateAddressPrecedence();
 		this.priority = calculatePriority();
-		this.foundation = foundation;
 	}
 
 	protected IceCandidate(final IceComponent component, final String hostname,
-			int port, final CandidateType type, String foundation) {
+			int port, final CandidateType type) {
 		super(hostname, port, TransportProtocol.UDP);
 		this.component = component;
 		this.type = type;
 		this.addressPrecedence = calculateAddressPrecedence();
 		this.priority = calculatePriority();
-		this.foundation = foundation;
 	}
 
 	public CandidateType getType() {
@@ -82,6 +79,10 @@ public abstract class IceCandidate extends TransportAddress implements
 
 	public String getFoundation() {
 		return foundation;
+	}
+	
+	public void setFoundation(String foundation) {
+		this.foundation = foundation;
 	}
 
 	public int getAddressPrecedence() {
