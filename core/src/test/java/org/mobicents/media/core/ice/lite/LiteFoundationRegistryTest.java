@@ -1,10 +1,9 @@
 package org.mobicents.media.core.ice.lite;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.mobicents.media.core.ice.HostCandidate;
-import org.mobicents.media.core.ice.IceComponent;
-
-import static org.junit.Assert.*;
 
 /**
  * 
@@ -21,13 +20,9 @@ public class LiteFoundationRegistryTest {
 	public void testFoundationRegistry() {
 		// given
 		LiteFoundationRegistry registry = new LiteFoundationRegistry();
-		IceComponent component = new IceComponent(IceComponent.RTP_ID);
-		HostCandidate candidate1 = new HostCandidate(component, "192.168.1.65",
-				61000);
-		HostCandidate candidate2 = new HostCandidate(component, "192.168.1.66",
-				61001);
-		HostCandidate candidate3 = new HostCandidate(component, "192.168.1.65",
-				61002);
+		HostCandidate candidate1 = new HostCandidate("192.168.1.65", 61000);
+		HostCandidate candidate2 = new HostCandidate("192.168.1.66", 61001);
+		HostCandidate candidate3 = new HostCandidate("192.168.1.65", 61002);
 
 		// when
 		String foundation1 = registry.assignFoundation(candidate1);

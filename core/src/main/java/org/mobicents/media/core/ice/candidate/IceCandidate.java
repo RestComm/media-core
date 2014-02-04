@@ -1,6 +1,9 @@
-package org.mobicents.media.core.ice;
+package org.mobicents.media.core.ice.candidate;
 
 import java.net.InetAddress;
+
+import org.mobicents.media.core.ice.CandidateType;
+import org.mobicents.media.core.ice.TransportAddress;
 
 /**
  * A Candidate is a transport address that is a potential point of contact for
@@ -18,7 +21,6 @@ public abstract class IceCandidate extends TransportAddress implements
 
 	public static final int IP4_PRECEDENCE = 65535;
 
-	private final IceComponent component;
 	private final int addressPrecedence;
 
 	/**
@@ -44,7 +46,7 @@ public abstract class IceCandidate extends TransportAddress implements
 	 * Each candidate <b>must</b> be assigned a unique priority amongst all
 	 * candidates for the same media stream.
 	 */
-	private final long priority;
+	private long priority;
 
 	/**
 	 * The base of a server reflexive candidate is the host candidate from which
@@ -55,22 +57,20 @@ public abstract class IceCandidate extends TransportAddress implements
 	 */
 	protected IceCandidate base;
 
-	protected IceCandidate(final IceComponent component,
-			final InetAddress address, int port, final CandidateType type) {
+	protected IceCandidate(final InetAddress address, int port,
+			final CandidateType type) {
 		super(address, port, TransportProtocol.UDP);
-		this.component = component;
 		this.type = type;
 		this.addressPrecedence = calculateAddressPrecedence();
-		this.priority = calculatePriority();
+		this.priority = 0;
 	}
 
-	protected IceCandidate(final IceComponent component, final String hostname,
-			int port, final CandidateType type) {
+	protected IceCandidate(final String hostname, int port,
+			final CandidateType type) {
 		super(hostname, port, TransportProtocol.UDP);
-		this.component = component;
 		this.type = type;
 		this.addressPrecedence = calculateAddressPrecedence();
-		this.priority = calculatePriority();
+		this.priority = 0;
 	}
 
 	public CandidateType getType() {
@@ -80,7 +80,7 @@ public abstract class IceCandidate extends TransportAddress implements
 	public String getFoundation() {
 		return foundation;
 	}
-	
+
 	public void setFoundation(String foundation) {
 		this.foundation = foundation;
 	}
@@ -92,7 +92,11 @@ public abstract class IceCandidate extends TransportAddress implements
 	public long getPriority() {
 		return priority;
 	}
-
+	
+	public void setPriority(long priority) {
+		this.priority = priority;
+	}
+	
 	public IceCandidate getBase() {
 		return base;
 	}
@@ -114,21 +118,6 @@ public abstract class IceCandidate extends TransportAddress implements
 					"IPv6 addresses are not supported.");
 		}
 		return IP4_PRECEDENCE;
-	}
-
-	/**
-	 * Calculates the priority of a candidate, using the following formula:
-	 * <p>
-	 * <code>
-	 * p=(2^24 * candidate type preference) + (2^8 * IP precedence) + (2^0 * (256 -
-	 * component ID))
-	 * </code>
-	 * </p>
-	 */
-	private long calculatePriority() {
-		return (long) (this.type.getPreference() << 24)
-				+ (long) (this.calculateAddressPrecedence() << 8)
-				+ (long) (256 - this.component.getComponentId());
 	}
 
 	public int compareTo(IceCandidate o) {

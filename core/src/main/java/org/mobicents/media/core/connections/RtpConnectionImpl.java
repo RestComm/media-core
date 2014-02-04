@@ -491,7 +491,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 			// Create streams for the agent to match the ones in the SDP offer
 			try {
-				this.iceAgent.createStream(61000, MediaTypes.AUDIO.lowerName());
+				this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName());
 				this.sdpNegotiator.setIceRemoteCandidates(MediaTypes.AUDIO
 						.lowerName());
 			} catch (IceException e) {
@@ -499,8 +499,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 						"Cannot create audio stream for ICE agent.", e);
 			}
 
-			Component audioComponent = this.iceAgent
-					.findRtpComponent(MediaTypes.AUDIO.lowerName());
 			// FIXME cannot bind to ICE socket because it does not use NIO - hrosa
 			// this.rtpAudioChannel.bind(audioComponent.getDefaultCandidate().getDatagramSocket());
 		} else {

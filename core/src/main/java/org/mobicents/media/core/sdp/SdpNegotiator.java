@@ -62,55 +62,55 @@ public class SdpNegotiator {
 	}
 
 	public void setIceRemoteCandidates(String streamName) {
-		if (this.iceAgent != null) {
-			IceMediaStream iceStream = this.iceAgent.findStream(streamName);
-			if (iceStream != null) {
-				MediaDescription mediaStream = getMediaDescription(this.offer,
-						streamName);
-				if (mediaStream != null) {
-					// Set remote ice user and password
-					iceStream.setRemotePassword(getIcePwd(mediaStream,
-							this.offer));
-					iceStream.setRemoteUfrag(getIceUfrag(mediaStream,
-							this.offer));
-
-					// set remote candidates
-					@SuppressWarnings("unchecked")
-					Vector<AttributeField> attributes = mediaStream
-							.getAttributes(false);
-					if (attributes != null) {
-						for (AttributeField attribute : attributes) {
-							if (attribute.equals(CandidateAttribute.NAME)) {
-								addRemoteIceCandidate(attribute, iceStream);
-							}
-						}
-					}
-
-					// set default RTP candidate
-					setDefaultIceRemoteCandidate(mediaStream);
-				}
-			}
-		}
+//		if (this.iceAgent != null) {
+//			IceMediaStream iceStream = this.iceAgent.getStream(streamName);
+//			if (iceStream != null) {
+//				MediaDescription mediaStream = getMediaDescription(this.offer,
+//						streamName);
+//				if (mediaStream != null) {
+//					// Set remote ice user and password
+//					iceStream.setRemotePassword(getIcePwd(mediaStream,
+//							this.offer));
+//					iceStream.setRemoteUfrag(getIceUfrag(mediaStream,
+//							this.offer));
+//
+//					// set remote candidates
+//					@SuppressWarnings("unchecked")
+//					Vector<AttributeField> attributes = mediaStream
+//							.getAttributes(false);
+//					if (attributes != null) {
+//						for (AttributeField attribute : attributes) {
+//							if (attribute.equals(CandidateAttribute.NAME)) {
+//								addRemoteIceCandidate(attribute, iceStream);
+//							}
+//						}
+//					}
+//
+//					// set default RTP candidate
+//					setDefaultIceRemoteCandidate(mediaStream);
+//				}
+//			}
+//		}
 	}
 
 	public void setDefaultIceRemoteCandidate(MediaDescription mediaDescription) {
-		try {
-			String address = getConnectionAddress(mediaDescription, this.offer);
-			int port = mediaDescription.getMedia().getMediaPort();
-			TransportAddress rtpAddress = new TransportAddress(address, port,
-					Transport.UDP);
-			// TODO retrieve RTCP address - hrosa
-
-			IceMediaStream audioStream = this.iceAgent
-					.findStream(MediaTypes.AUDIO.lowerName());
-			Component rtpComponent = audioStream.getComponent(Component.RTP);
-			RemoteCandidate remoteCandidate = rtpComponent
-					.findRemoteCandidate(rtpAddress);
-			rtpComponent.setDefaultRemoteCandidate(remoteCandidate);
-			// TODO set RTCP default component
-		} catch (SdpParseException e) {
-			// does not happen
-		}
+//		try {
+//			String address = getConnectionAddress(mediaDescription, this.offer);
+//			int port = mediaDescription.getMedia().getMediaPort();
+//			TransportAddress rtpAddress = new TransportAddress(address, port,
+//					Transport.UDP);
+//			// TODO retrieve RTCP address - hrosa
+//
+//			IceMediaStream audioStream = this.iceAgent
+//					.getStream(MediaTypes.AUDIO.lowerName());
+//			Component rtpComponent = audioStream.getComponent(Component.RTP);
+//			RemoteCandidate remoteCandidate = rtpComponent
+//					.findRemoteCandidate(rtpAddress);
+//			rtpComponent.setDefaultRemoteCandidate(remoteCandidate);
+//			// TODO set RTCP default component
+//		} catch (SdpParseException e) {
+//			// does not happen
+//		}
 
 	}
 
@@ -245,148 +245,149 @@ public class SdpNegotiator {
 	@SuppressWarnings("unchecked")
 	private SessionDescription negotiate(SessionDescription sdp)
 			throws SdpException {
-		// If the call is not using ICE, this answer is final
-		if (this.iceAgent == null) {
-			return sdp;
-		}
-
-		/*
-		 * ICE-options
-		 */
-		StringBuilder iceOptionsBuilder = new StringBuilder();
-
-		if (this.iceAgent.isTrickling()) {
-			iceOptionsBuilder.append(IceSdpUtils.ICE_OPTION_TRICKLE)
-					.append(" ");
-		}
-
-		String iceOptions = iceOptionsBuilder.toString().trim();
-		if (!iceOptions.isEmpty()) {
-			Attribute iceOptionsAttribute = FACTORY.createAttribute(
-					IceSdpUtils.ICE_OPTIONS, iceOptions);
-			sdp.getAttributes(true).add(iceOptionsAttribute);
-		}
-
-		/*
-		 * Origin
-		 */
-		TransportAddress defaultAddress = this.iceAgent.getStreams().get(0)
-				.getComponent(Component.RTP).getDefaultCandidate()
-				.getTransportAddress();
-
-		String addressFamily;
-		if (defaultAddress.isIPv6()) {
-			addressFamily = Connection.IP6;
-		} else {
-			addressFamily = Connection.IP4;
-		}
-
-		Origin origin = sdp.getOrigin();
-		if (origin == null || "user".equals(origin.getUsername())) {
-			// By default, jain-sdp creates a default origin that has "user" as
-			// the user name so we use this to detect it.
-			origin = FACTORY.createOrigin(defaultAddress.getHostName(), 0, 0,
-					"IN", addressFamily, defaultAddress.getHostAddress());
-		} else {
-			// if an origin existed, we just make sure it has the right address
-			// now and are careful not to touch anything else.
-			origin.setAddress(defaultAddress.getHostAddress());
-			origin.setAddressType(addressFamily);
-		}
-		sdp.setOrigin(origin);
-
-		/*
-		 * Media Lines
-		 */
-		List<IceMediaStream> streams = this.iceAgent.getStreams();
-		Vector<MediaDescription> sessionMedia = sdp.getMediaDescriptions(true);
-		Vector<MediaDescription> mediaVector = new Vector<MediaDescription>(
-				sessionMedia.size());
-
-		for (IceMediaStream stream : streams) {
-			// Find corresponding SDP media line
-			MediaDescription media = null;
-			for (MediaDescription md : sessionMedia) {
-				if (md.getMedia().getMediaType().equals(stream.getName())) {
-					media = md;
-					break;
-				}
-			}
-
-			// If media line already exists then update it with candidates
-			// Otherwise create new media line
-			if (media == null) {
-				media = FACTORY.createMediaDescription(stream.getName(), 0, 1,
-						SdpConstants.RTP_AVP, new int[] { 0 });
-			}
-
-			// Setup media line
-			// Set mid-s
-			media.setAttribute(IceSdpUtils.MID, stream.getName());
-
-			// Add candidates
-			Component firstComponent = null;
-			for (Component component : stream.getComponents()) {
-				// if this is the first component, remember it so that we
-				// can
-				// later use it for default candidates.
-				if (firstComponent == null) {
-					firstComponent = component;
-				}
-
-				for (Candidate<?> candidate : component.getLocalCandidates()) {
-					media.addAttribute(new CandidateAttribute(candidate));
-				}
-			}
-
-			// Set connection
-			media.getMedia().setMediaPort(defaultAddress.getPort());
-			media.setConnection(FACTORY.createConnection("IN",
-					defaultAddress.getHostAddress(), addressFamily));
-
-			// now check if the RTCP port for the default candidate is
-			// different than RTP.port+1, in which case we need to
-			// mention it.
-			Component rtcpComponent = stream.getComponent(Component.RTCP);
-			if (rtcpComponent != null) {
-				TransportAddress defaultRtcpCandidate = rtcpComponent
-						.getDefaultCandidate().getTransportAddress();
-
-				if (defaultRtcpCandidate.getPort() != defaultAddress.getPort() + 1) {
-					media.setAttribute("rtcp",
-							Integer.toString(defaultRtcpCandidate.getPort()));
-				}
-			}
-
-			mediaVector.add(media);
-		}
-
-		// Add lines that are already defined on the media description but not
-		// on the ICE agent
-		// Most probably the media lines that were rejected (m=video 0,
-		// m=application 0, etc)
-		for (MediaDescription media : sessionMedia) {
-			boolean found = false;
-			for (IceMediaStream stream : streams) {
-				if (media.getMedia().getMediaType().equals(stream.getName())) {
-					found = true;
-					break;
-				}
-				if (!found) {
-					mediaVector.add(media);
-				}
-			}
-		}
-
-		// Override session media
-		sdp.setMediaDescriptions(mediaVector);
-
-		/*
-		 * ICE credentials
-		 */
-		IceSdpUtils.setIceCredentials(sdp, this.iceAgent.getLocalUfrag(),
-				this.iceAgent.getLocalPassword());
-		return sdp;
+//		// If the call is not using ICE, this answer is final
+//		if (this.iceAgent == null) {
+//			return sdp;
+//		}
+//
+//		/*
+//		 * ICE-options
+//		 */
+//		StringBuilder iceOptionsBuilder = new StringBuilder();
+//
+//		if (this.iceAgent.isTrickling()) {
+//			iceOptionsBuilder.append(IceSdpUtils.ICE_OPTION_TRICKLE)
+//					.append(" ");
+//		}
+//
+//		String iceOptions = iceOptionsBuilder.toString().trim();
+//		if (!iceOptions.isEmpty()) {
+//			Attribute iceOptionsAttribute = FACTORY.createAttribute(
+//					IceSdpUtils.ICE_OPTIONS, iceOptions);
+//			sdp.getAttributes(true).add(iceOptionsAttribute);
+//		}
+//
+//		/*
+//		 * Origin
+//		 */
+//		TransportAddress defaultAddress = this.iceAgent.getStreams().get(0)
+//				.getComponent(Component.RTP).getDefaultCandidate()
+//				.getTransportAddress();
+//
+//		String addressFamily;
+//		if (defaultAddress.isIPv6()) {
+//			addressFamily = Connection.IP6;
+//		} else {
+//			addressFamily = Connection.IP4;
+//		}
+//
+//		Origin origin = sdp.getOrigin();
+//		if (origin == null || "user".equals(origin.getUsername())) {
+//			// By default, jain-sdp creates a default origin that has "user" as
+//			// the user name so we use this to detect it.
+//			origin = FACTORY.createOrigin(defaultAddress.getHostName(), 0, 0,
+//					"IN", addressFamily, defaultAddress.getHostAddress());
+//		} else {
+//			// if an origin existed, we just make sure it has the right address
+//			// now and are careful not to touch anything else.
+//			origin.setAddress(defaultAddress.getHostAddress());
+//			origin.setAddressType(addressFamily);
+//		}
+//		sdp.setOrigin(origin);
+//
+//		/*
+//		 * Media Lines
+//		 */
+//		List<IceMediaStream> streams = this.iceAgent.getStreams();
+//		Vector<MediaDescription> sessionMedia = sdp.getMediaDescriptions(true);
+//		Vector<MediaDescription> mediaVector = new Vector<MediaDescription>(
+//				sessionMedia.size());
+//
+//		for (IceMediaStream stream : streams) {
+//			// Find corresponding SDP media line
+//			MediaDescription media = null;
+//			for (MediaDescription md : sessionMedia) {
+//				if (md.getMedia().getMediaType().equals(stream.getName())) {
+//					media = md;
+//					break;
+//				}
+//			}
+//
+//			// If media line already exists then update it with candidates
+//			// Otherwise create new media line
+//			if (media == null) {
+//				media = FACTORY.createMediaDescription(stream.getName(), 0, 1,
+//						SdpConstants.RTP_AVP, new int[] { 0 });
+//			}
+//
+//			// Setup media line
+//			// Set mid-s
+//			media.setAttribute(IceSdpUtils.MID, stream.getName());
+//
+//			// Add candidates
+//			Component firstComponent = null;
+//			for (Component component : stream.getComponents()) {
+//				// if this is the first component, remember it so that we
+//				// can
+//				// later use it for default candidates.
+//				if (firstComponent == null) {
+//					firstComponent = component;
+//				}
+//
+//				for (Candidate<?> candidate : component.getLocalCandidates()) {
+//					media.addAttribute(new CandidateAttribute(candidate));
+//				}
+//			}
+//
+//			// Set connection
+//			media.getMedia().setMediaPort(defaultAddress.getPort());
+//			media.setConnection(FACTORY.createConnection("IN",
+//					defaultAddress.getHostAddress(), addressFamily));
+//
+//			// now check if the RTCP port for the default candidate is
+//			// different than RTP.port+1, in which case we need to
+//			// mention it.
+//			Component rtcpComponent = stream.getComponent(Component.RTCP);
+//			if (rtcpComponent != null) {
+//				TransportAddress defaultRtcpCandidate = rtcpComponent
+//						.getDefaultCandidate().getTransportAddress();
+//
+//				if (defaultRtcpCandidate.getPort() != defaultAddress.getPort() + 1) {
+//					media.setAttribute("rtcp",
+//							Integer.toString(defaultRtcpCandidate.getPort()));
+//				}
+//			}
+//
+//			mediaVector.add(media);
+//		}
+//
+//		// Add lines that are already defined on the media description but not
+//		// on the ICE agent
+//		// Most probably the media lines that were rejected (m=video 0,
+//		// m=application 0, etc)
+//		for (MediaDescription media : sessionMedia) {
+//			boolean found = false;
+//			for (IceMediaStream stream : streams) {
+//				if (media.getMedia().getMediaType().equals(stream.getName())) {
+//					found = true;
+//					break;
+//				}
+//				if (!found) {
+//					mediaVector.add(media);
+//				}
+//			}
+//		}
+//
+//		// Override session media
+//		sdp.setMediaDescriptions(mediaVector);
+//
+//		/*
+//		 * ICE credentials
+//		 */
+//		IceSdpUtils.setIceCredentials(sdp, this.iceAgent.getLocalUfrag(),
+//				this.iceAgent.getLocalPassword());
+//		return sdp;
+		return null;
 	}
 
 	public String answer(String sdp) throws SdpException {

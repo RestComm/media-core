@@ -1,7 +1,7 @@
 package org.mobicents.media.core.ice.lite;
 
-import org.mobicents.media.core.ice.FoundationRegistry;
-import org.mobicents.media.core.ice.IceCandidate;
+import org.mobicents.media.core.ice.FoundationsRegistry;
+import org.mobicents.media.core.ice.candidate.IceCandidate;
 
 /**
  * Registry that keeps records of generated foundations for the lifetime of an
@@ -21,7 +21,7 @@ import org.mobicents.media.core.ice.IceCandidate;
  * @author Henrique Rosa
  * 
  */
-public class LiteFoundationRegistry extends FoundationRegistry {
+public class LiteFoundationRegistry extends FoundationsRegistry {
 
 	@Override
 	public String computeIdentifier(IceCandidate candidate) {

@@ -2,6 +2,8 @@ package org.mobicents.media.core.ice;
 
 import java.net.InetAddress;
 
+import org.mobicents.media.core.ice.candidate.IceCandidate;
+
 /**
  * A candidate obtained by binding to a specific port from an IP address on the
  * host.
@@ -19,14 +21,14 @@ public class HostCandidate extends IceCandidate {
 
 	private static final long serialVersionUID = 1321731383535837192L;
 
-	public HostCandidate(IceComponent component, InetAddress address, int port) {
-		super(component, address, port, CandidateType.HOST);
+	public HostCandidate(InetAddress address, int port) {
+		super(address, port, CandidateType.HOST);
 		// A host candidate is also said to have a base, equal to itself.
 		this.base = this;
 	}
 
-	public HostCandidate(IceComponent component, String hostname, int port) {
-		super(component, hostname, port, CandidateType.HOST);
+	public HostCandidate(String hostname, int port) {
+		super(hostname, port, CandidateType.HOST);
 		// A host candidate is also said to have a base, equal to itself.
 		this.base = this;
 	}

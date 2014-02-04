@@ -1,25 +1,37 @@
 package org.mobicents.media.core.ice;
 
-import java.net.DatagramSocket;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.ice4j.Transport;
-import org.ice4j.ice.Agent;
-import org.ice4j.ice.CompatibilityMode;
-import org.ice4j.ice.Component;
-import org.ice4j.ice.IceMediaStream;
-import org.ice4j.ice.LocalCandidate;
+import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
+import org.mobicents.media.core.ice.harvest.CandidateHarvester;
+import org.mobicents.media.core.ice.harvest.HarvestingException;
 
 public abstract class IceAgent {
 
-	// Port range for candidate harvesting
-	protected static final int MIN_PORT = 61000;
-	protected static final int MAX_PORT = 62000;
+	protected FoundationsRegistry foundationsRegistry;
+	private final Map<String, IceMediaStream> mediaStreams;
+	private final List<CandidateHarvester> harvesters;
 
-	protected final Agent agent;
+	protected final String ufrag;
+	protected final String password;
 
 	protected IceAgent() {
-		this.agent = new Agent(CompatibilityMode.RFC5245);
+		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
+		this.harvesters = new ArrayList<CandidateHarvester>(4);
+		this.harvesters.add(new HostCandidateHarvester());
+		this.foundationsRegistry = whichFoundationsRegistry();
+		if (this.foundationsRegistry == null) {
+			throw new NullPointerException("Unitialized foundations registry.");
+		}
+
+		SecureRandom random = new SecureRandom();
+		this.ufrag = new BigInteger(24, random).toString(32);
+		this.password = new BigInteger(128, random).toString(32);
 	}
 
 	/**
@@ -31,20 +43,34 @@ public abstract class IceAgent {
 	public abstract boolean isLite();
 
 	/**
-	 * Checks whether the Agent is using ICE-trickle
+	 * Checks whether the Agent is controlling the ICE process.
 	 * 
-	 * @return true if agent uses trickle, false otherwise.
+	 * @return
 	 */
-	public abstract boolean isTrickling();
+	public abstract boolean isControlling();
 
 	/**
-	 * Creates an <tt>IceMediaStream</tt> and adds to it an RTP and and RTCP
-	 * component.
+	 * Gets the local user fragment.
 	 * 
-	 * @param port
-	 *            the preferred port that we should try to bind the RTP
-	 *            component on (the RTCP one would automatically go to rtpPort +
-	 *            1)
+	 * @return the local <code>ice-ufrag</code>
+	 */
+	public String getUfrag() {
+		return ufrag;
+	}
+
+	/**
+	 * Gets the password of the local user fragment
+	 * 
+	 * @return the local <code>ice-pwd</code>
+	 */
+	public String getPassword() {
+		return password;
+	}
+
+	/**
+	 * Creates an <tt>IceMediaStream</tt> and adds to it an RTP and an RTCP
+	 * components.
+	 * 
 	 * @param streamName
 	 *            the name of the stream to create
 	 * @param agent
@@ -56,60 +82,85 @@ public abstract class IceAgent {
 	 * @throws IllegalArgumentException
 	 *             When a stream with <code>streamName</code> already exists.
 	 */
-	public IceMediaStream createStream(int port, String streamName)
-			throws IceException {
-		/*
-		 * TODO Factory should keep track of used ports, to optimize harvesting
-		 * time - hrosa
-		 */
+	public IceMediaStream addMediaStream(String streamName) throws IceException {
+		return addMediaStream(streamName, true);
+	}
 
-		if (agent.getStreamNames().contains(streamName)) {
-			throw new IllegalArgumentException("The stream " + streamName
-					+ " already exists!");
+	/**
+	 * Creates and registers a new media stream with an RTP component.<br>
+	 * An secondary component may be created if the stream supports RTCP.
+	 * 
+	 * @param streamName
+	 *            the name of the media stream
+	 * @param rtcp
+	 *            Indicates whether the media server supports RTCP.
+	 * @return The newly created media stream.
+	 */
+	public IceMediaStream addMediaStream(String streamName, boolean rtcp) {
+		return this.mediaStreams.put(streamName, new IceMediaStream(streamName,
+				rtcp));
+	}
+
+	/**
+	 * Gets a media stream by name
+	 * 
+	 * @param streamName
+	 *            The name of the media stream
+	 * @return The media stream. Returns null, if no media stream exists with
+	 *         such name.
+	 */
+	public IceMediaStream getStream(String streamName) {
+		synchronized (mediaStreams) {
+			return this.mediaStreams.get(streamName);
+		}
+	}
+
+	/**
+	 * Gets the foundations registry managed during the lifetime of the ICE
+	 * agent.
+	 * 
+	 * @return The foundations registry
+	 */
+	public FoundationsRegistry getFoundationsRegistry() {
+		return this.foundationsRegistry;
+	}
+
+	protected abstract FoundationsRegistry whichFoundationsRegistry();
+
+	/**
+	 * Gathers all available candidates and sets the components of each media
+	 * stream
+	 * 
+	 * @param preferredPort
+	 *            The preferred port to bind candidates to
+	 * @throws HarvestingException
+	 *             An error occurred while harvesting candidates
+	 */
+	public void gatherCandidates(int preferredPort) throws HarvestingException {
+		List<CandidateHarvester> harvestersCopy;
+		synchronized (this.harvesters) {
+			harvestersCopy = new ArrayList<CandidateHarvester>(this.harvesters);
 		}
 
-		try {
-			// Create media stream
-			IceMediaStream stream = agent.createMediaStream(streamName);
-
-			// Create RTP/RTCP components for the media stream
-			agent.createComponent(stream, Transport.UDP, port, MIN_PORT,
-					MAX_PORT);
-			// FIXME Create RTCP component, when MMS supports it - hrosa
-			// agent.createComponent(stream, Transport.UDP, rtpPort + 1,
-			// rtpPort + 1, rtpPort + 1);
-			return stream;
-		} catch (Exception e) {
-			throw new IceException(
-					"Could not create component for media stream", e);
+		// Harvest all possible candidates
+		List<LocalCandidateWrapper> harvested = new ArrayList<LocalCandidateWrapper>();
+		for (CandidateHarvester harvester : harvestersCopy) {
+			harvested.addAll(harvester.harvest(preferredPort,
+					this.foundationsRegistry));
 		}
-	}
 
-	public List<IceMediaStream> getStreams() {
-		return this.agent.getStreams();
-	}
+		// Set the local candidates on each media stream components
+		synchronized (this.mediaStreams) {
+			for (IceMediaStream mediaStream : this.mediaStreams.values()) {
+				// Add candidates to RTP component
+				mediaStream.getRtpComponent().addLocalCandidates(harvested);
 
-	public IceMediaStream findStream(String streamName) {
-		return this.agent.getStream(streamName);
-	}
-
-	private Component findComponent(String streamName, int componentId) {
-		return findStream(streamName).getComponent(componentId);
-	}
-
-	public Component findRtpComponent(String streamName) {
-		return findComponent(streamName, Component.RTP);
-	}
-
-	public Component findRtcpComponent(String streamName) {
-		return findComponent(streamName, Component.RTCP);
-	}
-
-	public String getLocalUfrag() {
-		return this.agent.getLocalUfrag();
-	}
-
-	public String getLocalPassword() {
-		return this.agent.getLocalPassword();
+				// Add candidates to RTCP component IF supported
+				if (mediaStream.supportsRtcp()) {
+					mediaStream.getRtcpComponent()
+							.addLocalCandidates(harvested);
+				}
+			}
+		}
 	}
 }

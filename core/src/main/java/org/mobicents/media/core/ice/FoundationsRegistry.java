@@ -3,6 +3,8 @@ package org.mobicents.media.core.ice;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mobicents.media.core.ice.candidate.IceCandidate;
+
 /**
  * Registry that keeps records of generated foundations for the lifetime of an
  * ICE agent.
@@ -10,7 +12,7 @@ import java.util.Map;
  * @author Henrique Rosa
  * @see <a href="http://tools.ietf.org/html/rfc5245#section-4">RFC5245</a>
  */
-public abstract class FoundationRegistry {
+public abstract class FoundationsRegistry {
 
 	/**
 	 * Map that associates addresses to their corresponding foundation

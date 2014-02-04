@@ -19,18 +19,21 @@ public class TransportAddress extends InetSocketAddress {
 		UDP;
 	}
 
-	private TransportProtocol protocol;
-
+	protected TransportProtocol protocol;
+	protected boolean virtual;
+	
 	public TransportAddress(InetAddress addr, int port,
 			TransportProtocol protocol) {
 		super(addr, port);
 		this.protocol = protocol;
+		this.virtual = false;
 	}
 
 	public TransportAddress(String hostname, int port,
 			TransportProtocol protocol) {
 		super(hostname, port);
 		this.protocol = protocol;
+		this.virtual = false;
 	}
 
 	/**
@@ -60,6 +63,14 @@ public class TransportAddress extends InetSocketAddress {
 	 */
 	public TransportProtocol getProtocol() {
 		return protocol;
+	}
+	
+	public boolean isVirtual() {
+		return this.virtual;
+	}
+	
+	public void setVirtual(boolean virtual) {
+		this.virtual = virtual;
 	}
 
 }
