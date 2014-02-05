@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,13 +19,14 @@ public class IceComponent {
 
 	private int componentId;
 
-	private List<LocalCandidateWrapper> localCandidates;
+	private final List<LocalCandidateWrapper> localCandidates;
 	private LocalCandidateWrapper defaultLocalCandidate;
 
 	// private List<IceCandidate> remoteCandidates;
 	// private IceCandidate defaultRemoteCandidate;
 
 	public IceComponent(int componentId) {
+		this.localCandidates = new ArrayList<LocalCandidateWrapper>(5);
 		setComponentId(componentId);
 	}
 
@@ -60,26 +62,6 @@ public class IceComponent {
 	}
 
 	/**
-	 * Attempts to registers a local candidate.
-	 * 
-	 * @param candidateWrapper
-	 *            The wrapper that contains the local ICE candidate
-	 */
-	public void addLocalCandidate(LocalCandidateWrapper candidateWrapper) {
-		IceCandidate candidate = candidateWrapper.getCandidate();
-
-		// Configure the candidate before registration
-		candidate.setPriority(calculatePriority(candidate));
-
-		synchronized (this.localCandidates) {
-			if (!this.localCandidates.contains(candidateWrapper)) {
-				this.localCandidates.add(candidateWrapper);
-				Collections.sort(this.localCandidates);
-			}
-		}
-	}
-
-	/**
 	 * Registers a collection of local candidates to the component.
 	 * 
 	 * @param candidatesWrapper
@@ -89,7 +71,48 @@ public class IceComponent {
 	 */
 	public void addLocalCandidates(List<LocalCandidateWrapper> candidatesWrapper) {
 		for (LocalCandidateWrapper candidateWrapper : candidatesWrapper) {
-			addLocalCandidate(candidateWrapper);
+			addLocalCandidate(candidateWrapper, false);
+		}
+		sortCandidates();
+	}
+
+	/**
+	 * Attempts to registers a local candidate.
+	 * 
+	 * @param candidateWrapper
+	 *            The wrapper that contains the local ICE candidate
+	 */
+	public void addLocalCandidate(LocalCandidateWrapper candidateWrapper) {
+		this.addLocalCandidate(candidateWrapper, true);
+	}
+
+	/**
+	 * Attempts to registers a local candidate.
+	 * 
+	 * @param candidateWrapper
+	 *            The wrapper that contains the local ICE candidate
+	 * @param sort
+	 *            Decides whether the candidates list should be ordered after
+	 *            insert
+	 */
+	private void addLocalCandidate(LocalCandidateWrapper candidateWrapper,
+			boolean sort) {
+		IceCandidate candidate = candidateWrapper.getCandidate();
+
+		// Configure the candidate before registration
+		candidate.setPriority(calculatePriority(candidate));
+
+		synchronized (this.localCandidates) {
+			if (!this.localCandidates.contains(candidateWrapper)) {
+				this.localCandidates.add(candidateWrapper);
+				sortCandidates();
+			}
+		}
+	}
+
+	private void sortCandidates() {
+		synchronized (localCandidates) {
+			Collections.sort(this.localCandidates);
 		}
 	}
 
@@ -106,5 +129,14 @@ public class IceComponent {
 		return (long) (candidate.getType().getPreference() << 24)
 				+ (long) (candidate.getAddressPrecedence() << 8)
 				+ (long) (256 - this.getComponentId());
+	}
+
+	public LocalCandidateWrapper selectDefaultLocalCandidate() {
+		// Choose the candidate with greatest priority
+		// This is fine because this implementation only supports IPv4 addresses
+		// That being said, it should only be one address. If there are more,
+		// let priority decide.
+		this.defaultLocalCandidate = this.localCandidates.get(0);
+		return this.defaultLocalCandidate;
 	}
 }

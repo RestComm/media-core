@@ -25,17 +25,18 @@ public class IceMediaStream {
 			this.rtcpComponent = new IceComponent(IceComponent.RTCP_ID);
 		}
 	}
-	
+
 	private void validateName(String name) {
-		if(name == null || name.isEmpty()) {
-			throw new IllegalArgumentException("The media stream name cannot be null or empty.");
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException(
+					"The media stream name cannot be null or empty.");
 		}
 	}
 
 	public IceAgent getAgent() {
 		return agent;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -52,4 +53,14 @@ public class IceMediaStream {
 		return this.rtcpComponent != null;
 	}
 
+	/**
+	 * Instructs both components of the Media Stream to select their local
+	 * default candidates.
+	 */
+	public void selectLocalDefaultCandidates() {
+		this.rtpComponent.selectDefaultLocalCandidate();
+		if (this.supportsRtcp()) {
+			this.rtcpComponent.selectDefaultLocalCandidate();
+		}
+	}
 }
