@@ -57,7 +57,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	private boolean useNetworkInterface(NetworkInterface networkInterface)
 			throws HarvestingException {
 		try {
-			return networkInterface.isLoopback() || !networkInterface.isUp();
+			return !networkInterface.isLoopback() && networkInterface.isUp();
 		} catch (SocketException e) {
 			throw new HarvestingException(
 					"Could not evaluate whether network interface is loopback.",
