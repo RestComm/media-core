@@ -7,27 +7,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
-import org.mobicents.media.core.ice.harvest.CandidateHarvester;
-import org.mobicents.media.core.ice.harvest.HarvestingException;
+import org.mobicents.media.core.ice.harvest.HarvestManager;
+import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 
 public abstract class IceAgent {
 
-	protected FoundationsRegistry foundationsRegistry;
 	private final Map<String, IceMediaStream> mediaStreams;
-	private final List<CandidateHarvester> harvesters;
+	private final HarvestManager harvestManager;
 
 	protected final String ufrag;
 	protected final String password;
 
 	protected IceAgent() {
 		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
-		this.harvesters = new ArrayList<CandidateHarvester>(4);
-		this.harvesters.add(new HostCandidateHarvester());
-		this.foundationsRegistry = whichFoundationsRegistry();
-		if (this.foundationsRegistry == null) {
-			throw new NullPointerException("Unitialized foundations registry.");
-		}
+		this.harvestManager = new HarvestManager();
 
 		SecureRandom random = new SecureRandom();
 		this.ufrag = new BigInteger(24, random).toString(32);
@@ -109,23 +103,21 @@ public abstract class IceAgent {
 	 * @return The media stream. Returns null, if no media stream exists with
 	 *         such name.
 	 */
-	public IceMediaStream getStream(String streamName) {
+	public IceMediaStream getMediaStream(String streamName) {
+		IceMediaStream mediaStream;
 		synchronized (mediaStreams) {
-			return this.mediaStreams.get(streamName);
+			mediaStream = this.mediaStreams.get(streamName);
 		}
+		return mediaStream;
 	}
 
-	/**
-	 * Gets the foundations registry managed during the lifetime of the ICE
-	 * agent.
-	 * 
-	 * @return The foundations registry
-	 */
-	public FoundationsRegistry getFoundationsRegistry() {
-		return this.foundationsRegistry;
+	public List<IceMediaStream> getMediaStreams() {
+		List<IceMediaStream> copy;
+		synchronized (mediaStreams) {
+			copy = new ArrayList<IceMediaStream>(this.mediaStreams.values());
+		}
+		return copy;
 	}
-
-	protected abstract FoundationsRegistry whichFoundationsRegistry();
 
 	/**
 	 * Gathers all available candidates and sets the components of each media
@@ -133,34 +125,13 @@ public abstract class IceAgent {
 	 * 
 	 * @param preferredPort
 	 *            The preferred port to bind candidates to
-	 * @throws HarvestingException
+	 * @throws HarvestException
 	 *             An error occurred while harvesting candidates
 	 */
-	public void gatherCandidates(int preferredPort) throws HarvestingException {
-		List<CandidateHarvester> harvestersCopy;
-		synchronized (this.harvesters) {
-			harvestersCopy = new ArrayList<CandidateHarvester>(this.harvesters);
-		}
-
-		// Harvest all possible candidates
-		List<LocalCandidateWrapper> harvested = new ArrayList<LocalCandidateWrapper>();
-		for (CandidateHarvester harvester : harvestersCopy) {
-			harvested.addAll(harvester.harvest(preferredPort,
-					this.foundationsRegistry));
-		}
-
-		// Set the local candidates on each media stream components
-		synchronized (this.mediaStreams) {
-			for (IceMediaStream mediaStream : this.mediaStreams.values()) {
-				// Add candidates to RTP component
-				mediaStream.getRtpComponent().addLocalCandidates(harvested);
-
-				// Add candidates to RTCP component IF supported
-				if (mediaStream.supportsRtcp()) {
-					mediaStream.getRtcpComponent()
-							.addLocalCandidates(harvested);
-				}
-			}
+	public void gatherCandidates(int preferredPort) throws HarvestException,
+			NoCandidatesGatheredException {
+		for (IceMediaStream mediaStream : getMediaStreams()) {
+			this.harvestManager.harvest(mediaStream, preferredPort);
 		}
 	}
 }

@@ -3,6 +3,7 @@ package org.mobicents.media.core.ice.candidate;
 import java.net.InetAddress;
 
 import org.mobicents.media.core.ice.CandidateType;
+import org.mobicents.media.core.ice.IceComponent;
 import org.mobicents.media.core.ice.TransportAddress;
 
 /**
@@ -15,11 +16,13 @@ import org.mobicents.media.core.ice.TransportAddress;
  * 
  */
 public abstract class IceCandidate extends TransportAddress implements
-		Comparable<IceCandidate> {
+		Comparable<IceCandidate>, Cloneable {
 
 	private static final long serialVersionUID = 2306608901365110071L;
 
 	public static final int IP4_PRECEDENCE = 65535;
+
+	private final IceComponent component;
 
 	private final int addressPrecedence;
 
@@ -57,17 +60,19 @@ public abstract class IceCandidate extends TransportAddress implements
 	 */
 	protected IceCandidate base;
 
-	protected IceCandidate(final InetAddress address, int port,
-			final CandidateType type) {
+	protected IceCandidate(IceComponent component, InetAddress address,
+			int port, final CandidateType type) {
 		super(address, port, TransportProtocol.UDP);
+		this.component = component;
 		this.type = type;
 		this.addressPrecedence = calculateAddressPrecedence();
 		this.priority = 0;
 	}
 
-	protected IceCandidate(final String hostname, int port,
+	protected IceCandidate(IceComponent component, String hostname, int port,
 			final CandidateType type) {
 		super(hostname, port, TransportProtocol.UDP);
+		this.component = component;
 		this.type = type;
 		this.addressPrecedence = calculateAddressPrecedence();
 		this.priority = 0;
@@ -92,11 +97,11 @@ public abstract class IceCandidate extends TransportAddress implements
 	public long getPriority() {
 		return priority;
 	}
-	
+
 	public void setPriority(long priority) {
 		this.priority = priority;
 	}
-	
+
 	public IceCandidate getBase() {
 		return base;
 	}
@@ -125,5 +130,14 @@ public abstract class IceCandidate extends TransportAddress implements
 			return 1;
 		}
 		return (int) (this.priority - o.priority);
+	}
+
+	@Override
+	public IceCandidate clone() throws CloneNotSupportedException {
+		return (IceCandidate) super.clone();
+	}
+
+	public int getComponentId() {
+		return this.component.getComponentId();
 	}
 }

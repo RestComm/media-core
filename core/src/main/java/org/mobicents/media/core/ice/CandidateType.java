@@ -35,4 +35,9 @@ public enum CandidateType {
 		}
 		return null;
 	}
+	
+	public static int count() {
+		return values().length;
+	}
+	
 }

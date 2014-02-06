@@ -7,23 +7,23 @@ package org.mobicents.media.core.ice.harvest;
  * @author Henrique Rosa
  * 
  */
-public class NoCandidateBoundException extends HarvestingException {
+public class NoCandidatesGatheredException extends HarvestException {
 
 	private static final long serialVersionUID = -3678692580311715002L;
 
-	public NoCandidateBoundException() {
+	public NoCandidatesGatheredException() {
 		super();
 	}
 
-	public NoCandidateBoundException(String message, Throwable cause) {
+	public NoCandidatesGatheredException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public NoCandidateBoundException(String message) {
+	public NoCandidatesGatheredException(String message) {
 		super(message);
 	}
 
-	public NoCandidateBoundException(Throwable cause) {
+	public NoCandidatesGatheredException(Throwable cause) {
 		super(cause);
 	}
 }

@@ -47,7 +47,8 @@ public class IceComponentTest {
 
 	private LocalCandidateWrapper buildCandidate(String address, int port,
 			int priority) throws IOException {
-		IceCandidate candidate = new HostCandidate(address, port);
+		IceComponent rtpComponent = new IceComponent(IceComponent.RTP_ID);
+		IceCandidate candidate = new HostCandidate(rtpComponent, address, port);
 		DatagramChannel channel = DatagramChannel.open();
 		candidate.setPriority(priority);
 		return new LocalCandidateWrapper(candidate, channel);
@@ -69,11 +70,4 @@ public class IceComponentTest {
 		}
 		this.localCandidates.clear();
 	}
-
-	private long calculatePriority(int preference, int precedence,
-			int componentId) {
-		return (long) (preference << 24) + (long) (precedence << 8)
-				+ (long) (256 - componentId);
-	}
-
 }

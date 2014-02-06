@@ -139,4 +139,20 @@ public class IceComponent {
 		this.defaultLocalCandidate = this.localCandidates.get(0);
 		return this.defaultLocalCandidate;
 	}
+	
+	public List<LocalCandidateWrapper> getLocalCandidates() {
+		List<LocalCandidateWrapper> copy;
+		synchronized (this.localCandidates) {
+			copy = new ArrayList<LocalCandidateWrapper>(this.localCandidates);
+		}
+		return copy;
+	}
+	
+	public LocalCandidateWrapper getDefaultLocalCandidate() {
+		return defaultLocalCandidate;
+	}
+	
+	public boolean isDefaultLocalCandidateSelected() {
+		return this.defaultLocalCandidate != null;
+	}
 }

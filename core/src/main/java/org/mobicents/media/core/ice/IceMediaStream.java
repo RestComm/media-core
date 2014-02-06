@@ -45,8 +45,19 @@ public class IceMediaStream {
 		return rtpComponent;
 	}
 
+	public boolean hasLocalRtpCandidates() {
+		return !this.rtpComponent.getLocalCandidates().isEmpty();
+	}
+
 	public IceComponent getRtcpComponent() {
 		return rtcpComponent;
+	}
+
+	public boolean hasLocalRtcpCandidates() {
+		if (supportsRtcp()) {
+			return !this.rtcpComponent.getLocalCandidates().isEmpty();
+		}
+		return false;
 	}
 
 	public boolean supportsRtcp() {

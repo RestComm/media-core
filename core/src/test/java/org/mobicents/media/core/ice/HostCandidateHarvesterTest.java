@@ -10,10 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.core.ice.candidate.IceCandidate;
 import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
-import org.mobicents.media.core.ice.harvest.HarvestingException;
-import org.mobicents.media.core.ice.harvest.NoCandidateBoundException;
-import org.mobicents.media.core.ice.lite.LiteFoundationRegistry;
-
+import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
+import org.mobicents.media.core.ice.lite.LiteFoundationsRegistry;
 import static org.junit.Assert.*;
 
 /**
@@ -22,23 +21,8 @@ import static org.junit.Assert.*;
  * 
  */
 public class HostCandidateHarvesterTest {
-	private List<LocalCandidateWrapper> harvested;
 
-	private void cleanupHarvested() {
-		for (LocalCandidateWrapper candidateWrapper : harvested) {
-			try {
-				DatagramChannel udpChannel = candidateWrapper.getUdpChannel();
-				if (udpChannel.isConnected()) {
-					udpChannel.disconnect();
-				}
-				if (udpChannel.isOpen()) {
-					udpChannel.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+	private IceMediaStream mediaStream;
 
 	@Before
 	public void before() {
@@ -47,29 +31,65 @@ public class HostCandidateHarvesterTest {
 
 	@After
 	public void after() {
-		if (this.harvested != null) {
-			cleanupHarvested();
+		if (this.mediaStream != null) {
+			closeMediaStream(mediaStream);
+		}
+	}
+
+	private void closeMediaStream(IceMediaStream mediaStream) {
+		IceComponent rtpComponent = mediaStream.getRtpComponent();
+		for (LocalCandidateWrapper localCandidate : rtpComponent
+				.getLocalCandidates()) {
+			DatagramChannel channel = localCandidate.getUdpChannel();
+			if (channel.isOpen()) {
+				try {
+					channel.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
 	@Test
 	public void testHostCandidateHarvesting() throws IOException {
 		// given
-		FoundationsRegistry foundationsRegistry = new LiteFoundationRegistry();
-		HostCandidateHarvester harvester = new HostCandidateHarvester();
+		FoundationsRegistry foundationsRegistry = new LiteFoundationsRegistry();
+		HostCandidateHarvester harvester = new HostCandidateHarvester(
+				foundationsRegistry);
+		IceMediaStream mediaStream = new IceMediaStream("audio", true);
 
 		// when
 		try {
-			this.harvested = harvester.harvest(61000, foundationsRegistry);
-		} catch (NoCandidateBoundException e) {
+			harvester.harvest(61000, mediaStream);
+		} catch (NoCandidatesGatheredException e) {
 			fail();
-		} catch (HarvestingException e) {
+		} catch (HarvestException e) {
 			fail();
 		}
 
 		// then
-		assertTrue(this.harvested.size() > 0);
-		for (LocalCandidateWrapper candidateWrapper : this.harvested) {
+		List<LocalCandidateWrapper> rtpCandidates = mediaStream
+				.getRtpComponent().getLocalCandidates();
+		List<LocalCandidateWrapper> rtcpCandidates = mediaStream
+				.getRtcpComponent().getLocalCandidates();
+
+		assertTrue(rtpCandidates.size() > 0);
+		assertTrue(rtcpCandidates.size() > 0);
+		// Evaluate RTP Candidates
+		for (LocalCandidateWrapper candidateWrapper : rtpCandidates) {
+			DatagramChannel udpChannel = candidateWrapper.getUdpChannel();
+			assertFalse(udpChannel.isBlocking());
+			assertFalse(udpChannel.isConnected());
+			assertTrue(udpChannel.isOpen());
+
+			IceCandidate candidate = candidateWrapper.getCandidate();
+			assertEquals(candidate, candidate.getBase());
+			assertEquals(new InetSocketAddress(candidate.getAddress(),
+					candidate.getPort()), udpChannel.getLocalAddress());
+		}
+		// Evaluate RTCP candidates
+		for (LocalCandidateWrapper candidateWrapper : rtcpCandidates) {
 			DatagramChannel udpChannel = candidateWrapper.getUdpChannel();
 			assertFalse(udpChannel.isBlocking());
 			assertFalse(udpChannel.isConnected());

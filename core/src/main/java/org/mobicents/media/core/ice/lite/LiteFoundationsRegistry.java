@@ -21,7 +21,7 @@ import org.mobicents.media.core.ice.candidate.IceCandidate;
  * @author Henrique Rosa
  * 
  */
-public class LiteFoundationRegistry extends FoundationsRegistry {
+public class LiteFoundationsRegistry extends FoundationsRegistry {
 
 	@Override
 	public String computeIdentifier(IceCandidate candidate) {

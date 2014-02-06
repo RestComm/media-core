@@ -6,23 +6,23 @@ package org.mobicents.media.core.ice.harvest;
  * @author Henrique Rosa
  * 
  */
-public class HarvestingException extends Exception {
+public class HarvestException extends Exception {
 
 	private static final long serialVersionUID = 4361875988093843175L;
 
-	public HarvestingException() {
+	public HarvestException() {
 		super();
 	}
 
-	public HarvestingException(String message, Throwable cause) {
+	public HarvestException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public HarvestingException(String message) {
+	public HarvestException(String message) {
 		super(message);
 	}
 
-	public HarvestingException(Throwable cause) {
+	public HarvestException(Throwable cause) {
 		super(cause);
 	}
 }
