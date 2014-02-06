@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice.sdp.attributes;
 
+import gov.nist.core.NameValue;
 import gov.nist.core.Separators;
 import gov.nist.javax.sdp.fields.AttributeField;
 
@@ -43,13 +44,27 @@ public class RtcpAttribute extends AttributeField {
 
 	@Override
 	public String getValue() {
-		StringBuilder builder = new StringBuilder(ATTRIBUTE_FIELD);
-		builder.append(getName()).append(Separators.COLON);
+		StringBuilder builder = new StringBuilder();
 		builder.append(this.port).append(" ");
 		builder.append(this.direction).append(" ");
 		builder.append(this.addressType).append(" ");
-		builder.append(this.address).append(Separators.NEWLINE);
+		builder.append(this.address);
 		return builder.toString();
 	}
 
+	@Override
+	public String encode() {
+		StringBuilder builder = new StringBuilder(ATTRIBUTE_FIELD);
+		builder.append(getName()).append(Separators.COLON);
+		builder.append(getValue()).append(Separators.NEWLINE);
+		return builder.toString();
+	}
+
+	@Override
+	public NameValue getAttribute() {
+		if (this.attribute == null) {
+			this.attribute = new NameValue(getName(), getValue());
+		}
+		return this.attribute;
+	}
 }

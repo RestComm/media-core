@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice.sdp.attributes;
 
+import gov.nist.core.NameValue;
 import gov.nist.core.Separators;
 import gov.nist.javax.sdp.fields.AttributeField;
 
@@ -222,6 +223,14 @@ public class CandidateAttribute extends AttributeField {
 		builder.append("generation ");
 		builder.append(this.generation);
 		return builder.toString();
+	}
+
+	@Override
+	public NameValue getAttribute() {
+		if (this.attribute == null) {
+			this.attribute = new NameValue(getName(), getValue());
+		}
+		return this.attribute;
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package org.mobicents.media.core.ice.sdp;
 
+import gov.nist.javax.sdp.fields.AttributeField;
+
 import java.util.Vector;
 
 import javax.sdp.MediaDescription;
@@ -13,7 +15,10 @@ import org.mobicents.media.core.ice.IceMediaStream;
 import org.mobicents.media.core.ice.candidate.IceCandidate;
 import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
 import org.mobicents.media.core.ice.sdp.attributes.CandidateAttribute;
+import org.mobicents.media.core.ice.sdp.attributes.IceLiteAttribute;
+import org.mobicents.media.core.ice.sdp.attributes.IcePwdAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.RtcpAttribute;
+import org.mobicents.media.core.ice.sdp.attributes.IceUfragAttribute;
 
 public class IceSdpNegotiator {
 
@@ -24,13 +29,15 @@ public class IceSdpNegotiator {
 				.createSessionDescription(sdp);
 
 		// Add user fragment and password from ICE agent
-		sessionDescription.setAttribute("ice-ufrag", agent.getUfrag());
-		sessionDescription.setAttribute("ice-pwd", agent.getPassword());
+		Vector<AttributeField> attributes = sessionDescription.getAttributes(true);
+		attributes.add(new IceUfragAttribute(agent.getUfrag()));
+		attributes.add(new IcePwdAttribute(agent.getPassword()));
 
 		// If the ICE agent is lite, sdp must include a 'a=ice-lite' attribute
 		if (agent.isLite()) {
-			sessionDescription.setAttribute("ice-lite", "");
+			attributes.add(new IceLiteAttribute());
 		}
+		sessionDescription.setAttributes(attributes);
 
 		// Update the media streams of the SDP description with the information
 		// hold by the ICE agent

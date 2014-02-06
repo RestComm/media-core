@@ -49,6 +49,13 @@ public class HarvestManager {
 			harvester.harvest(preferredPort, mediaStream);
 		}
 
+		// After harvesting all possible candidates, ask the media stream to
+		// select its default local candidates
+		mediaStream.getRtpComponent().selectDefaultLocalCandidate();
+		if (mediaStream.supportsRtcp()) {
+			mediaStream.getRtcpComponent().selectDefaultLocalCandidate();
+		}
+
 		if (!mediaStream.hasLocalRtpCandidates()) {
 			throw new NoCandidatesGatheredException(
 					"No RTP candidates were gathered for "
