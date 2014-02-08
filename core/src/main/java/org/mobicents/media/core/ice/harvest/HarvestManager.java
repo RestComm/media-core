@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice.harvest;
 
+import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +38,9 @@ public class HarvestManager {
 		return this.foundations;
 	}
 
-	public void harvest(IceMediaStream mediaStream, int preferredPort)
-			throws HarvestException, NoCandidatesGatheredException {
+	public void harvest(IceMediaStream mediaStream, int preferredPort,
+			Selector selector) throws HarvestException,
+			NoCandidatesGatheredException {
 		List<CandidateHarvester> copy;
 		synchronized (this.harvesters) {
 			copy = new ArrayList<CandidateHarvester>(this.harvesters);
@@ -46,7 +48,7 @@ public class HarvestManager {
 
 		// Ask each harvester to gather candidates for the media stream
 		for (CandidateHarvester harvester : copy) {
-			harvester.harvest(preferredPort, mediaStream);
+			harvester.harvest(preferredPort, mediaStream, selector);
 		}
 
 		// After harvesting all possible candidates, ask the media stream to

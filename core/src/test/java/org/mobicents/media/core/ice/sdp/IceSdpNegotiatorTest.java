@@ -17,11 +17,11 @@ import javax.sdp.SessionDescription;
 
 import org.junit.Test;
 import org.mobicents.media.core.ice.IceAgent;
-import org.mobicents.media.core.ice.IceLiteAgent;
+import org.mobicents.media.core.ice.IceCandidate;
 import org.mobicents.media.core.ice.IceMediaStream;
-import org.mobicents.media.core.ice.candidate.IceCandidate;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
+import org.mobicents.media.core.ice.lite.IceLiteAgent;
 import org.mobicents.media.core.ice.sdp.attributes.CandidateAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IceLiteAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IcePwdAttribute;

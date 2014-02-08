@@ -1,4 +1,4 @@
-package org.mobicents.media.core.ice.candidate;
+package org.mobicents.media.core.ice;
 
 import java.nio.channels.DatagramChannel;
 

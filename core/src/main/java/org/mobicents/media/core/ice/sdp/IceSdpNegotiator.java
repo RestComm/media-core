@@ -10,10 +10,10 @@ import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;
 
 import org.mobicents.media.core.ice.IceAgent;
+import org.mobicents.media.core.ice.IceCandidate;
 import org.mobicents.media.core.ice.IceComponent;
 import org.mobicents.media.core.ice.IceMediaStream;
-import org.mobicents.media.core.ice.candidate.IceCandidate;
-import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
+import org.mobicents.media.core.ice.LocalCandidateWrapper;
 import org.mobicents.media.core.ice.sdp.attributes.CandidateAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IceLiteAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IcePwdAttribute;

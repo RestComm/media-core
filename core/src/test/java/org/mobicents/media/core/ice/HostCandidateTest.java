@@ -3,7 +3,6 @@ package org.mobicents.media.core.ice;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.mobicents.media.core.ice.candidate.IceCandidate;
 
 /**
  * Tests an ICE candidate of type HOST.

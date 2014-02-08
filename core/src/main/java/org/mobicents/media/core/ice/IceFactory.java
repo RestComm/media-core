@@ -1,5 +1,7 @@
 package org.mobicents.media.core.ice;
 
+import org.mobicents.media.core.ice.lite.IceLiteAgent;
+
 /**
  * A factory to produce ICE agents.<br>
  * The user can decide whether to create agents for full or lite ICE

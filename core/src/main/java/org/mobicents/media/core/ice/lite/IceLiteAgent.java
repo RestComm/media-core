@@ -1,4 +1,6 @@
-package org.mobicents.media.core.ice;
+package org.mobicents.media.core.ice.lite;
+
+import org.mobicents.media.core.ice.IceAgent;
 
 
 public class IceLiteAgent extends IceAgent {
@@ -15,5 +17,10 @@ public class IceLiteAgent extends IceAgent {
 	@Override
 	public boolean isControlling() {
 		return false;
+	}
+
+	@Override
+	public void start() {
+		this.stunServer.start();
 	}
 }

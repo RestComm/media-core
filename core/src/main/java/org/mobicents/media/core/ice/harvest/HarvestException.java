@@ -1,12 +1,14 @@
 package org.mobicents.media.core.ice.harvest;
 
+import org.mobicents.media.core.ice.IceException;
+
 /**
  * Exception that may occur while harvesting candidates.
  * 
  * @author Henrique Rosa
  * 
  */
-public class HarvestException extends Exception {
+public class HarvestException extends IceException {
 
 	private static final long serialVersionUID = 4361875988093843175L;
 

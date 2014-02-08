@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.mobicents.media.core.ice.candidate.IceCandidate;
-import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
-
 /**
  * 
  * @author Henrique Rosa

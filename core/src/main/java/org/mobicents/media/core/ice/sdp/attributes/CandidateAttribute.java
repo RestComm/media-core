@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 import javax.sdp.SdpException;
 
 import org.mobicents.media.core.ice.CandidateType;
-import org.mobicents.media.core.ice.candidate.IceCandidate;
+import org.mobicents.media.core.ice.IceCandidate;
 
 /**
  * Represents an ICEv19 candidate field as defined on <a

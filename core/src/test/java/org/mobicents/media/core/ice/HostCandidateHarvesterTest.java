@@ -3,16 +3,16 @@ package org.mobicents.media.core.ice;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.Selector;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.core.ice.candidate.IceCandidate;
-import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.lite.LiteFoundationsRegistry;
+
 import static org.junit.Assert.*;
 
 /**
@@ -59,9 +59,11 @@ public class HostCandidateHarvesterTest {
 				foundationsRegistry);
 		IceMediaStream mediaStream = new IceMediaStream("audio", true);
 
+		Selector selector = Selector.open();
+		
 		// when
 		try {
-			harvester.harvest(61000, mediaStream);
+			harvester.harvest(61000, mediaStream, selector);
 		} catch (NoCandidatesGatheredException e) {
 			fail();
 		} catch (HarvestException e) {
@@ -87,6 +89,7 @@ public class HostCandidateHarvesterTest {
 			assertEquals(candidate, candidate.getBase());
 			assertEquals(new InetSocketAddress(candidate.getAddress(),
 					candidate.getPort()), udpChannel.getLocalAddress());
+			assertNotNull(udpChannel.keyFor(selector));
 		}
 		// Evaluate RTCP candidates
 		for (LocalCandidateWrapper candidateWrapper : rtcpCandidates) {
@@ -99,6 +102,7 @@ public class HostCandidateHarvesterTest {
 			assertEquals(candidate, candidate.getBase());
 			assertEquals(new InetSocketAddress(candidate.getAddress(),
 					candidate.getPort()), udpChannel.getLocalAddress());
+			assertNotNull(udpChannel.keyFor(selector));
 		}
 	}
 

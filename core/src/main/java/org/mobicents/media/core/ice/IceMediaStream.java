@@ -12,6 +12,8 @@ public class IceMediaStream {
 	private final String name;
 	private IceComponent rtpComponent;
 	private IceComponent rtcpComponent;
+	private String remoteUfrag;
+	private String remotePassword;
 
 	public IceMediaStream(String name) {
 		this(name, true);
@@ -62,6 +64,14 @@ public class IceMediaStream {
 
 	public boolean supportsRtcp() {
 		return this.rtcpComponent != null;
+	}
+
+	public String getRemoteUfrag() {
+		return remoteUfrag;
+	}
+
+	public String getRemotePassword() {
+		return remotePassword;
 	}
 
 	/**

@@ -1,15 +1,18 @@
 package org.mobicents.media.core.ice;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.channels.Selector;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
+import org.mobicents.media.core.ice.network.ConnectivityCheckServer;
 
 public abstract class IceAgent {
 
@@ -18,6 +21,9 @@ public abstract class IceAgent {
 
 	protected final String ufrag;
 	protected final String password;
+
+	protected Selector selector;
+	protected ConnectivityCheckServer stunServer;
 
 	protected IceAgent() {
 		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
@@ -121,7 +127,7 @@ public abstract class IceAgent {
 
 	/**
 	 * Gathers all available candidates and sets the components of each media
-	 * stream
+	 * stream.
 	 * 
 	 * @param preferredPort
 	 *            The preferred port to bind candidates to
@@ -130,8 +136,25 @@ public abstract class IceAgent {
 	 */
 	public void gatherCandidates(int preferredPort) throws HarvestException,
 			NoCandidatesGatheredException {
+		try {
+			this.selector = Selector.open();
+		} catch (IOException e) {
+			throw new HarvestException("Could not initialize selector", e);
+		}
 		for (IceMediaStream mediaStream : getMediaStreams()) {
-			this.harvestManager.harvest(mediaStream, preferredPort);
+			this.harvestManager.harvest(mediaStream, preferredPort,
+					this.selector);
 		}
 	}
+
+	/**
+	 * Starts the ICE agent by activating its STUN stack.
+	 * <p>
+	 * <b>Full</b> ICE implementations start connectivity checks while listening
+	 * for incoming checks.<br>
+	 * <b>Lite</b> implementations are restricted to listen to incoming
+	 * connectivity checks.
+	 * </p>
+	 */
+	public abstract void start();
 }

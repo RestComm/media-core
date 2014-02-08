@@ -3,8 +3,6 @@ package org.mobicents.media.core.ice;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mobicents.media.core.ice.candidate.IceCandidate;
-
 /**
  * Registry that keeps records of generated foundations for the lifetime of an
  * ICE agent.

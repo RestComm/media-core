@@ -2,8 +2,6 @@ package org.mobicents.media.core.ice;
 
 import java.net.InetAddress;
 
-import org.mobicents.media.core.ice.candidate.IceCandidate;
-
 /**
  * A candidate obtained by binding to a specific port from an IP address on the
  * host.

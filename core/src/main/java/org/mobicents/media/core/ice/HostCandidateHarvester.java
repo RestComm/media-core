@@ -7,13 +7,15 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.mobicents.media.core.ice.candidate.LocalCandidateWrapper;
 import org.mobicents.media.core.ice.harvest.CandidateHarvester;
 import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.core.ice.network.stun.StunHandler;
 
 /**
  * Harvester that gathers Host candidates, ie transport addresses obtained
@@ -123,17 +125,22 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	 * @throws IOException
 	 *             When an error occurs while binding the datagram channel.
 	 */
-	private DatagramChannel openUdpChannel(InetAddress localAddress, int port)
-			throws IOException {
+	private DatagramChannel openUdpChannel(InetAddress localAddress, int port,
+			Selector selector) throws IOException {
 		// TODO Implement lookup mechanism for a range of ports
 		DatagramChannel channel = DatagramChannel.open();
 		channel.configureBlocking(false);
+		// Register selector for reading operations
+		SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+		// Attach a STUN handler to the selection key
+		StunHandler stunHandler = new StunHandler(key);
+		key.attach(stunHandler);
 		channel.bind(new InetSocketAddress(localAddress, port));
 		return channel;
 	}
 
-	public void harvest(int preferredPort, IceMediaStream mediaStream)
-			throws HarvestException {
+	public void harvest(int preferredPort, IceMediaStream mediaStream,
+			Selector selector) throws HarvestException {
 		// Find available addresses
 		List<InetAddress> addresses = findAddresses();
 
@@ -141,7 +148,8 @@ public class HostCandidateHarvester implements CandidateHarvester {
 		for (InetAddress address : addresses) {
 			// Gather candidate for RTP component
 			IceComponent rtpComponent = mediaStream.getRtpComponent();
-			int rtpPort = gatherCandidate(rtpComponent, address, preferredPort);
+			int rtpPort = gatherCandidate(rtpComponent, address, preferredPort,
+					selector);
 
 			// Gather candidate for RTCP component IF supported
 			// RTCP traffic will be bound to next logical port
@@ -149,7 +157,8 @@ public class HostCandidateHarvester implements CandidateHarvester {
 				// FIXME rtcp port should be next 'logical' port - hrosa
 				int rtcpPort = rtpPort + 1;
 				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
-				rtcpPort = gatherCandidate(rtcpComponent, address, rtcpPort);
+				rtcpPort = gatherCandidate(rtcpComponent, address, rtcpPort,
+						selector);
 			}
 		}
 	}
@@ -170,9 +179,9 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	 *         Returns 0 if gathering failed.
 	 */
 	private int gatherCandidate(IceComponent component, InetAddress address,
-			int port) {
+			int port, Selector selector) {
 		try {
-			DatagramChannel channel = openUdpChannel(address, port);
+			DatagramChannel channel = openUdpChannel(address, port, selector);
 			HostCandidate candidate = new HostCandidate(component, address,
 					port);
 			this.foundations.assignFoundation(candidate);

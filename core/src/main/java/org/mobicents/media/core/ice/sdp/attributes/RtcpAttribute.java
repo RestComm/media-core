@@ -4,7 +4,7 @@ import gov.nist.core.NameValue;
 import gov.nist.core.Separators;
 import gov.nist.javax.sdp.fields.AttributeField;
 
-import org.mobicents.media.core.ice.candidate.IceCandidate;
+import org.mobicents.media.core.ice.IceCandidate;
 
 public class RtcpAttribute extends AttributeField {
 

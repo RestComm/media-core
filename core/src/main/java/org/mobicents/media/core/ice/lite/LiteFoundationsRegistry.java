@@ -1,7 +1,7 @@
 package org.mobicents.media.core.ice.lite;
 
 import org.mobicents.media.core.ice.FoundationsRegistry;
-import org.mobicents.media.core.ice.candidate.IceCandidate;
+import org.mobicents.media.core.ice.IceCandidate;
 
 /**
  * Registry that keeps records of generated foundations for the lifetime of an

@@ -1,10 +1,6 @@
-package org.mobicents.media.core.ice.candidate;
+package org.mobicents.media.core.ice;
 
 import java.net.InetAddress;
-
-import org.mobicents.media.core.ice.CandidateType;
-import org.mobicents.media.core.ice.IceComponent;
-import org.mobicents.media.core.ice.TransportAddress;
 
 /**
  * A Candidate is a transport address that is a potential point of contact for

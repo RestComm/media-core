@@ -1,5 +1,7 @@
 package org.mobicents.media.core.ice.harvest;
 
+import java.nio.channels.Selector;
+
 import org.mobicents.media.core.ice.IceMediaStream;
 
 /**
@@ -19,10 +21,13 @@ public interface CandidateHarvester {
 	 *            The preferred port to bind the candidates to.
 	 * @param mediaStream
 	 *            The media stream to bind the candidate to.
+	 * @param selector
+	 *            the selector that will be registered to the data channel of
+	 *            the gathered candidates
 	 * @throws HarvestException
 	 *             When an error occurs during the candidate harvesting process.
 	 */
-	void harvest(int preferredPort, IceMediaStream mediaStream)
-			throws HarvestException;
+	void harvest(int preferredPort, IceMediaStream mediaStream,
+			Selector selector) throws HarvestException;
 
 }
