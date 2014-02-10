@@ -1,6 +1,7 @@
 package org.mobicents.media.core.ice.lite;
 
 import org.mobicents.media.core.ice.IceAgent;
+import org.mobicents.media.core.ice.network.nio.NioServer;
 
 
 public class IceLiteAgent extends IceAgent {
@@ -21,6 +22,17 @@ public class IceLiteAgent extends IceAgent {
 
 	@Override
 	public void start() {
-		this.stunServer.start();
+		// Candidates must be gathered and a selector available
+		if(this.selector == null) {
+			throw new IllegalStateException("Cannot start agent without gathering candidates first.");
+		}
+		
+		// Initialize connectivity server if necessary
+		if(this.connectivityCheckServer == null) {
+			this.connectivityCheckServer = new NioServer(this.selector);
+		}
+		
+		// Run connectivity check server
+		this.connectivityCheckServer.start();
 	}
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
-import org.mobicents.media.core.ice.network.ConnectivityCheckServer;
+import org.mobicents.media.core.ice.network.nio.NioServer;
 
 public abstract class IceAgent {
 
@@ -23,7 +23,7 @@ public abstract class IceAgent {
 	protected final String password;
 
 	protected Selector selector;
-	protected ConnectivityCheckServer stunServer;
+	protected NioServer connectivityCheckServer;
 
 	protected IceAgent() {
 		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
@@ -136,11 +136,16 @@ public abstract class IceAgent {
 	 */
 	public void gatherCandidates(int preferredPort) throws HarvestException,
 			NoCandidatesGatheredException {
-		try {
-			this.selector = Selector.open();
-		} catch (IOException e) {
-			throw new HarvestException("Could not initialize selector", e);
+		// Initialize the selector if necessary
+		if (this.selector == null) {
+			try {
+				this.selector = Selector.open();
+			} catch (IOException e) {
+				throw new HarvestException("Could not initialize selector", e);
+			}
 		}
+
+		// Gather candidates for each media stream
 		for (IceMediaStream mediaStream : getMediaStreams()) {
 			this.harvestManager.harvest(mediaStream, preferredPort,
 					this.selector);
