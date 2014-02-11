@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.mobicents.media.core.ice.harvest.CandidateHarvester;
 import org.mobicents.media.core.ice.harvest.HarvestException;
-import org.mobicents.media.core.ice.network.stun.StunHandler;
 
 /**
  * Harvester that gathers Host candidates, ie transport addresses obtained
@@ -131,10 +130,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 		DatagramChannel channel = DatagramChannel.open();
 		channel.configureBlocking(false);
 		// Register selector for reading operations
-		SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-		// Attach a STUN handler to the selection key
-		StunHandler stunHandler = new StunHandler(key);
-		key.attach(stunHandler);
+		channel.register(selector, SelectionKey.OP_READ);
 		channel.bind(new InetSocketAddress(localAddress, port));
 		return channel;
 	}

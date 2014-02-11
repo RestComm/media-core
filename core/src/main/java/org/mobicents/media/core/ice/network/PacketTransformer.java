@@ -1,9 +1,11 @@
 package org.mobicents.media.core.ice.network;
 
+import java.io.IOException;
+
 public interface PacketTransformer<T extends Packet> {
 
-	T encode(byte[] data);
+	T decode(byte[] data) throws IOException;
 	
-	byte[] decode(T packet);
+	byte[] encode(T packet) throws IOException;
 	
 }

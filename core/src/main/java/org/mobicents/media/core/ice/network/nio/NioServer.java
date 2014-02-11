@@ -6,26 +6,34 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.bouncycastle.util.Arrays;
+import org.mobicents.media.core.ice.network.ExpiringPipeline;
+import org.mobicents.media.core.ice.network.ExpiringProtocolHandler;
+import org.mobicents.media.core.ice.network.Pipeline;
 
+/**
+ * 
+ * @author Henrique Rosa
+ * 
+ */
 public class NioServer implements Runnable {
 
 	private static final int BUFFER_SIZE = 8192;
 
-	// The monitored selector
+	// The selector that monitors the registered channels
 	private Selector selector;
 
-	// The buffer into which we'll read data when it's available
+	// The buffer into which we will read data when it's available
 	private ByteBuffer buffer;
 
 	// Schedules events for posterior IO operations
-	private DataHandler dataHandler;
+	private EventScheduler scheduler;
 
 	// List of operation requests
 	private List<OperationRequest> operationRequests;
@@ -33,18 +41,22 @@ public class NioServer implements Runnable {
 	// Registers pending data per channel
 	private Map<DatagramChannel, List<ByteBuffer>> pendingData;
 
+	// Pipeline of packet handlers
+	private Pipeline<ExpiringProtocolHandler> protocolHandlers;
+
 	// Server execution controls
-	private Thread handlerThread;
+	private Thread schedulerThread;
 	private Thread serverThread;
 	private boolean running;
 
 	public NioServer(Selector selector) {
 		this.selector = selector;
 		this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
-		this.dataHandler = new DataHandler();
+		this.scheduler = new EventScheduler(this);
 		this.operationRequests = new LinkedList<OperationRequest>();
 		this.pendingData = new HashMap<DatagramChannel, List<ByteBuffer>>();
 		this.running = false;
+		this.protocolHandlers = new ExpiringPipeline<ExpiringProtocolHandler>();
 	}
 
 	public boolean isRunning() {
@@ -53,10 +65,10 @@ public class NioServer implements Runnable {
 
 	public void start() {
 		if (!this.running) {
-			this.handlerThread = new Thread(this.dataHandler);
+			this.schedulerThread = new Thread(this.scheduler);
 			this.serverThread = new Thread(this);
 
-			this.handlerThread.start();
+			this.schedulerThread.start();
 			this.serverThread.start();
 			this.running = true;
 		}
@@ -64,7 +76,7 @@ public class NioServer implements Runnable {
 
 	public void stop() {
 		if (this.running) {
-			this.handlerThread.interrupt();
+			this.schedulerThread.interrupt();
 			this.serverThread.interrupt();
 			this.running = false;
 		}
@@ -123,6 +135,10 @@ public class NioServer implements Runnable {
 		return data;
 	}
 
+	public void addProtocolHandler(ExpiringProtocolHandler handler) {
+		this.protocolHandlers.add(handler);
+	}
+
 	public void send(DatagramChannel channel, byte[] data) {
 		synchronized (this.operationRequests) {
 			// Alternate the channel mode to write
@@ -169,7 +185,12 @@ public class NioServer implements Runnable {
 
 		// Delegate work to a handler
 		byte[] data = this.buffer.array();
-		this.dataHandler.schedule(this, channel, data, dataLength);
+
+		ExpiringProtocolHandler protocolHandler = this.protocolHandlers
+				.getCurrent();
+		protocolHandler.handleMessage(key, data, dataLength);
+
+		this.scheduler.schedule(channel, data, dataLength);
 	}
 
 	private void write(SelectionKey key) throws IOException {
@@ -199,66 +220,6 @@ public class NioServer implements Runnable {
 				// Switch channel mode to read
 				key.interestOps(SelectionKey.OP_READ);
 			}
-		}
-	}
-
-	private class DataHandler implements Runnable {
-
-		private List<DataHandlerEvent> events;
-
-		public DataHandler() {
-			this.events = new ArrayList<DataHandlerEvent>();
-		}
-
-		public void schedule(NioServer server, DatagramChannel channel,
-				byte[] data, int dataLength) {
-			byte[] dataCopy = Arrays.copyOf(data, dataLength);
-			synchronized (this.events) {
-				DataHandlerEvent event = new DataHandlerEvent(server, channel,
-						dataCopy);
-				this.events.add(event);
-				this.events.notify();
-			}
-		}
-
-		public void run() {
-			DataHandlerEvent event;
-
-			// Wait for data to become available
-			while (true) {
-				synchronized (this.events) {
-					while (this.events.isEmpty()) {
-						try {
-							this.events.wait();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					// Incoming event received
-					event = this.events.remove(0);
-				}
-				// Launch the event on the server
-				event.launch();
-			}
-		}
-
-	}
-
-	private class DataHandlerEvent {
-		private NioServer server;
-		private DatagramChannel channel;
-		private byte[] data;
-
-		public DataHandlerEvent(NioServer server, DatagramChannel channel,
-				byte[] data) {
-			super();
-			this.server = server;
-			this.channel = channel;
-			this.data = data;
-		}
-
-		public void launch() {
-			this.server.send(channel, data);
 		}
 	}
 

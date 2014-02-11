@@ -2,6 +2,7 @@ package org.mobicents.media.core.ice;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.Map;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
-import org.mobicents.media.core.ice.network.nio.NioServer;
+import org.mobicents.media.core.ice.network.stun.ConnectivityCheckServer;
 
 public abstract class IceAgent {
 
@@ -23,7 +24,7 @@ public abstract class IceAgent {
 	protected final String password;
 
 	protected Selector selector;
-	protected NioServer connectivityCheckServer;
+	protected ConnectivityCheckServer connectivityCheckServer;
 
 	protected IceAgent() {
 		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
@@ -162,4 +163,8 @@ public abstract class IceAgent {
 	 * </p>
 	 */
 	public abstract void start();
+	
+	public void selectChannel(SelectionKey key) {
+		// TODO 
+	}
 }
