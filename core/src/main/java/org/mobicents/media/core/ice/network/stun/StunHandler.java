@@ -7,27 +7,25 @@ import java.nio.channels.SelectionKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.crypto.Mac;
 
-import org.ice4j.StunException;
-import org.ice4j.Transport;
-import org.ice4j.TransportAddress;
-import org.ice4j.attribute.Attribute;
-import org.ice4j.attribute.AttributeFactory;
-import org.ice4j.attribute.MessageIntegrityAttribute;
-import org.ice4j.attribute.PriorityAttribute;
-import org.ice4j.attribute.UsernameAttribute;
-import org.ice4j.message.Message;
-import org.ice4j.message.MessageFactory;
-import org.ice4j.message.Request;
-import org.ice4j.message.Response;
-import org.ice4j.stack.TransactionID;
+import org.mobicents.media.core.ice.TransportAddress;
+import org.mobicents.media.core.ice.TransportAddress.TransportProtocol;
 import org.mobicents.media.core.ice.network.ExpiringProtocolHandler;
+import org.mobicents.media.core.ice.network.stun.messages.StunMessage;
+import org.mobicents.media.core.ice.network.stun.messages.StunMessageFactory;
+import org.mobicents.media.core.ice.network.stun.messages.StunRequest;
+import org.mobicents.media.core.ice.network.stun.messages.StunResponse;
+import org.mobicents.media.core.ice.network.stun.messages.attributes.StunAttribute;
+import org.mobicents.media.core.ice.network.stun.messages.attributes.StunAttributeFactory;
+import org.mobicents.media.core.ice.network.stun.messages.attributes.general.MessageIntegrityAttribute;
+import org.mobicents.media.core.ice.network.stun.messages.attributes.general.PriorityAttribute;
+import org.mobicents.media.core.ice.network.stun.messages.attributes.general.UsernameAttribute;
 import org.mobicents.media.core.ice.security.IceAuthenticator;
 
 /**
+ * Handles STUN traffic.
  * 
  * @author Henrique Rosa
  * 
@@ -96,34 +94,34 @@ public class StunHandler implements ExpiringProtocolHandler {
 
 	public void handleMessage(SelectionKey key, byte[] data, int length)
 			throws IOException {
-		Message message;
+		StunMessage message;
 		try {
-			message = Message.decode(data, (char) 0, (char) length);
+			message = StunMessage.decode(data, (char) 0, (char) length);
 		} catch (StunException e) {
 			throw new IOException("Could not decode STUN packet.", e);
 		}
 
-		if (message instanceof Request) {
-			handleRequest((Request) message, key);
-		} else if (message instanceof Response) {
-			handleResponse((Response) message, key);
+		if (message instanceof StunRequest) {
+			handleRequest((StunRequest) message, key);
+		} else if (message instanceof StunResponse) {
+			handleResponse((StunResponse) message, key);
 		}
 		// TODO STUN Indication is not supported
 
 	}
 
-	private void handleRequest(Request request, SelectionKey key)
+	private void handleRequest(StunRequest request, SelectionKey key)
 			throws IOException {
 		/*
 		 * The agent MUST use a short-term credential to authenticate the
 		 * request and perform a message integrity check.
 		 */
 		UsernameAttribute uname = (UsernameAttribute) request
-				.getAttribute(Attribute.USERNAME);
+				.getAttribute(StunAttribute.USERNAME);
 
 		long priority = extractPriority(request);
 		boolean useCandidate = request
-				.containsAttribute(Attribute.USE_CANDIDATE);
+				.containsAttribute(StunAttribute.USE_CANDIDATE);
 		String username = new String(uname.getUsername());
 		/*
 		 * The agent MUST consider the username to be valid if it consists of
@@ -137,25 +135,28 @@ public class StunHandler implements ExpiringProtocolHandler {
 
 		// Produce Binding Response
 		DatagramChannel channel = (DatagramChannel) key.channel();
+		InetSocketAddress localAddress = (InetSocketAddress) channel
+				.getLocalAddress();
 		TransportAddress transportAddress = new TransportAddress(
-				(InetSocketAddress) channel.getRemoteAddress(), Transport.UDP);
-		Response response = MessageFactory.createBindingResponse(request,
-				transportAddress);
+				localAddress.getAddress(), localAddress.getPort(),
+				TransportProtocol.UDP);
+		StunResponse response = StunMessageFactory.createBindingResponse(
+				request, transportAddress);
 
 		/*
 		 * Add USERNAME and MESSAGE-INTEGRITY attribute in the response. The
 		 * responses utilize the same usernames and passwords as the requests
 		 */
-		Attribute usernameAttribute = AttributeFactory
+		StunAttribute usernameAttribute = StunAttributeFactory
 				.createUsernameAttribute(uname.getUsername());
 		response.addAttribute(usernameAttribute);
 
-		Attribute messageIntegrityAttribute = AttributeFactory
+		StunAttribute messageIntegrityAttribute = StunAttributeFactory
 				.createMessageIntegrityAttribute(new String(uname.getUsername()));
 		response.addAttribute(messageIntegrityAttribute);
 
 		// TODO Decode response
-		byte[] responseData = response.encode(null);
+		byte[] responseData = response.encode();
 		// TODO Pass response to the server
 
 		/*
@@ -170,16 +171,16 @@ public class StunHandler implements ExpiringProtocolHandler {
 		expire();
 	}
 
-	private void handleResponse(Response response, SelectionKey key) {
+	private void handleResponse(StunResponse response, SelectionKey key) {
 		throw new UnsupportedOperationException(
 				"Support to handle STUN responses is not implemented.");
 	}
 
-	private long extractPriority(Request request)
+	private long extractPriority(StunRequest request)
 			throws IllegalArgumentException {
 		// make sure we have a priority attribute and ignore otherwise.
 		PriorityAttribute priorityAttr = (PriorityAttribute) request
-				.getAttribute(Attribute.PRIORITY);
+				.getAttribute(StunAttribute.PRIORITY);
 		// extract priority
 		if (priorityAttr == null) {
 			throw new IllegalArgumentException("Missing PRIORITY attribtue!");
