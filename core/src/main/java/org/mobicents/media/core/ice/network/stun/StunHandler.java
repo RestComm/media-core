@@ -94,20 +94,18 @@ public class StunHandler implements ExpiringProtocolHandler {
 
 	public void handleMessage(SelectionKey key, byte[] data, int length)
 			throws IOException {
-		StunMessage message;
 		try {
-			message = StunMessage.decode(data, (char) 0, (char) length);
+			StunMessage message = StunMessage.decode(data, (char) 0,
+					(char) length);
+			if (message instanceof StunRequest) {
+				handleRequest((StunRequest) message, key);
+			} else if (message instanceof StunResponse) {
+				handleResponse((StunResponse) message, key);
+			}
+			// TODO STUN Indication is not supported
 		} catch (StunException e) {
 			throw new IOException("Could not decode STUN packet.", e);
 		}
-
-		if (message instanceof StunRequest) {
-			handleRequest((StunRequest) message, key);
-		} else if (message instanceof StunResponse) {
-			handleResponse((StunResponse) message, key);
-		}
-		// TODO STUN Indication is not supported
-
 	}
 
 	private void handleRequest(StunRequest request, SelectionKey key)

@@ -2,6 +2,7 @@ package org.mobicents.media.core.ice;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.security.SecureRandom;
@@ -26,6 +27,8 @@ public abstract class IceAgent implements IceAuthenticator {
 
 	protected Selector selector;
 	protected ConnectivityCheckServer connectivityCheckServer;
+	
+	private DatagramChannel selectedChannel;
 
 	protected IceAgent() {
 		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
@@ -79,12 +82,8 @@ public abstract class IceAgent implements IceAuthenticator {
 	 *            the <tt>Agent</tt> that should create the stream.
 	 * 
 	 * @return the newly created <tt>IceMediaStream</tt>.
-	 * @throws IceException
-	 *             if anything goes wrong.
-	 * @throws IllegalArgumentException
-	 *             When a stream with <code>streamName</code> already exists.
 	 */
-	public IceMediaStream addMediaStream(String streamName) throws IceException {
+	public IceMediaStream addMediaStream(String streamName) {
 		return addMediaStream(streamName, true);
 	}
 
@@ -166,7 +165,11 @@ public abstract class IceAgent implements IceAuthenticator {
 	public abstract void start();
 
 	public void selectChannel(SelectionKey key) {
-		// TODO
+		this.selectedChannel = (DatagramChannel) key.channel();
+	}
+	
+	public DatagramChannel getSelectedChannel() {
+		return selectedChannel;
 	}
 
 	public byte[] getLocalKey(String ufrag) {

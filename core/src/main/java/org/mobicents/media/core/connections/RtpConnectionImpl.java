@@ -22,36 +22,22 @@
 
 package org.mobicents.media.core.connections;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
 import java.text.ParseException;
-import java.util.List;
 
 import javax.sdp.SdpException;
-import javax.sdp.SdpParseException;
 
 import org.apache.log4j.Logger;
-import org.ice4j.TransportAddress;
-import org.ice4j.ice.Agent;
-import org.ice4j.ice.Component;
-import org.ice4j.ice.IceMediaStream;
-import org.ice4j.ice.IceProcessingState;
-import org.ice4j.ice.LocalCandidate;
-import org.ice4j.ice.RemoteCandidate;
-import org.ice4j.socket.DatagramSocketFactory;
-import org.ice4j.socket.DelegatingDatagramSocket;
 import org.mobicents.media.core.MediaTypes;
 import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
 import org.mobicents.media.core.ice.IceAgent;
-import org.mobicents.media.core.ice.IceException;
 import org.mobicents.media.core.ice.IceFactory;
-import org.mobicents.media.core.sdp.SdpNegotiator;
+import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
+import org.mobicents.media.core.ice.sdp.IceSdpNegotiator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -62,6 +48,7 @@ import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
+import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -101,7 +88,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 	private SessionDescription sdp = new SessionDescription();
 	protected SdpTemplate offerTemplate;
 	protected SdpTemplate answerTemplate;
-	private SdpNegotiator sdpNegotiator;
 	private String sdpOffer;
 	private String sdpAnswer;
 
@@ -113,7 +99,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	// ICE
 	private boolean useIce;
 	private IceAgent iceAgent;
-	private static final DatagramSocketFactory NIO_SOCKET_FACTORY = new IceNioSocketFactory();
+	private PortManager icePorts;
 
 	// WebRTC
 	private boolean useWebRtc;
@@ -151,6 +137,10 @@ public class RtpConnectionImpl extends BaseConnection implements
 		this.applicationFormats = getRTPMap(AVProfile.application);
 
 		offerTemplate = new SdpTemplate(this.audioFormats, this.videoFormats);
+
+		this.icePorts = new PortManager();
+		icePorts.setLowestPort(61000);
+		icePorts.setHighestPort(62000);
 	}
 
 	/**
@@ -318,6 +308,11 @@ public class RtpConnectionImpl extends BaseConnection implements
 		 */
 		if (!useIce) {
 			setAudioChannelRemotePeer(this.sdp.getAudioDescriptor());
+		} else {
+			// Start ICE agent before we send the SDP answer.
+			// The ICE agent will start listening for connectivity checks.
+			// FULL ICE implementations will also start connectivity checks.
+			this.iceAgent.start();
 		}
 
 		// Change the state of this RTP connection from HALF_OPEN to OPEN
@@ -340,10 +335,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	public void setOtherParty(Text descriptor) throws IOException {
 		try {
 			sdp.init(descriptor);
-			this.sdpNegotiator = new SdpNegotiator(descriptor.toString());
 		} catch (ParseException e) {
-			throw new IOException(e.getMessage());
-		} catch (SdpParseException e) {
 			throw new IOException(e.getMessage());
 		}
 		setOtherParty();
@@ -415,7 +407,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 				: channelsManager.getBindAddress();
 		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4",
 				bindAddress, rtpAudioChannel.getLocalPort(), 0);
-		this.sdpNegotiator = new SdpNegotiator(this.sdpOffer);
 	}
 
 	@Override
@@ -480,27 +471,22 @@ public class RtpConnectionImpl extends BaseConnection implements
 		 * https://telestax.atlassian.net/browse/MEDIA-16
 		 */
 		if (this.useIce) {
-			// Force ice4j to use a factory that produces NIO sockets
-			DelegatingDatagramSocket
-					.setDefaultDelegateFactory(NIO_SOCKET_FACTORY);
-
 			// Integrate with ICE Lite for WebRTC calls
 			// https://telestax.atlassian.net/browse/MEDIA-13
 			this.iceAgent = IceFactory.createLiteAgent();
-			this.sdpNegotiator.setIceAgent(iceAgent);
-
-			// Create streams for the agent to match the ones in the SDP offer
+			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName());
 			try {
-				this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName());
-				this.sdpNegotiator.setIceRemoteCandidates(MediaTypes.AUDIO
-						.lowerName());
-			} catch (IceException e) {
-				throw new IOException(
-						"Cannot create audio stream for ICE agent.", e);
+				this.iceAgent.gatherCandidates(icePorts.next());
+				// skip another port to avoid conflicts with RTCP port
+				icePorts.next();
+			} catch (NoCandidatesGatheredException e) {
+				throw new IOException("No ICE candidates were gathered.", e);
+			} catch (HarvestException e) {
+				throw new IOException("Could not harvest candidates.", e);
 			}
 
-			// FIXME cannot bind to ICE socket because it does not use NIO - hrosa
-			// this.rtpAudioChannel.bind(audioComponent.getDefaultCandidate().getDatagramSocket());
+			// TODO Streams must match the ones in SDP offer
+			// TODO set ice remote candidates
 		} else {
 			// For non-ICE calls the RTP audio channel can be bound immediately
 			this.rtpAudioChannel.bind(this.isLocal);
@@ -544,9 +530,9 @@ public class RtpConnectionImpl extends BaseConnection implements
 		}
 
 		this.sdpAnswer = this.answerTemplate.build();
-		if (this.useWebRtc) {
-			this.sdpAnswer = this.sdpNegotiator.answer(this.sdpAnswer)
-					.toString();
+		if (this.useIce) {
+			this.sdpAnswer = IceSdpNegotiator.updateAnswer(sdpAnswer,
+					this.iceAgent).toString();
 		}
 	}
 
@@ -591,20 +577,4 @@ public class RtpConnectionImpl extends BaseConnection implements
 		}
 		setAudioChannelRemotePeer(peerAddress, peerPort);
 	}
-
-	private static class IceNioSocketFactory implements
-			org.ice4j.socket.DatagramSocketFactory {
-
-		public DatagramSocket createUnboundDatagramSocket()
-				throws SocketException {
-			try {
-				DatagramChannel channel = DatagramChannel.open();
-				return channel.socket();
-			} catch (IOException e) {
-				throw new RuntimeException(
-						"Could not produce a NIO Socket for ICE agent.", e);
-			}
-		}
-	}
-
 }

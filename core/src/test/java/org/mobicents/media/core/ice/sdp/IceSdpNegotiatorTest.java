@@ -57,7 +57,7 @@ public class IceSdpNegotiatorTest {
 		agent.gatherCandidates(61000);
 
 		// when
-		SessionDescription sdp = negotiator.negotiate(sdpAnswer, agent);
+		SessionDescription sdp = negotiator.updateAnswer(sdpAnswer, agent);
 
 		// then
 		// Verify ice-ufrag and ice-pwd attributes exist

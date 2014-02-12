@@ -25,7 +25,6 @@ public class ConnectivityCheckServer extends NioServer {
 		public void onSuccessfulResponse(SelectionKey key) {
 			agent.selectChannel(key);
 		}
-
 	}
 
 }
