@@ -7,6 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.Mac;
 
@@ -22,32 +23,31 @@ import org.ice4j.message.Message;
 import org.ice4j.message.MessageFactory;
 import org.ice4j.message.Request;
 import org.ice4j.message.Response;
-import org.ice4j.security.CredentialsManager;
+import org.ice4j.stack.TransactionID;
 import org.mobicents.media.core.ice.network.ExpiringProtocolHandler;
+import org.mobicents.media.core.ice.security.IceAuthenticator;
 
 /**
  * 
  * @author Henrique Rosa
  * 
  */
-public class StunStack implements ExpiringProtocolHandler {
+public class StunHandler implements ExpiringProtocolHandler {
 
 	private static final String PROTOCOL = "stun";
-
-	private CredentialsManager credentialsManager;
 	private static Mac mac;
 
+	private final IceAuthenticator authenticator;
+	private final List<StunListener> listeners;
 	private boolean expired;
 
-	private List<StunListener> listeners;
-
-	public StunStack() {
-		synchronized (StunStack.class) {
+	public StunHandler(IceAuthenticator authenticator) {
+		synchronized (StunHandler.class) {
 			if (mac == null) {
 				generateMac();
 			}
 		}
-		this.credentialsManager = new CredentialsManager();
+		this.authenticator = authenticator;
 		this.expired = false;
 		this.listeners = new ArrayList<StunListener>();
 	}
@@ -112,7 +112,8 @@ public class StunStack implements ExpiringProtocolHandler {
 
 	}
 
-	private void handleRequest(Request request, SelectionKey key) throws IOException {
+	private void handleRequest(Request request, SelectionKey key)
+			throws IOException {
 		/*
 		 * The agent MUST use a short-term credential to authenticate the
 		 * request and perform a message integrity check.
@@ -160,7 +161,7 @@ public class StunStack implements ExpiringProtocolHandler {
 		/*
 		 * Stun Stack successfully replied to the binding request.
 		 * 
-		 * Alert the ICE agent that the remote candidate was selected and pass
+		 * Alert the listeners that the remote candidate was selected and pass
 		 * the selector key to indicate which socket is available.
 		 * 
 		 * The connectivity check server can be shutdown.

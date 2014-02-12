@@ -21,7 +21,7 @@ public class TransportAddress extends InetSocketAddress {
 
 	protected TransportProtocol protocol;
 	protected boolean virtual;
-	
+
 	public TransportAddress(InetAddress addr, int port,
 			TransportProtocol protocol) {
 		super(addr, port);
@@ -64,13 +64,17 @@ public class TransportAddress extends InetSocketAddress {
 	public TransportProtocol getProtocol() {
 		return protocol;
 	}
-	
+
 	public boolean isVirtual() {
 		return this.virtual;
 	}
-	
+
 	public void setVirtual(boolean virtual) {
 		this.virtual = virtual;
+	}
+
+	public byte[] getAddressBytes() {
+		return this.getAddress().getAddress();
 	}
 
 }

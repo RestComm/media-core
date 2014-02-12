@@ -14,8 +14,9 @@ import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.network.stun.ConnectivityCheckServer;
+import org.mobicents.media.core.ice.security.IceAuthenticator;
 
-public abstract class IceAgent {
+public abstract class IceAgent implements IceAuthenticator {
 
 	private final Map<String, IceMediaStream> mediaStreams;
 	private final HarvestManager harvestManager;
@@ -163,8 +164,77 @@ public abstract class IceAgent {
 	 * </p>
 	 */
 	public abstract void start();
-	
+
 	public void selectChannel(SelectionKey key) {
-		// TODO 
+		// TODO
+	}
+
+	public byte[] getLocalKey(String ufrag) {
+		if (isUserRegistered(ufrag)) {
+			if (this.password != null) {
+				return this.password.getBytes();
+			}
+		}
+		return null;
+	}
+
+	public byte[] getRemoteKey(String ufrag, String media) {
+		// Verify if media stream exists
+		IceMediaStream stream = getMediaStream(media);
+		if (stream == null) {
+			return null;
+		}
+
+		// Check whether full username is provided or just the fragment
+		int colon = ufrag.indexOf(":");
+		if (colon < 0) {
+			if (ufrag.equals(stream.getRemoteUfrag())) {
+				return stream.getRemotePassword().getBytes();
+			}
+		} else {
+			if (ufrag.equals(getLocalUsername(stream))) {
+				if (stream.getRemotePassword() != null) {
+					return stream.getRemotePassword().getBytes();
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the user name that the ICE Agent should use in connectivity
+	 * checks for outgoing Binding Requests. According to RFC 5245, a Binding
+	 * Request serving as a connectivity check MUST utilize the STUN short term
+	 * credential mechanism. The username for the credential is formed by
+	 * concatenating the username fragment provided by the peer with the
+	 * username fragment of the agent sending the request, separated by a colon
+	 * (":"). The password is equal to the password provided by the peer. For
+	 * example, consider the case where agent L is the offerer, and agent R is
+	 * the answerer. Agent L included a username fragment of LFRAG for its
+	 * candidates, and a password of LPASS. Agent R provided a username fragment
+	 * of RFRAG and a password of RPASS. A connectivity check from L to R (and
+	 * its response of course) utilize the username RFRAG:LFRAG and a password
+	 * of RPASS. A connectivity check from R to L (and its response) utilize the
+	 * username LFRAG:RFRAG and a password of LPASS.
+	 * 
+	 * @param media
+	 *            media name that we want to generate local username for.
+	 * @return a user name that this <tt>Agent</tt> can use in connectivity
+	 *         check for outgoing Binding Requests.
+	 */
+	private String getLocalUsername(IceMediaStream stream) {
+		if (stream != null) {
+			if (stream.getRemotePassword() != null) {
+				return this.ufrag + ":" + stream.getRemotePassword();
+			}
+		}
+		return null;
+
+	}
+
+	public boolean isUserRegistered(String ufrag) {
+		int colon = ufrag.indexOf(":");
+		String result = colon < 0 ? ufrag : ufrag.substring(0, colon);
+		return result.equals(this.ufrag);
 	}
 }
