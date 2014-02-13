@@ -173,6 +173,9 @@ public class NioServer implements Runnable {
 		int dataLength = 0;
 		try {
 			SocketAddress remotePeer = channel.receive(this.buffer);
+			if(!channel.isConnected() && remotePeer != null) {
+				channel.connect(remotePeer);
+			}
 			dataLength = (remotePeer == null) ? -1 : this.buffer.position();
 		} catch (IOException e) {
 			dataLength = -1;
@@ -187,23 +190,33 @@ public class NioServer implements Runnable {
 
 		// Delegate work to a handler
 		byte[] data = this.buffer.array();
-
 		ExpiringProtocolHandler protocolHandler = this.protocolHandlers
 				.getCurrent();
-		protocolHandler.handleMessage(key, data, dataLength);
 
-		this.scheduler.schedule(channel, data, dataLength);
+		if (protocolHandler == null) {
+			// All handlers finished executing and pipeline is now empty
+			// this.stop();
+		} else {
+			// Handler processes the requests and provides an answer
+			byte[] response = protocolHandler.handleMessage(key, data,
+					dataLength);
+			// Keep reading if handler provided no answer
+			if (response != null) {
+				this.scheduler.schedule(channel, response, response.length);
+			}
+		}
 	}
 
 	private void write(SelectionKey key) throws IOException {
 		DatagramChannel channel = (DatagramChannel) key.channel();
 		synchronized (this.pendingData) {
 			// Retrieve data from registered channel
-			List<ByteBuffer> queue = this.pendingData.get(key);
+			List<ByteBuffer> queue = this.pendingData.get(key.channel());
 
 			// Write all pending data
 			while (!queue.isEmpty()) {
 				ByteBuffer dataBuffer = queue.get(0);
+				channel.send(dataBuffer, channel.getRemoteAddress());
 				channel.write(dataBuffer);
 
 				if (dataBuffer.remaining() > 0) {

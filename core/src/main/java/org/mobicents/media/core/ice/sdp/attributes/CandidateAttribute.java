@@ -220,8 +220,8 @@ public class CandidateAttribute extends AttributeField {
 		default:
 			break;
 		}
-		builder.append("generation ");
-		builder.append(this.generation);
+//		builder.append("generation ");
+//		builder.append(this.generation);
 		return builder.toString();
 	}
 

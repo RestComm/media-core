@@ -12,6 +12,6 @@ public interface ProtocolHandler {
 
 	String getProtocol();
 	
-	void handleMessage(SelectionKey key, byte[] data, int length) throws IOException;
+	byte[] handleMessage(SelectionKey key, byte[] data, int length) throws IOException;
 	
 }
