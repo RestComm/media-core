@@ -84,12 +84,12 @@ public class IceSdpNegotiator {
 						"RTP component does not have a default local candidate selected.");
 			}
 
-			IceCandidate defaultCandidate = rtpComponent
+			IceCandidate defaultRtpCandidate = rtpComponent
 					.getDefaultLocalCandidate().getCandidate();
-			String defaultAddress = defaultCandidate.getAddress()
+			String defaultAddress = defaultRtpCandidate.getAddress()
 					.getHostAddress();
-			int defaultPort = defaultCandidate.getPort();
-			String addressType = defaultCandidate.isIPv4() ? "IP4" : "IP6";
+			int defaultPort = defaultRtpCandidate.getPort();
+			String addressType = defaultRtpCandidate.isIPv4() ? "IP4" : "IP6";
 
 			// SdpTemplate only uses global connection 'c=' line
 			Connection mediaConnection = mediaStream.getConnection();
@@ -111,8 +111,11 @@ public class IceSdpNegotiator {
 			 * Otherwise, the agent must signal that using 'b=RS:0' and 'b=RR:0'
 			 */
 			if (iceStream.supportsRtcp()) {
+				IceComponent rtcpComponent = iceStream.getRtcpComponent();
+				IceCandidate defaultRtcpCandidate = rtcpComponent
+						.getDefaultLocalCandidate().getCandidate();
 				RtcpAttribute rtcpAttribute = new RtcpAttribute(
-						defaultCandidate, "IN");
+						defaultRtcpCandidate, "IN");
 				mediaStream.addAttribute(rtcpAttribute);
 			} else {
 				mediaStream.setBandwidth("RS", 0);

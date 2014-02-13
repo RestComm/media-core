@@ -1,12 +1,12 @@
 package org.mobicents.media.core.ice.network.nio;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -166,19 +166,21 @@ public class NioServer implements Runnable {
 		this.buffer.clear();
 
 		// Read data from channel
-		int dataLength = 0;
-		try {
-			dataLength = channel.read(this.buffer);
-		} catch (IOException e) {
-			// The remote peer forcibly closed the connection
-			key.cancel();
-			channel.close();
-			return;
+		if (channel.isConnected()) {
+
 		}
 
+		int dataLength = 0;
+		try {
+			SocketAddress remotePeer = channel.receive(this.buffer);
+			dataLength = (remotePeer == null) ? -1 : this.buffer.position();
+		} catch (IOException e) {
+			dataLength = -1;
+		}
+
+		// Stop if socket was shutdown or error occurred
 		if (dataLength == -1) {
-			// Remote peer cleanly shut down the socket
-			key.channel().close();
+			channel.close();
 			key.cancel();
 			return;
 		}
