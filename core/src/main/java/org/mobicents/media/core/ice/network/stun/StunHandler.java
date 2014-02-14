@@ -112,7 +112,7 @@ public class StunHandler implements ExpiringProtocolHandler {
 
 	private byte[] handleRequest(StunRequest request, SelectionKey key)
 			throws IOException {
-		byte[] transactionID = request.getTransactionID();
+		byte[] transactionID = request.getTransactionId();
 
 		/*
 		 * The agent MUST use a short-term credential to authenticate the

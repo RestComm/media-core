@@ -10,8 +10,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.ice4j.StackProperties;
-import org.ice4j.stack.TransactionID;
 import org.mobicents.media.core.ice.network.stun.StunException;
 import org.mobicents.media.core.ice.network.stun.messages.attributes.StunAttribute;
 import org.mobicents.media.core.ice.network.stun.messages.attributes.StunAttributeDecoder;
@@ -19,6 +17,7 @@ import org.mobicents.media.core.ice.network.stun.messages.attributes.StunAttribu
 import org.mobicents.media.core.ice.network.stun.messages.attributes.general.ContextDependentAttribute;
 import org.mobicents.media.core.ice.network.stun.messages.attributes.general.FingerprintAttribute;
 
+// TODO Implement STUN Properties. See StackProperties from ice4j - hrosa
 public class StunMessage {
 
 	private static final Logger logger = Logger.getLogger(StunMessage.class
@@ -449,7 +448,7 @@ public class StunMessage {
 	 * 
 	 * @return a reference to this message's transaction id.
 	 */
-	public byte[] getTransactionID() {
+	public byte[] getTransactionId() {
 		return this.transactionID;
 	}
 
@@ -711,7 +710,7 @@ public class StunMessage {
 
 		offset += 2;
 
-		byte tranID[] = getTransactionID();
+		byte tranID[] = getTransactionId();
 
 		if (tranID.length == 12) {
 			System.arraycopy(MAGIC_COOKIE, 0, binMsg, offset, 4);
@@ -789,7 +788,7 @@ public class StunMessage {
 
 		// add a SOFTWARE attribute if the user said so, and unless they did it
 		// themselves.
-		String software = System.getProperty(StackProperties.SOFTWARE);
+		String software = System.getProperty("TelScale Media Server");
 
 		if (getAttribute(StunAttribute.SOFTWARE) == null && software != null
 				&& software.length() > 0) {
@@ -804,8 +803,7 @@ public class StunMessage {
 
 		// add FINGERPRINT if there was one or if user told us to add it
 		// everywhere.
-		if (fingerprint == null
-				&& Boolean.getBoolean(StackProperties.ALWAYS_SIGN)) {
+		if (fingerprint == null) {
 			fingerprint = StunAttributeFactory.createFingerprintAttribute();
 		}
 
@@ -1088,11 +1086,11 @@ public class StunMessage {
 		stringBuilder.append(" len=");
 		stringBuilder.append((int) this.getDataLength());
 
-		byte[] transactionID = getTransactionID();
+		byte[] transactionId = getTransactionId();
 
-		if (transactionID != null) {
+		if (transactionId != null) {
 			stringBuilder.append(" tranID=");
-			stringBuilder.append(TransactionID.toString(transactionID));
+			stringBuilder.append(StunTransactionId.readableFormat(transactionId));
 		}
 		stringBuilder.append("]");
 		return stringBuilder.toString();

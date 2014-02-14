@@ -88,5 +88,17 @@ public class StunTransactionId {
 		}
 		return idStr.toString();
 	}
+	
+	public static String readableFormat(byte[] transactionId) {
+		StringBuilder idStr = new StringBuilder("0x");
+		for (int i = 0; i < transactionId.length; i++) {
+			if ((transactionId[i] & 0xFF) <= 15) {
+				idStr.append("0");
+			}
+			idStr.append(Integer.toHexString(transactionId[i] & 0xff)
+					.toUpperCase());
+		}
+		return idStr.toString();
+	}
 
 }

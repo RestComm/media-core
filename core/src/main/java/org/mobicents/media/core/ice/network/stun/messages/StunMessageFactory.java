@@ -32,7 +32,7 @@ public class StunMessageFactory {
 		// XOR mapped address
 		XorMappedAddressAttribute xorMappedAddressAttribute = StunAttributeFactory
 				.createXorMappedAddressAttribute(mappedAddress,
-						request.getTransactionID());
+						request.getTransactionId());
 
 		bindingResponse.addAttribute(xorMappedAddressAttribute);
 
