@@ -13,7 +13,7 @@ import java.util.List;
  * @param <T>
  *            The type of expiring components that compose the pipeline
  */
-public class ExpiringPipeline<T extends Expiring> implements Pipeline<T> {
+public class ExpiringPipeline<T extends Expirable> implements Pipeline<T> {
 
 	private final List<T> components;
 	private volatile int currentIndex;

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.mobicents.media.core.ice.network.ExpiringPipeline;
-import org.mobicents.media.core.ice.network.ExpiringProtocolHandler;
+import org.mobicents.media.core.ice.network.ExpirableProtocolHandler;
 import org.mobicents.media.core.ice.network.Pipeline;
 
 /**
@@ -42,7 +42,7 @@ public class NioServer implements Runnable {
 	private Map<DatagramChannel, List<ByteBuffer>> pendingData;
 
 	// Pipeline of packet handlers
-	private Pipeline<ExpiringProtocolHandler> protocolHandlers;
+	private Pipeline<ExpirableProtocolHandler> protocolHandlers;
 
 	// Server execution controls
 	private Thread schedulerThread;
@@ -56,7 +56,7 @@ public class NioServer implements Runnable {
 		this.operationRequests = new LinkedList<OperationRequest>();
 		this.pendingData = new HashMap<DatagramChannel, List<ByteBuffer>>();
 		this.running = false;
-		this.protocolHandlers = new ExpiringPipeline<ExpiringProtocolHandler>();
+		this.protocolHandlers = new ExpiringPipeline<ExpirableProtocolHandler>();
 	}
 
 	public boolean isRunning() {
@@ -135,7 +135,7 @@ public class NioServer implements Runnable {
 		return data;
 	}
 
-	public void addProtocolHandler(ExpiringProtocolHandler handler) {
+	public void addProtocolHandler(ExpirableProtocolHandler handler) {
 		this.protocolHandlers.add(handler);
 	}
 
@@ -190,7 +190,7 @@ public class NioServer implements Runnable {
 
 		// Delegate work to a handler
 		byte[] data = this.buffer.array();
-		ExpiringProtocolHandler protocolHandler = this.protocolHandlers
+		ExpirableProtocolHandler protocolHandler = this.protocolHandlers
 				.getCurrent();
 
 		if (protocolHandler == null) {

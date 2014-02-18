@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice;
 
+import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,12 +19,14 @@ public class IceComponent {
 
 	private final List<LocalCandidateWrapper> localCandidates;
 	private LocalCandidateWrapper defaultLocalCandidate;
+	private final List<IceCandidate> remoteCandidates;
+	private IceCandidate defaultRemoteCandidate;
 
-	// private List<IceCandidate> remoteCandidates;
-	// private IceCandidate defaultRemoteCandidate;
+	private CandidatePair candidatePair;
 
 	public IceComponent(int componentId) {
 		this.localCandidates = new ArrayList<LocalCandidateWrapper>(5);
+		this.remoteCandidates = new ArrayList<IceCandidate>(5);
 		setComponentId(componentId);
 	}
 
@@ -136,7 +139,7 @@ public class IceComponent {
 		this.defaultLocalCandidate = this.localCandidates.get(0);
 		return this.defaultLocalCandidate;
 	}
-	
+
 	public List<LocalCandidateWrapper> getLocalCandidates() {
 		List<LocalCandidateWrapper> copy;
 		synchronized (this.localCandidates) {
@@ -144,12 +147,26 @@ public class IceComponent {
 		}
 		return copy;
 	}
-	
+
 	public LocalCandidateWrapper getDefaultLocalCandidate() {
 		return defaultLocalCandidate;
 	}
-	
+
 	public boolean isDefaultLocalCandidateSelected() {
 		return this.defaultLocalCandidate != null;
+	}
+
+	public CandidatePair getSelectedCandidates() {
+		return candidatePair;
+	}
+
+	public CandidatePair setCandidatePair(SelectionKey key) {
+		for (LocalCandidateWrapper localCandidate : getLocalCandidates()) {
+			if (key.channel().equals(localCandidate.getChannel())) {
+				this.candidatePair = new CandidatePair(componentId, key);
+				return this.candidatePair;
+			}
+		}
+		return null;
 	}
 }

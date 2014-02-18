@@ -27,7 +27,7 @@ public class LocalCandidateWrapper implements CandidateWrapper, Comparable<Local
 		return this.candidate;
 	}
 
-	public DatagramChannel getUdpChannel() {
+	public DatagramChannel getChannel() {
 		return udpChannel;
 	}
 

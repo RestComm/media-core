@@ -1,6 +1,5 @@
 package org.mobicents.media.core.ice.network.stun;
 
-import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import org.mobicents.media.core.ice.IceAgent;
@@ -16,14 +15,24 @@ public class ConnectivityCheckServer extends NioServer {
 		super(selector);
 		this.agent = agent;
 		this.stunStack = new StunHandler(this.agent);
-		this.stunListener = new StunListenerImpl();
 		this.addProtocolHandler(stunStack);
+		this.stunListener = new StunListenerImpl(this.agent);
+		this.stunStack.addListener(this.stunListener);
 	}
 
 	protected class StunListenerImpl implements StunListener {
 
-		public void onSuccessfulResponse(SelectionKey key) {
-			agent.selectChannel(key);
+		private final IceAgent agent;
+		
+		public StunListenerImpl(IceAgent agent) {
+			this.agent = agent;
+		}
+		
+		public void onBinding(BindingSuccessEvent event) {
+			this.agent.selectCandidatePair(event.getKey());
+			if(agent.isSelectionFinished()) {
+				event.getSource().expire();
+			}
 		}
 	}
 

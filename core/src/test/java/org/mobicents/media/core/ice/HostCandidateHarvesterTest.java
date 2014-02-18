@@ -40,7 +40,7 @@ public class HostCandidateHarvesterTest {
 		IceComponent rtpComponent = mediaStream.getRtpComponent();
 		for (LocalCandidateWrapper localCandidate : rtpComponent
 				.getLocalCandidates()) {
-			DatagramChannel channel = localCandidate.getUdpChannel();
+			DatagramChannel channel = localCandidate.getChannel();
 			if (channel.isOpen()) {
 				try {
 					channel.close();
@@ -80,7 +80,7 @@ public class HostCandidateHarvesterTest {
 		assertTrue(rtcpCandidates.size() > 0);
 		// Evaluate RTP Candidates
 		for (LocalCandidateWrapper candidateWrapper : rtpCandidates) {
-			DatagramChannel udpChannel = candidateWrapper.getUdpChannel();
+			DatagramChannel udpChannel = candidateWrapper.getChannel();
 			assertFalse(udpChannel.isBlocking());
 			assertFalse(udpChannel.isConnected());
 			assertTrue(udpChannel.isOpen());
@@ -93,7 +93,7 @@ public class HostCandidateHarvesterTest {
 		}
 		// Evaluate RTCP candidates
 		for (LocalCandidateWrapper candidateWrapper : rtcpCandidates) {
-			DatagramChannel udpChannel = candidateWrapper.getUdpChannel();
+			DatagramChannel udpChannel = candidateWrapper.getChannel();
 			assertFalse(udpChannel.isBlocking());
 			assertFalse(udpChannel.isConnected());
 			assertTrue(udpChannel.isOpen());

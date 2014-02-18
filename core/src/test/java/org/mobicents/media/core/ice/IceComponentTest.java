@@ -55,7 +55,7 @@ public class IceComponentTest {
 	private void clearLocalCandidates() {
 		for (LocalCandidateWrapper candidateWrapper : this.localCandidates) {
 			try {
-				DatagramChannel udpChannel = candidateWrapper.getUdpChannel();
+				DatagramChannel udpChannel = candidateWrapper.getChannel();
 				if (udpChannel.isConnected()) {
 					udpChannel.disconnect();
 				}

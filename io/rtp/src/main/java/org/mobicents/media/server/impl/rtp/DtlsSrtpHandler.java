@@ -68,27 +68,25 @@ public class DtlsSrtpHandler {
 	 * @param socket
 	 *            The UDP socket used to establish the handshake.
 	 */
-	public DtlsSrtpHandler(final DatagramChannel channel,
-			final DatagramSocket socket) {
-		this.socket = socket;
-		this.channel = channel;
+	public DtlsSrtpHandler(final DatagramChannel channel) {
+		if (channel != null) {
+			this.channel = channel;
+			this.socket = channel.socket();
+		}
 		this.server = new DtlsSrtpServer();
 		this.handshakeComplete = false;
 		this.handshakeListeners = new ArrayList<HandshakeCompleteListener>();
 	}
 
-	/**
-	 * Creates a new DTLS-SRTP handler to perform the handshake and
-	 * encode/decode RTP packets.<br>
-	 * This constructor should only be used at the moment when the ICE agent
-	 * still haven't provided a UDP socket from the selected candidate pair. The
-	 * handshake can only be performed when such socket is made available.
-	 * 
-	 * @param channel
-	 *            The datagram channel the will be blocked during the handshake.
-	 */
-	public DtlsSrtpHandler(final DatagramChannel channel) {
-		this(channel, null);
+	public DtlsSrtpHandler() {
+		this.server = new DtlsSrtpServer();
+		this.handshakeComplete = false;
+		this.handshakeListeners = new ArrayList<HandshakeCompleteListener>();
+	}
+
+	public void setChannel(DatagramChannel channel) {
+		this.channel = channel;
+		this.socket = channel.socket();
 	}
 
 	public Text getLocalFingerprint() {

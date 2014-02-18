@@ -4,15 +4,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.crypto.Mac;
-
 import org.mobicents.media.core.ice.TransportAddress;
 import org.mobicents.media.core.ice.TransportAddress.TransportProtocol;
-import org.mobicents.media.core.ice.network.ExpiringProtocolHandler;
+import org.mobicents.media.core.ice.network.ExpirableProtocolHandler;
 import org.mobicents.media.core.ice.network.stun.messages.StunMessage;
 import org.mobicents.media.core.ice.network.stun.messages.StunMessageFactory;
 import org.mobicents.media.core.ice.network.stun.messages.StunRequest;
@@ -30,10 +27,9 @@ import org.mobicents.media.core.ice.security.IceAuthenticator;
  * @author Henrique Rosa
  * 
  */
-public class StunHandler implements ExpiringProtocolHandler {
+public class StunHandler implements ExpirableProtocolHandler {
 
 	private static final String PROTOCOL = "stun";
-	private static Mac mac;
 
 	private final IceAuthenticator authenticator;
 	private final List<StunListener> listeners;
@@ -41,24 +37,9 @@ public class StunHandler implements ExpiringProtocolHandler {
 	private boolean expired;
 
 	public StunHandler(IceAuthenticator authenticator) {
-		synchronized (StunHandler.class) {
-			if (mac == null) {
-				generateMac();
-			}
-		}
 		this.authenticator = authenticator;
 		this.expired = false;
 		this.listeners = new ArrayList<StunListener>();
-	}
-
-	private void generateMac() throws RuntimeException {
-		try {
-			mac = Mac
-					.getInstance(MessageIntegrityAttribute.HMAC_SHA1_ALGORITHM);
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(
-					"Could not obtain Message Authentication Certificate.", e);
-		}
 	}
 
 	public void addListener(StunListener listener) {
@@ -76,8 +57,10 @@ public class StunHandler implements ExpiringProtocolHandler {
 					.size()]);
 		}
 
+		// Fire the successful binding event
+		BindingSuccessEvent event = new BindingSuccessEvent(this, key);
 		for (StunListener listener : copy) {
-			listener.onSuccessfulResponse(key);
+			listener.onBinding(event);
 		}
 	}
 
@@ -89,7 +72,7 @@ public class StunHandler implements ExpiringProtocolHandler {
 		return this.expired;
 	}
 
-	private void expire() {
+	public void expire() {
 		this.expired = true;
 	}
 
@@ -175,7 +158,6 @@ public class StunHandler implements ExpiringProtocolHandler {
 			 * The connectivity check server can be shutdown.
 			 */
 			fireOnSuccessResponse(key);
-//			expire();
 		}
 
 		// Pass response to the server

@@ -24,8 +24,12 @@ import java.net.PortUnreachableException;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.spi.AbstractSelector;
+import java.nio.channels.spi.SelectorProvider;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
@@ -320,10 +324,23 @@ public class RTPDataChannel {
 		}
 	}
 
+	public void bind(DatagramChannel channel) throws IOException {
+		this.rxBuffer.setBufferInUse(true);
+		this.dataChannel = channel;
+		Selector selector = Selector.open();
+		SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+		key.attach(rtpHandler);
+		this.udpManager.addSelector(selector);
+		if (this.isWebRtc) {
+			key.cancel();
+			this.webRtcHandler.setChannel(this.dataChannel);
+		}
+	}
+
 	public boolean isDataChannelBound() {
 		return dataChannelBound;
 	}
-	
+
 	/**
 	 * Gets the port number to which this channel is bound.
 	 * 

@@ -11,7 +11,7 @@ import java.net.InetAddress;
  * @author Henrique Rosa
  * 
  */
-public abstract class IceCandidate extends TransportAddress implements
+public class IceCandidate extends TransportAddress implements
 		Comparable<IceCandidate>, Cloneable {
 
 	private static final long serialVersionUID = 2306608901365110071L;
@@ -56,8 +56,8 @@ public abstract class IceCandidate extends TransportAddress implements
 	 */
 	protected IceCandidate base;
 
-	protected IceCandidate(IceComponent component, InetAddress address,
-			int port, final CandidateType type) {
+	public IceCandidate(IceComponent component, InetAddress address, int port,
+			final CandidateType type) {
 		super(address, port, TransportProtocol.UDP);
 		this.component = component;
 		this.type = type;

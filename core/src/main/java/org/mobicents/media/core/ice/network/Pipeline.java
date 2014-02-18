@@ -7,7 +7,7 @@ package org.mobicents.media.core.ice.network;
  * @param <T>
  *            The type of components that compose the pipeline.
  */
-public interface Pipeline<T extends Expiring> {
+public interface Pipeline<T extends Expirable> {
 
 	T getCurrent();
 

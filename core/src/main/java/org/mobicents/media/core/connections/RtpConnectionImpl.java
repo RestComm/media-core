@@ -25,6 +25,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.channels.DatagramChannel;
 import java.text.ParseException;
 
 import javax.sdp.SdpException;
@@ -33,8 +34,11 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.core.MediaTypes;
 import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
+import org.mobicents.media.core.ice.CandidatePair;
 import org.mobicents.media.core.ice.IceAgent;
 import org.mobicents.media.core.ice.IceFactory;
+import org.mobicents.media.core.ice.events.CandidatePairSelectedEvent;
+import org.mobicents.media.core.ice.events.IceEventListener;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.sdp.IceSdpNegotiator;
@@ -474,6 +478,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 			// Integrate with ICE Lite for WebRTC calls
 			// https://telestax.atlassian.net/browse/MEDIA-13
 			this.iceAgent = IceFactory.createLiteAgent();
+			this.iceAgent.addIceListener(new IceListener());
 			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName());
 			try {
 				this.iceAgent.gatherCandidates(icePorts.next());
@@ -576,5 +581,29 @@ public class RtpConnectionImpl extends BaseConnection implements
 			peerAddress = sdp.getConnection().getAddress();
 		}
 		setAudioChannelRemotePeer(peerAddress, peerPort);
+	}
+
+	private class IceListener implements IceEventListener {
+
+		public void onSelectedCandidatePair(CandidatePairSelectedEvent event) {
+			// Stop ICE agent if candidate pair selection is complete
+			IceAgent agent = event.getSource();
+			if(agent.isSelectionFinished() && agent.isRunning()) {
+				agent.stop();
+			}
+			
+			// Bind RTP audio channel
+			if (!event.isRtcp() && event.getStreamName().equals("audio")) {
+				CandidatePair candidatePair = event.getCandidatePair();
+				DatagramChannel channel = candidatePair.getChannel();
+				try {
+					rtpAudioChannel.bind(event.getUdpChannel());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
 	}
 }

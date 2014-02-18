@@ -21,6 +21,10 @@ public class IceLiteAgent extends IceAgent {
 
 	@Override
 	public void start() {
+		if (this.running) {
+			throw new IllegalStateException("The ICE agent is already started.");
+		}
+
 		// Candidates must be gathered and a selector available
 		if (this.selector == null) {
 			throw new IllegalStateException(
@@ -33,5 +37,13 @@ public class IceLiteAgent extends IceAgent {
 		}
 		// Run connectivity check server
 		this.connectivityCheckServer.start();
+	}
+
+	@Override
+	public void stop() {
+		if (!this.running) {
+			// Stop the connectivity check server
+			this.connectivityCheckServer.stop();
+		}
 	}
 }

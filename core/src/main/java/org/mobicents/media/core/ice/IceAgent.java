@@ -2,7 +2,6 @@ package org.mobicents.media.core.ice;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.security.SecureRandom;
@@ -11,6 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mobicents.media.core.ice.events.CandidatePairSelectedEvent;
+import org.mobicents.media.core.ice.events.IceEventListener;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
@@ -22,21 +23,37 @@ public abstract class IceAgent implements IceAuthenticator {
 	private final Map<String, IceMediaStream> mediaStreams;
 	private final HarvestManager harvestManager;
 
+	// Control message integrity
 	protected final String ufrag;
 	protected final String password;
 
+	// Control stun checks
 	protected Selector selector;
 	protected ConnectivityCheckServer connectivityCheckServer;
-	
-	private DatagramChannel selectedChannel;
+
+	// Control selection process
+	private volatile int selectedPairs;
+	private volatile int maxSelectedPairs;
+
+	// Control state of the agent
+	protected volatile boolean running;
+
+	// Delegate ICE-related events
+	protected final List<IceEventListener> iceListeners;
 
 	protected IceAgent() {
 		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
 		this.harvestManager = new HarvestManager();
 
+		this.iceListeners = new ArrayList<IceEventListener>(5);
+
 		SecureRandom random = new SecureRandom();
 		this.ufrag = new BigInteger(24, random).toString(32);
 		this.password = new BigInteger(128, random).toString(32);
+
+		this.selectedPairs = 0;
+		this.maxSelectedPairs = 0;
+		this.running = false;
 	}
 
 	/**
@@ -53,6 +70,15 @@ public abstract class IceAgent implements IceAuthenticator {
 	 * @return
 	 */
 	public abstract boolean isControlling();
+
+	/**
+	 * Indicates whether the ICE agent is currently started.
+	 * 
+	 * @return
+	 */
+	public boolean isRunning() {
+		return running;
+	}
 
 	/**
 	 * Gets the local user fragment.
@@ -98,8 +124,14 @@ public abstract class IceAgent implements IceAuthenticator {
 	 * @return The newly created media stream.
 	 */
 	public IceMediaStream addMediaStream(String streamName, boolean rtcp) {
-		return this.mediaStreams.put(streamName, new IceMediaStream(streamName,
-				rtcp));
+		if (!this.mediaStreams.containsKey(streamName)) {
+			// Updates number of maximum allowed candidate pairs
+			this.maxSelectedPairs += rtcp ? 2 : 1;
+			// Register media stream
+			return this.mediaStreams.put(streamName, new IceMediaStream(
+					streamName, rtcp));
+		}
+		return null;
 	}
 
 	/**
@@ -164,12 +196,103 @@ public abstract class IceAgent implements IceAuthenticator {
 	 */
 	public abstract void start();
 
-	public void selectChannel(SelectionKey key) {
-		this.selectedChannel = (DatagramChannel) key.channel();
+	/**
+	 * Stops the ICE agent.
+	 */
+	public abstract void stop();
+
+	public boolean isSelectionFinished() {
+		return this.maxSelectedPairs == this.selectedPairs;
 	}
-	
-	public DatagramChannel getSelectedChannel() {
-		return selectedChannel;
+
+	public CandidatePair selectCandidatePair(SelectionKey key) {
+		CandidatePair candidatePair = null;
+		String streamName = "";
+
+		for (IceMediaStream mediaStream : getMediaStreams()) {
+			streamName = mediaStream.getName();
+
+			// Search for RTP candidates
+			IceComponent rtpComponent = mediaStream.getRtpComponent();
+			candidatePair = selectCandidatePair(rtpComponent, key);
+			if (candidatePair != null) {
+				// candidate pair was selected
+				break;
+			}
+
+			// Search for RTCP candidates (if supported by stream)
+			if (candidatePair == null && mediaStream.supportsRtcp()) {
+				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
+				candidatePair = selectCandidatePair(rtcpComponent, key);
+				if (candidatePair != null) {
+					// candidate pair was selected
+					break;
+				}
+			}
+		}
+		// IF found, increment number of selected candidate pairs
+		if (candidatePair != null) {
+			this.selectedPairs++;
+			fireCandidatePairSelectedEvent(candidatePair, streamName);
+		}
+		return candidatePair;
+	}
+
+	/**
+	 * Attempts to select a candidate pair on a ICE component.<br>
+	 * A candidate pair is only selected if the local candidate channel is
+	 * registered with the provided Selection Key.
+	 * 
+	 * @param component
+	 *            The component that holds the gathered candidates.
+	 * @param key
+	 *            The key of the datagram channel of the elected candidate.
+	 * @return Returns the selected candidate pair. If no pair was selected,
+	 *         returns null.
+	 */
+	private CandidatePair selectCandidatePair(IceComponent component,
+			SelectionKey key) {
+		for (LocalCandidateWrapper localCandidate : component
+				.getLocalCandidates()) {
+			if (key.channel().equals(localCandidate.getChannel())) {
+				return component.setCandidatePair(key);
+			}
+		}
+		return null;
+	}
+
+	public void addIceListener(IceEventListener listener) {
+		synchronized (this.iceListeners) {
+			if (!this.iceListeners.contains(listener)) {
+				this.iceListeners.add(listener);
+			}
+		}
+	}
+
+	public void removeIceListener(IceEventListener listener) {
+		synchronized (this.iceListeners) {
+			this.iceListeners.remove(listener);
+		}
+	}
+
+	/**
+	 * Fires an event when a candidate pair is selected.
+	 * 
+	 * @param candidatePair
+	 *            The selected candidate pair
+	 */
+	private void fireCandidatePairSelectedEvent(CandidatePair candidatePair,
+			String streamName) {
+		List<IceEventListener> listeners;
+		synchronized (this.iceListeners) {
+			listeners = new ArrayList<IceEventListener>(this.iceListeners);
+		}
+
+		CandidatePairSelectedEvent event = new CandidatePairSelectedEvent(this,
+				streamName, candidatePair);
+		for (IceEventListener listener : listeners) {
+			listener.onSelectedCandidatePair(event);
+		}
 	}
 
 	public byte[] getLocalKey(String ufrag) {
@@ -240,4 +363,5 @@ public abstract class IceAgent implements IceAuthenticator {
 		String result = colon < 0 ? ufrag : ufrag.substring(0, colon);
 		return result.equals(this.ufrag);
 	}
+
 }

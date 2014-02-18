@@ -29,7 +29,9 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -47,7 +49,7 @@ public class UdpManager {
 	private final static int PORT_ANY = -1;
 
 	/** Channel selector */
-	private Selector[] selectors;
+	private List<Selector> selectors;
 
 	/** bind address */
 	private String bindAddress = "127.0.0.1";
@@ -70,7 +72,7 @@ public class UdpManager {
 	private PortManager localPortManager = new PortManager();
 
 	// poll task
-	private PollTask[] pollTasks;
+	private List<PollTask> pollTasks;
 
 	// state flag
 	private volatile boolean isActive;
@@ -97,11 +99,11 @@ public class UdpManager {
 	 */
 	public UdpManager(Scheduler scheduler) throws IOException {
 		this.scheduler = scheduler;
-		this.selectors = new Selector[scheduler.getPoolSize()];
-		this.pollTasks = new PollTask[scheduler.getPoolSize()];
-		for (int i = 0; i < this.selectors.length; i++) {
-			this.selectors[i] = SelectorProvider.provider().openSelector();
-			this.pollTasks[i] = new PollTask(this.selectors[i]);
+		this.selectors = new ArrayList<Selector>(scheduler.getPoolSize());
+		this.pollTasks = new ArrayList<PollTask>(scheduler.getPoolSize());
+		for (int i = 0; i < scheduler.getPoolSize(); i++) {
+			this.selectors.add(SelectorProvider.provider().openSelector());
+			this.pollTasks.add(new PollTask(this.selectors.get(i)));
 		}
 	}
 
@@ -249,6 +251,17 @@ public class UdpManager {
 	public int getHighestPort() {
 		return portManager.getLowestPort();
 	}
+	
+	public void addSelector(Selector selector) {
+		synchronized (LOCK) {
+			if (!this.selectors.contains(selector)) {
+				this.selectors.add(selector);
+				PollTask pollTask = new PollTask(selector);
+				this.pollTasks.add(pollTask);
+				pollTask.startNow();
+			}
+		}
+	}
 
 	public boolean connectImmediately(InetSocketAddress address) {
 		if (!useSbc)
@@ -287,7 +300,7 @@ public class UdpManager {
 		channel.configureBlocking(false);
 		int index = currSelectorIndex.getAndIncrement();
 		SelectionKey key = channel.register(
-				selectors[index % selectors.length], SelectionKey.OP_READ);
+				selectors.get(index % selectors.size()), SelectionKey.OP_READ);
 		key.attach(handler);
 		handler.setKey(key);
 		return channel;
@@ -367,8 +380,8 @@ public class UdpManager {
 				return;
 
 			this.isActive = true;
-			for (int i = 0; i < this.pollTasks.length; i++)
-				this.pollTasks[i].startNow();
+			for (int i = 0; i < this.pollTasks.size(); i++)
+				this.pollTasks.get(i).startNow();
 
 			logger.info(String.format(
 					"Initialized UDP interface[%s]: bind address=%s", name,
@@ -385,8 +398,8 @@ public class UdpManager {
 				return;
 
 			this.isActive = false;
-			for (int i = 0; i < this.pollTasks.length; i++)
-				this.pollTasks[i].cancel();
+			for (int i = 0; i < this.pollTasks.size(); i++)
+				this.pollTasks.get(i).cancel();
 
 			logger.info("Stopped");
 		}
