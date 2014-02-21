@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice.network.stun;
 
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 /**
@@ -26,6 +27,10 @@ public class BindingSuccessEvent {
 
 	public SelectionKey getKey() {
 		return key;
+	}
+	
+	public DatagramChannel getChannel() {
+		return (DatagramChannel) this.key.channel();
 	}
 
 }

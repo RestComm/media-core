@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice.events;
 
+
 /**
  * Listens for ICE-related events.
  * 
@@ -8,6 +9,13 @@ package org.mobicents.media.core.ice.events;
  */
 public interface IceEventListener {
 
-	void onSelectedCandidatePair(CandidatePairSelectedEvent event);
+	/**
+	 * Event caught when all possible candidate pairs have been selected for an
+	 * ICE Agent.
+	 * 
+	 * @param event
+	 *            The event data
+	 */
+	void onSelectedCandidates(SelectedCandidatesEvent event);
 
 }

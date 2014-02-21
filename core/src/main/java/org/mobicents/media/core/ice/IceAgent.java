@@ -2,7 +2,7 @@ package org.mobicents.media.core.ice;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.channels.SelectionKey;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.Selector;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mobicents.media.core.ice.events.CandidatePairSelectedEvent;
+import org.mobicents.media.core.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.core.ice.events.IceEventListener;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.HarvestManager;
@@ -205,16 +205,12 @@ public abstract class IceAgent implements IceAuthenticator {
 		return this.maxSelectedPairs == this.selectedPairs;
 	}
 
-	public CandidatePair selectCandidatePair(SelectionKey key) {
+	public CandidatePair selectCandidatePair(DatagramChannel channel) {
 		CandidatePair candidatePair = null;
-		String streamName = "";
-
 		for (IceMediaStream mediaStream : getMediaStreams()) {
-			streamName = mediaStream.getName();
-
 			// Search for RTP candidates
 			IceComponent rtpComponent = mediaStream.getRtpComponent();
-			candidatePair = selectCandidatePair(rtpComponent, key);
+			candidatePair = selectCandidatePair(rtpComponent, channel);
 			if (candidatePair != null) {
 				// candidate pair was selected
 				break;
@@ -223,7 +219,7 @@ public abstract class IceAgent implements IceAuthenticator {
 			// Search for RTCP candidates (if supported by stream)
 			if (candidatePair == null && mediaStream.supportsRtcp()) {
 				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
-				candidatePair = selectCandidatePair(rtcpComponent, key);
+				candidatePair = selectCandidatePair(rtcpComponent, channel);
 				if (candidatePair != null) {
 					// candidate pair was selected
 					break;
@@ -233,7 +229,11 @@ public abstract class IceAgent implements IceAuthenticator {
 		// IF found, increment number of selected candidate pairs
 		if (candidatePair != null) {
 			this.selectedPairs++;
-			fireCandidatePairSelectedEvent(candidatePair, streamName);
+		}
+
+		// IF all candidates are selected, fire an event
+		if (isSelectionFinished()) {
+			fireCandidatePairSelectedEvent();
 		}
 		return candidatePair;
 	}
@@ -251,14 +251,40 @@ public abstract class IceAgent implements IceAuthenticator {
 	 *         returns null.
 	 */
 	private CandidatePair selectCandidatePair(IceComponent component,
-			SelectionKey key) {
+			DatagramChannel channel) {
 		for (LocalCandidateWrapper localCandidate : component
 				.getLocalCandidates()) {
-			if (key.channel().equals(localCandidate.getChannel())) {
-				return component.setCandidatePair(key);
+			if (channel.equals(localCandidate.getChannel())) {
+				return component.setCandidatePair(channel);
 			}
 		}
 		return null;
+	}
+
+	private CandidatePair getSelectedCandidate(String stream, int componentId) {
+		// Find media stream
+		IceMediaStream mediaStream = getMediaStream(stream);
+		if(mediaStream != null) {
+			// Find correct component
+			IceComponent component;
+			if(componentId == IceComponent.RTP_ID) {
+				component = mediaStream.getRtpComponent();
+			} else {
+				component = mediaStream.getRtcpComponent();
+			}
+			
+			// Get selected candidate from the component
+			return component.getSelectedCandidates();
+		}
+		return null;
+	}
+	
+	public CandidatePair getSelectedRtpCandidate(String stream) {
+		return getSelectedCandidate(stream, IceComponent.RTP_ID);
+	}
+
+	public CandidatePair getSelectedRtcpCandidate(String stream) {
+		return getSelectedCandidate(stream, IceComponent.RTCP_ID);
 	}
 
 	public void addIceListener(IceEventListener listener) {
@@ -276,22 +302,24 @@ public abstract class IceAgent implements IceAuthenticator {
 	}
 
 	/**
-	 * Fires an event when a candidate pair is selected.
+	 * Fires an event when all candidate pairs are selected.
 	 * 
 	 * @param candidatePair
 	 *            The selected candidate pair
 	 */
-	private void fireCandidatePairSelectedEvent(CandidatePair candidatePair,
-			String streamName) {
+	private void fireCandidatePairSelectedEvent() {
+		// Stop the ICE Agent
+		this.stop();
+
+		// Fire the event to all listener
 		List<IceEventListener> listeners;
 		synchronized (this.iceListeners) {
 			listeners = new ArrayList<IceEventListener>(this.iceListeners);
 		}
 
-		CandidatePairSelectedEvent event = new CandidatePairSelectedEvent(this,
-				streamName, candidatePair);
+		SelectedCandidatesEvent event = new SelectedCandidatesEvent(this);
 		for (IceEventListener listener : listeners) {
-			listener.onSelectedCandidatePair(event);
+			listener.onSelectedCandidates(event);
 		}
 	}
 

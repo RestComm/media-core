@@ -18,18 +18,13 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.spi.AbstractSelector;
-import java.nio.channels.spi.SelectorProvider;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
@@ -39,6 +34,7 @@ import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -133,7 +129,7 @@ public class RTPDataChannel {
 
 	// WebRTC
 	private boolean isWebRtc = false;
-	private DtlsSrtpHandler webRtcHandler;
+	private DtlsHandler webRtcHandler;
 
 	/**
 	 * Create RTP channel instance.
@@ -327,14 +323,10 @@ public class RTPDataChannel {
 	public void bind(DatagramChannel channel) throws IOException {
 		this.rxBuffer.setBufferInUse(true);
 		this.dataChannel = channel;
-		Selector selector = Selector.open();
-		SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-		key.attach(rtpHandler);
-		this.udpManager.addSelector(selector);
 		if (this.isWebRtc) {
-			key.cancel();
 			this.webRtcHandler.setChannel(this.dataChannel);
 		}
+		this.udpManager.open(this.dataChannel, this.rtpHandler);
 	}
 
 	public boolean isDataChannelBound() {
@@ -823,7 +815,7 @@ public class RTPDataChannel {
 	public void enableWebRTC(Text remotePeerFingerprint) {
 		this.isWebRtc = true;
 		if (this.webRtcHandler == null) {
-			this.webRtcHandler = new DtlsSrtpHandler(this.dataChannel);
+			this.webRtcHandler = new DtlsHandler();
 		}
 		this.webRtcHandler.setRemoteFingerprint(remotePeerFingerprint);
 	}

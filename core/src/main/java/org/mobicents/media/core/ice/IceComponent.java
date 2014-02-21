@@ -1,5 +1,6 @@
 package org.mobicents.media.core.ice;
 
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -160,10 +161,10 @@ public class IceComponent {
 		return candidatePair;
 	}
 
-	public CandidatePair setCandidatePair(SelectionKey key) {
+	public CandidatePair setCandidatePair(DatagramChannel channel) {
 		for (LocalCandidateWrapper localCandidate : getLocalCandidates()) {
-			if (key.channel().equals(localCandidate.getChannel())) {
-				this.candidatePair = new CandidatePair(componentId, key);
+			if (channel.equals(localCandidate.getChannel())) {
+				this.candidatePair = new CandidatePair(componentId, channel);
 				return this.candidatePair;
 			}
 		}

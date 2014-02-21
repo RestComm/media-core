@@ -50,33 +50,7 @@ public class StunHandler implements ExpirableProtocolHandler {
 		}
 	}
 
-	private void fireOnSuccessResponse(SelectionKey key) {
-		StunListener[] copy;
-		synchronized (this.listeners) {
-			copy = this.listeners.toArray(new StunListener[this.listeners
-					.size()]);
-		}
-
-		// Fire the successful binding event
-		BindingSuccessEvent event = new BindingSuccessEvent(this, key);
-		for (StunListener listener : copy) {
-			listener.onBinding(event);
-		}
-	}
-
-	public String getProtocol() {
-		return PROTOCOL;
-	}
-
-	public boolean isExpired() {
-		return this.expired;
-	}
-
-	public void expire() {
-		this.expired = true;
-	}
-
-	public byte[] handleMessage(SelectionKey key, byte[] data, int length)
+	public byte[] handleRead(SelectionKey key, byte[] data, int length)
 			throws IOException {
 		try {
 			StunMessage message = StunMessage.decode(data, (char) 0,
@@ -91,6 +65,40 @@ public class StunHandler implements ExpirableProtocolHandler {
 		} catch (StunException e) {
 			throw new IOException("Could not decode STUN packet.", e);
 		}
+	}
+
+	public byte[] handleWrite(SelectionKey key, byte[] data, int length)
+			throws IOException {
+		// XXX Cannot decode stun messages - hrosa
+		// try {
+		// StunMessage message = StunMessage.decode(data, (char) 0,
+		// (char) length);
+		// if (message instanceof StunResponse) {
+		// StunResponse response = (StunResponse) message;
+		// if (response.getMessageType() ==
+		// StunMessage.BINDING_SUCCESS_RESPONSE) {
+		// if (response.containsAttribute(StunAttribute.USE_CANDIDATE)) {
+		// fireOnSuccessResponse(key);
+		// }
+		// }
+		// }
+		// } catch (StunException e) {
+		// throw new IOException("Could not decode STUN packet.", e);
+		// }
+		fireOnSuccessResponse(key);
+		return null;
+	}
+
+	public String getProtocol() {
+		return PROTOCOL;
+	}
+
+	public boolean isExpired() {
+		return this.expired;
+	}
+
+	public void expire() {
+		this.expired = true;
 	}
 
 	private byte[] handleRequest(StunRequest request, SelectionKey key)
@@ -119,49 +127,44 @@ public class StunHandler implements ExpirableProtocolHandler {
 		String remoteUfrag = remoteUsername.substring(0, colon);
 		String localUFrag = null;
 
-		// Produce Binding Response
-		DatagramChannel channel = (DatagramChannel) key.channel();
-		InetSocketAddress localAddress = (InetSocketAddress) channel
-				.getLocalAddress();
-		TransportAddress transportAddress = new TransportAddress(
-				localAddress.getAddress(), localAddress.getPort(),
-				TransportProtocol.UDP);
-		StunResponse response = StunMessageFactory.createBindingResponse(
-				request, transportAddress);
-		try {
-			response.setTransactionID(transactionID);
-		} catch (StunException e) {
-			throw new IOException("Illegal STUN Transaction ID: "
-					+ new String(transactionID), e);
-		}
-
-		/*
-		 * Add USERNAME and MESSAGE-INTEGRITY attribute in the response. The
-		 * responses utilize the same usernames and passwords as the requests
-		 */
-		StunAttribute usernameAttribute = StunAttributeFactory
-				.createUsernameAttribute(remoteUsernameAttribute.getUsername());
-		response.addAttribute(usernameAttribute);
-
-		byte[] localKey = this.authenticator.getLocalKey(remoteUsername);
-		// String username = new String(uname.getUsername());
-		MessageIntegrityAttribute messageIntegrityAttribute = StunAttributeFactory
-				.createMessageIntegrityAttribute(new String(
-						remoteUsernameAttribute.getUsername()), localKey);
-		response.addAttribute(messageIntegrityAttribute);
-
 		if (useCandidate) {
+			// Produce Binding Response
+			DatagramChannel channel = (DatagramChannel) key.channel();
+			InetSocketAddress localAddress = (InetSocketAddress) channel
+					.getLocalAddress();
+			TransportAddress transportAddress = new TransportAddress(
+					localAddress.getAddress(), localAddress.getPort(),
+					TransportProtocol.UDP);
+			StunResponse response = StunMessageFactory.createBindingResponse(
+					request, transportAddress);
+			try {
+				response.setTransactionID(transactionID);
+			} catch (StunException e) {
+				throw new IOException("Illegal STUN Transaction ID: "
+						+ new String(transactionID), e);
+			}
 			/*
-			 * Alert the listeners that the remote candidate was selected and
-			 * pass the selector key to indicate which socket is available.
-			 * 
-			 * The connectivity check server can be shutdown.
+			 * Add USERNAME and MESSAGE-INTEGRITY attribute in the response. The
+			 * responses utilize the same usernames and passwords as the
+			 * requests
 			 */
-			fireOnSuccessResponse(key);
-		}
+			StunAttribute usernameAttribute = StunAttributeFactory
+					.createUsernameAttribute(remoteUsernameAttribute
+							.getUsername());
+			response.addAttribute(usernameAttribute);
 
-		// Pass response to the server
-		return response.encode();
+			byte[] localKey = this.authenticator.getLocalKey(remoteUsername);
+			// String username = new String(uname.getUsername());
+			MessageIntegrityAttribute messageIntegrityAttribute = StunAttributeFactory
+					.createMessageIntegrityAttribute(new String(
+							remoteUsernameAttribute.getUsername()), localKey);
+			response.addAttribute(messageIntegrityAttribute);
+
+			// Pass response to the server
+			return response.encode();
+		} else {
+			return null;
+		}
 	}
 
 	private byte[] handleResponse(StunResponse response, SelectionKey key) {
@@ -179,6 +182,20 @@ public class StunHandler implements ExpirableProtocolHandler {
 			throw new IllegalArgumentException("Missing PRIORITY attribtue!");
 		}
 		return priorityAttr.getPriority();
+	}
+
+	private void fireOnSuccessResponse(SelectionKey key) {
+		StunListener[] copy;
+		synchronized (this.listeners) {
+			copy = this.listeners.toArray(new StunListener[this.listeners
+					.size()]);
+		}
+
+		// Fire the successful binding event
+		BindingSuccessEvent event = new BindingSuccessEvent(this, key);
+		for (StunListener listener : copy) {
+			listener.onBinding(event);
+		}
 	}
 
 }

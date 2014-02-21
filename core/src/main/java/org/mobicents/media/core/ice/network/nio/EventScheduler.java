@@ -10,10 +10,12 @@ public class EventScheduler implements Runnable {
 
 	private List<ScheduledEvent> events;
 	private final NioServer server;
+	private volatile boolean running;
 
 	public EventScheduler(NioServer server) {
 		this.events = new ArrayList<ScheduledEvent>();
 		this.server = server;
+		this.running = false;
 	}
 
 	public void schedule(DatagramChannel channel, byte[] data, int dataLength) {
@@ -27,10 +29,11 @@ public class EventScheduler implements Runnable {
 	}
 
 	public void run() {
+		this.running = true;
 		ScheduledEvent event;
 
 		// Wait for data to become available
-		while (true) {
+		while (this.running) {
 			synchronized (this.events) {
 				while (this.events.isEmpty()) {
 					try {
@@ -44,6 +47,18 @@ public class EventScheduler implements Runnable {
 			}
 			// Launch the event on the server
 			event.launch();
+		}
+		// cleanup remaining event after thread stops
+		cleanup();
+	}
+
+	public void stop() {
+		this.running = false;
+	}
+
+	private void cleanup() {
+		synchronized (this.events) {
+			this.events.clear();
 		}
 	}
 

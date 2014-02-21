@@ -13,8 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.mobicents.media.core.ice.network.ExpiringPipeline;
 import org.mobicents.media.core.ice.network.ExpirableProtocolHandler;
+import org.mobicents.media.core.ice.network.ExpiringPipeline;
 import org.mobicents.media.core.ice.network.Pipeline;
 
 /**
@@ -47,7 +47,7 @@ public class NioServer implements Runnable {
 	// Server execution controls
 	private Thread schedulerThread;
 	private Thread serverThread;
-	private boolean running;
+	private volatile boolean running;
 
 	public NioServer(Selector selector) {
 		this.selector = selector;
@@ -75,15 +75,28 @@ public class NioServer implements Runnable {
 	}
 
 	public void stop() {
-		if (this.running) {
-			this.schedulerThread.interrupt();
-			this.serverThread.interrupt();
-			this.running = false;
+		// if (this.running) {
+		// this.schedulerThread.interrupt();
+		// this.serverThread.interrupt();
+		// this.running = false;
+		// }
+		this.running = false;
+		this.scheduler.stop();
+	}
+
+	private void cleanup() {
+		if (this.selector.isOpen()) {
+			try {
+				this.selector.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void run() {
-		while (true) {
+		while (this.running && this.selector.isOpen()) {
 			try {
 				// Process any pending changes
 				synchronized (this.operationRequests) {
@@ -96,7 +109,11 @@ public class NioServer implements Runnable {
 								.getRequestType()) {
 							SelectionKey key = request.getChannel().keyFor(
 									this.selector);
-							key.interestOps(request.getOperations());
+							if (key != null && key.isValid()) {
+								// The null check is necessary because a key can
+								// be canceled by external agents.
+								key.interestOps(request.getOperations());
+							}
 						}
 						// Remove the request from the queue
 						changes.remove();
@@ -127,6 +144,8 @@ public class NioServer implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		// Cleanup resource after server stops
+		cleanup();
 	}
 
 	private List<ByteBuffer> registerChannel(DatagramChannel channel) {
@@ -173,7 +192,7 @@ public class NioServer implements Runnable {
 		int dataLength = 0;
 		try {
 			SocketAddress remotePeer = channel.receive(this.buffer);
-			if(!channel.isConnected() && remotePeer != null) {
+			if (!channel.isConnected() && remotePeer != null) {
 				channel.connect(remotePeer);
 			}
 			dataLength = (remotePeer == null) ? -1 : this.buffer.position();
@@ -193,13 +212,9 @@ public class NioServer implements Runnable {
 		ExpirableProtocolHandler protocolHandler = this.protocolHandlers
 				.getCurrent();
 
-		if (protocolHandler == null) {
-			// All handlers finished executing and pipeline is now empty
-			// this.stop();
-		} else {
+		if (protocolHandler != null) {
 			// Handler processes the requests and provides an answer
-			byte[] response = protocolHandler.handleMessage(key, data,
-					dataLength);
+			byte[] response = protocolHandler.handleRead(key, data, dataLength);
 			// Keep reading if handler provided no answer
 			if (response != null) {
 				this.scheduler.schedule(channel, response, response.length);
@@ -216,6 +231,10 @@ public class NioServer implements Runnable {
 			// Write all pending data
 			while (!queue.isEmpty()) {
 				ByteBuffer dataBuffer = queue.get(0);
+				ExpirableProtocolHandler handler = this.protocolHandlers
+						.getCurrent();
+				handler.handleWrite(key, dataBuffer.array(),
+						dataBuffer.array().length);
 				channel.send(dataBuffer, channel.getRemoteAddress());
 				channel.write(dataBuffer);
 

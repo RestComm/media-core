@@ -1,5 +1,7 @@
 package org.mobicents.media.core.ice.lite;
 
+import java.io.IOException;
+
 import org.mobicents.media.core.ice.IceAgent;
 import org.mobicents.media.core.ice.network.stun.ConnectivityCheckServer;
 
@@ -24,7 +26,7 @@ public class IceLiteAgent extends IceAgent {
 		if (this.running) {
 			throw new IllegalStateException("The ICE agent is already started.");
 		}
-
+		
 		// Candidates must be gathered and a selector available
 		if (this.selector == null) {
 			throw new IllegalStateException(
@@ -37,11 +39,12 @@ public class IceLiteAgent extends IceAgent {
 		}
 		// Run connectivity check server
 		this.connectivityCheckServer.start();
+		this.running = true;
 	}
 
 	@Override
 	public void stop() {
-		if (!this.running) {
+		if (this.running) {
 			// Stop the connectivity check server
 			this.connectivityCheckServer.stop();
 		}

@@ -23,16 +23,29 @@ public class ConnectivityCheckServer extends NioServer {
 	protected class StunListenerImpl implements StunListener {
 
 		private final IceAgent agent;
-		
+
 		public StunListenerImpl(IceAgent agent) {
 			this.agent = agent;
 		}
-		
+
 		public void onBinding(BindingSuccessEvent event) {
-			this.agent.selectCandidatePair(event.getKey());
-			if(agent.isSelectionFinished()) {
-				event.getSource().expire();
-			}
+			// Tell the ICE agent to select a candidate for the correct media
+			// stream and component
+			this.agent.selectCandidatePair(event.getChannel());
+
+			// If a candidate was selected, the selection key can be cancelled
+			// The STUN handler will no longer handle messages for this channel
+			// if (candidatePair != null) {
+			// // XXX not appropriate place to cancel the key
+			// // writings will never happen!!
+			// // event.getKey().cancel();
+			// }
+
+			// If the ICE agent selected all possible candidates, the STUN
+			// handler is no longer necessary and must be expired.
+			// if (agent.isSelectionFinished()) {
+			// event.getSource().expire();
+			// }
 		}
 	}
 

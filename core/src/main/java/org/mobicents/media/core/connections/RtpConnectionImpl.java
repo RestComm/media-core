@@ -36,8 +36,9 @@ import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
 import org.mobicents.media.core.ice.CandidatePair;
 import org.mobicents.media.core.ice.IceAgent;
+import org.mobicents.media.core.ice.IceException;
 import org.mobicents.media.core.ice.IceFactory;
-import org.mobicents.media.core.ice.events.CandidatePairSelectedEvent;
+import org.mobicents.media.core.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.core.ice.events.IceEventListener;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
@@ -585,25 +586,17 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	private class IceListener implements IceEventListener {
 
-		public void onSelectedCandidatePair(CandidatePairSelectedEvent event) {
-			// Stop ICE agent if candidate pair selection is complete
-			IceAgent agent = event.getSource();
-			if(agent.isSelectionFinished() && agent.isRunning()) {
-				agent.stop();
-			}
-			
-			// Bind RTP audio channel
-			if (!event.isRtcp() && event.getStreamName().equals("audio")) {
-				CandidatePair candidatePair = event.getCandidatePair();
-				DatagramChannel channel = candidatePair.getChannel();
-				try {
-					rtpAudioChannel.bind(event.getUdpChannel());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		public void onSelectedCandidates(SelectedCandidatesEvent event) {
+			try {
+				// Get selected RTP candidate for audio channel
+				IceAgent agent = event.getSource();
+				CandidatePair candidate = agent.getSelectedRtpCandidate("audio");
+				// Bind candidate to RTP audio channel
+				rtpAudioChannel.bind(candidate.getChannel());
+			} catch (IOException e) {
+				// XXX close connection
+				e.printStackTrace();
 			}
 		}
-
 	}
 }

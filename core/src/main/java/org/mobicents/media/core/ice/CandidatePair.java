@@ -3,7 +3,6 @@ package org.mobicents.media.core.ice;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
 
 /**
  * 
@@ -14,25 +13,26 @@ public class CandidatePair {
 
 	// TODO add references to local and remote candidate
 
-	private final SelectionKey selectionKey;
+	private final DatagramChannel channel;
 	private final int componentId;
 
-	public CandidatePair(int componentId, SelectionKey key) {
+	public CandidatePair(int componentId, DatagramChannel channel) {
 		this.componentId = componentId;
-		this.selectionKey = key;
+		this.channel = channel;
 	}
 
 	public int getComponentId() {
-		return componentId;
+		return this.componentId;
 	}
 
 	public DatagramChannel getChannel() {
-		return (DatagramChannel) selectionKey.channel();
+		return this.channel;
 	}
 
 	public int getLocalPort() {
 		try {
-			return ((InetSocketAddress) getChannel().getLocalAddress()).getPort();
+			return ((InetSocketAddress) this.channel.getLocalAddress())
+					.getPort();
 		} catch (IOException e) {
 			return 0;
 		}
@@ -40,7 +40,7 @@ public class CandidatePair {
 
 	public String getLocalAddress() {
 		try {
-			return ((InetSocketAddress) getChannel().getLocalAddress())
+			return ((InetSocketAddress) this.channel.getLocalAddress())
 					.getHostName();
 		} catch (IOException e) {
 			return "";
@@ -49,7 +49,8 @@ public class CandidatePair {
 
 	public int getRemotePort() {
 		try {
-			return ((InetSocketAddress) getChannel().getRemoteAddress()).getPort();
+			return ((InetSocketAddress) this.channel.getRemoteAddress())
+					.getPort();
 		} catch (IOException e) {
 			return 0;
 		}
@@ -57,15 +58,11 @@ public class CandidatePair {
 
 	public String getRemoteAddress() {
 		try {
-			return ((InetSocketAddress) getChannel().getRemoteAddress())
+			return ((InetSocketAddress) this.channel.getRemoteAddress())
 					.getHostName();
 		} catch (IOException e) {
 			return "";
 		}
-	}
-	
-	public SelectionKey getSelectionKey() {
-		return selectionKey;
 	}
 
 }
