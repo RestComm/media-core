@@ -19,8 +19,6 @@ public class NioUdpTransport implements DatagramTransport {
 	private final static int UDP_OVERHEAD = 8;
 
 	private final DatagramChannel channel;
-	private final ByteBuffer readBuffer;
-	private final ByteBuffer writeBuffer;
 	private final int receiveLimit;
 	private final int sendLimit;
 
@@ -34,9 +32,6 @@ public class NioUdpTransport implements DatagramTransport {
 		// NOTE: As of JDK 1.6, can use NetworkInterface.getMTU
 		this.receiveLimit = mtu - MIN_IP_OVERHEAD - UDP_OVERHEAD;
 		this.sendLimit = mtu - MAX_IP_OVERHEAD - UDP_OVERHEAD;
-
-		this.readBuffer = ByteBuffer.allocate(this.receiveLimit);
-		this.writeBuffer = ByteBuffer.allocate(this.sendLimit);
 	}
 
 	public int getReceiveLimit() throws IOException {
@@ -49,24 +44,26 @@ public class NioUdpTransport implements DatagramTransport {
 
 	public int receive(byte[] buf, int off, int len, int waitMillis)
 			throws IOException {
-		this.readBuffer.clear();
-		this.readBuffer.get(buf, off, len);
-		this.channel.receive(readBuffer);
-		return this.readBuffer.position();
+		ByteBuffer buffer = ByteBuffer.wrap(buf, off, len);
+		return this.channel.read(buffer);
 	}
 
 	public void send(byte[] buf, int off, int len) throws IOException {
-		this.writeBuffer.clear();
-		this.writeBuffer.get(buf, off, len);
-		this.channel.send(this.writeBuffer, this.channel.getRemoteAddress());
+        if (len > getSendLimit())
+        {
+            /*
+             * RFC 4347 4.1.1. "If the application attempts to send a record larger than the MTU,
+             * the DTLS implementation SHOULD generate an error, thus avoiding sending a packet
+             * which will be fragmented."
+             */
+            // TODO Exception
+        }
+		ByteBuffer buffer = ByteBuffer.wrap(buf, off, len);
+		this.channel.send(buffer, this.channel.getRemoteAddress());
 	}
 
 	public void close() throws IOException {
-		if (this.channel.isOpen()) {
-			this.readBuffer.clear();
-			this.writeBuffer.clear();
-			this.channel.close();
-		}
+		// Channel cannot be closed because it will be used for SRTP traffic
 	}
 
 }
