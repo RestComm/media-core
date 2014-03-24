@@ -162,6 +162,7 @@ public class DtlsHandler {
 
 	public void handshake() throws IOException {
 		SecureRandom secureRandom = new SecureRandom();
+//		FixedDtlsServerProtocol serverProtocol = new FixedDtlsServerProtocol(secureRandom);
 		DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
 		NioUdpTransport transport = new NioUdpTransport(getChannel(), MTU);
 
@@ -174,6 +175,9 @@ public class DtlsHandler {
 		// Generate encoders for DTLS traffic
 		this.srtpDecoder = generateDecoder();
 		this.srtpEncoder = generateEncoder();
+		
+		// Declare handshake as complete
+		this.handshakeComplete = true;
 	}
 
 }

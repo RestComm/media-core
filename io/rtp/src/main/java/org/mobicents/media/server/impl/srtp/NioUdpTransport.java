@@ -49,21 +49,22 @@ public class NioUdpTransport implements DatagramTransport {
 	}
 
 	public void send(byte[] buf, int off, int len) throws IOException {
-        if (len > getSendLimit())
-        {
-            /*
-             * RFC 4347 4.1.1. "If the application attempts to send a record larger than the MTU,
-             * the DTLS implementation SHOULD generate an error, thus avoiding sending a packet
-             * which will be fragmented."
-             */
-            // TODO Exception
-        }
+		if (len > getSendLimit()) {
+			/*
+			 * RFC 4347 4.1.1. "If the application attempts to send a record
+			 * larger than the MTU, the DTLS implementation SHOULD generate an
+			 * error, thus avoiding sending a packet which will be fragmented."
+			 */
+			// TODO Exception
+		}
 		ByteBuffer buffer = ByteBuffer.wrap(buf, off, len);
 		this.channel.send(buffer, this.channel.getRemoteAddress());
 	}
 
 	public void close() throws IOException {
-		// Channel cannot be closed because it will be used for SRTP traffic
+		if (this.channel.isOpen()) {
+			this.channel.close();
+		}
 	}
 
 }

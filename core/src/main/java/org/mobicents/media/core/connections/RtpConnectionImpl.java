@@ -480,7 +480,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 			// https://telestax.atlassian.net/browse/MEDIA-13
 			this.iceAgent = IceFactory.createLiteAgent();
 			this.iceAgent.addIceListener(new IceListener());
-			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName());
+			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), false);
 			try {
 				this.iceAgent.gatherCandidates(icePorts.next());
 				// skip another port to avoid conflicts with RTCP port

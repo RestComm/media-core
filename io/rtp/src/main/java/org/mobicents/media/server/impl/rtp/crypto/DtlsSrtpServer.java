@@ -2,6 +2,7 @@ package org.mobicents.media.server.impl.rtp.crypto;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Vector;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -11,8 +12,11 @@ import org.bouncycastle.crypto.tls.CertificateRequest;
 import org.bouncycastle.crypto.tls.ClientCertificateType;
 import org.bouncycastle.crypto.tls.DefaultTlsServer;
 import org.bouncycastle.crypto.tls.ExporterLabel;
+import org.bouncycastle.crypto.tls.HashAlgorithm;
 import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SRTPProtectionProfile;
+import org.bouncycastle.crypto.tls.SignatureAlgorithm;
+import org.bouncycastle.crypto.tls.SignatureAndHashAlgorithm;
 import org.bouncycastle.crypto.tls.TlsEncryptionCredentials;
 import org.bouncycastle.crypto.tls.TlsSRTPUtils;
 import org.bouncycastle.crypto.tls.TlsSignerCredentials;
@@ -61,7 +65,27 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 
     public CertificateRequest getCertificateRequest()
     {
-        return new CertificateRequest(new short[]{ClientCertificateType.rsa_sign}, null);
+		Vector serverSigAlgs = null;
+
+		if (org.bouncycastle.crypto.tls.TlsUtils
+				.isSignatureAlgorithmsExtensionAllowed(serverVersion)) {
+			short[] hashAlgorithms = new short[] { HashAlgorithm.sha512,
+					HashAlgorithm.sha384, HashAlgorithm.sha256,
+					HashAlgorithm.sha224, HashAlgorithm.sha1 };
+			short[] signatureAlgorithms = new short[] { SignatureAlgorithm.rsa };
+
+			serverSigAlgs = new Vector();
+			for (int i = 0; i < hashAlgorithms.length; ++i) {
+				for (int j = 0; j < signatureAlgorithms.length; ++j) {
+					serverSigAlgs.addElement(new SignatureAndHashAlgorithm(
+							hashAlgorithms[i], signatureAlgorithms[j]));
+				}
+			}
+		}
+
+		return new CertificateRequest(
+				new short[] { ClientCertificateType.rsa_sign }, serverSigAlgs,
+				null);
     }
 
     public void notifyClientCertificate(org.bouncycastle.crypto.tls.Certificate clientCertificate)
@@ -79,7 +103,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 
     protected ProtocolVersion getMaximumVersion()
     {
-        return ProtocolVersion.DTLSv10;
+        return ProtocolVersion.DTLSv12;
     }
 
     protected ProtocolVersion getMinimumVersion()
@@ -97,8 +121,33 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     protected TlsSignerCredentials getRSASignerCredentials()
         throws IOException
     {
+    	
+    	/*
+         * TODO Note that this code fails to provide default value for the client supported
+         * algorithms if it wasn't sent.
+         */
+        SignatureAndHashAlgorithm signatureAndHashAlgorithm = null;
+        Vector sigAlgs = supportedSignatureAlgorithms;
+        if (sigAlgs != null)
+        {
+            for (int i = 0; i < sigAlgs.size(); ++i)
+            {
+                SignatureAndHashAlgorithm sigAlg = (SignatureAndHashAlgorithm)
+                    sigAlgs.elementAt(i);
+                if (sigAlg.getSignature() == SignatureAlgorithm.rsa)
+                {
+                    signatureAndHashAlgorithm = sigAlg;
+                    break;
+                }
+            }
+
+            if (signatureAndHashAlgorithm == null)
+            {
+                return null;
+            }
+        }
         return TlsUtils.loadSignerCredentials(context, new String[]{"x509-server.pem", "x509-ca.pem"},
-        	"x509-server-key.pem");
+            "x509-server-key.pem", signatureAndHashAlgorithm);
     }
     
     // Hashtable is (Integer -> byte[])

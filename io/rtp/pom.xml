@@ -47,23 +47,29 @@
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.bouncycastle</groupId> -->
 <!-- 			<artifactId>bcprov-jdk15on</artifactId> -->
-<!-- 			<version>1.50</version> -->
+<!-- 			<version>1.49</version> -->
 <!-- 		</dependency> -->
-		<dependency>
-  <groupId>org.bouncycastle</groupId>
-  <artifactId>bcprov-debug-jdk15on</artifactId>
-  <version>1.49</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.49</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-ext-jdk15on</artifactId>
-			<version>1.49</version>
-		</dependency>        
+	<dependency>
+		<groupId>org.bouncycastle</groupId>
+		<artifactId>bcprov-debug-jdk15on</artifactId>
+		<version>1.50</version>
+	</dependency>
+<!-- <dependency> -->
+<!--     <groupId>org.bouncycastle</groupId> -->
+<!--     <artifactId>bcprov-jdk15on-telscale</artifactId> -->
+<!--     <version>1.51</version> -->
+<!-- </dependency> -->
+
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.bouncycastle</groupId> -->
+<!-- 			<artifactId>bcpkix-jdk15on</artifactId> -->
+<!-- 			<version>1.49</version> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.bouncycastle</groupId> -->
+<!-- 			<artifactId>bcprov-ext-jdk15on</artifactId> -->
+<!-- 			<version>1.49</version> -->
+<!-- 		</dependency>         -->
 		        
     </dependencies>
 

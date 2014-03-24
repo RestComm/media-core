@@ -130,10 +130,10 @@ public class StunHandler implements ExpirableProtocolHandler {
 		if (useCandidate) {
 			// Produce Binding Response
 			DatagramChannel channel = (DatagramChannel) key.channel();
-			InetSocketAddress localAddress = (InetSocketAddress) channel
-					.getLocalAddress();
+			InetSocketAddress remoteAddress = (InetSocketAddress) channel
+					.getRemoteAddress();
 			TransportAddress transportAddress = new TransportAddress(
-					localAddress.getAddress(), localAddress.getPort(),
+					remoteAddress.getAddress(), remoteAddress.getPort(),
 					TransportProtocol.UDP);
 			StunResponse response = StunMessageFactory.createBindingResponse(
 					request, transportAddress);
