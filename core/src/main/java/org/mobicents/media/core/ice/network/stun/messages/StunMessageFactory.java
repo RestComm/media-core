@@ -10,8 +10,8 @@ import org.mobicents.media.core.ice.network.stun.messages.attributes.address.Xor
 public class StunMessageFactory {
 
 	/**
-	 * Creates a BindingResponse in a RFC5389 compliant manner containing a single
-	 * <tt>XOR-MAPPED-ADDRESS</tt> attribute
+	 * Creates a BindingResponse in a RFC5389 compliant manner containing a
+	 * single <tt>XOR-MAPPED-ADDRESS</tt> attribute
 	 * 
 	 * @param request
 	 *            the request that created the transaction that this response

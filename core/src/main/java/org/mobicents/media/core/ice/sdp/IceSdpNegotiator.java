@@ -46,8 +46,7 @@ public class IceSdpNegotiator {
 
 		// If the ICE agent is lite, sdp must include a 'a=ice-lite' attribute
 		if (agent.isLite()) {
-			// XXX MEDIA-17: Cannot use this with google-ice.
-			// attributes.add(new IceLiteAttribute());
+			attributes.add(new IceLiteAttribute());
 		}
 		sessionDescription.setAttributes(attributes);
 
@@ -119,8 +118,9 @@ public class IceSdpNegotiator {
 						defaultRtcpCandidate, "IN");
 				mediaStream.addAttribute(rtcpAttribute);
 			} else {
-				mediaStream.setBandwidth("RS", 0);
-				mediaStream.setBandwidth("RR", 0);
+				// XXX RS and RR attributes not supported on firefox
+				// mediaStream.setBandwidth("RS", 0);
+				// mediaStream.setBandwidth("RR", 0);
 			}
 		}
 		return sessionDescription;

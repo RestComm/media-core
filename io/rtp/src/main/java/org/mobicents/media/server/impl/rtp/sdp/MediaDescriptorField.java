@@ -139,7 +139,13 @@ public class MediaDescriptorField {
      * @param attribute
      */
 	private void addCandidate(Text attribute) {
-		CandidateField candidateField = new CandidateField(attribute);
+		// Copy and trim the attribute
+		Text attr = new Text();
+		attribute.copy(attr);
+		attr.trim();
+		
+		// Parse the candidate field and add it to list of candidates
+		CandidateField candidateField = new CandidateField(attr);
 		this.candidates.add(candidateField);
 		// Candidates must be listed by weight in descending order
 		Collections.sort(this.candidates, Collections.reverseOrder());

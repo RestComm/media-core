@@ -286,6 +286,20 @@ public class RtpConnectionImpl extends BaseConnection implements
 		// Process the SDP offer to know whether this is a WebRTC call or not
 		processSdpOffer();
 
+		/*
+		 * For ICE-enabled calls, we need to wait for the ICE agent to provide a
+		 * socket. This only happens once the SDP has been exchanged between
+		 * both parties and ICE agent replies to remote connectivity checks.
+		 */
+		if (!useIce) {
+			setAudioChannelRemotePeer(this.sdp.getAudioDescriptor());
+		} else {
+			// Start ICE agent before we send the SDP answer.
+			// The ICE agent will start listening for connectivity checks.
+			// FULL ICE implementations will also start connectivity checks.
+			this.iceAgent.start();
+		}
+		
 		// Process the SDP answer
 		try {
 			generateSdpAnswer();
@@ -304,20 +318,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 		} catch (FormatNotSupportedException e) {
 			// never happen
 			throw new IOException(e);
-		}
-
-		/*
-		 * For ICE-enabled calls, we need to wait for the ICE agent to provide a
-		 * socket. This only happens once the SDP has been exchanged between
-		 * both parties and ICE agent replies to remote connectivity checks.
-		 */
-		if (!useIce) {
-			setAudioChannelRemotePeer(this.sdp.getAudioDescriptor());
-		} else {
-			// Start ICE agent before we send the SDP answer.
-			// The ICE agent will start listening for connectivity checks.
-			// FULL ICE implementations will also start connectivity checks.
-			this.iceAgent.start();
 		}
 
 		// Change the state of this RTP connection from HALF_OPEN to OPEN

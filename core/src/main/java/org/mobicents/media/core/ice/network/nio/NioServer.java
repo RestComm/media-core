@@ -218,6 +218,9 @@ public class NioServer implements Runnable {
 			// Keep reading if handler provided no answer
 			if (response != null) {
 				this.scheduler.schedule(channel, response, response.length);
+
+				// XXX schedule STUN request to be sent to browser
+				
 			}
 		}
 	}

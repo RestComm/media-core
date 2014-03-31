@@ -85,7 +85,9 @@ public class StunHandler implements ExpirableProtocolHandler {
 		// } catch (StunException e) {
 		// throw new IOException("Could not decode STUN packet.", e);
 		// }
-		fireOnSuccessResponse(key);
+
+		// TODO uncomment me - hrosa
+		// fireOnSuccessResponse(key);
 		return null;
 	}
 
@@ -127,44 +129,43 @@ public class StunHandler implements ExpirableProtocolHandler {
 		String remoteUfrag = remoteUsername.substring(0, colon);
 		String localUFrag = null;
 
-		if (useCandidate) {
-			// Produce Binding Response
-			DatagramChannel channel = (DatagramChannel) key.channel();
-			InetSocketAddress remoteAddress = (InetSocketAddress) channel
-					.getRemoteAddress();
-			TransportAddress transportAddress = new TransportAddress(
-					remoteAddress.getAddress(), remoteAddress.getPort(),
-					TransportProtocol.UDP);
-			StunResponse response = StunMessageFactory.createBindingResponse(
-					request, transportAddress);
-			try {
-				response.setTransactionID(transactionID);
-			} catch (StunException e) {
-				throw new IOException("Illegal STUN Transaction ID: "
-						+ new String(transactionID), e);
-			}
-			/*
-			 * Add USERNAME and MESSAGE-INTEGRITY attribute in the response. The
-			 * responses utilize the same usernames and passwords as the
-			 * requests
-			 */
-			StunAttribute usernameAttribute = StunAttributeFactory
-					.createUsernameAttribute(remoteUsernameAttribute
-							.getUsername());
-			response.addAttribute(usernameAttribute);
-
-			byte[] localKey = this.authenticator.getLocalKey(remoteUsername);
-			// String username = new String(uname.getUsername());
-			MessageIntegrityAttribute messageIntegrityAttribute = StunAttributeFactory
-					.createMessageIntegrityAttribute(new String(
-							remoteUsernameAttribute.getUsername()), localKey);
-			response.addAttribute(messageIntegrityAttribute);
-
-			// Pass response to the server
-			return response.encode();
-		} else {
-			return null;
+		// Produce Binding Response
+		DatagramChannel channel = (DatagramChannel) key.channel();
+		InetSocketAddress remoteAddress = (InetSocketAddress) channel
+				.getRemoteAddress();
+		TransportAddress transportAddress = new TransportAddress(
+				remoteAddress.getAddress(), remoteAddress.getPort(),
+				TransportProtocol.UDP);
+		StunResponse response = StunMessageFactory.createBindingResponse(
+				request, transportAddress);
+		try {
+			response.setTransactionID(transactionID);
+		} catch (StunException e) {
+			throw new IOException("Illegal STUN Transaction ID: "
+					+ new String(transactionID), e);
 		}
+		/*
+		 * Add USERNAME and MESSAGE-INTEGRITY attribute in the response. The
+		 * responses utilize the same usernames and passwords as the requests
+		 */
+		StunAttribute usernameAttribute = StunAttributeFactory
+				.createUsernameAttribute(remoteUsernameAttribute.getUsername());
+		response.addAttribute(usernameAttribute);
+
+		byte[] localKey = this.authenticator.getLocalKey(remoteUsername);
+		// String username = new String(uname.getUsername());
+		MessageIntegrityAttribute messageIntegrityAttribute = StunAttributeFactory
+				.createMessageIntegrityAttribute(new String(
+						remoteUsernameAttribute.getUsername()), localKey);
+		response.addAttribute(messageIntegrityAttribute);
+
+		// If the client issues a USE-CANDIDATE, tell ICE Agent to select the candidate
+		if (useCandidate) {
+			fireOnSuccessResponse(key);
+		}
+
+		// Pass response to the server
+		return response.encode();
 	}
 
 	private byte[] handleResponse(StunResponse response, SelectionKey key) {

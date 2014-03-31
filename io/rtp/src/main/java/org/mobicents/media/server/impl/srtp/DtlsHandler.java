@@ -162,13 +162,12 @@ public class DtlsHandler {
 
 	public void handshake() throws IOException {
 		SecureRandom secureRandom = new SecureRandom();
-//		FixedDtlsServerProtocol serverProtocol = new FixedDtlsServerProtocol(secureRandom);
 		DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
 		NioUdpTransport transport = new NioUdpTransport(getChannel(), MTU);
-
+		
 		// Perform the handshake in a NIO fashion
 		serverProtocol.accept(this.server, transport);
-
+		
 		// Prepare the shared key to be used in RTP streaming
 		server.prepareSrtpSharedSecret();
 

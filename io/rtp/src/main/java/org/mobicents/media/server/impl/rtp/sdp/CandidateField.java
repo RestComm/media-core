@@ -162,9 +162,12 @@ public class CandidateField implements Comparable<CandidateField>{
 				break;
 			}
 
-			// skip 'generation'
-			iterator.next();
-			this.generation = iterator.next();
+			// Generation attribute is present on Chrome SDP but not on FireFox
+			if(iterator.hasNext()) {
+				// skip 'generation'
+				iterator.next();
+				this.generation = iterator.next();
+			}
 		} catch (NoSuchElementException e) {
 			throw new IllegalArgumentException("Candidate line is badly formated: "+ e.getMessage(), e);
 		}
