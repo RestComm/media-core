@@ -24,6 +24,7 @@ package org.mobicents.media.core;
 
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
+import org.mobicents.media.server.utils.Text;
 
 /**
  *
@@ -31,8 +32,11 @@ import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
  */
 public class WebRTCSdpTemplate extends SdpTemplate {
 
+	private Text localFingerprint;
+	
     public WebRTCSdpTemplate(SessionDescription sessionDescription) {
     	super(sessionDescription);
+    	this.localFingerprint = new Text();
     }
     
     @Override
@@ -41,14 +45,19 @@ public class WebRTCSdpTemplate extends SdpTemplate {
     }
 
     
+    public void setLocalFingerprint(Text localFingerprint) {
+		this.localFingerprint = localFingerprint;
+	}
+    
     /**
      * 
      * add any WebRTCSpecific attributes to the SDP offer
      * 
      */
     protected String getExtendedAudioAttributes() {
-    	// TODO: Calculate the actual fingerprint of the server certificate
-    	return "a=fingerprint:sha-256 28:D5:4A:00:0E:4A:53:F9:DC:57:67:17:49:BC:E2:85:24:A3:52:70:99:76:48:B8:72:11:BB:DF:14:A7:4D:3B";
+    	if(this.localFingerprint != null && this.localFingerprint.length() > 0) {
+    		return "a=fingerprint:"+this.localFingerprint;
+    	}
+    	return "";
     }
-
 }

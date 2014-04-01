@@ -65,7 +65,7 @@ public class TlsUtils
             fp.append(':');
             fp.append(hex.substring(i, i + 2));
         }
-        return fp.toString();
+        return "sha-256 "+ fp.toString();
     }
 
     static byte[] sha256DigestOf(byte[] input)

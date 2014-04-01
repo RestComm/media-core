@@ -17,6 +17,7 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SRTPProtectionProfile;
 import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.bouncycastle.crypto.tls.SignatureAndHashAlgorithm;
+import org.bouncycastle.crypto.tls.TlsCredentials;
 import org.bouncycastle.crypto.tls.TlsEncryptionCredentials;
 import org.bouncycastle.crypto.tls.TlsSRTPUtils;
 import org.bouncycastle.crypto.tls.TlsSignerCredentials;
@@ -35,7 +36,11 @@ import org.bouncycastle.crypto.tls.UseSRTPData;
  */
 public class DtlsSrtpServer extends DefaultTlsServer {
 	
-    private Logger logger = Logger.getLogger(DtlsSrtpServer.class) ;
+    private Logger logger = Logger.getLogger(DtlsSrtpServer.class);
+
+    // Certificate resources
+	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem", "x509-ca.pem" };
+	private static final String KEY_RESOURCE = "x509-server-key.pem";
     
     // the server response to the client handshake request
     // http://tools.ietf.org/html/rfc5764#section-4.1.1
@@ -114,8 +119,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     protected TlsEncryptionCredentials getRSAEncryptionCredentials()
         throws IOException
     {
-        return TlsUtils.loadEncryptionCredentials(context, new String[]{"x509-server.pem", "x509-ca.pem"},
-            "x509-server-key.pem");
+        return TlsUtils.loadEncryptionCredentials(context, CERT_RESOURCES, KEY_RESOURCE);
     }
 
     protected TlsSignerCredentials getRSASignerCredentials()
@@ -276,5 +280,21 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     public byte[] getSrtpMasterClientSalt() {
     	return srtpMasterClientSalt;
     }
+    
+	/**
+	 * Gets the fingerprint of the Certificate associated to the server.
+	 * 
+	 * @return The fingerprint of the server certificate. Returns an empty
+	 *         String if the server does not contain a certificate.
+	 */
+	public String getFingerprint() {
+		try {
+			org.bouncycastle.crypto.tls.Certificate chain = TlsUtils.loadCertificateChain(CERT_RESOURCES);
+			Certificate certificate = chain.getCertificateAt(0);
+			return TlsUtils.fingerprint(certificate);
+		} catch (IOException e1) {
+			return "";
+		}
+	}
     
 }

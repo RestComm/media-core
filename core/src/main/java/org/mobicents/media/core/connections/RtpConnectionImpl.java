@@ -25,7 +25,6 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
 import java.text.ParseException;
 
 import javax.sdp.SdpException;
@@ -36,10 +35,9 @@ import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
 import org.mobicents.media.core.ice.CandidatePair;
 import org.mobicents.media.core.ice.IceAgent;
-import org.mobicents.media.core.ice.IceException;
 import org.mobicents.media.core.ice.IceFactory;
-import org.mobicents.media.core.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.core.ice.events.IceEventListener;
+import org.mobicents.media.core.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.sdp.IceSdpNegotiator;
@@ -508,8 +506,13 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 */
 	private void generateSdpAnswer() throws SdpException {
 		if (!isLocal && this.useWebRtc) {
-			this.answerTemplate = new WebRTCSdpTemplate(this.sdp);
+			// Create a WebRTC SDP template
+			WebRTCSdpTemplate webRtcTemplate = new WebRTCSdpTemplate(this.sdp);
+			// Set fingerprint from DTLS server certificate
+			webRtcTemplate.setLocalFingerprint(this.rtpAudioChannel.getWebRtcLocalFingerprint());
+			this.answerTemplate = webRtcTemplate;
 		} else {
+			// Create a common SDP template
 			this.answerTemplate = new SdpTemplate(this.sdp);
 		}
 

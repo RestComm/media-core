@@ -26,9 +26,7 @@ public class DtlsHandler {
 	private DatagramChannel channel;
 	private boolean handshakeComplete;
 
-	// TODO calculate fingerprint using generated certificate - hrosa
-	private Text localFingerprint = new Text(
-			"sha-256 28:D5:4A:00:0E:4A:53:F9:DC:57:67:17:49:BC:E2:85:24:A3:52:70:99:76:48:B8:72:11:BB:DF:14:A7:4D:3B");
+	private Text localFingerprint;
 	private Text remoteFingerprint;
 
 	/**
@@ -51,6 +49,7 @@ public class DtlsHandler {
 		this.server = new DtlsSrtpServer();
 		this.channel = channel;
 		this.handshakeComplete = false;
+		this.localFingerprint = new Text(server.getFingerprint());
 	}
 
 	public DtlsHandler() {
@@ -71,7 +70,8 @@ public class DtlsHandler {
 	}
 
 	public Text getLocalFingerprint() {
-		return localFingerprint;
+		return new Text(this.server.getFingerprint());
+		//return localFingerprint;
 	}
 
 	public void setLocalFingerprint(Text localFingerprint) {

@@ -819,6 +819,13 @@ public class RTPDataChannel {
 		}
 		this.webRtcHandler.setRemoteFingerprint(remotePeerFingerprint);
 	}
+	
+	public Text getWebRtcLocalFingerprint() {
+		if(this.webRtcHandler != null) {
+			return this.webRtcHandler.getLocalFingerprint();
+		}
+		return new Text();
+	}
 
 	private void receiveRtpPacket(RtpPacket packet) throws IOException {
 		if (this.isWebRtc) {
