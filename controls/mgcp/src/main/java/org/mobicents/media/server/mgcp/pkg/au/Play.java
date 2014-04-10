@@ -22,9 +22,10 @@
 
 package org.mobicents.media.server.mgcp.pkg.au;
 
-import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.util.Iterator;
+import java.util.concurrent.Semaphore;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
@@ -34,13 +35,11 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
-
-import java.util.concurrent.Semaphore;
 
 /**
  * Implements play announcement signal.
@@ -122,20 +121,38 @@ public class Play extends Signal implements PlayerListener {
     	String connectionIdHex = uri.substring(QUERY_MEDIA_SESSION_LEN, uri.length());
     	logger.info(String.format("(%s) Querying connection availability (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
     	
-    	// Convert connection id from hexadecimal to decimal
-    	int connectionId = Integer.parseInt(connectionIdHex, 16);
-    	
-    	// TODO catch NumberFormatException
-    	
-    	// Search for the connection
-    	boolean available = getConnection(String.valueOf(connectionId)).isAvailable();
-    	if(available) {
-    		logger.info(String.format("(%s) The connection is available (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
-    	} else {
-    		logger.info(String.format("(%s) The connection is not available (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
-    	}
-    	
-    	// TODO Send notification response based on availability
+    	try {
+    		// Convert connection id from hexadecimal to decimal
+    		int connectionId = Integer.parseInt(connectionIdHex, 16);
+
+    		// Retrieve RTP connection by ID
+    		Connection rtpConnection = getConnection(String.valueOf(connectionId));
+    		if(rtpConnection == null) {
+    			throw new NullPointerException(String.format("RTP connection (ID=%d) was not found.", connectionId));
+    		}
+
+    		// Detach audio player
+    		terminate();
+    		
+    		// Issue response based on connection availability
+    		if(rtpConnection.isAvailable()) {
+    			// Send a "100 - OK" to indicate connection is available
+        		logger.info(String.format("(%s) The connection is available (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
+        		oc.fire(this, new Text("rc=100"));
+        	} else {
+        		// Send a "300 - Unspecified failure" to indicate connection is not available
+        		logger.info(String.format("(%s) The connection is not available (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
+        		oc.fire(this, new Text("rc=300"));
+        	}
+		} catch (NumberFormatException e) {
+			// Send a "301 - Bad audio ID" to indicate the connection ID is invalid 
+			of.fire(this, new Text("rc=301"));
+		} catch (NullPointerException e) {
+			// Send a "303 - Bad selector value" to indicate no connection exists with such ID  
+			of.fire(this, new Text("rc=303"));
+		} finally {
+			complete();
+		}
     }
 
     private void startAnnouncementPhase() {
