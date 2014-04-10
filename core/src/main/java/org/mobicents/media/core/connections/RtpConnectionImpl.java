@@ -388,6 +388,10 @@ public class RtpConnectionImpl extends BaseConnection implements
 	public double getJitter() {
 		return 0;
 	}
+	
+	public boolean isAvailable() {
+		return rtpAudioChannel.isAvailable();
+	}
 
 	@Override
 	public String toString() {
@@ -586,7 +590,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 		}
 		setAudioChannelRemotePeer(peerAddress, peerPort);
 	}
-
+	
 	private class IceListener implements IceEventListener {
 
 		public void onSelectedCandidates(SelectedCandidatesEvent event) {
@@ -602,4 +606,5 @@ public class RtpConnectionImpl extends BaseConnection implements
 			}
 		}
 	}
+
 }

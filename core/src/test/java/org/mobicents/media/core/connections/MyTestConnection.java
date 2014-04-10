@@ -153,4 +153,8 @@ public class MyTestConnection extends BaseConnection {
     public void setOtherParty(Text descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+	public boolean isAvailable() {
+		return true;
+	}
 }

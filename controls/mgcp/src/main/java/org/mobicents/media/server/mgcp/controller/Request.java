@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
@@ -165,7 +166,11 @@ public class Request {
     }
 
     public Connection getConnection(String ID) throws UnknownActivityException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	MgcpConnection mgcpConnection = this.endpoint.getConnection(Integer.valueOf(ID));
+    	if(mgcpConnection == null) {
+    		return null;
+    	}
+    	return mgcpConnection.getConnection();
     }
     
     private void queueEvent(Text event) throws UnknownPackageException, UnknownEventException {

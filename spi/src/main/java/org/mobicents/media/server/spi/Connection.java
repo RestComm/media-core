@@ -183,5 +183,12 @@ public interface Connection {
      * @return average jitter value. 
      */
     public double getJitter();
-    
+
+	/**
+	 * Checks whether a connection has finished gathering all necessary
+	 * resources and is ready to use.
+	 * 
+	 * @return whether connection is available
+	 */
+	public boolean isAvailable();
 }

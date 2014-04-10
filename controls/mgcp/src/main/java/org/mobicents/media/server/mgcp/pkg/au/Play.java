@@ -48,6 +48,9 @@ import java.util.concurrent.Semaphore;
  * @author yulian oifa
  */
 public class Play extends Signal implements PlayerListener {
+	
+	private final static String QUERY_MEDIA_SESSION_PATTERN = "query_media_session_";
+	private final static int QUERY_MEDIA_SESSION_LEN = QUERY_MEDIA_SESSION_PATTERN.length();
     
     private Event oc = new Event(new Text("oc"));
     private Event of = new Event(new Text("of"));
@@ -104,9 +107,35 @@ public class Play extends Signal implements PlayerListener {
         segCount=0;
         
         uri = segments.next().toString();
-        
-        //start announcement
-        startAnnouncementPhase();        
+                
+        if(uri.startsWith(QUERY_MEDIA_SESSION_PATTERN)) {
+        	// Query availability of the media session
+			queryConnectionAvailability();
+        } else {
+        	//start announcement
+        	startAnnouncementPhase();        
+        }
+    }
+    
+    private void queryConnectionAvailability() {
+    	// extract conneciton id from the reserved URI
+    	String connectionIdHex = uri.substring(QUERY_MEDIA_SESSION_LEN, uri.length());
+    	logger.info(String.format("(%s) Querying connection availability (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
+    	
+    	// Convert connection id from hexadecimal to decimal
+    	int connectionId = Integer.parseInt(connectionIdHex, 16);
+    	
+    	// TODO catch NumberFormatException
+    	
+    	// Search for the connection
+    	boolean available = getConnection(String.valueOf(connectionId)).isAvailable();
+    	if(available) {
+    		logger.info(String.format("(%s) The connection is available (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
+    	} else {
+    		logger.info(String.format("(%s) The connection is not available (connectionId=%s)", getEndpoint().getLocalName(), connectionIdHex));
+    	}
+    	
+    	// TODO Send notification response based on availability
     }
 
     private void startAnnouncementPhase() {

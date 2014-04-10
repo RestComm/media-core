@@ -23,6 +23,8 @@
 package org.mobicents.media.server.mgcp.controller.signal;
 
 import java.util.ArrayList;
+
+import org.mobicents.media.server.mgcp.controller.UnknownActivityException;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.utils.Text;
@@ -150,7 +152,11 @@ public abstract class Signal {
     }
 
     public Connection getConnection(String ID) {
-        return this.connection;
+    	try {
+			return this.mgcpPackage.getConnection(ID);
+		} catch (UnknownActivityException e) {
+			return null;
+		}
     }
     
 }

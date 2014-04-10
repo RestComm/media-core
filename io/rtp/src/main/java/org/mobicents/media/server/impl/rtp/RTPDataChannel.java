@@ -327,6 +327,7 @@ public class RTPDataChannel {
 			this.webRtcHandler.setChannel(this.dataChannel);
 		}
 		this.udpManager.open(this.dataChannel, this.rtpHandler);
+		this.dataChannelBound = true;
 	}
 
 	public boolean isDataChannelBound() {
@@ -448,13 +449,29 @@ public class RTPDataChannel {
 	}
 
 	protected void send(Frame frame) {
-		if (dataChannel.isConnected())
+		///XXX WebRTC hack - dataChannel only available after ICE negotiation!
+		if (dataChannel != null && dataChannel.isConnected())
 			tx.perform(frame);
 	}
 
 	public void sendDtmf(Frame frame) {
 		if (dataChannel.isConnected())
 			tx.performDtmf(frame);
+	}
+	
+	/**
+	 * Checks whether the data channel is available for media exchange.
+	 * 
+	 * @return
+	 */
+	public boolean isAvailable() {
+		// The channel is available is is connected
+		boolean available = this.dataChannel != null && this.dataChannel.isConnected();
+		// In case of WebRTC calls the DTLS handshake must be completed
+		if(this.isWebRtc) {
+			available = available && this.webRtcHandler.isHandshakeComplete();
+		}
+		return available;
 	}
 
 	/**
@@ -831,14 +848,20 @@ public class RTPDataChannel {
 		if (this.isWebRtc) {
 			packet = this.webRtcHandler.decode(packet);
 		}
-		ByteBuffer buf = packet.getBuffer();
-		buf.clear();
-		// receive RTP packet from the network
-		dataChannel.receive(buf);
-		buf.flip();
+		// WebRTC handler can return null if packet is not valid
+		if(packet != null) {
+			ByteBuffer buf = packet.getBuffer();
+			buf.clear();
+			// receive RTP packet from the network
+			dataChannel.receive(buf);
+			buf.flip();
+		}
 	}
 
 	private void sendRtpPacket(RtpPacket packet) throws IOException {
+		if(isWebRtc && !this.webRtcHandler.isHandshakeComplete()) {
+			return;
+		}
 		if (isWebRtc) {
 			packet = this.webRtcHandler.encode(packet);
 		}

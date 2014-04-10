@@ -143,7 +143,7 @@ public class DtlsHandler {
 	 * 
 	 * @param packet
 	 *            The encoded RTP packet
-	 * @return The decoded RTP packet
+	 * @return The decoded RTP packet. Returns null is packet is not valid.
 	 */
 	public RtpPacket decode(RtpPacket packet) {
 		return this.srtpDecoder.reverseTransform(packet);

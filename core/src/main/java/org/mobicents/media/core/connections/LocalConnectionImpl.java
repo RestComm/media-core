@@ -153,4 +153,9 @@ public class LocalConnectionImpl extends BaseConnection {
         releaseConnection(ConnectionType.LOCAL);        
     }
 
+	public boolean isAvailable() {
+		// TODO What is criteria for this type of channel to be available
+		return true;
+	}
+
 }

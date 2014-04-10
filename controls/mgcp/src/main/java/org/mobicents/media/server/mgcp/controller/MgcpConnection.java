@@ -118,6 +118,10 @@ public class MgcpConnection implements ConnectionFailureListener {
         this.connection.setOtherParty(other.connection);
     }
     
+    public Connection getConnection() {
+		return this.connection;
+	}
+    
     /**
      * Terminates this activity and deletes connection.
      */

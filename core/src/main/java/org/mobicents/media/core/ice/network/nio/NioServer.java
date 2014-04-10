@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.ice.network.ExpirableProtocolHandler;
 import org.mobicents.media.core.ice.network.ExpiringPipeline;
 import org.mobicents.media.core.ice.network.Pipeline;
@@ -23,6 +24,8 @@ import org.mobicents.media.core.ice.network.Pipeline;
  * 
  */
 public class NioServer implements Runnable {
+	
+	private Logger logger = Logger.getLogger(NioServer.class);
 
 	private static final int BUFFER_SIZE = 8192;
 
@@ -131,17 +134,20 @@ public class NioServer implements Runnable {
 					selectedKeys.remove();
 
 					if (key.isValid()) {
-						// Take action based on current key mode
-						if (key.isReadable()) {
-							this.read(key);
-						} else if (key.isWritable()) {
-							this.write(key);
+						try {
+							// Take action based on current key mode
+							if (key.isReadable()) {
+								this.read(key);
+							} else if (key.isWritable()) {
+								this.write(key);
+							}
+						} catch (Exception e) {
+							this.logger.error("Could not process packet: "+ e.getMessage(), e);
 						}
 					}
 				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Exception e) {
+				this.logger.error(e.getMessage(), e);
 			}
 		}
 		// Cleanup resource after server stops
