@@ -218,18 +218,19 @@ public class Controller implements MgcpListener, ServerManager {
     }
 
     public void process(MgcpEvent event) {
-        //get the transaction identifier
-    	int txID = event.getMessage().getTxID();
-    	Transaction tx;
-    	if(event.getEventID()==MgcpEvent.REQUEST)
-    		tx = txManager.allocateNew((InetSocketAddress)event.getAddress(),txID);
-    	else
-    		tx = txManager.find((InetSocketAddress)event.getAddress(),txID);
-        
-    	if (tx != null)
-            tx.process(event);    	
+		// get the transaction identifier
+		int txID = event.getMessage().getTxID();
+		Transaction tx;
+		if (event.getEventID() == MgcpEvent.REQUEST) {
+			tx = txManager.allocateNew((InetSocketAddress) event.getAddress(), txID);
+		} else {
+			// TODO find by transaction number - hrosa
+			tx = txManager.find((InetSocketAddress) event.getAddress(), txID);
+		}
+		if (tx != null) {
+			tx.process(event);
+		}  	
     }
-    
      
     public void onStarted(Endpoint endpoint,EndpointInstaller installer) {
         try {

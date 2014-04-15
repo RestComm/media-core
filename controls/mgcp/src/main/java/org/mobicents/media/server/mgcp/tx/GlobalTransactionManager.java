@@ -139,11 +139,14 @@ public class GlobalTransactionManager
     	if(level==address.length-1)
     	{    		
     		checkPort(port-1);
-    		Transaction old=managers[port-1].find(id);
-    		if(old==null)
-    			return managers[port-1].allocateNew(id);
-    		
-    		return null;
+    		// hrosa - look for transaction by tx number rather than unique id
+    		// Fixes issue MEDIA-20
+    		Transaction old=managers[port-1].findByTransactionNumber(id);
+			if (old == null) {
+				return managers[port - 1].allocateNew(id);
+			} else {
+				return null;
+			}
     	}
     	
     	int intIndex = ((int)address[level]) & 0xFF;    				       	

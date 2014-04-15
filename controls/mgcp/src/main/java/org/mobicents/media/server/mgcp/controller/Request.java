@@ -23,16 +23,15 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.utils.Text;
@@ -152,7 +151,7 @@ public class Request {
         msg.setParameter(Parameter.OBSERVED_EVENT, event);
         msg.setParameter(Parameter.NOTIFIED_ENTITY, callAgent.getValue());
         msg.setParameter(Parameter.REQUEST_ID, ID);
-        msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
+		msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
         endpoint.send(evt, address);        
     }
 
