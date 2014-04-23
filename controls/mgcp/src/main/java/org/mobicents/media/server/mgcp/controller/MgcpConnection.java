@@ -66,6 +66,13 @@ public class MgcpConnection implements ConnectionFailureListener {
         return textualId;
     }
     
+    public int getCallId() {
+    	if(call == null) {
+    		return 0;
+    	}
+		return call.id;
+	}
+    
     /**
      * Assigns call object to which this connection belongs.
      * 

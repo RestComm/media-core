@@ -163,6 +163,10 @@ public class Request {
     public Endpoint getEndpoint() {
         return endpoint.getEndpoint();
     }
+    
+    public NotifiedEntity getCallAgent() {
+		return callAgent;
+	}
 
     public Connection getConnection(String ID) throws UnknownActivityException {
     	MgcpConnection mgcpConnection = this.endpoint.getConnection(Integer.valueOf(ID));
