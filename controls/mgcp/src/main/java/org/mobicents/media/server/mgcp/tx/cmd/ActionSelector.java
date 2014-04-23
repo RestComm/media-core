@@ -35,6 +35,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class ActionSelector  {
 
+	private final static Text AUDIT_CONNECTION = new Text("AUCX");
     private final static Text CREATE_CONNECTION = new Text("CRCX");
     private final static Text MODIFY_CONNECTION = new Text("MDCX");
     private final static Text DELETE_CONNECTION = new Text("DLCX");
@@ -46,6 +47,7 @@ public class ActionSelector  {
     private MgcpRequest request;
     
     //actions
+    private AuditConnectionCmd aucx;
     private CreateConnectionCmd crcx;
     private ModifyConnectionCmd mdcx;
     private DeleteConnectionCmd dlcx;
@@ -59,6 +61,7 @@ public class ActionSelector  {
      * @param scheduler 
      */
     public ActionSelector(Scheduler scheduler) {
+    	aucx = new AuditConnectionCmd(scheduler);
         crcx = new CreateConnectionCmd(scheduler);
         mdcx = new ModifyConnectionCmd(scheduler);
         dlcx = new DeleteConnectionCmd(scheduler);
@@ -93,6 +96,8 @@ public class ActionSelector  {
                     return rqnt;
                 } else if (command.equals(REQUEST_NOTIFY)) {
                     return ntfy;
+                } else if (command.equals(AUDIT_CONNECTION)) {
+                	return aucx;
                 }
                 
                 break;

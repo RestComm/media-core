@@ -100,7 +100,23 @@ public interface Connection {
      * 
      * @return SDP descriptor as text string.
      */
-    public String getDescriptor();    
+    public String getDescriptor();
+    
+	/**
+	 * Gets the local descriptor of this connection in SDP format
+	 * 
+	 * @return The local SDP descriptor. Returns an empty string if not
+	 *         available.
+	 */
+    public String getLocalDescriptor();
+    
+	/**
+	 * Gets the remote descriptor of this connection in SDP format
+	 * 
+	 * @return The remote SDP descriptor. Returns an empty string if not
+	 *         available.
+	 */
+    public String getRemoteDescriptor();
     
     /**
      * Joins endpoint wich executes this connection with other party.

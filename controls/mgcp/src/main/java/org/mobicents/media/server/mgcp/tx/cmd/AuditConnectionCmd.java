@@ -94,7 +94,7 @@ public class AuditConnectionCmd extends Action {
 	
 	public AuditConnectionCmd(final Scheduler scheduler) {
 		this.scheduler = scheduler;
-		this.handler = new TaskChain(2, scheduler);
+		this.handler = new TaskChain(2, this.scheduler);
 		this.handler.add(new Audit());
 		this.handler.add(new Respond());
 		this.setActionHandler(this.handler);
@@ -177,12 +177,12 @@ public class AuditConnectionCmd extends Action {
 					connectionMode = connection.getConnection().getMode();
 				} else if (param.equals(Parameter.REMOTE_CONNECTION_DESCRIPTION)) {
 					queryRemoteConnectionDes = true;
-					// TODO hrosa - get remote connection description
-					remoteConnectionDes = new Text();
+					String remoteSdp = connection.getConnection().getRemoteDescriptor();
+					remoteConnectionDes = remoteSdp == null ? new Text() : new Text(remoteSdp);
 				} else if (param.equals(Parameter.LOCAL_CONNECTION_DESCRIPTION)) {
 					queryLocalConnectionDes = true;
-					// TODO hrosa - get local connection description
-					localConnectionDes = new Text();
+					String localSdp = connection.getConnection().getLocalDescriptor();
+					localConnectionDes = localSdp == null ? new Text() : new Text(localSdp);
 				} else if (param.equals(Parameter.CONNECTION_PARAMETERS)) {
 					queryConnectionParams = true;
 					auditConnectionParameters(connection);
@@ -247,20 +247,16 @@ public class AuditConnectionCmd extends Action {
 					response.setParameter(Parameter.MODE, connectionMode.getDescription());
 				}
 				if(queryConnectionParams) {
-					int tx = connection.getPacketsTransmitted();
-					int rx = connection.getPacketsReceived();
-					// TODO missing some connection parameters - hrosa
 					// see http://tools.ietf.org/html/rfc3435#appendix-F.9
-					response.setParameter(Parameter.CONNECTION_PARAMETERS, new Text("PS=" + tx + ", PR=" + rx));
+					response.setParameter(Parameter.CONNECTION_PARAMETERS, connectionParameters.toText());
 				}
 				if(queryLocalConnectionDes) {
-					String sdp = connection.getConnection().getDescriptor();
-					Text localSdp = sdp == null ? new Text() : new Text(sdp);
-					// TODO hrosa - Need to reuse the existing "SDP" parameter. Replace with LOCAL_CONNECTION_DESCRIPTOR
-					response.setParameter(Parameter.SDP, localSdp);
+					// TODO hrosa - Reusing the existing "SDP" parameter. Replace with LOCAL_CONNECTION_DESCRIPTOR
+					response.setParameter(Parameter.SDP, localConnectionDes);
 				}
 				if(queryRemoteConnectionDes) {
 					// TODO hrosa - Need to implement this. MgcpResponse only supports ONE sdp description.
+					// response.setParameter(Parameter.SDP, remoteConnectionDes);
 				}
 				if(queryConnectionAvailability) {
 					Text availability = new Text(String.valueOf(connectionAvailable));
@@ -290,7 +286,22 @@ public class AuditConnectionCmd extends Action {
 
 		@Override
 		public long perform() {
-			// TODO Auto-generated method stub
+			int code = ((MgcpCommandException)transaction().getLastError()).getCode();
+            Text message = ((MgcpCommandException)transaction().getLastError()).getErrorMessage();
+            
+            MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
+            MgcpResponse response = (MgcpResponse) evt.getMessage();
+            response.setResponseCode(code);
+            response.setResponseString(message);
+            response.setTxID(transaction().getId());
+
+            try {
+                transaction().getProvider().send(evt);
+            } catch (IOException e) {
+            	logger.error(e);
+            } finally {
+                evt.recycle();
+            } 
 			return 0;
 		}
 		
@@ -305,9 +316,6 @@ public class AuditConnectionCmd extends Action {
 		private final String JITTER = "JI";
 		private final String LATENCY = "LA";
 
-		private final String EQUAL_SEPARATOR = "=";
-		private final String COMMA_SEPARATOR = ",";
-		
 		int packetsSent = -1;
 		int packetsReceived = -1;
 		int packetsLost = -1;
@@ -320,7 +328,7 @@ public class AuditConnectionCmd extends Action {
 			super();
 		}
 		
-		public Text getConnectionParameters() {
+		public Text toText() {
 			// Blindly append all possible parameters
 			StringBuilder builder = new StringBuilder();
 			appendParameter(PACKETS_SENT, packetsSent, builder);

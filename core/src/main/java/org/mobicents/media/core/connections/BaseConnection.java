@@ -24,12 +24,12 @@ package org.mobicents.media.core.connections;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.*;
+
 import java.util.Collection;
 import java.io.IOException;
 
 import org.mobicents.media.CheckPoint;
 import org.mobicents.media.server.utils.Text;
-
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -173,6 +173,14 @@ public abstract class BaseConnection implements Connection {
      */
     public String getDescriptor() {
         return null;
+    }
+    
+    public String getLocalDescriptor() {
+    	return null;
+    }
+    
+    public String getRemoteDescriptor() {
+    	return null;
     }
 
     /**

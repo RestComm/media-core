@@ -353,6 +353,16 @@ public class RtpConnectionImpl extends BaseConnection implements
 	public String getDescriptor() {
 		return sdpAnswer != null ? sdpAnswer : sdpOffer;
 	}
+	
+	@Override
+	public String getLocalDescriptor() {
+		return sdpAnswer;
+	}
+	
+	@Override
+	public String getRemoteDescriptor() {
+		return sdpOffer;
+	}
 
 	public long getPacketsReceived() {
 		return rtpAudioChannel.getPacketsReceived();
