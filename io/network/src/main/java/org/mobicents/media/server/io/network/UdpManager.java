@@ -25,11 +25,9 @@ package org.mobicents.media.server.io.network;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.spi.AbstractSelector;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -310,24 +308,14 @@ public class UdpManager {
 
 	public void open(DatagramChannel channel, ProtocolHandler handler)
 			throws IOException {
-		// Open a new selector
-		AbstractSelector selector = SelectorProvider.provider().openSelector();
-		// Register the channel under the opened selector
-		SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-		// Attach the protocol handler to the key
-		key.attach(handler);
-		handler.setKey(key);
-		// Register the selector and submit a new poll task
-		this.addSelector(selector);
-
-		// // Get a selector
-		// int index = currSelectorIndex.getAndIncrement();
-		// Selector selector = selectors.get(index % selectors.size());
-		// // Register the channel under the chosen selector
-		// SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-		// // Attach the protocol handler to the key
-		// key.attach(handler);
-		// handler.setKey(key);
+		 // Get a selector
+		 int index = currSelectorIndex.getAndIncrement();
+		 Selector selector = selectors.get(index % selectors.size());
+		 // Register the channel under the chosen selector
+		 SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+		 // Attach the protocol handler to the key
+		 key.attach(handler);
+		 handler.setKey(key);
 	}
 
 	/**
@@ -447,7 +435,7 @@ public class UdpManager {
 		}
 
 		public int getQueueNumber() {
-			return scheduler.UDP_MANAGER_QUEUE;
+			return Scheduler.UDP_MANAGER_QUEUE;
 		}
 
 		@Override
@@ -495,7 +483,7 @@ public class UdpManager {
 				logger.error(e);
 				return 0;
 			} finally {
-				scheduler.submit(this, scheduler.UDP_MANAGER_QUEUE);
+				scheduler.submit(this, Scheduler.UDP_MANAGER_QUEUE);
 			}
 
 			return 0;
@@ -505,7 +493,7 @@ public class UdpManager {
 		 * Immediately start current task
 		 */
 		public void startNow() {
-			scheduler.submit(this, scheduler.UDP_MANAGER_QUEUE);
+			scheduler.submit(this, Scheduler.UDP_MANAGER_QUEUE);
 		}
 	}
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.security.SecureRandom;
 
+import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
@@ -20,11 +21,14 @@ import org.mobicents.media.server.utils.Text;
  */
 public class DtlsHandler {
 
+	private static final Logger logger = Logger.getLogger("DTLS");
+	
 	private static final int MTU = 1500;
 
 	private DtlsSrtpServer server;
 	private DatagramChannel channel;
-	private boolean handshakeComplete;
+	private volatile boolean handshakeComplete;
+	private volatile boolean handshaking;
 
 	private Text localFingerprint;
 	private Text remoteFingerprint;
@@ -49,12 +53,12 @@ public class DtlsHandler {
 		this.server = new DtlsSrtpServer();
 		this.channel = channel;
 		this.handshakeComplete = false;
+		this.handshaking = false;
 		this.localFingerprint = new Text(server.getFingerprint());
 	}
 
 	public DtlsHandler() {
-		this.server = new DtlsSrtpServer();
-		this.handshakeComplete = false;
+		this(null);
 	}
 
 	public DatagramChannel getChannel() {
@@ -67,6 +71,10 @@ public class DtlsHandler {
 
 	public boolean isHandshakeComplete() {
 		return handshakeComplete;
+	}
+	
+	public boolean isHandshaking() {
+		return handshaking;
 	}
 
 	public Text getLocalFingerprint() {
@@ -160,23 +168,46 @@ public class DtlsHandler {
 		return this.srtpEncoder.transform(packet);
 	}
 
-	public void handshake() throws IOException {
-		SecureRandom secureRandom = new SecureRandom();
-		DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
-		NioUdpTransport transport = new NioUdpTransport(getChannel(), MTU);
-		
-		// Perform the handshake in a NIO fashion
-		serverProtocol.accept(this.server, transport);
-		
-		// Prepare the shared key to be used in RTP streaming
-		server.prepareSrtpSharedSecret();
+	public void handshake() {
+		if(!handshaking && !handshakeComplete) {
+			this.handshaking = true;
+			new Thread(new HandshakeWorker()).start();
+		}
+	}
+	
+	private class HandshakeWorker implements Runnable {
 
-		// Generate encoders for DTLS traffic
-		this.srtpDecoder = generateDecoder();
-		this.srtpEncoder = generateEncoder();
+		public void run() {
+			logger.info("Started DTLS handshake");
+			/*
+			 *  Perform handshake
+			 */
+			SecureRandom secureRandom = new SecureRandom();
+			DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
+			NioUdpTransport transport = new NioUdpTransport(getChannel(), MTU);
+			
+			try {
+				// Perform the handshake in a NIO fashion
+				serverProtocol.accept(server, transport);
+
+				// Prepare the shared key to be used in RTP streaming
+				server.prepareSrtpSharedSecret();
+				
+				// Generate encoders for DTLS traffic
+				srtpDecoder = generateDecoder();
+				srtpEncoder = generateEncoder();
+				
+				// Declare handshake as complete
+				handshakeComplete = true;
+				logger.info("Completed DTLS handshake");
+			} catch (IOException e) {
+				handshakeComplete = false;
+				logger.error("Could not perform DTLS handshake", e);
+			} finally {
+				handshaking = false;
+			}
+		}
 		
-		// Declare handshake as complete
-		this.handshakeComplete = true;
 	}
 
 }

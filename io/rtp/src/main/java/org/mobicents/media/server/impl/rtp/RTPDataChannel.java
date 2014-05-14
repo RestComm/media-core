@@ -574,11 +574,11 @@ public class RTPDataChannel {
 		// RTP packet representation
 		private RtpPacket rtpPacket = new RtpPacket(
 				RtpPacket.RTP_PACKET_MAX_SIZE, true);
-		private RTPFormat format;
 
 		private RxTask() {
+			super();
 		}
-
+		
 		private void flush() {
 			SocketAddress currAddress;
 			try {
@@ -601,11 +601,34 @@ public class RTPDataChannel {
 		 * @see org.mobicents.media.server.scheduler.Task#perform()
 		 */
 		public long perform() {
-			try {
+				// Make sure the DTLS is completed for WebRTC calls
 				if (isWebRtc && !webRtcHandler.isHandshakeComplete()) {
-					webRtcHandler.handshake();
+					// Handshake is performed on a different thread
+					// So its necessary to check if handshake is ongoing
+					if(!webRtcHandler.isHandshaking()) {
+						webRtcHandler.handshake();
+					}
+					// Avoid blocking the scheduler
+					// A future poll task will take care of RTP transmission once handshake is complete 
+				} else {
+					new Thread(new RxTaskWorker(rtpPacket)).start();
 				}
 
+			return 0;
+		}
+	}
+	
+	private class RxTaskWorker implements Runnable {
+
+		private RtpPacket rtpPacket;
+		private RTPFormat format;
+		
+		public RxTaskWorker(RtpPacket rtpPacket) {
+			this.rtpPacket = rtpPacket;
+		}
+
+		public void run() {
+			try {
 				// clean buffer before read
 				rtpPacket.getBuffer().clear();
 
@@ -678,7 +701,6 @@ public class RTPDataChannel {
 			}
 
 			rtpHandler.isReading = false;
-			return 0;
 		}
 	}
 
