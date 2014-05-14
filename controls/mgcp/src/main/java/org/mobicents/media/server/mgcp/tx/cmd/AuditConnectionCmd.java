@@ -37,6 +37,7 @@ public class AuditConnectionCmd extends Action {
     private final static Text CONNECTION_ID_EXPECTED = new Text("Connection identifier was not specified");
     private final static Text CONNECTION_INEXISTENT = new Text("Connection not available");
     private final static Text SUCCESS= new Text("Success");
+    private final static Text CONNECTION_NOT_READY= new Text("Connection not ready");
 
 	// Media Server internals
 	private final Scheduler scheduler;
@@ -79,7 +80,6 @@ public class AuditConnectionCmd extends Action {
 	private boolean queryRemoteConnectionDes = false;
 	private boolean queryLocalConnectionDes = false;
 	private boolean queryConnectionParams = false;
-	private boolean queryConnectionAvailability = false;
 	
 	private int callId;
 	private NotifiedEntity notifiedEntity;
@@ -136,6 +136,9 @@ public class AuditConnectionCmd extends Action {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID, CONNECTION_INEXISTENT);
             }
 			
+			// Check connection availability
+			connectionAvailable = connection.getConnection().isAvailable();
+
 			// Retrieve requested information from the connection
 			if(requestedInfo != null) {
 				Collection<Text> requestedParams = requestedInfo.getValue().split(',');
@@ -183,9 +186,6 @@ public class AuditConnectionCmd extends Action {
 				} else if (param.equals(Parameter.CONNECTION_PARAMETERS)) {
 					queryConnectionParams = true;
 					auditConnectionParameters(connection);
-				} else if (param.equals(Parameter.CONNECTION_AVAILABILITY)) {
-					queryConnectionAvailability = true;
-					connectionAvailable = connection.getConnection().isAvailable();
 				}
 			}
 		}
@@ -213,8 +213,15 @@ public class AuditConnectionCmd extends Action {
 		public long perform() {
             MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
             MgcpResponse response = (MgcpResponse) evt.getMessage();
-            response.setResponseCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED);
-            response.setResponseString(SUCCESS);
+            
+            if(connectionAvailable) {
+            	response.setResponseCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED);
+            	response.setResponseString(SUCCESS);
+            } else {
+            	// Return a code that indicates connection exists but is unavailable
+            	response.setResponseCode(MgcpResponseCode.INSUFFICIENT_RESOURCES);
+            	response.setResponseString(CONNECTION_NOT_READY);
+            }
             response.setTxID(transaction().getId());
 
 			/*
@@ -255,10 +262,6 @@ public class AuditConnectionCmd extends Action {
 				if(queryRemoteConnectionDes) {
 					// TODO hrosa - Need to implement this. MgcpResponse only supports ONE sdp description.
 					// response.setParameter(Parameter.SDP, remoteConnectionDes);
-				}
-				if(queryConnectionAvailability) {
-					Text availability = new Text(String.valueOf(connectionAvailable));
-					response.setParameter(Parameter.CONNECTION_AVAILABILITY, availability);
 				}
 			}
 			

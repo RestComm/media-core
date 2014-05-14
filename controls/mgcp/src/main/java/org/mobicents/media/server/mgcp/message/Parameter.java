@@ -50,8 +50,6 @@ public class Parameter {
     public final static Text REQUESTED_INFO = new Text("F");
     public final static Text REMOTE_CONNECTION_DESCRIPTION = new Text("RC");
     public final static Text LOCAL_CONNECTION_DESCRIPTION = new Text("LC");
-    // hrosa - used by AUCX to query connection availability. Not standard!
-    public final static Text CONNECTION_AVAILABILITY = new Text("AV");
     
     private Text key = new Text();
     private Text value = new Text();
