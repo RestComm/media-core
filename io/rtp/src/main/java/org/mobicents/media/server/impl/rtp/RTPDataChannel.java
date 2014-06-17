@@ -611,7 +611,9 @@ public class RTPDataChannel {
 					// Avoid blocking the scheduler
 					// A future poll task will take care of RTP transmission once handshake is complete 
 				} else {
-					new Thread(new RxTaskWorker(rtpPacket)).start();
+					if(rtpHandler.isReadable()) {
+						new Thread(new RxTaskWorker(rtpPacket)).start();
+					}
 				}
 
 			return 0;
@@ -629,6 +631,10 @@ public class RTPDataChannel {
 
 		public void run() {
 			try {
+				// Indicate handler is reading
+				// No new threads should be created while reading
+				rtpHandler.isReading = true;
+				
 				// clean buffer before read
 				rtpPacket.getBuffer().clear();
 
@@ -697,7 +703,7 @@ public class RTPDataChannel {
 					logger.error(ex);
 				}
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error(e.getMessage(), e);
 			}
 
 			rtpHandler.isReading = false;
@@ -818,7 +824,7 @@ public class RTPDataChannel {
 					logger.error(ex);
 				}
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
