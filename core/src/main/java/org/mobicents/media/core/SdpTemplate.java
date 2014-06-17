@@ -142,6 +142,15 @@ public class SdpTemplate {
     	return MediaDescriptorField.RTP_AVP_PROFILE;
     }
     
+    protected String getApplicationProfile() {
+    	if(this.sessionDescription != null) {
+    		if(this.sessionDescription.getApplicationDescriptor() != null) {
+    			return this.sessionDescription.getApplicationDescriptor().getProfile().toString();
+    		}
+    	}
+    	return "";
+    }
+    
     public void setBindAddress(String bindAddress) {
 		this.bindAddress = bindAddress;
 	}
@@ -456,24 +465,7 @@ public class SdpTemplate {
     	}
     	
     	StringBuilder builder = new StringBuilder();
-        builder.append("m=application %s ").append(getMediaProfile()).append(" ");
-        if(isApplicationSupported()) {
-        	builder.append(payloads(this.negotiatedApplicationFormats)).append("\n");
-			
-        	this.negotiatedApplicationFormats.rewind();
-			while (this.negotiatedApplicationFormats.hasMore()) {
-				RTPFormat f = this.negotiatedApplicationFormats.next();
-				builder.append(String.format("a=rtpmap:%d %s/%d\n", f.getID(), f.getFormat().getName(), f.getClockRate()));
-				if (f.getFormat().getOptions() != null) {
-					builder.append(String.format("a=fmtp: %d %s\n", f.getID(), f.getFormat().getOptions().toString()));
-				}
-				// TODO Finish implementing application description - hrosa
-			}
-			builder.append(this.getExtendedApplicationAttributes()).append("\n");
-        } else {
-			// TODO No application formats are received because application media is still not implemented - hrosa
-			 builder.append(payloads(this.offeredApplicationFormats)).append("\n");
-        }
+        builder.append("m=application %s ").append(getApplicationProfile()).append(" 0");
         return builder.toString();
     }
     
