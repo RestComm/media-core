@@ -612,7 +612,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 				rtpAudioChannel.bind(candidate.getChannel());
 			} catch (IOException e) {
 				// XXX close connection
-				e.printStackTrace();
+				logger.error("Could not select ICE candidates: "+e.getMessage(), e);
 			}
 		}
 	}

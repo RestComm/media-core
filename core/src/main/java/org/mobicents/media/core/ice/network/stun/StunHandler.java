@@ -50,45 +50,21 @@ public class StunHandler implements ExpirableProtocolHandler {
 		}
 	}
 
-	public byte[] handleRead(SelectionKey key, byte[] data, int length)
+	public byte[] process(SelectionKey key, byte[] data, int length)
 			throws IOException {
 		try {
 			StunMessage message = StunMessage.decode(data, (char) 0,
 					(char) length);
 			if (message instanceof StunRequest) {
-				return handleRequest((StunRequest) message, key);
+				return processRequest((StunRequest) message, key);
 			} else if (message instanceof StunResponse) {
-				return handleResponse((StunResponse) message, key);
+				return processResponse((StunResponse) message, key);
 			}
 			// TODO STUN Indication is not supported
 			return null;
 		} catch (StunException e) {
 			throw new IOException("Could not decode STUN packet.", e);
 		}
-	}
-
-	public byte[] handleWrite(SelectionKey key, byte[] data, int length)
-			throws IOException {
-		// XXX Cannot decode stun messages - hrosa
-		// try {
-		// StunMessage message = StunMessage.decode(data, (char) 0,
-		// (char) length);
-		// if (message instanceof StunResponse) {
-		// StunResponse response = (StunResponse) message;
-		// if (response.getMessageType() ==
-		// StunMessage.BINDING_SUCCESS_RESPONSE) {
-		// if (response.containsAttribute(StunAttribute.USE_CANDIDATE)) {
-		// fireOnSuccessResponse(key);
-		// }
-		// }
-		// }
-		// } catch (StunException e) {
-		// throw new IOException("Could not decode STUN packet.", e);
-		// }
-
-		// TODO uncomment me - hrosa
-		// fireOnSuccessResponse(key);
-		return null;
 	}
 
 	public String getProtocol() {
@@ -103,7 +79,7 @@ public class StunHandler implements ExpirableProtocolHandler {
 		this.expired = true;
 	}
 
-	private byte[] handleRequest(StunRequest request, SelectionKey key)
+	private byte[] processRequest(StunRequest request, SelectionKey key)
 			throws IOException {
 		byte[] transactionID = request.getTransactionId();
 
@@ -168,9 +144,8 @@ public class StunHandler implements ExpirableProtocolHandler {
 		return response.encode();
 	}
 
-	private byte[] handleResponse(StunResponse response, SelectionKey key) {
-		throw new UnsupportedOperationException(
-				"Support to handle STUN responses is not implemented.");
+	private byte[] processResponse(StunResponse response, SelectionKey key) {
+		throw new UnsupportedOperationException("Support to handle STUN responses is not implemented.");
 	}
 
 	private long extractPriority(StunRequest request)
@@ -194,9 +169,30 @@ public class StunHandler implements ExpirableProtocolHandler {
 
 		// Fire the successful binding event
 		BindingSuccessEvent event = new BindingSuccessEvent(this, key);
-		for (StunListener listener : copy) {
-			listener.onBinding(event);
+		Notifier notifier = new Notifier(event, copy);
+		// TODO Improve by creating a thread pool
+		new Thread(notifier).start();
+//		for (StunListener listener : copy) {
+//			listener.onBinding(event);
+//		}
+	}
+	
+	private class Notifier implements Runnable {
+		
+		private final BindingSuccessEvent event;
+		private final StunListener[] listeners;
+		
+		public Notifier(final BindingSuccessEvent event, final StunListener[] listeners) {
+			this.event = event;
+			this.listeners = listeners;
 		}
+
+		public void run() {
+			for (StunListener listener : this.listeners) {
+				listener.onBinding(this.event);
+			}
+		}
+		
 	}
 
 }

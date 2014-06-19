@@ -19,6 +19,8 @@ import org.mobicents.media.core.ice.network.ExpiringPipeline;
 import org.mobicents.media.core.ice.network.Pipeline;
 
 /**
+ * Non-blocking server that runs on a single thread, alternating between reading
+ * and writing modes.
  * 
  * @author Henrique Rosa
  * 
@@ -78,11 +80,10 @@ public class NioServer implements Runnable {
 	}
 
 	public void stop() {
-		// if (this.running) {
-		// this.schedulerThread.interrupt();
-		// this.serverThread.interrupt();
-		// this.running = false;
-		// }
+		this.running = false;
+	}
+	
+	public void stopNow() {
 		this.running = false;
 		this.scheduler.stop();
 	}
@@ -92,13 +93,13 @@ public class NioServer implements Runnable {
 			try {
 				this.selector.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				this.logger.error("Server did not stop in an elegant manner: "+ e.getMessage(), e);
 			}
 		}
 	}
 
 	public void run() {
+		logger.info("NIO Server started");
 		while (this.running && this.selector.isOpen()) {
 			try {
 				// Process any pending changes
@@ -127,18 +128,20 @@ public class NioServer implements Runnable {
 				this.selector.select();
 
 				// Iterate over the set of keys for which events are available
-				Iterator<SelectionKey> selectedKeys = this.selector
-						.selectedKeys().iterator();
+				Iterator<SelectionKey> selectedKeys = this.selector.selectedKeys().iterator();
 				while (selectedKeys.hasNext()) {
 					SelectionKey key = (SelectionKey) selectedKeys.next();
 					selectedKeys.remove();
-
+					
+					// Verify if key was not invalidated in a previous operation
 					if (key.isValid()) {
 						try {
 							// Take action based on current key mode
 							if (key.isReadable()) {
+								logger.info("started reading operation");
 								this.read(key);
 							} else if (key.isWritable()) {
+								logger.info("started writing operation");
 								this.write(key);
 							}
 						} catch (Exception e) {
@@ -152,6 +155,7 @@ public class NioServer implements Runnable {
 		}
 		// Cleanup resource after server stops
 		cleanup();
+		logger.info("NIO Server stopped");
 	}
 
 	private List<ByteBuffer> registerChannel(DatagramChannel channel) {
@@ -167,8 +171,7 @@ public class NioServer implements Runnable {
 	public void send(DatagramChannel channel, byte[] data) {
 		synchronized (this.operationRequests) {
 			// Alternate the channel mode to write
-			OperationRequest writeRequest = new OperationRequest(channel,
-					OperationRequest.CHANGE_OPS, SelectionKey.OP_WRITE);
+			OperationRequest writeRequest = new OperationRequest(channel, OperationRequest.CHANGE_OPS, SelectionKey.OP_WRITE);
 			this.operationRequests.add(writeRequest);
 
 			// Enqueue the data to be written
@@ -191,10 +194,6 @@ public class NioServer implements Runnable {
 		this.buffer.clear();
 
 		// Read data from channel
-		if (channel.isConnected()) {
-
-		}
-
 		int dataLength = 0;
 		try {
 			SocketAddress remotePeer = channel.receive(this.buffer);
@@ -215,18 +214,15 @@ public class NioServer implements Runnable {
 
 		// Delegate work to a handler
 		byte[] data = this.buffer.array();
-		ExpirableProtocolHandler protocolHandler = this.protocolHandlers
-				.getCurrent();
+		ExpirableProtocolHandler protocolHandler = this.protocolHandlers.getCurrent();
 
 		if (protocolHandler != null) {
 			// Handler processes the requests and provides an answer
-			byte[] response = protocolHandler.handleRead(key, data, dataLength);
+			byte[] response = protocolHandler.process(key, data, dataLength);
 			// Keep reading if handler provided no answer
 			if (response != null) {
+				// schedule STUN request to be sent to browser
 				this.scheduler.schedule(channel, response, response.length);
-
-				// XXX schedule STUN request to be sent to browser
-				
 			}
 		}
 	}
@@ -240,10 +236,6 @@ public class NioServer implements Runnable {
 			// Write all pending data
 			while (!queue.isEmpty()) {
 				ByteBuffer dataBuffer = queue.get(0);
-				ExpirableProtocolHandler handler = this.protocolHandlers
-						.getCurrent();
-				handler.handleWrite(key, dataBuffer.array(),
-						dataBuffer.array().length);
 				channel.send(dataBuffer, channel.getRemoteAddress());
 				channel.write(dataBuffer);
 
@@ -258,11 +250,9 @@ public class NioServer implements Runnable {
 				}
 			}
 
-			if (queue.isEmpty()) {
-				// All pending data was written
-				// Switch channel mode to read
-				key.interestOps(SelectionKey.OP_READ);
-			}
+			// All pending data was written
+			// Switch channel mode to read
+			key.interestOps(SelectionKey.OP_READ);
 		}
 	}
 

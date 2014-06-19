@@ -33,7 +33,7 @@ public class EventScheduler implements Runnable {
 		ScheduledEvent event;
 
 		// Wait for data to become available
-		while (this.running) {
+		while (this.running && !hasWork()) {
 			synchronized (this.events) {
 				while (this.events.isEmpty()) {
 					try {
@@ -51,9 +51,20 @@ public class EventScheduler implements Runnable {
 		// cleanup remaining event after thread stops
 		cleanup();
 	}
+	
+	private boolean hasWork() {
+		synchronized (this.events) {
+			return !this.events.isEmpty();
+		}
+	}
 
 	public void stop() {
 		this.running = false;
+	}
+	
+	public void stopNow() {
+		this.running = false;
+		cleanup();
 	}
 
 	private void cleanup() {

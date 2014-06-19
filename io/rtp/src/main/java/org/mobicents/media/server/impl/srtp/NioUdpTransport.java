@@ -29,7 +29,7 @@ public class NioUdpTransport implements DatagramTransport {
 		}
 		this.channel = channel;
 
-		// NOTE: As of JDK 1.6, can use NetworkInterface.getMTU
+		// TODO As of JDK 1.6, can use NetworkInterface.getMTU
 		this.receiveLimit = mtu - MIN_IP_OVERHEAD - UDP_OVERHEAD;
 		this.sendLimit = mtu - MAX_IP_OVERHEAD - UDP_OVERHEAD;
 	}
