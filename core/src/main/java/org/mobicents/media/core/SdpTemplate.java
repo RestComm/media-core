@@ -41,6 +41,7 @@ public class SdpTemplate {
 
     private String template;
     
+    // Template parameters
     private String bindAddress = "";
     private String connectionAddress = "";
     private String networkType = "";
@@ -48,6 +49,8 @@ public class SdpTemplate {
     private int audioPort = 0;
     private int videoPort = 0;
     private int applicationPort = 0;
+    private String connectionMode = "";
+    
 	/*
 	 * Supported formats to build the final template.
 	 * 
@@ -165,6 +168,10 @@ public class SdpTemplate {
     
     public void setAddressType(String addressType) {
 		this.addressType = addressType;
+	}
+    
+    public void setConnectionMode(String connectionMode) {
+		this.connectionMode = connectionMode;
 	}
     
     public void setSupportedAudioFormats(RTPFormats supported) {
@@ -367,11 +374,11 @@ public class SdpTemplate {
                 builder.append(String.format("a=fmtp:%d %s\n", f.getID(), f.getFormat().getOptions()));
             }
             
-            if(f.getFormat().shouldSendPTime())
+            if(f.getFormat().shouldSendPTime()) {
             	builder.append("a=ptime:20\n");
-            
-            builder.append(getSdpSessionSetupAttribute());
-        };
+            }
+        }
+        builder.append(getSdpSessionSetupAttribute());
         builder.append(getExtendedAudioAttributes()).append("\n");
     }
     
@@ -402,11 +409,12 @@ public class SdpTemplate {
                     builder.append(String.format("a=fmtp:%d %s\n", f.getID(), f.getFormat().getOptions()));
                 }
                 
-                if(f.getFormat().shouldSendPTime())
+                if(f.getFormat().shouldSendPTime()) {
                 	builder.append("a=ptime:20\n");
-                
-                builder.append(getSdpSessionSetupAttribute());
-            };
+                }
+            }
+            builder.append(String.format("a=%s\n", this.connectionMode));
+            builder.append(getSdpSessionSetupAttribute());
             builder.append(getExtendedAudioAttributes()).append("\n");
         } else {
         	builder.append(payloads(this.offeredAudioFormats)).append("\n");

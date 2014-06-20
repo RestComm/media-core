@@ -73,14 +73,11 @@ import org.mobicents.media.server.utils.Text;
  */
 public class RtpConnectionImpl extends BaseConnection implements
 		RTPChannelListener {
-	private static final Logger logger = Logger
-			.getLogger(RtpConnectionImpl.class);
+	private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
 
 	// Registered formats
-	private final static AudioFormat DTMF_FORMAT = FormatFactory
-			.createAudioFormat("telephone-event", 8000);
-	private final static AudioFormat LINEAR_FORMAT = FormatFactory
-			.createAudioFormat("LINEAR", 8000, 16, 1);
+	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
+	private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
 
 	// Audio Channel
 	private ChannelsManager channelsManager;
@@ -537,6 +534,8 @@ public class RtpConnectionImpl extends BaseConnection implements
 		this.answerTemplate.setNetworkType("IN");
 		this.answerTemplate.setAddressType("IP4");
 		this.answerTemplate.setConnectionAddress(bindAddress);
+		// XXX hardcoded fake connection mode - hrosa
+		this.answerTemplate.setConnectionMode("sendrecv");
 
 		// Media Descriptors
 		this.answerTemplate.setSupportedAudioFormats(this.audioFormats);
