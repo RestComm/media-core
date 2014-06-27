@@ -21,6 +21,8 @@ import org.mobicents.media.core.ice.sdp.attributes.IceLiteAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IcePwdAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.RtcpAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IceUfragAttribute;
+import org.mobicents.media.core.ice.sdp.attributes.RtcpMuxAttribute;
+import org.mobicents.media.core.ice.sdp.attributes.UnvaluedAttributeField;
 
 /**
  * Provides methods to update SDP descriptions with information provided by an
@@ -119,9 +121,11 @@ public class IceSdpNegotiator {
 				mediaStream.addAttribute(rtcpAttribute);
 			} else {
 				// XXX RS and RR attributes not supported on firefox
-				// mediaStream.setBandwidth("RS", 0);
-				// mediaStream.setBandwidth("RR", 0);
+				mediaStream.setBandwidth("RS", 0);
+				mediaStream.setBandwidth("RR", 0);
 			}
+			// XXX Chrome only renders audio if rtcp-mux is used
+			mediaStream.addAttribute(new RtcpMuxAttribute());
 		}
 		return sessionDescription;
 	}
