@@ -102,7 +102,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         {
             Certificate entry = chain[i];
             // TODO Create fingerprint based on certificate signature algorithm digest
-            logger.info(String.format("WebRTC Client certificate fingerprint:SHA-256 %s (%s)", TlsUtils.fingerprint(entry), entry.getSubject()));
+            logger.info(String.format("WebRTC Client certificate fingerprint:%s (%s)", TlsUtils.fingerprint(entry), entry.getSubject()));
         }
     }
 
@@ -154,7 +154,6 @@ public class DtlsSrtpServer extends DefaultTlsServer {
             "x509-server-key.pem", signatureAndHashAlgorithm);
     }
     
-    // Hashtable is (Integer -> byte[])
     @SuppressWarnings("unchecked")
 	@Override
     public Hashtable<Integer, byte[]> getServerExtensions()
@@ -217,12 +216,12 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     	srtpPolicy = srtpParams.getSrtpPolicy();
     	srtcpPolicy = srtpParams.getSrtcpPolicy();
     	
-        srtpMasterClientKey = new byte[keyLen/8];
-        srtpMasterServerKey = new byte[keyLen/8];
-        srtpMasterClientSalt = new byte[saltLen/8];
-        srtpMasterServerSalt = new byte[saltLen/8];
+        srtpMasterClientKey = new byte[keyLen];
+        srtpMasterServerKey = new byte[keyLen];
+        srtpMasterClientSalt = new byte[saltLen];
+        srtpMasterServerSalt = new byte[saltLen];
         // 2* (key + salt lenght) / 8. From http://tools.ietf.org/html/rfc5764#section-4-2
-        sharedSecret = getKeyingMaterial((keyLen + saltLen)/4);
+        sharedSecret = getKeyingMaterial(2 * (keyLen + saltLen));
         
         /*
          * 
@@ -251,10 +250,10 @@ public class DtlsSrtpServer extends DefaultTlsServer {
          * + local key           |    remote key    | local salt   | remote salt   |
          * +------------------------+------------------------+---------------+-------------------+
          */
-        System.arraycopy(sharedSecret, 0, srtpMasterClientKey, 0, keyLen/8); 
-        System.arraycopy(sharedSecret, keyLen/8, srtpMasterServerKey, 0, keyLen/8);
-        System.arraycopy(sharedSecret, 2*keyLen/8, srtpMasterClientSalt, 0, saltLen/8);
-        System.arraycopy(sharedSecret, (2*keyLen/8+saltLen/8), srtpMasterServerSalt, 0, saltLen/8);    	
+        System.arraycopy(sharedSecret, 0, srtpMasterClientKey, 0, keyLen); 
+        System.arraycopy(sharedSecret, keyLen, srtpMasterServerKey, 0, keyLen);
+        System.arraycopy(sharedSecret, 2*keyLen, srtpMasterClientSalt, 0, saltLen);
+        System.arraycopy(sharedSecret, (2*keyLen+saltLen), srtpMasterServerSalt, 0, saltLen);    	
     }
     
     public SRTPPolicy getSrtpPolicy() {
