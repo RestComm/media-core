@@ -97,7 +97,7 @@
 			<fileset file="${core.location}/../bootstrap/target/mms-server/**" />
 		</copy>
 
-		<copy overwrite="true" todir="${release.dir.standalone}/docs">
+		<copy overwrite="true" todir="${release.dir.standalone}/clients">
 			<!--fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" /-->
 			<fileset file="${core.location}/../concurrent/target/*.jar" />
 			<fileset file="${core.location}/../client/mgcp/driver/target/*.jar" />
@@ -107,7 +107,7 @@
 			<param name="documentation.target.dir" location="${release.dir.standalone}/documentation" />
 		</antcall-->
 		
-		<copy overwrite="true" todir="${release.dir.standalone}/clients">
+		<copy overwrite="true" todir="${release.dir.standalone}/docs">
 			<fileset file="${core.location}/../media-server-docs/jdocbook-telscale/target/docbook/publish/en-US/**" />
 		</copy>
 
