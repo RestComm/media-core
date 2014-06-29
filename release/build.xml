@@ -160,7 +160,7 @@
 		<delete dir="." includes="mms-*${release.version}-*.zip" />
 
 		<antcall target="release-standalone">
-			<param name="zip.filename" value="mms-standalone-${release.version}-${time.stamp}.zip" />
+			<param name="zip.filename" value="TelScale-media-server-${release.version}.zip" />
 		</antcall>
 	
 		<!--antcall target="release-src">
