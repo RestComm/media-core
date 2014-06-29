@@ -99,11 +99,17 @@
 
 		<copy overwrite="true" todir="${release.dir.standalone}/docs">
 			<!--fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" /-->
-			<fileset file="${core.location}/../media-server-docs/jdocbook-telscale/target/docbook/publish/en-US/**" />
+			<fileset file="${core.location}/../concurrent/target/*.jar" />
+			<fileset file="${core.location}/../client/mgcp/driver/target/*.jar" />
+			<fileset file="${core.location}/../client/jsr-309/driver/target/*.jar" />
 		</copy>
 		<!--antcall target="build-documentation">
 			<param name="documentation.target.dir" location="${release.dir.standalone}/documentation" />
 		</antcall-->
+		
+		<copy overwrite="true" todir="${release.dir.standalone}/clients">
+			<fileset file="${core.location}/../media-server-docs/jdocbook-telscale/target/docbook/publish/en-US/**" />
+		</copy>
 
 		<copy overwrite="true" file="${ant.file.media.server.release}/../release-standalone-README.txt" tofile="${release.dir.standalone}/README.txt" />
 
