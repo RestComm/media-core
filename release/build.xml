@@ -174,7 +174,8 @@
 		<delete dir="." includes="mms-*${release.version}-*.zip" />
 
 		<antcall target="release-standalone">
-			<param name="zip.filename" value="mms-standalone-${release.version}-${time.stamp}.zip" />
+			<!--param name="zip.filename" value="mms-standalone-${release.version}-${time.stamp}.zip" /-->
+			<param name="zip.filename" value="mms-standalone-${release.version}.zip" />
 			<param name="core.location" location="${ant.file.media.server.release}/../target/servers/media/core" />
 			<param name="test.suite.location" location="${ant.file.media.server.release}/../target/servers/media/test-suite" />
 
