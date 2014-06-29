@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="media.server.release" default="release" basedir=".">
 
-	<property name="release.version" value="2.1.0.BETA2-SNAPSHOT" />
+	<!--property name="release.version" value="2.1.0.BETA2-SNAPSHOT" /-->
 
 	<property name="release.dir" location="${ant.file.media.server.release}/../target/release" />
 	<property name="release.dir.standalone" location="${ant.file.media.server.release}/../standalone" />
@@ -87,18 +87,23 @@
 	<target name="release-standalone">
 		<delete dir="${release.dir.standalone}" />
 
-		<exec executable="${mvn.executable}" dir="${core.location}">
+		<exec executable="${mvn.executable}" dir="${core.location}/..">
 			<!--arg line="clean install -P set-svn-revision,standalone,ss7,linux" /-->
 			<arg line="clean install -D maven.test.skip=true" />
 
 		</exec>
 		<copy overwrite="true" todir="${release.dir.standalone}">
-			<fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" />
+			<!--fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" /-->
+			<fileset file="${core.location}/../bootstrap/target/mms-server/**" />
 		</copy>
 
-		<antcall target="build-documentation">
+		<copy overwrite="true" todir="${release.dir.standalone}/docs">
+			<!--fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" /-->
+			<fileset file="${core.location}/../media-server-docs/jdocbook-telscale/target/docbook/publish/en-US/**" />
+		</copy>
+		<!--antcall target="build-documentation">
 			<param name="documentation.target.dir" location="${release.dir.standalone}/documentation" />
-		</antcall>
+		</antcall-->
 
 		<copy overwrite="true" file="${ant.file.media.server.release}/../release-standalone-README.txt" tofile="${release.dir.standalone}/README.txt" />
 
@@ -152,10 +157,10 @@
 			<param name="zip.filename" value="mms-standalone-${release.version}-${time.stamp}.zip" />
 		</antcall>
 	
-		<antcall target="release-src">
+		<!--antcall target="release-src">
 			<param name="zip.filename" value="mms-${release.version}-${time.stamp}-src.zip" />
 			<param name="src.location" value="${ant.file.media.server.release}/../../" />
-		</antcall>
+		</antcall-->
 
 		<antcall target="clean" />
 	</target>
