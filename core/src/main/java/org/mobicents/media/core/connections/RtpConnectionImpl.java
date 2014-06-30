@@ -491,9 +491,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 			this.iceAgent.addIceListener(new IceListener());
 			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), false);
 			try {
-				this.iceAgent.gatherCandidates(icePorts.next());
-				// skip another port to avoid conflicts with RTCP port
-				icePorts.next();
+				this.iceAgent.gatherCandidates(icePorts);
 			} catch (NoCandidatesGatheredException e) {
 				throw new IOException("No ICE candidates were gathered.", e);
 			} catch (HarvestException e) {

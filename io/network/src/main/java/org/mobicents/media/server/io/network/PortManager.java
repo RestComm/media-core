@@ -87,4 +87,13 @@ public class PortManager {
     public int next() {
     	return high-(currPort.getAndAdd(1)%step)*2;        
     }
+    
+    public int peek() {
+    	return high-((currPort.get()+1)%step)*2;
+    }
+
+    public int current() {
+    	return high-(currPort.get()%step)*2;
+    }
+    
 }

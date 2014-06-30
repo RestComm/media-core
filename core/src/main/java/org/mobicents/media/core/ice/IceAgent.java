@@ -17,6 +17,7 @@ import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.network.stun.ConnectivityCheckServer;
 import org.mobicents.media.core.ice.security.IceAuthenticator;
+import org.mobicents.media.server.io.network.PortManager;
 
 public abstract class IceAgent implements IceAuthenticator {
 
@@ -157,18 +158,17 @@ public abstract class IceAgent implements IceAuthenticator {
 		}
 		return copy;
 	}
-
+	
 	/**
 	 * Gathers all available candidates and sets the components of each media
 	 * stream.
 	 * 
-	 * @param preferredPort
-	 *            The preferred port to bind candidates to
+	 * @param portManager
+	 *            The manager that handles port range for ICE candidate harvest
 	 * @throws HarvestException
 	 *             An error occurred while harvesting candidates
 	 */
-	public void gatherCandidates(int preferredPort) throws HarvestException,
-			NoCandidatesGatheredException {
+	public void gatherCandidates(PortManager portManager) throws HarvestException, NoCandidatesGatheredException {
 		// Initialize the selector if necessary
 		if (this.selector == null) {
 			try {
@@ -180,8 +180,7 @@ public abstract class IceAgent implements IceAuthenticator {
 
 		// Gather candidates for each media stream
 		for (IceMediaStream mediaStream : getMediaStreams()) {
-			this.harvestManager.harvest(mediaStream, preferredPort,
-					this.selector);
+			this.harvestManager.harvest(mediaStream, portManager, this.selector);
 		}
 	}
 

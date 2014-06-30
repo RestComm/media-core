@@ -27,6 +27,7 @@ import org.mobicents.media.core.ice.sdp.attributes.IceLiteAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IcePwdAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IceUfragAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.RtcpAttribute;
+import org.mobicents.media.server.io.network.PortManager;
 
 public class IceSdpNegotiatorTest {
 
@@ -54,7 +55,11 @@ public class IceSdpNegotiatorTest {
 
 		IceAgent agent = new IceLiteAgent();
 		agent.addMediaStream("audio", true);
-		agent.gatherCandidates(61000);
+		
+		PortManager portManager = new PortManager();
+		portManager.setHighestPort(62000);
+		portManager.setLowestPort(61000);
+		agent.gatherCandidates(portManager);
 
 		// when
 		SessionDescription sdp = negotiator.updateAnswer(sdpAnswer, agent);

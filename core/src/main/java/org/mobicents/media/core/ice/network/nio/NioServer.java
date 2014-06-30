@@ -73,9 +73,9 @@ public class NioServer implements Runnable {
 			this.schedulerThread = new Thread(this.scheduler);
 			this.serverThread = new Thread(this);
 
+			this.running = true;
 			this.schedulerThread.start();
 			this.serverThread.start();
-			this.running = true;
 		}
 	}
 

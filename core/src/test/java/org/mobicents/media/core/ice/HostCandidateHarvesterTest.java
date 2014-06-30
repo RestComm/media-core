@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.lite.LiteFoundationsRegistry;
+import org.mobicents.media.server.io.network.PortManager;
 
 import static org.junit.Assert.*;
 
@@ -63,7 +64,10 @@ public class HostCandidateHarvesterTest {
 		
 		// when
 		try {
-			harvester.harvest(61000, mediaStream, selector);
+			PortManager portManager = new PortManager();
+			portManager.setHighestPort(62000);
+			portManager.setLowestPort(61000);
+			harvester.harvest(portManager, mediaStream, selector);
 		} catch (NoCandidatesGatheredException e) {
 			fail();
 		} catch (HarvestException e) {

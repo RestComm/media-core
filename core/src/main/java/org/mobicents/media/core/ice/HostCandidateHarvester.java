@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.ice.harvest.CandidateHarvester;
 import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.server.io.network.PortManager;
 
 /**
  * Harvester that gathers Host candidates, ie transport addresses obtained
@@ -24,6 +26,8 @@ import org.mobicents.media.core.ice.harvest.HarvestException;
  * 
  */
 public class HostCandidateHarvester implements CandidateHarvester {
+	
+	Logger logger = Logger.getLogger(HostCandidateHarvester.class);
 
 	private final FoundationsRegistry foundations;
 
@@ -134,9 +138,8 @@ public class HostCandidateHarvester implements CandidateHarvester {
 		channel.bind(new InetSocketAddress(localAddress, port));
 		return channel;
 	}
-
-	public void harvest(int preferredPort, IceMediaStream mediaStream,
-			Selector selector) throws HarvestException {
+	
+	public void harvest(PortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException {
 		// Find available addresses
 		List<InetAddress> addresses = findAddresses();
 
@@ -144,21 +147,32 @@ public class HostCandidateHarvester implements CandidateHarvester {
 		for (InetAddress address : addresses) {
 			// Gather candidate for RTP component
 			IceComponent rtpComponent = mediaStream.getRtpComponent();
-			int rtpPort = gatherCandidate(rtpComponent, address, preferredPort,
-					selector);
-
+			boolean gathered = gatherCandidate(rtpComponent, address, portManager.next(), portManager, selector);
+			
+			if(!gathered) {
+				logCandidateNotFound(address.toString(), portManager.getLowestPort(), portManager.getHighestPort());
+			}
+			
 			// Gather candidate for RTCP component IF supported
-			// RTCP traffic will be bound to next logical port
-			if (rtpPort > 0 && mediaStream.supportsRtcp()) {
-				// FIXME rtcp port should be next 'logical' port - hrosa
-				int rtcpPort = rtpPort + 1;
+			if (gathered && mediaStream.supportsRtcp()) {
+				// RTCP traffic will be bound to next logical port
 				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
-				rtcpPort = gatherCandidate(rtcpComponent, address, rtcpPort,
-						selector);
+				gathered = gatherCandidate(rtcpComponent, address, portManager.next(), portManager, selector);
+				
+				if(!gathered) {
+					logCandidateNotFound(address.toString(), portManager.getLowestPort(), portManager.getHighestPort());
+				}
 			}
 		}
 	}
-
+	
+	private void logCandidateNotFound(String address, int lowPort, int highPort) {
+		this.logger
+				.warn(String
+						.format("Could not find RTP candidate for address %s between ports %d and %d",
+								address, lowPort, highPort));
+	}
+	
 	/**
 	 * Gathers a candidate and registers it in the respective ICE Component. A
 	 * datagram channel will be bound to the local candidate address.
@@ -167,26 +181,36 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	 *            The component the candidate belongs to
 	 * @param address
 	 *            The address of the candidate
-	 * @param port
+	 * @param startingPort
 	 *            The preferred port for the candidate to use.<br>
 	 *            The candidate port will change if the preferred port is
 	 *            already taken.
-	 * @return The effective port of the gathered candidate.<br>
-	 *         Returns 0 if gathering failed.
+	 * @param portManager
+	 *            The port manager that keeps track of port range that can be
+	 *            used for candidate gathering.
+	 * @param selector
+	 *            The selector to bind the candidate address to.
+	 * @return Whether a candidate was successfully gathered. The portManager
+	 *         will keep track of the effective port.
 	 */
-	private int gatherCandidate(IceComponent component, InetAddress address,
-			int port, Selector selector) {
+	private boolean gatherCandidate(IceComponent component, InetAddress address, int startingPort, PortManager portManager, Selector selector) {
+		// Recursion stop criteria
+		if(startingPort == portManager.peek()) {
+			return false;
+		}
+		
+		// Gather the candidate using current port
 		try {
+			int port = portManager.current();
 			DatagramChannel channel = openUdpChannel(address, port, selector);
-			HostCandidate candidate = new HostCandidate(component, address,
-					port);
+			HostCandidate candidate = new HostCandidate(component, address, port);
 			this.foundations.assignFoundation(candidate);
-			component.addLocalCandidate(new LocalCandidateWrapper(candidate,
-					channel));
-			return port;
+			component.addLocalCandidate(new LocalCandidateWrapper(candidate, channel));
+			return true;
 		} catch (IOException e) {
-			// TODO retry next logical available port
-			return 0;
+			// The port is occupied. Try again with next logical port.
+			portManager.next();
+			return gatherCandidate(component, address, startingPort, portManager, selector);
 		}
 	}
 

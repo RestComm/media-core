@@ -9,6 +9,7 @@ import org.mobicents.media.core.ice.FoundationsRegistry;
 import org.mobicents.media.core.ice.HostCandidateHarvester;
 import org.mobicents.media.core.ice.IceMediaStream;
 import org.mobicents.media.core.ice.lite.LiteFoundationsRegistry;
+import org.mobicents.media.server.io.network.PortManager;
 
 /**
  * Manages the candidate harvesting process
@@ -17,14 +18,13 @@ import org.mobicents.media.core.ice.lite.LiteFoundationsRegistry;
  * 
  */
 public class HarvestManager {
-
+	
 	private final FoundationsRegistry foundations;
 	private final List<CandidateHarvester> harvesters;
 
 	public HarvestManager() {
 		this.foundations = new LiteFoundationsRegistry();
-		this.harvesters = new ArrayList<CandidateHarvester>(
-				CandidateType.count());
+		this.harvesters = new ArrayList<CandidateHarvester>(CandidateType.count());
 		this.harvesters.add(new HostCandidateHarvester(this.foundations));
 	}
 
@@ -37,10 +37,9 @@ public class HarvestManager {
 	public FoundationsRegistry getFoundationsRegistry() {
 		return this.foundations;
 	}
-
-	public void harvest(IceMediaStream mediaStream, int preferredPort,
-			Selector selector) throws HarvestException,
-			NoCandidatesGatheredException {
+	
+	public void harvest(IceMediaStream mediaStream, PortManager portManager, Selector selector) 
+			throws HarvestException, NoCandidatesGatheredException {
 		List<CandidateHarvester> copy;
 		synchronized (this.harvesters) {
 			copy = new ArrayList<CandidateHarvester>(this.harvesters);
@@ -48,20 +47,19 @@ public class HarvestManager {
 
 		// Ask each harvester to gather candidates for the media stream
 		for (CandidateHarvester harvester : copy) {
-			harvester.harvest(preferredPort, mediaStream, selector);
+			harvester.harvest(portManager, mediaStream, selector);
 		}
 
+		// Verify at least one candidate was gathered
+		if (!mediaStream.hasLocalRtpCandidates()) {
+			throw new NoCandidatesGatheredException("No RTP candidates were gathered for " + mediaStream.getName() + " stream");
+		}
+		
 		// After harvesting all possible candidates, ask the media stream to
 		// select its default local candidates
 		mediaStream.getRtpComponent().selectDefaultLocalCandidate();
 		if (mediaStream.supportsRtcp()) {
 			mediaStream.getRtcpComponent().selectDefaultLocalCandidate();
-		}
-
-		if (!mediaStream.hasLocalRtpCandidates()) {
-			throw new NoCandidatesGatheredException(
-					"No RTP candidates were gathered for "
-							+ mediaStream.getName() + " stream");
 		}
 	}
 
