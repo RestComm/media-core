@@ -11,9 +11,9 @@ import static org.junit.Assert.*;
 
 public class CandidateFieldTest {
 
-	private final Text CANDIDATE_HOST = new Text("a=candidate:1995739850 1 udp 2113937151 192.168.1.65 54550 typ host generation 0");
-	private final Text CANDIDATE_SRFLX = new Text("a=candidate:2162486046 1 udp 1845501695 85.241.121.60 60495 typ srflx raddr 192.168.1.65 rport 54550 generation 0");
+	private final Text CANDIDATE_HOST  = new Text("a=candidate:1995739850 1 udp 2113937151 192.168.1.65 54550 typ host generation 0");
 	private final Text CANDIDATE_RELAY = new Text("a=candidate:2564697628 1 udp 33562367 75.126.93.124 53056 typ relay raddr 85.241.121.60 rport 55027 generation 0");
+	private final Text CANDIDATE_SRFLX = new Text("a=candidate:2162486046 1 udp 1845501695 85.241.121.60 60495 typ srflx raddr 192.168.1.65 rport 54550 generation 0");
 	
 	@Test
 	public void testCandidateHost() {
@@ -78,8 +78,8 @@ public class CandidateFieldTest {
 		candidates.add(candidateSrflx);
 		Collections.sort(candidates, Collections.reverseOrder());
 		assertEquals(candidates.get(0), candidateHost);
-		assertEquals(candidates.get(1), candidateRelay);
-		assertEquals(candidates.get(2), candidateSrflx);
+		assertEquals(candidates.get(1), candidateSrflx);
+		assertEquals(candidates.get(2), candidateRelay);
 	}
 	
 }
