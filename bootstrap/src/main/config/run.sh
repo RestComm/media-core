@@ -93,6 +93,8 @@ if [ "x$JAVA" = "x" ]; then
     if [ "x$JAVA_HOME" != "x" ]; then
 	JAVA="$JAVA_HOME/bin/java"
     else
+	JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+	JAVA_HOME=$JAVA_HOME/..
 	JAVA="java"
     fi
 fi
