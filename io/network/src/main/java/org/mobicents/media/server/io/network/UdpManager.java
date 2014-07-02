@@ -54,6 +54,9 @@ public class UdpManager {
 	/** bind address */
 	private String bindAddress = "127.0.0.1";
 	private String localBindAddress = "127.0.0.1";
+	
+	/** external address */
+	private String externalAddress = "";
 
 	/** local network address and subnet */
 	private byte[] localNetwork;
@@ -147,6 +150,14 @@ public class UdpManager {
 	 */
 	public String getLocalBindAddress() {
 		return localBindAddress;
+	}
+	
+	public String getExternalAddress() {
+		return externalAddress;
+	}
+	
+	public void setExternalAddress(String externalAddress) {
+		this.externalAddress = externalAddress;
 	}
 
 	/**

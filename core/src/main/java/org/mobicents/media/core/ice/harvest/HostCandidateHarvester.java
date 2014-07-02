@@ -1,4 +1,4 @@
-package org.mobicents.media.core.ice;
+package org.mobicents.media.core.ice.harvest;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -14,8 +14,12 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.ice.harvest.CandidateHarvester;
-import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.core.ice.CandidateType;
+import org.mobicents.media.core.ice.FoundationsRegistry;
+import org.mobicents.media.core.ice.HostCandidate;
+import org.mobicents.media.core.ice.IceComponent;
+import org.mobicents.media.core.ice.IceMediaStream;
+import org.mobicents.media.core.ice.LocalCandidateWrapper;
 import org.mobicents.media.server.io.network.PortManager;
 
 /**
@@ -128,9 +132,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	 * @throws IOException
 	 *             When an error occurs while binding the datagram channel.
 	 */
-	private DatagramChannel openUdpChannel(InetAddress localAddress, int port,
-			Selector selector) throws IOException {
-		// TODO Implement lookup mechanism for a range of ports
+	private DatagramChannel openUdpChannel(InetAddress localAddress, int port, Selector selector) throws IOException {
 		DatagramChannel channel = DatagramChannel.open();
 		channel.configureBlocking(false);
 		// Register selector for reading operations
@@ -212,6 +214,10 @@ public class HostCandidateHarvester implements CandidateHarvester {
 			portManager.next();
 			return gatherCandidate(component, address, startingPort, portManager, selector);
 		}
+	}
+
+	public CandidateType getCandidateType() {
+		return CandidateType.HOST;
 	}
 
 }

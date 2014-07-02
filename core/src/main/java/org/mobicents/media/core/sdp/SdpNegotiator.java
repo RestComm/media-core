@@ -2,14 +2,9 @@ package org.mobicents.media.core.sdp;
 
 import gov.nist.javax.sdp.fields.AttributeField;
 
-import java.util.List;
 import java.util.Vector;
 
-import javax.sdp.Attribute;
-import javax.sdp.Connection;
 import javax.sdp.MediaDescription;
-import javax.sdp.Origin;
-import javax.sdp.SdpConstants;
 import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SdpParseException;
@@ -17,14 +12,10 @@ import javax.sdp.SessionDescription;
 
 import org.ice4j.Transport;
 import org.ice4j.TransportAddress;
-import org.ice4j.ice.Candidate;
 import org.ice4j.ice.CandidateType;
 import org.ice4j.ice.Component;
 import org.ice4j.ice.IceMediaStream;
 import org.ice4j.ice.RemoteCandidate;
-import org.ice4j.ice.sdp.CandidateAttribute;
-import org.ice4j.ice.sdp.IceSdpUtils;
-import org.mobicents.media.core.MediaTypes;
 import org.mobicents.media.core.ice.IceAgent;
 import org.mobicents.media.server.impl.rtp.sdp.CandidateField;
 import org.mobicents.media.server.utils.Text;
@@ -182,41 +173,34 @@ public class SdpNegotiator {
 	 * @param iceStream
 	 *            The media stream of an ICE agent
 	 */
-	private RemoteCandidate addRemoteIceCandidate(
-			AttributeField candidateField, IceMediaStream iceStream) {
+	private RemoteCandidate addRemoteIceCandidate(AttributeField candidateField, IceMediaStream iceStream) {
 		String candidateLine;
 		try {
 			// Parse the candidate string from the SDP offer
 			candidateLine = candidateField.getValue();
-			CandidateField candidate = new CandidateField(new Text(
-					candidateLine));
+			CandidateField candidate = new CandidateField(new Text(candidateLine));
 
 			// Get the ICE component associated with the remote candidate (RTP
 			// or RTPC)
-			Component component = iceStream.getComponent(candidate
-					.getComponentId().toInteger());
+			Component component = iceStream.getComponent(candidate.getComponentId().toInteger());
 			if (component != null) {
 				// Check if there is a related address property
 				RemoteCandidate relatedCandidate = null;
 				if (candidate.hasRelatedAddress()) {
 					Text relatedAddress = candidate.getRelatedAddress();
 					int relatedPort = candidate.getRelatedPort().toInteger();
-					TransportAddress raddr = new TransportAddress(
-							relatedAddress.toString(), relatedPort,
-							Transport.UDP);
+					TransportAddress raddr = new TransportAddress(relatedAddress.toString(), relatedPort, Transport.UDP);
 					relatedCandidate = component.findRemoteCandidate(raddr);
 				}
 
 				// Associate the remote candidate with the ice media stream
-				TransportAddress transportAddress = new TransportAddress(
-						candidate.getAddress().toString(), candidate.getPort()
-								.toInteger(), Transport.parse(candidate
-								.getProtocol().toString()));
-				RemoteCandidate remoteCandidate = new RemoteCandidate(
-						transportAddress, component,
-						CandidateType.parse(candidate.getType().toString()),
-						candidate.getFoundation().toString(), candidate
-								.getWeight().toLong(), relatedCandidate);
+				TransportAddress transportAddress = new TransportAddress(candidate.getAddress().toString(), 
+						candidate.getPort().toInteger(), 
+						Transport.parse(candidate.getProtocol().toString()));
+				RemoteCandidate remoteCandidate = new RemoteCandidate(transportAddress, component,
+						CandidateType.parse(candidate.getType().toString()), 
+						candidate.getFoundation().toString(), 
+						candidate.getWeight().toLong(), relatedCandidate);
 				return remoteCandidate;
 			}
 		} catch (SdpParseException e) {

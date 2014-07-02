@@ -23,6 +23,7 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.text.ParseException;
@@ -491,6 +492,11 @@ public class RtpConnectionImpl extends BaseConnection implements
 			this.iceAgent.addIceListener(new IceListener());
 			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), false);
 			try {
+				// Add srflx candidate harvester if external address is defined
+				String externalAddress = this.rtpAudioChannel.getExternalAddress();
+				if(externalAddress != null && !externalAddress.isEmpty()) {
+					this.iceAgent.setExternalAddress(InetAddress.getByName(externalAddress));
+				}
 				this.iceAgent.gatherCandidates(icePorts);
 			} catch (NoCandidatesGatheredException e) {
 				throw new IOException("No ICE candidates were gathered.", e);

@@ -1,7 +1,5 @@
 package org.mobicents.media.core.ice.lite;
 
-import java.io.IOException;
-
 import org.mobicents.media.core.ice.IceAgent;
 import org.mobicents.media.core.ice.network.stun.ConnectivityCheckServer;
 
@@ -34,8 +32,7 @@ public class IceLiteAgent extends IceAgent {
 		}
 		// Initialize connectivity server if necessary
 		if (this.connectivityCheckServer == null) {
-			this.connectivityCheckServer = new ConnectivityCheckServer(this,
-					this.selector);
+			this.connectivityCheckServer = new ConnectivityCheckServer(this, this.selector);
 		}
 		// Run connectivity check server
 		this.connectivityCheckServer.start();

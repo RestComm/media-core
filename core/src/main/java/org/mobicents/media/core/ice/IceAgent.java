@@ -2,6 +2,7 @@ package org.mobicents.media.core.ice;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.Selector;
 import java.security.SecureRandom;
@@ -10,8 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mobicents.media.core.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.core.ice.events.IceEventListener;
+import org.mobicents.media.core.ice.events.SelectedCandidatesEvent;
+import org.mobicents.media.core.ice.harvest.ExternalCandidateHarvester;
 import org.mobicents.media.core.ice.harvest.HarvestException;
 import org.mobicents.media.core.ice.harvest.HarvestManager;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
@@ -41,6 +43,10 @@ public abstract class IceAgent implements IceAuthenticator {
 
 	// Delegate ICE-related events
 	protected final List<IceEventListener> iceListeners;
+	
+	// External address where Media Server is installed
+	// Required for fake SRFLX harvesting
+	private InetAddress externalAddress;
 
 	protected IceAgent() {
 		this.mediaStreams = new LinkedHashMap<String, IceMediaStream>(5);
@@ -390,5 +396,16 @@ public abstract class IceAgent implements IceAuthenticator {
 		String result = colon < 0 ? ufrag : ufrag.substring(0, colon);
 		return result.equals(this.ufrag);
 	}
-
+	
+	public InetAddress getExternalAddress() {
+		return externalAddress;
+	}
+	
+	public void setExternalAddress(final InetAddress externalAddress) {
+		this.externalAddress = externalAddress;
+		
+		// register an SRFLX harvester
+		this.harvestManager.addHarvester(new ExternalCandidateHarvester(harvestManager.getFoundationsRegistry(), externalAddress));
+	}
+	
 }

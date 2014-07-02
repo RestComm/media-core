@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.core.ice.harvest.HarvestException;
+import org.mobicents.media.core.ice.harvest.HostCandidateHarvester;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.lite.LiteFoundationsRegistry;
 import org.mobicents.media.server.io.network.PortManager;

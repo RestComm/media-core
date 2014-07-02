@@ -19,10 +19,9 @@ import org.mobicents.media.core.ice.LocalCandidateWrapper;
 import org.mobicents.media.core.ice.sdp.attributes.CandidateAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IceLiteAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IcePwdAttribute;
-import org.mobicents.media.core.ice.sdp.attributes.RtcpAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.IceUfragAttribute;
+import org.mobicents.media.core.ice.sdp.attributes.RtcpAttribute;
 import org.mobicents.media.core.ice.sdp.attributes.RtcpMuxAttribute;
-import org.mobicents.media.core.ice.sdp.attributes.UnvaluedAttributeField;
 
 /**
  * Provides methods to update SDP descriptions with information provided by an
@@ -137,10 +136,8 @@ public class IceSdpNegotiator {
 		}
 	}
 
-	private static void addCandidate(MediaDescription media,
-			LocalCandidateWrapper candidate) throws SdpException {
-		CandidateAttribute candidateAttribute = new CandidateAttribute(
-				candidate.getCandidate());
+	private static void addCandidate(MediaDescription media, LocalCandidateWrapper candidate) throws SdpException {
+		CandidateAttribute candidateAttribute = new CandidateAttribute(candidate.getCandidate());
 		media.addAttribute(candidateAttribute);
 	}
 

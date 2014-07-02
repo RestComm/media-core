@@ -898,4 +898,8 @@ public class RTPDataChannel {
 		// send RTP packet to the network
 		dataChannel.send(buf, dataChannel.socket().getRemoteSocketAddress());
 	}
+	
+	public String getExternalAddress() {
+		return this.udpManager.getExternalAddress();
+	}
 }

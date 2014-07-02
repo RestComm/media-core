@@ -2,6 +2,7 @@ package org.mobicents.media.core.ice.harvest;
 
 import java.nio.channels.Selector;
 
+import org.mobicents.media.core.ice.CandidateType;
 import org.mobicents.media.core.ice.IceMediaStream;
 import org.mobicents.media.server.io.network.PortManager;
 
@@ -11,7 +12,7 @@ import org.mobicents.media.server.io.network.PortManager;
  * 
  */
 public interface CandidateHarvester {
-	
+
 	/**
 	 * Harvests candidates.
 	 * 
@@ -26,5 +27,12 @@ public interface CandidateHarvester {
 	 *             When an error occurs during the candidate harvesting process.
 	 */
 	void harvest(PortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException;
+
+	/**
+	 * Gets the type of candidates gathered by the harvester.
+	 * 
+	 * @return The type of harvested candidates
+	 */
+	CandidateType getCandidateType();
 
 }

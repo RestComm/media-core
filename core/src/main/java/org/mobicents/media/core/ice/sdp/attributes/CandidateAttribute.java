@@ -188,9 +188,8 @@ public class CandidateAttribute extends AttributeField {
 		switch (candidate.getType()) {
 		case RELAY:
 		case SRFLX:
-			// TODO Implement related address on ICE Candidate
-			this.relatedAddress = "";
-			this.relatedPort = "";
+			this.relatedAddress = candidate.getBase().getAddress().getHostAddress();
+			this.relatedPort = String.valueOf(candidate.getBase().getPort());
 			break;
 		default:
 			break;
