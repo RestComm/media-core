@@ -572,8 +572,9 @@ public class RTPDataChannel {
 	private class RxTask {
 
 		// RTP packet representation
-		private RtpPacket rtpPacket = new RtpPacket(
-				RtpPacket.RTP_PACKET_MAX_SIZE, true);
+		private RtpPacket rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
+		private RTPFormat format;
+		private SocketAddress currAddress;
 
 		private RxTask() {
 			super();
@@ -611,88 +612,137 @@ public class RTPDataChannel {
 					// Avoid blocking the scheduler
 					// A future poll task will take care of RTP transmission once handshake is complete 
 				} else {
-					if(rtpHandler.isReadable()) {
-						new Thread(new RxTaskWorker(rtpPacket)).start();
-					}
+					perform2();
 				}
 
 			return 0;
 		}
-	}
-	
-	private class RxTaskWorker implements Runnable {
-
-		private RtpPacket rtpPacket;
-		private RTPFormat format;
 		
-		public RxTaskWorker(RtpPacket rtpPacket) {
-			this.rtpPacket = rtpPacket;
-		}
-
-		public void run() {
+		private void perform2() {
 			try {
-				// Indicate handler is reading
-				// No new threads should be created while reading
-				rtpHandler.isReading = true;
-				
-				// clean buffer before read
-				rtpPacket.getBuffer().clear();
+                //clean buffer before read
+                rtpPacket.getBuffer().clear();
+                
+                currAddress=null;
+                
+                try {
+                	currAddress=dataChannel.receive(rtpPacket.getBuffer());
+                	if(currAddress!=null && !dataChannel.isConnected())
+                	{
+                		rxBuffer.restart();    	
+                        dataChannel.connect(currAddress);                        
+                	}
+                	else if(currAddress!=null && rxCount==0)
+                		rxBuffer.restart();
+                }
+                catch(PortUnreachableException e) {
+                	//icmp unreachable received
+                	//disconnect and wait for new packet
+                	try
+                	{
+                		dataChannel.disconnect();
+                	}
+                	catch(IOException ex) {
+                		logger.error(ex);                		
+                	}
+                }
+                catch (IOException e) {  
+                	logger.error(e);                	
+                }
+                                	
+                while (currAddress != null) {
+                	lastPacketReceived=scheduler.getClock().getTime();                	
+                    //put pointer to the begining of the buffer
+                    rtpPacket.getBuffer().flip();
 
-				try {
-					// currAddress =
-					receiveRtpPacket(rtpPacket);
-					// if(currAddress!=null && !dataChannel.isConnected())
-					// {
-					// rxBuffer.restart();
-					// dataChannel.connect(currAddress);
-					// }
-					// else
-					if (rtpPacket.getBuffer().remaining() > 0 && rxCount == 0)
-						rxBuffer.restart();
-				} catch (PortUnreachableException e) {
-					// icmp unreachable received
-					// disconnect and wait for new packet
-					try {
-						dataChannel.disconnect();
-					} catch (IOException ex) {
-						logger.error(ex);
-					}
-				} catch (IOException e) {
-					logger.error(e);
+                    if(rtpPacket.getVersion()!=0 && (shouldReceive || shouldLoop))
+                    {
+                    	//rpt version 0 packets is used in some application ,
+                    	//discarding since we do not handle them
+                    	//queue packet into the receiver's jitter buffer
+                    	if (rtpPacket.getBuffer().limit() > 0) {
+                    		if(shouldLoop && dataChannel.isConnected()) {                    			
+                            	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
+                            	rxCount++;
+                            	txCount++;
+                            }
+                    		else if(!shouldLoop) {
+                    			format = rtpFormats.find(rtpPacket.getPayloadType());
+                    			if (format != null && format.getFormat().matches(dtmf))
+                    				dtmfInput.write(rtpPacket);
+                    			else
+                    				rxBuffer.write(rtpPacket,format);	
+                    			
+                    			rxCount++;                    			
+                    		}                    			
+                    	}
+                    }
+                    
+                    rtpPacket.getBuffer().clear();
+                    currAddress=dataChannel.receive(rtpPacket.getBuffer());
+                }
+            }
+        	catch(PortUnreachableException e) {
+            	//icmp unreachable received
+            	//disconnect and wait for new packet
+            	try
+            	{
+            		dataChannel.disconnect();
+            	}
+            	catch(IOException ex) {
+            		logger.error(ex);            		
+            	}
+            }
+        	catch (Exception e) {
+            	logger.error(e);            	
+            }
+            
+            rtpHandler.isReading = false;
+		}
+		
+		private void performRTP() {
+			// clean buffer before read
+			rtpPacket.getBuffer().clear();
+			
+			try {
+				receiveRtpPacket(rtpPacket);
+				if (rtpPacket.getBuffer().remaining() > 0 && rxCount == 0) {
+					rxBuffer.restart();
 				}
-
+				
+				// Read all data in the buffer
 				while (rtpPacket.getBuffer().remaining() > 0) {
+					logger.info("Reading remaining contents from RTP packet buffer: "+ rtpPacket.getBuffer().remaining());
+					
+					// Get the time of the last received packet
 					lastPacketReceived = scheduler.getClock().getTime();
+
 					// put pointer to the beginning of the buffer
 					rtpPacket.getBuffer().rewind();
 
-					if (rtpPacket.getVersion() != 0
-							&& (shouldReceive || shouldLoop)) {
-						// rpt version 0 packets is used in some application ,
-						// discarding since we do not handle them
-						// queue packet into the receiver's jitter buffer
+					// RTP v0 packets are used in some applications
+					// Discard them since we do not handle them
+					if (rtpPacket.getVersion() != 0 && (shouldReceive || shouldLoop)) {
+						// Queue packet into the receiver's jitter buffer
 						if (rtpPacket.getBuffer().limit() > 0) {
 							if (shouldLoop && dataChannel.isConnected()) {
 								sendRtpPacket(rtpPacket);
 								rxCount++;
 								txCount++;
 							} else if (!shouldLoop) {
-								format = rtpFormats.find(rtpPacket
-										.getPayloadType());
+								format = rtpFormats.find(rtpPacket.getPayloadType());
 								if (format != null) {
-									if (format.getFormat().matches(dtmf))
+									if (format.getFormat().matches(dtmf)) {
 										dtmfInput.write(rtpPacket);
-									else
+									} else {
+										logger.info("Writing RTP packet to jitter buffer");
 										rxBuffer.write(rtpPacket, format);
+									}
 								}
-
 								rxCount++;
 							}
 						}
 					}
-
-					rtpPacket.getBuffer().clear();
-					receiveRtpPacket(rtpPacket);
 				}
 			} catch (PortUnreachableException e) {
 				// icmp unreachable received
@@ -700,13 +750,11 @@ public class RTPDataChannel {
 				try {
 					dataChannel.disconnect();
 				} catch (IOException ex) {
-					logger.error(ex);
+					logger.error(ex.getMessage(), ex);
 				}
-			} catch (Exception e) {
+			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}
-
-			rtpHandler.isReading = false;
 		}
 	}
 
