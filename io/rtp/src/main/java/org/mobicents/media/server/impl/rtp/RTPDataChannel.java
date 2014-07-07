@@ -592,7 +592,7 @@ public class RTPDataChannel {
 					rtpPacket.getBuffer().clear();
 				}
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 
@@ -620,110 +620,36 @@ public class RTPDataChannel {
 		
 		private void perform2() {
 			try {
-                //clean buffer before read
-                rtpPacket.getBuffer().clear();
-                
                 currAddress=null;
-                
                 try {
-                	currAddress=dataChannel.receive(rtpPacket.getBuffer());
-                	if(currAddress!=null && !dataChannel.isConnected())
-                	{
-                		rxBuffer.restart();    	
-                        dataChannel.connect(currAddress);                        
-                	}
-                	else if(currAddress!=null && rxCount==0)
-                		rxBuffer.restart();
-                }
-                catch(PortUnreachableException e) {
-                	//icmp unreachable received
-                	//disconnect and wait for new packet
-                	try
-                	{
+                	currAddress = receiveRtpPacket(rtpPacket);
+					if (currAddress != null && !dataChannel.isConnected()) {
+						rxBuffer.restart();
+						dataChannel.connect(currAddress);
+					} else if (currAddress != null && rxCount == 0) {
+						rxBuffer.restart();
+					}
+                } catch(PortUnreachableException e) {
+                	try {
+                		// ICMP unreachable received.
+                		// Disconnect and wait for new packet.
                 		dataChannel.disconnect();
                 	}
                 	catch(IOException ex) {
-                		logger.error(ex);                		
+                		logger.error(ex.getMessage(), ex);
                 	}
                 }
                 catch (IOException e) {  
-                	logger.error(e);                	
+                	logger.error(e.getMessage(), e);                	
                 }
                                 	
-                while (currAddress != null) {
-                	lastPacketReceived=scheduler.getClock().getTime();                	
-                    //put pointer to the begining of the buffer
-                    rtpPacket.getBuffer().flip();
-
-                    if(rtpPacket.getVersion()!=0 && (shouldReceive || shouldLoop))
-                    {
-                    	//rpt version 0 packets is used in some application ,
-                    	//discarding since we do not handle them
-                    	//queue packet into the receiver's jitter buffer
-                    	if (rtpPacket.getBuffer().limit() > 0) {
-                    		if(shouldLoop && dataChannel.isConnected()) {                    			
-                            	dataChannel.send(rtpPacket.getBuffer(),dataChannel.socket().getRemoteSocketAddress());
-                            	rxCount++;
-                            	txCount++;
-                            }
-                    		else if(!shouldLoop) {
-                    			format = rtpFormats.find(rtpPacket.getPayloadType());
-                    			if (format != null && format.getFormat().matches(dtmf))
-                    				dtmfInput.write(rtpPacket);
-                    			else
-                    				rxBuffer.write(rtpPacket,format);	
-                    			
-                    			rxCount++;                    			
-                    		}                    			
-                    	}
-                    }
-                    
-                    rtpPacket.getBuffer().clear();
-                    currAddress=dataChannel.receive(rtpPacket.getBuffer());
-                }
-            }
-        	catch(PortUnreachableException e) {
-            	//icmp unreachable received
-            	//disconnect and wait for new packet
-            	try
-            	{
-            		dataChannel.disconnect();
-            	}
-            	catch(IOException ex) {
-            		logger.error(ex);            		
-            	}
-            }
-        	catch (Exception e) {
-            	logger.error(e);            	
-            }
-            
-            rtpHandler.isReading = false;
-		}
-		
-		private void performRTP() {
-			// clean buffer before read
-			rtpPacket.getBuffer().clear();
-			
-			try {
-				receiveRtpPacket(rtpPacket);
-				if (rtpPacket.getBuffer().remaining() > 0 && rxCount == 0) {
-					rxBuffer.restart();
-				}
-				
-				// Read all data in the buffer
-				while (rtpPacket.getBuffer().remaining() > 0) {
-					logger.info("Reading remaining contents from RTP packet buffer: "+ rtpPacket.getBuffer().remaining());
-					
-					// Get the time of the last received packet
+				while (currAddress != null) {
 					lastPacketReceived = scheduler.getClock().getTime();
 
-					// put pointer to the beginning of the buffer
-					rtpPacket.getBuffer().rewind();
-
-					// RTP v0 packets are used in some applications
-					// Discard them since we do not handle them
 					if (rtpPacket.getVersion() != 0 && (shouldReceive || shouldLoop)) {
-						// Queue packet into the receiver's jitter buffer
+						// RTP v0 packets is used in some application.
+						// Discarding since we do not handle them
+						// Queue packet into the receiver jitter buffer
 						if (rtpPacket.getBuffer().limit() > 0) {
 							if (shouldLoop && dataChannel.isConnected()) {
 								sendRtpPacket(rtpPacket);
@@ -731,30 +657,30 @@ public class RTPDataChannel {
 								txCount++;
 							} else if (!shouldLoop) {
 								format = rtpFormats.find(rtpPacket.getPayloadType());
-								if (format != null) {
-									if (format.getFormat().matches(dtmf)) {
-										dtmfInput.write(rtpPacket);
-									} else {
-										logger.info("Writing RTP packet to jitter buffer");
-										rxBuffer.write(rtpPacket, format);
-									}
+								if (format != null && format.getFormat().matches(dtmf)) {
+									dtmfInput.write(rtpPacket);
+								} else {
+									rxBuffer.write(rtpPacket, format);
 								}
 								rxCount++;
 							}
 						}
 					}
-				}
-			} catch (PortUnreachableException e) {
-				// icmp unreachable received
-				// disconnect and wait for new packet
-				try {
-					dataChannel.disconnect();
-				} catch (IOException ex) {
-					logger.error(ex.getMessage(), ex);
-				}
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
+					currAddress = receiveRtpPacket(rtpPacket);
+                }
+            }
+        	catch(PortUnreachableException e) {
+            	// ICMP unreachable received
+            	// Disconnect and wait for new packet
+            	try {
+            		dataChannel.disconnect();
+            	} catch(IOException ex) {
+            		logger.error(ex.getMessage(), ex);            		
+            	}
+            } catch (Exception e) {
+            	logger.error(e.getMessage(), e);            	
+            }
+            rtpHandler.isReading = false;
 		}
 	}
 
@@ -920,31 +846,48 @@ public class RTPDataChannel {
 		return new Text();
 	}
 
-	private void receiveRtpPacket(RtpPacket packet) throws IOException {
+	private SocketAddress receiveRtpPacket(RtpPacket packet) throws IOException {
+		SocketAddress address = null;
+		
 		if (this.isWebRtc) {
 			packet = this.webRtcHandler.decode(packet);
 		}
+		
 		// WebRTC handler can return null if packet is not valid
 		if(packet != null) {
+			// Clear the buffer for a fresh read
 			ByteBuffer buf = packet.getBuffer();
 			buf.clear();
+			
 			// receive RTP packet from the network
-			dataChannel.receive(buf);
+			address = dataChannel.receive(buf);
+			
+			// put the pointer at the beginning of the buffer 
 			buf.flip();
 		}
+		return address;
 	}
 
 	private void sendRtpPacket(RtpPacket packet) throws IOException {
+		// Do not send data while DTLS handshake is ongoing. WebRTC calls only.
 		if(isWebRtc && !this.webRtcHandler.isHandshakeComplete()) {
 			return;
 		}
+		
+		// Secure RTP packet. WebRTC calls only. 
 		if (isWebRtc) {
 			packet = this.webRtcHandler.encode(packet);
 		}
-		ByteBuffer buf = packet.getBuffer();
-		buf.rewind();
-		// send RTP packet to the network
-		dataChannel.send(buf, dataChannel.socket().getRemoteSocketAddress());
+		
+		// SRTP handler returns null if an error occurs
+		if(packet != null) {
+			// Rewind buffer
+			ByteBuffer buf = packet.getBuffer();
+			buf.rewind();
+			
+			// send RTP packet to the network
+			dataChannel.send(buf, dataChannel.socket().getRemoteSocketAddress());
+		}
 	}
 	
 	public String getExternalAddress() {
