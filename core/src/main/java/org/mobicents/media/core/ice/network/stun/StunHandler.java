@@ -7,6 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.ice.TransportAddress;
 import org.mobicents.media.core.ice.TransportAddress.TransportProtocol;
 import org.mobicents.media.core.ice.network.ExpirableProtocolHandler;
@@ -28,6 +29,8 @@ import org.mobicents.media.core.ice.security.IceAuthenticator;
  * 
  */
 public class StunHandler implements ExpirableProtocolHandler {
+	
+	private static final Logger LOGGER = Logger.getLogger(StunHandler.class);
 
 	private static final String PROTOCOL = "stun";
 
@@ -49,18 +52,66 @@ public class StunHandler implements ExpirableProtocolHandler {
 			}
 		}
 	}
+	
+	/**
+	 * All STUN messages MUST start with a 20-byte header followed by zero or more Attributes.
+	 * The STUN header contains a STUN message type, magic cookie, transaction ID, and message length.
+	 * 
+     *  0                   1                   2                   3
+     *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |0 0|     STUN Message Type     |         Message Length        |
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |                         Magic Cookie                          |
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |                                                               |
+     * |                     Transaction ID (96 bits)                  |
+     * |                                                               |
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * 
+	 * @param data
+	 * @param length
+	 * @return
+	 * @see <a href="http://tools.ietf.org/html/rfc5389#page-10">RFC5389</a>
+	 */
+	public boolean canHandle(byte[] data, int length, int offset) {
+		/*
+		 * All STUN messages MUST start with a 20-byte header followed by zero
+		 * or more Attributes.
+		 */
+		if(length >= 20) {
+			// The most significant 2 bits of every STUN message MUST be zeroes.
+			byte b0 = data[offset];
+			boolean firstBitsValid = ((b0 & 0xC0) == 0);
+			
+			// The magic cookie field MUST contain the fixed value 0x2112A442 in network byte order.
+			boolean hasMagicCookie = data[offset + 4] == StunMessage.MAGIC_COOKIE[0]
+					&& data[offset + 5] == StunMessage.MAGIC_COOKIE[1]
+					&& data[offset + 6] == StunMessage.MAGIC_COOKIE[2]
+					&& data[offset + 7] == StunMessage.MAGIC_COOKIE[3];
+			
+			return firstBitsValid && hasMagicCookie;
+		}
+		return false;
+	}
 
-	public byte[] process(SelectionKey key, byte[] data, int length)
-			throws IOException {
+	public byte[] process(SelectionKey key, byte[] data, int length) throws IOException {
+		// Check whether handler can process the packet.
+		// If it cannot, then the packet is dropped.
+		if(!canHandle(data, length, 0)) {
+			LOGGER.warn("Received message that cannot be handled. Dropped packet.");
+			return null;
+		}
+		
+		// Decode and process the packet
 		try {
-			StunMessage message = StunMessage.decode(data, (char) 0,
-					(char) length);
+			StunMessage message = StunMessage.decode(data, (char) 0, (char) length);
 			if (message instanceof StunRequest) {
 				return processRequest((StunRequest) message, key);
 			} else if (message instanceof StunResponse) {
 				return processResponse((StunResponse) message, key);
 			}
-			// TODO STUN Indication is not supported
+			// TODO STUN Indication is not supported as of yet
 			return null;
 		} catch (StunException e) {
 			throw new IOException("Could not decode STUN packet.", e);
