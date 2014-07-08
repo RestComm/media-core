@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.io.network.handler.Multiplexer;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 
@@ -452,42 +453,49 @@ public class UdpManager {
 		@Override
 		public long perform() {
 			// force stop
-			if (!isActive)
+			if (!isActive) {
 				return 0;
+			}
 
 			// select channels ready for IO and ignore error
 			try {
 				localSelector.selectNow();
-				Iterator<SelectionKey> it = localSelector.selectedKeys()
-						.iterator();
+				Iterator<SelectionKey> it = localSelector.selectedKeys().iterator();
 				while (it.hasNext()) {
 					SelectionKey key = it.next();
 					it.remove();
+					
 					// get references to channel and associated RTP socket
 					DatagramChannel channel = (DatagramChannel) key.channel();
-					ProtocolHandler handler = (ProtocolHandler) key
-							.attachment();
-
-					if (handler == null) {
+					Object attachment = key.attachment();
+					
+					if (attachment == null) {
 						continue;
 					}
 
-					if (!channel.isOpen()) {
-						handler.onClosed();
-						continue;
+					if(attachment instanceof ProtocolHandler) {
+						ProtocolHandler handler = (ProtocolHandler) key.attachment();
+
+						if (!channel.isOpen()) {
+							handler.onClosed();
+							continue;
+						}
+
+						// do read
+						if (key.isReadable()) {
+							handler.receive(channel);
+							count++;
+						}
+
+						// do write
+						// if (key.isWritable()) {
+						// handler.send(channel);
+						// }	
+					} else if (attachment instanceof Multiplexer) {
+						Multiplexer multiplexer = (Multiplexer) attachment;
+						performRead(multiplexer, key);
+						performWrite(multiplexer, key);
 					}
-
-					// do read
-					if (key.isReadable()) {
-						handler.receive(channel);
-						count++;
-					}
-
-					// do write
-					// if (key.isWritable()) {
-					// handler.send(channel);
-					// }
-
 				}
 				localSelector.selectedKeys().clear();
 			} catch (IOException e) {
@@ -498,6 +506,35 @@ public class UdpManager {
 			}
 
 			return 0;
+		}
+		
+		private void perform(Multiplexer multiplexer, SelectionKey key, boolean read) throws IOException {
+			DatagramChannel channel = (DatagramChannel) key.channel();
+			
+			if(!channel.isOpen()) {
+				multiplexer.close();
+				return;
+			}
+			
+			if(read) {
+				if(key.isValid() && key.isReadable()) {
+					multiplexer.receive(key);
+					count++;
+				}
+			} else {
+				if(key.isValid() && key.isWritable()) {
+					multiplexer.send(key);
+					// XXX count++ ????
+				}
+			}
+		}
+		
+		private void performRead(Multiplexer multiplexer, SelectionKey key) throws IOException {
+			perform(multiplexer, key, true);
+		}
+
+		private void performWrite(Multiplexer multiplexer, SelectionKey key) throws IOException {
+			perform(multiplexer, key, false);
 		}
 
 		/**

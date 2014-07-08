@@ -54,26 +54,26 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa
  */
 public class RTPDataChannel {
-	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR",
-			8000, 16, 1);
-
+	
+	private Logger logger = Logger.getLogger(RTPDataChannel.class);
+	
 	private final static int PORT_ANY = -1;
-	private final long ssrc = System.currentTimeMillis();
 
-	private final static AudioFormat dtmf = FormatFactory.createAudioFormat(
-			"telephone-event", 8000);
+	private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
 	static {
-		dtmf.setOptions(new Text("0-15"));
+		DTMF_FORMAT.setOptions(new Text("0-15"));
 	}
 
-	// RTP Manager instance
+	private final long ssrc = System.currentTimeMillis();
+
+	// Available Channels
 	private ChannelsManager channelsManager;
+	private DatagramChannel rtpChannel;
+	private DatagramChannel rtcpChannel;
 
-	// UDP channels
-	private DatagramChannel dataChannel;
-	private DatagramChannel controlChannel;
-
-	private boolean dataChannelBound = false;
+	private boolean rtpChannelBound = false;
+	private boolean rtcpChannelBound = false;
 
 	// Receiver and transmitter
 	private RTPInput input;
@@ -120,8 +120,6 @@ public class RTPDataChannel {
 	private Scheduler scheduler;
 	private UdpManager udpManager;
 
-	private Logger logger = Logger.getLogger(RTPDataChannel.class);
-
 	private AudioComponent audioComponent;
 	private OOBComponent oobComponent;
 
@@ -165,7 +163,7 @@ public class RTPDataChannel {
 
 		heartBeat = new HeartBeat();
 
-		formats.add(format);
+		formats.add(LINEAR_FORMAT);
 
 		audioComponent = new AudioComponent(channelId);
 		audioComponent.addInput(input.getAudioInput());
@@ -289,11 +287,11 @@ public class RTPDataChannel {
 	 */
 	public void bind(boolean isLocal) throws IOException, SocketException {
 		try {
-			dataChannel = udpManager.open(rtpHandler);
+			rtpChannel = udpManager.open(rtpHandler);
 
 			// if control enabled open rtcp channel as well
 			if (channelsManager.getIsControlEnabled()) {
-				controlChannel = udpManager.open(new RTCPHandler());
+				rtcpChannel = udpManager.open(new RTCPHandler());
 			}
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
@@ -302,36 +300,36 @@ public class RTPDataChannel {
 		// bind data channel
 		if (!isLocal) {
 			this.rxBuffer.setBufferInUse(true);
-			udpManager.bind(dataChannel, PORT_ANY);
+			udpManager.bind(rtpChannel, PORT_ANY);
 		} else {
 			this.rxBuffer.setBufferInUse(false);
-			udpManager.bindLocal(dataChannel, PORT_ANY);
+			udpManager.bindLocal(rtpChannel, PORT_ANY);
 		}
-		this.dataChannelBound = true;
+		this.rtpChannelBound = true;
 
 		// if control enabled open rtcp channel as well
 		if (channelsManager.getIsControlEnabled()) {
 			if (!isLocal)
-				udpManager.bind(controlChannel, dataChannel.socket()
+				udpManager.bind(rtcpChannel, rtpChannel.socket()
 						.getLocalPort() + 1);
 			else
-				udpManager.bindLocal(controlChannel, dataChannel.socket()
+				udpManager.bindLocal(rtcpChannel, rtpChannel.socket()
 						.getLocalPort() + 1);
 		}
 	}
 
 	public void bind(DatagramChannel channel) throws IOException {
 		this.rxBuffer.setBufferInUse(true);
-		this.dataChannel = channel;
+		this.rtpChannel = channel;
 		if (this.isWebRtc) {
-			this.webRtcHandler.setChannel(this.dataChannel);
+			this.webRtcHandler.setChannel(this.rtpChannel);
 		}
-		this.udpManager.open(this.dataChannel, this.rtpHandler);
-		this.dataChannelBound = true;
+		this.udpManager.open(this.rtpChannel, this.rtpHandler);
+		this.rtpChannelBound = true;
 	}
 
 	public boolean isDataChannelBound() {
-		return dataChannelBound;
+		return rtpChannelBound;
 	}
 
 	/**
@@ -340,7 +338,7 @@ public class RTPDataChannel {
 	 * @return the port number.
 	 */
 	public int getLocalPort() {
-		return dataChannel != null ? dataChannel.socket().getLocalPort() : 0;
+		return rtpChannel != null ? rtpChannel.socket().getLocalPort() : 0;
 	}
 
 	/**
@@ -352,10 +350,10 @@ public class RTPDataChannel {
 	public void setPeer(SocketAddress address) {
 		this.remotePeer = address;
 		boolean connectImmediately = false;
-		if (dataChannel != null) {
-			if (dataChannel.isConnected())
+		if (rtpChannel != null) {
+			if (rtpChannel.isConnected())
 				try {
-					dataChannel.disconnect();
+					rtpChannel.disconnect();
 				} catch (IOException e) {
 					logger.error(e);
 				}
@@ -364,7 +362,7 @@ public class RTPDataChannel {
 					.connectImmediately((InetSocketAddress) address);
 			if (connectImmediately)
 				try {
-					dataChannel.connect(address);
+					rtpChannel.connect(address);
 				} catch (IOException e) {
 					logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
 					logger.error(e);
@@ -385,24 +383,24 @@ public class RTPDataChannel {
 	 * Closes this socket.
 	 */
 	public void close() {
-		if (dataChannel != null) {
-			if (dataChannel.isConnected()) {
+		if (rtpChannel != null) {
+			if (rtpChannel.isConnected()) {
 				try {
-					dataChannel.disconnect();
+					rtpChannel.disconnect();
 				} catch (IOException e) {
 					logger.error(e);
 				}
 				try {
-					dataChannel.socket().close();
-					dataChannel.close();
+					rtpChannel.socket().close();
+					rtpChannel.close();
 				} catch (IOException e) {
 					logger.error(e);
 				}
 			}
 		}
 
-		if (controlChannel != null) {
-			controlChannel.socket().close();
+		if (rtcpChannel != null) {
+			rtcpChannel.socket().close();
 		}
 
 		// System.out.println("RX COUNT:" + rxCount + ",TX COUNT:" + txCount);
@@ -450,12 +448,12 @@ public class RTPDataChannel {
 
 	protected void send(Frame frame) {
 		///XXX WebRTC hack - dataChannel only available after ICE negotiation!
-		if (dataChannel != null && dataChannel.isConnected())
+		if (rtpChannel != null && rtpChannel.isConnected())
 			tx.perform(frame);
 	}
 
 	public void sendDtmf(Frame frame) {
-		if (dataChannel.isConnected())
+		if (rtpChannel.isConnected())
 			tx.performDtmf(frame);
 	}
 	
@@ -466,7 +464,7 @@ public class RTPDataChannel {
 	 */
 	public boolean isAvailable() {
 		// The channel is available is is connected
-		boolean available = this.dataChannel != null && this.dataChannel.isConnected();
+		boolean available = this.rtpChannel != null && this.rtpChannel.isConnected();
 		// In case of WebRTC calls the DTLS handshake must be completed
 		if(this.isWebRtc) {
 			available = available && this.webRtcHandler.isHandshakeComplete();
@@ -511,7 +509,7 @@ public class RTPDataChannel {
 		}
 
 		private void flush() {
-			if (dataChannelBound) {
+			if (rtpChannelBound) {
 				rx.flush();
 			}
 		}
@@ -584,11 +582,11 @@ public class RTPDataChannel {
 			SocketAddress currAddress;
 			try {
 				// lets clear the receiver
-				currAddress = dataChannel.receive(rtpPacket.getBuffer());
+				currAddress = rtpChannel.receive(rtpPacket.getBuffer());
 				rtpPacket.getBuffer().clear();
 
 				while (currAddress != null) {
-					currAddress = dataChannel.receive(rtpPacket.getBuffer());
+					currAddress = rtpChannel.receive(rtpPacket.getBuffer());
 					rtpPacket.getBuffer().clear();
 				}
 			} catch (Exception e) {
@@ -623,9 +621,9 @@ public class RTPDataChannel {
                 currAddress=null;
                 try {
                 	currAddress = receiveRtpPacket(rtpPacket);
-					if (currAddress != null && !dataChannel.isConnected()) {
+					if (currAddress != null && !rtpChannel.isConnected()) {
 						rxBuffer.restart();
-						dataChannel.connect(currAddress);
+						rtpChannel.connect(currAddress);
 					} else if (currAddress != null && rxCount == 0) {
 						rxBuffer.restart();
 					}
@@ -633,7 +631,7 @@ public class RTPDataChannel {
                 	try {
                 		// ICMP unreachable received.
                 		// Disconnect and wait for new packet.
-                		dataChannel.disconnect();
+                		rtpChannel.disconnect();
                 	}
                 	catch(IOException ex) {
                 		logger.error(ex.getMessage(), ex);
@@ -651,13 +649,13 @@ public class RTPDataChannel {
 						// Discarding since we do not handle them
 						// Queue packet into the receiver jitter buffer
 						if (rtpPacket.getBuffer().limit() > 0) {
-							if (shouldLoop && dataChannel.isConnected()) {
+							if (shouldLoop && rtpChannel.isConnected()) {
 								sendRtpPacket(rtpPacket);
 								rxCount++;
 								txCount++;
 							} else if (!shouldLoop) {
 								format = rtpFormats.find(rtpPacket.getPayloadType());
-								if (format != null && format.getFormat().matches(dtmf)) {
+								if (format != null && format.getFormat().matches(DTMF_FORMAT)) {
 									dtmfInput.write(rtpPacket);
 								} else {
 									rxBuffer.write(rtpPacket, format);
@@ -673,7 +671,7 @@ public class RTPDataChannel {
             	// ICMP unreachable received
             	// Disconnect and wait for new packet
             	try {
-            		dataChannel.disconnect();
+            		rtpChannel.disconnect();
             	} catch(IOException ex) {
             		logger.error(ex.getMessage(), ex);            		
             	}
@@ -733,7 +731,7 @@ public class RTPDataChannel {
 
 			frame.recycle();
 			try {
-				if (dataChannel.isConnected()) {
+				if (rtpChannel.isConnected()) {
 					sendRtpPacket(oobPacket);
 					txCount++;
 				}
@@ -741,7 +739,7 @@ public class RTPDataChannel {
 				// icmp unreachable received
 				// disconnect and wait for new packet
 				try {
-					dataChannel.disconnect();
+					rtpChannel.disconnect();
 				} catch (IOException ex) {
 					logger.error(ex);
 				}
@@ -785,7 +783,7 @@ public class RTPDataChannel {
 
 			frame.recycle();
 			try {
-				if (dataChannel.isConnected()) {
+				if (rtpChannel.isConnected()) {
 					sendRtpPacket(rtpPacket);
 					txCount++;
 				}
@@ -793,7 +791,7 @@ public class RTPDataChannel {
 				// icmp unreachable received
 				// disconnect and wait for new packet
 				try {
-					dataChannel.disconnect();
+					rtpChannel.disconnect();
 				} catch (IOException ex) {
 					logger.error(ex);
 				}
@@ -860,7 +858,7 @@ public class RTPDataChannel {
 			buf.clear();
 			
 			// receive RTP packet from the network
-			address = dataChannel.receive(buf);
+			address = rtpChannel.receive(buf);
 			
 			// put the pointer at the beginning of the buffer 
 			buf.flip();
@@ -886,7 +884,7 @@ public class RTPDataChannel {
 			buf.rewind();
 			
 			// send RTP packet to the network
-			dataChannel.send(buf, dataChannel.socket().getRemoteSocketAddress());
+			rtpChannel.send(buf, rtpChannel.socket().getRemoteSocketAddress());
 		}
 	}
 	
