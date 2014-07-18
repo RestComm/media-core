@@ -22,32 +22,18 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import java.io.IOException;
-import java.net.SocketAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.text.Format;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioOutput;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.apache.log4j.Logger;
 /**
  *
  * @author Yulian oifa
@@ -59,7 +45,10 @@ import org.apache.log4j.Logger;
 public class RTPOutput extends AbstractSink {
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);	
 	
+	@Deprecated
     private RTPDataChannel channel;
+	
+	private RtpHandler rtpHandler;
     
     //active formats
     private Formats formats;
@@ -74,11 +63,19 @@ public class RTPOutput extends AbstractSink {
     /**
      * Creates new transmitter
      */
+    @Deprecated
     protected RTPOutput(Scheduler scheduler,RTPDataChannel channel) {
         super("Output");
         this.channel=channel;
         output=new AudioOutput(scheduler,1);
         output.join(this);        
+    }
+
+    protected RTPOutput(Scheduler scheduler,RtpHandler rtpHandler) {
+    	super("Output");
+    	this.rtpHandler = rtpHandler;
+    	output=new AudioOutput(scheduler,1);
+    	output.join(this);        
     }
     
     public AudioOutput getAudioOutput()
@@ -141,7 +138,14 @@ public class RTPOutput extends AbstractSink {
     			return;
     		} 
     	}
+
+    	// XXX deprecated code
+    	if(this.channel != null) {
+    		channel.send(frame);
+    	}
     	
-    	channel.send(frame);
+    	if(this.rtpHandler != null) {
+    		this.rtpHandler.send(frame);
+    	}
     }            
 }

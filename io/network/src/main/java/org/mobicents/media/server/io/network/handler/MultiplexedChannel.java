@@ -12,12 +12,18 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-public class MultiplexedEndpoint implements Multiplexer {
+/**
+ * Data channel that supports multiplexing.
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ */
+public class MultiplexedChannel implements Multiplexer {
 	
 	private static final Logger LOGGER = Logger.getLogger(Multiplexer.class);
 
 	// Registered protocol handlers. Used for multiplexing.
-	private final ProtocolHandlerPipeline handlers;
+	protected final ProtocolHandlerPipeline handlers;
 
 	// The buffer into which we will read data when it's available
 	private static final int BUFFER_SIZE = 8192;
@@ -26,7 +32,7 @@ public class MultiplexedEndpoint implements Multiplexer {
 	// Data that is pending for writing
 	private final Map<DatagramChannel, List<ByteBuffer>> pendingData;
 
-	public MultiplexedEndpoint() {
+	public MultiplexedChannel() {
 		this.handlers = new ProtocolHandlerPipeline();
 		this.pendingData = new HashMap<DatagramChannel, List<ByteBuffer>>();
 		this.buffer = ByteBuffer.allocate(BUFFER_SIZE);

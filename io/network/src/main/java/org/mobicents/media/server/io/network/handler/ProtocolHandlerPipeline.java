@@ -22,6 +22,24 @@ public class ProtocolHandlerPipeline {
 	}
 	
 	/**
+	 * Registers a new protocol handler in the pipeline.<br>
+	 * Cannot register same handler twice.
+	 * 
+	 * @param handler
+	 *            The handler to be registered.
+	 * @return Whether the handler was successfully registered or not.
+	 */
+	public boolean addHandler(ProtocolHandler handler) {
+		synchronized (this.handlers) {
+			if(!handlers.contains(handler)) {
+				handlers.add(handler);
+				return true;
+			}
+			return false;
+		}
+	}
+	
+	/**
 	 * Gets the protocol handler capable of processing the packet.
 	 * 
 	 * @param packet
