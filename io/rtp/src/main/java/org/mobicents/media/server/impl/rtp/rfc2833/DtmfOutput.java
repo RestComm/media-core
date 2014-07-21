@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
-import org.mobicents.media.server.impl.rtp.RtpHandler;
+import org.mobicents.media.server.impl.rtp.RtpTransmitter;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -42,13 +42,13 @@ import org.mobicents.media.server.spi.memory.Frame;
  *
  */
 public class DtmfOutput extends AbstractSink {
-	private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
+	private static final Logger LOGGER = Logger.getLogger(DtmfOutput.class);
+
+	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
 	
 	@Deprecated
     private RTPDataChannel channel;
-	private RtpHandler rtpHandler;
-    
-    private static final Logger logger = Logger.getLogger(DtmfOutput.class);
+	private RtpTransmitter transmitter;
     
     private OOBOutput oobOutput;
     
@@ -63,9 +63,9 @@ public class DtmfOutput extends AbstractSink {
         oobOutput.join(this);        
     }
     
-    public DtmfOutput(final Scheduler scheduler,final RtpHandler rtpHandler) {
+    public DtmfOutput(final Scheduler scheduler,final RtpTransmitter transmitter) {
         super("Output");
-        this.rtpHandler = rtpHandler;
+        this.transmitter = transmitter;
         oobOutput=new OOBOutput(scheduler,1);
         oobOutput.join(this);        
     }
@@ -92,8 +92,8 @@ public class DtmfOutput extends AbstractSink {
     		channel.sendDtmf(frame);
     	}
     	
-    	if(this.rtpHandler != null) {
-    		this.rtpHandler.sendDtmf(frame);
+    	if(this.transmitter != null) {
+    		this.transmitter.sendDtmf(frame);
     	}
     }            
 }

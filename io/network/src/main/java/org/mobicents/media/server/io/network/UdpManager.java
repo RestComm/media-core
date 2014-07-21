@@ -518,12 +518,12 @@ public class UdpManager {
 			
 			if(read) {
 				if(key.isValid() && key.isReadable()) {
-					multiplexer.receive(key);
+					multiplexer.receive();
 					count++;
 				}
 			} else {
 				if(key.isValid() && key.isWritable()) {
-					multiplexer.send(key);
+					multiplexer.send();
 					// XXX count++ ????
 				}
 			}

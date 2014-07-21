@@ -47,9 +47,9 @@ public class RTPOutput extends AbstractSink {
 	
 	@Deprecated
     private RTPDataChannel channel;
+
+	private RtpTransmitter transmitter;
 	
-	private RtpHandler rtpHandler;
-    
     //active formats
     private Formats formats;
     
@@ -71,9 +71,9 @@ public class RTPOutput extends AbstractSink {
         output.join(this);        
     }
 
-    protected RTPOutput(Scheduler scheduler,RtpHandler rtpHandler) {
+    protected RTPOutput(Scheduler scheduler,RtpTransmitter transmitter) {
     	super("Output");
-    	this.rtpHandler = rtpHandler;
+    	this.transmitter = transmitter;
     	output=new AudioOutput(scheduler,1);
     	output.join(this);        
     }
@@ -144,8 +144,8 @@ public class RTPOutput extends AbstractSink {
     		channel.send(frame);
     	}
     	
-    	if(this.rtpHandler != null) {
-    		this.rtpHandler.send(frame);
+    	if(this.transmitter != null) {
+    		this.transmitter.send(frame);
     	}
     }            
 }

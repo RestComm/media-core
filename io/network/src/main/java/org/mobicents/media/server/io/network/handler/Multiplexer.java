@@ -1,7 +1,6 @@
 package org.mobicents.media.server.io.network.handler;
 
 import java.io.IOException;
-import java.nio.channels.SelectionKey;
 
 /**
  * Represents an endpoint capable of multiplexing incoming traffic.
@@ -11,9 +10,13 @@ import java.nio.channels.SelectionKey;
  */
 public interface Multiplexer {
 	
-	void receive(SelectionKey key) throws IOException;
+	void receive() throws IOException;
 	
-	void send(SelectionKey key) throws IOException;
+	void send() throws IOException;
+	
+	boolean isConnected();
+	
+	void disconnect() throws IOException;
 	
 	void close();
 

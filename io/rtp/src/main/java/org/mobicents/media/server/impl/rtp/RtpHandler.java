@@ -10,6 +10,7 @@ import org.mobicents.media.server.io.network.handler.ProtocolHandlerException;
 import org.mobicents.media.server.scheduler.Clock;
 
 /**
+ * Handles incoming RTP packets.
  * 
  * @author Oifa Yulian
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -17,7 +18,7 @@ import org.mobicents.media.server.scheduler.Clock;
  */
 public class RtpHandler implements ProtocolHandler {
 	
-	private RTPFormats formats;
+	private RTPFormats rtpFormats;
 	private final Clock clock;
 	private long lastReceivedPacket;
 	
@@ -27,29 +28,35 @@ public class RtpHandler implements ProtocolHandler {
 	private boolean shouldLoop;
 	private boolean shouldReceive;
 	
-	private volatile int rxCount;
-	private volatile int txCount;
+	private final RtpStatistics statistics;
 	
-	public RtpHandler(final Clock clock, final RTPFormats formats) {
-		this.formats = formats;
-		this.clock = clock;
+	public RtpHandler(final Clock clock, final RtpStatistics statistics) {
+		this.rtpFormats = new RTPFormats();
+		this.statistics = statistics;
 		this.lastReceivedPacket = 0;
-		this.shouldLoop = false;
 		this.shouldReceive = false;
-		this.rxCount = 0;
-		this.txCount = 0;
+		this.shouldLoop = false;
+		this.clock = clock;
 	}
 	
 	public long getLastReceivedPacket() {
 		return this.lastReceivedPacket;
 	}
 	
-	public int getRxCount() {
-		return this.rxCount;
+	/**
+	 * Modifies the map between format and RTP payload number
+	 * 
+	 * @param rtpFormats
+	 *            the format map
+	 */
+	public void setFormatMap(RTPFormats rtpFormats) {
+		this.flush();
+		this.rtpFormats = rtpFormats;
+		this.jitterBuffer.setFormats(rtpFormats);
 	}
 	
-	public int getTxCount() {
-		return this.txCount;
+	private void flush() {
+		// TODO cleanup resources
 	}
 	
 	public boolean canHandle(byte[] packet) {
@@ -62,6 +69,7 @@ public class RtpHandler implements ProtocolHandler {
 	}
 
 	public byte[] handle(byte[] packet, int dataLength, int offset) throws ProtocolHandlerException {
+		// XXX Creating an RTP packet every time can be memory consuming because of the enclosing ByteBuffer!!!
 		// Convert raw data into an RTP Packet representation
 		RtpPacket rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
 		ByteBuffer buffer = rtpPacket.getBuffer();
@@ -71,25 +79,24 @@ public class RtpHandler implements ProtocolHandler {
 		
 		this.lastReceivedPacket = clock.getTime();
 		
+		// RTP v0 packets are used in some applications. Discarded since we do not handle them.
 		if (rtpPacket.getVersion() != 0 && (shouldReceive || shouldLoop)) {
-			// RTP v0 packets is used in some application.
-			// Discarding since we do not handle them
-			// Queue packet into the receiver jitter buffer
+			// Queue packet into the jitter buffer
 			if (rtpPacket.getBuffer().limit() > 0) {
 				if (shouldLoop) {
 					// Increment counters
-					this.rxCount++;
-					this.txCount++;
+					this.statistics.incrementReceived();
+					this.statistics.incrementTransmitted();
 					// Return same packet (looping) so it can be transmitted
 					return packet;
 				} else {
-					RTPFormat format = formats.find(rtpPacket.getPayloadType());
+					RTPFormat format = rtpFormats.find(rtpPacket.getPayloadType());
 					if (format != null && format.getFormat().matches(RtpChannel.DTMF_FORMAT)) {
 						dtmfInput.write(rtpPacket);
 					} else {
 						jitterBuffer.write(rtpPacket, format);
 					}
-					this.rxCount++;
+					this.statistics.incrementReceived();
 				}
 			}
 		}

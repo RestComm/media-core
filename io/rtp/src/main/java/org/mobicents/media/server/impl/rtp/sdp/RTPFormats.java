@@ -131,6 +131,10 @@ public class RTPFormats {
         return null;
     }
     
+    public boolean contains(int p) {
+    	return this.find(p) != null;
+    }
+    
     public boolean contains(Format fmt) {
         for (int i = 0; i < rtpFormats.size(); i++) {
             if (rtpFormats.get(i).getFormat().matches(fmt)) {
