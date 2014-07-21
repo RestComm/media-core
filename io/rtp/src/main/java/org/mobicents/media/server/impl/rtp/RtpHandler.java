@@ -8,6 +8,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.io.network.handler.ProtocolHandler;
 import org.mobicents.media.server.io.network.handler.ProtocolHandlerException;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  * Handles incoming RTP packets.
@@ -20,27 +21,43 @@ public class RtpHandler implements ProtocolHandler {
 	
 	private RTPFormats rtpFormats;
 	private final Clock clock;
-	private long lastReceivedPacket;
+	private final RtpClock rtpClock;
+	private final RtpClock oobClock;
 	
 	private JitterBuffer jitterBuffer;
-	private DtmfInput dtmfInput;
+	private int jitterBufferSize;
+	private final RTPInput rtpInput;
+	private final DtmfInput dtmfInput;
 	
 	private boolean shouldLoop;
 	private boolean shouldReceive;
 	
 	private final RtpStatistics statistics;
 	
-	public RtpHandler(final Clock clock, final RtpStatistics statistics) {
+	public RtpHandler(final Scheduler scheduler, final int jitterBufferSize, final RtpStatistics statistics) {
+		this.clock = scheduler.getClock();
+		this.rtpClock = new RtpClock(this.clock);
+		this.oobClock = new RtpClock(this.clock);
+		
+		this.jitterBufferSize = jitterBufferSize;
+		this.jitterBuffer = new JitterBuffer(this.rtpClock, this.jitterBufferSize);
+		this.jitterBuffer.setListener(this.rtpInput);
+		
+		this.rtpInput = new RTPInput(scheduler, jitterBuffer);
+		this.dtmfInput = new DtmfInput(scheduler, oobClock);
+		
 		this.rtpFormats = new RTPFormats();
 		this.statistics = statistics;
-		this.lastReceivedPacket = 0;
 		this.shouldReceive = false;
 		this.shouldLoop = false;
-		this.clock = clock;
 	}
 	
-	public long getLastReceivedPacket() {
-		return this.lastReceivedPacket;
+	public RTPInput getRtpInput() {
+		return rtpInput;
+	}
+	
+	public DtmfInput getDtmfInput() {
+		return dtmfInput;
 	}
 	
 	/**
@@ -77,7 +94,7 @@ public class RtpHandler implements ProtocolHandler {
 		
 		// TODO decode packet if it is SRTP
 		
-		this.lastReceivedPacket = clock.getTime();
+		this.statistics.setLastPacketReceived(clock.getTime());
 		
 		// RTP v0 packets are used in some applications. Discarded since we do not handle them.
 		if (rtpPacket.getVersion() != 0 && (shouldReceive || shouldLoop)) {

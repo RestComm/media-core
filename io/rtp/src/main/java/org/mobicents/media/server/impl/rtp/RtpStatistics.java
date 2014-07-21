@@ -12,10 +12,13 @@ public class RtpStatistics {
 	private volatile long transmitted;
 	private int sequenceNumber;
 	
+	private long lastPacketReceived;
+	
 	public RtpStatistics() {
 		this.received = 0;
 		this.transmitted = 0;
 		this.sequenceNumber = 0;
+		this.lastPacketReceived = 0;
 	}
 	
 	public long getReceived() {
@@ -43,4 +46,11 @@ public class RtpStatistics {
 		return this.sequenceNumber;
 	}
 	
+	public long getLastPacketReceived() {
+		return lastPacketReceived;
+	}
+	
+	public void setLastPacketReceived(long lastPacketReceived) {
+		this.lastPacketReceived = lastPacketReceived;
+	}
 }

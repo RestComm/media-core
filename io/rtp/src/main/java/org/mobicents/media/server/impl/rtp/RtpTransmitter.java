@@ -18,7 +18,7 @@ public class RtpTransmitter {
 	private static final Logger LOGGER = Logger.getLogger(RtpTransmitter.class);
 	
 	// Channel properties
-	private final DatagramChannel channel;
+	private DatagramChannel channel;
 	private final RtpClock rtpClock;
 	private final RtpStatistics statistics;
 	private final long ssrc;
@@ -36,9 +36,8 @@ public class RtpTransmitter {
 	private long timestamp;
 	private long dtmfTimestamp;
 	
-	public RtpTransmitter(final Scheduler scheduler, final DatagramChannel channel, final RtpClock rtpClock, final RtpStatistics statistics, final long ssrc) {
-		this.channel = channel;
-		this.rtpClock = rtpClock;
+	public RtpTransmitter(final Scheduler scheduler, final RtpStatistics statistics, final long ssrc) {
+		this.rtpClock = new RtpClock(scheduler.getClock());
 		this.statistics = statistics;
 		this.dtmfSupported = false;
 		
@@ -61,6 +60,10 @@ public class RtpTransmitter {
 	
 	public DtmfOutput getDtmfOutput() {
 		return dtmfOutput;
+	}
+	
+	public void setChannel(DatagramChannel channel) {
+		this.channel = channel;
 	}
 	
 	private boolean isConnected() {
