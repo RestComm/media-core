@@ -53,4 +53,9 @@ public class RtpStatistics {
 	public void setLastPacketReceived(long lastPacketReceived) {
 		this.lastPacketReceived = lastPacketReceived;
 	}
+	
+	public void reset() {
+		this.received = 0;
+		this.transmitted = 0;
+	}
 }

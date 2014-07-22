@@ -103,8 +103,13 @@ public class ChannelsManager {
     	return this.udpManager;
     }    
     
+    @Deprecated
     public RTPDataChannel getChannel() {
         return new RTPDataChannel(this,channelIndex.incrementAndGet());
+    }
+    
+    public RtpChannel getRtpChannel() {
+    	return new RtpChannel(this, channelIndex.incrementAndGet());
     }
     
     public LocalDataChannel getLocalChannel() {

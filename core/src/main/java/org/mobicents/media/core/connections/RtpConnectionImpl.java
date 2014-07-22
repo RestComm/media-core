@@ -47,6 +47,7 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
+import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -82,7 +83,8 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	// Audio Channel
 	private ChannelsManager channelsManager;
-	private RTPDataChannel rtpAudioChannel;
+	//private RTPDataChannel rtpAudioChannel;
+	private RtpChannel rtpAudioChannel;
 	private boolean isAudioCapabale;
 
 	// Session Description
@@ -109,8 +111,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	private boolean isLocal = false;
 	private ConnectionFailureListener connectionFailureListener;
 
-	public RtpConnectionImpl(int id, ChannelsManager channelsManager,
-			DspFactory dspFactory) {
+	public RtpConnectionImpl(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
 		super(id, channelsManager.getScheduler());
 		this.channelsManager = channelsManager;
 
@@ -118,18 +119,15 @@ public class RtpConnectionImpl extends BaseConnection implements
 		this.isAudioCapabale = true;
 
 		// create audio and video channel
-		this.rtpAudioChannel = channelsManager.getChannel();
+		this.rtpAudioChannel = channelsManager.getRtpChannel();
 		this.rtpAudioChannel.setRtpChannelListener(this);
 
 		try {
 			this.rtpAudioChannel.setInputDsp(dspFactory.newProcessor());
 			this.rtpAudioChannel.setOutputDsp(dspFactory.newProcessor());
 		} catch (Exception e) {
-			// exception may happen only if invalid classes have been set in
-			// config
-			throw new RuntimeException(
-					"There are probably invalid classes specified in the configuration.",
-					e);
+			// exception may happen only if invalid classes have been set in config
+			throw new RuntimeException("There are probably invalid classes specified in the configuration.", e);
 		}
 
 		// create sdp template
@@ -180,7 +178,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	}
 
 	public OOBComponent getOOBComponent() {
-		return this.rtpAudioChannel.getOOBComponent();
+		return this.rtpAudioChannel.getOobComponent();
 	}
 
 	/**
@@ -576,7 +574,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	private void setAudioChannelRemotePeer(String address, int port)
 			throws SocketException, IOException {
 		if (this.isAudioCapabale) {
-			rtpAudioChannel.setPeer(new InetSocketAddress(address, port));
+			rtpAudioChannel.setRemotePeer(new InetSocketAddress(address, port));
 		}
 	}
 
@@ -612,7 +610,8 @@ public class RtpConnectionImpl extends BaseConnection implements
 				IceAgent agent = event.getSource();
 				CandidatePair candidate = agent.getSelectedRtpCandidate("audio");
 				// Bind candidate to RTP audio channel
-				rtpAudioChannel.bind(candidate.getChannel());
+//				rtpAudioChannel.bind(candidate.getChannel());
+				rtpAudioChannel.bind(null);
 			} catch (IOException e) {
 				// XXX close connection
 				logger.error("Could not select ICE candidates: "+e.getMessage(), e);

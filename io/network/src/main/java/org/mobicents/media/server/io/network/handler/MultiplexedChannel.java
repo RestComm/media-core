@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,7 @@ public class MultiplexedChannel implements Multiplexer {
 		this.pendingData = new ArrayList<ByteBuffer>();
 		this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
 	}
-
+	
 	protected void queueData(final byte[] data) {
 		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
 		this.pendingData.add(dataBuffer);
@@ -138,7 +137,22 @@ public class MultiplexedChannel implements Multiplexer {
 	}
 	
 	public void close() {
-		// TODO close the channel
+		if (this.selectionKey != null) {
+			DatagramChannel channel = (DatagramChannel) selectionKey.channel();
+			if (channel.isConnected()) {
+				try {
+					channel.disconnect();
+				} catch (IOException e) {
+					LOGGER.error(e);
+				}
+				try {
+					channel.socket().close();
+					channel.close();
+				} catch (IOException e) {
+					LOGGER.error(e);
+				}
+			}
+		}
 	}
 
 }

@@ -307,6 +307,7 @@ public class UdpManager {
 	 * @return datagram channel
 	 * @throws IOException
 	 */
+	@Deprecated
 	public DatagramChannel open(ProtocolHandler handler) throws IOException {
 		DatagramChannel channel = DatagramChannel.open();
 		channel.configureBlocking(false);
@@ -316,6 +317,15 @@ public class UdpManager {
 		key.attach(handler);
 		handler.setKey(key);
 		return channel;
+	}
+	
+	public SelectionKey open(Multiplexer multiplexer) throws IOException {
+		DatagramChannel channel = DatagramChannel.open();
+		channel.configureBlocking(false);
+		int index = currSelectorIndex.getAndIncrement();
+		SelectionKey key = channel.register(selectors.get(index % selectors.size()), SelectionKey.OP_READ);
+		key.attach(multiplexer);
+		return key;
 	}
 
 	public void open(DatagramChannel channel, ProtocolHandler handler)

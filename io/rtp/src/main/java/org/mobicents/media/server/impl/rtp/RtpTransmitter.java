@@ -13,6 +13,13 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
+/**
+ * Transmits RTP packets over a channel.
+ * 
+ * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
+ */
 public class RtpTransmitter {
 	
 	private static final Logger LOGGER = Logger.getLogger(RtpTransmitter.class);
@@ -40,13 +47,12 @@ public class RtpTransmitter {
 		this.rtpClock = new RtpClock(scheduler.getClock());
 		this.statistics = statistics;
 		this.dtmfSupported = false;
-		
 		this.rtpOutput = new RTPOutput(scheduler, this);
 		this.dtmfOutput = new DtmfOutput(scheduler, this);
-		
 		this.ssrc = ssrc;
 		this.dtmfTimestamp = -1;
 		this.timestamp = -1;
+		this.formats = null;
 	}
 	
 	public void setFormatMap(RTPFormats rtpFormats) {
@@ -62,6 +68,16 @@ public class RtpTransmitter {
 		return dtmfOutput;
 	}
 	
+	public void activate() {
+		this.rtpOutput.activate();
+		this.dtmfOutput.activate();
+	}
+	
+	public void deactivate() {
+		this.rtpOutput.deactivate();
+		this.dtmfOutput.deactivate();
+	}
+	
 	public void setChannel(DatagramChannel channel) {
 		this.channel = channel;
 	}
@@ -74,13 +90,18 @@ public class RtpTransmitter {
 		this.channel.disconnect();
 	}
 	
-	/**
-	 * If connection is reused, fmt could point to old codec which in case
-	 * will be incorrect.
-	 */
+	public void reset() {
+		this.rtpOutput.deactivate();
+		this.dtmfOutput.deactivate();
+		this.dtmfSupported = false;
+		this.clear();
+	}
+	
 	public void clear() {
 		this.timestamp = -1;
 		this.dtmfTimestamp = -1;
+		// Reset format in case connection is reused.
+		// Otherwise it would point to incorrect codec.
 		this.currentFormat = null;
 	}
 	

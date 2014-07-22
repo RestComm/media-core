@@ -29,8 +29,8 @@ public class RtpHandler implements ProtocolHandler {
 	private final RTPInput rtpInput;
 	private final DtmfInput dtmfInput;
 	
-	private boolean shouldLoop;
-	private boolean shouldReceive;
+	private boolean loopable;
+	private boolean receivable;
 	
 	private final RtpStatistics statistics;
 	
@@ -48,8 +48,8 @@ public class RtpHandler implements ProtocolHandler {
 		
 		this.rtpFormats = new RTPFormats();
 		this.statistics = statistics;
-		this.shouldReceive = false;
-		this.shouldLoop = false;
+		this.receivable = false;
+		this.loopable = false;
 	}
 	
 	public RTPInput getRtpInput() {
@@ -60,6 +60,26 @@ public class RtpHandler implements ProtocolHandler {
 		return dtmfInput;
 	}
 	
+	public boolean isLoopable() {
+		return loopable;
+	}
+	
+	public void setLoopable(boolean loopable) {
+		this.loopable = loopable;
+	}
+	
+	public boolean isReceivable() {
+		return receivable;
+	}
+	
+	public void setReceivable(boolean receivable) {
+		this.receivable = receivable;
+	}
+	
+	public void useJitterBuffer(boolean useBuffer) {
+		this.jitterBuffer.setBufferInUse(useBuffer);
+	}
+	
 	/**
 	 * Modifies the map between format and RTP payload number
 	 * 
@@ -67,18 +87,28 @@ public class RtpHandler implements ProtocolHandler {
 	 *            the format map
 	 */
 	public void setFormatMap(RTPFormats rtpFormats) {
-		this.flush();
 		this.rtpFormats = rtpFormats;
 		this.jitterBuffer.setFormats(rtpFormats);
 	}
 	
-	private void flush() {
-		// TODO cleanup resources
+	public void activate() {
+		this.rtpInput.activate();
+		this.dtmfInput.activate();
+	}
+	
+	public void deactivate() {
+		this.rtpInput.deactivate();
+		this.dtmfInput.deactivate();
+	}
+	
+	public void reset() {
+		this.deactivate();
+		this.dtmfInput.reset();
 	}
 	
 	public boolean canHandle(byte[] packet) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public byte[] handle(byte[] packet) throws ProtocolHandlerException {
@@ -97,10 +127,10 @@ public class RtpHandler implements ProtocolHandler {
 		this.statistics.setLastPacketReceived(clock.getTime());
 		
 		// RTP v0 packets are used in some applications. Discarded since we do not handle them.
-		if (rtpPacket.getVersion() != 0 && (shouldReceive || shouldLoop)) {
+		if (rtpPacket.getVersion() != 0 && (receivable || loopable)) {
 			// Queue packet into the jitter buffer
 			if (rtpPacket.getBuffer().limit() > 0) {
-				if (shouldLoop) {
+				if (loopable) {
 					// Increment counters
 					this.statistics.incrementReceived();
 					this.statistics.incrementTransmitted();
