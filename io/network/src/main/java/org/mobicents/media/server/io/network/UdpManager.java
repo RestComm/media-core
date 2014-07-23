@@ -339,6 +339,14 @@ public class UdpManager {
 		 key.attach(handler);
 		 handler.setKey(key);
 	}
+	
+	public void bind(DatagramChannel channel, int port, boolean local) throws SocketException {
+		if(local) {
+			bindLocal(channel, port);
+		} else {
+			bind(channel, port);
+		}
+	}
 
 	/**
 	 * Binds socket to global bind address and specified port.
@@ -534,7 +542,7 @@ public class UdpManager {
 			} else {
 				if(key.isValid() && key.isWritable()) {
 					multiplexer.send();
-					// XXX count++ ????
+					count++;
 				}
 			}
 		}

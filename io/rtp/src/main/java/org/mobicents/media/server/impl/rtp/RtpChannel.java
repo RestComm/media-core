@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
@@ -70,8 +69,6 @@ public class RtpChannel extends MultiplexedChannel {
 		DTMF_FORMAT.setOptions(new Text("0-15"));
 	}
 	
-	private Formats formats;
-	
 	// WebRTC
 	private boolean webRtc;
 	private DtlsHandler webRtcHandler;
@@ -107,10 +104,6 @@ public class RtpChannel extends MultiplexedChannel {
 		oobComponent = new OOBComponent(channelId);
 		oobComponent.addInput(this.rtpHandler.getDtmfInput().getOOBInput());
 		oobComponent.addOutput(this.transmitter.getDtmfOutput().getOOBOutput());
-
-		// Media formats
-		this.formats = new Formats();
-		this.formats.add(LINEAR_FORMAT);
 
 		// WebRTC
 		this.webRtc = false;
@@ -155,13 +148,6 @@ public class RtpChannel extends MultiplexedChannel {
 		this.channelListener = listener;
 	}
 	
-	private DatagramChannel getChannel() {
-		if (this.selectionKey != null) {
-			return (DatagramChannel) this.selectionKey.channel();
-		}
-		return null;
-	}
-	
 	public long getPacketsReceived() {
 		return this.statistics.getReceived();
 	}
@@ -177,6 +163,7 @@ public class RtpChannel extends MultiplexedChannel {
 	 *            the format map
 	 */
 	public void setFormatMap(RTPFormats rtpFormats) {
+		flush();
 		this.rtpHandler.setFormatMap(rtpFormats);
 		this.transmitter.setFormatMap(rtpFormats);
 	}
@@ -253,20 +240,16 @@ public class RtpChannel extends MultiplexedChannel {
 	public void bind(boolean isLocal) throws IOException, SocketException {
 		try {
 			// Open this channel with UDP Manager on first available address
-			this.selectionKey = udpManager.open(this);
+			setSelectionKey(udpManager.open(this));
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
 
 		// bind data channel
 		this.rtpHandler.useJitterBuffer(!isLocal);
-		if(isLocal) {
-			this.udpManager.bindLocal(getChannel(), PORT_ANY);
-		} else {
-			this.udpManager.bind(getChannel(), PORT_ANY);
-		}
+		this.udpManager.bind(this.channel, PORT_ANY, isLocal);
 		this.bound = true;
-		this.transmitter.setChannel(getChannel());
+		this.transmitter.setChannel(this.channel);
 	}
 
 	public void bind(SocketAddress address) throws IOException, SocketException {
@@ -279,7 +262,7 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	public boolean isAvailable() {
 		// The channel is available is is connected
-		boolean available = getChannel() != null && getChannel().isConnected();
+		boolean available = this.channel != null && this.channel.isConnected();
 		// In case of WebRTC calls the DTLS handshake must be completed
 		if(this.webRtc) {
 			available = available && this.webRtcHandler.isHandshakeComplete();
@@ -288,14 +271,14 @@ public class RtpChannel extends MultiplexedChannel {
 	}
 	
 	public int getLocalPort() {
-		return getChannel() != null ? getChannel().socket().getLocalPort() : 0;
+		return this.channel != null ? this.channel.socket().getLocalPort() : 0;
 	}
 	
 	public void setRemotePeer(SocketAddress address) {
 		this.remotePeer = address;
 		boolean connectImmediately = false;
-		if (getChannel() != null) {
-			if (getChannel().isConnected())
+		if (this.channel != null) {
+			if (this.channel.isConnected())
 				try {
 					disconnect();
 				} catch (IOException e) {
@@ -305,7 +288,7 @@ public class RtpChannel extends MultiplexedChannel {
 			connectImmediately = udpManager.connectImmediately((InetSocketAddress) address);
 			if (connectImmediately) {
 				try {
-					getChannel().connect(address);
+					this.channel.connect(address);
 				} catch (IOException e) {
 					LOGGER.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
 					LOGGER.error(e.getMessage(), e);

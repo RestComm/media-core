@@ -71,6 +71,10 @@ public class RtpPacket implements Serializable {
             ByteBuffer.allocateDirect(capacity) :
             ByteBuffer.allocate(capacity);
     }
+    
+    public RtpPacket(ByteBuffer buffer) {
+    	this.buffer = buffer;
+    }
 
     /**
      * Provides access to the underlying buffer.

@@ -22,6 +22,7 @@ public class MultiplexedChannel implements Multiplexer {
 	
 	// Data channel where data will be received and transmitted
 	protected SelectionKey selectionKey;
+	protected DatagramChannel channel;
 
 	// Registered protocol handlers. Used for multiplexing.
 	protected final ProtocolHandlerPipeline handlers;
@@ -50,6 +51,34 @@ public class MultiplexedChannel implements Multiplexer {
 		}
 	}
 	
+	private void setWritable() {
+		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
+	}
+	
+	private void setReadable() {
+		this.selectionKey.interestOps(SelectionKey.OP_READ);
+	}
+	
+	public void setSelectionKey(final SelectionKey selectionKey) {
+		this.selectionKey = selectionKey;
+		this.channel = (DatagramChannel) selectionKey.channel();
+	}
+	
+	protected void flush() {
+		if(this.channel != null) {
+			try {
+				// lets clear the receiver
+				SocketAddress currAddress;
+				do {
+					currAddress = this.channel.receive(this.buffer);
+					this.buffer.clear();
+				} while(currAddress != null);
+			} catch (Exception e) {
+				LOGGER.error(e.getMessage(), e);
+			}
+		}
+	}
+	
 	public void receive() throws IOException {
 		// Get channel from selection key
 		DatagramChannel channel = (DatagramChannel) selectionKey.channel();
@@ -71,8 +100,7 @@ public class MultiplexedChannel implements Multiplexer {
 
 		// Stop if socket was shutdown or error occurred
 		if (dataLength == -1) {
-			channel.close();
-			selectionKey.cancel();
+			close();
 			return;
 		}
 
@@ -82,16 +110,20 @@ public class MultiplexedChannel implements Multiplexer {
 
 		if (handler != null) {
 			try {
+				// Copy data from buffer so we don't mess with original
+				byte[] dataCopy = new byte[dataLength];
+				System.arraycopy(data, 0, dataCopy, 0, dataLength);
+				
 				// Let the handler process the incoming packet.
 				// A response MAY be provided as result.
-				byte[] response = handler.handle(data, dataLength, 0);
+				byte[] response = handler.handle(dataCopy, dataLength, 0);
 				
 				/*
 				 * If handler intends to send a response to the remote peer,
 				 * queue the data to send it on writing cycle. Only allowed if
 				 * Selection Key is writable!
 				 */
-				if (selectionKey.isWritable() && response != null && response.length > 0) {
+				if (response != null && response.length > 0) {
 					queueData(data);
 				}
 			} catch (ProtocolHandlerException e) {
@@ -100,6 +132,11 @@ public class MultiplexedChannel implements Multiplexer {
 		} else {
 			// No proper handler was found. Drop packet.
 			LOGGER.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
+		}
+
+		// Change channel mode to writable only if there is queued data to be sent
+		if(hasPendingData()) {
+			setWritable();
 		}
 	}
 
@@ -123,6 +160,9 @@ public class MultiplexedChannel implements Multiplexer {
 				this.pendingData.remove(0);
 			}
 		}
+		
+		// Make channel eligible for reading again
+		setReadable();
 	}
 	
 	public boolean isConnected() {
@@ -138,7 +178,6 @@ public class MultiplexedChannel implements Multiplexer {
 	
 	public void close() {
 		if (this.selectionKey != null) {
-			DatagramChannel channel = (DatagramChannel) selectionKey.channel();
 			if (channel.isConnected()) {
 				try {
 					channel.disconnect();
@@ -152,6 +191,7 @@ public class MultiplexedChannel implements Multiplexer {
 					LOGGER.error(e);
 				}
 			}
+			this.selectionKey.cancel();
 		}
 	}
 

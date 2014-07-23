@@ -2,6 +2,7 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -18,6 +19,8 @@ import org.mobicents.media.server.scheduler.Scheduler;
  * 
  */
 public class RtpHandler implements ProtocolHandler {
+	
+	private static final Logger LOGGER = Logger.getLogger(RtpHandler.class);
 	
 	private RTPFormats rtpFormats;
 	private final Clock clock;
@@ -41,9 +44,9 @@ public class RtpHandler implements ProtocolHandler {
 		
 		this.jitterBufferSize = jitterBufferSize;
 		this.jitterBuffer = new JitterBuffer(this.rtpClock, this.jitterBufferSize);
-		this.jitterBuffer.setListener(this.rtpInput);
 		
 		this.rtpInput = new RTPInput(scheduler, jitterBuffer);
+		this.jitterBuffer.setListener(this.rtpInput);
 		this.dtmfInput = new DtmfInput(scheduler, oobClock);
 		
 		this.rtpFormats = new RTPFormats();
@@ -116,13 +119,22 @@ public class RtpHandler implements ProtocolHandler {
 	}
 
 	public byte[] handle(byte[] packet, int dataLength, int offset) throws ProtocolHandlerException {
-		// XXX Creating an RTP packet every time can be memory consuming because of the enclosing ByteBuffer!!!
+		// Wrap the incoming packet into a buffer
+		// XXX should use direct buffer????
+		//ByteBuffer buffer = ByteBuffer.allocateDirect(dataLength);
+		ByteBuffer buffer = ByteBuffer.wrap(packet, offset, dataLength);
+
 		// Convert raw data into an RTP Packet representation
-		RtpPacket rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
-		ByteBuffer buffer = rtpPacket.getBuffer();
-		buffer.put(packet, offset, dataLength);
+		RtpPacket rtpPacket = new RtpPacket(buffer);
 		
+//		buffer.put(packet, offset, dataLength);
+//		buffer.flip();
+
 		// TODO decode packet if it is SRTP
+		
+		if(this.statistics.getReceived() == 0) {
+			this.jitterBuffer.restart();
+		}
 		
 		this.statistics.setLastPacketReceived(clock.getTime());
 		

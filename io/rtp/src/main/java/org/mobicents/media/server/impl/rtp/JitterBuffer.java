@@ -25,15 +25,11 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.utils.Text;
-
-import org.apache.log4j.Logger;
 
 /**
  * Implements jitter buffer.
@@ -57,7 +53,7 @@ public class JitterBuffer implements Serializable {
     //The underlying buffer size
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
-    private ArrayList<Frame> queue = new ArrayList(QUEUE_SIZE);
+    private ArrayList<Frame> queue = new ArrayList<Frame>(QUEUE_SIZE);
     
     //RTP clock
     private RtpClock rtpClock;
@@ -269,11 +265,11 @@ public class JitterBuffer implements Serializable {
     		//find correct position to insert a packet 
     		//use timestamp since its always positive
     		int currIndex=queue.size()-1;    		    		
-    		while (currIndex>=0 && queue.get(currIndex).getTimestamp() > f.getTimestamp())
+    		while (currIndex>=0 && queue.get(currIndex).getTimestamp() > f.getTimestamp()) {
     			currIndex--;
-    		
-    		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
-    		{
+    		}
+
+    		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
     			//duplicate packet
     			return;
     		}
@@ -283,23 +279,23 @@ public class JitterBuffer implements Serializable {
     		//recalculate duration of each frame in queue and overall duration , since we could insert the
     		//frame in the middle of the queue    			
     		duration=0;    			
-    		if(queue.size()>1)
+    		if(queue.size()>1) {
     			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();
+    		}
     		
-    		for(int i=0;i<queue.size()-1;i++)
-    		{
+    		for(int i=0;i<queue.size()-1;i++) {
     			//duration measured by wall clock
     			long d = queue.get(i+1).getTimestamp() - queue.get(i).getTimestamp();
     			//in case of RFC2833 event timestamp remains same
-    			if (d > 0)    				
+    			if (d > 0) {
     				queue.get(i).setDuration(d);    					
-    			else
+    			} else {
     				queue.get(i).setDuration(0);
+    			}
     		}
     			
     		//if overall duration is negative we have some mess here,try to reset
-    		if(duration<0 && queue.size()>1)
-    		{
+    		if(duration<0 && queue.size()>1) {
     			reset();
     			return;
     		}
@@ -307,7 +303,7 @@ public class JitterBuffer implements Serializable {
     		//overflow?
     		//only now remove packet if overflow , possibly the same packet we just received
     		if (queue.size()>QUEUE_SIZE) {
-    			//System.out.println("Buffer overflow");    			
+    			// System.out.println("Buffer overflow");    			
     			dropCount++;        			
     			queue.remove(0).recycle();    				
     		}    		
@@ -315,7 +311,7 @@ public class JitterBuffer implements Serializable {
     		//check if this buffer already full
     		if (!ready) {    			
     			ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
-    			if (ready) {    				
+    			if (ready) {    
     				if (listener != null) {
     					listener.onFill();
     				}
