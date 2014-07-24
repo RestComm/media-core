@@ -2,7 +2,6 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.nio.ByteBuffer;
 
-import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -19,8 +18,6 @@ import org.mobicents.media.server.scheduler.Scheduler;
  * 
  */
 public class RtpHandler implements ProtocolHandler {
-	
-	private static final Logger LOGGER = Logger.getLogger(RtpHandler.class);
 	
 	private RTPFormats rtpFormats;
 	private final Clock clock;
@@ -110,9 +107,42 @@ public class RtpHandler implements ProtocolHandler {
 	}
 	
 	public boolean canHandle(byte[] packet) {
-		// TODO Auto-generated method stub
-		return true;
+		return canHandle(packet, packet.length, 0);
 	}
+	
+	/**
+	 * The RTP header has the following format:
+	 *
+     * 0                   1                   2                   3
+     * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |V=2|P|X|  CC   |M|     PT      |       sequence number         |
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |                           timestamp                           |
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * |           synchronization source (SSRC) identifier            |
+     * +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+     * |            contributing source (CSRC) identifiers             |
+     * |                             ....                              |
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * 
+     * The first twelve octets are present in every RTP packet, while the
+     * list of CSRC identifiers is present only when inserted by a mixer.
+     * 
+     * The version defined by RFC3550 specification is two.
+	 */
+	public boolean canHandle(byte[] packet, int dataLength, int offset) {
+		// Packet must be equal or greater than an RTP Packet Header
+		if(dataLength >= RtpPacket.FIXED_HEADER_SIZE) {
+			// The most significant 2 bits of every RTP message correspond to the version.
+			// Currently supported version is 2 according to RFC3550
+			byte b0 = packet[offset];
+			boolean validVersion = ((b0 & 0xC0) == 2);
+			return validVersion;
+		}
+		return false;
+	}
+	
 
 	public byte[] handle(byte[] packet) throws ProtocolHandlerException {
 		return this.handle(packet, packet.length, 0);
@@ -127,9 +157,6 @@ public class RtpHandler implements ProtocolHandler {
 		// Convert raw data into an RTP Packet representation
 		RtpPacket rtpPacket = new RtpPacket(buffer);
 		
-//		buffer.put(packet, offset, dataLength);
-//		buffer.flip();
-
 		// TODO decode packet if it is SRTP
 		
 		if(this.statistics.getReceived() == 0) {

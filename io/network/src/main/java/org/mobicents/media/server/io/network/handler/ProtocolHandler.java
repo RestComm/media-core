@@ -17,6 +17,8 @@ public interface ProtocolHandler {
 	 */
 	boolean canHandle(byte[] packet);
 
+	boolean canHandle(byte[] packet, int dataLength, int offset);
+
 	/**
 	 * Processes the packet and provides a suitable answer.
 	 * 

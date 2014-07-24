@@ -46,7 +46,6 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
-import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
