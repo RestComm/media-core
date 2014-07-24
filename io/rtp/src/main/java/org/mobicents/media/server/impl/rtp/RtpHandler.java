@@ -106,11 +106,7 @@ public class RtpHandler implements ProtocolHandler {
 		this.dtmfInput.reset();
 	}
 	
-	public boolean canHandle(byte[] packet) {
-		return canHandle(packet, packet.length, 0);
-	}
-	
-	/**
+	/*
 	 * The RTP header has the following format:
 	 *
      * 0                   1                   2                   3
@@ -131,14 +127,19 @@ public class RtpHandler implements ProtocolHandler {
      * 
      * The version defined by RFC3550 specification is two.
 	 */
+	
+	public boolean canHandle(byte[] packet) {
+		return canHandle(packet, packet.length, 0);
+	}
+	
 	public boolean canHandle(byte[] packet, int dataLength, int offset) {
 		// Packet must be equal or greater than an RTP Packet Header
 		if(dataLength >= RtpPacket.FIXED_HEADER_SIZE) {
 			// The most significant 2 bits of every RTP message correspond to the version.
 			// Currently supported version is 2 according to RFC3550
 			byte b0 = packet[offset];
-			boolean validVersion = ((b0 & 0xC0) == 2);
-			return validVersion;
+			int version = (b0 & 0xC0) >> 6;
+			return version == RtpPacket.VERSION;
 		}
 		return false;
 	}

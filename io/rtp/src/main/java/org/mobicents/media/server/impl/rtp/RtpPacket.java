@@ -56,6 +56,11 @@ public class RtpPacket implements Serializable {
      */
     public static final int EXT_HEADER_SIZE = 4;    
     
+    /**
+     * Current supported RTP version
+     */
+    public static final int VERSION = 2;
+    
     //underlying byte buffer
     private ByteBuffer buffer;
 
