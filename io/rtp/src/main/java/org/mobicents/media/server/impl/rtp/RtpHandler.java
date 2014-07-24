@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.handler.ProtocolHandler;
 import org.mobicents.media.server.io.network.handler.ProtocolHandlerException;
 import org.mobicents.media.server.scheduler.Clock;
@@ -34,6 +35,10 @@ public class RtpHandler implements ProtocolHandler {
 	
 	private final RtpStatistics statistics;
 	
+	// SRTP
+	private boolean srtp;
+	private DtlsHandler dtlsHandler;
+	
 	public RtpHandler(final Scheduler scheduler, final int jitterBufferSize, final RtpStatistics statistics) {
 		this.clock = scheduler.getClock();
 		this.rtpClock = new RtpClock(this.clock);
@@ -50,6 +55,8 @@ public class RtpHandler implements ProtocolHandler {
 		this.statistics = statistics;
 		this.receivable = false;
 		this.loopable = false;
+		
+		this.srtp = false;
 	}
 	
 	public RTPInput getRtpInput() {
@@ -86,9 +93,14 @@ public class RtpHandler implements ProtocolHandler {
 	 * @param rtpFormats
 	 *            the format map
 	 */
-	public void setFormatMap(RTPFormats rtpFormats) {
+	public void setFormatMap(final RTPFormats rtpFormats) {
 		this.rtpFormats = rtpFormats;
 		this.jitterBuffer.setFormats(rtpFormats);
+	}
+	
+	public void enableSrtp(final DtlsHandler handler) {
+		this.srtp = true;
+		this.dtlsHandler = handler;
 	}
 	
 	public void activate() {
@@ -150,6 +162,11 @@ public class RtpHandler implements ProtocolHandler {
 	}
 
 	public byte[] handle(byte[] packet, int dataLength, int offset) throws ProtocolHandlerException {
+		// Do not handle data while DTLS handshake is ongoing. WebRTC calls only.
+		if(this.srtp && !this.dtlsHandler.isHandshakeComplete()) {
+			return null;
+		}
+		
 		// Wrap the incoming packet into a buffer
 		// XXX should use direct buffer????
 		//ByteBuffer buffer = ByteBuffer.allocateDirect(dataLength);
@@ -158,8 +175,17 @@ public class RtpHandler implements ProtocolHandler {
 		// Convert raw data into an RTP Packet representation
 		RtpPacket rtpPacket = new RtpPacket(buffer);
 		
-		// TODO decode packet if it is SRTP
+		// Decode packet if this is a WebRTC call
+		if(this.srtp) {
+			rtpPacket = this.dtlsHandler.decode(rtpPacket);
+		}
+
+		if(rtpPacket == null) {
+			// Handler could not decode the packet, so drop it
+			return null;
+		}
 		
+		// Restart jitter buffer for first received packet
 		if(this.statistics.getReceived() == 0) {
 			this.jitterBuffer.restart();
 		}

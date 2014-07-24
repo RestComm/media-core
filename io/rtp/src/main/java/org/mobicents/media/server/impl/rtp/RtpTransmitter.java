@@ -10,6 +10,7 @@ import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -36,6 +37,10 @@ public class RtpTransmitter {
 	// Packet representations with internal buffers
 	private final RtpPacket rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
 	private final RtpPacket oobPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
+	
+	// WebRTC
+	private DtlsHandler dtlsHandler;
+	private boolean srtp;
 
 	// Details of a transmitted packet
 	private RTPFormats formats;
@@ -53,9 +58,10 @@ public class RtpTransmitter {
 		this.dtmfTimestamp = -1;
 		this.timestamp = -1;
 		this.formats = null;
+		this.srtp = false;
 	}
 	
-	public void setFormatMap(RTPFormats rtpFormats) {
+	public void setFormatMap(final RTPFormats rtpFormats) {
 		this.dtmfSupported = rtpFormats.contains(AVProfile.telephoneEventsID);
 		this.formats = rtpFormats;
 	}
@@ -68,6 +74,11 @@ public class RtpTransmitter {
 		return dtmfOutput;
 	}
 	
+	public void enableSrtp(final DtlsHandler handler) {
+		this.srtp = true;
+		this.dtlsHandler = handler;
+	}
+	
 	public void activate() {
 		this.rtpOutput.activate();
 		this.dtmfOutput.activate();
@@ -78,7 +89,7 @@ public class RtpTransmitter {
 		this.dtmfOutput.deactivate();
 	}
 	
-	public void setChannel(DatagramChannel channel) {
+	public void setChannel(final DatagramChannel channel) {
 		this.channel = channel;
 	}
 	
@@ -107,22 +118,24 @@ public class RtpTransmitter {
 	
 	private void send(RtpPacket packet) throws IOException {
 		// Do not send data while DTLS handshake is ongoing. WebRTC calls only.
-//		if(isWebRtc && !this.webRtcHandler.isHandshakeComplete()) {
-//			return;
-//		}
+		if(this.srtp && !this.dtlsHandler.isHandshakeComplete()) {
+			return;
+		}
 		
 		// Secure RTP packet. WebRTC calls only. 
-//		if (isWebRtc) {
-//			packet = this.webRtcHandler.encode(packet);
-//		}
-		
 		// SRTP handler returns null if an error occurs
-		// Rewind buffer
-		ByteBuffer buf = packet.getBuffer();
-		buf.rewind();
-
-		// send RTP packet to the network
-		channel.send(buf, channel.socket().getRemoteSocketAddress());
+		if (this.srtp) {
+			packet = this.dtlsHandler.encode(packet);
+		}
+		
+		if(packet != null) {
+			// Rewind buffer
+			ByteBuffer buf = packet.getBuffer();
+			buf.rewind();
+			
+			// send RTP packet to the network
+			channel.send(buf, channel.socket().getRemoteSocketAddress());
+		}
 	}
 	
 	public void sendDtmf(Frame frame) {

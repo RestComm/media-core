@@ -71,7 +71,7 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	// WebRTC
 	private boolean webRtc;
-	private DtlsHandler webRtcHandler;
+	private DtlsHandler dtlsHandler;
 	
 	// Listeners
 	private RTPChannelListener channelListener;
@@ -265,7 +265,7 @@ public class RtpChannel extends MultiplexedChannel {
 		boolean available = this.channel != null && this.channel.isConnected();
 		// In case of WebRTC calls the DTLS handshake must be completed
 		if(this.webRtc) {
-			available = available && this.webRtcHandler.isHandshakeComplete();
+			available = available && this.dtlsHandler.isHandshakeComplete();
 		}
 		return available;
 	}
@@ -312,17 +312,32 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	public void enableWebRTC(Text remotePeerFingerprint) {
 		this.webRtc = true;
-		if (this.webRtcHandler == null) {
-			this.webRtcHandler = new DtlsHandler();
+		if (this.dtlsHandler == null) {
+			this.dtlsHandler = new DtlsHandler();
 		}
-		this.webRtcHandler.setRemoteFingerprint(remotePeerFingerprint);
+		this.dtlsHandler.setRemoteFingerprint(remotePeerFingerprint);
+		this.transmitter.enableSrtp(this.dtlsHandler);
 	}
 	
 	public Text getWebRtcLocalFingerprint() {
-		if(this.webRtcHandler != null) {
-			return this.webRtcHandler.getLocalFingerprint();
+		if(this.dtlsHandler != null) {
+			return this.dtlsHandler.getLocalFingerprint();
 		}
 		return new Text();
+	}
+	
+	@Override
+	public void receive() throws IOException {
+		// Make sure the DTLS handshake is complete for WebRTC calls
+		if(this.webRtc && !this.dtlsHandler.isHandshakeComplete()) {
+			// TODO Need to implement own DTLS handler and drop bouncy castle implementation!
+			if(!this.dtlsHandler.isHandshaking()) {
+				this.dtlsHandler.handshake();
+			}
+		} else {
+			// Receive traffic normally through the multiplexed channel
+			super.receive();
+		}
 	}
 	
 	public void close() {
