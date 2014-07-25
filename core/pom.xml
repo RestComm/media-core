@@ -40,6 +40,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.mobicents.media.io</groupId>
+            <artifactId>ice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.mobicents.media</groupId>
             <artifactId>scheduler</artifactId>
             <version>${project.version}</version>

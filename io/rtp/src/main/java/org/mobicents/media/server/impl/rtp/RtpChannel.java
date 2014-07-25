@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
@@ -252,8 +253,23 @@ public class RtpChannel extends MultiplexedChannel {
 		this.transmitter.setChannel(this.channel);
 	}
 
-	public void bind(SocketAddress address) throws IOException, SocketException {
-		// TODO binds to address and registers it on UDP Manager 
+	public void bind(DatagramChannel channel) throws IOException, SocketException {
+		try {
+			// Register the channel on UDP Manager
+			setSelectionKey(udpManager.open(channel, this));
+		} catch (IOException e) {
+			throw new SocketException(e.getMessage());
+		}
+
+		// Only bind channel if necessary
+		if(!channel.socket().isBound()) {
+			this.udpManager.bind(channel, PORT_ANY);
+		}
+		this.rtpHandler.useJitterBuffer(true);
+		if (this.webRtc) {
+			this.dtlsHandler.setChannel(this.channel);
+		}
+		this.bound = true;
 	}
 	
 	public boolean isBound() {

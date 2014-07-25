@@ -34,14 +34,14 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.core.MediaTypes;
 import org.mobicents.media.core.SdpTemplate;
 import org.mobicents.media.core.WebRTCSdpTemplate;
-import org.mobicents.media.core.ice.CandidatePair;
-import org.mobicents.media.core.ice.IceAgent;
-import org.mobicents.media.core.ice.IceFactory;
-import org.mobicents.media.core.ice.events.IceEventListener;
-import org.mobicents.media.core.ice.events.SelectedCandidatesEvent;
-import org.mobicents.media.core.ice.harvest.HarvestException;
-import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
-import org.mobicents.media.core.ice.sdp.IceSdpNegotiator;
+import org.mobicents.media.io.ice.CandidatePair;
+import org.mobicents.media.io.ice.IceAgent;
+import org.mobicents.media.io.ice.IceFactory;
+import org.mobicents.media.io.ice.events.IceEventListener;
+import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
+import org.mobicents.media.io.ice.harvest.HarvestException;
+import org.mobicents.media.io.ice.harvest.NoCandidatesGatheredException;
+import org.mobicents.media.io.ice.sdp.IceSdpNegotiator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -215,10 +215,11 @@ public class RtpConnectionImpl extends BaseConnection implements
 		Formats fmts = new Formats();
 		if (rtpAudioChannel.getOutputDsp() != null) {
 			Codec[] currCodecs = rtpAudioChannel.getOutputDsp().getCodecs();
-			for (int i = 0; i < currCodecs.length; i++)
-				if (currCodecs[i].getSupportedInputFormat().matches(
-						LINEAR_FORMAT))
+			for (int i = 0; i < currCodecs.length; i++) {
+				if (currCodecs[i].getSupportedInputFormat().matches(LINEAR_FORMAT)) {
 					fmts.add(currCodecs[i].getSupportedOutputFormat());
+				}
+			}
 		}
 
 		fmts.add(DTMF_FORMAT);
@@ -226,8 +227,9 @@ public class RtpConnectionImpl extends BaseConnection implements
 		if (fmts != null) {
 			for (int i = 0; i < fmts.size(); i++) {
 				RTPFormat f = profile.find(fmts.get(i));
-				if (f != null)
+				if (f != null) {
 					list.add(f.clone());
+				}
 			}
 		}
 
@@ -607,8 +609,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 				IceAgent agent = event.getSource();
 				CandidatePair candidate = agent.getSelectedRtpCandidate("audio");
 				// Bind candidate to RTP audio channel
-//				rtpAudioChannel.bind(candidate.getChannel());
-				rtpAudioChannel.bind(null);
+				rtpAudioChannel.bind(candidate.getChannel());
 			} catch (IOException e) {
 				// XXX close connection
 				logger.error("Could not select ICE candidates: "+e.getMessage(), e);

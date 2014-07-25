@@ -327,6 +327,17 @@ public class UdpManager {
 		key.attach(multiplexer);
 		return key;
 	}
+	
+	public SelectionKey open(DatagramChannel channel, Multiplexer multiplexer) throws IOException {
+		 // Get a selector
+		 int index = currSelectorIndex.getAndIncrement();
+		 Selector selector = selectors.get(index % selectors.size());
+		 // Register the channel under the chosen selector
+		 SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+		 // Attach the multiplexer to the key
+		 key.attach(multiplexer);
+		 return key;
+	}
 
 	public void open(DatagramChannel channel, ProtocolHandler handler)
 			throws IOException {
