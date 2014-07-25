@@ -1,6 +1,5 @@
 package org.mobicents.media.core.ice.network.stun.messages.attributes.general;
 
-import org.ice4j.attribute.LifetimeAttribute;
 import org.mobicents.media.core.ice.network.stun.StunException;
 import org.mobicents.media.core.ice.network.stun.messages.attributes.StunAttribute;
 

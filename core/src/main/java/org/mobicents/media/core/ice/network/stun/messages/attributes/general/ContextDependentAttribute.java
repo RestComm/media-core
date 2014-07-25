@@ -1,7 +1,5 @@
 package org.mobicents.media.core.ice.network.stun.messages.attributes.general;
 
-import org.ice4j.attribute.Attribute;
-
 /**
  * Represents a type of attribute which contains a value that depends on the
  * content of the message.

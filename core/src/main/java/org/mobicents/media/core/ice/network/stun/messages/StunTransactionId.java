@@ -3,8 +3,6 @@ package org.mobicents.media.core.ice.network.stun.messages;
 import java.util.Arrays;
 import java.util.Random;
 
-import org.ice4j.stack.TransactionID;
-
 /**
  * Represents a STUN transaction ID.
  * 
@@ -54,7 +52,7 @@ public class StunTransactionId {
 
 	public boolean equals(Object other) {
 		// Compare by type
-		if (other == null || !(other instanceof TransactionID)) {
+		if (other == null || !(other instanceof StunTransactionId)) {
 			return false;
 		}
 		// Compare by reference

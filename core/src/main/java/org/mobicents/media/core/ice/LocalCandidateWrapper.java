@@ -2,8 +2,6 @@ package org.mobicents.media.core.ice;
 
 import java.nio.channels.DatagramChannel;
 
-import org.ice4j.ice.Candidate;
-
 /**
  * Elects a {@link Candidate} as local.
  * 

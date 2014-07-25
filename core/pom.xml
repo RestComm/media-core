@@ -67,11 +67,11 @@
             <artifactId>tones</artifactId>
             <version>${project.version}</version>
 	        </dependency>
-	<dependency>
+	<!-- dependency>
 		<groupId>org.ice4j</groupId>
 		<artifactId>ice4j</artifactId>
 		<version>1.0.0</version>
-	</dependency>
+	</dependency -->
 	<dependency>
 		<groupId>org.bitlet</groupId>
 		<artifactId>weupnp</artifactId>

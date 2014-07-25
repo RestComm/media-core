@@ -5,7 +5,6 @@ import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.ice4j.message.Message;
 import org.mobicents.media.core.ice.network.stun.StunException;
 import org.mobicents.media.core.ice.network.stun.messages.attributes.StunAttribute;
 

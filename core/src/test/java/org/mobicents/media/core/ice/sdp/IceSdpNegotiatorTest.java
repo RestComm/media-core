@@ -1,6 +1,8 @@
 package org.mobicents.media.core.ice.sdp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import gov.nist.core.Separators;
 import gov.nist.javax.sdp.fields.AttributeField;
 

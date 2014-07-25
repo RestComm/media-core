@@ -82,7 +82,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	// Audio Channel
 	private ChannelsManager channelsManager;
-	//private RTPDataChannel rtpAudioChannel;
 	private RtpChannel rtpAudioChannel;
 	private boolean isAudioCapabale;
 
@@ -104,7 +103,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	private PortManager icePorts;
 
 	// WebRTC
-	private boolean useWebRtc;
+	private boolean webrtc;
 
 	// Connection status
 	private boolean isLocal = false;
@@ -159,7 +158,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 * @return Returns whether this connection addresses a WebRTC call.
 	 */
 	public boolean isUsingWebRtc() {
-		return useWebRtc;
+		return webrtc;
 	}
 
 	/**
@@ -271,8 +270,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 * @throws IOException
 	 */
 	private void setOtherParty() throws IOException {
-		if (sdp != null && sdp.getAudioDescriptor() != null
-				&& sdp.getAudioDescriptor().getFormats() != null) {
+		if (sdp != null && sdp.getAudioDescriptor() != null && sdp.getAudioDescriptor().getFormats() != null) {
 			logger.info("Audio Formats" + sdp.getAudioDescriptor().getFormats());
 		}
 
@@ -464,10 +462,10 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 *             When binding the audio data channel. Non-WebRTC calls only.
 	 */
 	private void processSdpOffer() throws SocketException, IOException {
-		this.useWebRtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
+		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
 		this.useIce = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
 
-		if (this.useWebRtc) {
+		if (this.webrtc) {
 			// Configure WebRTC-related resources on audio channel
 			Text remotePeerFingerprint = this.sdp.getAudioDescriptor()
 					.getWebRTCFingerprint();
@@ -517,7 +515,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 *             In case the SDP is malformed
 	 */
 	private void generateSdpAnswer() throws SdpException {
-		if (!isLocal && this.useWebRtc) {
+		if (!isLocal && this.webrtc) {
 			// Create a WebRTC SDP template
 			WebRTCSdpTemplate webRtcTemplate = new WebRTCSdpTemplate(this.sdp);
 			// Set fingerprint from DTLS server certificate

@@ -1,5 +1,11 @@
 package org.mobicents.media.core.ice;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
@@ -14,8 +20,6 @@ import org.mobicents.media.core.ice.harvest.HostCandidateHarvester;
 import org.mobicents.media.core.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.core.ice.lite.LiteFoundationsRegistry;
 import org.mobicents.media.server.io.network.PortManager;
-
-import static org.junit.Assert.*;
 
 /**
  * 
