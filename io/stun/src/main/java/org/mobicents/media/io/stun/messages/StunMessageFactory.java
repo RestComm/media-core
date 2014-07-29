@@ -38,5 +38,5 @@ public class StunMessageFactory {
 
 		return bindingResponse;
 	}
-
+	
 }

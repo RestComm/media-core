@@ -417,8 +417,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	protected void onCreated() throws Exception {
 		String bindAddress = isLocal ? channelsManager.getLocalBindAddress()
 				: channelsManager.getBindAddress();
-		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4",
-				bindAddress, rtpAudioChannel.getLocalPort(), 0);
+		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtpAudioChannel.getLocalPort(), 0);
 	}
 
 	@Override
@@ -467,13 +466,6 @@ public class RtpConnectionImpl extends BaseConnection implements
 		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
 		this.useIce = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
 
-		if (this.webrtc) {
-			// Configure WebRTC-related resources on audio channel
-			Text remotePeerFingerprint = this.sdp.getAudioDescriptor()
-					.getWebRTCFingerprint();
-			rtpAudioChannel.enableWebRTC(remotePeerFingerprint);
-		}
-
 		/*
 		 * For ICE-enabled calls, the RTP channels can only be bound after the
 		 * ICE agent selected the candidate pairs. Since Media Server only
@@ -506,6 +498,12 @@ public class RtpConnectionImpl extends BaseConnection implements
 		} else {
 			// For non-ICE calls the RTP audio channel can be bound immediately
 			this.rtpAudioChannel.bind(this.isLocal);
+		}
+		
+		// Configure WebRTC-related resources on audio channel
+		if (this.webrtc) {
+			Text remotePeerFingerprint = this.sdp.getAudioDescriptor().getWebRTCFingerprint();
+			rtpAudioChannel.enableWebRTC(remotePeerFingerprint, this.iceAgent);
 		}
 	}
 

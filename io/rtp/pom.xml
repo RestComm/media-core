@@ -9,7 +9,6 @@
         <version>6.1.2.GA-TelScale</version>
     </parent>
 
-    <groupId>org.mobicents.media.io</groupId>
     <artifactId>rtp</artifactId>
     <name>RTP</name>
     
@@ -19,7 +18,12 @@
             <artifactId>network</artifactId>
             <version>${project.version}</version>
         </dependency>
-	<dependency>
+        <dependency>
+            <groupId>org.mobicents.media.io</groupId>
+            <artifactId>ice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+		<dependency>
             <groupId>org.mobicents.media.io</groupId>
             <artifactId>ss7</artifactId>
             <version>${project.version}</version>
@@ -44,33 +48,11 @@
             <artifactId>scheduler</artifactId>
             <version>${project.version}</version>
         </dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.bouncycastle</groupId> -->
-<!-- 			<artifactId>bcprov-jdk15on</artifactId> -->
-<!-- 			<version>1.49</version> -->
-<!-- 		</dependency> -->
-	<dependency>
-		<groupId>org.bouncycastle</groupId>
-		<artifactId>bcprov-debug-jdk15on</artifactId>
-		<version>1.50</version>
-	</dependency>
-<!-- <dependency> -->
-<!--     <groupId>org.bouncycastle</groupId> -->
-<!--     <artifactId>bcprov-jdk15on-telscale</artifactId> -->
-<!--     <version>1.51</version> -->
-<!-- </dependency> -->
-
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.bouncycastle</groupId> -->
-<!-- 			<artifactId>bcpkix-jdk15on</artifactId> -->
-<!-- 			<version>1.49</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.bouncycastle</groupId> -->
-<!-- 			<artifactId>bcprov-ext-jdk15on</artifactId> -->
-<!-- 			<version>1.49</version> -->
-<!-- 		</dependency>         -->
-		        
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-debug-jdk15on</artifactId>
+			<version>1.50</version>
+		</dependency>
     </dependencies>
 
     <build>

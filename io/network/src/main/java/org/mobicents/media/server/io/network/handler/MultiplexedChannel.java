@@ -124,7 +124,7 @@ public class MultiplexedChannel implements Multiplexer {
 				 * Selection Key is writable!
 				 */
 				if (response != null && response.length > 0) {
-					queueData(data);
+					queueData(response);
 				}
 			} catch (ProtocolHandlerException e) {
 				LOGGER.error("Could not handle incoming packet: " + e.getMessage());
@@ -141,13 +141,10 @@ public class MultiplexedChannel implements Multiplexer {
 	}
 
 	public void send() throws IOException {
-		// Get all pending data on the requests channel
-		DatagramChannel channel = (DatagramChannel) selectionKey.channel();
-
 		// Write all pending data on requested channel
 		while (!this.pendingData.isEmpty()) {
 			ByteBuffer dataBuffer = this.pendingData.get(0);
-			channel.send(dataBuffer, channel.getRemoteAddress());
+			this.channel.send(dataBuffer, this.channel.getRemoteAddress());
 			// XXX channel.write(dataBuffer);
 
 			if (dataBuffer.remaining() > 0) {

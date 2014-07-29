@@ -7,10 +7,12 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.impl.stun.StunHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.handler.MultiplexedChannel;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -58,6 +60,8 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	// Receivers - Protocol handlers pipeline
 	private RtpHandler rtpHandler;
+	private DtlsHandler dtlsHandler;
+	private StunHandler stunHandler;
 	
 	// Media components
 	private AudioComponent audioComponent;
@@ -72,7 +76,6 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	// WebRTC
 	private boolean webRtc;
-	private DtlsHandler dtlsHandler;
 	
 	// Listeners
 	private RTPChannelListener channelListener;
@@ -254,8 +257,8 @@ public class RtpChannel extends MultiplexedChannel {
 	}
 
 	public void bind(DatagramChannel channel) throws IOException, SocketException {
+		// Register the channel on UDP Manager
 		try {
-			// Register the channel on UDP Manager
 			setSelectionKey(udpManager.open(channel, this));
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
@@ -266,8 +269,11 @@ public class RtpChannel extends MultiplexedChannel {
 			this.udpManager.bind(channel, PORT_ANY);
 		}
 		this.rtpHandler.useJitterBuffer(true);
+		this.transmitter.setChannel(channel);
 		if (this.webRtc) {
 			this.dtlsHandler.setChannel(this.channel);
+			this.stunHandler.setChannel(this.channel);
+			this.handlers.addHandler(stunHandler);
 		}
 		this.bound = true;
 	}
@@ -326,12 +332,21 @@ public class RtpChannel extends MultiplexedChannel {
 		return this.udpManager.getExternalAddress();
 	}
 	
-	public void enableWebRTC(Text remotePeerFingerprint) {
+	public void enableWebRTC(Text remotePeerFingerprint, IceAuthenticator authenticator) {
 		this.webRtc = true;
+		
+		// setup the DTLS handler
 		if (this.dtlsHandler == null) {
 			this.dtlsHandler = new DtlsHandler();
 		}
 		this.dtlsHandler.setRemoteFingerprint(remotePeerFingerprint);
+		
+		// setup the STUN handler
+		if (this.stunHandler == null) {
+			this.stunHandler = new StunHandler(authenticator);
+		}
+		
+		// setup the RTP transmitter
 		this.transmitter.enableSrtp(this.dtlsHandler);
 	}
 	
