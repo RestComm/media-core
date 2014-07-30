@@ -94,11 +94,13 @@ public class RtpTransmitter {
 	}
 	
 	private boolean isConnected() {
-		return this.channel.isConnected();
+		return this.channel != null && this.channel.isConnected();
 	}
 	
 	private void disconnect() throws IOException {
-		this.channel.disconnect();
+		if(this.channel != null) {
+			this.channel.disconnect();
+		}
 	}
 	
 	public void reset() {

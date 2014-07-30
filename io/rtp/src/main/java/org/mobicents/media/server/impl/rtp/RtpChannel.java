@@ -348,6 +348,7 @@ public class RtpChannel extends MultiplexedChannel {
 		
 		// setup the RTP transmitter
 		this.transmitter.enableSrtp(this.dtlsHandler);
+		this.rtpHandler.enableSrtp(this.dtlsHandler);
 	}
 	
 	public Text getWebRtcLocalFingerprint() {
