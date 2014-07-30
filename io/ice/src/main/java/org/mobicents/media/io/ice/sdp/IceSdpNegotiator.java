@@ -36,12 +36,10 @@ public class IceSdpNegotiator {
 	public static SessionDescription updateAnswer(String sdp, IceAgent agent)
 			throws SdpException {
 		SdpFactory factory = SdpFactory.getInstance();
-		SessionDescription sessionDescription = factory
-				.createSessionDescription(sdp);
+		SessionDescription sessionDescription = factory.createSessionDescription(sdp);
 
 		// Add user fragment and password from ICE agent
-		Vector<AttributeField> attributes = sessionDescription
-				.getAttributes(true);
+		Vector<AttributeField> attributes = sessionDescription.getAttributes(true);
 		attributes.add(new IceUfragAttribute(agent.getUfrag()));
 		attributes.add(new IcePwdAttribute(agent.getPassword()));
 
@@ -53,8 +51,7 @@ public class IceSdpNegotiator {
 
 		// Update the media streams of the SDP description with the information
 		// hold by the ICE agent
-		Vector<MediaDescription> mediaStreams = sessionDescription
-				.getMediaDescriptions(true);
+		Vector<MediaDescription> mediaStreams = sessionDescription.getMediaDescriptions(true);
 		for (MediaDescription mediaStream : mediaStreams) {
 			String streamName = mediaStream.getMedia().getMediaType();
 			IceMediaStream iceStream = agent.getMediaStream(streamName);
@@ -81,14 +78,11 @@ public class IceSdpNegotiator {
 			 * candidate into the "c=" and "m=" lines.
 			 */
 			if (!rtpComponent.isDefaultLocalCandidateSelected()) {
-				throw new SdpException(
-						"RTP component does not have a default local candidate selected.");
+				throw new SdpException("RTP component does not have a default local candidate selected.");
 			}
 
-			IceCandidate defaultRtpCandidate = rtpComponent
-					.getDefaultLocalCandidate().getCandidate();
-			String defaultAddress = defaultRtpCandidate.getAddress()
-					.getHostAddress();
+			IceCandidate defaultRtpCandidate = rtpComponent.getDefaultLocalCandidate().getCandidate();
+			String defaultAddress = defaultRtpCandidate.getAddress().getHostAddress();
 			int defaultPort = defaultRtpCandidate.getPort();
 			String addressType = defaultRtpCandidate.isIPv4() ? "IP4" : "IP6";
 
@@ -113,10 +107,8 @@ public class IceSdpNegotiator {
 			 */
 			if (iceStream.supportsRtcp()) {
 				IceComponent rtcpComponent = iceStream.getRtcpComponent();
-				IceCandidate defaultRtcpCandidate = rtcpComponent
-						.getDefaultLocalCandidate().getCandidate();
-				RtcpAttribute rtcpAttribute = new RtcpAttribute(
-						defaultRtcpCandidate, "IN");
+				IceCandidate defaultRtcpCandidate = rtcpComponent.getDefaultLocalCandidate().getCandidate();
+				RtcpAttribute rtcpAttribute = new RtcpAttribute(defaultRtcpCandidate, "IN");
 				mediaStream.addAttribute(rtcpAttribute);
 			} else {
 				// XXX RS and RR attributes not supported on firefox
@@ -129,8 +121,7 @@ public class IceSdpNegotiator {
 		return sessionDescription;
 	}
 
-	private static void addCandidates(IceComponent component,
-			MediaDescription media) throws SdpException {
+	private static void addCandidates(IceComponent component, MediaDescription media) throws SdpException {
 		for (LocalCandidateWrapper candidate : component.getLocalCandidates()) {
 			addCandidate(media, candidate);
 		}

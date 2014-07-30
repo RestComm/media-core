@@ -32,6 +32,15 @@ public class IceComponentTest {
 	public void after() {
 		clearLocalCandidates();
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidComponentId() {
+		// given
+		int invalidComponentId = 3;
+		
+		// when
+		new IceComponent(invalidComponentId);
+	}
 
 	@Test
 	public void testDefaultLocalCandidateSelection() {
@@ -40,8 +49,7 @@ public class IceComponentTest {
 		component.addLocalCandidates(this.localCandidates);
 
 		// when
-		LocalCandidateWrapper defaultCandidate = component
-				.selectDefaultLocalCandidate();
+		LocalCandidateWrapper defaultCandidate = component.selectDefaultLocalCandidate();
 
 		// then
 		assertEquals(this.localCandidates.get(0), defaultCandidate);
@@ -64,6 +72,7 @@ public class IceComponentTest {
 					udpChannel.disconnect();
 				}
 				if (udpChannel.isOpen()) {
+					udpChannel.close();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

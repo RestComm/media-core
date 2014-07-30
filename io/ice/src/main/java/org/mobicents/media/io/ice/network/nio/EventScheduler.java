@@ -20,8 +20,7 @@ public class EventScheduler implements Runnable {
 	public void schedule(DatagramChannel channel, byte[] data, int dataLength) {
 		byte[] dataCopy = Arrays.copyOf(data, dataLength);
 		synchronized (this.events) {
-			ScheduledEvent event = new ScheduledEvent(this.server, channel,
-					dataCopy);
+			ScheduledEvent event = new ScheduledEvent(this.server, channel, dataCopy);
 			this.events.add(event);
 			this.events.notify();
 		}

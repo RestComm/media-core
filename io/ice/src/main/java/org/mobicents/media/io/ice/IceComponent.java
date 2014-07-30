@@ -25,12 +25,9 @@ public class IceComponent {
 	private CandidatePair candidatePair;
 
 	public IceComponent(int componentId) {
-		if(!isValidComponentId(componentId)) {
-			throw new IllegalArgumentException("The component is neither RTP or RTCP.");
-		}
+		setComponentId(componentId);
 		this.localCandidates = new ArrayList<LocalCandidateWrapper>(5);
 		this.remoteCandidates = new ArrayList<IceCandidate>(5);
-		setComponentId(componentId);
 	}
 
 	/**
@@ -58,8 +55,7 @@ public class IceComponent {
 
 	public void setComponentId(int componentId) {
 		if (!isValidComponentId(componentId)) {
-			throw new IllegalArgumentException("Invalid Component ID: "
-					+ componentId);
+			throw new IllegalArgumentException("Invalid Component ID: " + componentId);
 		}
 		this.componentId = componentId;
 	}
@@ -98,8 +94,7 @@ public class IceComponent {
 	 *            Decides whether the candidates list should be ordered after
 	 *            insert
 	 */
-	private void addLocalCandidate(LocalCandidateWrapper candidateWrapper,
-			boolean sort) {
+	private void addLocalCandidate(LocalCandidateWrapper candidateWrapper, boolean sort) {
 		IceCandidate candidate = candidateWrapper.getCandidate();
 
 		// Configure the candidate before registration

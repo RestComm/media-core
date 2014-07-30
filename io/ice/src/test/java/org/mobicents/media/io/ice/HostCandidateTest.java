@@ -16,13 +16,11 @@ public class HostCandidateTest {
 	public void testHostCandidate() {
 		// given
 		IceComponent rtpComponent = new IceComponent(IceComponent.RTP_ID);
-		HostCandidate candidate = new HostCandidate(rtpComponent,
-				"192.168.1.65", 6100);
+		HostCandidate candidate = new HostCandidate(rtpComponent, "192.168.1.65", 6100);
 
 		// then
 		assertEquals(CandidateType.HOST, candidate.getType());
-		assertEquals(IceCandidate.IP4_PRECEDENCE,
-				candidate.getAddressPrecedence());
+		assertEquals(IceCandidate.IP4_PRECEDENCE, candidate.getAddressPrecedence());
 		assertTrue(candidate.isIPv4());
 		assertEquals(candidate, candidate.getBase());
 	}
@@ -32,10 +30,8 @@ public class HostCandidateTest {
 		// given
 		IceComponent rtpComponent = new IceComponent(IceComponent.RTP_ID);
 		IceComponent rtcpComponent = new IceComponent(IceComponent.RTCP_ID);
-		HostCandidate rtpCandidate = new HostCandidate(rtpComponent,
-				"192.168.1.65", 6100);
-		HostCandidate rtcpCandidate = new HostCandidate(rtcpComponent,
-				"192.168.1.65", 6100);
+		HostCandidate rtpCandidate = new HostCandidate(rtpComponent, "192.168.1.65", 6100);
+		HostCandidate rtcpCandidate = new HostCandidate(rtcpComponent, "192.168.1.65", 6100);
 
 		// when
 		rtpCandidate.setPriority(2);

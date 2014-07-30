@@ -49,8 +49,7 @@ public class IceSdpNegotiatorTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testAnswerNegotiation() throws IOException, SdpException,
-			NoCandidatesGatheredException, HarvestException {
+	public void testAnswerNegotiation() throws IOException, SdpException, NoCandidatesGatheredException, HarvestException {
 		// given
 		String sdpAnswer = readSdpFile("sdp_vanilla_answer.txt");
 
@@ -87,20 +86,16 @@ public class IceSdpNegotiatorTest {
 
 				// Media connection must match address and port of default local
 				// RTP candidate
-				IceCandidate defaultRtpCandidate = iceStream.getRtpComponent()
-						.getDefaultLocalCandidate().getCandidate();
-				assertEquals(mediaStream.getConnection().getAddress(),
-						defaultRtpCandidate.getAddress().getHostAddress());
-				assertEquals(mediaStream.getMedia().getMediaPort(),
-						defaultRtpCandidate.getPort());
+				IceCandidate defaultRtpCandidate = iceStream.getRtpComponent().getDefaultLocalCandidate().getCandidate();
+				assertEquals(mediaStream.getConnection().getAddress(), defaultRtpCandidate.getAddress().getHostAddress());
+				assertEquals(mediaStream.getMedia().getMediaPort(), defaultRtpCandidate.getPort());
 
 				/*
 				 * If the agent is using RTCP, it must encode the RTCP candidate
 				 * using the 'a=rtcp' attribute.
 				 */
 				if (iceStream.supportsRtcp()) {
-					String rtcpAttribute = mediaStream
-							.getAttribute(RtcpAttribute.NAME);
+					String rtcpAttribute = mediaStream.getAttribute(RtcpAttribute.NAME);
 					assertNotNull(rtcpAttribute);
 				}
 			}
@@ -116,11 +111,9 @@ public class IceSdpNegotiatorTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private int countSdpCandidates(MediaDescription mediaDescription)
-			throws SdpParseException {
+	private int countSdpCandidates(MediaDescription mediaDescription) throws SdpParseException {
 		int count = 0;
-		Vector<AttributeField> attributes = mediaDescription
-				.getAttributes(true);
+		Vector<AttributeField> attributes = mediaDescription.getAttributes(true);
 		for (AttributeField attribute : attributes) {
 			if (attribute.getName().equals(CandidateAttribute.NAME)) {
 				count++;
@@ -129,8 +122,7 @@ public class IceSdpNegotiatorTest {
 		return count;
 	}
 
-	private boolean attributeExists(String name,
-			Vector<AttributeField> attributes) throws SdpParseException {
+	private boolean attributeExists(String name, Vector<AttributeField> attributes) throws SdpParseException {
 		for (AttributeField attribute : attributes) {
 			if (attribute.getName().equals(name)) {
 				return true;

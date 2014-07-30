@@ -13,8 +13,7 @@ import org.mobicents.media.server.io.network.TransportAddress;
  * @author Henrique Rosa
  * 
  */
-public class IceCandidate extends TransportAddress implements
-		Comparable<IceCandidate>, Cloneable {
+public class IceCandidate extends TransportAddress implements Comparable<IceCandidate>, Cloneable {
 
 	private static final long serialVersionUID = 2306608901365110071L;
 
@@ -58,8 +57,7 @@ public class IceCandidate extends TransportAddress implements
 	 */
 	protected IceCandidate base;
 
-	public IceCandidate(IceComponent component, InetAddress address, int port,
-			final CandidateType type) {
+	public IceCandidate(IceComponent component, InetAddress address, int port, final CandidateType type) {
 		super(address, port, TransportProtocol.UDP);
 		this.component = component;
 		this.type = type;
@@ -67,8 +65,7 @@ public class IceCandidate extends TransportAddress implements
 		this.priority = 0;
 	}
 
-	protected IceCandidate(IceComponent component, String hostname, int port,
-			final CandidateType type) {
+	protected IceCandidate(IceComponent component, String hostname, int port, final CandidateType type) {
 		super(hostname, port, TransportProtocol.UDP);
 		this.component = component;
 		this.type = type;
@@ -117,8 +114,7 @@ public class IceCandidate extends TransportAddress implements
 	 */
 	private int calculateAddressPrecedence() {
 		if (this.isIPv6()) {
-			throw new UnsupportedOperationException(
-					"IPv6 addresses are not supported.");
+			throw new UnsupportedOperationException("IPv6 addresses are not supported.");
 		}
 		return IP4_PRECEDENCE;
 	}
