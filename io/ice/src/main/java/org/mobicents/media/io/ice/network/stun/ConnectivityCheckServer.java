@@ -8,16 +8,18 @@ import org.mobicents.media.io.ice.network.nio.NioServer;
 public class ConnectivityCheckServer extends NioServer {
 
 	private final IceAgent agent;
-	private final StunHandler stunStack;
+	private final StunHandler stunHandler;
 	private final StunListener stunListener;
 
 	public ConnectivityCheckServer(IceAgent agent, Selector selector) {
 		super(selector);
 		this.agent = agent;
-		this.stunStack = new StunHandler(this.agent);
-		this.addProtocolHandler(stunStack);
+		this.stunHandler = new StunHandler(this.agent);
 		this.stunListener = new StunListenerImpl(this.agent);
-		this.stunStack.addListener(this.stunListener);
+		this.stunHandler.addListener(this.stunListener);
+
+		// Elected protocol handler on NIO server
+		this.protocolHandler = this.stunHandler;
 	}
 
 	protected class StunListenerImpl implements StunListener {

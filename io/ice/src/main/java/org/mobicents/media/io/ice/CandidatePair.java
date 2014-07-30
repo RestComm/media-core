@@ -31,8 +31,7 @@ public class CandidatePair {
 
 	public int getLocalPort() {
 		try {
-			return ((InetSocketAddress) this.channel.getLocalAddress())
-					.getPort();
+			return ((InetSocketAddress) this.channel.getLocalAddress()).getPort();
 		} catch (IOException e) {
 			return 0;
 		}
@@ -40,8 +39,7 @@ public class CandidatePair {
 
 	public String getLocalAddress() {
 		try {
-			return ((InetSocketAddress) this.channel.getLocalAddress())
-					.getHostName();
+			return ((InetSocketAddress) this.channel.getLocalAddress()).getHostName();
 		} catch (IOException e) {
 			return "";
 		}
@@ -49,8 +47,7 @@ public class CandidatePair {
 
 	public int getRemotePort() {
 		try {
-			return ((InetSocketAddress) this.channel.getRemoteAddress())
-					.getPort();
+			return ((InetSocketAddress) this.channel.getRemoteAddress()).getPort();
 		} catch (IOException e) {
 			return 0;
 		}
@@ -58,8 +55,7 @@ public class CandidatePair {
 
 	public String getRemoteAddress() {
 		try {
-			return ((InetSocketAddress) this.channel.getRemoteAddress())
-					.getHostName();
+			return ((InetSocketAddress) this.channel.getRemoteAddress()).getHostName();
 		} catch (IOException e) {
 			return "";
 		}

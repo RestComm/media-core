@@ -47,14 +47,11 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	 * @throws HarvestException
 	 *             When an error occurs while retrieving the network interfaces
 	 */
-	private Enumeration<NetworkInterface> getNetworkInterfaces()
-			throws HarvestException {
+	private Enumeration<NetworkInterface> getNetworkInterfaces() throws HarvestException {
 		try {
 			return NetworkInterface.getNetworkInterfaces();
 		} catch (SocketException e) {
-			throw new HarvestException(
-					"Could not retrieve list of available Network Interfaces.",
-					e);
+			throw new HarvestException("Could not retrieve list of available Network Interfaces.", e);
 		}
 	}
 
@@ -69,14 +66,11 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	 * @throws HarvestException
 	 *             When an error occurs while inspecting the interface.
 	 */
-	private boolean useNetworkInterface(NetworkInterface networkInterface)
-			throws HarvestException {
+	private boolean useNetworkInterface(NetworkInterface networkInterface) throws HarvestException {
 		try {
 			return !networkInterface.isLoopback() && networkInterface.isUp();
 		} catch (SocketException e) {
-			throw new HarvestException(
-					"Could not evaluate whether network interface is loopback.",
-					e);
+			throw new HarvestException("Could not evaluate whether network interface is loopback.", e);
 		}
 	}
 

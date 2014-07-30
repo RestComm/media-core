@@ -1,7 +1,6 @@
 package org.mobicents.media.io.ice;
 
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +25,9 @@ public class IceComponent {
 	private CandidatePair candidatePair;
 
 	public IceComponent(int componentId) {
+		if(!isValidComponentId(componentId)) {
+			throw new IllegalArgumentException("The component is neither RTP or RTCP.");
+		}
 		this.localCandidates = new ArrayList<LocalCandidateWrapper>(5);
 		this.remoteCandidates = new ArrayList<IceCandidate>(5);
 		setComponentId(componentId);

@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
-import org.mobicents.media.io.ice.network.ExpirableProtocolHandler;
+import org.mobicents.media.io.ice.network.ProtocolHandler;
 import org.mobicents.media.io.stun.StunException;
 import org.mobicents.media.io.stun.messages.StunMessage;
 import org.mobicents.media.io.stun.messages.StunMessageFactory;
@@ -29,7 +29,7 @@ import org.mobicents.media.server.io.network.TransportAddress.TransportProtocol;
  * @author Henrique Rosa
  * 
  */
-public class StunHandler implements ExpirableProtocolHandler {
+public class StunHandler implements ProtocolHandler {
 	
 	private static final Logger LOGGER = Logger.getLogger(StunHandler.class);
 
@@ -38,11 +38,8 @@ public class StunHandler implements ExpirableProtocolHandler {
 	private final IceAuthenticator authenticator;
 	private final List<StunListener> listeners;
 
-	private boolean expired;
-
 	public StunHandler(IceAuthenticator authenticator) {
 		this.authenticator = authenticator;
-		this.expired = false;
 		this.listeners = new ArrayList<StunListener>();
 	}
 
@@ -121,14 +118,6 @@ public class StunHandler implements ExpirableProtocolHandler {
 
 	public String getProtocol() {
 		return PROTOCOL;
-	}
-
-	public boolean isExpired() {
-		return this.expired;
-	}
-
-	public void expire() {
-		this.expired = true;
 	}
 
 	private byte[] processRequest(StunRequest request, SelectionKey key)
@@ -215,8 +204,7 @@ public class StunHandler implements ExpirableProtocolHandler {
 	private void fireOnSuccessResponse(SelectionKey key) {
 		StunListener[] copy;
 		synchronized (this.listeners) {
-			copy = this.listeners.toArray(new StunListener[this.listeners
-					.size()]);
+			copy = this.listeners.toArray(new StunListener[this.listeners.size()]);
 		}
 
 		// Fire the successful binding event

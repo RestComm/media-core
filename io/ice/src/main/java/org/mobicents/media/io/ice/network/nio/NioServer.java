@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.io.ice.network.ExpirableProtocolHandler;
-import org.mobicents.media.io.ice.network.ExpiringPipeline;
-import org.mobicents.media.io.ice.network.Pipeline;
+import org.mobicents.media.io.ice.network.ProtocolHandler;
 
 /**
  * Non-blocking server that runs on a single thread, alternating between reading
@@ -45,9 +43,9 @@ public class NioServer implements Runnable {
 
 	// Registers pending data per channel
 	private Map<DatagramChannel, List<ByteBuffer>> pendingData;
-
-	// Pipeline of packet handlers
-	private Pipeline<ExpirableProtocolHandler> protocolHandlers;
+	
+	// Protocol Handler to process incoming packets
+	protected ProtocolHandler protocolHandler;
 
 	// Server execution controls
 	private Thread schedulerThread;
@@ -61,7 +59,6 @@ public class NioServer implements Runnable {
 		this.operationRequests = new LinkedList<OperationRequest>();
 		this.pendingData = new HashMap<DatagramChannel, List<ByteBuffer>>();
 		this.running = false;
-		this.protocolHandlers = new ExpiringPipeline<ExpirableProtocolHandler>();
 	}
 
 	public boolean isRunning() {
@@ -104,15 +101,12 @@ public class NioServer implements Runnable {
 			try {
 				// Process any pending changes
 				synchronized (this.operationRequests) {
-					Iterator<OperationRequest> changes = this.operationRequests
-							.iterator();
+					Iterator<OperationRequest> changes = this.operationRequests.iterator();
 					while (changes.hasNext()) {
 						// Process the request
 						OperationRequest request = changes.next();
-						if (OperationRequest.CHANGE_OPS == request
-								.getRequestType()) {
-							SelectionKey key = request.getChannel().keyFor(
-									this.selector);
+						if (OperationRequest.CHANGE_OPS == request.getRequestType()) {
+							SelectionKey key = request.getChannel().keyFor(this.selector);
 							if (key != null && key.isValid()) {
 								// The null check is necessary because a key can
 								// be canceled by external agents.
@@ -138,10 +132,8 @@ public class NioServer implements Runnable {
 						try {
 							// Take action based on current key mode
 							if (key.isReadable()) {
-								logger.info("started reading operation");
 								this.read(key);
 							} else if (key.isWritable()) {
-								logger.info("started writing operation");
 								this.write(key);
 							}
 						} catch (Exception e) {
@@ -162,10 +154,6 @@ public class NioServer implements Runnable {
 		List<ByteBuffer> data = new ArrayList<ByteBuffer>();
 		this.pendingData.put(channel, data);
 		return data;
-	}
-
-	public void addProtocolHandler(ExpirableProtocolHandler handler) {
-		this.protocolHandlers.add(handler);
 	}
 
 	public void send(DatagramChannel channel, byte[] data) {
@@ -213,11 +201,9 @@ public class NioServer implements Runnable {
 		}
 
 		// Delegate work to a handler
-		byte[] data = this.buffer.array();
-		ExpirableProtocolHandler protocolHandler = this.protocolHandlers.getCurrent();
-
 		if (protocolHandler != null) {
 			// Handler processes the requests and provides an answer
+			byte[] data = this.buffer.array();
 			byte[] response = protocolHandler.process(key, data, dataLength);
 			// Keep reading if handler provided no answer
 			if (response != null) {

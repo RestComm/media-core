@@ -12,11 +12,8 @@ public class LocalCandidateWrapper implements CandidateWrapper, Comparable<Local
 
 	private final IceCandidate candidate;
 	private final DatagramChannel udpChannel;
-	// TODO add stun stack to candidate wrapper
 	
-	
-	public LocalCandidateWrapper(IceCandidate candidate,
-			DatagramChannel udpChannel) {
+	public LocalCandidateWrapper(IceCandidate candidate, DatagramChannel udpChannel) {
 		this.candidate = candidate;
 		this.udpChannel = udpChannel;
 	}

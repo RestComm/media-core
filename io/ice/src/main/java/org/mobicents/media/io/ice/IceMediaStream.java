@@ -7,8 +7,6 @@ package org.mobicents.media.io.ice;
  */
 public class IceMediaStream {
 
-	private IceAgent agent;
-
 	private final String name;
 	private IceComponent rtpComponent;
 	private IceComponent rtcpComponent;
@@ -30,13 +28,8 @@ public class IceMediaStream {
 
 	private void validateName(String name) {
 		if (name == null || name.isEmpty()) {
-			throw new IllegalArgumentException(
-					"The media stream name cannot be null or empty.");
+			throw new IllegalArgumentException("The media stream name cannot be null or empty.");
 		}
-	}
-
-	public IceAgent getAgent() {
-		return agent;
 	}
 
 	public String getName() {

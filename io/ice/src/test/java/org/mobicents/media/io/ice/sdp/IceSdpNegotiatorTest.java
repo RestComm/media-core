@@ -52,7 +52,6 @@ public class IceSdpNegotiatorTest {
 	public void testAnswerNegotiation() throws IOException, SdpException,
 			NoCandidatesGatheredException, HarvestException {
 		// given
-		IceSdpNegotiator negotiator = new IceSdpNegotiator();
 		String sdpAnswer = readSdpFile("sdp_vanilla_answer.txt");
 
 		IceAgent agent = new IceLiteAgent();
@@ -64,7 +63,7 @@ public class IceSdpNegotiatorTest {
 		agent.gatherCandidates(portManager);
 
 		// when
-		SessionDescription sdp = negotiator.updateAnswer(sdpAnswer, agent);
+		SessionDescription sdp = IceSdpNegotiator.updateAnswer(sdpAnswer, agent);
 
 		// then
 		// Verify ice-ufrag and ice-pwd attributes exist
