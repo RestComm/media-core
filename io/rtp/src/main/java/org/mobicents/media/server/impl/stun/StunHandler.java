@@ -18,10 +18,10 @@ import org.mobicents.media.io.stun.messages.attributes.general.PriorityAttribute
 import org.mobicents.media.io.stun.messages.attributes.general.UsernameAttribute;
 import org.mobicents.media.server.io.network.TransportAddress;
 import org.mobicents.media.server.io.network.TransportAddress.TransportProtocol;
-import org.mobicents.media.server.io.network.handler.ProtocolHandler;
-import org.mobicents.media.server.io.network.handler.ProtocolHandlerException;
+import org.mobicents.media.server.io.network.channel.PacketHandler;
+import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 
-public class StunHandler implements ProtocolHandler {
+public class StunHandler implements PacketHandler {
 	
 	private static final Logger LOGGER = Logger.getLogger(StunHandler.class);
 	
@@ -142,11 +142,11 @@ public class StunHandler implements ProtocolHandler {
 		return false;
 	}
 
-	public byte[] handle(byte[] packet) throws ProtocolHandlerException {
+	public byte[] handle(byte[] packet) throws PacketHandlerException {
 		return handle(packet, packet.length, 0);
 	}
 
-	public byte[] handle(byte[] packet, int dataLength, int offset) throws ProtocolHandlerException {
+	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
 		// Check whether handler can process the packet. If not, drop the packet.
 		if(!canHandle(packet, dataLength, offset)) {
 			LOGGER.warn("Received message that cannot be handled. Dropped packet.");
@@ -166,9 +166,9 @@ public class StunHandler implements ProtocolHandler {
 				return null;
 			}
 		} catch (StunException e) {
-			throw new ProtocolHandlerException("Could not decode STUN packet", e);
+			throw new PacketHandlerException("Could not decode STUN packet", e);
 		} catch (IOException e) {
-			throw new ProtocolHandlerException(e.getMessage(), e);
+			throw new PacketHandlerException(e.getMessage(), e);
 		}
 	}
 }

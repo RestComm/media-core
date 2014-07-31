@@ -1,24 +1,24 @@
-package org.mobicents.media.server.io.network.handler;
+package org.mobicents.media.server.io.network.channel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Pipeline that selects a capable {@link ProtocolHandler} to process incoming
+ * Pipeline that selects a capable {@link PacketHandler} to process incoming
  * packets.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class ProtocolHandlerPipeline {
+public class PacketHandlerPipeline {
 
 	/**
 	 * List of registered handlers in the pipeline.
 	 */
-	private final List<ProtocolHandler> handlers;
+	private final List<PacketHandler> handlers;
 	
-	public ProtocolHandlerPipeline() {
-		this.handlers = new ArrayList<ProtocolHandler>(5);
+	public PacketHandlerPipeline() {
+		this.handlers = new ArrayList<PacketHandler>(5);
 	}
 	
 	/**
@@ -29,7 +29,7 @@ public class ProtocolHandlerPipeline {
 	 *            The handler to be registered.
 	 * @return Whether the handler was successfully registered or not.
 	 */
-	public boolean addHandler(ProtocolHandler handler) {
+	public boolean addHandler(PacketHandler handler) {
 		synchronized (this.handlers) {
 			if(!handlers.contains(handler)) {
 				handlers.add(handler);
@@ -47,15 +47,15 @@ public class ProtocolHandlerPipeline {
 	 * @return The protocol handler capable of processing the packet.<br>
 	 *         Returns null in case no capable handler exists.
 	 */
-	public ProtocolHandler getHandler(byte[] packet) {
+	public PacketHandler getHandler(byte[] packet) {
 		// Copy the current handlers for thread safety
-		List<ProtocolHandler> handlersCopy;
+		List<PacketHandler> handlersCopy;
 		synchronized (this.handlers) {
-			handlersCopy = new ArrayList<ProtocolHandler>(this.handlers);
+			handlersCopy = new ArrayList<PacketHandler>(this.handlers);
 		}
 
 		// Search for the first handler capable of processing the packet
-		for (ProtocolHandler protocolHandler : handlersCopy) {
+		for (PacketHandler protocolHandler : handlersCopy) {
 			if(protocolHandler.canHandle(packet)) {
 				return protocolHandler;
 			}

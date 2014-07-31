@@ -503,7 +503,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 		// Configure WebRTC-related resources on audio channel
 		if (this.webrtc) {
 			Text remotePeerFingerprint = this.sdp.getAudioDescriptor().getWebRTCFingerprint();
-			rtpAudioChannel.enableWebRTC(remotePeerFingerprint, this.iceAgent);
+			rtpAudioChannel.enableSRTP(remotePeerFingerprint, this.iceAgent);
 		}
 	}
 

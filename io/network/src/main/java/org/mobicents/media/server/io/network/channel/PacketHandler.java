@@ -1,11 +1,11 @@
-package org.mobicents.media.server.io.network.handler;
+package org.mobicents.media.server.io.network.channel;
 
 /**
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public interface ProtocolHandler {
+public interface PacketHandler {
 
 	/**
 	 * Checks whether the handler can process the incoming packet or not.
@@ -26,10 +26,10 @@ public interface ProtocolHandler {
 	 *            The packet to be processed.
 	 * @return The answer to be sent to the remote peer as response to the
 	 *         incoming packet.
-	 * @throws ProtocolHandlerException
+	 * @throws PacketHandlerException
 	 *             When the handler cannot process the packet.
 	 */
-	byte[] handle(byte[] packet) throws ProtocolHandlerException;
+	byte[] handle(byte[] packet) throws PacketHandlerException;
 
 	/**
 	 * Processes the packet and provides a suitable answer.
@@ -42,9 +42,9 @@ public interface ProtocolHandler {
 	 *            The initial position to start reading data from.
 	 * @return The answer to be sent to the remote peer as response to the
 	 *         incoming packet.
-	 * @throws ProtocolHandlerException
+	 * @throws PacketHandlerException
 	 *             When the handler cannot process the packet.
 	 */
-	byte[] handle(byte[] packet, int dataLength, int offset) throws ProtocolHandlerException;
+	byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException;
 
 }

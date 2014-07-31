@@ -6,8 +6,8 @@ import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
-import org.mobicents.media.server.io.network.handler.ProtocolHandler;
-import org.mobicents.media.server.io.network.handler.ProtocolHandlerException;
+import org.mobicents.media.server.io.network.channel.PacketHandler;
+import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
 
@@ -18,7 +18,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class RtpHandler implements ProtocolHandler {
+public class RtpHandler implements PacketHandler {
 	
 	private RTPFormats rtpFormats;
 	private final Clock clock;
@@ -157,11 +157,11 @@ public class RtpHandler implements ProtocolHandler {
 	}
 	
 
-	public byte[] handle(byte[] packet) throws ProtocolHandlerException {
+	public byte[] handle(byte[] packet) throws PacketHandlerException {
 		return this.handle(packet, packet.length, 0);
 	}
 
-	public byte[] handle(byte[] packet, int dataLength, int offset) throws ProtocolHandlerException {
+	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
 		// Do not handle data while DTLS handshake is ongoing. WebRTC calls only.
 		if(this.srtp && !this.dtlsHandler.isHandshakeComplete()) {
 			return null;

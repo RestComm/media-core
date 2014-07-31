@@ -1,10 +1,9 @@
-package org.mobicents.media.server.io.network.handler;
+package org.mobicents.media.server.io.network.channel;
 
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,28 +15,31 @@ import org.apache.log4j.Logger;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class MultiplexedChannel implements Multiplexer {
+public class MultiplexedChannel implements Channel {
 	
-	private static final Logger LOGGER = Logger.getLogger(Multiplexer.class);
+	private static final Logger LOGGER = Logger.getLogger(Channel.class);
 	
 	// Data channel where data will be received and transmitted
-	protected SelectionKey selectionKey;
 	protected DatagramChannel channel;
 
 	// Registered protocol handlers. Used for multiplexing.
-	protected final ProtocolHandlerPipeline handlers;
+	protected final PacketHandlerPipeline handlers;
 
 	// The buffer into which we will read data when it's available
 	private static final int BUFFER_SIZE = 8192;
 	private final ByteBuffer buffer;
-
+	
 	// Data that is pending for writing
 	private final List<ByteBuffer> pendingData;
 
 	public MultiplexedChannel() {
-		this.handlers = new ProtocolHandlerPipeline();
+		this.handlers = new PacketHandlerPipeline();
 		this.pendingData = new ArrayList<ByteBuffer>();
 		this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
+	}
+	
+	public void setChannel(final DatagramChannel channel) {
+		this.channel = channel;
 	}
 	
 	protected void queueData(final byte[] data) {
@@ -49,19 +51,6 @@ public class MultiplexedChannel implements Multiplexer {
 		synchronized (this.pendingData) {
 			return !this.pendingData.isEmpty();
 		}
-	}
-	
-	private void setWritable() {
-		this.selectionKey.interestOps(SelectionKey.OP_WRITE);
-	}
-	
-	private void setReadable() {
-		this.selectionKey.interestOps(SelectionKey.OP_READ);
-	}
-	
-	public void setSelectionKey(final SelectionKey selectionKey) {
-		this.selectionKey = selectionKey;
-		this.channel = (DatagramChannel) selectionKey.channel();
 	}
 	
 	protected void flush() {
@@ -80,9 +69,6 @@ public class MultiplexedChannel implements Multiplexer {
 	}
 	
 	public void receive() throws IOException {
-		// Get channel from selection key
-		DatagramChannel channel = (DatagramChannel) selectionKey.channel();
-
 		// Get buffer ready to read new data
 		this.buffer.clear();
 
@@ -90,8 +76,8 @@ public class MultiplexedChannel implements Multiplexer {
 		int dataLength = 0;
 		try {
 			SocketAddress remotePeer = channel.receive(this.buffer);
-			if (!channel.isConnected() && remotePeer != null) {
-				channel.connect(remotePeer);
+			if (!isConnected() && remotePeer != null) {
+				connect(remotePeer);
 			}
 			dataLength = (remotePeer == null) ? -1 : this.buffer.position();
 		} catch (IOException e) {
@@ -106,7 +92,7 @@ public class MultiplexedChannel implements Multiplexer {
 
 		// Delegate work to the proper handler
 		byte[] data = this.buffer.array();
-		ProtocolHandler handler = this.handlers.getHandler(data);
+		PacketHandler handler = this.handlers.getHandler(data);
 
 		if (handler != null) {
 			try {
@@ -126,17 +112,11 @@ public class MultiplexedChannel implements Multiplexer {
 				if (response != null && response.length > 0) {
 					queueData(response);
 				}
-			} catch (ProtocolHandlerException e) {
+			} catch (PacketHandlerException e) {
 				LOGGER.error("Could not handle incoming packet: " + e.getMessage());
 			}
 		} else {
-			// No proper handler was found. Drop packet.
 			LOGGER.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
-		}
-
-		// Change channel mode to writable only if there is queued data to be sent
-		if(hasPendingData()) {
-			setWritable();
 		}
 	}
 
@@ -145,7 +125,6 @@ public class MultiplexedChannel implements Multiplexer {
 		while (!this.pendingData.isEmpty()) {
 			ByteBuffer dataBuffer = this.pendingData.get(0);
 			this.channel.send(dataBuffer, this.channel.getRemoteAddress());
-			// XXX channel.write(dataBuffer);
 
 			if (dataBuffer.remaining() > 0) {
 				// Channel buffer is full
@@ -157,39 +136,38 @@ public class MultiplexedChannel implements Multiplexer {
 				this.pendingData.remove(0);
 			}
 		}
-		
-		// Make channel eligible for reading again
-		setReadable();
 	}
 	
 	public boolean isConnected() {
-		return ((DatagramChannel) this.selectionKey.channel()).isConnected();
+		return this.channel != null && this.channel.isConnected();
+	}
+	
+	public void connect(SocketAddress address) throws IOException {
+		if(this.channel == null) {
+			throw new IOException("No channel available to connect.");
+		}
+		this.channel.connect(address);
 	}
 	
 	public void disconnect() throws IOException {
-		DatagramChannel channel = (DatagramChannel) this.selectionKey.channel();
-		if(channel.isConnected()) {
-			channel.disconnect();
+		if(isConnected()) {
+			this.channel.disconnect();
 		}
 	}
 	
 	public void close() {
-		if (this.selectionKey != null) {
-			if (channel.isConnected()) {
-				try {
-					channel.disconnect();
-				} catch (IOException e) {
-					LOGGER.error(e);
-				}
-				try {
-					channel.socket().close();
-					channel.close();
-				} catch (IOException e) {
-					LOGGER.error(e);
-				}
+		if(isConnected()) {
+			try {
+				channel.disconnect();
+			} catch (IOException e) {
+				LOGGER.error(e);
 			}
-			this.selectionKey.cancel();
+			try {
+				channel.close();
+			} catch (IOException e) {
+				LOGGER.error(e);
+			}
 		}
 	}
-
+	
 }

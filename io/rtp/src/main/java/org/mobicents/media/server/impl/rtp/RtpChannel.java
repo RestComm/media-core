@@ -14,7 +14,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.stun.StunHandler;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.handler.MultiplexedChannel;
+import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -75,7 +75,7 @@ public class RtpChannel extends MultiplexedChannel {
 	}
 	
 	// WebRTC
-	private boolean webRtc;
+	private boolean srtp;
 	
 	// Listeners
 	private RTPChannelListener channelListener;
@@ -110,7 +110,7 @@ public class RtpChannel extends MultiplexedChannel {
 		oobComponent.addOutput(this.transmitter.getDtmfOutput().getOOBOutput());
 
 		// WebRTC
-		this.webRtc = false;
+		this.srtp = false;
 		
 		// Heartbeat
 		this.heartBeat =  new HeartBeat();
@@ -244,7 +244,7 @@ public class RtpChannel extends MultiplexedChannel {
 	public void bind(boolean isLocal) throws IOException, SocketException {
 		try {
 			// Open this channel with UDP Manager on first available address
-			setSelectionKey(udpManager.open(this));
+			this.channel = (DatagramChannel) udpManager.open(this).channel();
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
@@ -257,9 +257,9 @@ public class RtpChannel extends MultiplexedChannel {
 	}
 
 	public void bind(DatagramChannel channel) throws IOException, SocketException {
-		// Register the channel on UDP Manager
 		try {
-			setSelectionKey(udpManager.open(channel, this));
+			// Register the channel on UDP Manager
+			this.channel = (DatagramChannel) udpManager.open(channel, this).channel();
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
@@ -270,7 +270,7 @@ public class RtpChannel extends MultiplexedChannel {
 		}
 		this.rtpHandler.useJitterBuffer(true);
 		this.transmitter.setChannel(channel);
-		if (this.webRtc) {
+		if (this.srtp) {
 			this.dtlsHandler.setChannel(this.channel);
 			this.stunHandler.setChannel(this.channel);
 			this.handlers.addHandler(stunHandler);
@@ -286,7 +286,7 @@ public class RtpChannel extends MultiplexedChannel {
 		// The channel is available is is connected
 		boolean available = this.channel != null && this.channel.isConnected();
 		// In case of WebRTC calls the DTLS handshake must be completed
-		if(this.webRtc) {
+		if(this.srtp) {
 			available = available && this.dtlsHandler.isHandshakeComplete();
 		}
 		return available;
@@ -332,8 +332,8 @@ public class RtpChannel extends MultiplexedChannel {
 		return this.udpManager.getExternalAddress();
 	}
 	
-	public void enableWebRTC(Text remotePeerFingerprint, IceAuthenticator authenticator) {
-		this.webRtc = true;
+	public void enableSRTP(Text remotePeerFingerprint, IceAuthenticator authenticator) {
+		this.srtp = true;
 		
 		// setup the DTLS handler
 		if (this.dtlsHandler == null) {
@@ -346,7 +346,7 @@ public class RtpChannel extends MultiplexedChannel {
 			this.stunHandler = new StunHandler(authenticator);
 		}
 		
-		// setup the RTP transmitter
+		// setup the RTP transmitter and receiver
 		this.transmitter.enableSrtp(this.dtlsHandler);
 		this.rtpHandler.enableSrtp(this.dtlsHandler);
 	}
@@ -361,7 +361,7 @@ public class RtpChannel extends MultiplexedChannel {
 	@Override
 	public void receive() throws IOException {
 		// Make sure the DTLS handshake is complete for WebRTC calls
-		if(this.webRtc && !this.dtlsHandler.isHandshakeComplete()) {
+		if(this.srtp && !this.dtlsHandler.isHandshakeComplete()) {
 			// TODO Need to implement own DTLS handler and drop bouncy castle implementation!
 			if(!this.dtlsHandler.isHandshaking()) {
 				this.dtlsHandler.handshake();

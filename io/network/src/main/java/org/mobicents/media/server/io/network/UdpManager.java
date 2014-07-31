@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.network.handler.Multiplexer;
+import org.mobicents.media.server.io.network.channel.Channel;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 
@@ -319,7 +319,7 @@ public class UdpManager {
 		return channel;
 	}
 	
-	public SelectionKey open(Multiplexer multiplexer) throws IOException {
+	public SelectionKey open(Channel multiplexer) throws IOException {
 		DatagramChannel channel = DatagramChannel.open();
 		channel.configureBlocking(false);
 		int index = currSelectorIndex.getAndIncrement();
@@ -328,7 +328,7 @@ public class UdpManager {
 		return key;
 	}
 	
-	public SelectionKey open(DatagramChannel channel, Multiplexer multiplexer) throws IOException {
+	public SelectionKey open(DatagramChannel channel, Channel multiplexer) throws IOException {
 		 // Get a selector
 		 int index = currSelectorIndex.getAndIncrement();
 		 Selector selector = selectors.get(index % selectors.size());
@@ -495,7 +495,7 @@ public class UdpManager {
 					it.remove();
 					
 					// get references to channel and associated RTP socket
-					DatagramChannel channel = (DatagramChannel) key.channel();
+					DatagramChannel udpChannel = (DatagramChannel) key.channel();
 					Object attachment = key.attachment();
 					
 					if (attachment == null) {
@@ -505,14 +505,14 @@ public class UdpManager {
 					if(attachment instanceof ProtocolHandler) {
 						ProtocolHandler handler = (ProtocolHandler) key.attachment();
 
-						if (!channel.isOpen()) {
+						if (!udpChannel.isOpen()) {
 							handler.onClosed();
 							continue;
 						}
 
 						// do read
 						if (key.isReadable()) {
-							handler.receive(channel);
+							handler.receive(udpChannel);
 							count++;
 						}
 
@@ -520,10 +520,52 @@ public class UdpManager {
 						// if (key.isWritable()) {
 						// handler.send(channel);
 						// }	
-					} else if (attachment instanceof Multiplexer) {
-						Multiplexer multiplexer = (Multiplexer) attachment;
-						performRead(multiplexer, key);
-						performWrite(multiplexer, key);
+					} else if (attachment instanceof Channel) {
+						Channel channel = (Channel) attachment;
+
+						// Perform an operation only if channel is open and key is valid
+						if(udpChannel.isOpen()) {
+							if(key.isValid()) {
+								// Perform a read operation if key is readable
+								if(key.isReadable()) {
+									channel.receive();
+									count++;
+									
+									/*
+									 * Change channel mode to writable ONLY if there is pending data.
+									 * 
+									 * A common mistake is to enable OP_WRITE on a selection key and 
+									 * leave it set. This results in the selecting thread spinning 
+									 * because 99% of the time a socket channel is ready for writing.
+									 * 
+									 * In fact the only times it's not going to be ready for writing is 
+									 * during connection establishment or if the local OS socket buffer 
+									 * is full.
+									 * 
+									 * The correct way to do this is to enable OP_WRITE only when you 
+									 * have data ready to be written on that socket channel.
+									 */
+									if(channel.hasPendingData()) {
+										key.interestOps(SelectionKey.OP_WRITE);
+									} else {
+										key.interestOps(SelectionKey.OP_READ);
+									} 
+								}
+								
+								// Perform a write operation if key is writable
+								if(key.isWritable()) {
+									channel.send();
+									count++;
+									
+									// Change channel mode to readable
+									// Data still pending will be sent during next cycle
+									key.interestOps(SelectionKey.OP_READ);
+								}
+							}
+						} else {
+							// Close data channel if datagram channel is closed
+							channel.close();
+						}
 					}
 				}
 				localSelector.selectedKeys().clear();
@@ -537,33 +579,33 @@ public class UdpManager {
 			return 0;
 		}
 		
-		private void perform(Multiplexer multiplexer, SelectionKey key, boolean read) throws IOException {
-			DatagramChannel channel = (DatagramChannel) key.channel();
+		private void perform(Channel dataChannel, SelectionKey key, boolean read) throws IOException {
+			DatagramChannel udpChannel = (DatagramChannel) key.channel();
 			
-			if(!channel.isOpen()) {
-				multiplexer.close();
+			if(!udpChannel.isOpen()) {
+				dataChannel.close();
 				return;
 			}
 			
 			if(read) {
 				if(key.isValid() && key.isReadable()) {
-					multiplexer.receive();
+					dataChannel.receive();
 					count++;
 				}
 			} else {
 				if(key.isValid() && key.isWritable()) {
-					multiplexer.send();
+					dataChannel.send();
 					count++;
 				}
 			}
 		}
 		
-		private void performRead(Multiplexer multiplexer, SelectionKey key) throws IOException {
-			perform(multiplexer, key, true);
+		private void performRead(Channel channel, SelectionKey key) throws IOException {
+			perform(channel, key, true);
 		}
 
-		private void performWrite(Multiplexer multiplexer, SelectionKey key) throws IOException {
-			perform(multiplexer, key, false);
+		private void performWrite(Channel channel, SelectionKey key) throws IOException {
+			perform(channel, key, false);
 		}
 
 		/**
