@@ -17,7 +17,6 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SRTPProtectionProfile;
 import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.bouncycastle.crypto.tls.SignatureAndHashAlgorithm;
-import org.bouncycastle.crypto.tls.TlsCredentials;
 import org.bouncycastle.crypto.tls.TlsEncryptionCredentials;
 import org.bouncycastle.crypto.tls.TlsSRTPUtils;
 import org.bouncycastle.crypto.tls.TlsSignerCredentials;
@@ -36,7 +35,7 @@ import org.bouncycastle.crypto.tls.UseSRTPData;
  */
 public class DtlsSrtpServer extends DefaultTlsServer {
 	
-    private Logger logger = Logger.getLogger(DtlsSrtpServer.class);
+    private static final Logger LOGGER = Logger.getLogger(DtlsSrtpServer.class);
 
     // Certificate resources
 	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem", "x509-ca.pem" };
@@ -52,122 +51,91 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	private byte[] srtpMasterClientSalt;
 	private byte[] srtpMasterServerSalt;
 
+	// Policies
 	private SRTPPolicy srtpPolicy;
-
 	private SRTPPolicy srtcpPolicy;
 	
-	public void notifyAlertRaised(short alertLevel, short alertDescription, String message, Exception cause)
-    {
+	public void notifyAlertRaised(short alertLevel, short alertDescription, String message, Exception cause) {
     	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
-        logger.log(logLevel, String.format("DTLS server raised alert (AlertLevel.%d, AlertDescription.%d, message='%s')", alertLevel, alertDescription, message), cause);
+        LOGGER.log(logLevel, String.format("DTLS server raised alert (AlertLevel.%d, AlertDescription.%d, message='%s')", alertLevel, alertDescription, message), cause);
     }
 
-    public void notifyAlertReceived(short alertLevel, short alertDescription)
-    {
+    public void notifyAlertReceived(short alertLevel, short alertDescription) {
     	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
-        logger.log(logLevel, String.format("DTLS server received alert (AlertLevel.%d, AlertDescription.%d)", alertLevel, alertDescription));
+        LOGGER.log(logLevel, String.format("DTLS server received alert (AlertLevel.%d, AlertDescription.%d)", alertLevel, alertDescription));
     }
 
-    public CertificateRequest getCertificateRequest()
-    {
-		Vector serverSigAlgs = null;
-
-		if (org.bouncycastle.crypto.tls.TlsUtils
-				.isSignatureAlgorithmsExtensionAllowed(serverVersion)) {
-			short[] hashAlgorithms = new short[] { HashAlgorithm.sha512,
-					HashAlgorithm.sha384, HashAlgorithm.sha256,
-					HashAlgorithm.sha224, HashAlgorithm.sha1 };
+    public CertificateRequest getCertificateRequest() {
+		Vector<SignatureAndHashAlgorithm> serverSigAlgs = null;
+		if (org.bouncycastle.crypto.tls.TlsUtils.isSignatureAlgorithmsExtensionAllowed(serverVersion)) {
+			short[] hashAlgorithms = new short[] { HashAlgorithm.sha512, HashAlgorithm.sha384, HashAlgorithm.sha256, HashAlgorithm.sha224, HashAlgorithm.sha1 };
 			short[] signatureAlgorithms = new short[] { SignatureAlgorithm.rsa };
 
-			serverSigAlgs = new Vector();
+			serverSigAlgs = new Vector<SignatureAndHashAlgorithm>();
 			for (int i = 0; i < hashAlgorithms.length; ++i) {
 				for (int j = 0; j < signatureAlgorithms.length; ++j) {
-					serverSigAlgs.addElement(new SignatureAndHashAlgorithm(
-							hashAlgorithms[i], signatureAlgorithms[j]));
+					serverSigAlgs.addElement(new SignatureAndHashAlgorithm(hashAlgorithms[i], signatureAlgorithms[j]));
 				}
 			}
 		}
-
-		return new CertificateRequest(
-				new short[] { ClientCertificateType.rsa_sign }, serverSigAlgs,
-				null);
+		return new CertificateRequest(new short[] { ClientCertificateType.rsa_sign }, serverSigAlgs, null);
     }
 
-    public void notifyClientCertificate(org.bouncycastle.crypto.tls.Certificate clientCertificate)
-        throws IOException
-    {
+    public void notifyClientCertificate(org.bouncycastle.crypto.tls.Certificate clientCertificate) throws IOException {
         Certificate[] chain = clientCertificate.getCertificateList();
-        logger.info(String.format("Received client certificate chain of length %d", chain.length));
-        for (int i = 0; i != chain.length; i++)
-        {
+        LOGGER.info(String.format("Received client certificate chain of length %d", chain.length));
+        
+        for (int i = 0; i != chain.length; i++) {
             Certificate entry = chain[i];
             // TODO Create fingerprint based on certificate signature algorithm digest
-            logger.info(String.format("WebRTC Client certificate fingerprint:%s (%s)", TlsUtils.fingerprint(entry), entry.getSubject()));
+            LOGGER.info(String.format("WebRTC Client certificate fingerprint:%s (%s)", TlsUtils.fingerprint(entry), entry.getSubject()));
         }
     }
 
-    protected ProtocolVersion getMaximumVersion()
-    {
+    protected ProtocolVersion getMaximumVersion() {
         return ProtocolVersion.DTLSv12;
     }
 
-    protected ProtocolVersion getMinimumVersion()
-    {
+    protected ProtocolVersion getMinimumVersion() {
         return ProtocolVersion.DTLSv10;
     }
 
-    protected TlsEncryptionCredentials getRSAEncryptionCredentials()
-        throws IOException
-    {
+    protected TlsEncryptionCredentials getRSAEncryptionCredentials() throws IOException {
         return TlsUtils.loadEncryptionCredentials(context, CERT_RESOURCES, KEY_RESOURCE);
     }
 
-    protected TlsSignerCredentials getRSASignerCredentials()
-        throws IOException
-    {
-    	
+    @SuppressWarnings("unchecked")
+    protected TlsSignerCredentials getRSASignerCredentials() throws IOException {
     	/*
          * TODO Note that this code fails to provide default value for the client supported
          * algorithms if it wasn't sent.
          */
         SignatureAndHashAlgorithm signatureAndHashAlgorithm = null;
-        Vector sigAlgs = supportedSignatureAlgorithms;
-        if (sigAlgs != null)
-        {
-            for (int i = 0; i < sigAlgs.size(); ++i)
-            {
-                SignatureAndHashAlgorithm sigAlg = (SignatureAndHashAlgorithm)
-                    sigAlgs.elementAt(i);
-                if (sigAlg.getSignature() == SignatureAlgorithm.rsa)
-                {
+		Vector<SignatureAndHashAlgorithm> sigAlgs = supportedSignatureAlgorithms;
+        if (sigAlgs != null) {
+            for (int i = 0; i < sigAlgs.size(); ++i) {
+                SignatureAndHashAlgorithm sigAlg = sigAlgs.elementAt(i);
+                if (sigAlg.getSignature() == SignatureAlgorithm.rsa) {
                     signatureAndHashAlgorithm = sigAlg;
                     break;
                 }
             }
 
-            if (signatureAndHashAlgorithm == null)
-            {
+            if (signatureAndHashAlgorithm == null) {
                 return null;
             }
         }
-        return TlsUtils.loadSignerCredentials(context, new String[]{"x509-server.pem", "x509-ca.pem"},
-            "x509-server-key.pem", signatureAndHashAlgorithm);
+        return TlsUtils.loadSignerCredentials(context, new String[]{"x509-server.pem", "x509-ca.pem"}, "x509-server-key.pem", signatureAndHashAlgorithm);
     }
     
     @SuppressWarnings("unchecked")
 	@Override
-    public Hashtable<Integer, byte[]> getServerExtensions()
-        throws IOException
-    {
-    	Hashtable<Integer, byte[]> serverExtensions = (Hashtable<Integer, byte[]>)super.getServerExtensions();
-        if (TlsSRTPUtils.getUseSRTPExtension(serverExtensions) == null)
-        {
-
-            if (serverExtensions == null)
-            {
+    public Hashtable<Integer, byte[]> getServerExtensions() throws IOException {
+    	Hashtable<Integer, byte[]> serverExtensions = (Hashtable<Integer, byte[]>) super.getServerExtensions();
+        if (TlsSRTPUtils.getUseSRTPExtension(serverExtensions) == null) {
+            if (serverExtensions == null) {
             	serverExtensions = new Hashtable<Integer, byte[]>();
             }
-
             TlsSRTPUtils.addUseSRTPExtension(serverExtensions, serverSrtpData );
         }
         return serverExtensions;
@@ -177,8 +145,11 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	@Override
     public void processClientExtensions(Hashtable newClientExtensions) throws IOException {
     	super.processClientExtensions(newClientExtensions);
-    	int chosenProfile = SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80; // set to some reasonable default value
+    	
+    	// set to some reasonable default value
+    	int chosenProfile = SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80;
     	UseSRTPData clientSrtpData = TlsSRTPUtils.getUseSRTPExtension(newClientExtensions);
+    	
     	for (int profile : clientSrtpData.getProtectionProfiles()) {
     		switch (profile) {
     			case SRTPProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_32:
@@ -188,11 +159,12 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     				chosenProfile  = profile;
     				break;
     			default:
-    		};
-    	};
+    		}
+    	}
+    	
     	// server chooses a mutually supported SRTP protection profile
     	// http://tools.ietf.org/html/draft-ietf-avt-dtls-srtp-07#section-4.1.2
-    	int[] protectionProfiles = {chosenProfile};
+		int[] protectionProfiles = { chosenProfile };
     	
     	// server agrees to use the MKI offered by the client
     	serverSrtpData = new UseSRTPData(protectionProfiles, clientSrtpData.getMki());
@@ -207,8 +179,6 @@ public class DtlsSrtpServer extends DefaultTlsServer {
      * @return the shared secret key that will be used for the SRTP session
      */
     public void prepareSrtpSharedSecret() {
-    	byte[] sharedSecret = null;
-		// preparing keys for SRTP. Length of keys is in bits, not bytes. So, we must divide by 8.
     	SRTPParameters srtpParams = SRTPParameters.getSrtpParametersForProfile(serverSrtpData.getProtectionProfiles()[0]);
     	final int keyLen = srtpParams.getCipherKeyLength();
     	final int saltLen = srtpParams.getCipherSaltLength();
@@ -220,8 +190,10 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         srtpMasterServerKey = new byte[keyLen];
         srtpMasterClientSalt = new byte[saltLen];
         srtpMasterServerSalt = new byte[saltLen];
+        
         // 2* (key + salt lenght) / 8. From http://tools.ietf.org/html/rfc5764#section-4-2
-        sharedSecret = getKeyingMaterial(2 * (keyLen + saltLen));
+        // No need to divide by 8 here since lengths are already in bits
+        byte[] sharedSecret = getKeyingMaterial(2 * (keyLen + saltLen));
         
         /*
          * 
@@ -291,7 +263,8 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 			org.bouncycastle.crypto.tls.Certificate chain = TlsUtils.loadCertificateChain(CERT_RESOURCES);
 			Certificate certificate = chain.getCertificateAt(0);
 			return TlsUtils.fingerprint(certificate);
-		} catch (IOException e1) {
+		} catch (IOException e) {
+			LOGGER.error("Could not get local fingerprint: "+ e.getMessage());
 			return "";
 		}
 	}

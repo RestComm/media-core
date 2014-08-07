@@ -29,9 +29,9 @@ public class DtlsHandler {
 	private DatagramChannel channel;
 	private volatile boolean handshakeComplete;
 	private volatile boolean handshaking;
-
-	private Text localFingerprint;
+	private Thread worker;
 	private Text remoteFingerprint;
+	
 
 	/**
 	 * Handles encryption of outbound RTP packets for a given RTP stream
@@ -49,12 +49,11 @@ public class DtlsHandler {
 	 */
 	private PacketTransformer srtpDecoder;
 
-	public DtlsHandler(DatagramChannel channel) {
+	public DtlsHandler(final DatagramChannel channel) {
 		this.server = new DtlsSrtpServer();
 		this.channel = channel;
 		this.handshakeComplete = false;
 		this.handshaking = false;
-		this.localFingerprint = new Text(server.getFingerprint());
 	}
 
 	public DtlsHandler() {
@@ -79,11 +78,6 @@ public class DtlsHandler {
 
 	public Text getLocalFingerprint() {
 		return new Text(this.server.getFingerprint());
-		//return localFingerprint;
-	}
-
-	public void setLocalFingerprint(Text localFingerprint) {
-		this.localFingerprint = localFingerprint;
 	}
 
 	public Text getRemoteFingerprint() {
@@ -131,9 +125,7 @@ public class DtlsHandler {
 	 * from the DTLS handshake.
 	 */
 	private PacketTransformer generateEncoder() {
-		return new SRTPTransformEngine(getMasterServerKey(),
-				getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy())
-				.getRTPTransformer();
+		return new SRTPTransformEngine(getMasterServerKey(), getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTPTransformer();
 	}
 
 	/**
@@ -141,9 +133,7 @@ public class DtlsHandler {
 	 * from the DTLS handshake.
 	 */
 	private PacketTransformer generateDecoder() {
-		return new SRTPTransformEngine(getMasterClientKey(),
-				getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy())
-				.getRTPTransformer();
+		return new SRTPTransformEngine(getMasterClientKey(), getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTPTransformer();
 	}
 
 	/**
@@ -153,7 +143,7 @@ public class DtlsHandler {
 	 *            The encoded RTP packet
 	 * @return The decoded RTP packet. Returns null is packet is not valid.
 	 */
-	public RtpPacket decode(RtpPacket packet) {
+	public boolean decode(RtpPacket packet) {
 		return this.srtpDecoder.reverseTransform(packet);
 	}
 
@@ -164,30 +154,30 @@ public class DtlsHandler {
 	 *            The decoded RTP packet
 	 * @return The encoded RTP packet
 	 */
-	public RtpPacket encode(RtpPacket packet) {
+	public boolean encode(RtpPacket packet) {
 		return this.srtpEncoder.transform(packet);
 	}
 
 	public void handshake() {
 		if(!handshaking && !handshakeComplete) {
 			this.handshaking = true;
-			new Thread(new HandshakeWorker()).start();
+			if(this.worker == null) {
+				this.worker = new Thread(new HandshakeWorker());
+			}
+			this.worker.start();
 		}
 	}
 	
 	private class HandshakeWorker implements Runnable {
 
 		public void run() {
-			logger.info("Started DTLS handshake");
-			/*
-			 *  Perform handshake
-			 */
 			SecureRandom secureRandom = new SecureRandom();
 			DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
 			NioUdpTransport transport = new NioUdpTransport(getChannel(), MTU);
 			
 			try {
-				// Perform the handshake in a NIO fashion
+				// Perform the handshake in a non-blocking fashion
+				logger.info("Started DTLS handshake");
 				serverProtocol.accept(server, transport);
 
 				// Prepare the shared key to be used in RTP streaming

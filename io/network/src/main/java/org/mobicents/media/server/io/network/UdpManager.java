@@ -579,35 +579,6 @@ public class UdpManager {
 			return 0;
 		}
 		
-		private void perform(Channel dataChannel, SelectionKey key, boolean read) throws IOException {
-			DatagramChannel udpChannel = (DatagramChannel) key.channel();
-			
-			if(!udpChannel.isOpen()) {
-				dataChannel.close();
-				return;
-			}
-			
-			if(read) {
-				if(key.isValid() && key.isReadable()) {
-					dataChannel.receive();
-					count++;
-				}
-			} else {
-				if(key.isValid() && key.isWritable()) {
-					dataChannel.send();
-					count++;
-				}
-			}
-		}
-		
-		private void performRead(Channel channel, SelectionKey key) throws IOException {
-			perform(channel, key, true);
-		}
-
-		private void performWrite(Channel channel, SelectionKey key) throws IOException {
-			perform(channel, key, false);
-		}
-
 		/**
 		 * Immediately start current task
 		 */

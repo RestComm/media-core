@@ -71,16 +71,14 @@ public class RtpPacket implements Serializable {
      * @param allocateDirect if false then packet will use backing array to hold
      * raw data and if true a direct OS buffer will be allocated
      */
-    public RtpPacket(int capacity, boolean allocateDirect) {    	
-        buffer = allocateDirect ? 
-            ByteBuffer.allocateDirect(capacity) :
-            ByteBuffer.allocate(capacity);
+    public RtpPacket(int capacity, boolean allocateDirect) {
+    	this.buffer = allocateDirect ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity);
     }
     
-    public RtpPacket(ByteBuffer buffer) {
-    	this.buffer = buffer;
+    public RtpPacket(boolean allocateDirect) {
+    	this(RTP_PACKET_MAX_SIZE, allocateDirect);
     }
-
+    
     /**
      * Provides access to the underlying buffer.
      * Any modifications to the returned buffer 
@@ -91,7 +89,7 @@ public class RtpPacket implements Serializable {
     public ByteBuffer getBuffer() {
         return buffer;
     }
-
+    
     /**
      * Verion field.
      *
@@ -500,7 +498,7 @@ public class RtpPacket implements Serializable {
         	return;
         } else {
         	// create a new bigger buffer
-            ByteBuffer newBuffer = ByteBuffer.allocate(newLen);
+            ByteBuffer newBuffer = buffer.isDirect() ? ByteBuffer.allocateDirect(newLen) : ByteBuffer.allocate(newLen);
             buffer.rewind();
             newBuffer.put(buffer);
             newBuffer.limit(newLen);

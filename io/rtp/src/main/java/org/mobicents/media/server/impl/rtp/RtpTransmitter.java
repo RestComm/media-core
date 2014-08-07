@@ -127,7 +127,7 @@ public class RtpTransmitter {
 		// Secure RTP packet. WebRTC calls only. 
 		// SRTP handler returns null if an error occurs
 		if (this.srtp) {
-			packet = this.dtlsHandler.encode(packet);
+			this.dtlsHandler.encode(packet);
 		}
 		
 		if(packet != null) {

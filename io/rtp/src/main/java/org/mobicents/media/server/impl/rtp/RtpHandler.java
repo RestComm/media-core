@@ -2,6 +2,7 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -20,6 +21,8 @@ import org.mobicents.media.server.scheduler.Scheduler;
  */
 public class RtpHandler implements PacketHandler {
 	
+	private static final Logger logger = Logger.getLogger(RtpHandler.class);
+	
 	private RTPFormats rtpFormats;
 	private final Clock clock;
 	private final RtpClock rtpClock;
@@ -34,6 +37,7 @@ public class RtpHandler implements PacketHandler {
 	private boolean receivable;
 	
 	private final RtpStatistics statistics;
+	private final RtpPacket rtpPacket;
 	
 	// SRTP
 	private boolean srtp;
@@ -53,6 +57,7 @@ public class RtpHandler implements PacketHandler {
 		
 		this.rtpFormats = new RTPFormats();
 		this.statistics = statistics;
+		this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
 		this.receivable = false;
 		this.loopable = false;
 		
@@ -167,26 +172,23 @@ public class RtpHandler implements PacketHandler {
 			return null;
 		}
 		
-		// Wrap the incoming packet into a buffer
-		// XXX should use direct buffer????
-		//ByteBuffer buffer = ByteBuffer.allocateDirect(dataLength);
-		ByteBuffer buffer = ByteBuffer.wrap(packet, offset, dataLength);
-
-		// Convert raw data into an RTP Packet representation
-		RtpPacket rtpPacket = new RtpPacket(buffer);
+		// Transform incoming data into an RTP Packet
+		ByteBuffer buffer = this.rtpPacket.getBuffer();
+		buffer.clear();
+		buffer.put(packet, offset, dataLength);
+		buffer.flip();
 		
 		// Decode packet if this is a WebRTC call
 		if(this.srtp) {
-			rtpPacket = this.dtlsHandler.decode(rtpPacket);
-		}
-
-		if(rtpPacket == null) {
-			// Handler could not decode the packet, so drop it
-			return null;
+			if(!this.dtlsHandler.decode(rtpPacket)) {
+				logger.warn("SRTP packet is not valid!");
+				return null;
+			}
 		}
 		
 		// Restart jitter buffer for first received packet
 		if(this.statistics.getReceived() == 0) {
+			logger.info("Restarting jitter buffer");
 			this.jitterBuffer.restart();
 		}
 		
@@ -211,6 +213,8 @@ public class RtpHandler implements PacketHandler {
 					}
 					this.statistics.incrementReceived();
 				}
+			} else {
+				logger.warn("Skipping packet because limit of the packets buffer is zero");
 			}
 		}
 		return null;

@@ -64,7 +64,7 @@ public class SRTCPTransformer
      * @param pkt plain SRTCP packet to be encrypted
      * @return encrypted SRTCP packet
      */
-    public RtpPacket transform(RtpPacket pkt)
+    public boolean transform(RtpPacket pkt)
     {
         long ssrc = pkt.GetRTCPSyncSource();
         SRTCPCryptoContext context = contexts.get(ssrc);
@@ -77,7 +77,7 @@ public class SRTCPTransformer
             contexts.put(ssrc, context);
         }
         context.transformPacket(pkt);
-        return pkt;
+        return true;
     }
 
     /**
@@ -86,7 +86,7 @@ public class SRTCPTransformer
      * @param pkt encrypted SRTCP packet to be decrypted
      * @return decrypted SRTCP packet
      */
-    public RtpPacket reverseTransform(RtpPacket pkt)
+    public boolean reverseTransform(RtpPacket pkt)
     {
         long ssrc = pkt.GetRTCPSyncSource();
         SRTCPCryptoContext context = this.contexts.get(ssrc);
@@ -98,12 +98,7 @@ public class SRTCPTransformer
             context.deriveSrtcpKeys();
             contexts.put(new Long(ssrc), context);
         }
-        boolean validPacket = context.reverseTransformPacket(pkt);
-        if (!validPacket)
-        {
-            return null;
-        }
-        return pkt;
+        return context.reverseTransformPacket(pkt);
     }
 
     /**

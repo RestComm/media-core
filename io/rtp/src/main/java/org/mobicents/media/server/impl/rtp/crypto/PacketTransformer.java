@@ -17,30 +17,31 @@ import org.mobicents.media.server.impl.rtp.RtpPacket;
  * @author Bing SU (nova.su@gmail.com)
  * @author ivelin.ivanov@telestax.com
  */
-public interface PacketTransformer
-{
-    /**
-     * Transforms a specific packet.
-     * 
-     * @param pkt the packet to be transformed
-     * @return the transformed packet
-     */
-    public RtpPacket transform(RtpPacket pkt);
+public interface PacketTransformer {
+	/**
+	 * Transforms a specific packet.
+	 * 
+	 * @param pkt
+	 *            the packet to be transformed
+	 * @return Whether the packet was successfully transformed
+	 */
+	public boolean transform(RtpPacket pkt);
 
-    /**
-     * Reverse-transforms a specific packet (i.e. transforms a transformed
-     * packet back).
-     *
-     * @param pkt the transformed packet to be restored
-     * @return the restored packet
-     */
-    public RtpPacket reverseTransform(RtpPacket pkt);
+	/**
+	 * Reverse-transforms a specific packet (i.e. transforms a transformed
+	 * packet back).
+	 * 
+	 * @param pkt
+	 *            the transformed packet to be restored
+	 * @return Whether the packet was successfully restored
+	 */
+	public boolean reverseTransform(RtpPacket pkt);
 
-    /**
-     * Close the transformer and underlying transform engine.
-     * 
-     * The close functions closes all stored crypto contexts. This deletes key data 
-     * and forces a cleanup of the crypto contexts.
-     */
-    public void close();
+	/**
+	 * Close the transformer and underlying transform engine.
+	 * 
+	 * The close functions closes all stored crypto contexts. This deletes key
+	 * data and forces a cleanup of the crypto contexts.
+	 */
+	public void close();
 }

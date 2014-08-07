@@ -30,7 +30,7 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
  */
 public class Memory 
 {
-    private static ConcurrentMap<Partition> partitions = new ConcurrentMap();
+    private static ConcurrentMap<Partition> partitions = new ConcurrentMap<Partition>();
     
     public static Frame allocate(int size) 
     {

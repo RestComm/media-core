@@ -27,15 +27,17 @@ public class MultiplexedChannel implements Channel {
 
 	// The buffer into which we will read data when it's available
 	private static final int BUFFER_SIZE = 8192;
-	private final ByteBuffer buffer;
+	private final ByteBuffer receiveBuffer;
 	
 	// Data that is pending for writing
-	private final List<ByteBuffer> pendingData;
+	private final List<byte[]> pendingData;
+	private final ByteBuffer pendingDataBuffer;
 
 	public MultiplexedChannel() {
 		this.handlers = new PacketHandlerPipeline();
-		this.pendingData = new ArrayList<ByteBuffer>();
-		this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
+		this.pendingData = new ArrayList<byte[]>();
+		this.pendingDataBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+		this.receiveBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	}
 	
 	public void setChannel(final DatagramChannel channel) {
@@ -43,8 +45,11 @@ public class MultiplexedChannel implements Channel {
 	}
 	
 	protected void queueData(final byte[] data) {
-		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
-		this.pendingData.add(dataBuffer);
+		if (data != null && data.length > 0) {
+			synchronized (this.pendingData) {
+				this.pendingData.add(data);	
+			}
+		}
 	}
 	
 	public boolean hasPendingData() {
@@ -58,9 +63,10 @@ public class MultiplexedChannel implements Channel {
 			try {
 				// lets clear the receiver
 				SocketAddress currAddress;
+				this.receiveBuffer.clear();
 				do {
-					currAddress = this.channel.receive(this.buffer);
-					this.buffer.clear();
+					currAddress = this.channel.receive(this.receiveBuffer);
+					this.receiveBuffer.clear();
 				} while(currAddress != null);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage(), e);
@@ -70,16 +76,16 @@ public class MultiplexedChannel implements Channel {
 	
 	public void receive() throws IOException {
 		// Get buffer ready to read new data
-		this.buffer.clear();
+		this.receiveBuffer.clear();
 
 		// Read data from channel
 		int dataLength = 0;
 		try {
-			SocketAddress remotePeer = channel.receive(this.buffer);
+			SocketAddress remotePeer = channel.receive(this.receiveBuffer);
 			if (!isConnected() && remotePeer != null) {
 				connect(remotePeer);
 			}
-			dataLength = (remotePeer == null) ? -1 : this.buffer.position();
+			dataLength = (remotePeer == null) ? -1 : this.receiveBuffer.position();
 		} catch (IOException e) {
 			dataLength = -1;
 		}
@@ -90,16 +96,15 @@ public class MultiplexedChannel implements Channel {
 			return;
 		}
 
-		// Delegate work to the proper handler
-		byte[] data = this.buffer.array();
-		PacketHandler handler = this.handlers.getHandler(data);
+		// Copy data from buffer so we don't mess with original
+		byte[] dataCopy = new byte[dataLength];
+		this.receiveBuffer.rewind();
+		this.receiveBuffer.get(dataCopy, 0, dataLength);
 
+		// Delegate work to the proper handler
+		PacketHandler handler = this.handlers.getHandler(dataCopy);
 		if (handler != null) {
 			try {
-				// Copy data from buffer so we don't mess with original
-				byte[] dataCopy = new byte[dataLength];
-				System.arraycopy(data, 0, dataCopy, 0, dataLength);
-				
 				// Let the handler process the incoming packet.
 				// A response MAY be provided as result.
 				byte[] response = handler.handle(dataCopy, dataLength, 0);
@@ -121,12 +126,16 @@ public class MultiplexedChannel implements Channel {
 	}
 
 	public void send() throws IOException {
-		// Write all pending data on requested channel
 		while (!this.pendingData.isEmpty()) {
-			ByteBuffer dataBuffer = this.pendingData.get(0);
-			this.channel.send(dataBuffer, this.channel.getRemoteAddress());
+			// Get pending data into the proper buffer
+			this.pendingDataBuffer.clear();
+			this.pendingDataBuffer.put(this.pendingData.get(0));
+			this.pendingDataBuffer.flip();
+			
+			// Send data over the channel
+			this.channel.send(this.pendingDataBuffer, this.channel.getRemoteAddress());
 
-			if (dataBuffer.remaining() > 0) {
+			if (this.pendingDataBuffer.remaining() > 0) {
 				// Channel buffer is full
 				// Data will be written in the next write operation
 				break;
