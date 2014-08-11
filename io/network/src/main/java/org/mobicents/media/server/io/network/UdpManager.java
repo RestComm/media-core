@@ -515,51 +515,19 @@ public class UdpManager {
 							handler.receive(udpChannel);
 							count++;
 						}
-
-						// do write
-						// if (key.isWritable()) {
-						// handler.send(channel);
-						// }	
+						
 					} else if (attachment instanceof Channel) {
 						Channel channel = (Channel) attachment;
 
 						// Perform an operation only if channel is open and key is valid
 						if(udpChannel.isOpen()) {
 							if(key.isValid()) {
-								// Perform a read operation if key is readable
-								if(key.isReadable()) {
-									channel.receive();
-									count++;
-									
-									/*
-									 * Change channel mode to writable ONLY if there is pending data.
-									 * 
-									 * A common mistake is to enable OP_WRITE on a selection key and 
-									 * leave it set. This results in the selecting thread spinning 
-									 * because 99% of the time a socket channel is ready for writing.
-									 * 
-									 * In fact the only times it's not going to be ready for writing is 
-									 * during connection establishment or if the local OS socket buffer 
-									 * is full.
-									 * 
-									 * The correct way to do this is to enable OP_WRITE only when you 
-									 * have data ready to be written on that socket channel.
-									 */
-									if(channel.hasPendingData()) {
-										key.interestOps(SelectionKey.OP_WRITE);
-									} else {
-										key.interestOps(SelectionKey.OP_READ);
-									} 
-								}
+								channel.receive();
+								count++;
 								
-								// Perform a write operation if key is writable
-								if(key.isWritable()) {
+								if(channel.hasPendingData()) {
 									channel.send();
 									count++;
-									
-									// Change channel mode to readable
-									// Data still pending will be sent during next cycle
-									key.interestOps(SelectionKey.OP_READ);
 								}
 							}
 						} else {

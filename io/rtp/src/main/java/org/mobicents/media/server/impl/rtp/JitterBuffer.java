@@ -204,7 +204,7 @@ public class JitterBuffer implements Serializable {
      * @param packet the packet to accept
      */
 	public void write(RtpPacket packet, RTPFormat format) {
-		logger.info("Received packet in jitter buffer: "+ packet.toString());
+//		logger.info("Received packet in jitter buffer: "+ packet.toString());
 		// checking format
 		if (format == null) {
 			logger.warn("No format specified. Packet dropped!");
@@ -270,7 +270,7 @@ public class JitterBuffer implements Serializable {
 
 			// check for duplicate packet
 			if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
-				logger.warn("Duplicate packet found. Packet dropped!");
+//				logger.warn("Duplicate packet found. Packet dropped!");
 				return;
 			}
 
@@ -281,9 +281,9 @@ public class JitterBuffer implements Serializable {
 			duration = 0;
 			if (queue.size() > 1) {
 				duration = queue.get(queue.size() - 1).getTimestamp() - queue.get(0).getTimestamp();
-				logger.info("Duration = " + queue.get(queue.size() - 1).getTimestamp() + " - " + queue.get(0).getTimestamp() + " = " + duration);
+//				logger.info("Duration = " + queue.get(queue.size() - 1).getTimestamp() + " - " + queue.get(0).getTimestamp() + " = " + duration);
 			} else {
-				logger.info("Duration is 0");
+//				logger.info("Duration is 0");
 			}
 
 			for (int i = 0; i < queue.size() - 1; i++) {
@@ -313,7 +313,7 @@ public class JitterBuffer implements Serializable {
 			if (!ready) {
 				ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
 				if (ready && listener != null) {
-					logger.info("Telling listener the buffer is ready and filled");
+//					logger.info("Telling listener the buffer is ready and filled");
 					listener.onFill();
 				}
 			}
