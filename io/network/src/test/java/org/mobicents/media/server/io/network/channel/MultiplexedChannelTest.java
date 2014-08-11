@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 
+import org.junit.After;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 import org.junit.Before;
 
 /**
@@ -21,6 +26,7 @@ public class MultiplexedChannelTest {
 		udpChannel.bind(new InetSocketAddress("127.0.0.1", 0));
 	}
 	
+	@After
 	public void after() throws IOException {
 		if(udpChannel != null) {
 			if(udpChannel.isConnected()) {
@@ -31,6 +37,32 @@ public class MultiplexedChannelTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testQueueEmptyData() {
+		// given
+		MultiplexedChannel channel = new MultiplexedChannel();
+		
+		// when
+		channel.queueData(null);
+		channel.queueData(new byte[0]);
+		
+		// then
+		assertFalse(channel.hasPendingData());
+	}
+	
+	@Test
+	public void testQueueData() {
+		// given
+		MultiplexedChannel channel = new MultiplexedChannel();
+		
+		// when
+		channel.queueData("hello".getBytes());
+		
+		// then
+		assertTrue(channel.hasPendingData());
+	}
+	
 
 	public void testReceive() {
 			// given
