@@ -29,7 +29,6 @@ public class RtpTransmitter {
 	private DatagramChannel channel;
 	private final RtpClock rtpClock;
 	private final RtpStatistics statistics;
-	private final long ssrc;
 	private boolean dtmfSupported;
 	private final RTPOutput rtpOutput;
 	private final DtmfOutput dtmfOutput;
@@ -48,13 +47,12 @@ public class RtpTransmitter {
 	private long timestamp;
 	private long dtmfTimestamp;
 	
-	public RtpTransmitter(final Scheduler scheduler, final RtpStatistics statistics, final long ssrc) {
+	public RtpTransmitter(final Scheduler scheduler, final RtpStatistics statistics) {
 		this.rtpClock = new RtpClock(scheduler.getClock());
 		this.statistics = statistics;
 		this.dtmfSupported = false;
 		this.rtpOutput = new RTPOutput(scheduler, this);
 		this.dtmfOutput = new DtmfOutput(scheduler, this);
-		this.ssrc = ssrc;
 		this.dtmfTimestamp = -1;
 		this.timestamp = -1;
 		this.formats = null;
@@ -156,7 +154,7 @@ public class RtpTransmitter {
 		dtmfTimestamp = frame.getTimestamp() / 1000000L;
 		// convert to rtp time units
 		dtmfTimestamp = rtpClock.convertToRtpTime(dtmfTimestamp);
-		oobPacket.wrap(false, AVProfile.telephoneEventsID, statistics.nextSequenceNumber(), dtmfTimestamp, ssrc, frame.getData(), frame.getOffset(), frame.getLength());
+		oobPacket.wrap(false, AVProfile.telephoneEventsID, statistics.nextSequenceNumber(), dtmfTimestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
 
 		frame.recycle();
 		
@@ -207,7 +205,7 @@ public class RtpTransmitter {
 		timestamp = frame.getTimestamp() / 1000000L;
 		// convert to rtp time units
 		timestamp = rtpClock.convertToRtpTime(timestamp);
-		rtpPacket.wrap(false, currentFormat.getID(), statistics.nextSequenceNumber(), timestamp, ssrc, frame.getData(), frame.getOffset(), frame.getLength());
+		rtpPacket.wrap(false, currentFormat.getID(), statistics.nextSequenceNumber(), timestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
 
 		frame.recycle();
 		try {

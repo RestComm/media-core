@@ -8,6 +8,8 @@ package org.mobicents.media.server.impl.rtp;
  */
 public class RtpStatistics {
 
+	private final long ssrc;
+	
 	private volatile long received;
 	private volatile long transmitted;
 	private int sequenceNumber;
@@ -15,10 +17,15 @@ public class RtpStatistics {
 	private long lastPacketReceived;
 	
 	public RtpStatistics() {
+		this.ssrc = System.currentTimeMillis();
 		this.received = 0;
 		this.transmitted = 0;
 		this.sequenceNumber = 0;
 		this.lastPacketReceived = 0;
+	}
+	
+	public long getSsrc() {
+		return ssrc;
 	}
 	
 	public long getReceived() {

@@ -56,8 +56,7 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 
 	}
 
-	public RtcpSenderReport(boolean padding, long ssrc, long ntpSec, long ntpFrac, long rtpTs, long psent,
-			long osent) {
+	public RtcpSenderReport(boolean padding, long ssrc, long ntpSec, long ntpFrac, long rtpTs, long psent, long osent) {
 		super(padding, RtcpCommonHeader.RTCP_SR);
 		this.ssrc = ssrc;
 		this.ntpSec = ntpSec;

@@ -29,6 +29,9 @@ package org.mobicents.media.server.impl.rtcp;
  */
 public abstract class RtcpCommonHeader {
 
+	/*
+	 * RTPC Packet Types
+	 */
 	public static final int RTCP_SR = 200;
 	public static final int RTCP_RR = 201;
 	public static final int RTCP_SDES = 202;
@@ -36,30 +39,40 @@ public abstract class RtcpCommonHeader {
 	public static final int RTCP_APP = 204;
 
 	/**
-	 * Common Header
+	 * protocol version
 	 */
-	/* protocol version */
-	protected int version = 2;
+	protected int version;
 
-	/* padding flag */
-	protected boolean padding = false;
+	/**
+	 * padding flag
+	 */
+	protected boolean padding;
 
-	/* varies by packet type */
-	protected int count = 0;
+	/**
+	 * varies by packet type
+	 */
+	protected int count;
 
-	/* RTCP packet type */
-	protected int pt = 0;
+	/**
+	 * RTCP packet type
+	 */
+	protected int packetType;
 
-	/* pkt len in words, w/o this word */
-	protected int length = 0;
+	/**
+	 * Packet length in words, w/o this word
+	 */
+	protected int length;
 
 	protected RtcpCommonHeader() {
-
+		this(false, 0);
 	}
 
 	public RtcpCommonHeader(boolean padding, int pt) {
 		this.padding = padding;
-		this.pt = pt;
+		this.packetType = pt;
+		this.count = 0;
+		this.length = 0;
+		this.version = 2;
 	}
 
 	protected int decode(byte[] rawData, int offSet) {
@@ -70,16 +83,18 @@ public abstract class RtcpCommonHeader {
 
 		this.count = b & 0x1F;
 
-		this.pt = rawData[offSet++] & 0x000000FF;
+		this.packetType = rawData[offSet++] & 0x000000FF;
 
 		this.length |= rawData[offSet++] & 0xFF;
 		this.length <<= 8;
 		this.length |= rawData[offSet++] & 0xFF;
 
 		/**
-		 * The length of this RTCP packet in 32-bit words minus one, including the header and any padding. (The offset
-		 * of one makes zero a valid length and avoids a possible infinite loop in scanning a compound RTCP packet,
-		 * while counting 32-bit words avoids a validity check for a multiple of 4.)
+		 * The length of this RTCP packet in 32-bit words minus one, including
+		 * the header and any padding. (The offset of one makes zero a valid
+		 * length and avoids a possible infinite loop in scanning a compound
+		 * RTCP packet, while counting 32-bit words avoids a validity check for
+		 * a multiple of 4.)
 		 */
 		this.length = (this.length * 4) + 4;
 
@@ -96,7 +111,7 @@ public abstract class RtcpCommonHeader {
 
 		offSet++;
 
-		rawData[offSet++] = (byte) (this.pt & 0x000000FF);
+		rawData[offSet++] = (byte) (this.packetType & 0x000000FF);
 
 		// Setting length is onus of concrete class. But we increment the offSet
 		offSet += 2;
@@ -116,8 +131,8 @@ public abstract class RtcpCommonHeader {
 		return count;
 	}
 
-	public int getPt() {
-		return pt;
+	public int getPacketType() {
+		return packetType;
 	}
 
 	public int getLength() {

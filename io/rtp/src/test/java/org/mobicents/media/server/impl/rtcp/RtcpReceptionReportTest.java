@@ -74,7 +74,7 @@ public class RtcpReceptionReportTest {
 		assertFalse(rtcpReceptionReport.isPadding());
 		assertEquals(1, rtcpReceptionReport.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_RR, rtcpReceptionReport.getPt());
+		assertEquals(RtcpCommonHeader.RTCP_RR, rtcpReceptionReport.getPacketType());
 
 		assertEquals(32, rtcpReceptionReport.getLength());
 

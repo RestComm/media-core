@@ -76,7 +76,7 @@ public class RtcpByeTest {
 		assertFalse(rtcpBye.isPadding());
 		assertEquals(1, rtcpBye.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_BYE, rtcpBye.getPt());
+		assertEquals(RtcpCommonHeader.RTCP_BYE, rtcpBye.getPacketType());
 
 		long ssrc = rtcpBye.getSsrcs()[0];
 

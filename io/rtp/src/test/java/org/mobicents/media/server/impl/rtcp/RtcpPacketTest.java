@@ -90,7 +90,7 @@ public class RtcpPacketTest {
 		assertFalse(rtcpSenderReport.isPadding());
 		assertEquals(0, rtcpSenderReport.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SR, rtcpSenderReport.getPt());
+		assertEquals(RtcpCommonHeader.RTCP_SR, rtcpSenderReport.getPacketType());
 
 		assertEquals(28, rtcpSenderReport.getLength());
 
@@ -111,7 +111,7 @@ public class RtcpPacketTest {
 		assertFalse(rtcpSdes.isPadding());
 		assertEquals(1, rtcpSdes.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SDES, rtcpSdes.getPt());
+		assertEquals(RtcpCommonHeader.RTCP_SDES, rtcpSdes.getPacketType());
 
 		assertEquals(28, rtcpSdes.getLength());
 
@@ -141,7 +141,7 @@ public class RtcpPacketTest {
 		assertFalse(rtcpAppDefined.isPadding());
 		assertEquals(1, rtcpAppDefined.getCount()); // subtype
 
-		assertEquals(RtcpCommonHeader.RTCP_APP, rtcpAppDefined.getPt());
+		assertEquals(RtcpCommonHeader.RTCP_APP, rtcpAppDefined.getPacketType());
 
 		assertEquals(266283887, rtcpAppDefined.getSsrc());
 
@@ -167,7 +167,7 @@ public class RtcpPacketTest {
 		assertFalse(rtcpSdes.isPadding());
 		assertEquals(1, rtcpSdes.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SDES, rtcpSdes.getPt());
+		assertEquals(RtcpCommonHeader.RTCP_SDES, rtcpSdes.getPacketType());
 
 		assertEquals(32, rtcpSdes.getLength());
 

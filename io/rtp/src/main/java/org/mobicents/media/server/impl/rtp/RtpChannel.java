@@ -36,12 +36,17 @@ public class RtpChannel extends MultiplexedChannel {
 	private static final Logger LOGGER = Logger.getLogger(RtpChannel.class);
 	
 	/**
+	 * Default session bandwidth (in octets per second).
+	 * Matches g.711 bandwith: 64kbps
+	 */
+	public static final int DEFAULT_BW = 8000;
+	
+	/**
 	 * Tells UDP manager to choose port to bind this channel to
 	 */
 	private final static int PORT_ANY = -1;
 	
 	// Channel attributes
-	private final long ssrc;
 	private boolean bound;
 	private final RtpStatistics statistics;
 	
@@ -85,7 +90,6 @@ public class RtpChannel extends MultiplexedChannel {
 		super();
 		
 		// Channel attributes
-		this.ssrc = System.currentTimeMillis();
 		this.statistics = new RtpStatistics();
 		this.bound = false;
 		
@@ -94,7 +98,7 @@ public class RtpChannel extends MultiplexedChannel {
 		this.udpManager = channelsManager.getUdpManager();
 		
 		// Transmitter
-		this.transmitter = new RtpTransmitter(scheduler, statistics, ssrc);
+		this.transmitter = new RtpTransmitter(scheduler, statistics);
 		
 		// Receiver(s) - Protocol handlers pipeline
 		this.rtpHandler = new RtpHandler(scheduler, channelsManager.getJitterBufferSize(), this.statistics);
