@@ -27,7 +27,7 @@ package org.mobicents.media.server.impl.rtcp;
  * @author amit bhayani
  * 
  */
-public abstract class RtcpCommonHeader {
+public abstract class RtcpHeader {
 
 	/*
 	 * RTPC Packet Types
@@ -63,11 +63,11 @@ public abstract class RtcpCommonHeader {
 	 */
 	protected int length;
 
-	protected RtcpCommonHeader() {
+	protected RtcpHeader() {
 		this(false, 0);
 	}
 
-	public RtcpCommonHeader(boolean padding, int pt) {
+	public RtcpHeader(boolean padding, int pt) {
 		this.padding = padding;
 		this.packetType = pt;
 		this.count = 0;

@@ -66,7 +66,7 @@ public class RtcpReceptionReportTest {
 
 	@Test
 	public void testDecode() {
-		RtcpReceptionReport rtcpReceptionReport = new RtcpReceptionReport();
+		RtcpReceiverReport rtcpReceptionReport = new RtcpReceiverReport();
 
 		rtcpReceptionReport.decode(p, 0);
 
@@ -74,13 +74,13 @@ public class RtcpReceptionReportTest {
 		assertFalse(rtcpReceptionReport.isPadding());
 		assertEquals(1, rtcpReceptionReport.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_RR, rtcpReceptionReport.getPacketType());
+		assertEquals(RtcpHeader.RTCP_RR, rtcpReceptionReport.getPacketType());
 
 		assertEquals(32, rtcpReceptionReport.getLength());
 
 		assertEquals(233393951, rtcpReceptionReport.getSsrc());
 
-		RtcpReceptionReportItem rtcpReceptionReportItem = rtcpReceptionReport.getRtcpReceptionReports()[0];
+		RtcpReceiverReportItem rtcpReceptionReportItem = rtcpReceptionReport.getReceiverReports()[0];
 
 		assertNotNull(rtcpReceptionReportItem);
 
@@ -98,12 +98,12 @@ public class RtcpReceptionReportTest {
 	@Test
 	public void testEncode() {
 
-		RtcpReceptionReport rtcpReceptionReport = new RtcpReceptionReport(false, 233393951);
+		RtcpReceiverReport rtcpReceptionReport = new RtcpReceiverReport(false, 233393951);
 
-		RtcpReceptionReportItem rtcpReceptionReportItem = new RtcpReceptionReportItem(266283887, 0, 0, 0, 17250, 57,
+		RtcpReceiverReportItem rtcpReceptionReportItem = new RtcpReceiverReportItem(266283887, 0, 0, 0, 17250, 57,
 				4221306863l, 263851);
 		
-		rtcpReceptionReport.addRtcpReceptionReportItem(rtcpReceptionReportItem);
+		rtcpReceptionReport.addReceiverReport(rtcpReceptionReportItem);
 
 		byte[] rawData = new byte[256];
 

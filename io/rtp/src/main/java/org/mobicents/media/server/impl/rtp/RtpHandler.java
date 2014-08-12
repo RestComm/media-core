@@ -202,8 +202,8 @@ public class RtpHandler implements PacketHandler {
 			 * value for senders is updated.
 			 */
 			long ssrc = rtpPacket.getSyncSource();
-			if (!this.statistics.isSenderRegistered(ssrc)) {
-				this.statistics.registerSender(ssrc);
+			if (!this.statistics.isSender(ssrc)) {
+				this.statistics.addSender(ssrc);
 			}
 			
 			// Queue packet into the jitter buffer

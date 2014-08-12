@@ -92,13 +92,17 @@ public class RtpStatistics {
 	/*
 	 * RTCP Statistics
 	 */
-	public boolean isSenderRegistered(long ssrc) {
+	public int getSenders() {
+		return this.senders;
+	}
+	
+	public boolean isSender(long ssrc) {
 		synchronized (this.sendersList) {
 			return this.sendersList.contains(Long.valueOf(ssrc));
 		}
 	}
 	
-	public void registerSender(long ssrc) {
+	public void addSender(long ssrc) {
 		synchronized (this.sendersList) {
 			if(!this.sendersList.contains(Long.valueOf(ssrc))) {
 				this.sendersList.add(Long.valueOf(ssrc));
@@ -107,7 +111,7 @@ public class RtpStatistics {
 		}
 	}
 
-	public void deregisterSender(long ssrc) {
+	public void removeSender(long ssrc) {
 		synchronized (this.sendersList) {
 			if (this.sendersList.remove(Long.valueOf(ssrc))) {
 				this.senders--;
@@ -116,6 +120,7 @@ public class RtpStatistics {
 	}
 	
 	public void reset() {
+		// TODO finish reset for RTCP statistics
 		this.received = 0;
 		this.transmitted = 0;
 	}

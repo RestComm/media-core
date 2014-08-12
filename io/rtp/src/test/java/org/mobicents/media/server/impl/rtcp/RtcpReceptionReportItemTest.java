@@ -67,7 +67,7 @@ public class RtcpReceptionReportItemTest {
 	@Test
 	public void testDecode() {
 		// These values are from wireshark trace
-		RtcpReceptionReportItem rr = new RtcpReceptionReportItem();
+		RtcpReceiverReportItem rr = new RtcpReceiverReportItem();
 		int length = rr.decode(p, 0);
 
 		assertEquals(p.length, length);
@@ -83,7 +83,7 @@ public class RtcpReceptionReportItemTest {
 
 	@Test
 	public void testEncode() {
-		RtcpReceptionReportItem rr = new RtcpReceptionReportItem(266283887, 0, 0, 0, 17250, 57, 4221306863l, 263851);
+		RtcpReceiverReportItem rr = new RtcpReceiverReportItem(266283887, 0, 0, 0, 17250, 57, 4221306863l, 263851);
 		byte[] rawData = new byte[256];
 
 		int length = rr.encode(rawData, 0);

@@ -73,7 +73,7 @@ public class RtcpSdesTest {
 		assertFalse(rtcpSdes.isPadding());
 		assertEquals(1, rtcpSdes.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SDES, rtcpSdes.getPacketType());
+		assertEquals(RtcpHeader.RTCP_SDES, rtcpSdes.getPacketType());
 
 		assertEquals(28, rtcpSdes.getLength());
 

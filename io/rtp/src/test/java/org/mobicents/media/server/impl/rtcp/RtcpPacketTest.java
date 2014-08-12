@@ -85,12 +85,12 @@ public class RtcpPacketTest {
 		assertEquals(p.length, length);
 
 		// SR
-		RtcpSenderReport rtcpSenderReport = rtcpPacket.getRtcpSenderReport();
+		RtcpSenderReport rtcpSenderReport = rtcpPacket.getSenderReport();
 		assertEquals(2, rtcpSenderReport.getVersion());
 		assertFalse(rtcpSenderReport.isPadding());
 		assertEquals(0, rtcpSenderReport.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SR, rtcpSenderReport.getPacketType());
+		assertEquals(RtcpHeader.RTCP_SR, rtcpSenderReport.getPacketType());
 
 		assertEquals(28, rtcpSenderReport.getLength());
 
@@ -106,12 +106,12 @@ public class RtcpPacketTest {
 		assertEquals(11, rtcpSenderReport.getOsent());
 
 		// SDES
-		RtcpSdes rtcpSdes = rtcpPacket.getRtcpSdes();
+		RtcpSdes rtcpSdes = rtcpPacket.getSdes();
 		assertEquals(2, rtcpSdes.getVersion());
 		assertFalse(rtcpSdes.isPadding());
 		assertEquals(1, rtcpSdes.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SDES, rtcpSdes.getPacketType());
+		assertEquals(RtcpHeader.RTCP_SDES, rtcpSdes.getPacketType());
 
 		assertEquals(28, rtcpSdes.getLength());
 
@@ -135,13 +135,13 @@ public class RtcpPacketTest {
 		assertEquals(RtcpSdesItem.RTCP_SDES_END, rtcpSdesItem.getType());
 
 		// App Specific
-		RtcpAppDefined rtcpAppDefined = rtcpPacket.getRtcpAppDefined();
+		RtcpAppDefined rtcpAppDefined = rtcpPacket.getAppDefined();
 
 		assertEquals(2, rtcpAppDefined.getVersion());
 		assertFalse(rtcpAppDefined.isPadding());
 		assertEquals(1, rtcpAppDefined.getCount()); // subtype
 
-		assertEquals(RtcpCommonHeader.RTCP_APP, rtcpAppDefined.getPacketType());
+		assertEquals(RtcpHeader.RTCP_APP, rtcpAppDefined.getPacketType());
 
 		assertEquals(266283887, rtcpAppDefined.getSsrc());
 
@@ -162,12 +162,12 @@ public class RtcpPacketTest {
 		assertEquals(p1.length, length);
 
 		// SDES
-		RtcpSdes rtcpSdes = rtcpPacket.getRtcpSdes();
+		RtcpSdes rtcpSdes = rtcpPacket.getSdes();
 		assertEquals(2, rtcpSdes.getVersion());
 		assertFalse(rtcpSdes.isPadding());
 		assertEquals(1, rtcpSdes.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SDES, rtcpSdes.getPacketType());
+		assertEquals(RtcpHeader.RTCP_SDES, rtcpSdes.getPacketType());
 
 		assertEquals(32, rtcpSdes.getLength());
 

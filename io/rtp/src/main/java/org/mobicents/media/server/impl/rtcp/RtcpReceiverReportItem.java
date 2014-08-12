@@ -27,7 +27,7 @@ package org.mobicents.media.server.impl.rtcp;
  * @author amit bhayani
  * 
  */
-public class RtcpReceptionReportItem {
+public class RtcpReceiverReportItem {
 
 	/*
 	 * Reception report block
@@ -57,11 +57,11 @@ public class RtcpReceptionReportItem {
 	/* delay since last SR packet */
 	private long dlsr = 0;
 
-	protected RtcpReceptionReportItem() {
+	protected RtcpReceiverReportItem() {
 
 	}
 
-	public RtcpReceptionReportItem(long ssrc, int fraction, int lost, int SeqNumCycle, long lastSeq, int jitter, long lsr, long dlsr) {
+	public RtcpReceiverReportItem(long ssrc, int fraction, int lost, int SeqNumCycle, long lastSeq, int jitter, long lsr, long dlsr) {
 		this.ssrc = ssrc;
 		this.fraction = fraction;
 		this.lost = lost;

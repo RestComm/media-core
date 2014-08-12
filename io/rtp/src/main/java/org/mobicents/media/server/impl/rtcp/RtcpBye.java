@@ -27,7 +27,7 @@ package org.mobicents.media.server.impl.rtcp;
  * @author amit bhayani
  * 
  */
-public class RtcpBye extends RtcpCommonHeader {
+public class RtcpBye extends RtcpHeader {
 
 	private long[] ssrcs = new long[31];
 
@@ -36,7 +36,7 @@ public class RtcpBye extends RtcpCommonHeader {
 	}
 
 	public RtcpBye(boolean padding) {
-		super(padding, RtcpCommonHeader.RTCP_BYE);
+		super(padding, RtcpHeader.RTCP_BYE);
 	}
 
 	protected int decode(byte[] rawData, int offSet) {

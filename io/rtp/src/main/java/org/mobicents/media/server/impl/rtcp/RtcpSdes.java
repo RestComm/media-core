@@ -27,7 +27,7 @@ package org.mobicents.media.server.impl.rtcp;
  * @author amit bhayani
  * 
  */
-public class RtcpSdes extends RtcpCommonHeader {
+public class RtcpSdes extends RtcpHeader {
 
 	/**
 	 * SDES
@@ -39,7 +39,7 @@ public class RtcpSdes extends RtcpCommonHeader {
 	}
 
 	public RtcpSdes(boolean padding) {
-		super(padding, RtcpCommonHeader.RTCP_SDES);
+		super(padding, RtcpHeader.RTCP_SDES);
 	}
 
 	protected int decode(byte[] rawData, int offSet) {

@@ -27,38 +27,31 @@ package org.mobicents.media.server.impl.rtcp;
  * @author amit bhayani
  * 
  */
-public class RtcpSenderReport extends RtcpCommonHeader {
+public class RtcpSenderReport extends RtcpReport {
+	
+	private static final boolean IS_SENDER = true;
 
-	/**
-	 * sender report (SR)
-	 */
-
-	/* sender generating this report */
-	private long ssrc;
-
-	/* NTP timestamp */
+	/** NTP timestamp */
 	private long ntpSec;
 
+	/** NTP fraction */
 	private long ntpFrac;
 
-	/* RTP timestamp */
+	/** RTP timestamp */
 	private long rtpTs;
 
-	/* packets sent */
+	/** packets sent */
 	private long psent;
 
-	/* octets sent */
+	/** octets sent */
 	private long osent;
-
-	private RtcpReceptionReportItem[] rtcpReceptionReports = new RtcpReceptionReportItem[31]; /* variable-length list */
 
 	protected RtcpSenderReport() {
 
 	}
 
 	public RtcpSenderReport(boolean padding, long ssrc, long ntpSec, long ntpFrac, long rtpTs, long psent, long osent) {
-		super(padding, RtcpCommonHeader.RTCP_SR);
-		this.ssrc = ssrc;
+		super(padding, ssrc, RtcpHeader.RTCP_SR);
 		this.ntpSec = ntpSec;
 		this.ntpFrac = ntpFrac;
 		this.rtpTs = rtpTs;
@@ -122,10 +115,10 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 
 		int tmpCount = 0;
 		while ((offSet - tmp) < this.length) {
-			RtcpReceptionReportItem rtcpReceptionReportItem = new RtcpReceptionReportItem();
+			RtcpReceiverReportItem rtcpReceptionReportItem = new RtcpReceiverReportItem();
 			offSet = rtcpReceptionReportItem.decode(rawData, offSet);
 
-			rtcpReceptionReports[tmpCount++] = rtcpReceptionReportItem;
+			this.receiverReports[tmpCount++] = rtcpReceptionReportItem;
 		}
 
 		return offSet;
@@ -166,9 +159,9 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 		rawData[offSet++] = ((byte) ((this.osent & 0x0000FF00) >> 8));
 		rawData[offSet++] = ((byte) ((this.osent & 0x000000FF)));
 
-		for (RtcpReceptionReportItem rtcpReceptionReportItem : rtcpReceptionReports) {
-			if (rtcpReceptionReportItem != null) {
-				offSet = rtcpReceptionReportItem.encode(rawData, offSet);
+		for (RtcpReceiverReportItem report : this.receiverReports) {
+			if (report != null) {
+				offSet = report.encode(rawData, offSet);
 			} else {
 				break;
 			}
@@ -181,10 +174,6 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 		rawData[startPosition + 3] = ((byte) (this.length & 0x00FF));
 
 		return offSet;
-	}
-
-	public long getSsrc() {
-		return ssrc;
 	}
 
 	public long getNtpSec() {
@@ -207,12 +196,9 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 		return osent;
 	}
 
-	public RtcpReceptionReportItem[] getRtcpReceptionReports() {
-		return rtcpReceptionReports;
-	}
-
-	public void addRtcpReceptionReportItem(RtcpReceptionReportItem rtcpReceptionReportItem) {
-		this.rtcpReceptionReports[this.count++] = rtcpReceptionReportItem;
+	@Override
+	public boolean isSender() {
+		return IS_SENDER;
 	}
 
 }

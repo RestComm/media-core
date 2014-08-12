@@ -28,68 +28,70 @@ import org.apache.log4j.Logger;
 
 /**
  * 
- * @author amit bhayani
- * 
+ * @author Amit Bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class RtcpPacket implements Serializable {
 	
+	private static final long serialVersionUID = -7175947723683038337L;
+
 	private static final Logger logger = Logger.getLogger(RtcpPacket.class);
 
-	private RtcpSenderReport rtcpSenderReport = null;
-	private RtcpReceptionReport rtcpReceptionReport = null;
-	private RtcpSdes rtcpSdes = null;
-	private RtcpBye rtcpBye = null;
-	private RtcpAppDefined rtcpAppDefined = null;
+	/**
+	 * Maximum number of reporting sources
+	 */
+	public static final int MAX_SOURCES = 31;
 	
-	private int noOfPackets = 0;
-	private int packetSize = 0;
+	private RtcpSenderReport senderReport = null;
+	private RtcpReceiverReport receiverReport = null;
+	private RtcpSdes sded = null;
+	private RtcpBye bye = null;
+	private RtcpAppDefined appDefined = null;
 	
-	private boolean sender = false;
-
+	private int packetCount = 0;
+	private int size = 0;
+	
 	public RtcpPacket() {
 
 	}
 
-	public RtcpPacket(RtcpSenderReport rtcpSenderReport, RtcpReceptionReport rtcpReceptionReport, RtcpSdes rtcpSdes,
-			RtcpBye rtcpBye, RtcpAppDefined rtcpAppDefined) {
-		this.rtcpSenderReport = rtcpSenderReport;
-		this.rtcpReceptionReport = rtcpReceptionReport;
-		this.rtcpSdes = rtcpSdes;
-		this.rtcpBye = rtcpBye;
-		this.rtcpAppDefined = rtcpAppDefined;
+	public RtcpPacket(RtcpSenderReport senderReport, RtcpReceiverReport receiverReport, RtcpSdes sdes, RtcpBye bye, RtcpAppDefined appDefined) {
+		this.senderReport = senderReport;
+		this.receiverReport = receiverReport;
+		this.sded = sdes;
+		this.bye = bye;
+		this.appDefined = appDefined;
 	}
 
 	public int decode(byte[] rawData, int offSet) {
-		this.packetSize = rawData.length - offSet;
+		this.size = rawData.length - offSet;
 		while (offSet < rawData.length) {
 			int type = rawData[offSet + 1] & 0x000000FF;
 			switch (type) {
-			case RtcpCommonHeader.RTCP_SR:
-				noOfPackets++;
-				this.sender = true;
-				this.rtcpSenderReport = new RtcpSenderReport();
-				offSet = this.rtcpSenderReport.decode(rawData, offSet);
+			case RtcpHeader.RTCP_SR:
+				packetCount++;
+				this.senderReport = new RtcpSenderReport();
+				offSet = this.senderReport.decode(rawData, offSet);
 				break;
-			case RtcpCommonHeader.RTCP_RR:
-				noOfPackets++;
-				this.sender = false;
-				this.rtcpReceptionReport = new RtcpReceptionReport();
-				offSet = this.rtcpReceptionReport.decode(rawData, offSet);
+			case RtcpHeader.RTCP_RR:
+				packetCount++;
+				this.receiverReport = new RtcpReceiverReport();
+				offSet = this.receiverReport.decode(rawData, offSet);
 				break;
-			case RtcpCommonHeader.RTCP_SDES:
-				noOfPackets++;
-				this.rtcpSdes = new RtcpSdes();
-				offSet = this.rtcpSdes.decode(rawData, offSet);
+			case RtcpHeader.RTCP_SDES:
+				packetCount++;
+				this.sded = new RtcpSdes();
+				offSet = this.sded.decode(rawData, offSet);
 				break;
-			case RtcpCommonHeader.RTCP_APP:
-				noOfPackets++;
-				this.rtcpAppDefined = new RtcpAppDefined();
-				offSet = this.rtcpAppDefined.decode(rawData, offSet);
+			case RtcpHeader.RTCP_APP:
+				packetCount++;
+				this.appDefined = new RtcpAppDefined();
+				offSet = this.appDefined.decode(rawData, offSet);
 				break;
-			case RtcpCommonHeader.RTCP_BYE:
-				noOfPackets++;
-				this.rtcpBye = new RtcpBye();
-				offSet = this.rtcpBye.decode(rawData, offSet);
+			case RtcpHeader.RTCP_BYE:
+				packetCount++;
+				this.bye = new RtcpBye();
+				offSet = this.bye.decode(rawData, offSet);
 				break;
 			default:				
 				logger.error("Received type = "+type+" RTCP Packet decoding falsed. offSet = "+offSet);
@@ -102,62 +104,72 @@ public class RtcpPacket implements Serializable {
 	}
 
 	public int encode(byte[] rawData, int offSet) {
-		if (this.rtcpSenderReport != null) {
-			noOfPackets++;
-			offSet = this.rtcpSenderReport.encode(rawData, offSet);
+		if (this.senderReport != null) {
+			packetCount++;
+			offSet = this.senderReport.encode(rawData, offSet);
 		}
-		if (this.rtcpReceptionReport != null) {
-			noOfPackets++;
-			offSet = this.rtcpReceptionReport.encode(rawData, offSet);
+		if (this.receiverReport != null) {
+			packetCount++;
+			offSet = this.receiverReport.encode(rawData, offSet);
 		}
-		if (this.rtcpSdes != null) {
-			noOfPackets++;
-			offSet = this.rtcpSdes.encode(rawData, offSet);
+		if (this.sded != null) {
+			packetCount++;
+			offSet = this.sded.encode(rawData, offSet);
 		}
-		if (this.rtcpAppDefined != null) {
-			noOfPackets++;
-			offSet = this.rtcpAppDefined.encode(rawData, offSet);
+		if (this.appDefined != null) {
+			packetCount++;
+			offSet = this.appDefined.encode(rawData, offSet);
 		}
-		if (this.rtcpBye != null) {
-			noOfPackets++;
-			offSet = this.rtcpBye.encode(rawData, offSet);
+		if (this.bye != null) {
+			packetCount++;
+			offSet = this.bye.encode(rawData, offSet);
 		}
 		return offSet;
 	}
 	
 	public boolean isSender() {
-		return sender;
+		return this.senderReport != null;
 	}
 	
-	public boolean containsBye() {
-		return this.rtcpBye != null;
+	public RtcpPacketType getPacketType() {
+		if(this.bye == null) {
+			return RtcpPacketType.RTCP_REPORT;
+		}
+		return RtcpPacketType.RTCP_REPORT;
+	}
+	
+	public RtcpReport getInitialReport() {
+		if(isSender()) {
+			return this.senderReport;
+		}
+		return this.receiverReport;
 	}
 
-	public RtcpSenderReport getRtcpSenderReport() {
-		return rtcpSenderReport;
+	public RtcpSenderReport getSenderReport() {
+		return senderReport;
 	}
 
-	public RtcpReceptionReport getRtcpReceptionReport() {
-		return rtcpReceptionReport;
+	public RtcpReceiverReport getReceiverReport() {
+		return receiverReport;
 	}
 
-	public RtcpSdes getRtcpSdes() {
-		return rtcpSdes;
+	public RtcpSdes getSdes() {
+		return sded;
 	}
 
-	public RtcpBye getRtcpBye() {
-		return rtcpBye;
+	public RtcpBye getBye() {
+		return bye;
 	}
 
-	public RtcpAppDefined getRtcpAppDefined() {
-		return rtcpAppDefined;
+	public RtcpAppDefined getAppDefined() {
+		return appDefined;
 	}
 
-	public int getNoOfPackets() {
-		return noOfPackets;
+	public int getPacketCount() {
+		return packetCount;
 	}
 
-	public int getPacketSize() {
-		return packetSize;
+	public int getSize() {
+		return size;
 	}
 }
