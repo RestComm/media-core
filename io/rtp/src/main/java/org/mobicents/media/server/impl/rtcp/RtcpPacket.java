@@ -43,6 +43,8 @@ public class RtcpPacket implements Serializable {
 	
 	private int noOfPackets = 0;
 	private int packetSize = 0;
+	
+	private boolean sender = false;
 
 	public RtcpPacket() {
 
@@ -64,11 +66,13 @@ public class RtcpPacket implements Serializable {
 			switch (type) {
 			case RtcpCommonHeader.RTCP_SR:
 				noOfPackets++;
+				this.sender = true;
 				this.rtcpSenderReport = new RtcpSenderReport();
 				offSet = this.rtcpSenderReport.decode(rawData, offSet);
 				break;
 			case RtcpCommonHeader.RTCP_RR:
 				noOfPackets++;
+				this.sender = false;
 				this.rtcpReceptionReport = new RtcpReceptionReport();
 				offSet = this.rtcpReceptionReport.decode(rawData, offSet);
 				break;
@@ -119,6 +123,14 @@ public class RtcpPacket implements Serializable {
 			offSet = this.rtcpBye.encode(rawData, offSet);
 		}
 		return offSet;
+	}
+	
+	public boolean isSender() {
+		return sender;
+	}
+	
+	public boolean containsBye() {
+		return this.rtcpBye != null;
 	}
 
 	public RtcpSenderReport getRtcpSenderReport() {

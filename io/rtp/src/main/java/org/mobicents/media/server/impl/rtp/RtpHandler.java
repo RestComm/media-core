@@ -196,6 +196,16 @@ public class RtpHandler implements PacketHandler {
 		
 		// RTP v0 packets are used in some applications. Discarded since we do not handle them.
 		if (rtpPacket.getVersion() != 0 && (receivable || loopable)) {
+			/*
+			 * When an RTP packet is received from a participant whose SSRC is
+			 * not in the sender table, the SSRC is added to the table, and the
+			 * value for senders is updated.
+			 */
+			long ssrc = rtpPacket.getSyncSource();
+			if (!this.statistics.isSenderRegistered(ssrc)) {
+				this.statistics.registerSender(ssrc);
+			}
+			
 			// Queue packet into the jitter buffer
 			if (rtpPacket.getBuffer().limit() > 0) {
 				if (loopable) {

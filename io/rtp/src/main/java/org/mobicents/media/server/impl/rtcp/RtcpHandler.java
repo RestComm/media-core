@@ -3,12 +3,17 @@ package org.mobicents.media.server.impl.rtcp;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpStatistics;
+import org.mobicents.media.server.io.network.channel.PacketHandler;
+import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
@@ -16,7 +21,9 @@ import org.mobicents.media.server.scheduler.Scheduler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class RtcpHandler {
+public class RtcpHandler implements PacketHandler {
+	
+	private static final Logger logger = Logger.getLogger(RtcpHandler.class);
 
 	/*
 	 * Core stuff
@@ -25,6 +32,7 @@ public class RtcpHandler {
 	private final Timer timer;
 	private DatagramChannel channel;
 	private ByteBuffer byteBuffer;
+	private final RtcpPacket rtcpPacket;
 
 	/*
 	 * RTCP stuff
@@ -33,7 +41,7 @@ public class RtcpHandler {
 	 * Maximum number of report blocks that will fit in an SR or RR packet
 	 */
 	public static final int MAX_BLOCKS = 31;
-	
+
 	/**
 	 * The control traffic should be limited to a small and known fraction of
 	 * the session bandwidth: small so that the primary function of the
@@ -74,7 +82,19 @@ public class RtcpHandler {
 	 */
 	public static final int INITIAL_DELAY = MIN_WAIT_INTERVAL / 2;
 
+	/**
+	 * Stores statistics regarding the RTP session
+	 */
 	private final RtpStatistics statistics;
+	
+	/**
+	 * Keeps track of scheduled packets to be transmitted.
+	 * This is necessary to reschedule packets when the transmission rate is updated.
+	 * 
+	 * key - Timestamp of the scheduled transmission<br>
+	 * value - The scheduled task
+	 */
+	private final Map<Long, ScheduledTask> scheduledPackets;
 
 	/**
 	 * the last time an RTCP packet was transmitted
@@ -119,12 +139,7 @@ public class RtcpHandler {
 	 * RTCP report intervals (5 is RECOMMENDED). This provides some robustness
 	 * against packet loss.
 	 */
-	private final List<Long> sessionMembers;
-
-	/**
-	 * the most current estimate for the number of senders in the session
-	 */
-	private int senders;
+	private final List<Long> membersList;
 
 	/**
 	 * The target RTCP bandwidth, i.e., the total bandwidth that will be used
@@ -170,15 +185,16 @@ public class RtcpHandler {
 		// core stuff
 		this.scheduler = scheduler;
 		this.timer = new Timer();
+		this.rtcpPacket = new RtcpPacket();
 
 		// rtcp stuff
 		this.statistics = statistics;
+		this.scheduledPackets = new HashMap<Long, RtcpHandler.ScheduledTask>();
 		this.tp = 0;
 		this.tc = 0;
-		this.senders = 0;
 		this.pmembers = 1;
 		this.members = 1;
-		this.sessionMembers = new ArrayList<Long>();
+		this.membersList = new ArrayList<Long>();
 		this.weSent = false;
 		this.rtcpBw = RtpChannel.DEFAULT_BW * BW_FRACTION;
 		this.initial = true;
@@ -193,21 +209,158 @@ public class RtcpHandler {
 	 * The participant adds its own SSRC to the member table.
 	 */
 	public void joinRtpSession() {
-		this.sessionMembers.add(this.statistics.getSsrc());
+		this.membersList.add(this.statistics.getSsrc());
 		// TODO compute timestamp using algorithm explained in
 		// http://tools.ietf.org/html/rfc3550#appendix-A.7
 		this.tn = System.currentTimeMillis() + INITIAL_DELAY;
 		schedule(this.tn);
 	}
+
+	private boolean isRegistered(long ssrc, List<Long> list) {
+		// Make a safe copy of current data
+		List<Long> copy;
+		synchronized (list) {
+			copy = new ArrayList<Long>(list);
+		}
+		// search for the member
+		return copy.contains(Long.valueOf(ssrc));
+	}
 	
+	public boolean isMemberRegistered(long ssrc) {
+		return isRegistered(ssrc, this.membersList);
+	}
+	
+	private void registerMember(long ssrc) {
+		synchronized (this.membersList) {
+			this.membersList.add(Long.valueOf(ssrc));
+			this.members++;
+		}
+	}
+	
+	private void deregisterMember(long ssrc) {
+		synchronized (this.membersList) {
+			if (this.membersList.remove(Long.valueOf(ssrc))) {
+				this.members--;
+			}
+		}
+	}
+
 	public void schedule(long timestamp) {
-		if(weSent) {
-			// TODO schedule SR 
+		if (weSent) {
+			// TODO schedule SR
 		} else {
 			// TODO schedule RR
 		}
 	}
+	
+	public void reschedule(long from, long to) {
+		ScheduledTask scheduled;
+		synchronized (this.scheduledPackets) {
+			scheduled = this.scheduledPackets.remove(Long.valueOf(from));
+		}
+		if(scheduled != null) {
+			scheduled.cancel();
+			schedule(to);
+		}
+	}
 
+	public boolean canHandle(byte[] packet) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean canHandle(byte[] packet, int dataLength, int offset) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public byte[] handle(byte[] packet) throws PacketHandlerException {
+		return handle(packet, packet.length, 0);
+	}
+
+	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
+		if (!canHandle(packet, dataLength, offset)) {
+			logger.warn("Cannot handle incoming packet");
+			throw new PacketHandlerException("Cannot handle incoming packet");
+		}
+		
+		// Decode the RTCP packet
+		byte[] trimmedPacket = new byte[dataLength - offset];
+		System.arraycopy(packet, offset, trimmedPacket, 0, trimmedPacket.length);
+		this.rtcpPacket.decode(trimmedPacket, 0);
+
+
+		long ssrc;
+		if(this.rtcpPacket.isSender()) {
+			RtcpSenderReport report = this.rtcpPacket.getRtcpSenderReport();
+			ssrc = report.getSsrc();
+		} else {
+			RtcpReceptionReport report = this.rtcpPacket.getRtcpReceptionReport();
+			ssrc = report.getSsrc();
+		}
+
+		if (this.rtcpPacket.containsBye()) {
+			/*
+			 * 6.3.4 - Receiving an RTCP BYE Packet
+			 * 
+			 * [...] if the received packet is an RTCP BYE packet, the SSRC is
+			 * checked against the member table. If present, the entry is
+			 * removed from the table, and the value for members is updated.
+			 */
+			if(isMemberRegistered(ssrc)) {
+				deregisterMember(ssrc);
+			}
+			
+			/*
+			 * The SSRC is then checked against the sender table. If present,
+			 * the entry is removed from the table, and the value for senders is
+			 * updated.
+			 */
+			if(this.statistics.isSenderRegistered(ssrc)) {
+				this.statistics.deregisterSender(ssrc);
+			}
+			
+			/*
+			 * To make the transmission rate of RTCP packets more adaptive to
+			 * changes in group membership, the following "reverse
+			 * reconsideration" algorithm SHOULD be executed when a BYE packet
+			 * is received that reduces members to a value less than pmembers
+			 */
+			long oldTn = this.tn;
+			this.tn = this.tc + (this.members / this.pmembers) * (this.tn - this.tc);
+			this.tp = this.tc - (this.members / this.pmembers) * (this.tc - this.tp);
+			this.pmembers = this.members;
+			
+			// The next RTCP packet is rescheduled for transmission at time tn, which is now earlier
+			reschedule(oldTn, this.tn);
+			
+		} else {
+			/*
+			 * 6.3.3 - Receiving an RTP or Non-BYE RTCP Packet
+			 * 
+			 * When an RTP or (non-bye) RTCP packet is received from a participant whose
+			 * SSRC is not in the member table, the SSRC is added to the table,
+			 * and the value for members is updated once the participant has
+			 * been validated.
+			 */
+			if (!isMemberRegistered(ssrc)) {
+				registerMember(ssrc);
+			}
+
+			/*
+			 * For each compound RTCP packet received, the value of
+			 * avg_rtcp_size is updated:
+			 * 
+			 * avg_rtcp_size = (1/16) * packet_size + (15/16) * avg_rtcp_size
+			 */
+			this.avgRtcpSize = (1 / 16) * dataLength + (15 / 16) * this.avgRtcpSize;
+		}
+		
+		
+		
+		return null;
+	}
+	
 	/**
 	 * 
 	 * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -217,8 +370,8 @@ public class RtcpHandler {
 
 		@Override
 		public void run() {
-			if(channel != null && channel.isOpen()) {
-
+			if (channel != null && channel.isOpen()) {
+				initial = false;
 			}
 
 		}

@@ -1,5 +1,8 @@
 package org.mobicents.media.server.impl.rtp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Encapsulates statistics of an RTP channel
  * 
@@ -10,24 +13,49 @@ public class RtpStatistics {
 
 	private final long ssrc;
 	
+	/*
+	 * RTP statistics
+	 */
 	private volatile long received;
 	private volatile long transmitted;
 	private int sequenceNumber;
 	
 	private long lastPacketReceived;
 	
+	/*
+	 * RTCP statistics
+	 */
+	/**
+	 * the most current estimate for the number of senders in the session
+	 */
+	private int senders;
+	
+	/**
+	 * List of SSRC that are senders
+	 */
+	private final List<Long> sendersList;
+	
 	public RtpStatistics() {
 		this.ssrc = System.currentTimeMillis();
+		
+		// RTP statistics
 		this.received = 0;
 		this.transmitted = 0;
 		this.sequenceNumber = 0;
 		this.lastPacketReceived = 0;
+		
+		// RTCP statistics
+		this.senders = 0;
+		this.sendersList = new ArrayList<Long>();
 	}
 	
 	public long getSsrc() {
 		return ssrc;
 	}
 	
+	/*
+	 * RTP Statistics
+	 */
 	public long getReceived() {
 		return received;
 	}
@@ -59,6 +87,32 @@ public class RtpStatistics {
 	
 	public void setLastPacketReceived(long lastPacketReceived) {
 		this.lastPacketReceived = lastPacketReceived;
+	}
+	
+	/*
+	 * RTCP Statistics
+	 */
+	public boolean isSenderRegistered(long ssrc) {
+		synchronized (this.sendersList) {
+			return this.sendersList.contains(Long.valueOf(ssrc));
+		}
+	}
+	
+	public void registerSender(long ssrc) {
+		synchronized (this.sendersList) {
+			if(!this.sendersList.contains(Long.valueOf(ssrc))) {
+				this.sendersList.add(Long.valueOf(ssrc));
+				this.senders++;
+			}
+		}
+	}
+
+	public void deregisterSender(long ssrc) {
+		synchronized (this.sendersList) {
+			if (this.sendersList.remove(Long.valueOf(ssrc))) {
+				this.senders--;
+			}
+		}
 	}
 	
 	public void reset() {
