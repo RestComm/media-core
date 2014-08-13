@@ -36,12 +36,6 @@ public class RtpChannel extends MultiplexedChannel {
 	private static final Logger LOGGER = Logger.getLogger(RtpChannel.class);
 	
 	/**
-	 * Default session bandwidth (in octets per second).
-	 * Matches g.711 bandwith: 64kbps
-	 */
-	public static final int DEFAULT_BW = 8000;
-	
-	/**
 	 * Tells UDP manager to choose port to bind this channel to
 	 */
 	private final static int PORT_ANY = -1;
@@ -237,7 +231,7 @@ public class RtpChannel extends MultiplexedChannel {
 
 		if (udpManager.getRtpTimeout() > 0 && this.remotePeer != null && !connectImmediately) {
 			if (this.rtpHandler.isReceivable()) {
-				this.statistics.setLastPacketReceived(scheduler.getClock().getTime());
+				this.statistics.setRtpReceivedOn(scheduler.getClock().getTime());
 				scheduler.submitHeatbeat(heartBeat);
 			} else {
 				heartBeat.cancel();
@@ -324,7 +318,7 @@ public class RtpChannel extends MultiplexedChannel {
 
 		if (udpManager.getRtpTimeout() > 0 && !connectImmediately) {
 			if (this.rtpHandler.isReceivable()) {
-				this.statistics.setLastPacketReceived(scheduler.getClock().getTime());
+				this.statistics.setRtpReceivedOn(scheduler.getClock().getTime());
 				scheduler.submitHeatbeat(heartBeat);
 			} else {
 				heartBeat.cancel();
@@ -396,7 +390,7 @@ public class RtpChannel extends MultiplexedChannel {
 
 		@Override
 		public long perform() {
-			if (scheduler.getClock().getTime() - statistics.getLastPacketReceived() > udpManager.getRtpTimeout() * 1000000000L) {
+			if (scheduler.getClock().getTime() - statistics.getRtpReceivedOn() > udpManager.getRtpTimeout() * 1000000000L) {
 				if (channelListener != null) {
 					channelListener.onRtpFailure();
 				}

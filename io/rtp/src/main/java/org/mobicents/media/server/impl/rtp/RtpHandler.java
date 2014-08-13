@@ -3,6 +3,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -192,7 +193,7 @@ public class RtpHandler implements PacketHandler {
 			this.jitterBuffer.restart();
 		}
 		
-		this.statistics.setLastPacketReceived(clock.getTime());
+		this.statistics.setRtpReceivedOn(clock.getTime());
 		
 		// RTP v0 packets are used in some applications. Discarded since we do not handle them.
 		if (rtpPacket.getVersion() != 0 && (receivable || loopable)) {
@@ -202,8 +203,16 @@ public class RtpHandler implements PacketHandler {
 			 * value for senders is updated.
 			 */
 			long ssrc = rtpPacket.getSyncSource();
-			if (!this.statistics.isSender(ssrc)) {
-				this.statistics.addSender(ssrc);
+			
+			// Note that there is no point in registering new members if RTCP handler has scheduled a BYE
+			if(RtcpPacketType.RTCP_REPORT.equals(this.statistics.getScheduledPacketType())) {
+				if (!this.statistics.isSender(ssrc)) {
+					this.statistics.addSender(ssrc);
+				}
+
+				if (!this.statistics.isMember(ssrc)) {
+					this.statistics.addMember(ssrc);
+				}
 			}
 			
 			// Queue packet into the jitter buffer

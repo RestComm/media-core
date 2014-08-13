@@ -22,7 +22,7 @@ public class RtpStatisticsTest {
 		assertEquals(0, stats.getReceived());
 		assertEquals(0, stats.getTransmitted());
 		assertEquals(0, stats.getSequenceNumber());
-		assertEquals(0, stats.getLastPacketReceived());
+		assertEquals(0, stats.getRtpReceivedOn());
 	}
 
 	@Test
@@ -39,14 +39,14 @@ public class RtpStatisticsTest {
 			stats.incrementTransmitted();
 			stats.nextSequenceNumber();
 			clockTime = clock.getTime();
-			stats.setLastPacketReceived(clockTime);
+			stats.setRtpReceivedOn(clockTime);
 		}
 
 		// then
 		assertEquals(cycles, stats.getReceived());
 		assertEquals(cycles, stats.getTransmitted());
 		assertEquals(cycles, stats.getSequenceNumber());
-		assertEquals(clockTime, stats.getLastPacketReceived());
+		assertEquals(clockTime, stats.getRtpReceivedOn());
 	}
 
 	@Test
@@ -60,14 +60,14 @@ public class RtpStatisticsTest {
 		stats.incrementReceived();
 		stats.incrementTransmitted();
 		stats.nextSequenceNumber();
-		stats.setLastPacketReceived(clockTime);
+		stats.setRtpReceivedOn(clockTime);
 		stats.reset();
 
 		// then
 		assertEquals(0, stats.getReceived());
 		assertEquals(0, stats.getTransmitted());
 		assertEquals(1, stats.getSequenceNumber());
-		assertEquals(clockTime, stats.getLastPacketReceived());
+		assertEquals(clockTime, stats.getRtpReceivedOn());
 	}
 
 }
