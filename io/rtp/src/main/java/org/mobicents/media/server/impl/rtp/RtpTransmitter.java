@@ -135,6 +135,7 @@ public class RtpTransmitter {
 			
 			// send RTP packet to the network
 			channel.send(buf, channel.socket().getRemoteSocketAddress());
+			statistics.incrementTransmitted();
 		}
 	}
 	
@@ -161,7 +162,6 @@ public class RtpTransmitter {
 		try {
 			if(isConnected()) {
 				send(oobPacket);
-				statistics.incrementTransmitted();
 			}
 		} catch (PortUnreachableException e) {
 			try {
@@ -211,7 +211,6 @@ public class RtpTransmitter {
 		try {
 			if (isConnected()) {
 				send(rtpPacket);
-				statistics.incrementTransmitted();
 			}
 		} catch (PortUnreachableException e) {
 			// icmp unreachable received

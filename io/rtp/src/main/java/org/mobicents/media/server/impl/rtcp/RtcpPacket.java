@@ -138,7 +138,7 @@ public class RtcpPacket implements Serializable {
 		return RtcpPacketType.RTCP_REPORT;
 	}
 	
-	public RtcpReport getInitialReport() {
+	public RtcpReport getReport() {
 		if(isSender()) {
 			return this.senderReport;
 		}

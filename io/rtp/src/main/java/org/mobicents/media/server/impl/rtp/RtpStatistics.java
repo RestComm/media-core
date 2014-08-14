@@ -13,29 +13,11 @@ import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
  * 
  */
 public class RtpStatistics {
-
-	/* Common */
-	private final long ssrc;
-	private final Random random;
-
-	/* RTP constants */
+	
+	/* Constants */
 	/** Default session bandwidth (in octets per second). Matches g.711 bandwith: 64kbps */
 	public static final int RTP_DEFAULT_BW = 8000;
 	
-	/* RTP statistics */
-	/** Number of RTP packets that were received */
-	private volatile long rtpRxPackets;
-	
-	/** Number of RTP packets that were transmitted */
-	private volatile long rtpTxPackets;
-	
-	/** Sequence number of the last transmitted packet */
-	private int sequenceNumber;
-	
-	/** Timestamp of the last received packet */
-	private long rtpReceivedOn;
-
-	/* RTCP constants */
 	/**
 	 * The control traffic should be limited to a small and known fraction of
 	 * the session bandwidth: small so that the primary function of the
@@ -93,9 +75,36 @@ public class RtpStatistics {
 	 */
 	public static final double INITIAL_RTCP_MIN_TIME = RTCP_MIN_TIME / 2;
 	
-	/*
-	 * RTCP statistics
-	 */
+	/* Common */
+	private final long ssrc;
+	private final Random random;
+
+	/* RTP statistics */
+	/** Number of RTP packets that were received */
+	private volatile long rtpRxPackets;
+	
+	/** Number of RTP packets that were transmitted */
+	private volatile long rtpTxPackets;
+	
+	/** Sequence number of the last transmitted RTP packet */
+	private int sequenceNumber;
+	
+	/** Timestamp of the last received RTP packet */
+	private long rtpReceivedOn;
+	
+	/** Timestamp of the last transmitted RTP packet */
+	private long rtpSentOn;
+
+	/* RTCP statistics */
+	/** Number of RTCP packets that were received */
+	private volatile long rtcpRxPackets;
+
+	/** Number of RTCP packets that were sent */
+	private volatile long rtcpTxPackets;
+	
+	/** Flag that is true if the application has sent data since the 2nd previous RTCP report was transmitted */
+	private boolean weSent;
+	
 	/** The type of RTCP packet that is scheduled to be transmitted next. */
 	private RtcpPacketType scheduledPacketType;
 	
@@ -150,6 +159,9 @@ public class RtpStatistics {
 		this.rtpReceivedOn = 0;
 
 		// RTCP statistics
+		this.rtcpRxPackets = 0;
+		this.rtcpTxPackets = 0;
+		this.weSent = false;
 		this.senders = 0;
 		this.sendersList = new ArrayList<Long>();
 		this.pmembers = 1;
@@ -182,6 +194,13 @@ public class RtpStatistics {
 
 	public void incrementTransmitted() {
 		this.rtpTxPackets++;
+		/*
+		 * If the participant sends an RTP packet when we_sent is false, it adds
+		 * itself to the sender table and sets we_sent to true.
+		 */
+		if (!this.weSent) {
+			addSender(Long.valueOf(this.ssrc));
+		}
 	}
 
 	public int getSequenceNumber() {
@@ -200,10 +219,18 @@ public class RtpStatistics {
 	public void setRtpReceivedOn(long timestamp) {
 		this.rtpReceivedOn = timestamp;
 	}
+	
+	public long getRtpSentOn() {
+		return rtpSentOn;
+	}
 
 	/*
 	 * RTCP Statistics
 	 */
+	public boolean hasSent() {
+		return this.weSent;
+	}
+	
 	public double getRtcpBw() {
 		return rtcpBw;
 	}
@@ -235,6 +262,9 @@ public class RtpStatistics {
 			if (!this.sendersList.contains(Long.valueOf(ssrc))) {
 				this.sendersList.add(Long.valueOf(ssrc));
 				this.senders++;
+				if(this.ssrc == ssrc) {
+					this.weSent = true;
+				}
 			}
 		}
 	}
@@ -243,6 +273,9 @@ public class RtpStatistics {
 		synchronized (this.sendersList) {
 			if (this.sendersList.remove(Long.valueOf(ssrc))) {
 				this.senders--;
+				if(this.ssrc == ssrc) {
+					this.weSent = false;
+				}
 			}
 		}
 	}
@@ -366,12 +399,27 @@ public class RtpStatistics {
 	 * 
 	 * @return the new transmission interval, in milliseconds
 	 */
-	public long rtcpInterval(boolean weSent, boolean initial) {
+	public long rtcpInterval(boolean initial) {
+		return rtcpInterval(this.weSent, initial);
+	}
+	
+	/**
+	 * Calculates the RTCP interval for a receiver, that is without the
+	 * randomization factor (we_sent=false).
+	 * 
+	 * @param initial
+	 * @return the new transmission interval, in milliseconds
+	 */
+	public long rtcpReceiverInterval(boolean initial) {
+		return rtcpInterval(false, initial);
+	}
+	
+	private long rtcpInterval(boolean weSent, boolean initial) {
 		// 1 - calculate n and c
 		double c;
 		int n;
 		if (this.senders <= (this.members * RTCP_SENDER_BW_FRACTION)) {
-			if(weSent) {
+			if(this.weSent) {
 				c = this.avgRtcpSize / (RTCP_SENDER_BW_FRACTION * this.rtcpBw);
 				n = this.senders;
 			} else {
@@ -396,6 +444,23 @@ public class RtpStatistics {
 		
 		// 5 - divide T by e-3/2
 		return (long) ((t / RTCP_COMPENSATION) * 1000);
+	}
+	
+	/**
+	 * Checks whether this SSRC is still a sender.
+	 * 
+	 * If an RTP packet has not been transmitted since time tc - 2T, the
+	 * participant removes itself from the sender table, decrements the sender
+	 * count, and sets we_sent to false.
+	 */
+	public boolean isSenderTimeout() {
+		long t = rtcpReceiverInterval(false);
+		long minTime = System.currentTimeMillis() - (2 * t);
+		
+		if(this.rtpSentOn < minTime) {
+			removeSender(this.ssrc);
+		}
+		return this.weSent;
 	}
 	
 	public void reset() {
