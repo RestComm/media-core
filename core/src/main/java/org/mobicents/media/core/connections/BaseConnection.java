@@ -22,37 +22,28 @@
 
 package org.mobicents.media.core.connections;
 
-import org.apache.log4j.Logger;
-import org.mobicents.media.server.*;
-
-import java.util.Collection;
 import java.io.IOException;
+import java.util.Collection;
 
-import org.mobicents.media.CheckPoint;
-import org.mobicents.media.server.utils.Text;
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionEvent;
-import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionState;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import org.mobicents.media.server.utils.Text;
 /**
  * Implements connection's FSM.
  *
@@ -73,7 +64,7 @@ public abstract class BaseConnection implements Connection {
     private final Object stateMonitor = new Integer(0);
 
     //connection event listeners
-    private Listeners<ConnectionListener> listeners = new Listeners();
+    private Listeners<ConnectionListener> listeners = new Listeners<ConnectionListener>();
 
     //events
     private ConnectionEvent stateEvent;

@@ -3,8 +3,10 @@ package org.mobicents.media.server.impl.rtp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
+import org.mobicents.media.server.scheduler.Clock;
 
 /**
  * Encapsulates statistics of an RTP/RTCP channel
@@ -77,34 +79,37 @@ public class RtpStatistics {
 	
 	/* Common */
 	private final long ssrc;
+	private final RtpClock rtpClock;
+	private final Clock wallClock;
 	private final Random random;
 
 	/* RTP statistics */
+	// TODO Move the rtpKeepAlive to a more suitable place
+	/** Relative time in nanoseconds since a packet was received. Used for RTP keepalive mechanism, not RTCP statistics. */
+	private long lastHeartbeat;
+	
 	/** Number of RTP packets that were received */
 	private volatile long rtpRxPackets;
 	
+	/** Number of RTP octets that were received */
+	private volatile long rtpRxOctets;
+	
 	/** Number of RTP packets that were transmitted */
 	private volatile long rtpTxPackets;
+
+	/** Number of RTP octets that were transmitted */
+	private volatile long rtpTxOctets;
 	
 	/** Sequence number of the last transmitted RTP packet */
 	private int sequenceNumber;
 	
-	/** Timestamp of the last received RTP packet */
-	private long rtpReceivedOn;
+	/** Relative timestamp of the last received RTP packet in nanoseconds */
+	private volatile long rtpReceivedOn;
 	
-	/** Timestamp of the last transmitted RTP packet */
-	private long rtpSentOn;
+	/** Relative timestamp of the last transmitted RTP packet in nanoseconds */
+	private volatile long rtpSentOn;
 
 	/* RTCP statistics */
-	/** Number of RTCP packets that were received */
-	private volatile long rtcpRxPackets;
-
-	/** Number of RTCP packets that were sent */
-	private volatile long rtcpTxPackets;
-	
-	/** Flag that is true if the application has sent data since the 2nd previous RTCP report was transmitted */
-	private boolean weSent;
-	
 	/** The type of RTCP packet that is scheduled to be transmitted next. */
 	private RtcpPacketType scheduledPacketType;
 	
@@ -146,9 +151,16 @@ public class RtpStatistics {
 	
 	/** The average compound RTCP packet size, in octets */
 	private double avgRtcpSize;
-
-	public RtpStatistics() {
+	
+	/** Flag that is true if the application has sent data since the 2nd previous RTCP report was transmitted */
+	private boolean weSent;
+	
+	public RtpStatistics(final RtpClock clock) {
+		this.lastHeartbeat = 0;
+		
 		// Common
+		this.rtpClock = clock;
+		this.wallClock = clock.getWallClock();
 		this.ssrc = System.currentTimeMillis();
 		this.random = new Random();
 
@@ -157,11 +169,9 @@ public class RtpStatistics {
 		this.rtpTxPackets = 0;
 		this.sequenceNumber = 0;
 		this.rtpReceivedOn = 0;
+		this.rtpSentOn = 0;
 
 		// RTCP statistics
-		this.rtcpRxPackets = 0;
-		this.rtcpTxPackets = 0;
-		this.weSent = false;
 		this.senders = 0;
 		this.sendersList = new ArrayList<Long>();
 		this.pmembers = 1;
@@ -171,6 +181,23 @@ public class RtpStatistics {
 		this.rtcpBw = RTP_DEFAULT_BW * RTCP_BW_FRACTION;
 		this.avgRtcpSize = RTCP_DEFAULT_AVG_SIZE;
 		this.scheduledPacketType = RtcpPacketType.RTCP_REPORT;
+		this.weSent = false;
+	}
+	
+	public long getLastHeartbeat() {
+		return lastHeartbeat;
+	}
+	
+	public void setLastHeartbeat(long rtpKeepAlive) {
+		this.lastHeartbeat = rtpKeepAlive;
+	}
+	
+	public long getCurrentTime() {
+		return this.wallClock.getTime();
+	}
+	
+	public long getRtpTime() {
+		return this.rtpClock.getLocalRtpTime();
 	}
 
 	public long getSsrc() {
@@ -180,20 +207,32 @@ public class RtpStatistics {
 	/*
 	 * RTP Statistics
 	 */
-	public long getReceived() {
+	public long getRtpPacketsReceived() {
 		return rtpRxPackets;
 	}
 
-	public void incrementReceived() {
+	public long getRtpOctetsReceived() {
+		return rtpRxOctets;
+	}
+	
+	public void onRtpReceive(int packetSize) {
 		this.rtpRxPackets++;
+		this.rtpRxOctets += packetSize;
+		this.rtpReceivedOn = this.wallClock.getTime();
 	}
 
-	public long getTransmitted() {
+	public long getRtpPacketsSent() {
 		return rtpTxPackets;
 	}
+	
+	public long getRtpOctetsSent() {
+		return rtpTxOctets;
+	}
 
-	public void incrementTransmitted() {
+	public void onRtpSent(int packetSize) {
 		this.rtpTxPackets++;
+		this.rtpTxOctets += packetSize;
+		this.rtpSentOn = this.wallClock.getTime();
 		/*
 		 * If the participant sends an RTP packet when we_sent is false, it adds
 		 * itself to the sender table and sets we_sent to true.
@@ -345,7 +384,7 @@ public class RtpStatistics {
 		this.avgRtcpSize = avgRtcpSize;
 	}
 	
-	public double calculateAgvRtcpSize(double packetSize) {
+	public double calculateAvgRtcpSize(double packetSize) {
 		this.avgRtcpSize = (1 / 16) * packetSize + (15 / 16) * this.avgRtcpSize;
 		return this.avgRtcpSize;
 	}
@@ -397,7 +436,7 @@ public class RtpStatistics {
 	 * membership, this procedure splits the bandwidth equally among all
 	 * participants, on average.
 	 * 
-	 * @return the new transmission interval, in milliseconds
+	 * @return the new transmission interval, in nanoseconds
 	 */
 	public long rtcpInterval(boolean initial) {
 		return rtcpInterval(this.weSent, initial);
@@ -408,7 +447,7 @@ public class RtpStatistics {
 	 * randomization factor (we_sent=false).
 	 * 
 	 * @param initial
-	 * @return the new transmission interval, in milliseconds
+	 * @return the new transmission interval, in nanoseconds
 	 */
 	public long rtcpReceiverInterval(boolean initial) {
 		return rtcpInterval(false, initial);
@@ -442,8 +481,8 @@ public class RtpStatistics {
 		double max = td * 1.5;
 		double t = min + (max - min) * this.random.nextDouble();
 		
-		// 5 - divide T by e-3/2
-		return (long) ((t / RTCP_COMPENSATION) * 1000);
+		// 5 - divide T by e-3/2 and convert to nanoseconds
+		return (long) ((t / RTCP_COMPENSATION) * 1000000000L);
 	}
 	
 	/**
@@ -452,10 +491,12 @@ public class RtpStatistics {
 	 * If an RTP packet has not been transmitted since time tc - 2T, the
 	 * participant removes itself from the sender table, decrements the sender
 	 * count, and sets we_sent to false.
+	 * 
+	 * @return whether this SSRC is still considered a sender
 	 */
 	public boolean isSenderTimeout() {
 		long t = rtcpReceiverInterval(false);
-		long minTime = System.currentTimeMillis() - (2 * t);
+		long minTime = getCurrentTime() - (2 * t);
 		
 		if(this.rtpSentOn < minTime) {
 			removeSender(this.ssrc);

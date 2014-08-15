@@ -53,6 +53,10 @@ public class RtpClock {
     public RtpClock(Clock wallClock) {
         this.wallClock = wallClock;
     }
+    
+    public Clock getWallClock() {
+		return wallClock;
+	}
 
     /**
      * Modifies clock rate.

@@ -19,8 +19,8 @@ public class RtpStatisticsTest {
 		RtpStatistics stats = new RtpStatistics();
 
 		// then
-		assertEquals(0, stats.getReceived());
-		assertEquals(0, stats.getTransmitted());
+		assertEquals(0, stats.getRtpPacketsReceived());
+		assertEquals(0, stats.getRtpPacketsSent());
 		assertEquals(0, stats.getSequenceNumber());
 		assertEquals(0, stats.getRtpReceivedOn());
 	}
@@ -35,16 +35,16 @@ public class RtpStatisticsTest {
 		// when
 		long clockTime = 0;
 		for (int index = 0; index < cycles; index++) {
-			stats.incrementReceived();
-			stats.incrementTransmitted();
+			stats.onRtpReceive();
+			stats.onRtpSent();
 			stats.nextSequenceNumber();
 			clockTime = clock.getTime();
 			stats.setRtpReceivedOn(clockTime);
 		}
 
 		// then
-		assertEquals(cycles, stats.getReceived());
-		assertEquals(cycles, stats.getTransmitted());
+		assertEquals(cycles, stats.getRtpPacketsReceived());
+		assertEquals(cycles, stats.getRtpPacketsSent());
 		assertEquals(cycles, stats.getSequenceNumber());
 		assertEquals(clockTime, stats.getRtpReceivedOn());
 	}
@@ -57,15 +57,15 @@ public class RtpStatisticsTest {
 
 		// when
 		long clockTime = clock.getTime();
-		stats.incrementReceived();
-		stats.incrementTransmitted();
+		stats.onRtpReceive();
+		stats.onRtpSent();
 		stats.nextSequenceNumber();
 		stats.setRtpReceivedOn(clockTime);
 		stats.reset();
 
 		// then
-		assertEquals(0, stats.getReceived());
-		assertEquals(0, stats.getTransmitted());
+		assertEquals(0, stats.getRtpPacketsReceived());
+		assertEquals(0, stats.getRtpPacketsSent());
 		assertEquals(1, stats.getSequenceNumber());
 		assertEquals(clockTime, stats.getRtpReceivedOn());
 	}

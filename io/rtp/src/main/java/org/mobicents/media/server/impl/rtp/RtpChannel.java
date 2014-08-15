@@ -35,9 +35,7 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	private static final Logger LOGGER = Logger.getLogger(RtpChannel.class);
 	
-	/**
-	 * Tells UDP manager to choose port to bind this channel to
-	 */
+	/** Tells UDP manager to choose port to bind this channel to */
 	private final static int PORT_ANY = -1;
 	
 	// Channel attributes
@@ -47,6 +45,7 @@ public class RtpChannel extends MultiplexedChannel {
 	// Core elements
 	private final UdpManager udpManager;
 	private final Scheduler scheduler;
+	private final RtpClock rtpClock;
 	
 	// Heart beat
 	private final HeartBeat heartBeat;
@@ -83,13 +82,15 @@ public class RtpChannel extends MultiplexedChannel {
 		// Initialize MultiplexedChannel elements
 		super();
 		
-		// Channel attributes
-		this.statistics = new RtpStatistics();
-		this.bound = false;
-		
 		// Core and network elements
 		this.scheduler = channelsManager.getScheduler();
 		this.udpManager = channelsManager.getUdpManager();
+		this.rtpClock = new RtpClock(scheduler.getClock());
+		// TODO RTP Transmitter/Receiver should share the same RTP clock!!!!
+		
+		// Channel attributes
+		this.statistics = new RtpStatistics(this.rtpClock);
+		this.bound = false;
 		
 		// Transmitter
 		this.transmitter = new RtpTransmitter(scheduler, statistics);
@@ -151,11 +152,11 @@ public class RtpChannel extends MultiplexedChannel {
 	}
 	
 	public long getPacketsReceived() {
-		return this.statistics.getReceived();
+		return this.statistics.getRtpPacketsReceived();
 	}
 
 	public long getPacketsTransmitted() {
-		return this.statistics.getTransmitted();
+		return this.statistics.getRtpPacketsSent();
 	}
 	
 	/**
@@ -231,7 +232,7 @@ public class RtpChannel extends MultiplexedChannel {
 
 		if (udpManager.getRtpTimeout() > 0 && this.remotePeer != null && !connectImmediately) {
 			if (this.rtpHandler.isReceivable()) {
-				this.statistics.setRtpReceivedOn(scheduler.getClock().getTime());
+				this.statistics.setLastHeartbeat(scheduler.getClock().getTime());
 				scheduler.submitHeatbeat(heartBeat);
 			} else {
 				heartBeat.cancel();
@@ -318,7 +319,7 @@ public class RtpChannel extends MultiplexedChannel {
 
 		if (udpManager.getRtpTimeout() > 0 && !connectImmediately) {
 			if (this.rtpHandler.isReceivable()) {
-				this.statistics.setRtpReceivedOn(scheduler.getClock().getTime());
+				this.statistics.setLastHeartbeat(scheduler.getClock().getTime());
 				scheduler.submitHeatbeat(heartBeat);
 			} else {
 				heartBeat.cancel();
@@ -390,7 +391,7 @@ public class RtpChannel extends MultiplexedChannel {
 
 		@Override
 		public long perform() {
-			if (scheduler.getClock().getTime() - statistics.getRtpReceivedOn() > udpManager.getRtpTimeout() * 1000000000L) {
+			if (scheduler.getClock().getTime() - statistics.getLastHeartbeat() > udpManager.getRtpTimeout() * 1000000000L) {
 				if (channelListener != null) {
 					channelListener.onRtpFailure();
 				}

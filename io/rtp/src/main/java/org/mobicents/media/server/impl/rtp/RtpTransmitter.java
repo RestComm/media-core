@@ -134,8 +134,8 @@ public class RtpTransmitter {
 			buf.rewind();
 			
 			// send RTP packet to the network
-			channel.send(buf, channel.socket().getRemoteSocketAddress());
-			statistics.incrementTransmitted();
+			int sent = channel.send(buf, channel.socket().getRemoteSocketAddress());
+			statistics.onRtpSent(sent);
 		}
 	}
 	

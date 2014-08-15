@@ -415,8 +415,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	@Override
 	protected void onCreated() throws Exception {
-		String bindAddress = isLocal ? channelsManager.getLocalBindAddress()
-				: channelsManager.getBindAddress();
+		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
 		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtpAudioChannel.getLocalPort(), 0);
 	}
 

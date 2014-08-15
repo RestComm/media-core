@@ -10,7 +10,6 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
-import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
@@ -25,7 +24,6 @@ public class RtpHandler implements PacketHandler {
 	private static final Logger logger = Logger.getLogger(RtpHandler.class);
 	
 	private RTPFormats rtpFormats;
-	private final Clock clock;
 	private final RtpClock rtpClock;
 	private final RtpClock oobClock;
 	
@@ -45,9 +43,8 @@ public class RtpHandler implements PacketHandler {
 	private DtlsHandler dtlsHandler;
 	
 	public RtpHandler(final Scheduler scheduler, final int jitterBufferSize, final RtpStatistics statistics) {
-		this.clock = scheduler.getClock();
-		this.rtpClock = new RtpClock(this.clock);
-		this.oobClock = new RtpClock(this.clock);
+		this.rtpClock = new RtpClock(scheduler.getClock());
+		this.oobClock = new RtpClock(scheduler.getClock());
 		
 		this.jitterBufferSize = jitterBufferSize;
 		this.jitterBuffer = new JitterBuffer(this.rtpClock, this.jitterBufferSize);
@@ -188,12 +185,13 @@ public class RtpHandler implements PacketHandler {
 		}
 		
 		// Restart jitter buffer for first received packet
-		if(this.statistics.getReceived() == 0) {
+		if(this.statistics.getRtpPacketsReceived() == 0) {
 			logger.info("Restarting jitter buffer");
 			this.jitterBuffer.restart();
 		}
 		
-		this.statistics.setRtpReceivedOn(clock.getTime());
+		// For RTP keep-alive purposes
+		this.statistics.setLastHeartbeat(this.rtpClock.getWallClock().getTime());
 		
 		// RTP v0 packets are used in some applications. Discarded since we do not handle them.
 		if (rtpPacket.getVersion() != 0 && (receivable || loopable)) {
@@ -219,18 +217,18 @@ public class RtpHandler implements PacketHandler {
 			if (rtpPacket.getBuffer().limit() > 0) {
 				if (loopable) {
 					// Increment counters
-					this.statistics.incrementReceived();
-					this.statistics.incrementTransmitted();
+					this.statistics.onRtpReceive(dataLength);
+					this.statistics.onRtpSent(dataLength);
 					// Return same packet (looping) so it can be transmitted
 					return packet;
 				} else {
+					this.statistics.onRtpReceive(dataLength);
 					RTPFormat format = rtpFormats.find(rtpPacket.getPayloadType());
 					if (format != null && format.getFormat().matches(RtpChannel.DTMF_FORMAT)) {
 						dtmfInput.write(rtpPacket);
 					} else {
 						jitterBuffer.write(rtpPacket, format);
 					}
-					this.statistics.incrementReceived();
 				}
 			} else {
 				logger.warn("Skipping packet because limit of the packets buffer is zero");

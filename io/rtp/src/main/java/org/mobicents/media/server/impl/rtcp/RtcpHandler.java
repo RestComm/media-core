@@ -5,11 +5,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.RtpStatistics;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
+import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  * 
@@ -20,9 +23,7 @@ public class RtcpHandler implements PacketHandler {
 
 	private static final Logger logger = Logger.getLogger(RtcpHandler.class);
 	
-	/**
-	 * Time (in ms) between SSRC Task executions
-	 */
+	/** Time (in ms) between SSRC Task executions */
 	private static final long SSRC_TASK_DELAY = 7000;
 
 	/*
@@ -33,7 +34,6 @@ public class RtcpHandler implements PacketHandler {
 
 	/** Timer that checks for SSRC timeouts on expiration */
 	private final Timer ssrcTimer;
-	
 	private final SsrcTask ssrcTask;
 
 	/** Datagram channel used to send the RTCP packets to the remote peer */
@@ -51,10 +51,10 @@ public class RtcpHandler implements PacketHandler {
 	/** The scheduled task responsible for transmitting the RTCP packet. */
 	private TxTask scheduledTask;
 
-	/** The last time an RTCP packet was transmitted */
+	/** The elapsed time (nanoseconds) since an RTCP packet was transmitted */
 	private long tp;
 
-	/** The next scheduled transmission time of an RTCP packet */
+	/** The time interval (nanoseconds) until next scheduled transmission time of an RTCP packet */
 	private long tn;
 
 	/** Flag that is true if the application has not yet sent an RTCP packet */
@@ -74,34 +74,25 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	/**
-	 * Gets the current time. Useful for scheduling calculations.
-	 * 
-	 * @return The current time of the system in milliseconds
-	 */
-	private long getCurrentTime() {
-		return System.currentTimeMillis();
-	}
-
-	/**
 	 * Gets the timestamp of a future moment in time.
 	 * 
 	 * @param delay
-	 *            The amount of time in the future, in milliseconds
-	 * @return The timestamp of the date matching the delay
+	 *            The amount of time in the future, in nanoseconds
+	 * @return The timestamp of the date matching the delay, in nanoseconds
 	 */
 	private long resolveDelay(long delay) {
-		return getCurrentTime() + delay;
+		return this.statistics.getCurrentTime() + delay;
 	}
 
 	/**
 	 * Gets the time interval between the current time and another timestamp.
 	 * 
 	 * @param timestamp
-	 *            The timestamp to compare to the current date
-	 * @return The interval of time between both dates, in milliseconds.
+	 *            The timestamp, in nanoseconds, to compare to the current time
+	 * @return The interval of time between both timestamps, in nanoseconds.
 	 */
 	private long resolveInterval(long timestamp) {
-		return timestamp - getCurrentTime();
+		return timestamp - this.statistics.getCurrentTime();
 	}
 
 	/**
@@ -121,7 +112,7 @@ public class RtcpHandler implements PacketHandler {
 	public void joinRtpSession() {
 		// Schedule first RTCP packet
 		long t = this.statistics.rtcpInterval(this.initial);
-		this.tn = resolveDelay(t);
+		this.tn = t;
 		RtcpPacket packet = new RtcpPacket();
 		// TODO build an RR packet
 		schedule(this.tn, packet);
@@ -135,8 +126,7 @@ public class RtcpHandler implements PacketHandler {
 		this.ssrcTimer.cancel();
 		
 		// Create a RTCP BYE packet to be scheduled
-		// TODO Build RTCP BYE packet
-		RtcpPacket bye = new RtcpPacket();
+		RtcpPacket bye = RtcpPacketFactory.buildBye(this.statistics);
 
 		/*
 		 * When the participant decides to leave the system, tp is reset to tc,
@@ -147,7 +137,7 @@ public class RtcpHandler implements PacketHandler {
 		 * The calculated interval T is computed. The BYE packet is then
 		 * scheduled for time tn = tc + T.
 		 */
-		this.tp = System.currentTimeMillis();
+		this.tp = this.statistics.getCurrentTime();
 		this.statistics.resetMembers();
 		this.initial = true;
 		this.weSent = false;
@@ -163,37 +153,28 @@ public class RtcpHandler implements PacketHandler {
 	 * Schedules an event to occur at a certain time.
 	 * 
 	 * @param timestamp
-	 *            The timestamp of the date when the event should be fired
+	 *            The time (in nanoseconds) when the event should be fired
 	 * @param packet
 	 *            The RTCP packet to be sent when the timer expires
 	 */
 	private void schedule(long timestamp, RtcpPacket packet) {
-		this.scheduledTask = new TxTask(timestamp, packet);
-		long interval = resolveInterval(timestamp);
-		if (interval >= 0) {
-			this.txTimer.schedule(this.scheduledTask, interval);
-			// Let the RTP handler know what is the type of scheduled packet
-			this.statistics.setScheduledPacketType(packet.getPacketType());
-		} else {
-			// TODO handle this scenario
-		}
+		// Create the task and schedule it
+		this.scheduledTask = new TxTask(resolveInterval(timestamp), packet);
+		this.txTimer.schedule(this.scheduledTask, TimeUnit.NANOSECONDS.toMillis(timestamp));
+		// Let the RTP handler know what is the type of scheduled packet
+		this.statistics.setScheduledPacketType(packet.getPacketType());
 	}
 
 	/**
 	 * Re-schedules a previously scheduled event
 	 * 
 	 * @param timestamp
-	 *            The new date of the event
+	 *            The timestamp (in nanoseconds) of the rescheduled event
 	 */
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
-		task.setTimestamp(timestamp);
-		long interval = resolveInterval(timestamp);
-		if (interval >= 0) {
-			this.txTimer.schedule(task, timestamp);
-		} else {
-			// TODO handle this scenario
-		}
+		task.setTimestamp(resolveInterval(timestamp));
+		this.txTimer.schedule(task, TimeUnit.NANOSECONDS.toMillis(timestamp));
 	}
 
 	/**
@@ -211,18 +192,19 @@ public class RtcpHandler implements PacketHandler {
 	 *             When a packet cannot be sent over the datagram channel
 	 */
 	private void onExpire(TxTask task) throws IOException {
-		long tc = getCurrentTime();
+		long tc = this.statistics.getCurrentTime();
 		switch (task.getType()) {
 		case RTCP_REPORT:
 			long t = this.statistics.rtcpInterval(this.initial);
 			this.tn = this.tp + t;
 
 			if (this.tn <= tc) {
+				// Send currently scheduled packet and update statistics
 				RtcpPacket packet = task.getPacket();
 				sendRtcpPacket(packet);
 
 				int sentPacketSize = packet.getSize();
-				this.statistics.calculateAgvRtcpSize(sentPacketSize);
+				this.statistics.calculateAvgRtcpSize(sentPacketSize);
 				this.tp = tc;
 
 				/*
@@ -232,14 +214,15 @@ public class RtcpHandler implements PacketHandler {
 				 * sent.
 				 */
 				t = this.statistics.rtcpInterval(this.initial);
-
-				RtcpPacket nextPacket = new RtcpPacket();
-				// TODO Build RTCP_SR packet
-				schedule(tc + t, nextPacket);
+				this.tn = tc + t;
+				
+				// schedule next packet
+				RtcpPacket nextPacket = RtcpPacketFactory.buildReport(this.statistics);
+				schedule(this.tn, nextPacket);
 				initial = false;
 			} else {
-				RtcpPacket nextPacket = new RtcpPacket();
-				// TODO Build RTCP_SR packet
+				// Schedule next packet
+				RtcpPacket nextPacket = RtcpPacketFactory.buildReport(this.statistics);
 				schedule(tn, nextPacket);
 			}
 
@@ -255,24 +238,24 @@ public class RtcpHandler implements PacketHandler {
 			this.tn = this.tp + t;
 
 			if (this.tn <= tc) {
+				// Send BYE and stop scheduling further packets
 				sendRtcpPacket(task.getPacket());
 				return;
 			} else {
-				RtcpPacket nextPacket = new RtcpPacket();
-				// TODO Build RTCP_BYE packet
+				// Delay BYE
+				RtcpPacket nextPacket = RtcpPacketFactory.buildBye(this.statistics);
 				schedule(this.tn, nextPacket);
 			}
 			break;
 
 		default:
+			logger.warn("Unkown scheduled event type!");
 			break;
 		}
-
 	}
 
 	public boolean canHandle(byte[] packet) {
-		// TODO Auto-generated method stub
-		return false;
+		return canHandle(packet, packet.length, 0);
 	}
 
 	public boolean canHandle(byte[] packet, int dataLength, int offset) {
@@ -284,10 +267,9 @@ public class RtcpHandler implements PacketHandler {
 		return handle(packet, packet.length, 0);
 	}
 
-	public byte[] handle(byte[] packet, int dataLength, int offset)
-			throws PacketHandlerException {
+	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
 		if (!canHandle(packet, dataLength, offset)) {
-			logger.warn("Cannot handle incoming packet");
+			logger.warn("Cannot handle incoming packet!");
 			throw new PacketHandlerException("Cannot handle incoming packet");
 		}
 
@@ -311,25 +293,18 @@ public class RtcpHandler implements PacketHandler {
 		case RTCP_REPORT:
 
 			/*
-			 * 6.3.3 - Receiving an RTP or Non-BYE RTCP Packet
-			 * 
 			 * When an RTP or (non-bye) RTCP packet is received from a
 			 * participant whose SSRC is not in the member table, the SSRC is
 			 * added to the table, and the value for members is updated once the
 			 * participant has been validated.
 			 */
-			if (!this.statistics.isMember(ssrc)
-					&& RtcpPacketType.RTCP_REPORT.equals(this.statistics
-							.getScheduledPacketType())) {
+			if (!this.statistics.isMember(ssrc) && RtcpPacketType.RTCP_REPORT.equals(this.statistics.getScheduledPacketType())) {
 				this.statistics.addMember(ssrc);
 			}
 
 			break;
 		case RTCP_BYE:
 
-			/*
-			 * 6.3.4 - Receiving an RTCP BYE Packet
-			 */
 			switch (this.scheduledTask.getType()) {
 			case RTCP_REPORT:
 
@@ -359,7 +334,7 @@ public class RtcpHandler implements PacketHandler {
 				 * pmembers
 				 */
 				if (this.statistics.getMembers() < this.statistics.getPmembers()) {
-					long tc = getCurrentTime();
+					long tc = this.statistics.getCurrentTime();
 					this.tn = tc + (this.statistics.getMembers() / this.statistics.getPmembers()) * (this.tn - tc);
 					this.tp = tc - (this.statistics.getMembers() / this.statistics.getPmembers()) * (tc - this.tp);
 
@@ -387,21 +362,17 @@ public class RtcpHandler implements PacketHandler {
 				break;
 
 			default:
-				
-				// TODO print a warning
+				logger.warn("Unknown type of scheduled event: " + this.scheduledTask.getType().name());
 				break;
 			}
 			break;
 		default:
-			logger.warn("Unkown RTCP packet type. Dropping packet.");
+			logger.warn("Unkown RTCP packet type: " + rtcpPacket.getPacketType().name() + ". Dropping packet.");
 			break;
 		}
 
-		/*
-		 * For each compound RTCP packet received, the value of avg_rtcp_size is
-		 * updated.
-		 */
-		this.statistics.calculateAgvRtcpSize(dataLength);
+		// For each RTCP packet received, the value of avg_rtcp_size is updated.
+		this.statistics.calculateAvgRtcpSize(dataLength);
 
 		// RTCP does not send replies
 		return null;

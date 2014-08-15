@@ -23,19 +23,17 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import java.io.IOException;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.utils.Text;
+import java.net.SocketAddress;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
-
-import java.net.SocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.utils.Text;
 /**
  * Represents the connection activity.
  * 
@@ -154,7 +152,7 @@ public class MgcpConnection implements ConnectionFailureListener {
 		msg.setEndpoint(mgcpEndpoint.fullName);
 		msg.setParameter(Parameter.CONNECTION_ID, textualId);
 		msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
-		msg.setParameter(Parameter.REASON_CODE,this.REASON_CODE);
+		msg.setParameter(Parameter.REASON_CODE, MgcpConnection.REASON_CODE);
 		mgcpEndpoint.send(evt, callAgent);		
     }
 }

@@ -23,6 +23,7 @@ package org.mobicents.media.server.mgcp.tx.cmd;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.MgcpCall;
 import org.mobicents.media.server.mgcp.controller.MgcpConnection;
@@ -39,12 +40,8 @@ import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
-import org.apache.log4j.Logger;
 
 /**
  *
@@ -60,8 +57,6 @@ public class CreateConnectionCmd extends Action {
     
     private final static Text SUCCESS= new Text("Success");
 
-    private Scheduler scheduler;
-    
     //endpoints for searching
     private MgcpEndpoint[] endpoints = new MgcpEndpoint[2];    
     
@@ -119,7 +114,6 @@ public class CreateConnectionCmd extends Action {
      * @param scheduler the job scheduler.
      */
     public CreateConnectionCmd(Scheduler scheduler) {
-        this.scheduler = scheduler;
 
         handler = new TaskChain(2,scheduler);
         
@@ -156,7 +150,7 @@ public class CreateConnectionCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -317,7 +311,7 @@ public class CreateConnectionCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -366,7 +360,7 @@ public class CreateConnectionCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
