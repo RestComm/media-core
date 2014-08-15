@@ -40,7 +40,7 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	// Channel attributes
 	private boolean bound;
-	private final RtpStatistics statistics;
+	private RtpStatistics statistics;
 	
 	// Core elements
 	private final UdpManager udpManager;
@@ -89,7 +89,6 @@ public class RtpChannel extends MultiplexedChannel {
 		// TODO RTP Transmitter/Receiver should share the same RTP clock!!!!
 		
 		// Channel attributes
-		this.statistics = new RtpStatistics(this.rtpClock);
 		this.bound = false;
 		
 		// Transmitter
@@ -157,6 +156,25 @@ public class RtpChannel extends MultiplexedChannel {
 
 	public long getPacketsTransmitted() {
 		return this.statistics.getRtpPacketsSent();
+	}
+	
+	public String resolveCname() {
+		String externalAddress = getExternalAddress();
+		if(externalAddress == null || externalAddress.isEmpty()) {
+			if(this.bound) {
+				try {
+					InetSocketAddress address = (InetSocketAddress) this.channel.getLocalAddress();
+					return address.getHostString();
+				} catch (IOException e) {
+					LOGGER.warn("Could not retrieve local address from channel");
+					return "";
+				}
+			} else {
+				return "";
+			}
+		} else {
+			return externalAddress;
+		}
 	}
 	
 	/**
@@ -251,6 +269,7 @@ public class RtpChannel extends MultiplexedChannel {
 		// bind data channel
 		this.rtpHandler.useJitterBuffer(!isLocal);
 		this.udpManager.bind(this.channel, PORT_ANY, isLocal);
+		this.statistics = new RtpStatistics(this.rtpClock, resolveCname());
 		this.bound = true;
 		this.transmitter.setChannel(this.channel);
 	}
@@ -267,6 +286,7 @@ public class RtpChannel extends MultiplexedChannel {
 		if(!channel.socket().isBound()) {
 			this.udpManager.bind(channel, PORT_ANY);
 		}
+		this.statistics = new RtpStatistics(this.rtpClock, resolveCname());
 		this.rtpHandler.useJitterBuffer(true);
 		this.transmitter.setChannel(channel);
 		if (this.srtp) {

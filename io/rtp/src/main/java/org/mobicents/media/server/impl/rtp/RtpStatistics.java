@@ -77,30 +77,23 @@ public class RtpStatistics {
 	public static final double INITIAL_RTCP_MIN_TIME = RTCP_MIN_TIME / 2;
 	
 	/* Common */
-	private final long ssrc;
+	private long ssrc;
+	private final String cname;
+	
 	private final RtpClock rtpClock;
 	private final Clock wallClock;
 	private final Random random;
 
 	/* RTP statistics */
-	// TODO Move the rtpKeepAlive to a more suitable place
-	/** Relative time in nanoseconds since a packet was received. Used for RTP keepalive mechanism, not RTCP statistics. */
 	private long lastHeartbeat;
 	
-	/** Number of RTP packets that were received */
 	private volatile long rtpRxPackets;
-	
-	/** Number of RTP octets that were received */
 	private volatile long rtpRxOctets;
 	
-	/** Number of RTP packets that were transmitted */
 	private volatile long rtpTxPackets;
-
-	/** Number of RTP octets that were transmitted */
 	private volatile long rtpTxOctets;
 	
-	/** Sequence number of the last transmitted RTP packet */
-	private int sequenceNumber;
+	private int rtpSeqNum;
 	
 	/** Relative timestamp of the last received RTP packet in nanoseconds */
 	private volatile long rtpReceivedOn;
@@ -154,19 +147,20 @@ public class RtpStatistics {
 	/** Flag that is true if the application has sent data since the 2nd previous RTCP report was transmitted */
 	private boolean weSent;
 	
-	public RtpStatistics(final RtpClock clock) {
+	public RtpStatistics(final RtpClock clock, final String cname) {
 		this.lastHeartbeat = 0;
 		
 		// Common
 		this.rtpClock = clock;
 		this.wallClock = clock.getWallClock();
 		this.ssrc = System.currentTimeMillis();
+		this.cname = cname;
 		this.random = new Random();
 
 		// RTP statistics
 		this.rtpRxPackets = 0;
 		this.rtpTxPackets = 0;
-		this.sequenceNumber = 0;
+		this.rtpSeqNum = 0;
 		this.rtpReceivedOn = 0;
 		this.rtpSentOn = 0;
 
@@ -183,33 +177,84 @@ public class RtpStatistics {
 		this.weSent = false;
 	}
 	
+	/**
+	 * Gets the relative time since an RTP packet or Heartbeat was received.
+	 * 
+	 * @return The last heartbeat timestamp, in nanoseconds
+	 */
 	public long getLastHeartbeat() {
 		return lastHeartbeat;
 	}
-	
+
+	/**
+	 * Sets the relative time for the last received Heartbeat on a RTP Channel.<br>
+	 * Used for RTP timeout control, not RTCP statistics.
+	 * 
+	 * @param rtpKeepAlive
+	 *            The heartbeat timestamp, in nanoseconds.
+	 */
 	public void setLastHeartbeat(long rtpKeepAlive) {
 		this.lastHeartbeat = rtpKeepAlive;
 	}
 	
+	/**
+	 * Gets the current time of the Wall Clock.<br>
+	 * 
+	 * @return The elapsed time of the wall clock, in nanoseconds.
+	 */
 	public long getCurrentTime() {
 		return this.wallClock.getTime();
 	}
 	
+	/**
+	 * Gets the RTP timestamp equivalent to the current time of the Wall Clock.
+	 * 
+	 * @return The current timestamp in RTP format.
+	 */
 	public long getRtpTime() {
 		return this.rtpClock.getLocalRtpTime();
 	}
 
+	/**
+	 * Gets the SSRC of the RTP Channel
+	 * 
+	 * @return The SSRC identifier of the channel
+	 */
 	public long getSsrc() {
 		return ssrc;
+	}
+	
+	public void setSsrc(long ssrc) {
+		// TODO check specs to know what to do when the SSRC changes
+		this.ssrc = ssrc;
+	}
+	
+	/**
+	 * Gets the CNAME that identifies this source
+	 * 
+	 * @return The CNAME of the source
+	 */
+	public String getCname() {
+		return cname;
 	}
 
 	/*
 	 * RTP Statistics
 	 */
+	/**
+	 * Gets the total number of RTP packets that were received during the RTP
+	 * session.
+	 * 
+	 * @return The number of RTP packets
+	 */
 	public long getRtpPacketsReceived() {
 		return rtpRxPackets;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public long getRtpOctetsReceived() {
 		return rtpRxOctets;
 	}
@@ -242,12 +287,12 @@ public class RtpStatistics {
 	}
 
 	public int getSequenceNumber() {
-		return sequenceNumber;
+		return rtpSeqNum;
 	}
 
 	public int nextSequenceNumber() {
-		this.sequenceNumber++;
-		return this.sequenceNumber;
+		this.rtpSeqNum++;
+		return this.rtpSeqNum;
 	}
 
 	public long getRtpReceivedOn() {
@@ -340,6 +385,14 @@ public class RtpStatistics {
 
 	public int getMembers() {
 		return members;
+	}
+	
+	public List<Long> getMembersList() {
+		List<Long> copy;
+		synchronized (this.membersList) {
+			copy = new ArrayList<Long>(this.membersList);
+		}
+		return copy;
 	}
 
 	public boolean isMember(long ssrc) {
@@ -508,5 +561,192 @@ public class RtpStatistics {
 		// TODO finish reset for RTCP statistics
 		this.rtpRxPackets = 0;
 		this.rtpTxPackets = 0;
+	}
+	
+	/**
+	 * Represents the set of RTP Statistics regarding data received from a
+	 * specific SSRC
+	 * 
+	 * @author Henrique Rosa
+	 * 
+	 */
+	public class RtpReceiverStatistics {
+		
+		private long ssrc;
+		private double fractionLost;
+		private int lostPackets;
+		private int sequenceNumber;
+		private long jitter;
+		private long lastSR;
+		private long lastSRdelay;
+		
+		public RtpReceiverStatistics(final long ssrc) {
+			this.ssrc = ssrc;
+			this.fractionLost = 0.0;
+			this.lostPackets = 0;
+			this.sequenceNumber = 0;
+			this.jitter = 0;
+			this.lastSR = 0;
+			this.lastSRdelay = 0;
+		}
+		
+		/**
+		 * Gets the SSRC identifier of the source to which the information in
+		 * this reception report block pertains
+		 * 
+		 * @return The SSRC identifier
+		 */
+		public long getSsrc() {
+			return ssrc;
+		}
+		
+		/**
+		 * Gets the fraction of RTP data packets from this source that were lost
+		 * since the previous SR or RR packet was sent, expressed as a fixed
+		 * point number with the binary point at the left edge of the field.
+		 * (That is equivalent to taking the integer part after multiplying the
+		 * loss fraction by 256.)
+		 * 
+		 * @return The fraction of lost packets
+		 */
+		public double getFractionLost() {
+			return fractionLost;
+		}
+
+		/**
+		 * Sets the fraction of RTP data packets from this source that were lost
+		 * since the previous SR or RR packet was sent.
+		 * 
+		 * This fraction is defined to be the number of packets lost divided by
+		 * the number of packets expected. If the loss is negative due to
+		 * duplicates, the fraction lost is set to zero.
+		 * 
+		 * @param fractionLost
+		 *            The fraction of lost packets
+		 */
+		public void setFractionLost(double fractionLost) {
+			this.fractionLost = fractionLost;
+		}
+		
+		/**
+		 * Gets the total number of RTP data packets from this source that have
+		 * been lost since the beginning of reception.
+		 * 
+		 * @return the number of packets lost
+		 */
+		public int getLostPackets() {
+			return lostPackets;
+		}
+		
+		/**
+		 * Sets the total number of RTP data packets from this source that have
+		 * been lost since the beginning of reception.
+		 * 
+		 * This number is defined to be the number of packets expected less the
+		 * number of packets actually received, where the number of packets
+		 * received includes any which are late or duplicates. Thus, packets
+		 * that arrive late are not counted as lost, and the loss may be
+		 * negative if there are duplicates. The number of packets expected is
+		 * defined to be the extended last sequence number received, as defined
+		 * next, less the initial sequence number received.
+		 * 
+		 * @param lostPackets the number of packets lost
+		 */
+		public void setLostPackets(int lostPackets) {
+			this.lostPackets = lostPackets;
+		}
+		
+		/**
+		 * Gets the highest sequence number received in an RTP data packet from
+		 * this source.
+		 * 
+		 * @return The highest sequence number on this source
+		 */
+		public int getSequenceNumber() {
+			return sequenceNumber;
+		}
+		
+		/**
+		 * Sets the highest sequence number received in an RTP data packet from
+		 * this source.
+		 * 
+		 * @param sequenceNumber
+		 *            The highest sequence number on this source
+		 */
+		public void setSequenceNumber(int sequenceNumber) {
+			this.sequenceNumber = sequenceNumber;
+		}
+		
+		/**
+		 * Gets an estimate of the statistical variance of the RTP data packet
+		 * interarrival time, measured in timestamp units and expressed as an
+		 * unsigned integer.
+		 * 
+		 * @return the estimated jitter for this source
+		 */
+		public long getJitter() {
+			return jitter;
+		}
+
+		/**
+		 * Sets the estimate jitter for this source.
+		 * 
+		 * @param jitter
+		 *            The statistical variance of the RTP data packet
+		 *            interarrival time, measured in timestamp units and
+		 *            expressed as an unsigned integer.
+		 */
+		public void setJitter(long jitter) {
+			this.jitter = jitter;
+		}
+		
+		/**
+		 * Gets the last time an RTCP Sender Report was received from this
+		 * source.
+		 * 
+		 * @return The middle 32 bits out of 64 in the NTP timestamp received as
+		 *         part of the most recent RTCP sender report (SR) packet.<br>
+		 *         If no SR has been received yet, returns zero.
+		 */
+		public long getLastSR() {
+			return lastSR;
+		}
+		
+		/**
+		 * Sets the last time an RTCP Sender Report was received from this
+		 * source.
+		 * 
+		 * @param lastSR
+		 *            The middle 32 bits out of 64 in the NTP timestamp received
+		 *            as part of the most recent RTCP sender report (SR) packet.
+		 */
+		public void setLastSR(long lastSR) {
+			this.lastSR = lastSR;
+		}
+		
+		/**
+		 * Gets the delay between receiving the last RTCP Sender Report (SR)
+		 * packet from this source and sending this reception report block.
+		 * 
+		 * @return The delay between SR reports, expressed in units of 1/65536
+		 *         seconds.<br>
+		 *         If no SR packet has been received yet, the DLSR field is set
+		 *         to zero. seconds
+		 */
+		public long getLastSRdelay() {
+			return lastSRdelay;
+		}
+		
+		/**
+		 * Sets the delay between receiving the last RTCP Sender Report (SR)
+		 * packet from this source and sending this reception report block.
+		 * 
+		 * @param lastSRdelay
+		 *            The delay between SR reports, expressed in units of
+		 *            1/65536 seconds.
+		 */
+		public void setLastSRdelay(long lastSRdelay) {
+			this.lastSRdelay = lastSRdelay;
+		}
 	}
 }

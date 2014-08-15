@@ -462,7 +462,7 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	/**
-	 * Schedulable task responsibable for cheking timeouts of registered SSRC.
+	 * Schedulable task responsible for checking timeouts of registered SSRC.
 	 * 
 	 * @author Henrique Rosa
 	 * 

@@ -62,6 +62,20 @@ public class RtcpPacket implements Serializable {
 		this.bye = bye;
 		this.appDefined = appDefined;
 	}
+	
+	public RtcpPacket(RtcpReport report, RtcpSdes sdes, RtcpBye bye) {
+		if(report.isSender()) {
+			this.senderReport = (RtcpSenderReport) report;
+		} else {
+			this.receiverReport = (RtcpReceiverReport) report;
+		}
+		this.sded = sdes;
+		this.bye = bye;
+	}
+
+	public RtcpPacket(RtcpReport report, RtcpSdes sdes) {
+		this(report, sdes, null);
+	}
 
 	public int decode(byte[] rawData, int offSet) {
 		this.size = rawData.length - offSet;

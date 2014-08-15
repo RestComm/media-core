@@ -1,9 +1,11 @@
 package org.mobicents.media.server.impl.rtcp;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.net.ntp.TimeStamp;
 import org.mobicents.media.server.impl.rtp.RtpStatistics;
+import org.mobicents.media.server.impl.rtp.RtpStatistics.RtpReceiverStatistics;
 
 /**
  * Factory for building RTCP packets
@@ -20,7 +22,7 @@ public class RtcpPacketFactory {
 	 *            The statistics of the RTP session
 	 * @return The RTCP packet
 	 */
-	private static RtcpPacket buildSenderReport(RtpStatistics statistics) {
+	private static RtcpSenderReport buildSenderReport(RtpStatistics statistics, boolean padding) {
 		/*
 		 *         0                   1                   2                   3
          *         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -58,9 +60,6 @@ public class RtcpPacketFactory {
          *        |                  profile-specific extensions                  |
          *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 */
-		
-		// FIXME validate padding!!!
-		boolean padding = false;
 		long ssrc = statistics.getSsrc();
 		TimeStamp ntpTs = new TimeStamp(new Date(statistics.getCurrentTime()));
 		long ntpSec = ntpTs.getSeconds();
@@ -70,9 +69,17 @@ public class RtcpPacketFactory {
 		long osent = statistics.getRtpOctetsReceived();
 		
 		RtcpSenderReport senderReport = new RtcpSenderReport(padding, ssrc, ntpSec, ntpFrac, rtpTs, psent, osent);
-		return null;
+		
+		// Add receiver reports for each registered member
+		List<Long> members = statistics.getMembersList();
+		for (Long member : members) {
+			if(!member.equals(ssrc)) {
+				buildSubReceiverReport(statistics);
+			}
+		}
+		return senderReport;
 	}
-
+	
 	/**
 	 * Builds a packet containing an RTCP Receiver Report
 	 * 
@@ -80,9 +87,33 @@ public class RtcpPacketFactory {
 	 *            The statistics of the RTP session
 	 * @return The RTCP packet
 	 */
-	private static RtcpPacket buildReceiverReport(RtpStatistics statistics) {
-		// TODO implement buildSenderReport
-		return null;
+	private static RtcpReceiverReport buildReceiverReport(RtpStatistics statistics, boolean padding) {
+		RtcpReceiverReport report = new RtcpReceiverReport(padding, statistics.getSsrc());
+		// TODO Add sub reports for each member
+		return report;
+	}
+	
+	private static RtcpSdes buildSdes(RtpStatistics statistics, boolean padding) {
+		RtcpSdes sdes = new RtcpSdes(padding);
+		RtcpSdesChunk chunk = new RtcpSdesChunk(statistics.getSsrc());
+		RtcpSdesItem cname = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_CNAME, statistics.getCname());
+		
+		chunk.addRtcpSdesItem(cname);
+		sdes.addRtcpSdesChunk(chunk);
+		return sdes;
+	}
+	
+	private static RtcpReceiverReportItem buildSubReceiverReport(RtpReceiverStatistics statistics) {
+		long ssrc = statistics.getSsrc();
+		double fraction = statistics.getFractionLost();
+		int lost = statistics.getLostPackets();
+		
+		int lastSeq = statistics.getSequenceNumber();
+		long jitter = statistics.getJitter();
+		long lsr = statistics.getLastSR();
+		long dlsr = statistics.getLastSRdelay();
+		
+		return new RtcpReceiverReportItem(ssrc, fraction, lost, SeqNumCycle, lastSeq, jitter, lsr, dlsr)
 	}
 
 	/**
@@ -119,11 +150,22 @@ public class RtcpPacketFactory {
 	 * @return The RTCP packet containing the RTCP Report (SS or RR).
 	 */
 	public static RtcpPacket buildReport(RtpStatistics statistics) {
-		if (statistics.hasSent()) {
-			return buildSenderReport(statistics);
+		// TODO Validate padding
+		boolean padding = false;
+		
+		// Build the initial report packet
+		RtcpReport report; 
+		if(statistics.hasSent()) {
+			report = buildSenderReport(statistics, padding);
 		} else {
-			return buildReceiverReport(statistics);
+			report = buildReceiverReport(statistics, padding);
 		}
+		
+		// Build the SDES packet containing the CNAME
+		RtcpSdes sdes = buildSdes(statistics, padding);
+		
+		// Build the compound packet
+		return new RtcpPacket(report, sdes);
 	}
 
 	/**
