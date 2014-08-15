@@ -3,7 +3,6 @@ package org.mobicents.media.server.impl.rtp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.scheduler.Clock;
@@ -323,6 +322,7 @@ public class RtpStatistics {
 		synchronized (this.sendersList) {
 			this.sendersList.clear();
 			this.senders = 0;
+			this.weSent = false;
 		}
 	}
 	

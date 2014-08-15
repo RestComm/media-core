@@ -8,11 +8,10 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.RtpStatistics;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  * 
@@ -140,7 +139,6 @@ public class RtcpHandler implements PacketHandler {
 		this.tp = this.statistics.getCurrentTime();
 		this.statistics.resetMembers();
 		this.initial = true;
-		this.weSent = false;
 		this.statistics.clearSenders();
 		this.statistics.setAvgRtcpSize(bye.getSize());
 
@@ -259,7 +257,29 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	public boolean canHandle(byte[] packet, int dataLength, int offset) {
-		// TODO Auto-generated method stub
+		// RTP version field must equal 2
+		int version = (packet[offset] & 0xC0) >> 6;
+		if (version == RtpPacket.VERSION) {
+			// The payload type field of the first RTCP packet in a compound
+			// packet must be equal to SR or RR.
+			int type = packet[offset + 1] & 0x000000FF;
+			if (type == RtcpHeader.RTCP_SR || type == RtcpHeader.RTCP_RR) {
+				/*
+				 * The padding bit (P) should be zero for the first packet of a
+				 * compound RTCP packet because padding should only be applied,
+				 * if it is needed, to the last packet.
+				 */
+				int padding = (packet[offset] & 0x20) >> 5;
+				if(padding == 0) {
+					/*
+					 * TODO The length fields of the individual RTCP packets must add
+					 * up to the overall length of the compound RTCP packet as
+					 * received. This is a fairly strong check.
+					 */
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
