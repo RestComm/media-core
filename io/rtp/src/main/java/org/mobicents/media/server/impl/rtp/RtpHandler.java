@@ -122,33 +122,32 @@ public class RtpHandler implements PacketHandler {
 		this.dtmfInput.reset();
 	}
 	
-	/*
-	 * The RTP header has the following format:
-	 *
-     * 0                   1                   2                   3
-     * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |V=2|P|X|  CC   |M|     PT      |       sequence number         |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |                           timestamp                           |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * |           synchronization source (SSRC) identifier            |
-     * +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-     * |            contributing source (CSRC) identifiers             |
-     * |                             ....                              |
-     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     * 
-     * The first twelve octets are present in every RTP packet, while the
-     * list of CSRC identifiers is present only when inserted by a mixer.
-     * 
-     * The version defined by RFC3550 specification is two.
-	 */
-	
 	public boolean canHandle(byte[] packet) {
 		return canHandle(packet, packet.length, 0);
 	}
 	
 	public boolean canHandle(byte[] packet, int dataLength, int offset) {
+		/*
+		 * The RTP header has the following format:
+		 *
+	     * 0                   1                   2                   3
+	     * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	     * |V=2|P|X|  CC   |M|     PT      |       sequence number         |
+	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	     * |                           timestamp                           |
+	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	     * |           synchronization source (SSRC) identifier            |
+	     * +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+	     * |            contributing source (CSRC) identifiers             |
+	     * |                             ....                              |
+	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	     * 
+	     * The first twelve octets are present in every RTP packet, while the
+	     * list of CSRC identifiers is present only when inserted by a mixer.
+	     * 
+	     * The version defined by RFC3550 specification is two.
+		 */
 		// Packet must be equal or greater than an RTP Packet Header
 		if(dataLength >= RtpPacket.FIXED_HEADER_SIZE) {
 			// The most significant 2 bits of every RTP message correspond to the version.
@@ -156,6 +155,8 @@ public class RtpHandler implements PacketHandler {
 			byte b0 = packet[offset];
 			int version = (b0 & 0xC0) >> 6;
 			return version == RtpPacket.VERSION;
+			
+			// XXX not enough to differentiate from a RTCP packet
 		}
 		return false;
 	}
@@ -204,7 +205,7 @@ public class RtpHandler implements PacketHandler {
 			long ssrc = rtpPacket.getSyncSource();
 			
 			// Note that there is no point in registering new members if RTCP handler has scheduled a BYE
-			if(RtcpPacketType.RTCP_REPORT.equals(this.statistics.getScheduledPacketType())) {
+			if(RtcpPacketType.RTCP_REPORT.equals(this.statistics.getNextPacketType())) {
 				if (!this.statistics.isSender(ssrc)) {
 					this.statistics.addSender(ssrc);
 				}
@@ -217,13 +218,15 @@ public class RtpHandler implements PacketHandler {
 			// Queue packet into the jitter buffer
 			if (rtpPacket.getBuffer().limit() > 0) {
 				if (loopable) {
-					// Increment counters
-					this.statistics.onRtpReceive(dataLength);
-					this.statistics.onRtpSent(dataLength);
+					// Update statistics for RTCP
+					this.statistics.onRtpReceive(rtpPacket);
+					this.statistics.onRtpSent(rtpPacket);
 					// Return same packet (looping) so it can be transmitted
 					return packet;
 				} else {
-					this.statistics.onRtpReceive(dataLength);
+					// Update statistics for RTCP
+					this.statistics.onRtpReceive(rtpPacket);
+					// Write packet
 					RTPFormat format = rtpFormats.find(rtpPacket.getPayloadType());
 					if (format != null && format.getFormat().matches(RtpChannel.DTMF_FORMAT)) {
 						dtmfInput.write(rtpPacket);

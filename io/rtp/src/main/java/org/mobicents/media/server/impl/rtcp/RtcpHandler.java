@@ -28,31 +28,22 @@ public class RtcpHandler implements PacketHandler {
 	/*
 	 * Core elements
 	 */
-	/** Timer that sends RTCP packet on expiration */
-	private final Timer txTimer;
-
-	/** Timer that checks for SSRC timeouts on expiration */
-	private final Timer ssrcTimer;
-	private final SsrcTask ssrcTask;
-
-	/** Datagram channel used to send the RTCP packets to the remote peer */
 	private DatagramChannel channel;
-
-	/** Buffer used to wrap RTCP packets */
 	private ByteBuffer byteBuffer;
 
 	/*
 	 * RTCP elements
 	 */
-	/** Stores statistics regarding the RTP session */
-	private final RtpStatistics statistics;
-
-	/** The scheduled task responsible for transmitting the RTCP packet. */
+	private final Timer txTimer;
+	private final Timer ssrcTimer;
+	
 	private TxTask scheduledTask;
+	private final SsrcTask ssrcTask;
+	
+	private final RtpStatistics statistics;
 
 	/** The elapsed time (nanoseconds) since an RTCP packet was transmitted */
 	private long tp;
-
 	/** The time interval (nanoseconds) until next scheduled transmission time of an RTCP packet */
 	private long tn;
 
@@ -111,10 +102,10 @@ public class RtcpHandler implements PacketHandler {
 	public void joinRtpSession() {
 		// Schedule first RTCP packet
 		long t = this.statistics.rtcpInterval(this.initial);
+		RtcpPacket report = RtcpPacketFactory.buildReport(this.statistics);
+
 		this.tn = t;
-		RtcpPacket packet = new RtcpPacket();
-		// TODO build an RR packet
-		schedule(this.tn, packet);
+		schedule(this.tn, report);
 		
 		// Start SSRC timeout timer
 		this.ssrcTimer.scheduleAtFixedRate(this.ssrcTask, SSRC_TASK_DELAY, SSRC_TASK_DELAY);
@@ -140,7 +131,7 @@ public class RtcpHandler implements PacketHandler {
 		this.statistics.resetMembers();
 		this.initial = true;
 		this.statistics.clearSenders();
-		this.statistics.setAvgRtcpSize(bye.getSize());
+		this.statistics.setRtcpAvgSize(bye.getSize());
 
 		long t = this.statistics.rtcpInterval(initial);
 		this.tn = resolveDelay(t);
@@ -160,7 +151,7 @@ public class RtcpHandler implements PacketHandler {
 		this.scheduledTask = new TxTask(resolveInterval(timestamp), packet);
 		this.txTimer.schedule(this.scheduledTask, TimeUnit.NANOSECONDS.toMillis(timestamp));
 		// Let the RTP handler know what is the type of scheduled packet
-		this.statistics.setScheduledPacketType(packet.getPacketType());
+		this.statistics.setRtcpPacketType(packet.getPacketType());
 	}
 
 	/**
@@ -201,8 +192,6 @@ public class RtcpHandler implements PacketHandler {
 				RtcpPacket packet = task.getPacket();
 				sendRtcpPacket(packet);
 
-				int sentPacketSize = packet.getSize();
-				this.statistics.calculateAvgRtcpSize(sentPacketSize);
 				this.tp = tc;
 
 				/*
@@ -296,56 +285,12 @@ public class RtcpHandler implements PacketHandler {
 		// Decode the RTCP compound packet
 		RtcpPacket rtcpPacket = new RtcpPacket();
 		rtcpPacket.decode(packet, offset);
+		
+		// Upgrade RTCP statistics
+		this.statistics.onRtcpReceive(rtcpPacket);
 
-		/*
-		 * All RTCP packets MUST be sent in a compound packet of at least two
-		 * individual packets. The first RTCP packet in the compound packet MUST
-		 * always be a report packet to facilitate header validation
-		 */
-		RtcpReport report = rtcpPacket.getReport();
-		long ssrc = report.getSsrc();
-
-		/*
-		 * What we do depends on whether we have left the group, and are waiting
-		 * to send a BYE or an RTCP report.
-		 */
-		switch (rtcpPacket.getPacketType()) {
-		case RTCP_REPORT:
-
-			/*
-			 * When an RTP or (non-bye) RTCP packet is received from a
-			 * participant whose SSRC is not in the member table, the SSRC is
-			 * added to the table, and the value for members is updated once the
-			 * participant has been validated.
-			 */
-			if (!this.statistics.isMember(ssrc) && RtcpPacketType.RTCP_REPORT.equals(this.statistics.getScheduledPacketType())) {
-				this.statistics.addMember(ssrc);
-			}
-
-			break;
-		case RTCP_BYE:
-
-			switch (this.scheduledTask.getType()) {
-			case RTCP_REPORT:
-
-				/*
-				 * If the received packet is an RTCP BYE packet, the SSRC is
-				 * checked against the member table. If present, the entry is
-				 * removed from the table, and the value for members is updated.
-				 */
-				if (this.statistics.isMember(ssrc)) {
-					this.statistics.removeMember(ssrc);
-				}
-
-				/*
-				 * The SSRC is then checked against the sender table. If
-				 * present, the entry is removed from the table, and the value
-				 * for senders is updated.
-				 */
-				if (this.statistics.isSender(ssrc)) {
-					this.statistics.removeSender(ssrc);
-				}
-
+		if(RtcpPacketType.RTCP_BYE.equals(rtcpPacket.getPacketType())) {
+			if(RtcpPacketType.RTCP_REPORT.equals(this.scheduledTask.getType())) {
 				/*
 				 * To make the transmission rate of RTCP packets more adaptive
 				 * to changes in group membership, the following "reverse
@@ -362,39 +307,9 @@ public class RtcpHandler implements PacketHandler {
 					reschedule(this.scheduledTask, this.tn);
 					this.statistics.confirmMembers();
 				}
-				break;
-
-			case RTCP_BYE:
-
-				/*
-				 * Every time a BYE packet from another participant is received,
-				 * members is incremented by 1 regardless of whether that
-				 * participant exists in the member table or not, and when SSRC
-				 * sampling is in use, regardless of whether or not the BYE SSRC
-				 * would be included in the sample.
-				 * 
-				 * members is NOT incremented when other RTCP packets or RTP
-				 * packets are received, but only for BYE packets. Similarly,
-				 * avg_rtcp_size is updated only for received BYE packets.
-				 * senders is NOT updated when RTP packets arrive; it remains 0.
-				 */
-				this.statistics.addMember();
-				break;
-
-			default:
-				logger.warn("Unknown type of scheduled event: " + this.scheduledTask.getType().name());
-				break;
 			}
-			break;
-		default:
-			logger.warn("Unkown RTCP packet type: " + rtcpPacket.getPacketType().name() + ". Dropping packet.");
-			break;
 		}
-
-		// For each RTCP packet received, the value of avg_rtcp_size is updated.
-		this.statistics.calculateAvgRtcpSize(dataLength);
-
-		// RTCP does not send replies
+		// RTCP handler does not send replies
 		return null;
 	}
 
@@ -408,6 +323,9 @@ public class RtcpHandler implements PacketHandler {
 			this.byteBuffer.clear();
 			this.byteBuffer.put(data, offset, data.length);
 			this.byteBuffer.flip();
+			
+			// update RTCP statistics
+			this.statistics.onRtcpSent(packet);
 
 			// send packet
 			this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());

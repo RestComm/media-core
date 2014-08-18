@@ -47,6 +47,7 @@ public class RtpTransmitter {
 	private RTPFormat currentFormat;
 	private long timestamp;
 	private long dtmfTimestamp;
+	private int sequenceNumber;
 	
 	public RtpTransmitter(final Scheduler scheduler, final RtpStatistics statistics) {
 		this.rtpClock = new RtpClock(scheduler.getClock());
@@ -54,6 +55,7 @@ public class RtpTransmitter {
 		this.dtmfSupported = false;
 		this.rtpOutput = new RTPOutput(scheduler, this);
 		this.dtmfOutput = new DtmfOutput(scheduler, this);
+		this.sequenceNumber = 0;
 		this.dtmfTimestamp = -1;
 		this.timestamp = -1;
 		this.formats = null;
@@ -134,9 +136,9 @@ public class RtpTransmitter {
 			ByteBuffer buf = packet.getBuffer();
 			buf.rewind();
 			
-			// send RTP packet to the network
-			int sent = channel.send(buf, channel.socket().getRemoteSocketAddress());
-			statistics.onRtpSent(sent);
+			// send RTP packet to the network and update statistics for RTCP
+			statistics.onRtpSent(packet);
+			channel.send(buf, channel.socket().getRemoteSocketAddress());
 		}
 	}
 	
@@ -156,7 +158,7 @@ public class RtpTransmitter {
 		dtmfTimestamp = frame.getTimestamp() / 1000000L;
 		// convert to rtp time units
 		dtmfTimestamp = rtpClock.convertToRtpTime(dtmfTimestamp);
-		oobPacket.wrap(false, AVProfile.telephoneEventsID, statistics.nextSequenceNumber(), dtmfTimestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
+		oobPacket.wrap(false, AVProfile.telephoneEventsID, this.sequenceNumber++, dtmfTimestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
 
 		frame.recycle();
 		
@@ -206,7 +208,7 @@ public class RtpTransmitter {
 		timestamp = frame.getTimestamp() / 1000000L;
 		// convert to rtp time units
 		timestamp = rtpClock.convertToRtpTime(timestamp);
-		rtpPacket.wrap(false, currentFormat.getID(), statistics.nextSequenceNumber(), timestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
+		rtpPacket.wrap(false, currentFormat.getID(), this.sequenceNumber++, timestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
 
 		frame.recycle();
 		try {

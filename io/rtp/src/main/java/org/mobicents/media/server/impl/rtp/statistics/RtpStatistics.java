@@ -6,8 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
+import org.mobicents.media.server.impl.rtcp.RtcpReport;
+import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.scheduler.Clock;
 
 /**
@@ -18,106 +23,58 @@ import org.mobicents.media.server.scheduler.Clock;
  */
 public class RtpStatistics {
 	
-	/* Constants */
-	/** Default session bandwidth (in octets per second). Matches g.711 bandwith: 64kbps */
+	private static final Logger logger = Logger.getLogger(RtpStatistics.class);
+
+	/** Default session bandwidth (in octets per second). Matches g.711: 64kbps */
 	public static final int RTP_DEFAULT_BW = 8000;
-	
-	/**
-	 * The control traffic should be limited to a small and known fraction of
-	 * the session bandwidth: small so that the primary function of the
-	 * transport protocol to carry data is not impaired [...]
-	 * 
-	 * It is RECOMMENDED that the fraction of the session bandwidth added for
-	 * RTCP be fixed at 5%.
-	 */
+
+	/** Fraction of the session bandwidth added for RTCP */
 	public static final double RTCP_BW_FRACTION = 0.05;
 
-	/** Default value for the RTCP bandwith */
+	/** Default value for the RTCP bandwidth */
 	public static final double RTCP_DEFAULT_BW = RTP_DEFAULT_BW * RTCP_BW_FRACTION;
-	
-	/**
-	 * Fraction of the RTCP bandwidth to be shared among active senders.
-	 * 
-	 * (This fraction was chosen so that in a typical session with one or two
-	 * active senders, the computed report time would be roughly equal to the
-	 * minimum report time so that we don't unnecessarily slow down receiver
-	 * reports.)
-	 */
+
+	/** Fraction of the RTCP bandwidth to be shared among active senders. */
 	public static final double RTCP_SENDER_BW_FRACTION = 0.25;
 
 	/** Fraction of the RTCP bandwidth to be shared among receivers. */
-	public static final double RTCP_RECEIVER_BW_FRACTION = 1- RTCP_SENDER_BW_FRACTION;
-	
-	/** To compensate for "timer reconsideration" converging to a value below the intended average. */
+	public static final double RTCP_RECEIVER_BW_FRACTION = 1 - RTCP_SENDER_BW_FRACTION;
+
+	/** "timer reconsideration": converges to a value below the intended average */
 	private static final double RTCP_COMPENSATION = Math.E - (3 / 2);
 
 	/** Default value for the average RTCP packet size */
 	public static final int RTCP_DEFAULT_AVG_SIZE = 200;
-	
-	/**
-	 * The calculated interval (in ms) between transmissions of compound RTCP
-	 * packets SHOULD also have a lower bound to avoid having bursts of packets
-	 * exceed the allowed bandwidth when the number of participants is small and
-	 * the traffic isn't smoothed according to the law of large numbers.
-	 * 
-	 * It also keeps the report interval from becoming too small during
-	 * transient outages like a network partition such that adaptation is
-	 * delayed when the partition heals.
-	 * 
-	 * The RECOMMENDED value for a fixed minimum interval is 5 seconds.
-	 */
+
+	/** The minimum interval between transmissions of compound RTCP packets. */
 	public static final double RTCP_MIN_TIME = 5.0;
 
-	/**
-	 * At application startup, a delay SHOULD be imposed before the first
-	 * compound RTCP packet is sent to allow time for RTCP packets to be
-	 * received from other participants so the report interval will converge to
-	 * the correct value more quickly.
-	 * 
-	 * This delay MAY be set to half the minimum interval to allow quicker
-	 * notification that the new participant is present.
-	 */
+	/** Initial delay imposed before the first compound RTCP packet is sent. */
 	public static final double INITIAL_RTCP_MIN_TIME = RTCP_MIN_TIME / 2;
-	
-	/* Common */
-	private long ssrc;
-	private final String cname;
-	
+
+	/* Core */
 	private final RtpClock rtpClock;
 	private final Clock wallClock;
 	private final Random random;
 
-	/* RTP statistics */
-	private long lastHeartbeat;
-	
+	/* SSRC Data */
+	private long ssrc;
+	private final String cname;
+
+	/* Global RTP statistics */
+	private long rtpLastHeartbeat;
 	private volatile long rtpRxPackets;
 	private volatile long rtpRxOctets;
-	
 	private volatile long rtpTxPackets;
 	private volatile long rtpTxOctets;
-	
-	private int rtpSeqNum;
-	
-	/** Relative timestamp of the last received RTP packet in nanoseconds */
 	private volatile long rtpReceivedOn;
-	
-	/** Relative timestamp of the last transmitted RTP packet in nanoseconds */
 	private volatile long rtpSentOn;
 
-	/* RTCP statistics */
-	/** The type of RTCP packet that is scheduled to be transmitted next. */
-	private RtcpPacketType scheduledPacketType;
-	
-	/**
-	 * The total bandwidth that will be used for RTCP packets by all members of this session, in octets per second.
-	 */
+	/* Global RTCP statistics */
+	private RtcpPacketType rtcpNextPacketType;
 	private double rtcpBw;
-	
-	/** List of SSRC that are senders */
-	private final List<Long> sendersList;
-
-	/** The most current estimate for the number of senders in the session */
-	private int senders;
+	private double rtcpAvgSize;
+	private boolean weSent;
 
 	/**
 	 * Calculation of the RTCP packet interval depends upon an estimate of the
@@ -136,23 +93,14 @@ public class RtpStatistics {
 	 * RTCP report intervals (5 is RECOMMENDED). This provides some robustness
 	 * against packet loss.
 	 */
-	private final Map<Long, Member> membersList;
-
-	/** The estimated number of session members at the time <code>tn</code> was last recomputed */
+	private final Map<Long, Member> membersMap;
 	private int pmembers;
-
-	/** the most current estimate for the number of session members */
 	private int members;
 	
-	/** The average compound RTCP packet size, in octets */
-	private double avgRtcpSize;
-	
-	/** Flag that is true if the application has sent data since the 2nd previous RTCP report was transmitted */
-	private boolean weSent;
-	
+	private final List<Long> sendersList;
+	private int senders;
+
 	public RtpStatistics(final RtpClock clock, final String cname) {
-		this.lastHeartbeat = 0;
-		
 		// Common
 		this.rtpClock = clock;
 		this.wallClock = clock.getWallClock();
@@ -161,9 +109,9 @@ public class RtpStatistics {
 		this.random = new Random();
 
 		// RTP statistics
+		this.rtpLastHeartbeat = 0;
 		this.rtpRxPackets = 0;
 		this.rtpTxPackets = 0;
-		this.rtpSeqNum = 0;
 		this.rtpReceivedOn = 0;
 		this.rtpSentOn = 0;
 
@@ -172,21 +120,21 @@ public class RtpStatistics {
 		this.sendersList = new ArrayList<Long>();
 		this.pmembers = 1;
 		this.members = 1;
-		this.membersList = new HashMap<Long, Member>();
-		this.membersList.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
+		this.membersMap = new HashMap<Long, Member>();
+		this.membersMap.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
 		this.rtcpBw = RTP_DEFAULT_BW * RTCP_BW_FRACTION;
-		this.avgRtcpSize = RTCP_DEFAULT_AVG_SIZE;
-		this.scheduledPacketType = RtcpPacketType.RTCP_REPORT;
+		this.rtcpAvgSize = RTCP_DEFAULT_AVG_SIZE;
+		this.rtcpNextPacketType = RtcpPacketType.RTCP_REPORT;
 		this.weSent = false;
 	}
-	
+
 	/**
 	 * Gets the relative time since an RTP packet or Heartbeat was received.
 	 * 
 	 * @return The last heartbeat timestamp, in nanoseconds
 	 */
 	public long getLastHeartbeat() {
-		return lastHeartbeat;
+		return rtpLastHeartbeat;
 	}
 
 	/**
@@ -197,9 +145,9 @@ public class RtpStatistics {
 	 *            The heartbeat timestamp, in nanoseconds.
 	 */
 	public void setLastHeartbeat(long rtpKeepAlive) {
-		this.lastHeartbeat = rtpKeepAlive;
+		this.rtpLastHeartbeat = rtpKeepAlive;
 	}
-	
+
 	/**
 	 * Gets the current time of the Wall Clock.<br>
 	 * 
@@ -208,7 +156,7 @@ public class RtpStatistics {
 	public long getCurrentTime() {
 		return this.wallClock.getTime();
 	}
-	
+
 	/**
 	 * Gets the RTP timestamp equivalent to the current time of the Wall Clock.
 	 * 
@@ -226,12 +174,12 @@ public class RtpStatistics {
 	public long getSsrc() {
 		return ssrc;
 	}
-	
+
 	public void setSsrc(long ssrc) {
 		// TODO check specs to know what to do when the SSRC changes
 		this.ssrc = ssrc;
 	}
-	
+
 	/**
 	 * Gets the CNAME that identifies this source
 	 * 
@@ -261,51 +209,29 @@ public class RtpStatistics {
 	public long getRtpOctetsReceived() {
 		return rtpRxOctets;
 	}
-	
-	public void onRtpReceive(int packetSize) {
-		this.rtpRxPackets++;
-		this.rtpRxOctets += packetSize;
-		this.rtpReceivedOn = this.wallClock.getTime();
-	}
 
 	public long getRtpPacketsSent() {
 		return rtpTxPackets;
 	}
-	
+
 	public long getRtpOctetsSent() {
 		return rtpTxOctets;
 	}
 
-	public void onRtpSent(int packetSize) {
-		this.rtpTxPackets++;
-		this.rtpTxOctets += packetSize;
-		this.rtpSentOn = this.wallClock.getTime();
-		/*
-		 * If the participant sends an RTP packet when we_sent is false, it adds
-		 * itself to the sender table and sets we_sent to true.
-		 */
-		if (!this.weSent) {
-			addSender(Long.valueOf(this.ssrc));
-		}
-	}
-
-	public int getSequenceNumber() {
-		return rtpSeqNum;
-	}
-
-	public int nextSequenceNumber() {
-		this.rtpSeqNum++;
-		return this.rtpSeqNum;
-	}
-
+	/**
+	 * Gets the relative timestamp of the last received RTP packet.
+	 * 
+	 * @return The elapsed time, in nanoseconds.
+	 */
 	public long getRtpReceivedOn() {
 		return rtpReceivedOn;
 	}
 
-	public void setRtpReceivedOn(long timestamp) {
-		this.rtpReceivedOn = timestamp;
-	}
-	
+	/**
+	 * Gets the relative timestamp of the last transmitted RTP packet.
+	 * 
+	 * @return The elapsed time, in nanoseconds.
+	 */
 	public long getRtpSentOn() {
 		return rtpSentOn;
 	}
@@ -313,30 +239,63 @@ public class RtpStatistics {
 	/*
 	 * RTCP Statistics
 	 */
+	/**
+	 * Checks whether the application has sent data since the 2nd previous RTCP
+	 * report was sent.
+	 * 
+	 * @return Whether data has been sent recently
+	 */
 	public boolean hasSent() {
 		return this.weSent;
 	}
-	
+
+	/**
+	 * Gets the total RTCP bandwidth of this session.
+	 * 
+	 * @return The bandwidth, in octets per second
+	 */
 	public double getRtcpBw() {
 		return rtcpBw;
 	}
-	
+
+	/**
+	 * Sets the total RTCP bandwidth of this session.
+	 * 
+	 * @param rtcpBw
+	 *            The bandwidth, in octets per second
+	 */
 	public void setRtcpBw(double rtcpBw) {
 		this.rtcpBw = rtcpBw;
 	}
-	
-	public RtcpPacketType getScheduledPacketType() {
-		return scheduledPacketType;
+
+	/**
+	 * Gets the type of RTCP packet that is scheduled to be transmitted next.
+	 * 
+	 * @return The type of the packet
+	 */
+	public RtcpPacketType getNextPacketType() {
+		return rtcpNextPacketType;
 	}
-	
-	public void setScheduledPacketType(RtcpPacketType scheduledPacketType) {
-		this.scheduledPacketType = scheduledPacketType;
+
+	/**
+	 * Sets the type of RTCP packet that is scheduled to be transmitted next.
+	 * 
+	 * @param packetType
+	 *            The type of the packet
+	 */
+	public void setRtcpPacketType(RtcpPacketType packetType) {
+		this.rtcpNextPacketType = packetType;
 	}
-	
+
+	/**
+	 * Gets the most current estimate for the number of senders in the session
+	 * 
+	 * @return The estimate number of senders
+	 */
 	public int getSenders() {
 		return this.senders;
 	}
-	
+
 	public boolean isSender(long ssrc) {
 		synchronized (this.sendersList) {
 			return this.sendersList.contains(Long.valueOf(ssrc));
@@ -348,7 +307,7 @@ public class RtpStatistics {
 			if (!this.sendersList.contains(Long.valueOf(ssrc))) {
 				this.sendersList.add(Long.valueOf(ssrc));
 				this.senders++;
-				if(this.ssrc == ssrc) {
+				if (this.ssrc == ssrc) {
 					this.weSent = true;
 				}
 			}
@@ -359,13 +318,13 @@ public class RtpStatistics {
 		synchronized (this.sendersList) {
 			if (this.sendersList.remove(Long.valueOf(ssrc))) {
 				this.senders--;
-				if(this.ssrc == ssrc) {
+				if (this.ssrc == ssrc) {
 					this.weSent = false;
 				}
 			}
 		}
 	}
-	
+
 	public void clearSenders() {
 		synchronized (this.sendersList) {
 			this.sendersList.clear();
@@ -373,9 +332,64 @@ public class RtpStatistics {
 			this.weSent = false;
 		}
 	}
-	
+
+	/**
+	 * Gets the estimated number of session members at the time <code>tn</code>
+	 * was last recomputed.
+	 * 
+	 * @return The number of members
+	 */
 	public int getPmembers() {
 		return pmembers;
+	}
+
+	/**
+	 * Gets the most current estimate for the number of session members.
+	 * 
+	 * @return The number of members
+	 */
+	public int getMembers() {
+		return members;
+	}
+
+	public Member getMember(long ssrc) {
+		synchronized (this.membersMap) {
+			return this.membersMap.get(Long.valueOf(ssrc));
+		}
+	}
+
+	public List<Long> getMembersList() {
+		List<Long> copy;
+		synchronized (this.membersMap) {
+			copy = new ArrayList<Long>(this.membersMap.keySet());
+		}
+		return copy;
+	}
+
+	public boolean isMember(long ssrc) {
+		synchronized (this.membersMap) {
+			return this.membersMap.containsKey(Long.valueOf(ssrc));
+		}
+	}
+
+	public Member addMember(long ssrc) {
+		Member member = getMember(ssrc);
+		if (member == null) {
+			synchronized (this.membersMap) {
+				this.membersMap.put(Long.valueOf(ssrc), new Member(
+						this.rtpClock, ssrc));
+				this.members++;
+			}
+		}
+		return member;
+	}
+
+	public void removeMember(long ssrc) {
+		synchronized (this.membersMap) {
+			if (this.membersMap.remove(Long.valueOf(ssrc)) != null) {
+				this.members--;
+			}
+		}
 	}
 
 	/**
@@ -386,67 +400,33 @@ public class RtpStatistics {
 		this.pmembers = this.members;
 	}
 
-	public int getMembers() {
-		return members;
-	}
-	
-	public List<Long> getMembersList() {
-		List<Long> copy;
-		synchronized (this.membersList) {
-			copy = new ArrayList<Long>(this.membersList.keySet());
-		}
-		return copy;
-	}
-
-	public boolean isMember(long ssrc) {
-		synchronized (this.membersList) {
-			return this.membersList.containsKey(Long.valueOf(ssrc));
-		}
-	}
-
-	public void addMember(long ssrc) {
-		if (!isMember(ssrc)) {
-			synchronized (this.membersList) {
-				this.membersList.put(Long.valueOf(ssrc), new Member(this.rtpClock, ssrc));
-				this.members++;
-			}
-		}
-	}
-	
-	public void addMember() {
-		this.members++;
-	}
-
-	public void removeMember(long ssrc) {
-		synchronized (this.membersList) {
-			if (this.membersList.remove(Long.valueOf(ssrc)) != null) {
-				this.members--;
-			}
-		}
-	}
-	
 	public void resetMembers() {
-		synchronized (this.membersList) {
-			this.membersList.clear();
-			this.membersList.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
+		synchronized (this.membersMap) {
+			this.membersMap.clear();
+			this.membersMap.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
 			this.members = 1;
 			this.pmembers = 1;
 		}
 	}
-	
-	public double getAvgRtcpSize() {
-		return avgRtcpSize;
+
+	/**
+	 * Gets the average compound RTCP packet size.
+	 * 
+	 * @return The average packet size, in octets
+	 */
+	public double getRtcpAvgSize() {
+		return rtcpAvgSize;
 	}
 	
-	public void setAvgRtcpSize(double avgRtcpSize) {
-		this.avgRtcpSize = avgRtcpSize;
+	public void setRtcpAvgSize(double avgSize) {
+		this.rtcpAvgSize = avgSize;
 	}
-	
-	public double calculateAvgRtcpSize(double packetSize) {
-		this.avgRtcpSize = (1 / 16) * packetSize + (15 / 16) * this.avgRtcpSize;
-		return this.avgRtcpSize;
+
+	private double calculateAvgRtcpSize(double packetSize) {
+		this.rtcpAvgSize = (1 / 16) * packetSize + (15 / 16) * this.rtcpAvgSize;
+		return this.rtcpAvgSize;
 	}
-	
+
 	/**
 	 * 6.3.1 - Computing the RTCP Transmission Interval
 	 * 
@@ -499,7 +479,7 @@ public class RtpStatistics {
 	public long rtcpInterval(boolean initial) {
 		return rtcpInterval(this.weSent, initial);
 	}
-	
+
 	/**
 	 * Calculates the RTCP interval for a receiver, that is without the
 	 * randomization factor (we_sent=false).
@@ -510,39 +490,40 @@ public class RtpStatistics {
 	public long rtcpReceiverInterval(boolean initial) {
 		return rtcpInterval(false, initial);
 	}
-	
+
 	private long rtcpInterval(boolean weSent, boolean initial) {
 		// 1 - calculate n and c
 		double c;
 		int n;
 		if (this.senders <= (this.members * RTCP_SENDER_BW_FRACTION)) {
-			if(this.weSent) {
-				c = this.avgRtcpSize / (RTCP_SENDER_BW_FRACTION * this.rtcpBw);
+			if (this.weSent) {
+				c = this.rtcpAvgSize / (RTCP_SENDER_BW_FRACTION * this.rtcpBw);
 				n = this.senders;
 			} else {
-				c = this.avgRtcpSize / (RTCP_RECEIVER_BW_FRACTION * this.rtcpBw);
+				c = this.rtcpAvgSize
+						/ (RTCP_RECEIVER_BW_FRACTION * this.rtcpBw);
 				n = this.members - this.senders;
 			}
 		} else {
-			c = this.avgRtcpSize / this.rtcpBw;
+			c = this.rtcpAvgSize / this.rtcpBw;
 			n = this.members;
 		}
-		
+
 		// 2 - calculate Tmin
 		double tMin = initial ? INITIAL_RTCP_MIN_TIME : RTCP_MIN_TIME;
-		
+
 		// 3 - calculate Td
 		double td = Math.max(tMin, n * c);
-		
+
 		// 4 - calculate interval T
 		double min = td * 0.5;
 		double max = td * 1.5;
 		double t = min + (max - min) * this.random.nextDouble();
-		
+
 		// 5 - divide T by e-3/2 and convert to nanoseconds
 		return (long) ((t / RTCP_COMPENSATION) * 1000000000L);
 	}
-	
+
 	/**
 	 * Checks whether this SSRC is still a sender.
 	 * 
@@ -555,17 +536,141 @@ public class RtpStatistics {
 	public boolean isSenderTimeout() {
 		long t = rtcpReceiverInterval(false);
 		long minTime = getCurrentTime() - (2 * t);
-		
-		if(this.rtpSentOn < minTime) {
+
+		if (this.rtpSentOn < minTime) {
 			removeSender(this.ssrc);
 		}
 		return this.weSent;
 	}
-	
+
 	public void reset() {
 		// TODO finish reset for RTCP statistics
 		this.rtpRxPackets = 0;
 		this.rtpTxPackets = 0;
 	}
 
+	/*
+	 * EVENTS
+	 */
+	public void onRtpSent(RtpPacket packet) {
+		this.rtpTxPackets++;
+		this.rtpTxOctets += packet.getLength();
+		this.rtpSentOn = this.wallClock.getTime();
+		/*
+		 * If the participant sends an RTP packet when we_sent is false, it adds
+		 * itself to the sender table and sets we_sent to true.
+		 */
+		if (!this.weSent) {
+			addSender(Long.valueOf(this.ssrc));
+		}
+	}
+
+	public void onRtpReceive(RtpPacket packet) {
+		// Increment global statistics
+		this.rtpRxPackets++;
+		this.rtpRxOctets += packet.getLength();
+		this.rtpReceivedOn = this.wallClock.getTime();
+
+		// Increment member statistics
+		long syncSource = packet.getSyncSource();
+		Member member = getMember(syncSource);
+
+		if (member == null) {
+			member = addMember(syncSource);
+		}
+		member.onReceiveRtp(packet);
+	}
+	
+	public void onRtcpSent(RtcpPacket packet) {
+		calculateAvgRtcpSize(packet.getSize());
+	}
+	
+	public void onRtcpReceive(RtcpPacket rtcpPacket) {
+		/*
+		 * All RTCP packets MUST be sent in a compound packet of at least two
+		 * individual packets. The first RTCP packet in the compound packet MUST
+		 * always be a report packet to facilitate header validation
+		 */
+		RtcpReport report = rtcpPacket.getReport();
+		long ssrc = report.getSsrc();
+
+		/*
+		 * What we do depends on whether we have left the group, and are waiting
+		 * to send a BYE or an RTCP report.
+		 */
+		switch (rtcpPacket.getPacketType()) {
+		case RTCP_REPORT:
+
+			/*
+			 * When an RTP or (non-bye) RTCP packet is received from a
+			 * participant whose SSRC is not in the member table, the SSRC is
+			 * added to the table, and the value for members is updated once the
+			 * participant has been validated.
+			 */
+			Member member = getMember(ssrc);
+			if (member == null && RtcpPacketType.RTCP_REPORT.equals(this.rtcpNextPacketType)) {
+				member = addMember(ssrc);
+			}
+			
+			// Receiving an SR has impact on the statistics of the member
+			if(report.isSender()) {
+				member.onReceiveSR((RtcpSenderReport) report);
+			}
+
+			break;
+		case RTCP_BYE:
+
+			switch (this.rtcpNextPacketType) {
+			case RTCP_REPORT:
+
+				/*
+				 * If the received packet is an RTCP BYE packet, the SSRC is
+				 * checked against the member table. If present, the entry is
+				 * removed from the table, and the value for members is updated.
+				 */
+				if (isMember(ssrc)) {
+					removeMember(ssrc);
+				}
+
+				/*
+				 * The SSRC is then checked against the sender table. If
+				 * present, the entry is removed from the table, and the value
+				 * for senders is updated.
+				 */
+				if (isSender(ssrc)) {
+					removeSender(ssrc);
+				}
+				break;
+
+			case RTCP_BYE:
+
+				/*
+				 * Every time a BYE packet from another participant is received,
+				 * members is incremented by 1 regardless of whether that
+				 * participant exists in the member table or not, and when SSRC
+				 * sampling is in use, regardless of whether or not the BYE SSRC
+				 * would be included in the sample.
+				 * 
+				 * members is NOT incremented when other RTCP packets or RTP
+				 * packets are received, but only for BYE packets. Similarly,
+				 * avg_rtcp_size is updated only for received BYE packets.
+				 * senders is NOT updated when RTP packets arrive; it remains 0.
+				 */
+				this.members++;
+				break;
+
+			default:
+				logger.warn("Unknown type of scheduled event: " + this.rtcpNextPacketType.name());
+				break;
+			}
+			break;
+		default:
+			logger.warn("Unkown RTCP packet type: " + rtcpPacket.getPacketType().name() + ". Dropping packet.");
+			break;
+		}
+
+		// For each RTCP packet received, the value of avg_rtcp_size is updated.
+		calculateAvgRtcpSize(rtcpPacket.getSize());
+	}
+	
 }

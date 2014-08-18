@@ -2,6 +2,7 @@ package org.mobicents.media.server.impl.rtp.statistics;
 
 import java.util.concurrent.TimeUnit;
 
+import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.scheduler.Clock;
@@ -23,16 +24,14 @@ public class Member {
 	private String cname;
 
 	// Packet stats
-	private int lostPackets;
 	private long receivedPackets;
 	private long receivedOctets;
 	private long receivedSinceSR;
 	private long lastPacketReceivedOn;
-	private long lastPacketTimestamp;
 	private long firstSequenceNumber;
 	private long lastSequenceNumber;
 	private int sequenceCycle;
-	
+
 	// Jitter
 	/**
 	 * Measures the relative time it takes for an RTP packet to arrive from the
@@ -41,7 +40,7 @@ public class Member {
 	 */
 	private long currentTransit;
 	private long jitter;
-	
+
 	// RTCP
 	private long lastSR;
 	private long lastSRSequenceNumber;
@@ -50,19 +49,17 @@ public class Member {
 		// Core elements
 		this.rtpClock = clock;
 		this.wallClock = clock.getWallClock();
-		
+
 		// Member data
 		this.ssrc = ssrc;
 		this.cname = cname;
-		
+
 		// Packet stats
-		this.lostPackets = 0;
 		this.receivedPackets = 0;
 		this.receivedOctets = 0;
 		this.receivedSinceSR = 0;
 		this.lastPacketReceivedOn = -1;
-		this.lastPacketTimestamp = 0;
-		
+
 		this.firstSequenceNumber = -1;
 		this.lastSequenceNumber = 0;
 		this.sequenceCycle = 0;
@@ -70,17 +67,15 @@ public class Member {
 		// Jitter
 		this.currentTransit = 0;
 		this.jitter = -1;
-		
+
 		// RTCP
 		this.lastSR = 0;
 		this.lastSRSequenceNumber = -1;
 	}
-	
+
 	public Member(RtpClock clock, long ssrc) {
 		this(clock, ssrc, "");
 	}
-	
-	
 
 	/**
 	 * Gets the SSRC identifier of the source to which the information in this
@@ -91,13 +86,52 @@ public class Member {
 	public long getSsrc() {
 		return ssrc;
 	}
-	
+
+	/**
+	 * Gets the CNAME of this member
+	 * 
+	 * @return The CNAME of the member
+	 */
 	public String getCname() {
 		return cname;
 	}
-	
+
+	/**
+	 * Sets the CNAME of the member
+	 * 
+	 * @param cname
+	 *            The CNAME of the member
+	 */
 	public void setCname(String cname) {
 		this.cname = cname;
+	}
+
+	/**
+	 * Gets the total number of incoming RTP packets
+	 * 
+	 * @return The number of packets received
+	 */
+	public long getReceivedPackets() {
+		return receivedPackets;
+	}
+
+	/**
+	 * Gets the total of incoming RTP octets
+	 * 
+	 * @return The total of received octets
+	 */
+	public long getReceivedOctets() {
+		return receivedOctets;
+	}
+
+	/**
+	 * Gets the number of incoming RTP packets since the last SR report was
+	 * sent.
+	 * 
+	 * @return The number of incoming RTP packets
+	 */
+	public long getReceivedSinceSR() {
+		return receivedSinceSR;
 	}
 
 	/**
@@ -118,16 +152,24 @@ public class Member {
 		long fraction = 256 * (expected - this.receivedSinceSR);
 		fraction = expected > 0 ? (fraction / expected) : 0;
 
-		// Clear counters
-		this.receivedSinceSR = 0;
-		this.lastSRSequenceNumber = this.lastSequenceNumber;
-
 		return fraction;
 	}
 	
 	/**
 	 * Gets the total number of RTP data packets from this source that have been
 	 * lost since the beginning of reception.
+	 * <p>
+	 * This number is defined to be the number of packets expected less the
+	 * number of packets actually received, where the number of packets received
+	 * includes any which are late or duplicates. Thus, packets that arrive late
+	 * are not counted as lost, and the loss may be negative if there are
+	 * duplicates.
+	 * </p>
+	 * <p>
+	 * <b>The number of packets expected is defined to be the extended last
+	 * sequence number received, as defined next, less the initial sequence
+	 * number received.</b>
+	 * </p>
 	 * 
 	 * @return The number of lost packets.<br>
 	 *         Returns zero if loss is negative, i.e. duplicates have been
@@ -136,25 +178,6 @@ public class Member {
 	public long getLostPackets() {
 		long lost = getExtHighSequence() - this.firstSequenceNumber;
 		return lost < 0 ? 0 : lost;
-	}
-
-	/**
-	 * Sets the total number of RTP data packets from this source that have been
-	 * lost since the beginning of reception.
-	 * 
-	 * This number is defined to be the number of packets expected less the
-	 * number of packets actually received, where the number of packets received
-	 * includes any which are late or duplicates. Thus, packets that arrive late
-	 * are not counted as lost, and the loss may be negative if there are
-	 * duplicates. The number of packets expected is defined to be the extended
-	 * last sequence number received, as defined next, less the initial sequence
-	 * number received.
-	 * 
-	 * @param lostPackets
-	 *            the number of packets lost
-	 */
-	public void setLostPackets(int lostPackets) {
-		this.lostPackets = lostPackets;
 	}
 
 	/**
@@ -251,10 +274,10 @@ public class Member {
 	 *         zero. seconds
 	 */
 	public long getLastSRdelay() {
-		if(this.receivedSinceSR < 0) {
+		if (this.receivedSinceSR < 0) {
 			return 0;
 		}
-		
+
 		long delay = this.wallClock.getTime() - this.receivedSinceSR;
 		// convert nanoseconds to units 1/65536 seconds
 		return delay * TimeUnit.SECONDS.toNanos(65536);
@@ -273,6 +296,7 @@ public class Member {
 
 	/**
 	 * Calculates interarrival jitter interval
+	 * 
 	 * @param packet
 	 * @return
 	 */
@@ -290,7 +314,7 @@ public class Member {
 		return this.jitter + d - ((this.jitter + 8) >> 4);
 	}
 
-	public void onReceive(RtpPacket packet) {
+	public void onReceiveRtp(RtpPacket packet) {
 		int seqNumber = packet.getSeqNumber();
 
 		if (this.firstSequenceNumber < 0) {
@@ -312,10 +336,15 @@ public class Member {
 			// Probably a duplicate or late arrival
 		}
 
-		this.jitter = estimateJitter(packet);
-
+		if(this.lastPacketReceivedOn > 0) {
+			this.jitter = estimateJitter(packet);
+		}
 		this.lastPacketReceivedOn = rtpClock.getLocalRtpTime();
-		this.lastPacketTimestamp = packet.getTimestamp();
+	}
+	
+	public void onReceiveSR(RtcpSenderReport report) {
+		this.receivedSinceSR = 0;
+		this.lastSRSequenceNumber = this.lastSequenceNumber;
 	}
 
 }
