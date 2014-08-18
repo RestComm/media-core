@@ -33,8 +33,7 @@ import org.mobicents.media.io.ice.sdp.attributes.RtcpMuxAttribute;
 public class IceSdpNegotiator {
 
 	@SuppressWarnings("unchecked")
-	public static SessionDescription updateAnswer(String sdp, IceAgent agent)
-			throws SdpException {
+	public static SessionDescription updateAnswer(String sdp, IceAgent agent) throws SdpException {
 		SdpFactory factory = SdpFactory.getInstance();
 		SessionDescription sessionDescription = factory.createSessionDescription(sdp);
 
@@ -112,8 +111,8 @@ public class IceSdpNegotiator {
 				mediaStream.addAttribute(rtcpAttribute);
 			} else {
 				// XXX RS and RR attributes not supported on firefox
-				mediaStream.setBandwidth("RS", 0);
-				mediaStream.setBandwidth("RR", 0);
+				// mediaStream.setBandwidth("RS", 0);
+				// mediaStream.setBandwidth("RR", 0);
 			}
 			// XXX Chrome only renders audio if rtcp-mux is used
 			mediaStream.addAttribute(new RtcpMuxAttribute());
