@@ -1,10 +1,13 @@
-package org.mobicents.media.server.impl.rtp;
+package org.mobicents.media.server.impl.rtp.statistics;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
+import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.scheduler.Clock;
 
 /**
@@ -133,7 +136,7 @@ public class RtpStatistics {
 	 * RTCP report intervals (5 is RECOMMENDED). This provides some robustness
 	 * against packet loss.
 	 */
-	private final List<Long> membersList;
+	private final Map<Long, Member> membersList;
 
 	/** The estimated number of session members at the time <code>tn</code> was last recomputed */
 	private int pmembers;
@@ -169,8 +172,8 @@ public class RtpStatistics {
 		this.sendersList = new ArrayList<Long>();
 		this.pmembers = 1;
 		this.members = 1;
-		this.membersList = new ArrayList<Long>();
-		this.membersList.add(Long.valueOf(this.ssrc));
+		this.membersList = new HashMap<Long, Member>();
+		this.membersList.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
 		this.rtcpBw = RTP_DEFAULT_BW * RTCP_BW_FRACTION;
 		this.avgRtcpSize = RTCP_DEFAULT_AVG_SIZE;
 		this.scheduledPacketType = RtcpPacketType.RTCP_REPORT;
@@ -390,21 +393,23 @@ public class RtpStatistics {
 	public List<Long> getMembersList() {
 		List<Long> copy;
 		synchronized (this.membersList) {
-			copy = new ArrayList<Long>(this.membersList);
+			copy = new ArrayList<Long>(this.membersList.keySet());
 		}
 		return copy;
 	}
 
 	public boolean isMember(long ssrc) {
 		synchronized (this.membersList) {
-			return this.membersList.contains(Long.valueOf(ssrc));
+			return this.membersList.containsKey(Long.valueOf(ssrc));
 		}
 	}
 
 	public void addMember(long ssrc) {
-		synchronized (this.membersList) {
-			this.membersList.add(Long.valueOf(ssrc));
-			this.members++;
+		if (!isMember(ssrc)) {
+			synchronized (this.membersList) {
+				this.membersList.put(Long.valueOf(ssrc), new Member(this.rtpClock, ssrc));
+				this.members++;
+			}
 		}
 	}
 	
@@ -414,7 +419,7 @@ public class RtpStatistics {
 
 	public void removeMember(long ssrc) {
 		synchronized (this.membersList) {
-			if (this.membersList.remove(Long.valueOf(ssrc))) {
+			if (this.membersList.remove(Long.valueOf(ssrc)) != null) {
 				this.members--;
 			}
 		}
@@ -423,7 +428,7 @@ public class RtpStatistics {
 	public void resetMembers() {
 		synchronized (this.membersList) {
 			this.membersList.clear();
-			this.membersList.add(Long.valueOf(this.ssrc));
+			this.membersList.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
 			this.members = 1;
 			this.pmembers = 1;
 		}
@@ -562,191 +567,5 @@ public class RtpStatistics {
 		this.rtpRxPackets = 0;
 		this.rtpTxPackets = 0;
 	}
-	
-	/**
-	 * Represents the set of RTP Statistics regarding data received from a
-	 * specific SSRC
-	 * 
-	 * @author Henrique Rosa
-	 * 
-	 */
-	public class RtpReceiverStatistics {
-		
-		private long ssrc;
-		private double fractionLost;
-		private int lostPackets;
-		private int sequenceNumber;
-		private long jitter;
-		private long lastSR;
-		private long lastSRdelay;
-		
-		public RtpReceiverStatistics(final long ssrc) {
-			this.ssrc = ssrc;
-			this.fractionLost = 0.0;
-			this.lostPackets = 0;
-			this.sequenceNumber = 0;
-			this.jitter = 0;
-			this.lastSR = 0;
-			this.lastSRdelay = 0;
-		}
-		
-		/**
-		 * Gets the SSRC identifier of the source to which the information in
-		 * this reception report block pertains
-		 * 
-		 * @return The SSRC identifier
-		 */
-		public long getSsrc() {
-			return ssrc;
-		}
-		
-		/**
-		 * Gets the fraction of RTP data packets from this source that were lost
-		 * since the previous SR or RR packet was sent, expressed as a fixed
-		 * point number with the binary point at the left edge of the field.
-		 * (That is equivalent to taking the integer part after multiplying the
-		 * loss fraction by 256.)
-		 * 
-		 * @return The fraction of lost packets
-		 */
-		public double getFractionLost() {
-			return fractionLost;
-		}
 
-		/**
-		 * Sets the fraction of RTP data packets from this source that were lost
-		 * since the previous SR or RR packet was sent.
-		 * 
-		 * This fraction is defined to be the number of packets lost divided by
-		 * the number of packets expected. If the loss is negative due to
-		 * duplicates, the fraction lost is set to zero.
-		 * 
-		 * @param fractionLost
-		 *            The fraction of lost packets
-		 */
-		public void setFractionLost(double fractionLost) {
-			this.fractionLost = fractionLost;
-		}
-		
-		/**
-		 * Gets the total number of RTP data packets from this source that have
-		 * been lost since the beginning of reception.
-		 * 
-		 * @return the number of packets lost
-		 */
-		public int getLostPackets() {
-			return lostPackets;
-		}
-		
-		/**
-		 * Sets the total number of RTP data packets from this source that have
-		 * been lost since the beginning of reception.
-		 * 
-		 * This number is defined to be the number of packets expected less the
-		 * number of packets actually received, where the number of packets
-		 * received includes any which are late or duplicates. Thus, packets
-		 * that arrive late are not counted as lost, and the loss may be
-		 * negative if there are duplicates. The number of packets expected is
-		 * defined to be the extended last sequence number received, as defined
-		 * next, less the initial sequence number received.
-		 * 
-		 * @param lostPackets the number of packets lost
-		 */
-		public void setLostPackets(int lostPackets) {
-			this.lostPackets = lostPackets;
-		}
-		
-		/**
-		 * Gets the highest sequence number received in an RTP data packet from
-		 * this source.
-		 * 
-		 * @return The highest sequence number on this source
-		 */
-		public int getSequenceNumber() {
-			return sequenceNumber;
-		}
-		
-		/**
-		 * Sets the highest sequence number received in an RTP data packet from
-		 * this source.
-		 * 
-		 * @param sequenceNumber
-		 *            The highest sequence number on this source
-		 */
-		public void setSequenceNumber(int sequenceNumber) {
-			this.sequenceNumber = sequenceNumber;
-		}
-		
-		/**
-		 * Gets an estimate of the statistical variance of the RTP data packet
-		 * interarrival time, measured in timestamp units and expressed as an
-		 * unsigned integer.
-		 * 
-		 * @return the estimated jitter for this source
-		 */
-		public long getJitter() {
-			return jitter;
-		}
-
-		/**
-		 * Sets the estimate jitter for this source.
-		 * 
-		 * @param jitter
-		 *            The statistical variance of the RTP data packet
-		 *            interarrival time, measured in timestamp units and
-		 *            expressed as an unsigned integer.
-		 */
-		public void setJitter(long jitter) {
-			this.jitter = jitter;
-		}
-		
-		/**
-		 * Gets the last time an RTCP Sender Report was received from this
-		 * source.
-		 * 
-		 * @return The middle 32 bits out of 64 in the NTP timestamp received as
-		 *         part of the most recent RTCP sender report (SR) packet.<br>
-		 *         If no SR has been received yet, returns zero.
-		 */
-		public long getLastSR() {
-			return lastSR;
-		}
-		
-		/**
-		 * Sets the last time an RTCP Sender Report was received from this
-		 * source.
-		 * 
-		 * @param lastSR
-		 *            The middle 32 bits out of 64 in the NTP timestamp received
-		 *            as part of the most recent RTCP sender report (SR) packet.
-		 */
-		public void setLastSR(long lastSR) {
-			this.lastSR = lastSR;
-		}
-		
-		/**
-		 * Gets the delay between receiving the last RTCP Sender Report (SR)
-		 * packet from this source and sending this reception report block.
-		 * 
-		 * @return The delay between SR reports, expressed in units of 1/65536
-		 *         seconds.<br>
-		 *         If no SR packet has been received yet, the DLSR field is set
-		 *         to zero. seconds
-		 */
-		public long getLastSRdelay() {
-			return lastSRdelay;
-		}
-		
-		/**
-		 * Sets the delay between receiving the last RTCP Sender Report (SR)
-		 * packet from this source and sending this reception report block.
-		 * 
-		 * @param lastSRdelay
-		 *            The delay between SR reports, expressed in units of
-		 *            1/65536 seconds.
-		 */
-		public void setLastSRdelay(long lastSRdelay) {
-			this.lastSRdelay = lastSRdelay;
-		}
-	}
 }

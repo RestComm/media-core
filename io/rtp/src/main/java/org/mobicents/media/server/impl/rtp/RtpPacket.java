@@ -294,7 +294,7 @@ public class RtpPacket implements Serializable {
      * @param buff the buffer used for reading
      * @param offset the initial offset inside buffer.
      */
-    public void getPyalod(byte[] buff, int offset) {
+    public void getPayload(byte[] buff, int offset) {
         buffer.position(FIXED_HEADER_SIZE);
         buffer.get(buff, offset, buffer.limit() - FIXED_HEADER_SIZE);
     }

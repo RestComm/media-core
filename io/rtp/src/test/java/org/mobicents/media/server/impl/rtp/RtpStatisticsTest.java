@@ -3,6 +3,7 @@ package org.mobicents.media.server.impl.rtp;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 

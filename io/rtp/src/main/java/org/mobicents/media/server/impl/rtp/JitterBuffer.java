@@ -50,7 +50,10 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author oifa yulian
  */
 public class JitterBuffer implements Serializable {
-    //The underlying buffer size
+	
+	private static final long serialVersionUID = -389930569631795779L;
+
+	//The underlying buffer size
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
     private ArrayList<Frame> queue = new ArrayList<Frame>(QUEUE_SIZE);
@@ -204,7 +207,6 @@ public class JitterBuffer implements Serializable {
      * @param packet the packet to accept
      */
 	public void write(RtpPacket packet, RTPFormat format) {
-//		logger.info("Received packet in jitter buffer: "+ packet.toString());
 		// checking format
 		if (format == null) {
 			logger.warn("No format specified. Packet dropped!");
@@ -252,7 +254,7 @@ public class JitterBuffer implements Serializable {
 		f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
 		f.setOffset(0);
 		f.setLength(packet.getPayloadLength());
-		packet.getPyalod(f.getData(), 0);
+		packet.getPayload(f.getData(), 0);
 
 		// set format
 		f.setFormat(this.format.getFormat());
@@ -270,7 +272,6 @@ public class JitterBuffer implements Serializable {
 
 			// check for duplicate packet
 			if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
-//				logger.warn("Duplicate packet found. Packet dropped!");
 				return;
 			}
 
@@ -281,9 +282,6 @@ public class JitterBuffer implements Serializable {
 			duration = 0;
 			if (queue.size() > 1) {
 				duration = queue.get(queue.size() - 1).getTimestamp() - queue.get(0).getTimestamp();
-//				logger.info("Duration = " + queue.get(queue.size() - 1).getTimestamp() + " - " + queue.get(0).getTimestamp() + " = " + duration);
-			} else {
-//				logger.info("Duration is 0");
 			}
 
 			for (int i = 0; i < queue.size() - 1; i++) {
@@ -313,7 +311,6 @@ public class JitterBuffer implements Serializable {
 			if (!ready) {
 				ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
 				if (ready && listener != null) {
-//					logger.info("Telling listener the buffer is ready and filled");
 					listener.onFill();
 				}
 			}

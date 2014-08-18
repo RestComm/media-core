@@ -4,8 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.net.ntp.TimeStamp;
-import org.mobicents.media.server.impl.rtp.RtpStatistics;
-import org.mobicents.media.server.impl.rtp.RtpStatistics.RtpReceiverStatistics;
+import org.mobicents.media.server.impl.rtp.statistics.Member;
+import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
+import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics.RtpReceiverStatistics;
 
 /**
  * Factory for building RTCP packets
@@ -103,17 +104,18 @@ public class RtcpPacketFactory {
 		return sdes;
 	}
 	
-	private static RtcpReceiverReportItem buildSubReceiverReport(RtpReceiverStatistics statistics) {
+	private static RtcpReceiverReportItem buildSubReceiverReport(Member statistics) {
 		long ssrc = statistics.getSsrc();
-		double fraction = statistics.getFractionLost();
+		// XXX Verify cast!!!
+		int fraction = (int) statistics.getFractionLost();
 		int lost = statistics.getLostPackets();
-		
-		int lastSeq = statistics.getSequenceNumber();
-		long jitter = statistics.getJitter();
+		int seqNumCycle = statistics.getSequenceCycle();
+		long lastSeq = statistics.getSequenceNumber();
+		int jitter = statistics.getJitter();
 		long lsr = statistics.getLastSR();
 		long dlsr = statistics.getLastSRdelay();
 		
-		return new RtcpReceiverReportItem(ssrc, fraction, lost, SeqNumCycle, lastSeq, jitter, lsr, dlsr)
+		return new RtcpReceiverReportItem(ssrc, fraction, lost, seqNumCycle, lastSeq, jitter, lsr, dlsr);
 	}
 
 	/**
