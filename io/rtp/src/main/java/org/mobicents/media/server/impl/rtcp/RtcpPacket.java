@@ -118,6 +118,7 @@ public class RtcpPacket implements Serializable {
 	}
 
 	public int encode(byte[] rawData, int offSet) {
+		int initalOffSet = offSet;
 		if (this.senderReport != null) {
 			packetCount++;
 			offSet = this.senderReport.encode(rawData, offSet);
@@ -138,6 +139,7 @@ public class RtcpPacket implements Serializable {
 			packetCount++;
 			offSet = this.bye.encode(rawData, offSet);
 		}
+		this.size = offSet - initalOffSet;
 		return offSet;
 	}
 	

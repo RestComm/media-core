@@ -52,14 +52,17 @@ public class RtcpHandler implements PacketHandler {
 
 	public RtcpHandler(final RtpStatistics statistics) {
 		// core stuff
+		this.byteBuffer = ByteBuffer.allocateDirect(RtpPacket.RTP_PACKET_MAX_SIZE);
+
+		// rtcp stuff
 		this.txTimer = new Timer();
 		this.ssrcTimer = new Timer();
 		this.ssrcTask = new SsrcTask();
 
-		// rtcp stuff
 		this.statistics = statistics;
 		this.scheduledTask = null;
 		this.tp = 0;
+		this.tn = -1;
 		this.initial = true;
 	}
 
@@ -83,6 +86,10 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private long resolveInterval(long timestamp) {
 		return timestamp - this.statistics.getCurrentTime();
+	}
+	
+	public void setChannel(DatagramChannel channel) {
+		this.channel = channel;
 	}
 
 	/**
@@ -149,6 +156,7 @@ public class RtcpHandler implements PacketHandler {
 	private void schedule(long timestamp, RtcpPacket packet) {
 		// Create the task and schedule it
 		this.scheduledTask = new TxTask(resolveInterval(timestamp), packet);
+		logger.info("Scheduling packet in " + TimeUnit.NANOSECONDS.toMillis(timestamp) + "ms");
 		this.txTimer.schedule(this.scheduledTask, TimeUnit.NANOSECONDS.toMillis(timestamp));
 		// Let the RTP handler know what is the type of scheduled packet
 		this.statistics.setRtcpPacketType(packet.getPacketType());
@@ -163,6 +171,7 @@ public class RtcpHandler implements PacketHandler {
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
 		task.setTimestamp(resolveInterval(timestamp));
+		logger.info("Re-scheduling packet in " + TimeUnit.NANOSECONDS.toMillis(timestamp) + "ms");
 		this.txTimer.schedule(task, TimeUnit.NANOSECONDS.toMillis(timestamp));
 	}
 
@@ -316,19 +325,20 @@ public class RtcpHandler implements PacketHandler {
 	private void sendRtcpPacket(RtcpPacket packet) throws IOException {
 		if (this.channel != null && channel.isOpen()) {
 			// decode packet
-			byte[] data = new byte[packet.getSize()];
-			int offset = packet.decode(data, 0);
+			byte[] data = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
+			int dataLength = packet.encode(data, 0);
 
 			// prepare buffer
 			this.byteBuffer.clear();
-			this.byteBuffer.put(data, offset, data.length);
+			this.byteBuffer.put(data, 0, dataLength);
 			this.byteBuffer.flip();
 			
 			// update RTCP statistics
 			this.statistics.onRtcpSent(packet);
 
 			// send packet
-			this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
+			int sent = this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
+			logger.info("RTCP packet sent! Data Length: " + sent);
 		} else {
 			logger.warn("Could not send RTCP packet because channel is closed.");
 			// TODO handle channel closed
