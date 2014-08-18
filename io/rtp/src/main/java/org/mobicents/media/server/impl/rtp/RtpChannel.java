@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtcp.RtcpHandler;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
@@ -40,6 +41,7 @@ public class RtpChannel extends MultiplexedChannel {
 	private final static int PORT_ANY = -1;
 	
 	// Channel attributes
+	private int channelId;
 	private boolean bound;
 	private RtpStatistics statistics;
 	
@@ -47,6 +49,7 @@ public class RtpChannel extends MultiplexedChannel {
 	private final UdpManager udpManager;
 	private final Scheduler scheduler;
 	private final RtpClock rtpClock;
+	private final int jitterBufferSize;
 	
 	// Heart beat
 	private final HeartBeat heartBeat;
@@ -55,10 +58,11 @@ public class RtpChannel extends MultiplexedChannel {
 	private SocketAddress remotePeer;
 	
 	// Transmitter
-	private final RtpTransmitter transmitter;
+	private RtpTransmitter transmitter;
 	
 	// Receivers - Protocol handlers pipeline
 	private RtpHandler rtpHandler;
+	private RtcpHandler rtcpHandler;
 	private DtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
 	
@@ -86,28 +90,17 @@ public class RtpChannel extends MultiplexedChannel {
 		// Core and network elements
 		this.scheduler = channelsManager.getScheduler();
 		this.udpManager = channelsManager.getUdpManager();
-		this.rtpClock = new RtpClock(scheduler.getClock());
-		// TODO RTP Transmitter/Receiver should share the same RTP clock!!!!
 		
 		// Channel attributes
+		this.channelId = channelId;
 		this.bound = false;
-		
-		// Transmitter
-		this.transmitter = new RtpTransmitter(scheduler, statistics);
-		
-		// Receiver(s) - Protocol handlers pipeline
-		this.rtpHandler = new RtpHandler(scheduler, channelsManager.getJitterBufferSize(), this.statistics);
-		this.handlers.addHandler(this.rtpHandler);
-		
-		// Media Components
-		audioComponent = new AudioComponent(channelId);
-		audioComponent.addInput(this.rtpHandler.getRtpInput().getAudioInput());
-		audioComponent.addOutput(this.transmitter.getRtpOutput().getAudioOutput());
-		
-		oobComponent = new OOBComponent(channelId);
-		oobComponent.addInput(this.rtpHandler.getDtmfInput().getOOBInput());
-		oobComponent.addOutput(this.transmitter.getDtmfOutput().getOOBOutput());
 
+		// Media Components
+		this.rtpClock = new RtpClock(scheduler.getClock());
+		this.jitterBufferSize = channelsManager.getJitterBufferSize();
+		this.audioComponent = new AudioComponent(channelId);
+		this.oobComponent = new OOBComponent(channelId);
+		
 		// WebRTC
 		this.srtp = false;
 		
@@ -259,6 +252,38 @@ public class RtpChannel extends MultiplexedChannel {
 		}
 	}
 	
+	private void onBinding(boolean useJitterBuffer) {
+		// Statistics
+		this.statistics.setCname(resolveCname());
+		
+		// Transmitter
+		this.transmitter = new RtpTransmitter(this.scheduler, this.statistics);
+		this.transmitter.setChannel(this.channel);
+		
+		// Receiver(s) - Protocol handlers pipeline
+		this.rtpHandler = new RtpHandler(this.scheduler, this.jitterBufferSize, this.statistics);
+		this.rtpHandler.useJitterBuffer(useJitterBuffer);
+		this.handlers.addHandler(this.rtpHandler);
+		
+		this.rtcpHandler = new RtcpHandler(this.statistics);
+		this.handlers.addHandler(this.rtcpHandler);
+
+		// For WebRTC calls only
+		if(this.srtp) {
+			this.transmitter.enableSrtp(this.dtlsHandler);
+			this.rtpHandler.enableSrtp(this.dtlsHandler);
+			this.dtlsHandler.setChannel(this.channel);
+			this.stunHandler.setChannel(this.channel);
+			this.handlers.addHandler(this.stunHandler);
+		}
+		
+		// Media Components
+		audioComponent.addInput(this.rtpHandler.getRtpInput().getAudioInput());
+		audioComponent.addOutput(this.transmitter.getRtpOutput().getAudioOutput());
+		oobComponent.addInput(this.rtpHandler.getDtmfInput().getOOBInput());
+		oobComponent.addOutput(this.transmitter.getDtmfOutput().getOOBOutput());
+	}
+	
 	public void bind(boolean isLocal) throws IOException, SocketException {
 		try {
 			// Open this channel with UDP Manager on first available address
@@ -268,11 +293,11 @@ public class RtpChannel extends MultiplexedChannel {
 		}
 
 		// bind data channel
-		this.rtpHandler.useJitterBuffer(!isLocal);
 		this.udpManager.bind(this.channel, PORT_ANY, isLocal);
-		this.statistics = new RtpStatistics(this.rtpClock, resolveCname());
 		this.bound = true;
-		this.transmitter.setChannel(this.channel);
+		
+		// activate media elements
+		onBinding(!isLocal);
 	}
 
 	public void bind(DatagramChannel channel) throws IOException, SocketException {
@@ -287,15 +312,10 @@ public class RtpChannel extends MultiplexedChannel {
 		if(!channel.socket().isBound()) {
 			this.udpManager.bind(channel, PORT_ANY);
 		}
-		this.statistics = new RtpStatistics(this.rtpClock, resolveCname());
-		this.rtpHandler.useJitterBuffer(true);
-		this.transmitter.setChannel(channel);
-		if (this.srtp) {
-			this.dtlsHandler.setChannel(this.channel);
-			this.stunHandler.setChannel(this.channel);
-			this.handlers.addHandler(stunHandler);
-		}
 		this.bound = true;
+		
+		// activate media elements
+		onBinding(true);
 	}
 	
 	public boolean isBound() {
@@ -365,10 +385,6 @@ public class RtpChannel extends MultiplexedChannel {
 		if (this.stunHandler == null) {
 			this.stunHandler = new StunHandler(authenticator);
 		}
-		
-		// setup the RTP transmitter and receiver
-		this.transmitter.enableSrtp(this.dtlsHandler);
-		this.rtpHandler.enableSrtp(this.dtlsHandler);
 	}
 	
 	public Text getWebRtcLocalFingerprint() {

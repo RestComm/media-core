@@ -59,7 +59,7 @@ public class RtpStatistics {
 
 	/* SSRC Data */
 	private long ssrc;
-	private final String cname;
+	private String cname;
 
 	/* Global RTP statistics */
 	private long rtpLastHeartbeat;
@@ -127,6 +127,10 @@ public class RtpStatistics {
 		this.rtcpNextPacketType = RtcpPacketType.RTCP_REPORT;
 		this.weSent = false;
 	}
+	
+	public RtpStatistics(final RtpClock clock) {
+		this(clock, "");
+	}
 
 	/**
 	 * Gets the relative time since an RTP packet or Heartbeat was received.
@@ -187,6 +191,16 @@ public class RtpStatistics {
 	 */
 	public String getCname() {
 		return cname;
+	}
+
+	/**
+	 * Sets the CNAME that identifies this source
+	 * 
+	 * @param cname
+	 *            The CNAME of the source
+	 */
+	public void setCname(String cname) {
+		this.cname = cname;
 	}
 
 	/*
