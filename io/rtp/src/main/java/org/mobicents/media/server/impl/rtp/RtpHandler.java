@@ -3,6 +3,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.impl.rtcp.RtcpHeader;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -154,9 +155,13 @@ public class RtpHandler implements PacketHandler {
 			// Currently supported version is 2 according to RFC3550
 			byte b0 = packet[offset];
 			int version = (b0 & 0xC0) >> 6;
-			return version == RtpPacket.VERSION;
 			
-			// XXX not enough to differentiate from a RTCP packet
+			if(RtpPacket.VERSION == version) {
+				// Version is fine so lets validate the payload type
+				// to distinguish from incoming RTCP packets
+				int type = packet[offset + 1] & 0xff & 0x7f;
+				return (type != RtcpHeader.RTCP_SR && type != RtcpHeader.RTCP_RR);
+			}
 		}
 		return false;
 	}
