@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.net.ntp.TimeStamp;
 import org.mobicents.media.server.impl.rtp.statistics.Member;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
-import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics.RtpReceiverStatistics;
 
 /**
  * Factory for building RTCP packets
@@ -73,10 +72,9 @@ public class RtcpPacketFactory {
 		
 		// Add receiver reports for each registered member
 		List<Long> members = statistics.getMembersList();
-		for (Long member : members) {
-			if(!member.equals(ssrc)) {
-				buildSubReceiverReport(statistics);
-			}
+		for (Long memberSsrc : members) {
+			Member memberStats = statistics.getMember(memberSsrc.longValue());
+			buildSubReceiverReport(memberStats);
 		}
 		return senderReport;
 	}
@@ -108,10 +106,10 @@ public class RtcpPacketFactory {
 		long ssrc = statistics.getSsrc();
 		// XXX Verify cast!!!
 		int fraction = (int) statistics.getFractionLost();
-		int lost = statistics.getLostPackets();
+		int lost = (int) statistics.getLostPackets();
 		int seqNumCycle = statistics.getSequenceCycle();
 		long lastSeq = statistics.getSequenceNumber();
-		int jitter = statistics.getJitter();
+		int jitter = (int) statistics.getJitter();
 		long lsr = statistics.getLastSR();
 		long dlsr = statistics.getLastSRdelay();
 		
