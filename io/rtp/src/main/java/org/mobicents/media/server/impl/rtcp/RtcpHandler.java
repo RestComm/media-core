@@ -111,7 +111,7 @@ public class RtcpHandler implements PacketHandler {
 		long t = this.statistics.rtcpInterval(this.initial);
 		RtcpPacket report = RtcpPacketFactory.buildReport(this.statistics);
 
-		this.tn = t;
+		this.tn = this.statistics.getCurrentTime() + t;
 		schedule(this.tn, report);
 		
 		// Start SSRC timeout timer
@@ -155,11 +155,12 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private void schedule(long timestamp, RtcpPacket packet) {
 		// Create the task and schedule it
-		this.scheduledTask = new TxTask(resolveInterval(timestamp), packet);
-		logger.info("Scheduling packet in " + TimeUnit.NANOSECONDS.toMillis(timestamp) + "ms");
-		this.txTimer.schedule(this.scheduledTask, TimeUnit.NANOSECONDS.toMillis(timestamp));
+		long interval = TimeUnit.NANOSECONDS.toMillis(resolveInterval(timestamp));
+		this.scheduledTask = new TxTask(interval, packet);
+		this.txTimer.schedule(this.scheduledTask, interval);
 		// Let the RTP handler know what is the type of scheduled packet
 		this.statistics.setRtcpPacketType(packet.getPacketType());
+		logger.info("Scheduled packet in " + interval + "ms");
 	}
 
 	/**
@@ -170,9 +171,10 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
-		task.setTimestamp(resolveInterval(timestamp));
-		logger.info("Re-scheduling packet in " + TimeUnit.NANOSECONDS.toMillis(timestamp) + "ms");
+		long interval = TimeUnit.NANOSECONDS.toMillis(resolveInterval(timestamp));
+		task.setTimestamp(interval);
 		this.txTimer.schedule(task, TimeUnit.NANOSECONDS.toMillis(timestamp));
+		logger.info("Re-scheduled packet in " + interval + "ms");
 	}
 
 	/**
