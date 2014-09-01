@@ -61,7 +61,7 @@ public class RtcpPacketFactory {
          *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 */
 		long ssrc = statistics.getSsrc();
-		TimeStamp ntpTs = new TimeStamp(new Date(statistics.getCurrentTime()));
+		TimeStamp ntpTs = new TimeStamp(new Date(System.currentTimeMillis()));
 		long ntpSec = ntpTs.getSeconds();
 		long ntpFrac = ntpTs.getFraction();
 		long rtpTs = statistics.getRtpTime();
@@ -73,8 +73,11 @@ public class RtcpPacketFactory {
 		// Add receiver reports for each registered member
 		List<Long> members = statistics.getMembersList();
 		for (Long memberSsrc : members) {
-			Member memberStats = statistics.getMember(memberSsrc.longValue());
-			buildSubReceiverReport(memberStats);
+			if (ssrc != memberSsrc) {
+				Member memberStats = statistics.getMember(memberSsrc.longValue());
+				RtcpReceiverReportItem rcvrReport = buildSubReceiverReport(memberStats);
+				senderReport.addReceiverReport(rcvrReport);
+			}
 		}
 		return senderReport;
 	}
@@ -88,7 +91,17 @@ public class RtcpPacketFactory {
 	 */
 	private static RtcpReceiverReport buildReceiverReport(RtpStatistics statistics, boolean padding) {
 		RtcpReceiverReport report = new RtcpReceiverReport(padding, statistics.getSsrc());
-		// TODO Add sub reports for each member
+		long ssrc = statistics.getSsrc();
+		
+		// Add receiver reports for each registered member
+		List<Long> members = statistics.getMembersList();
+		for (Long memberSsrc : members) {
+			if (ssrc != memberSsrc) {
+				Member memberStats = statistics.getMember(memberSsrc.longValue());
+				RtcpReceiverReportItem rcvrReport = buildSubReceiverReport(memberStats);
+				report.addReceiverReport(rcvrReport);
+			}
+		}
 		return report;
 	}
 	
