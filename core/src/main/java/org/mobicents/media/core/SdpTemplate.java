@@ -46,7 +46,8 @@ public class SdpTemplate {
     private String connectionAddress = "";
     private String networkType = "";
     private String addressType = "";
-    private int audioPort = 0;
+    private int rtpAudioPort = 0;
+    private int rtcpAudioPort = 0;
     private int videoPort = 0;
     private int applicationPort = 0;
     private String connectionMode = "";
@@ -126,7 +127,10 @@ public class SdpTemplate {
     	// Write audio descriptor
     	if(this.offeredAudioFormats != null) {
     		this.audioTemplate = writeAudioDescriptor();
-    		builder.append(String.format(this.audioTemplate, isAudioSupported() ? this.audioPort : 0));
+    		boolean audioSupported = isAudioSupported();
+    		int rtpPort = audioSupported ? this.rtpAudioPort : 0;
+    		int rtcpPort = audioSupported ? this.rtcpAudioPort : 0;
+    		builder.append(String.format(this.audioTemplate, rtpPort, rtcpPort));
     	}
     	// Write video descriptor
     	if(this.offeredVideoFormats != null) {
@@ -253,8 +257,12 @@ public class SdpTemplate {
     	return this.negotiatedVideoFormats != null && !this.negotiatedVideoFormats.isEmpty();
     }
     
-	public void setAudioPort(int audioPort) {
-		this.audioPort = audioPort;
+	public void setRtpAudioPort(int port) {
+		this.rtpAudioPort = port;
+	}
+	
+	public void setRtcpAudioPort(int port) {
+		this.rtcpAudioPort = port;
 	}
 	
     public void setVideoPort(int videoPort) {
@@ -391,6 +399,8 @@ public class SdpTemplate {
         builder.append("m=audio %s ").append(getMediaProfile()).append(" ");
         if(isAudioSupported()) {
         	builder.append(payloads(this.negotiatedAudioFormats)).append("\n");
+        	builder.append("a=rtcp:%d\n");
+        	
             this.negotiatedAudioFormats.rewind();
             while (this.negotiatedAudioFormats.hasMore()) {
                 RTPFormat f = this.negotiatedAudioFormats.next();

@@ -47,7 +47,7 @@ public class RtcpSenderReport extends RtcpReport {
 	private long osent;
 
 	protected RtcpSenderReport() {
-
+		super();
 	}
 
 	public RtcpSenderReport(boolean padding, long ssrc, long ntpSec, long ntpFrac, long rtpTs, long psent, long osent) {

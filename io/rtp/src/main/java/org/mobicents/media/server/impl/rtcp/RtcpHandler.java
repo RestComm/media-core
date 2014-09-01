@@ -25,15 +25,11 @@ public class RtcpHandler implements PacketHandler {
 	/** Time (in ms) between SSRC Task executions */
 	private static final long SSRC_TASK_DELAY = 7000;
 
-	/*
-	 * Core elements
-	 */
+	/* Core elements */
 	private DatagramChannel channel;
 	private ByteBuffer byteBuffer;
 
-	/*
-	 * RTCP elements
-	 */
+	/* RTCP elements */
 	private final Timer txTimer;
 	private final Timer ssrcTimer;
 	
@@ -49,6 +45,9 @@ public class RtcpHandler implements PacketHandler {
 
 	/** Flag that is true if the application has not yet sent an RTCP packet */
 	private boolean initial;
+	
+	/** Flag that is true once the handler joined an RTP session */
+	private boolean joined;
 
 	public RtcpHandler(final RtpStatistics statistics) {
 		// core stuff
@@ -64,6 +63,7 @@ public class RtcpHandler implements PacketHandler {
 		this.tp = 0;
 		this.tn = -1;
 		this.initial = true;
+		this.joined = false;
 	}
 
 	/**
@@ -107,42 +107,50 @@ public class RtcpHandler implements PacketHandler {
 	 * The participant adds its own SSRC to the member table.
 	 */
 	public void joinRtpSession() {
-		// Schedule first RTCP packet
-		long t = this.statistics.rtcpInterval(this.initial);
-		RtcpPacket report = RtcpPacketFactory.buildReport(this.statistics);
-
-		this.tn = this.statistics.getCurrentTime() + t;
-		schedule(this.tn, report);
-		
-		// Start SSRC timeout timer
-		this.ssrcTimer.scheduleAtFixedRate(this.ssrcTask, SSRC_TASK_DELAY, SSRC_TASK_DELAY);
+		if(!this.joined) {
+			// Schedule first RTCP packet
+			long t = this.statistics.rtcpInterval(this.initial);
+			RtcpPacket report = RtcpPacketFactory.buildReport(this.statistics);
+			
+			this.tn = this.statistics.getCurrentTime() + t;
+			schedule(this.tn, report);
+			
+			// Start SSRC timeout timer
+			this.ssrcTimer.scheduleAtFixedRate(this.ssrcTask, SSRC_TASK_DELAY, SSRC_TASK_DELAY);
+			
+			this.joined = true;
+		}
 	}
-
+	
 	public void leaveRtpSession() {
-		// Stop SSRC checks
-		this.ssrcTimer.cancel();
-		
-		// Create a RTCP BYE packet to be scheduled
-		RtcpPacket bye = RtcpPacketFactory.buildBye(this.statistics);
+		if (this.joined) {
+			// Stop SSRC checks
+			this.ssrcTimer.cancel();
+			
+			// Create a RTCP BYE packet to be scheduled
+			RtcpPacket bye = RtcpPacketFactory.buildBye(this.statistics);
 
-		/*
-		 * When the participant decides to leave the system, tp is reset to tc,
-		 * the current time, members and pmembers are initialized to 1, initial
-		 * is set to 1, we_sent is set to false, senders is set to 0, and
-		 * avg_rtcp_size is set to the size of the compound BYE packet.
-		 * 
-		 * The calculated interval T is computed. The BYE packet is then
-		 * scheduled for time tn = tc + T.
-		 */
-		this.tp = this.statistics.getCurrentTime();
-		this.statistics.resetMembers();
-		this.initial = true;
-		this.statistics.clearSenders();
-		this.statistics.setRtcpAvgSize(bye.getSize());
+			/*
+			 * When the participant decides to leave the system, tp is reset to tc,
+			 * the current time, members and pmembers are initialized to 1, initial
+			 * is set to 1, we_sent is set to false, senders is set to 0, and
+			 * avg_rtcp_size is set to the size of the compound BYE packet.
+			 * 
+			 * The calculated interval T is computed. The BYE packet is then
+			 * scheduled for time tn = tc + T.
+			 */
+			this.tp = this.statistics.getCurrentTime();
+			this.statistics.resetMembers();
+			this.initial = true;
+			this.statistics.clearSenders();
+//			this.statistics.setRtcpAvgSize(bye.getSize());
 
-		long t = this.statistics.rtcpInterval(initial);
-		this.tn = resolveDelay(t);
-		schedule(this.tn, bye);
+			long t = this.statistics.rtcpInterval(initial);
+			this.tn = resolveDelay(t);
+//			schedule(this.tn, bye);
+			
+			this.joined = false;
+		}
 	}
 
 	/**
@@ -325,7 +333,7 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	private void sendRtcpPacket(RtcpPacket packet) throws IOException {
-		if (this.channel != null && channel.isOpen()) {
+		if (this.channel != null && channel.isOpen() && channel.isConnected()) {
 			// decode packet
 			byte[] data = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
 			int dataLength = packet.encode(data, 0);

@@ -319,28 +319,27 @@ public class UdpManager {
 		return channel;
 	}
 	
-	public SelectionKey open(Channel multiplexer) throws IOException {
-		DatagramChannel channel = DatagramChannel.open();
-		channel.configureBlocking(false);
+	public SelectionKey open(Channel channel) throws IOException {
+		DatagramChannel dataChannel = DatagramChannel.open();
+		dataChannel.configureBlocking(false);
 		int index = currSelectorIndex.getAndIncrement();
-		SelectionKey key = channel.register(selectors.get(index % selectors.size()), SelectionKey.OP_READ);
-		key.attach(multiplexer);
+		SelectionKey key = dataChannel.register(selectors.get(index % selectors.size()), SelectionKey.OP_READ);
+		key.attach(channel);
 		return key;
 	}
 	
-	public SelectionKey open(DatagramChannel channel, Channel multiplexer) throws IOException {
+	public SelectionKey open(DatagramChannel dataChannel, Channel channel) throws IOException {
 		 // Get a selector
 		 int index = currSelectorIndex.getAndIncrement();
 		 Selector selector = selectors.get(index % selectors.size());
 		 // Register the channel under the chosen selector
-		 SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+		 SelectionKey key = dataChannel.register(selector, SelectionKey.OP_READ);
 		 // Attach the multiplexer to the key
-		 key.attach(multiplexer);
+		 key.attach(channel);
 		 return key;
 	}
 
-	public void open(DatagramChannel channel, ProtocolHandler handler)
-			throws IOException {
+	public void open(DatagramChannel channel, ProtocolHandler handler) throws IOException {
 		 // Get a selector
 		 int index = currSelectorIndex.getAndIncrement();
 		 Selector selector = selectors.get(index % selectors.size());

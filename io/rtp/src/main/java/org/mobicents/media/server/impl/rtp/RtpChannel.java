@@ -62,7 +62,6 @@ public class RtpChannel extends MultiplexedChannel {
 	
 	// Receivers - Protocol handlers pipeline
 	private RtpHandler rtpHandler;
-	private RtcpHandler rtcpHandler;
 	private DtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
 	
@@ -83,25 +82,24 @@ public class RtpChannel extends MultiplexedChannel {
 	// Listeners
 	private RTPChannelListener channelListener;
 	
-	protected RtpChannel(final ChannelsManager channelsManager, final int channelId) {
+	protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager) {
 		// Initialize MultiplexedChannel elements
 		super();
 		
 		// Core and network elements
-		this.scheduler = channelsManager.getScheduler();
-		this.udpManager = channelsManager.getUdpManager();
+		this.scheduler = scheduler;
+		this.udpManager = udpManager;
 		this.rtpClock = new RtpClock(scheduler.getClock());
 		
 		// Channel attributes
 		this.channelId = channelId;
-		this.jitterBufferSize = channelsManager.getJitterBufferSize();
-		this.statistics = new RtpStatistics(this.rtpClock);
+		this.jitterBufferSize = jitterBufferSize;
+		this.statistics = statistics;
 		this.bound = false;
 		
 		// Protocol Handlers
 		this.transmitter = new RtpTransmitter(this.scheduler, this.statistics);
 		this.rtpHandler = new RtpHandler(this.scheduler, this.jitterBufferSize, this.statistics);
-		this.rtcpHandler = new RtcpHandler(this.statistics);
 
 		// Media Components
 		this.audioComponent = new AudioComponent(channelId);
@@ -272,10 +270,7 @@ public class RtpChannel extends MultiplexedChannel {
 		
 		// Protocol handlers pipeline
 		this.rtpHandler.useJitterBuffer(useJitterBuffer);
-		this.rtcpHandler.setChannel(this.channel);
-		this.rtcpHandler.joinRtpSession();
 		this.handlers.addHandler(this.rtpHandler);
-		this.handlers.addHandler(this.rtcpHandler);
 		if(this.srtp) {
 			this.dtlsHandler.setChannel(this.channel);
 			this.stunHandler.setChannel(this.channel);

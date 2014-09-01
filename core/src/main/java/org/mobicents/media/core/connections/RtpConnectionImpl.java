@@ -44,15 +44,19 @@ import org.mobicents.media.io.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.io.ice.sdp.IceSdpNegotiator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
+import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
+import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -70,20 +74,22 @@ import org.mobicents.media.server.utils.Text;
  * 
  * @author Oifa Yulian
  * @author amit bhayani
- * @author Henrique Rosa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class RtpConnectionImpl extends BaseConnection implements
-		RTPChannelListener {
+public class RtpConnectionImpl extends BaseConnection implements RTPChannelListener {
+	
 	private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
-
-	// Registered formats
-	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
-	private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-
+	
+	// Core elements
+	private final ChannelsManager channelsManager;
+	private final Scheduler scheduler;
+	private final RtpClock rtpClock;
+	
 	// Audio Channel
-	private ChannelsManager channelsManager;
+	private RtpStatistics audioStatistics;
 	private RtpChannel rtpAudioChannel;
-	private boolean isAudioCapabale;
+	private RtcpChannel rtcpAudioChannel;
+	private boolean audioCapabale;
 
 	// Session Description
 	private SessionDescription sdp = new SessionDescription();
@@ -92,13 +98,17 @@ public class RtpConnectionImpl extends BaseConnection implements
 	private String sdpOffer;
 	private String sdpAnswer;
 
+	// Registered formats
+	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
+	private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+
 	// Supported formats
 	protected RTPFormats audioFormats;
 	protected RTPFormats videoFormats;
 	protected RTPFormats applicationFormats;
 
 	// ICE
-	private boolean useIce;
+	private boolean ice;
 	private IceAgent iceAgent;
 	private PortManager icePorts;
 
@@ -111,22 +121,27 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	public RtpConnectionImpl(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
 		super(id, channelsManager.getScheduler());
+		
+		// Core elements
 		this.channelsManager = channelsManager;
+		this.scheduler = channelsManager.getScheduler();
+		this.rtpClock = new RtpClock(this.scheduler.getClock());
+		
+		// RTP Session Statistics
+		this.audioStatistics = new RtpStatistics(this.rtpClock);
 
-		// check endpoint capabilities
-		this.isAudioCapabale = true;
-
-		// create audio and video channel
-		this.rtpAudioChannel = channelsManager.getRtpChannel();
+		// Audio Channel
+		this.rtpAudioChannel = channelsManager.getRtpChannel(audioStatistics);
 		this.rtpAudioChannel.setRtpChannelListener(this);
-
 		try {
 			this.rtpAudioChannel.setInputDsp(dspFactory.newProcessor());
 			this.rtpAudioChannel.setOutputDsp(dspFactory.newProcessor());
 		} catch (Exception e) {
-			// exception may happen only if invalid classes have been set in config
+			// exception may happen only if invalid classes have been set in configuration
 			throw new RuntimeException("There are probably invalid classes specified in the configuration.", e);
 		}
+		this.rtcpAudioChannel = channelsManager.getRtcpChannel(audioStatistics);
+		this.audioCapabale = true;
 
 		// create sdp template
 		this.audioFormats = getRTPMap(AVProfile.audio);
@@ -168,7 +183,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 * @return Returns whether this connection uses ICE to process a call.
 	 */
 	public boolean isUsingIce() {
-		return useIce;
+		return ice;
 	}
 
 	public AudioComponent getAudioComponent() {
@@ -284,7 +299,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 		 * socket. This only happens once the SDP has been exchanged between
 		 * both parties and ICE agent replies to remote connectivity checks.
 		 */
-		if (!useIce) {
+		if (!ice) {
 			setAudioChannelRemotePeer(this.sdp.getAudioDescriptor());
 		} else {
 			// Start ICE agent before we send the SDP answer.
@@ -400,7 +415,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	@Override
 	public String toString() {
-		return "RTP Connection [" + getEndpoint().getLocalName();
+		return "RTP Connection [" + getEndpoint().getLocalName() + "]";
 	}
 
 	public void onRtpFailure() {
@@ -408,8 +423,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	}
 
 	@Override
-	public void setConnectionFailureListener(
-			ConnectionFailureListener connectionFailureListener) {
+	public void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener) {
 		this.connectionFailureListener = connectionFailureListener;
 	}
 
@@ -421,11 +435,17 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 	@Override
 	protected void onFailed() {
-		if (this.connectionFailureListener != null)
-			connectionFailureListener.onFailure();
+		if (this.connectionFailureListener != null) {
+			this.connectionFailureListener.onFailure();
+		}
 
-		if (rtpAudioChannel != null)
-			rtpAudioChannel.close();
+		if (this.rtpAudioChannel != null) {
+			this.rtpAudioChannel.close();
+		}
+		
+		if(this.rtcpAudioChannel != null) {
+			this.rtcpAudioChannel.close();
+		}
 	}
 
 	@Override
@@ -441,8 +461,10 @@ public class RtpConnectionImpl extends BaseConnection implements
 		} catch (ModeNotSupportedException e) {
 		}
 
-		if (this.isAudioCapabale)
+		if (this.audioCapabale) {
 			this.rtpAudioChannel.close();
+			this.rtcpAudioChannel.close();
+		}
 
 		releaseConnection(ConnectionType.RTP);
 		this.connectionFailureListener = null;
@@ -463,7 +485,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 */
 	private void processSdpOffer() throws SocketException, IOException {
 		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
-		this.useIce = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
+		this.ice = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
 
 		/*
 		 * For ICE-enabled calls, the RTP channels can only be bound after the
@@ -473,7 +495,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 		 * 
 		 * https://telestax.atlassian.net/browse/MEDIA-16
 		 */
-		if (this.useIce) {
+		if (this.ice) {
 			// Integrate with ICE Lite for WebRTC calls
 			// https://telestax.atlassian.net/browse/MEDIA-13
 			this.iceAgent = IceFactory.createLiteAgent();
@@ -497,6 +519,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 		} else {
 			// For non-ICE calls the RTP audio channel can be bound immediately
 			this.rtpAudioChannel.bind(this.isLocal);
+			this.rtcpAudioChannel.bind(this.isLocal, this.rtpAudioChannel.getLocalPort() + 1);
 		}
 		
 		// Configure WebRTC-related resources on audio channel
@@ -526,8 +549,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 		}
 
 		// Session-level descriptors
-		String bindAddress = isLocal ? channelsManager.getLocalBindAddress()
-				: channelsManager.getBindAddress();
+		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
 		this.answerTemplate.setBindAddress(bindAddress);
 		this.answerTemplate.setNetworkType("IN");
 		this.answerTemplate.setAddressType("IP4");
@@ -537,22 +559,21 @@ public class RtpConnectionImpl extends BaseConnection implements
 
 		// Media Descriptors
 		this.answerTemplate.setSupportedAudioFormats(this.audioFormats);
-		this.answerTemplate.setAudioPort(rtpAudioChannel.getLocalPort());
+		this.answerTemplate.setRtpAudioPort(this.rtpAudioChannel.getLocalPort());
+		this.answerTemplate.setRtcpAudioPort(this.rtcpAudioChannel.getLocalPort());
 
 		if (this.answerTemplate instanceof WebRTCSdpTemplate) {
 			// TODO Update video port based on video channel configuration
 			this.answerTemplate.setSupportedVideoFormats(this.videoFormats);
 			this.answerTemplate.setVideoPort(0);
 			// TODO Update application port based on video channel configuration
-			this.answerTemplate
-					.setSupportedApplicationFormats(this.applicationFormats);
+			this.answerTemplate.setSupportedApplicationFormats(this.applicationFormats);
 			this.answerTemplate.setApplicationPort(0);
 		}
 
 		this.sdpAnswer = this.answerTemplate.build();
-		if (this.useIce) {
-			this.sdpAnswer = IceSdpNegotiator.updateAnswer(sdpAnswer,
-					this.iceAgent).toString();
+		if (this.ice) {
+			this.sdpAnswer = IceSdpNegotiator.updateAnswer(sdpAnswer,this.iceAgent).toString();
 		}
 	}
 
@@ -567,9 +588,8 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 * @throws SocketException
 	 * @throws IOException
 	 */
-	private void setAudioChannelRemotePeer(String address, int port)
-			throws SocketException, IOException {
-		if (this.isAudioCapabale) {
+	private void setAudioChannelRemotePeer(String address, int port) throws SocketException, IOException {
+		if (this.audioCapabale) {
 			rtpAudioChannel.setRemotePeer(new InetSocketAddress(address, port));
 		}
 	}
@@ -583,8 +603,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 	 * @throws SocketException
 	 * @throws IOException
 	 */
-	private void setAudioChannelRemotePeer(MediaDescriptorField descriptor)
-			throws SocketException, IOException {
+	private void setAudioChannelRemotePeer(MediaDescriptorField descriptor) throws SocketException, IOException {
 		int peerPort = descriptor.getPort();
 		String peerAddress;
 
@@ -609,7 +628,7 @@ public class RtpConnectionImpl extends BaseConnection implements
 				rtpAudioChannel.bind(candidate.getChannel());
 			} catch (IOException e) {
 				// XXX close connection
-				logger.error("Could not select ICE candidates: "+e.getMessage(), e);
+				logger.error("Could not select ICE candidates: "+ e.getMessage(), e);
 			}
 		}
 	}

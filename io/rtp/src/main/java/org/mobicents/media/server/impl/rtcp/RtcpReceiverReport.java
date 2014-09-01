@@ -32,6 +32,7 @@ public class RtcpReceiverReport extends RtcpReport {
 	private static final boolean IS_SENDER = false;
 
 	protected RtcpReceiverReport() {
+		super();
 	}
 
 	public RtcpReceiverReport(boolean padding, long ssrc) {

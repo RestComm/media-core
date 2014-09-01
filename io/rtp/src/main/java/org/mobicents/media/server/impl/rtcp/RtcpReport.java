@@ -19,7 +19,7 @@ public abstract class RtcpReport extends RtcpHeader {
 	protected RtcpReceiverReportItem[] receiverReports;
 	
 	protected RtcpReport() {
-		
+		this.receiverReports = new RtcpReceiverReportItem[RtcpPacket.MAX_SOURCES];
 	}
 
 	protected RtcpReport(boolean padding, long ssrc, int packetType) {
