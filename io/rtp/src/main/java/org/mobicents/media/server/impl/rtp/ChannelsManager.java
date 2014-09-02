@@ -112,8 +112,8 @@ public class ChannelsManager {
         return new RTPDataChannel(this,channelIndex.incrementAndGet());
     }
     
-    public RtpChannel getRtpChannel(RtpStatistics statistics) {
-    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, scheduler, udpManager);
+    public RtpChannel getRtpChannel(RtpStatistics statistics, RtpClock clock, RtpClock oobClock) {
+    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager);
     }
 
     public RtcpChannel getRtcpChannel(RtpStatistics statistics) {

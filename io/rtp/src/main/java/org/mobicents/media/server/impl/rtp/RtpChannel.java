@@ -47,7 +47,8 @@ public class RtpChannel extends MultiplexedChannel {
 	// Core elements
 	private final UdpManager udpManager;
 	private final Scheduler scheduler;
-	private final RtpClock rtpClock;
+	private final RtpClock clock;
+	private final RtpClock oobClock;
 	private final int jitterBufferSize;
 	
 	// Heart beat
@@ -81,14 +82,15 @@ public class RtpChannel extends MultiplexedChannel {
 	// Listeners
 	private RTPChannelListener channelListener;
 	
-	protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager) {
+	protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock, Scheduler scheduler, UdpManager udpManager) {
 		// Initialize MultiplexedChannel elements
 		super();
 		
 		// Core and network elements
 		this.scheduler = scheduler;
 		this.udpManager = udpManager;
-		this.rtpClock = new RtpClock(scheduler.getClock());
+		this.clock = clock;
+		this.oobClock = oobClock;
 		
 		// Channel attributes
 		this.channelId = channelId;
@@ -97,8 +99,8 @@ public class RtpChannel extends MultiplexedChannel {
 		this.bound = false;
 		
 		// Protocol Handlers
-		this.transmitter = new RtpTransmitter(this.scheduler, this.statistics);
-		this.rtpHandler = new RtpHandler(this.scheduler, this.jitterBufferSize, this.statistics);
+		this.transmitter = new RtpTransmitter(scheduler, clock, statistics);
+		this.rtpHandler = new RtpHandler(scheduler, clock, oobClock, jitterBufferSize, statistics);
 
 		// Media Components
 		this.audioComponent = new AudioComponent(channelId);

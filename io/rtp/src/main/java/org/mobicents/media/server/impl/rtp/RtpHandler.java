@@ -44,9 +44,9 @@ public class RtpHandler implements PacketHandler {
 	private boolean srtp;
 	private DtlsHandler dtlsHandler;
 	
-	public RtpHandler(final Scheduler scheduler, final int jitterBufferSize, final RtpStatistics statistics) {
-		this.rtpClock = new RtpClock(scheduler.getClock());
-		this.oobClock = new RtpClock(scheduler.getClock());
+	public RtpHandler(Scheduler scheduler, RtpClock clock, RtpClock oobClock, int jitterBufferSize, RtpStatistics statistics) {
+		this.rtpClock = clock;
+		this.oobClock = oobClock;
 		
 		this.jitterBufferSize = jitterBufferSize;
 		this.jitterBuffer = new JitterBuffer(this.rtpClock, this.jitterBufferSize);

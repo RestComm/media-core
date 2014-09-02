@@ -83,10 +83,11 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 	// Core elements
 	private final ChannelsManager channelsManager;
 	private final Scheduler scheduler;
-	private final RtpClock rtpClock;
 	
 	// Audio Channel
 	private RtpStatistics audioStatistics;
+	private final RtpClock audioClock;
+	private final RtpClock audioOobClock;
 	private RtpChannel rtpAudioChannel;
 	private RtcpChannel rtcpAudioChannel;
 	private boolean audioCapabale;
@@ -125,13 +126,12 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		// Core elements
 		this.channelsManager = channelsManager;
 		this.scheduler = channelsManager.getScheduler();
-		this.rtpClock = new RtpClock(this.scheduler.getClock());
 		
-		// RTP Session Statistics
-		this.audioStatistics = new RtpStatistics(this.rtpClock);
-
 		// Audio Channel
-		this.rtpAudioChannel = channelsManager.getRtpChannel(audioStatistics);
+		this.audioClock = new RtpClock(this.scheduler.getClock());
+		this.audioOobClock = new RtpClock(this.scheduler.getClock());
+		this.audioStatistics = new RtpStatistics(this.audioClock);
+		this.rtpAudioChannel = channelsManager.getRtpChannel(audioStatistics, audioClock, audioOobClock);
 		this.rtpAudioChannel.setRtpChannelListener(this);
 		try {
 			this.rtpAudioChannel.setInputDsp(dspFactory.newProcessor());

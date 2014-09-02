@@ -49,8 +49,8 @@ public class RtpTransmitter {
 	private long dtmfTimestamp;
 	private int sequenceNumber;
 	
-	public RtpTransmitter(final Scheduler scheduler, final RtpStatistics statistics) {
-		this.rtpClock = new RtpClock(scheduler.getClock());
+	public RtpTransmitter(final Scheduler scheduler, final RtpClock clock, final RtpStatistics statistics) {
+		this.rtpClock = clock;
 		this.statistics = statistics;
 		this.dtmfSupported = false;
 		this.rtpOutput = new RTPOutput(scheduler, this);
