@@ -38,9 +38,9 @@ public class RtcpHandler implements PacketHandler {
 	
 	private final RtpStatistics statistics;
 
-	/** The elapsed time (nanoseconds) since an RTCP packet was transmitted */
+	/** The elapsed time (milliseconds) since an RTCP packet was transmitted */
 	private long tp;
-	/** The time interval (nanoseconds) until next scheduled transmission time of an RTCP packet */
+	/** The time interval (milliseconds) until next scheduled transmission time of an RTCP packet */
 	private long tn;
 
 	/** Flag that is true if the application has not yet sent an RTCP packet */
@@ -67,22 +67,22 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	/**
-	 * Gets the timestamp of a future moment in time.
+	 * Gets the time stamp of a future moment in time.
 	 * 
 	 * @param delay
-	 *            The amount of time in the future, in nanoseconds
-	 * @return The timestamp of the date matching the delay, in nanoseconds
+	 *            The amount of time in the future, in milliseconds
+	 * @return The time stamp of the date matching the delay, in milliseconds
 	 */
 	private long resolveDelay(long delay) {
 		return this.statistics.getCurrentTime() + delay;
 	}
 
 	/**
-	 * Gets the time interval between the current time and another timestamp.
+	 * Gets the time interval between the current time and another time stamp.
 	 * 
 	 * @param timestamp
-	 *            The timestamp, in nanoseconds, to compare to the current time
-	 * @return The interval of time between both timestamps, in nanoseconds.
+	 *            The time stamp, in milliseconds, to compare to the current time
+	 * @return The interval of time between both time stamps, in milliseconds.
 	 */
 	private long resolveInterval(long timestamp) {
 		return timestamp - this.statistics.getCurrentTime();
@@ -157,14 +157,14 @@ public class RtcpHandler implements PacketHandler {
 	 * Schedules an event to occur at a certain time.
 	 * 
 	 * @param timestamp
-	 *            The time (in nanoseconds) when the event should be fired
+	 *            The time (in milliseconds) when the event should be fired
 	 * @param packet
 	 *            The RTCP packet to be sent when the timer expires
 	 */
 	private void schedule(long timestamp, RtcpPacket packet) {
 		// Create the task and schedule it
-		long interval = TimeUnit.NANOSECONDS.toMillis(resolveInterval(timestamp));
-		this.scheduledTask = new TxTask(interval, packet);
+		long interval = resolveInterval(timestamp);
+		this.scheduledTask = new TxTask(timestamp, packet);
 		this.txTimer.schedule(this.scheduledTask, interval);
 		// Let the RTP handler know what is the type of scheduled packet
 		this.statistics.setRtcpPacketType(packet.getPacketType());
@@ -179,7 +179,7 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
-		long interval = TimeUnit.NANOSECONDS.toMillis(resolveInterval(timestamp));
+		long interval = resolveInterval(timestamp);
 		task.setTimestamp(interval);
 		this.txTimer.schedule(task, TimeUnit.NANOSECONDS.toMillis(timestamp));
 		logger.info("Re-scheduled packet in " + interval + "ms");
@@ -350,8 +350,9 @@ public class RtcpHandler implements PacketHandler {
 			int sent = this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
 			logger.info("RTCP packet sent! Data Length: " + sent);
 		} else {
-			logger.warn("Could not send RTCP packet because channel is closed.");
-			// TODO handle channel closed
+			logger.warn("Could not send RTCP packet because channel is closed. Canceling future tasks.");
+			this.ssrcTimer.cancel();
+			this.ssrcTimer.cancel();
 		}
 	}
 

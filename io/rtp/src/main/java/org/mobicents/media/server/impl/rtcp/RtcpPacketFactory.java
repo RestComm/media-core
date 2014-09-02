@@ -61,7 +61,7 @@ public class RtcpPacketFactory {
          *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 */
 		long ssrc = statistics.getSsrc();
-		TimeStamp ntpTs = new TimeStamp(new Date(System.currentTimeMillis()));
+		TimeStamp ntpTs = new TimeStamp(new Date(statistics.getCurrentTime()));
 		long ntpSec = ntpTs.getSeconds();
 		long ntpFrac = ntpTs.getFraction();
 		long rtpTs = statistics.getRtpTime();
@@ -117,9 +117,8 @@ public class RtcpPacketFactory {
 	
 	private static RtcpReceiverReportItem buildSubReceiverReport(Member statistics) {
 		long ssrc = statistics.getSsrc();
-		// XXX Verify cast!!!
 		int fraction = (int) statistics.getFractionLost();
-		int lost = (int) statistics.getLostPackets();
+		int lost = (int) statistics.getPacketsLost();
 		int seqNumCycle = statistics.getSequenceCycle();
 		long lastSeq = statistics.getSequenceNumber();
 		int jitter = (int) statistics.getJitter();

@@ -1,6 +1,6 @@
 package org.mobicents.media.server.impl.rtp.statistics;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
 
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
@@ -42,8 +42,9 @@ public class Member {
 	private long jitter;
 
 	// RTCP
-	private long lastSR;
-	private long lastSRSequenceNumber;
+	private long lastSrTimestamp;
+	private long lastSrReceivedOn;
+	private long lastSrSequenceNumber;
 
 	public Member(RtpClock clock, long ssrc, String cname) {
 		// Core elements
@@ -69,8 +70,9 @@ public class Member {
 		this.jitter = -1;
 
 		// RTCP
-		this.lastSR = 0;
-		this.lastSRSequenceNumber = -1;
+		this.lastSrTimestamp = 0;
+		this.lastSrReceivedOn = -1;
+		this.lastSrSequenceNumber = -1;
 	}
 
 	public Member(RtpClock clock, long ssrc) {
@@ -144,7 +146,7 @@ public class Member {
 	 * @return The fraction of lost packets
 	 */
 	public long getFractionLost() {
-		long expected = this.lastSequenceNumber - this.lastSRSequenceNumber;
+		long expected = this.lastSequenceNumber - this.lastSrSequenceNumber;
 		if (expected < 0) {
 			expected = 65536 + expected;
 		}
@@ -175,8 +177,9 @@ public class Member {
 	 *         Returns zero if loss is negative, i.e. duplicates have been
 	 *         received.
 	 */
-	public long getLostPackets() {
-		long lost = getExtHighSequence() - this.firstSequenceNumber;
+	public long getPacketsLost() {
+		long expected = getExtHighSequence() - this.firstSequenceNumber;
+		long lost = expected - this.receivedPackets;
 		return lost < 0 ? 0 : lost;
 	}
 
@@ -191,32 +194,12 @@ public class Member {
 	}
 
 	/**
-	 * Sets the highest sequence number received in an RTP data packet from this
-	 * source.
-	 * 
-	 * @param sequenceNumber
-	 *            The highest sequence number on this source
-	 */
-	public void setSequenceNumber(long sequenceNumber) {
-		this.lastSequenceNumber = sequenceNumber;
-	}
-
-	/**
 	 * Gets the count of sequence number cycles
 	 * 
 	 * @return The number of cycles
 	 */
 	public int getSequenceCycle() {
 		return sequenceCycle;
-	}
-
-	/**
-	 * Sets the count of sequence number cycles
-	 * 
-	 * @param sequenceCycle
-	 */
-	public void setSequenceCycle(int sequenceCycle) {
-		this.sequenceCycle = sequenceCycle;
 	}
 
 	/**
@@ -231,18 +214,6 @@ public class Member {
 	}
 
 	/**
-	 * Sets the estimate jitter for this source.
-	 * 
-	 * @param jitter
-	 *            The statistical variance of the RTP data packet interarrival
-	 *            time, measured in timestamp units and expressed as an unsigned
-	 *            integer.
-	 */
-	public void setJitter(int jitter) {
-		this.jitter = jitter;
-	}
-
-	/**
 	 * Gets the last time an RTCP Sender Report was received from this source.
 	 * 
 	 * @return The middle 32 bits out of 64 in the NTP timestamp received as
@@ -250,7 +221,7 @@ public class Member {
 	 *         If no SR has been received yet, returns zero.
 	 */
 	public long getLastSR() {
-		return lastSR;
+		return lastSrTimestamp;
 	}
 
 	/**
@@ -261,7 +232,7 @@ public class Member {
 	 *            part of the most recent RTCP sender report (SR) packet.
 	 */
 	public void setLastSR(long lastSR) {
-		this.lastSR = lastSR;
+		this.lastSrTimestamp = lastSR;
 	}
 
 	/**
@@ -274,13 +245,13 @@ public class Member {
 	 *         zero. seconds
 	 */
 	public long getLastSRdelay() {
-		if (this.receivedSinceSR < 0) {
+		if (this.lastSrReceivedOn < 0) {
 			return 0;
 		}
 
-		long delay = this.wallClock.getTime() - this.receivedSinceSR;
-		// convert nanoseconds to units 1/65536 seconds
-		return delay * TimeUnit.SECONDS.toNanos(65536);
+		long delay = this.wallClock.getCurrentTime() - this.lastSrReceivedOn;
+		// convert to units 1/65536 seconds
+		return (long) (delay * 65.536);
 	}
 
 	/**
@@ -295,23 +266,33 @@ public class Member {
 	}
 
 	/**
-	 * Calculates interarrival jitter interval
+	 * Calculates interarrival jitter interval.
+	 * 
+	 * <p>
+	 * <code>
+	 * int transit = arrival - r->ts;<br>
+	 * int d = transit - s->transit;<br>
+	 * s->transit = transit;<br>
+	 * if (d < 0) d = -d;<br>
+	 * s->jitter += (1./16.) * ((double)d - s->jitter);<br>
+	 * </code>
+	 * </p>
 	 * 
 	 * @param packet
 	 * @return
+	 * @see <a
+	 *      href="http://tools.ietf.org/html/rfc3550#appendix-A.8">RFC3550</a>
 	 */
-	private long estimateJitter(RtpPacket packet) {
-		long arrival = rtpClock.getLocalRtpTime();
-		long newPacketTimestamp = packet.getTimestamp();
-		long transit = arrival - newPacketTimestamp;
+	private void estimateJitter(RtpPacket packet) {
+		long transit = rtpClock.getLocalRtpTime() - packet.getTimestamp();
 		long d = transit - this.currentTransit;
-
-		if (d < 0) {
+		this.currentTransit = transit;
+		
+		if(d < 0) {
 			d = -d;
 		}
 
-		this.currentTransit = transit;
-		return this.jitter + d - ((this.jitter + 8) >> 4);
+		this.jitter += d - ((this.jitter + 8) >> 4);
 	}
 
 	public void onReceiveRtp(RtpPacket packet) {
@@ -337,14 +318,69 @@ public class Member {
 		}
 
 		if(this.lastPacketReceivedOn > 0) {
-			this.jitter = estimateJitter(packet);
+			estimateJitter(packet);
 		}
 		this.lastPacketReceivedOn = rtpClock.getLocalRtpTime();
 	}
 	
 	public void onReceiveSR(RtcpSenderReport report) {
+		this.lastSrReceivedOn = this.wallClock.getCurrentTime();
+		this.lastSrTimestamp = calculateLastSrTimestamp(report.getNtpSec());
+		this.lastSrSequenceNumber = this.lastSequenceNumber;
 		this.receivedSinceSR = 0;
-		this.lastSRSequenceNumber = this.lastSequenceNumber;
+	}
+	
+	/**
+	 * Calculates the time stamp of the last received SR.
+	 * 
+	 * @param msw
+	 *            The most significant word of the NTP time stamp
+	 * @param lsw
+	 *            The least significant word of the NTP time stamp
+	 * @return The middle 32 bits out of 64 in the NTP timestamp received as
+	 *         part of the most recent RTCP sender report (SR).
+	 */
+	private long calculateLastSrTimestamp(long ntp) {
+		byte[] ntpWord = toByteArray(ntp);
+		byte[] middleWord = Arrays.copyOfRange(ntpWord, 2, 6);
+		return fromBytes(middleWord);
+	}
+	
+	/**
+	 * Returns a big-endian representation of {@code value} in an 8-element byte
+	 * array; equivalent to
+	 * {@code ByteBuffer.allocate(8).putLong(value).array()}.
+	 * <p>
+	 * For example, the input value {@code 0x1213141516171819L} would yield the
+	 * byte array {@code 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19}.
+	 * </p>
+	 * 
+	 * @param value
+	 *            The 64-bit number to be converted
+	 * @return The byte array representing the number
+	 */
+	private byte[] toByteArray(long value) {
+	    byte[] result = new byte[8];
+	    for (int i = 7; i >= 0; i--) {
+	      result[i] = (byte) (value & 0xffL);
+	      value >>= 8;
+	    }
+	    return result;
+	}
+	
+	/**
+	 * Returns the {@code long} value whose byte representation is the given 8
+	 * bytes, in big-endian order
+	 * 
+	 * @param b
+	 *            The byte array to be converted
+	 * @return The 32-bit number that represents the byte array
+	 */
+	private long fromBytes(byte[] b) {
+		return (b[0] & 0xFFL) << 24 
+				| (b[1] & 0xFFL) << 16
+				| (b[2] & 0xFFL) << 8 
+				| (b[3] & 0xFFL);
 	}
 
 }

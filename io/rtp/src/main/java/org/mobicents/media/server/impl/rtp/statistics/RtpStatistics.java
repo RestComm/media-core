@@ -153,21 +153,21 @@ public class RtpStatistics {
 	}
 
 	/**
-	 * Gets the current time of the Wall Clock.<br>
+	 * Gets the RTP time stamp equivalent to the current time of the Wall Clock.
 	 * 
-	 * @return The elapsed time of the wall clock, in nanoseconds.
-	 */
-	public long getCurrentTime() {
-		return this.wallClock.getTime();
-	}
-
-	/**
-	 * Gets the RTP timestamp equivalent to the current time of the Wall Clock.
-	 * 
-	 * @return The current timestamp in RTP format.
+	 * @return The current time stamp in RTP format.
 	 */
 	public long getRtpTime() {
-		return this.rtpClock.getLocalRtpTime();
+		return this.wallClock.getTime();
+	}
+	
+	/**
+	 * Gets the current time of the Wall Clock.<br>
+	 * 
+	 * @return The current time of the wall clock, in milliseconds.
+	 */
+	public long getCurrentTime() {
+		return this.wallClock.getCurrentTime();
 	}
 
 	/**
@@ -488,7 +488,7 @@ public class RtpStatistics {
 	 * membership, this procedure splits the bandwidth equally among all
 	 * participants, on average.
 	 * 
-	 * @return the new transmission interval, in nanoseconds
+	 * @return the new transmission interval, in milliseconds
 	 */
 	public long rtcpInterval(boolean initial) {
 		return rtcpInterval(this.weSent, initial);
@@ -499,7 +499,7 @@ public class RtpStatistics {
 	 * randomization factor (we_sent=false).
 	 * 
 	 * @param initial
-	 * @return the new transmission interval, in nanoseconds
+	 * @return the new transmission interval, in milliseconds
 	 */
 	public long rtcpReceiverInterval(boolean initial) {
 		return rtcpInterval(false, initial);
@@ -514,8 +514,7 @@ public class RtpStatistics {
 				c = this.rtcpAvgSize / (RTCP_SENDER_BW_FRACTION * this.rtcpBw);
 				n = this.senders;
 			} else {
-				c = this.rtcpAvgSize
-						/ (RTCP_RECEIVER_BW_FRACTION * this.rtcpBw);
+				c = this.rtcpAvgSize / (RTCP_RECEIVER_BW_FRACTION * this.rtcpBw);
 				n = this.members - this.senders;
 			}
 		} else {
@@ -534,8 +533,8 @@ public class RtpStatistics {
 		double max = td * 1.5;
 		double t = min + (max - min) * this.random.nextDouble();
 
-		// 5 - divide T by e-3/2 and convert to nanoseconds
-		return (long) ((t / RTCP_COMPENSATION) * 1000000000L);
+		// 5 - divide T by e-3/2 and convert to milliseconds
+		return (long) ((t / RTCP_COMPENSATION) * 1000);
 	}
 
 	/**

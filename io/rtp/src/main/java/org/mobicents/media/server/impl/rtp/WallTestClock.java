@@ -38,6 +38,7 @@ public class WallTestClock implements Clock {
 
     private TimeUnit unit = TimeUnit.NANOSECONDS;
     private long time = System.nanoTime();
+    private long currTime = System.currentTimeMillis();
 
     public long getTime() {
         return time;
@@ -54,4 +55,8 @@ public class WallTestClock implements Clock {
     public void tick(long amount) {
         time += amount;
     }
+
+	public long getCurrentTime() {
+		return currTime;
+	}
 }
