@@ -139,8 +139,15 @@ public class RtcpChannel extends MultiplexedChannel {
 	
 	@Override
 	public void close() {
+		/*
+		 * Instruct the RTCP handler to leave the RTP session.
+		 * 
+		 * This will result in scheduling an RTCP BYE to be sent. Since the BYE
+		 * is not sent right away, the datagram channel can only be closed once
+		 * the BYE has been sent. So, the handler is responsible for closing the
+		 * channel.
+		 */
 		this.rtcpHandler.leaveRtpSession();
-		super.close();
 	}
 
 }

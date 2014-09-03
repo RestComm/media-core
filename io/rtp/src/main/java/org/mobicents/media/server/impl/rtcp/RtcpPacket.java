@@ -151,7 +151,7 @@ public class RtcpPacket implements Serializable {
 		if(this.bye == null) {
 			return RtcpPacketType.RTCP_REPORT;
 		}
-		return RtcpPacketType.RTCP_REPORT;
+		return RtcpPacketType.RTCP_BYE;
 	}
 	
 	public RtcpReport getReport() {

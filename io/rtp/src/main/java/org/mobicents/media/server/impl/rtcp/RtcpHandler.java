@@ -124,6 +124,8 @@ public class RtcpHandler implements PacketHandler {
 	
 	public void leaveRtpSession() {
 		if (this.joined) {
+			logger.info("Leaving RTP Session.");
+			
 			// Stop SSRC checks
 			this.ssrcTimer.cancel();
 			this.ssrcTimer.purge();
@@ -247,6 +249,8 @@ public class RtcpHandler implements PacketHandler {
 			if (this.tn <= tc) {
 				// Send BYE and stop scheduling further packets
 				sendRtcpPacket(task.getPacket());
+				stop();
+				closeChannel();
 				return;
 			} else {
 				// Delay BYE
@@ -352,16 +356,43 @@ public class RtcpHandler implements PacketHandler {
 			logger.info("RTCP packet sent! Data Length: " + sent);
 		} else {
 			logger.warn("Could not send RTCP packet because channel is closed.");
-			// Stop timers when exited RTP sessions
-			if(!this.joined) {
-				logger.warn("Canceling future tasks");
-				this.txTimer.cancel();
-				this.txTimer.purge();
-				this.ssrcTimer.cancel();
-				this.ssrcTimer.purge();
+		}
+	}
+	
+	/**
+	 * Stops the scheduled task (if any) and cancels the timers
+	 */
+	private void stop() {
+		this.scheduledTask.cancel();
+		this.scheduledTask = null;
+		this.txTimer.cancel();
+		this.txTimer.purge();
+		this.ssrcTimer.cancel();
+		this.ssrcTimer.purge();
+	}
+	
+	/**
+	 * Disconnects and closes the datagram channel used to send and receive RTCP
+	 * traffic.
+	 */
+	private void closeChannel() {
+		if(this.channel != null) {
+			if(this.channel.isConnected()) {
+				try {
+					this.channel.disconnect();
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+
+			if(this.channel.isOpen()) {
+				try {
+					this.channel.close();
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 		}
-		
 	}
 
 	/**
@@ -401,8 +432,8 @@ public class RtcpHandler implements PacketHandler {
 			try {
 				onExpire(this);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("An error occurred while executing a scheduled task. Stopping handler.", e);
+				stop();
 			}
 		}
 
