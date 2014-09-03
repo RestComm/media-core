@@ -139,8 +139,8 @@ public class RtcpChannel extends MultiplexedChannel {
 	
 	@Override
 	public void close() {
-		super.close();
 		this.rtcpHandler.leaveRtpSession();
+		super.close();
 	}
 
 }

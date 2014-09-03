@@ -553,6 +553,7 @@ public class RtpStatistics {
 		if (this.rtpSentOn < minTime) {
 			removeSender(this.ssrc);
 		}
+		logger.info("Are we sender? "+ weSent);
 		return this.weSent;
 	}
 
@@ -568,7 +569,7 @@ public class RtpStatistics {
 	public void onRtpSent(RtpPacket packet) {
 		this.rtpTxPackets++;
 		this.rtpTxOctets += packet.getLength();
-		this.rtpSentOn = this.wallClock.getTime();
+		this.rtpSentOn = this.wallClock.getCurrentTime();
 		/*
 		 * If the participant sends an RTP packet when we_sent is false, it adds
 		 * itself to the sender table and sets we_sent to true.

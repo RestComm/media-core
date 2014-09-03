@@ -66,7 +66,7 @@ public class RtcpPacketFactory {
 		long ntpFrac = ntpTs.getFraction();
 		long rtpTs = statistics.getRtpTime();
 		long psent = statistics.getRtpPacketsSent();
-		long osent = statistics.getRtpOctetsReceived();
+		long osent = statistics.getRtpOctetsSent();
 		
 		RtcpSenderReport senderReport = new RtcpSenderReport(padding, ssrc, ntpSec, ntpFrac, rtpTs, psent, osent);
 		
@@ -188,7 +188,24 @@ public class RtcpPacketFactory {
 	 * @return The RTCP packet
 	 */
 	public static RtcpPacket buildBye(RtpStatistics statistics) {
-		// TODO implement buildSenderReport
-		return null;
+		// TODO Validate padding
+		boolean padding = false;
+		
+		// Build the initial report packet
+		RtcpReport report; 
+		if(statistics.hasSent()) {
+			report = buildSenderReport(statistics, padding);
+		} else {
+			report = buildReceiverReport(statistics, padding);
+		}
+		
+		// Build the SDES packet containing the CNAME
+		RtcpSdes sdes = buildSdes(statistics, padding);
+		
+		// Build the BYE
+		RtcpBye bye = new RtcpBye(padding);
+		
+		// Build the compound packet
+		return new RtcpPacket(report, sdes, bye);
 	}
 }

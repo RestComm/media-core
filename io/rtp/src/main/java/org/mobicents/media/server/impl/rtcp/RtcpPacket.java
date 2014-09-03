@@ -176,6 +176,10 @@ public class RtcpPacket implements Serializable {
 	public RtcpBye getBye() {
 		return bye;
 	}
+	
+	public boolean hasBye() {
+		return this.bye != null;
+	}
 
 	public RtcpAppDefined getAppDefined() {
 		return appDefined;

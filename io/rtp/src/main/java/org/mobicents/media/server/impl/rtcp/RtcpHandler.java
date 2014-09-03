@@ -48,7 +48,7 @@ public class RtcpHandler implements PacketHandler {
 	
 	/** Flag that is true once the handler joined an RTP session */
 	private boolean joined;
-
+	
 	public RtcpHandler(final RtpStatistics statistics) {
 		// core stuff
 		this.byteBuffer = ByteBuffer.allocateDirect(RtpPacket.RTP_PACKET_MAX_SIZE);
@@ -117,7 +117,7 @@ public class RtcpHandler implements PacketHandler {
 			
 			// Start SSRC timeout timer
 			this.ssrcTimer.scheduleAtFixedRate(this.ssrcTask, SSRC_TASK_DELAY, SSRC_TASK_DELAY);
-			
+
 			this.joined = true;
 		}
 	}
@@ -126,6 +126,7 @@ public class RtcpHandler implements PacketHandler {
 		if (this.joined) {
 			// Stop SSRC checks
 			this.ssrcTimer.cancel();
+			this.ssrcTimer.purge();
 			
 			// Create a RTCP BYE packet to be scheduled
 			RtcpPacket bye = RtcpPacketFactory.buildBye(this.statistics);
@@ -143,11 +144,11 @@ public class RtcpHandler implements PacketHandler {
 			this.statistics.resetMembers();
 			this.initial = true;
 			this.statistics.clearSenders();
-//			this.statistics.setRtcpAvgSize(bye.getSize());
+			this.statistics.setRtcpAvgSize(bye.getSize());
 
 			long t = this.statistics.rtcpInterval(initial);
 			this.tn = resolveDelay(t);
-//			schedule(this.tn, bye);
+			schedule(this.tn, bye);
 			
 			this.joined = false;
 		}
@@ -350,10 +351,17 @@ public class RtcpHandler implements PacketHandler {
 			int sent = this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
 			logger.info("RTCP packet sent! Data Length: " + sent);
 		} else {
-			logger.warn("Could not send RTCP packet because channel is closed. Canceling future tasks.");
-			this.ssrcTimer.cancel();
-			this.ssrcTimer.cancel();
+			logger.warn("Could not send RTCP packet because channel is closed.");
+			// Stop timers when exited RTP sessions
+			if(!this.joined) {
+				logger.warn("Canceling future tasks");
+				this.txTimer.cancel();
+				this.txTimer.purge();
+				this.ssrcTimer.cancel();
+				this.ssrcTimer.purge();
+			}
 		}
+		
 	}
 
 	/**
