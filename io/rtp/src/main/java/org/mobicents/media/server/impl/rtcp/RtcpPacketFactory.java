@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.net.ntp.TimeStamp;
-import org.mobicents.media.server.impl.rtp.statistics.Member;
+import org.mobicents.media.server.impl.rtp.statistics.RtpMember;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 
 /**
@@ -74,7 +74,7 @@ public class RtcpPacketFactory {
 		List<Long> members = statistics.getMembersList();
 		for (Long memberSsrc : members) {
 			if (ssrc != memberSsrc) {
-				Member memberStats = statistics.getMember(memberSsrc.longValue());
+				RtpMember memberStats = statistics.getMember(memberSsrc.longValue());
 				RtcpReceiverReportItem rcvrReport = buildSubReceiverReport(memberStats);
 				senderReport.addReceiverReport(rcvrReport);
 			}
@@ -97,7 +97,7 @@ public class RtcpPacketFactory {
 		List<Long> members = statistics.getMembersList();
 		for (Long memberSsrc : members) {
 			if (ssrc != memberSsrc) {
-				Member memberStats = statistics.getMember(memberSsrc.longValue());
+				RtpMember memberStats = statistics.getMember(memberSsrc.longValue());
 				RtcpReceiverReportItem rcvrReport = buildSubReceiverReport(memberStats);
 				report.addReceiverReport(rcvrReport);
 			}
@@ -115,7 +115,7 @@ public class RtcpPacketFactory {
 		return sdes;
 	}
 	
-	private static RtcpReceiverReportItem buildSubReceiverReport(Member statistics) {
+	private static RtcpReceiverReportItem buildSubReceiverReport(RtpMember statistics) {
 		long ssrc = statistics.getSsrc();
 		int fraction = (int) statistics.getFractionLost();
 		int lost = (int) statistics.getPacketsLost();

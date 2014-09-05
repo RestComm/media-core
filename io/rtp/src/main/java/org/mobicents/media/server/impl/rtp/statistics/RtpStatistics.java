@@ -93,7 +93,7 @@ public class RtpStatistics {
 	 * RTCP report intervals (5 is RECOMMENDED). This provides some robustness
 	 * against packet loss.
 	 */
-	private final Map<Long, Member> membersMap;
+	private final Map<Long, RtpMember> membersMap;
 	private int pmembers;
 	private int members;
 	
@@ -120,8 +120,8 @@ public class RtpStatistics {
 		this.sendersList = new ArrayList<Long>();
 		this.pmembers = 1;
 		this.members = 1;
-		this.membersMap = new HashMap<Long, Member>();
-		this.membersMap.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
+		this.membersMap = new HashMap<Long, RtpMember>();
+		this.membersMap.put(Long.valueOf(this.ssrc), new RtpMember(this.rtpClock, this.ssrc));
 		this.rtcpBw = RTP_DEFAULT_BW * RTCP_BW_FRACTION;
 		this.rtcpAvgSize = RTCP_DEFAULT_AVG_SIZE;
 		this.rtcpNextPacketType = RtcpPacketType.RTCP_REPORT;
@@ -366,7 +366,7 @@ public class RtpStatistics {
 		return members;
 	}
 
-	public Member getMember(long ssrc) {
+	public RtpMember getMember(long ssrc) {
 		synchronized (this.membersMap) {
 			return this.membersMap.get(Long.valueOf(ssrc));
 		}
@@ -386,11 +386,11 @@ public class RtpStatistics {
 		}
 	}
 
-	public Member addMember(long ssrc) {
-		Member member = getMember(ssrc);
+	public RtpMember addMember(long ssrc) {
+		RtpMember member = getMember(ssrc);
 		if (member == null) {
 			synchronized (this.membersMap) {
-				this.membersMap.put(Long.valueOf(ssrc), new Member(
+				this.membersMap.put(Long.valueOf(ssrc), new RtpMember(
 						this.rtpClock, ssrc));
 				this.members++;
 			}
@@ -417,7 +417,7 @@ public class RtpStatistics {
 	public void resetMembers() {
 		synchronized (this.membersMap) {
 			this.membersMap.clear();
-			this.membersMap.put(Long.valueOf(this.ssrc), new Member(this.rtpClock, this.ssrc));
+			this.membersMap.put(Long.valueOf(this.ssrc), new RtpMember(this.rtpClock, this.ssrc));
 			this.members = 1;
 			this.pmembers = 1;
 		}
@@ -587,7 +587,7 @@ public class RtpStatistics {
 
 		// Increment member statistics
 		long syncSource = packet.getSyncSource();
-		Member member = getMember(syncSource);
+		RtpMember member = getMember(syncSource);
 
 		if (member == null) {
 			member = addMember(syncSource);
@@ -621,7 +621,7 @@ public class RtpStatistics {
 			 * added to the table, and the value for members is updated once the
 			 * participant has been validated.
 			 */
-			Member member = getMember(ssrc);
+			RtpMember member = getMember(ssrc);
 			if (member == null && RtcpPacketType.RTCP_REPORT.equals(this.rtcpNextPacketType)) {
 				member = addMember(ssrc);
 			}

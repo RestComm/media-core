@@ -54,8 +54,9 @@ public class WallTestClock implements Clock {
 
     public void tick(long amount) {
         time += amount;
+        currTime += TimeUnit.NANOSECONDS.toMillis(amount);
     }
-
+    
 	public long getCurrentTime() {
 		return currTime;
 	}

@@ -13,7 +13,7 @@ import org.mobicents.media.server.scheduler.Clock;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class Member {
+public class RtpMember {
 
 	// Core elements
 	private final RtpClock rtpClock;
@@ -46,7 +46,7 @@ public class Member {
 	private long lastSrReceivedOn;
 	private long lastSrSequenceNumber;
 
-	public Member(RtpClock clock, long ssrc, String cname) {
+	public RtpMember(RtpClock clock, long ssrc, String cname) {
 		// Core elements
 		this.rtpClock = clock;
 		this.wallClock = clock.getWallClock();
@@ -75,7 +75,7 @@ public class Member {
 		this.lastSrSequenceNumber = -1;
 	}
 
-	public Member(RtpClock clock, long ssrc) {
+	public RtpMember(RtpClock clock, long ssrc) {
 		this(clock, ssrc, "");
 	}
 
@@ -113,7 +113,7 @@ public class Member {
 	 * 
 	 * @return The number of packets received
 	 */
-	public long getReceivedPackets() {
+	public long getPacketsReceived() {
 		return receivedPackets;
 	}
 
@@ -122,7 +122,7 @@ public class Member {
 	 * 
 	 * @return The total of received octets
 	 */
-	public long getReceivedOctets() {
+	public long getOctetsReceived() {
 		return receivedOctets;
 	}
 
@@ -225,17 +225,6 @@ public class Member {
 	}
 
 	/**
-	 * Sets the last time an RTCP Sender Report was received from this source.
-	 * 
-	 * @param lastSR
-	 *            The middle 32 bits out of 64 in the NTP timestamp received as
-	 *            part of the most recent RTCP sender report (SR) packet.
-	 */
-	public void setLastSR(long lastSR) {
-		this.lastSrTimestamp = lastSR;
-	}
-
-	/**
 	 * Gets the delay between receiving the last RTCP Sender Report (SR) packet
 	 * from this source and sending this reception report block.
 	 * 
@@ -294,6 +283,10 @@ public class Member {
 
 		this.jitter += d - ((this.jitter + 8) >> 4);
 	}
+	
+    private void initJitter(RtpPacket packet) {
+        this.currentTransit = rtpClock.getLocalRtpTime() - packet.getTimestamp();
+    }
 
 	public void onReceiveRtp(RtpPacket packet) {
 		int seqNumber = packet.getSeqNumber();
@@ -319,6 +312,8 @@ public class Member {
 
 		if(this.lastPacketReceivedOn > 0) {
 			estimateJitter(packet);
+		} else {
+			initJitter(packet);
 		}
 		this.lastPacketReceivedOn = rtpClock.getLocalRtpTime();
 	}
@@ -333,14 +328,12 @@ public class Member {
 	/**
 	 * Calculates the time stamp of the last received SR.
 	 * 
-	 * @param msw
+	 * @param ntp
 	 *            The most significant word of the NTP time stamp
-	 * @param lsw
-	 *            The least significant word of the NTP time stamp
 	 * @return The middle 32 bits out of 64 in the NTP timestamp received as
 	 *         part of the most recent RTCP sender report (SR).
 	 */
-	private long calculateLastSrTimestamp(long ntp) {
+	static long calculateLastSrTimestamp(long ntp) {
 		byte[] ntpWord = toByteArray(ntp);
 		byte[] middleWord = Arrays.copyOfRange(ntpWord, 2, 6);
 		return fromBytes(middleWord);
@@ -359,7 +352,7 @@ public class Member {
 	 *            The 64-bit number to be converted
 	 * @return The byte array representing the number
 	 */
-	private byte[] toByteArray(long value) {
+	static byte[] toByteArray(long value) {
 	    byte[] result = new byte[8];
 	    for (int i = 7; i >= 0; i--) {
 	      result[i] = (byte) (value & 0xffL);
@@ -376,7 +369,7 @@ public class Member {
 	 *            The byte array to be converted
 	 * @return The 32-bit number that represents the byte array
 	 */
-	private long fromBytes(byte[] b) {
+	static long fromBytes(byte[] b) {
 		return (b[0] & 0xFFL) << 24 
 				| (b[1] & 0xFFL) << 16
 				| (b[2] & 0xFFL) << 8 
