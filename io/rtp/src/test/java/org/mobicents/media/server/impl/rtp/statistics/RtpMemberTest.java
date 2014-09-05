@@ -209,4 +209,92 @@ public class RtpMemberTest {
 		assertEquals(expectedDelay, member.getLastSRdelay());
 	}
 	
+	@Test
+	public void testOnReceiveRtpAndSR() {
+		// given
+		RtpMember member = new RtpMember(rtpClock, 123);
+		
+		RtpPacket p1 = new RtpPacket(172, false);
+		RtpPacket p2 = new RtpPacket(172, false);
+		RtpPacket p3 = new RtpPacket(172, false);
+		RtpPacket p4 = new RtpPacket(172, false);
+		RtpPacket p5 = new RtpPacket(172, false);
+		p1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
+		p2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
+		p3.wrap(false, 8, 3, 160 * 3, 123, new byte[160], 0, 160);
+		p4.wrap(false, 8, 4, 160 * 4, 123, new byte[160], 0, 160);
+		p5.wrap(false, 8, 5, 160 * 5, 123, new byte[160], 0, 160);
+		
+		TimeStamp ntp = new TimeStamp(new Date());
+		RtcpSenderReport sendReport = new RtcpSenderReport(false, 123, ntp.getSeconds(), ntp.getFraction(), 160 * 2, 100, 100 * 130);
+		
+		// when
+		member.onReceiveRtp(p1);
+		wallClock.tick(20000000L);
+		member.onReceiveRtp(p2);
+		wallClock.tick(20000000L);
+		member.onReceiveRtp(p3);
+		wallClock.tick(20000000L);
+		member.onReceiveRtp(p4);
+		wallClock.tick(20000000L);
+		long receivedSrOn = this.wallClock.getCurrentTime();
+		member.onReceiveSR(sendReport);
+		member.onReceiveRtp(p5);
+		wallClock.tick(20000000L);
+		
+		// then
+		assertEquals(0, member.getSequenceCycle());
+		assertEquals(p5.getSeqNumber(), member.getSequenceNumber());
+		long expectedHighSeq = (65536 * 0 + p5.getSeqNumber());
+		assertEquals(expectedHighSeq, member.getExtHighSequence());
+		assertEquals(5, member.getPacketsReceived());
+		assertEquals(sumOctets(p1, p2, p3, p4, p5), member.getOctetsReceived());
+		assertEquals(1, member.getReceivedSinceSR());
+		long expectedPackets = p5.getSeqNumber() - p4.getSeqNumber();
+		long expectedFraction = (256 * (expectedPackets - 1)) / expectedPackets;
+		assertEquals(expectedFraction, member.getFractionLost());
+		long expectedDelay = (long) ((wallClock.getCurrentTime() - receivedSrOn) * 65.536);
+		assertEquals(expectedDelay, member.getLastSRdelay());
+		long expectedLost = expectedHighSeq - p1.getSeqNumber() - member.getPacketsReceived();
+		assertEquals(expectedLost < 0 ? 0 : expectedLost, member.getPacketsLost());
+	}
+	
+	@Test
+	public void testLostPackets() {
+		// given
+		RtpMember member = new RtpMember(rtpClock, 123);
+		
+		RtpPacket p1 = new RtpPacket(172, false);
+		RtpPacket p2 = new RtpPacket(172, false);
+		RtpPacket p3 = new RtpPacket(172, false);
+		RtpPacket p4 = new RtpPacket(172, false);
+		RtpPacket p5 = new RtpPacket(172, false);
+		p1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
+		p2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
+		p3.wrap(false, 8, 3, 160 * 3, 123, new byte[160], 0, 160);
+		p4.wrap(false, 8, 4, 160 * 4, 123, new byte[160], 0, 160);
+		p5.wrap(false, 8, 24, 160 * 5, 123, new byte[160], 0, 160);
+		
+		TimeStamp ntp = new TimeStamp(new Date());
+		RtcpSenderReport sendReport = new RtcpSenderReport(false, 123, ntp.getSeconds(), ntp.getFraction(), 160 * 2, 100, 100 * 130);
+		
+		// when
+		member.onReceiveRtp(p1);
+		wallClock.tick(20000000L);
+		member.onReceiveRtp(p2);
+		wallClock.tick(20000000L);
+		member.onReceiveRtp(p3);
+		wallClock.tick(20000000L);
+		member.onReceiveRtp(p4);
+		wallClock.tick(20000000L);
+		member.onReceiveSR(sendReport);
+		member.onReceiveRtp(p5);
+		wallClock.tick(20000000L);
+		
+		// then
+		long expectedPackets = p5.getSeqNumber() - p4.getSeqNumber();
+		int receivedSinceSR = 1; // p5
+		long expectedFraction = (256 * (expectedPackets - receivedSinceSR)) / expectedPackets;
+		assertEquals(expectedFraction, member.getFractionLost());
+	}
 }
