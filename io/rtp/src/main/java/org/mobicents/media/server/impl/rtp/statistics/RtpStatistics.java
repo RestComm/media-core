@@ -273,21 +273,11 @@ public class RtpStatistics {
 	}
 
 	/**
-	 * Sets the total RTCP bandwidth of this session.
-	 * 
-	 * @param rtcpBw
-	 *            The bandwidth, in octets per second
-	 */
-	public void setRtcpBw(double rtcpBw) {
-		this.rtcpBw = rtcpBw;
-	}
-
-	/**
 	 * Gets the type of RTCP packet that is scheduled to be transmitted next.
 	 * 
 	 * @return The type of the packet
 	 */
-	public RtcpPacketType getNextPacketType() {
+	public RtcpPacketType getRtcpPacketType() {
 		return rtcpNextPacketType;
 	}
 
@@ -316,7 +306,7 @@ public class RtpStatistics {
 		}
 	}
 
-	public void addSender(long ssrc) {
+	private void addSender(long ssrc) {
 		synchronized (this.sendersList) {
 			if (!this.sendersList.contains(Long.valueOf(ssrc))) {
 				this.sendersList.add(Long.valueOf(ssrc));
@@ -328,7 +318,7 @@ public class RtpStatistics {
 		}
 	}
 
-	public void removeSender(long ssrc) {
+	private void removeSender(long ssrc) {
 		synchronized (this.sendersList) {
 			if (this.sendersList.remove(Long.valueOf(ssrc))) {
 				this.senders--;
@@ -386,19 +376,19 @@ public class RtpStatistics {
 		}
 	}
 
-	public RtpMember addMember(long ssrc) {
+	private RtpMember addMember(long ssrc) {
 		RtpMember member = getMember(ssrc);
 		if (member == null) {
 			synchronized (this.membersMap) {
-				this.membersMap.put(Long.valueOf(ssrc), new RtpMember(
-						this.rtpClock, ssrc));
+				member = new RtpMember(this.rtpClock, ssrc);
+				this.membersMap.put(Long.valueOf(ssrc), member);
 				this.members++;
 			}
 		}
 		return member;
 	}
 
-	public void removeMember(long ssrc) {
+	private void removeMember(long ssrc) {
 		synchronized (this.membersMap) {
 			if (this.membersMap.remove(Long.valueOf(ssrc)) != null) {
 				this.members--;
@@ -437,7 +427,7 @@ public class RtpStatistics {
 	}
 
 	private double calculateAvgRtcpSize(double packetSize) {
-		this.rtcpAvgSize = (1 / 16) * packetSize + (15 / 16) * this.rtcpAvgSize;
+		this.rtcpAvgSize = (1.0 / 16.0) * packetSize + (15.0 / 16.0) * this.rtcpAvgSize;
 		return this.rtcpAvgSize;
 	}
 
@@ -584,15 +574,29 @@ public class RtpStatistics {
 		this.rtpRxPackets++;
 		this.rtpRxOctets += packet.getLength();
 		this.rtpReceivedOn = this.wallClock.getTime();
+		
+		// Note that there is no point in registering new members if RTCP handler has scheduled a BYE
+		if(RtcpPacketType.RTCP_REPORT.equals(this.rtcpNextPacketType)) {
+			long syncSource = packet.getSyncSource();
 
-		// Increment member statistics
-		long syncSource = packet.getSyncSource();
-		RtpMember member = getMember(syncSource);
+			/*
+			 * When an RTP packet is received from a participant whose SSRC is
+			 * not in the sender table, the SSRC is added to the table, and the
+			 * value for senders is updated.
+			 */
+			RtpMember member = getMember(syncSource);
+			
+			if (member == null) {
+				member = addMember(syncSource);
+			}
 
-		if (member == null) {
-			member = addMember(syncSource);
+			if (!isSender(syncSource)) {
+				addSender(syncSource);
+			}
+			
+			// Update member statistics
+			member.onReceiveRtp(packet);
 		}
-		member.onReceiveRtp(packet);
 	}
 	
 	public void onRtcpSent(RtcpPacket packet) {
@@ -620,6 +624,8 @@ public class RtpStatistics {
 			 * participant whose SSRC is not in the member table, the SSRC is
 			 * added to the table, and the value for members is updated once the
 			 * participant has been validated.
+			 * 
+			 * Don't bother registering members if a RTCP BYE is scheduled!
 			 */
 			RtpMember member = getMember(ssrc);
 			if (member == null && RtcpPacketType.RTCP_REPORT.equals(this.rtcpNextPacketType)) {
@@ -627,7 +633,7 @@ public class RtpStatistics {
 			}
 			
 			// Receiving an SR has impact on the statistics of the member
-			if(report.isSender()) {
+			if(report.isSender() && member != null) {
 				member.onReceiveSR((RtcpSenderReport) report);
 			}
 

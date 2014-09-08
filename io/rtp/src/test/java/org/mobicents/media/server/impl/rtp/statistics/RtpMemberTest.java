@@ -11,6 +11,12 @@ import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.WallTestClock;
 
+/**
+ * Unit tests for {@link RtpMember}
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ */
 public class RtpMemberTest {
 	
 	private final WallTestClock wallClock;
