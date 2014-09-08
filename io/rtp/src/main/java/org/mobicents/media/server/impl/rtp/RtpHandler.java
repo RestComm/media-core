@@ -177,15 +177,15 @@ public class RtpHandler implements PacketHandler {
 			return null;
 		}
 		
-		// Transform incoming data into an RTP Packet
+		// Transform incoming data directly into an RTP Packet
 		ByteBuffer buffer = this.rtpPacket.getBuffer();
 		buffer.clear();
 		buffer.put(packet, offset, dataLength);
 		buffer.flip();
 		
-		// Decode packet if this is a WebRTC call
 		if(this.srtp) {
-			if(!this.dtlsHandler.decode(rtpPacket)) {
+			// Decode SRTP packet into RTP. WebRTC calls only.
+			if(!this.dtlsHandler.decodeRTP(rtpPacket)) {
 				logger.warn("SRTP packet is not valid!");
 				return null;
 			}

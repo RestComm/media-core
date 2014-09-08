@@ -500,7 +500,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 			// https://telestax.atlassian.net/browse/MEDIA-13
 			this.iceAgent = IceFactory.createLiteAgent();
 			this.iceAgent.addIceListener(new IceListener());
-			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), false);
+			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), true);
 			try {
 				// Add srflx candidate harvester if external address is defined
 				String externalAddress = this.rtpAudioChannel.getExternalAddress();
@@ -554,7 +554,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		this.answerTemplate.setNetworkType("IN");
 		this.answerTemplate.setAddressType("IP4");
 		this.answerTemplate.setConnectionAddress(bindAddress);
-		// XXX hardcoded fake connection mode - hrosa
+		// XXX hardcoded fake connection mode!!! - hrosa
 		this.answerTemplate.setConnectionMode("sendrecv");
 
 		// Media Descriptors
@@ -623,9 +623,14 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 			try {
 				// Get selected RTP candidate for audio channel
 				IceAgent agent = event.getSource();
-				CandidatePair candidate = agent.getSelectedRtpCandidate("audio");
+				CandidatePair rtpCandidate = agent.getSelectedRtpCandidate("audio");
 				// Bind candidate to RTP audio channel
-				rtpAudioChannel.bind(candidate.getChannel());
+				rtpAudioChannel.bind(rtpCandidate.getChannel());
+
+				CandidatePair rtcpCandidate = agent.getSelectedRtcpCandidate("audio");
+				if(rtcpCandidate != null) {
+					rtcpAudioChannel.bind(rtcpCandidate.getChannel());
+				}
 			} catch (IOException e) {
 				// XXX close connection
 				logger.error("Could not select ICE candidates: "+ e.getMessage(), e);

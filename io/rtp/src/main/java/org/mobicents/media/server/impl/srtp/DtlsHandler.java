@@ -31,7 +31,6 @@ public class DtlsHandler {
 	private volatile boolean handshaking;
 	private Thread worker;
 	private Text remoteFingerprint;
-	
 
 	/**
 	 * Handles encryption of outbound RTP packets for a given RTP stream
@@ -48,6 +47,22 @@ public class DtlsHandler {
 	 * @see http://tools.ietf.org/html/rfc5764#section-4.2
 	 */
 	private PacketTransformer srtpDecoder;
+	
+	/**
+	 * Handles encryption of outbound RTCP packets for a given RTP stream
+	 * identified by its SSRC
+	 * 
+	 * @see http://tools.ietf.org/html/rfc5764#section-4.2
+	 */
+	private PacketTransformer srtcpEncoder;
+
+	/**
+	 * Handles decryption of inbound RTCP packets for a given RTP stream
+	 * identified by its SSRC
+	 * 
+	 * @see http://tools.ietf.org/html/rfc5764#section-4.2
+	 */
+	private PacketTransformer srtcpDecoder;
 
 	public DtlsHandler(final DatagramChannel channel) {
 		this.server = new DtlsSrtpServer();
@@ -120,11 +135,19 @@ public class DtlsHandler {
 		return srtpEncoder;
 	}
 
+	public PacketTransformer getSrtcpDecoder() {
+		return srtcpDecoder;
+	}
+	
+	public PacketTransformer getSrtcpEncoder() {
+		return srtcpEncoder;
+	}
+	
 	/**
 	 * Generates an SRTP encoder for outgoing RTP packets using keying material
 	 * from the DTLS handshake.
 	 */
-	private PacketTransformer generateEncoder() {
+	private PacketTransformer generateRtpEncoder() {
 		return new SRTPTransformEngine(getMasterServerKey(), getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTPTransformer();
 	}
 
@@ -132,8 +155,24 @@ public class DtlsHandler {
 	 * Generates an SRTP decoder for incoming RTP packets using keying material
 	 * from the DTLS handshake.
 	 */
-	private PacketTransformer generateDecoder() {
+	private PacketTransformer generateRtpDecoder() {
 		return new SRTPTransformEngine(getMasterClientKey(), getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTPTransformer();
+	}
+	
+	/**
+	 * Generates an SRTCP encoder for outgoing RTCP packets using keying material
+	 * from the DTLS handshake.
+	 */
+	private PacketTransformer generateRtcpEncoder() {
+		return new SRTPTransformEngine(getMasterServerKey(), getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTCPTransformer();
+	}
+	
+	/**
+	 * Generates an SRTCP decoder for incoming RTCP packets using keying material
+	 * from the DTLS handshake.
+	 */
+	private PacketTransformer generateRtcpDecoder() {
+		return new SRTPTransformEngine(getMasterClientKey(), getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTCPTransformer();
 	}
 
 	/**
@@ -143,8 +182,10 @@ public class DtlsHandler {
 	 *            The encoded RTP packet
 	 * @return The decoded RTP packet. Returns null is packet is not valid.
 	 */
-	public boolean decode(RtpPacket packet) {
-		return this.srtpDecoder.reverseTransform(packet);
+	public byte[] decodeRTP(RtpPacket packet) {
+		byte[] dst = new byte[packet.getLength()];
+		packet.getBuffer().get(dst, 0, dst.length);
+		return this.srtpDecoder.reverseTransform(dst);
 	}
 
 	/**
@@ -154,8 +195,30 @@ public class DtlsHandler {
 	 *            The decoded RTP packet
 	 * @return The encoded RTP packet
 	 */
-	public boolean encode(RtpPacket packet) {
+	public byte[] encodeRTP(RtpPacket packet) {
 		return this.srtpEncoder.transform(packet);
+	}
+
+	/**
+	 * Decodes an RTCP Packet
+	 * 
+	 * @param packet
+	 *            The encoded RTP packet
+	 * @return The decoded RTP packet. Returns null is packet is not valid.
+	 */
+	public byte[] decodeRTCP(byte[] packet) {
+		return this.srtcpDecoder.reverseTransform(packet);
+	}
+	
+	/**
+	 * Encodes an RTCP packet
+	 * 
+	 * @param packet
+	 *            The decoded RTP packet
+	 * @return The encoded RTP packet
+	 */
+	public byte[] encodeRTCP(byte[] packet) {
+		return this.srtcpEncoder.transform(packet);
 	}
 
 	public void handshake() {
@@ -184,8 +247,10 @@ public class DtlsHandler {
 				server.prepareSrtpSharedSecret();
 				
 				// Generate encoders for DTLS traffic
-				srtpDecoder = generateDecoder();
-				srtpEncoder = generateEncoder();
+				srtpDecoder = generateRtpDecoder();
+				srtpEncoder = generateRtpEncoder();
+				srtcpDecoder = generateRtcpDecoder();
+				srtcpEncoder = generateRtcpEncoder();
 				
 				// Declare handshake as complete
 				handshakeComplete = true;

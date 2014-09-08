@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 
 /**
@@ -20,15 +21,14 @@ import org.mobicents.media.server.impl.rtp.RtpPacket;
  * @author Bing SU (nova.su@gmail.com)
  * @author Werner Dittmann &lt;Werner.Dittmann@t-online.de>
  */
-public class SRTCPTransformer
-    implements PacketTransformer
-{
+public class SRTCPTransformer implements PacketTransformer {
+	
+	private final RtcpPacket packet;
+	
     private SRTPTransformEngine forwardEngine;
     private SRTPTransformEngine reverseEngine;
 
-    /**
-     * All the known SSRC's corresponding SRTCPCryptoContexts
-     */
+    /** All the known SSRC's corresponding SRTCPCryptoContexts */
     private Hashtable<Long,SRTCPCryptoContext> contexts;
 
     /**
@@ -50,9 +50,8 @@ public class SRTCPTransformer
      * @param reverseEngine The associated SRTPTransformEngine object for
      *            reverse transformations.
      */
-    public SRTCPTransformer(SRTPTransformEngine forwardEngine,
-        SRTPTransformEngine reverseEngine)
-    {
+    public SRTCPTransformer(SRTPTransformEngine forwardEngine, SRTPTransformEngine reverseEngine) {
+    	this.packet = new RtcpPacket();
         this.forwardEngine = forwardEngine;
         this.reverseEngine = reverseEngine;
         this.contexts = new Hashtable<Long,SRTCPCryptoContext>();
@@ -64,19 +63,20 @@ public class SRTCPTransformer
      * @param pkt plain SRTCP packet to be encrypted
      * @return encrypted SRTCP packet
      */
-    public boolean transform(RtpPacket pkt)
-    {
-        long ssrc = pkt.GetRTCPSyncSource();
+    public boolean transform(byte[] pkt) {
+    	// Decode the packet
+    	this.packet.decode(pkt, 0);
+    	
+    	// Associate the packet with its encryption context
+        long ssrc = this.packet.getReport().getSsrc();
         SRTCPCryptoContext context = contexts.get(ssrc);
 
-        if (context == null)
-        {
-            context =
-                forwardEngine.getDefaultContextControl().deriveContext(ssrc);
+        if (context == null) {
+            context = forwardEngine.getDefaultContextControl().deriveContext(ssrc);
             context.deriveSrtcpKeys();
             contexts.put(ssrc, context);
         }
-        context.transformPacket(pkt);
+        context.transformPacket(packet);
         return true;
     }
 

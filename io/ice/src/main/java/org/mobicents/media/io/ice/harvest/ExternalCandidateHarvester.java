@@ -35,19 +35,23 @@ public class ExternalCandidateHarvester implements CandidateHarvester {
 	}
 	
 	public void harvest(PortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException {
-		// Gather SRFLX candidate for each host candidate of the RTP component
-		IceComponent rtpComponent = mediaStream.getRtpComponent();
-		List<LocalCandidateWrapper> rtpCandidates = mediaStream.getRtpComponent().getLocalCandidates();
+		harvest(mediaStream.getRtpComponent());
+		if(mediaStream.supportsRtcp()) {
+			harvest(mediaStream.getRtcpComponent());
+		}
+	}
+	
+	private void harvest(IceComponent component) {
+		// Gather SRFLX candidate for each host candidate of the component
+		List<LocalCandidateWrapper> rtpCandidates = component.getLocalCandidates();
 
 		for (LocalCandidateWrapper candidateWrapper : rtpCandidates) {
 			// Create one reflexive candidate for each host candidate
 			if(candidateWrapper.getCandidate() instanceof HostCandidate) {
 				HostCandidate hostCandidate = (HostCandidate) candidateWrapper.getCandidate();
-				ServerReflexiveCandidate srflxCandidate = new ServerReflexiveCandidate(rtpComponent, externalAddress, hostCandidate.getPort(), hostCandidate);
+				ServerReflexiveCandidate srflxCandidate = new ServerReflexiveCandidate(component, externalAddress, hostCandidate.getPort(), hostCandidate);
 				this.foundations.assignFoundation(srflxCandidate);
-				rtpComponent.addLocalCandidate(new LocalCandidateWrapper(srflxCandidate, candidateWrapper.getChannel()));
-				
-				// TODO add srflx candidate for rtcp if supported - hrosa
+				component.addLocalCandidate(new LocalCandidateWrapper(srflxCandidate, candidateWrapper.getChannel()));
 			}
 		}
 	}

@@ -253,10 +253,8 @@ public abstract class IceAgent implements IceAuthenticator {
 	 * @return Returns the selected candidate pair. If no pair was selected,
 	 *         returns null.
 	 */
-	private CandidatePair selectCandidatePair(IceComponent component,
-			DatagramChannel channel) {
-		for (LocalCandidateWrapper localCandidate : component
-				.getLocalCandidates()) {
+	private CandidatePair selectCandidatePair(IceComponent component, DatagramChannel channel) {
+		for (LocalCandidateWrapper localCandidate : component.getLocalCandidates()) {
 			if (channel.equals(localCandidate.getChannel())) {
 				return component.setCandidatePair(channel);
 			}

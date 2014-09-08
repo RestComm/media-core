@@ -7,7 +7,6 @@
  */
 package org.mobicents.media.server.impl.rtp.crypto;
 
-import org.mobicents.media.server.impl.rtp.RtpPacket;
 
 /**
  * Encapsulate the concept of packet transformation. Given a packet,
@@ -25,7 +24,7 @@ public interface PacketTransformer {
 	 *            the packet to be transformed
 	 * @return Whether the packet was successfully transformed
 	 */
-	public boolean transform(RtpPacket pkt);
+	public byte[] transform(byte[] pkt);
 
 	/**
 	 * Reverse-transforms a specific packet (i.e. transforms a transformed
@@ -35,7 +34,7 @@ public interface PacketTransformer {
 	 *            the transformed packet to be restored
 	 * @return Whether the packet was successfully restored
 	 */
-	public boolean reverseTransform(RtpPacket pkt);
+	public byte[] reverseTransform(byte[] pkt);
 
 	/**
 	 * Close the transformer and underlying transform engine.

@@ -7,6 +7,7 @@
  */
 package org.mobicents.media.server.impl.rtp.crypto;
 
+import java.nio.ByteBuffer;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
@@ -27,7 +28,9 @@ import org.mobicents.media.server.impl.rtp.RtpPacket;
  */
 public class SRTPTransformer implements PacketTransformer {
 	
-	private static final Logger LOGGER = Logger.getLogger(SRTPTransformer.class);
+	private static final Logger logger = Logger.getLogger(SRTPTransformer.class);
+	
+	private final RtpPacket packet;
 	
 	private SRTPTransformEngine forwardEngine;
 	private SRTPTransformEngine reverseEngine;
@@ -62,6 +65,7 @@ public class SRTPTransformer implements PacketTransformer {
 		this.forwardEngine = forwardEngine;
 		this.reverseEngine = reverseEngine;
 		this.contexts = new Hashtable<Long, SRTPCryptoContext>();
+		this.packet = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
 	}
 
 	/**
@@ -71,8 +75,15 @@ public class SRTPTransformer implements PacketTransformer {
 	 *            the packet to be transformed
 	 * @return the transformed packet
 	 */
-	public boolean transform(RtpPacket pkt) {
-		long ssrc = pkt.getSyncSource();
+	public boolean transform(byte[] pkt) {
+		// Transform data into readable format
+		ByteBuffer buffer = this.packet.getBuffer();
+		buffer.clear();
+		buffer.put(pkt, 0, pkt.length);
+		buffer.flip();
+		
+		// Associate packet to a context
+		long ssrc = packet.getSyncSource();
 		SRTPCryptoContext context = contexts.get(ssrc);
 
 		if (context == null) {
@@ -81,7 +92,8 @@ public class SRTPTransformer implements PacketTransformer {
 			contexts.put(ssrc, context);
 		}
 
-		context.transformPacket(pkt);
+		// Transform RTP packet into SRTP
+		context.transformPacket(packet);
 		return true;
 	}
 
@@ -93,22 +105,28 @@ public class SRTPTransformer implements PacketTransformer {
 	 *            the transformed packet to be restored
 	 * @return the restored packet
 	 */
-	public boolean reverseTransform(RtpPacket pkt) {
+	public boolean reverseTransform(byte[] pkt) {
+		// Transform data into readable format
+		ByteBuffer buffer = this.packet.getBuffer();
+		buffer.clear();
+		buffer.put(pkt, 0, pkt.length);
+		buffer.flip();
+		
 		// only accept RTP version 2 (SNOM phones send weird packages when on
 		// hold, ignore them with this check (RTP Version must be equal to 2)
-		if (pkt.getVersion() != 2) {
+		if (packet.getVersion() != 2) {
 			return false;
 		}
 
-		long ssrc = pkt.getSyncSource();
+		long ssrc = packet.getSyncSource();
 		SRTPCryptoContext context = contexts.get(ssrc);
 		if (context == null) {
 			context = reverseEngine.getDefaultContext().deriveContext(ssrc, 0, 0);
-			context.deriveSrtpKeys(pkt.getSeqNumber());
+			context.deriveSrtpKeys(packet.getSeqNumber());
 			contexts.put(ssrc, context);
 		}
 
-		return context.reverseTransformPacket(pkt);
+		return context.reverseTransformPacket(packet);
 	}
 
 	/**

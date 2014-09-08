@@ -8,8 +8,10 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.util.Arrays;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 
@@ -49,6 +51,13 @@ public class RtcpHandler implements PacketHandler {
 	/** Flag that is true once the handler joined an RTP session */
 	private boolean joined;
 	
+	/** Checks whether communitcation of this channel is secure. WebRTC calls only. */
+	private boolean secure;
+	
+	/** Handles the DTLS handshake and encodes/decodes secured packets. For WebRTC calls only. */
+	private DtlsHandler dtlsHandler;
+	
+	
 	public RtcpHandler(final RtpStatistics statistics) {
 		// core stuff
 		this.byteBuffer = ByteBuffer.allocateDirect(RtpPacket.RTP_PACKET_MAX_SIZE);
@@ -64,6 +73,10 @@ public class RtcpHandler implements PacketHandler {
 		this.tn = -1;
 		this.initial = true;
 		this.joined = false;
+		
+		// webrtc
+		this.secure = false;
+		this.dtlsHandler = null;
 	}
 
 	/**
@@ -189,6 +202,21 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	/**
+	 * Secures the channel, meaning all traffic is SRTCP.
+	 * 
+	 * SRTCP handlers will only be available to process traffic after a DTLS
+	 * handshake is completed.
+	 * 
+	 * @param remotePeerFingerprint
+	 *            The DTLS fingerprint of the remote peer. Use to setup DTLS
+	 *            keying material.
+	 */
+	public void enableSRTCP(DtlsHandler dtlsHandler) {
+		this.dtlsHandler = dtlsHandler;
+		this.secure = true;
+	}
+	
+	/**
 	 * This function is responsible for deciding whether to send an RTCP report
 	 * or BYE packet now, or to reschedule transmission.
 	 * 
@@ -305,6 +333,19 @@ public class RtcpHandler implements PacketHandler {
 			logger.warn("Cannot handle incoming packet!");
 			throw new PacketHandlerException("Cannot handle incoming packet");
 		}
+		
+		// Do NOT handle data while DTLS handshake is ongoing. WebRTC calls only.
+		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
+			return null;
+		}
+		
+		if(this.secure) {
+			boolean decoded = this.dtlsHandler.decodeRTCP(packet);
+			if(!decoded) {
+				logger.warn("Could not decode incoming SRTCP packet. Packet will be dropped.");
+				return null;
+			}
+		}
 
 		// Decode the RTCP compound packet
 		RtcpPacket rtcpPacket = new RtcpPacket();
@@ -342,6 +383,16 @@ public class RtcpHandler implements PacketHandler {
 			// decode packet
 			byte[] data = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
 			int dataLength = packet.encode(data, 0);
+			
+			// If channel is secure, convert RTCP packet to SRTCP. WebRTC calls only.
+			if(this.secure) {
+				// Skip RTCP packets until DTLS handshake is complete
+				if(!this.dtlsHandler.isHandshakeComplete()) {
+					return;
+				}
+				data = this.dtlsHandler.encodeRTCP(Arrays.copyOfRange(data, 0, dataLength));
+				dataLength = data.length;
+			}
 
 			// prepare buffer
 			this.byteBuffer.clear();

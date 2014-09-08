@@ -120,8 +120,7 @@ public class StunHandler implements ProtocolHandler {
 		return PROTOCOL;
 	}
 
-	private byte[] processRequest(StunRequest request, SelectionKey key)
-			throws IOException {
+	private byte[] processRequest(StunRequest request, SelectionKey key) throws IOException {
 		byte[] transactionID = request.getTransactionId();
 
 		/*

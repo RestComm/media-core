@@ -1,6 +1,10 @@
 package org.mobicents.media.server.impl.rtp.sdp;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.net.ntp.TimeStamp;
 import org.junit.Test;
@@ -8,7 +12,6 @@ import org.mobicents.media.server.impl.rtcp.RtcpBye;
 import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketFactory;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
-import org.mobicents.media.server.impl.rtcp.RtcpReport;
 import org.mobicents.media.server.impl.rtcp.RtcpSdes;
 import org.mobicents.media.server.impl.rtcp.RtcpSdesChunk;
 import org.mobicents.media.server.impl.rtcp.RtcpSdesItem;

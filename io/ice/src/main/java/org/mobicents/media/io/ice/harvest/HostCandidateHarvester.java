@@ -153,7 +153,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 			if (gathered && mediaStream.supportsRtcp()) {
 				// RTCP traffic will be bound to next logical port
 				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
-				gathered = gatherCandidate(rtcpComponent, address, portManager.next(), portManager, selector);
+				gathered = gatherCandidate(rtcpComponent, address, portManager.current() + 1, portManager, selector);
 				
 				if(!gathered) {
 					logCandidateNotFound(address.toString(), portManager.getLowestPort(), portManager.getHighestPort());
@@ -163,10 +163,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 	}
 	
 	private void logCandidateNotFound(String address, int lowPort, int highPort) {
-		this.logger
-				.warn(String
-						.format("Could not find RTP candidate for address %s between ports %d and %d",
-								address, lowPort, highPort));
+		this.logger.warn(String.format("Could not find RTP candidate for address %s between ports %d and %d", address, lowPort, highPort));
 	}
 	
 	/**

@@ -17,6 +17,7 @@ import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.engines.TwofishEngine;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 
 
@@ -295,27 +296,25 @@ public class SRTCPCryptoContext
      * 
      * @param pkt the RTP packet that is going to be sent out
      */
-    public void transformPacket(RtpPacket pkt)
+    public void transformPacket(RtcpPacket pkt)
     {
         boolean encrypt = false;
-        /* Encrypt the packet using Counter Mode encryption */
-        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION || 
-                policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION)
-        {
+        // Encrypt the packet using Counter Mode encryption
+        if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION || policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION) {
             processPacketAESCM(pkt, sentIndex);
             encrypt = true;
         }
 
-        /* Encrypt the packet using F8 Mode encryption */
-        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION ||
-                policy.getEncType() == SRTPPolicy.TWOFISHF8_ENCRYPTION)
-        {
+        // Encrypt the packet using F8 Mode encryption
+        else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION || policy.getEncType() == SRTPPolicy.TWOFISHF8_ENCRYPTION) {
             processPacketAESF8(pkt, sentIndex);
             encrypt = true;
         }
+        
         int index = 0;
-        if (encrypt)
+        if (encrypt) {
             index = sentIndex | 0x80000000;
+        }
         
         // Grow packet storage in one step
         pkt.grow(4 + policy.getAuthTagLength());
@@ -323,8 +322,7 @@ public class SRTCPCryptoContext
         // Authenticate the packet
         // The authenticate method gets the index via parameter and stores
         // it in network order in rbStore variable. 
-        if (policy.getAuthType() != SRTPPolicy.NULL_AUTHENTICATION)
-        {
+        if (policy.getAuthType() != SRTPPolicy.NULL_AUTHENTICATION) {
             authenticatePacket(pkt, index);
             pkt.append(rbStore, 4);
             pkt.append(tagStore, policy.getAuthTagLength());

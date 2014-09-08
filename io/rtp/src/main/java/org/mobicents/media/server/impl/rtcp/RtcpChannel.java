@@ -7,9 +7,13 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.impl.stun.StunHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
+import org.mobicents.media.server.utils.Text;
 
 /**
  * Channel for exchanging RTCP traffic
@@ -33,7 +37,12 @@ public class RtcpChannel extends MultiplexedChannel {
 	private final RtpStatistics statistics;
 
 	// Protocol handler pipeline
-	private final RtcpHandler rtcpHandler;
+	private RtcpHandler rtcpHandler;
+	private DtlsHandler dtlsHandler;
+	private StunHandler stunHandler;
+	
+	// WebRTC
+	private boolean secure;
 
 	public RtcpChannel(int channelId, RtpStatistics statistics, UdpManager udpManager) {
 		// Initialize MultiplexedChannel elements
@@ -52,6 +61,9 @@ public class RtcpChannel extends MultiplexedChannel {
 
 		// Protocol Handler pipeline
 		this.rtcpHandler = new RtcpHandler(statistics);
+		
+		// WebRTC
+		this.secure = false;
 	}
 	
 	public int getLocalPort() {
@@ -135,6 +147,56 @@ public class RtcpChannel extends MultiplexedChannel {
 		// activate media elements
 		onBinding();
 		this.bound = true;
+	}
+	
+	/**
+	 * Checks whether the channel is secure or not.
+	 * 
+	 * @return Whether the channel handles regular RTCP traffic or SRTCP (secure).
+	 */
+	public boolean isSecure() {
+		return secure;
+	}
+	
+	public void enableSRTCP(Text remotePeerFingerprint, IceAuthenticator authenticator) {
+		this.secure = true;
+		
+		// setup the DTLS handler
+		if(this.dtlsHandler != null) {
+			this.dtlsHandler = new DtlsHandler(this.channel);
+		}
+		this.dtlsHandler.setRemoteFingerprint(remotePeerFingerprint);
+		
+		// setup the SRTCP handler
+		this.rtcpHandler.enableSRTCP(this.dtlsHandler);
+
+		// setup the STUN handler
+		if (this.stunHandler == null) {
+			this.stunHandler = new StunHandler(authenticator);
+		}
+		this.handlers.addHandler(stunHandler);
+	}
+	
+	public Text getDtlsLocalFingerprint() {
+		if(this.secure) {
+			return this.dtlsHandler.getLocalFingerprint();
+		}
+		return new Text("");
+	}
+	
+	
+	@Override
+	public void receive() throws IOException {
+		// Make sure the DTLS handshake is complete for WebRTC calls
+		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
+			// TODO Need to implement own DTLS handler and drop bouncy castle implementation!
+			if(!this.dtlsHandler.isHandshaking()) {
+				this.dtlsHandler.handshake();
+			}
+		} else {
+			// Receive traffic normally through the multiplexed channel
+			super.receive();
+		}
 	}
 	
 	@Override
