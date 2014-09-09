@@ -128,7 +128,20 @@ public class RtpTransmitter {
 		// Secure RTP packet. WebRTC calls only. 
 		// SRTP handler returns null if an error occurs
 		if (this.srtp) {
-			this.dtlsHandler.encodeRTP(packet);
+			ByteBuffer buffer = packet.getBuffer();
+			byte[] rtpData = new byte[packet.getLength()];
+			buffer.get(rtpData, 0, rtpData.length);
+			byte[] srtpData = this.dtlsHandler.encodeRTP(rtpData, 0, rtpData.length);
+			if(srtpData == null || srtpData.length == 0) {
+				LOGGER.warn("Could not secure RTP packet! Packet dropped.");
+				return;
+			} else {
+				buffer.clear();
+				buffer.rewind();
+				buffer.put(srtpData);
+				buffer.flip();
+				buffer.rewind();
+			}
 		}
 		
 		if(packet != null) {

@@ -11,9 +11,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.mobicents.media.server.impl.rtcp.RtcpPacket;
-import org.mobicents.media.server.impl.rtp.RtpPacket;
-
 /**
  * SRTCPTransformer implements PacketTransformer.
  * It encapsulate the encryption / decryption logic for SRTCP packets
@@ -23,7 +20,7 @@ import org.mobicents.media.server.impl.rtp.RtpPacket;
  */
 public class SRTCPTransformer implements PacketTransformer {
 	
-	private final RtcpPacket packet;
+	private final RawPacket packet;
 	
     private SRTPTransformEngine forwardEngine;
     private SRTPTransformEngine reverseEngine;
@@ -51,7 +48,7 @@ public class SRTCPTransformer implements PacketTransformer {
      *            reverse transformations.
      */
     public SRTCPTransformer(SRTPTransformEngine forwardEngine, SRTPTransformEngine reverseEngine) {
-    	this.packet = new RtcpPacket();
+    	this.packet = new RawPacket();
         this.forwardEngine = forwardEngine;
         this.reverseEngine = reverseEngine;
         this.contexts = new Hashtable<Long,SRTCPCryptoContext>();
@@ -63,12 +60,16 @@ public class SRTCPTransformer implements PacketTransformer {
      * @param pkt plain SRTCP packet to be encrypted
      * @return encrypted SRTCP packet
      */
-    public boolean transform(byte[] pkt) {
-    	// Decode the packet
-    	this.packet.decode(pkt, 0);
+    public byte[] transform(byte[] pkt) {
+    	return transform(pkt, 0, pkt.length);
+    }
+    
+    public byte[] transform(byte[] pkt, int offset, int length) {
+    	// Wrap the data into raw packet for readable format
+    	this.packet.wrap(pkt, offset, length);
     	
     	// Associate the packet with its encryption context
-        long ssrc = this.packet.getReport().getSsrc();
+        long ssrc = this.packet.getSSRC();
         SRTCPCryptoContext context = contexts.get(ssrc);
 
         if (context == null) {
@@ -76,29 +77,36 @@ public class SRTCPTransformer implements PacketTransformer {
             context.deriveSrtcpKeys();
             contexts.put(ssrc, context);
         }
+        
+        // Secure packet into SRTCP format
         context.transformPacket(packet);
-        return true;
+        return packet.getData();
     }
 
-    /**
-     * Decrypts a SRTCP packet
-     * 
-     * @param pkt encrypted SRTCP packet to be decrypted
-     * @return decrypted SRTCP packet
-     */
-    public boolean reverseTransform(RtpPacket pkt)
-    {
-        long ssrc = pkt.GetRTCPSyncSource();
+    public byte[] reverseTransform(byte[] pkt) {
+    	return reverseTransform(pkt, 0, pkt.length);
+    }
+    
+    public byte[] reverseTransform(byte[] pkt, int offset, int length) {
+    	// wrap data into raw packet for readable format
+    	this.packet.wrap(pkt, offset, length);
+    	
+    	// Associate the packet with its encryption context
+        long ssrc = this.packet.getRTCPSSRC();
         SRTCPCryptoContext context = this.contexts.get(ssrc);
 
-        if (context == null)
-        {
-            context =
-                reverseEngine.getDefaultContextControl().deriveContext(ssrc);
+        if (context == null) {
+            context = reverseEngine.getDefaultContextControl().deriveContext(ssrc);
             context.deriveSrtcpKeys();
             contexts.put(new Long(ssrc), context);
         }
-        return context.reverseTransformPacket(pkt);
+        
+        // Decode packet to RTCP format
+        boolean reversed = context.reverseTransformPacket(packet);
+        if(reversed) {
+        	return packet.getData();
+        }
+        return null;
     }
 
     /**

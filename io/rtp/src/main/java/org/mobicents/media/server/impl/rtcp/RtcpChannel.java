@@ -100,8 +100,14 @@ public class RtcpChannel extends MultiplexedChannel {
 	private void onBinding() {
 		// Protocol Handler pipeline
 		this.rtcpHandler.setChannel(this.channel);
-		this.rtcpHandler.joinRtpSession();
 		this.handlers.addHandler(this.rtcpHandler);
+		this.rtcpHandler.joinRtpSession();
+		
+		if(this.secure) {
+			this.dtlsHandler.setChannel(this.channel);
+			this.stunHandler.setChannel(this.channel);
+			this.handlers.addHandler(this.stunHandler);
+		}
 	}
 
 	/**
@@ -162,7 +168,7 @@ public class RtcpChannel extends MultiplexedChannel {
 		this.secure = true;
 		
 		// setup the DTLS handler
-		if(this.dtlsHandler != null) {
+		if(this.dtlsHandler == null) {
 			this.dtlsHandler = new DtlsHandler(this.channel);
 		}
 		this.dtlsHandler.setRemoteFingerprint(remotePeerFingerprint);

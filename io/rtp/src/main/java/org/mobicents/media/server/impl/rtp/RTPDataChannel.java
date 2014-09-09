@@ -847,7 +847,8 @@ public class RTPDataChannel {
 		SocketAddress address = null;
 		
 		if (this.isWebRtc) {
-			this.webRtcHandler.decodeRTP(packet);
+			// XXX not used anymore
+//			this.webRtcHandler.decodeRTP(packet);
 		}
 		
 		// WebRTC handler can return null if packet is not valid
@@ -873,7 +874,8 @@ public class RTPDataChannel {
 		
 		// Secure RTP packet. WebRTC calls only. 
 		if (isWebRtc) {
-			this.webRtcHandler.encodeRTP(packet);
+			// XXX not used anymore
+//			this.webRtcHandler.encodeRTP(packet);
 		}
 		
 		// SRTP handler returns null if an error occurs

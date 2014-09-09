@@ -3,6 +3,7 @@ package org.mobicents.media.io.ice;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.Selector;
 import java.security.SecureRandom;
@@ -11,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.ExternalCandidateHarvester;
@@ -21,6 +23,8 @@ import org.mobicents.media.io.ice.network.stun.ConnectivityCheckServer;
 import org.mobicents.media.server.io.network.PortManager;
 
 public abstract class IceAgent implements IceAuthenticator {
+	
+	private static final Logger logger = Logger.getLogger(IceAgent.class);
 
 	private final Map<String, IceMediaStream> mediaStreams;
 	private final HarvestManager harvestManager;
@@ -209,12 +213,21 @@ public abstract class IceAgent implements IceAuthenticator {
 	}
 
 	public CandidatePair selectCandidatePair(DatagramChannel channel) {
+		InetSocketAddress address = null;
+		try {
+			address = (InetSocketAddress) channel.getLocalAddress();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		CandidatePair candidatePair = null;
 		for (IceMediaStream mediaStream : getMediaStreams()) {
 			// Search for RTP candidates
 			IceComponent rtpComponent = mediaStream.getRtpComponent();
 			candidatePair = selectCandidatePair(rtpComponent, channel);
 			if (candidatePair != null) {
+				logger.info("Selected RTP candidate on address "+ address.getHostName() +":"+ address.getPort());
 				// candidate pair was selected
 				break;
 			}
@@ -224,6 +237,7 @@ public abstract class IceAgent implements IceAuthenticator {
 				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
 				candidatePair = selectCandidatePair(rtcpComponent, channel);
 				if (candidatePair != null) {
+					logger.info("Selected RTCP candidate on address "+ address.getHostName() +":"+ address.getPort());
 					// candidate pair was selected
 					break;
 				}
@@ -236,6 +250,7 @@ public abstract class IceAgent implements IceAuthenticator {
 
 		// IF all candidates are selected, fire an event
 		if (isSelectionFinished()) {
+			logger.info("Selected all candidate pairs!!!");
 			fireCandidatePairSelectedEvent();
 		}
 		return candidatePair;

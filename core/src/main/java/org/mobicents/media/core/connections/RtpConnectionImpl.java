@@ -526,6 +526,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		if (this.webrtc) {
 			Text remotePeerFingerprint = this.sdp.getAudioDescriptor().getWebRTCFingerprint();
 			rtpAudioChannel.enableSRTP(remotePeerFingerprint, this.iceAgent);
+			rtcpAudioChannel.enableSRTCP(remotePeerFingerprint, this.iceAgent);
 		}
 	}
 
@@ -621,6 +622,8 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 
 		public void onSelectedCandidates(SelectedCandidatesEvent event) {
 			try {
+				logger.info("Finished ICE candidates selection! Preparing for binding.");
+				
 				// Get selected RTP candidate for audio channel
 				IceAgent agent = event.getSource();
 				CandidatePair rtpCandidate = agent.getSelectedRtpCandidate("audio");

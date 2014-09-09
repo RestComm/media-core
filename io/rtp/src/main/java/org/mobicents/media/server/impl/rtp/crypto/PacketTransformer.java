@@ -14,17 +14,32 @@ package org.mobicents.media.server.impl.rtp.crypto;
  * transformation.
  * 
  * @author Bing SU (nova.su@gmail.com)
- * @author ivelin.ivanov@telestax.com
+ * @author Ivelin Ivanov (ivelin.ivanov@telestax.com)
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface PacketTransformer {
 	/**
-	 * Transforms a specific packet.
+	 * Transforms a non-secure packet.
 	 * 
 	 * @param pkt
 	 *            the packet to be transformed
-	 * @return Whether the packet was successfully transformed
+	 * @return The transformed packet. Returns null if the packet cannot be transformed.
 	 */
 	public byte[] transform(byte[] pkt);
+
+	/**
+	 * Transforms a specific non-secure packet.
+	 * 
+	 * @param pkt
+	 *            The packet to be secured
+	 * @param offset
+	 *            The offset of the packet data
+	 * @param length
+	 *            The length of the packet data
+	 * @return The transformed packet. Returns null if the packet cannot be
+	 *         transformed.
+	 */
+	public byte[] transform(byte[] pkt, int offset, int length);
 
 	/**
 	 * Reverse-transforms a specific packet (i.e. transforms a transformed
@@ -35,6 +50,20 @@ public interface PacketTransformer {
 	 * @return Whether the packet was successfully restored
 	 */
 	public byte[] reverseTransform(byte[] pkt);
+
+	/**
+	 * Reverse-transforms a specific packet (i.e. transforms a transformed
+	 * packet back).
+	 * 
+	 * @param pkt
+	 *            the packet to be restored
+	 * @param offset
+	 *            the offset of the packet data
+	 * @param length
+	 *            the length of data in the packet
+	 * @return The restored packet. Returns null if packet cannot be restored.
+	 */
+	public byte[] reverseTransform(byte[] pkt, int offset, int length);
 
 	/**
 	 * Close the transformer and underlying transform engine.

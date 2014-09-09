@@ -27,8 +27,7 @@ public class IceLiteAgent extends IceAgent {
 		
 		// Candidates must be gathered and a selector available
 		if (this.selector == null) {
-			throw new IllegalStateException(
-					"Cannot start agent without gathering candidates first.");
+			throw new IllegalStateException("Cannot start agent without gathering candidates first.");
 		}
 		// Initialize connectivity server if necessary
 		if (this.connectivityCheckServer == null) {

@@ -210,10 +210,10 @@ public class StunHandler implements ProtocolHandler {
 		BindingSuccessEvent event = new BindingSuccessEvent(this, key);
 		Notifier notifier = new Notifier(event, copy);
 		// TODO Improve by creating a thread pool
-		new Thread(notifier).start();
-//		for (StunListener listener : copy) {
-//			listener.onBinding(event);
-//		}
+//		new Thread(notifier).start();
+		for (StunListener listener : copy) {
+			listener.onBinding(event);
+		}
 	}
 	
 	private class Notifier implements Runnable {

@@ -8,7 +8,6 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.util.Arrays;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
@@ -340,8 +339,8 @@ public class RtcpHandler implements PacketHandler {
 		}
 		
 		if(this.secure) {
-			boolean decoded = this.dtlsHandler.decodeRTCP(packet);
-			if(!decoded) {
+			byte[] decoded = this.dtlsHandler.decodeRTCP(packet, offset, dataLength);
+			if(decoded == null || decoded.length > 0) {
 				logger.warn("Could not decode incoming SRTCP packet. Packet will be dropped.");
 				return null;
 			}
@@ -390,7 +389,7 @@ public class RtcpHandler implements PacketHandler {
 				if(!this.dtlsHandler.isHandshakeComplete()) {
 					return;
 				}
-				data = this.dtlsHandler.encodeRTCP(Arrays.copyOfRange(data, 0, dataLength));
+				data = this.dtlsHandler.encodeRTCP(data, 0, dataLength);
 				dataLength = data.length;
 			}
 

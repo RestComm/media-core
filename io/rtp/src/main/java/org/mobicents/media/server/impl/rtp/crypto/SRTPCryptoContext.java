@@ -353,7 +353,7 @@ public class SRTPCryptoContext {
 	 * @param pkt
 	 *            the RTP packet that is going to be sent out
 	 */
-	public void transformPacket(RtpPacket pkt) {
+	public void transformPacket(RawPacket pkt) {
 		/* Encrypt the packet using Counter Mode encryption */
 		if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION || policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION) {
 			processPacketAESCM(pkt);
@@ -369,7 +369,7 @@ public class SRTPCryptoContext {
 		}
 
 		/* Update the ROC if necessary */
-		int seqNo = pkt.getSeqNumber();
+		int seqNo = pkt.getSequenceNumber();
 		if (seqNo == 0xFFFF) {
 			roc++;
 		}
@@ -394,8 +394,8 @@ public class SRTPCryptoContext {
 	 * @return true if the packet can be accepted false if the packet failed
 	 *         authentication or failed replay check
 	 */
-	public boolean reverseTransformPacket(RtpPacket pkt) {
-		int seqNo = pkt.getSeqNumber();
+	public boolean reverseTransformPacket(RawPacket pkt) {
+		int seqNo = pkt.getSequenceNumber();
 
 		if (!seqNumSet) {
 			seqNumSet = true;
@@ -456,9 +456,9 @@ public class SRTPCryptoContext {
 	 * @param pkt
 	 *            the RTP packet to be encrypted / decrypted
 	 */
-	public void processPacketAESCM(RtpPacket pkt) {
-		long ssrc = pkt.getSyncSource();
-		int seqNo = pkt.getSeqNumber();
+	public void processPacketAESCM(RawPacket pkt) {
+		long ssrc = pkt.getRTCPSSRC();
+		int seqNo = pkt.getSequenceNumber();
 		long index = ((long) this.roc << 16) | seqNo;
 
 		ivStore[0] = saltKey[0];
@@ -489,10 +489,9 @@ public class SRTPCryptoContext {
 	 * @param pkt
 	 *            the RTP packet to be encrypted / decrypted
 	 */
-	public void processPacketAESF8(RtpPacket pkt) {
+	public void processPacketAESF8(RawPacket pkt) {
 		// 11 bytes of the RTP header are the 11 bytes of the iv
 		// the first byte of the RTP header is not used.
-
 		ByteBuffer buf = pkt.getBuffer();
 		buf.compact();
 		buf.get(ivStore, 0, 12);
@@ -520,7 +519,7 @@ public class SRTPCryptoContext {
 	 * @param rocIn
 	 *            Roll-Over-Counter
 	 */
-	private void authenticatePacketHMCSHA1(RtpPacket pkt, int rocIn) {
+	private void authenticatePacketHMCSHA1(RawPacket pkt, int rocIn) {
 		ByteBuffer buf = pkt.getBuffer();
 		buf.rewind();
 		int len = buf.remaining();

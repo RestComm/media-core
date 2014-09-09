@@ -38,8 +38,7 @@ import org.bouncycastle.crypto.BlockCipher;
  * @author Werner Dittmann (Werner.Dittmann@t-online.de)
  * @author Bing SU (nova.su@gmail.com)
  */
-public class SRTPCipherCTR
-{
+public class SRTPCipherCTR {
 
     private final static int BLKLEN = 16;
     private final static int MAX_BUFFER_LENGTH = 10*1024;
@@ -47,35 +46,29 @@ public class SRTPCipherCTR
     private final byte[] tmpCipherBlock = new byte[BLKLEN];
     private byte[] streamBuf = new byte[1024];
 
-    public SRTPCipherCTR()
-    {
+    public SRTPCipherCTR() {
     }
 
-    public void process(BlockCipher cipher, ByteBuffer data, int off, int len,
-        byte[] iv)
-    {
-        assert off + len <= data.limit();
+    public void process(BlockCipher cipher, ByteBuffer data, int off, int len, byte[] iv) {
+		assert off + len <= data.limit();
 
-        // if data fits in inner buffer - use it. Otherwise allocate bigger
-        // buffer store it to use it for later processing - up to a defined
-        // maximum size.
-        byte[] cipherStream = null;
-        if (len > streamBuf.length)
-        {
-            cipherStream = new byte[len];
-            if (cipherStream.length <= MAX_BUFFER_LENGTH)
-            {
-                streamBuf = cipherStream;
-            }
-        }
-        else
-        {
-            cipherStream = streamBuf;
-        }
+		// if data fits in inner buffer - use it. Otherwise allocate bigger
+		// buffer store it to use it for later processing - up to a defined
+		// maximum size.
+		byte[] cipherStream = null;
+		if (len > streamBuf.length) {
+			cipherStream = new byte[len];
+			if (cipherStream.length <= MAX_BUFFER_LENGTH) {
+				streamBuf = cipherStream;
+			}
+		} else {
+			cipherStream = streamBuf;
+		}
 
-        getCipherStream(cipher, cipherStream, len, iv);
-        for (int i = 0; i < len; i++)
-            data.put(i+off, (byte) (data.get(i+off) ^ cipherStream[i]));
+		getCipherStream(cipher, cipherStream, len, iv);
+		for (int i = 0; i < len; i++) {
+			data.put(i + off, (byte) (data.get(i + off) ^ cipherStream[i]));
+		}
     }
 
     /**
@@ -89,14 +82,11 @@ public class SRTPCipherCTR
      * @param iv
      *            initialization vector used to generate this cipher stream
      */
-    public void getCipherStream(BlockCipher aesCipher, byte[] out, int length,
-        byte[] iv)
-    {
+    public void getCipherStream(BlockCipher aesCipher, byte[] out, int length, byte[] iv) {
         System.arraycopy(iv, 0, cipherInBlock, 0, 14);
 
         int ctr;
-        for (ctr = 0; ctr < length / BLKLEN; ctr++)
-        {
+        for (ctr = 0; ctr < length / BLKLEN; ctr++) {
             // compute the cipher stream
             cipherInBlock[14] = (byte) ((ctr & 0xFF00) >> 8);
             cipherInBlock[15] = (byte) ((ctr & 0x00FF));

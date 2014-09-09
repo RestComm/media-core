@@ -6,7 +6,6 @@ import java.security.SecureRandom;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
-import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.crypto.PacketTransformer;
 import org.mobicents.media.server.impl.rtp.crypto.SRTPPolicy;
@@ -182,10 +181,8 @@ public class DtlsHandler {
 	 *            The encoded RTP packet
 	 * @return The decoded RTP packet. Returns null is packet is not valid.
 	 */
-	public byte[] decodeRTP(RtpPacket packet) {
-		byte[] dst = new byte[packet.getLength()];
-		packet.getBuffer().get(dst, 0, dst.length);
-		return this.srtpDecoder.reverseTransform(dst);
+	public byte[] decodeRTP(byte[] packet, int offset, int length) {
+		return this.srtpDecoder.reverseTransform(packet, offset, length);
 	}
 
 	/**
@@ -195,8 +192,8 @@ public class DtlsHandler {
 	 *            The decoded RTP packet
 	 * @return The encoded RTP packet
 	 */
-	public byte[] encodeRTP(RtpPacket packet) {
-		return this.srtpEncoder.transform(packet);
+	public byte[] encodeRTP(byte[] packet, int offset, int length) {
+		return this.srtpEncoder.transform(packet, offset, length);
 	}
 
 	/**
@@ -206,8 +203,8 @@ public class DtlsHandler {
 	 *            The encoded RTP packet
 	 * @return The decoded RTP packet. Returns null is packet is not valid.
 	 */
-	public byte[] decodeRTCP(byte[] packet) {
-		return this.srtcpDecoder.reverseTransform(packet);
+	public byte[] decodeRTCP(byte[] packet, int offset, int length) {
+		return this.srtcpDecoder.reverseTransform(packet, offset, length);
 	}
 	
 	/**
@@ -217,8 +214,8 @@ public class DtlsHandler {
 	 *            The decoded RTP packet
 	 * @return The encoded RTP packet
 	 */
-	public byte[] encodeRTCP(byte[] packet) {
-		return this.srtcpEncoder.transform(packet);
+	public byte[] encodeRTCP(byte[] packet, int offset, int length) {
+		return this.srtcpEncoder.transform(packet, offset, length);
 	}
 
 	public void handshake() {
@@ -262,7 +259,6 @@ public class DtlsHandler {
 				handshaking = false;
 			}
 		}
-		
 	}
 
 }

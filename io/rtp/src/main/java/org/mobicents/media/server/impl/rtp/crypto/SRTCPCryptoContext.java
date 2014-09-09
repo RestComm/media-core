@@ -17,7 +17,6 @@ import org.bouncycastle.crypto.engines.AESFastEngine;
 import org.bouncycastle.crypto.engines.TwofishEngine;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
-import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 
 
@@ -44,68 +43,44 @@ import org.mobicents.media.server.impl.rtp.RtpPacket;
  * Phil Zimmermann's ZRTP protocol.
  * 
  * @author Bing SU (nova.su@gmail.com)
- * @author ivelin.ivanov@telestax.com
+ * @author Ivelin Ivanov (ivelin.ivanov@telestax.com)
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class SRTCPCryptoContext
-{
-    /**
-     * The replay check windows size
-     */
+public class SRTCPCryptoContext {
+    /** The replay check windows size */
     private static final long REPLAY_WINDOW_SIZE = 64;
     
-    /**
-     * RTCP SSRC of this cryptographic context
-     */
+    /** RTCP SSRC of this cryptographic context */
     private long ssrcCtx;
     
-    /**
-     * Master key identifier
-     */
+    /** Master key identifier */
     private byte[] mki;
    
-    /**
-     * Index received so far
-     */
+    /** Index received so far */
     private int receivedIndex = 0;
     
-    /**
-     * Index sent so far
-     */
+    /** Index sent so far */
     private int sentIndex = 0;
     
-    /**
-     * Bit mask for replay check
-     */
+    /** Bit mask for replay check */
     private long replayWindow;
 
-    /**
-     * Master encryption key
-     */
+    /** Master encryption key */
     private byte[] masterKey;
     
-    /**
-     * Master salting key
-     */
+    /** Master salting key */
     private byte[] masterSalt;
 
-    /**
-     * Derived session encryption key
-     */
+    /** Derived session encryption key */
     private byte[] encKey;
 
-    /**
-     * Derived session authentication key
-     */
+    /** Derived session authentication key */
     private byte[] authKey;
     
-    /**
-     * Derived session salting key
-     */
+    /** Derived session salting key */
     private byte[] saltKey;
 
-    /**
-     * Encryption / Authentication policy for this session
-     */
+    /** Encryption / Authentication policy for this session */
     private final SRTPPolicy policy;
     
     /**
@@ -137,8 +112,7 @@ public class SRTCPCryptoContext
      * 
      * @param ssrc SSRC of this SRTPCryptoContext
      */
-    public SRTCPCryptoContext(long ssrcIn)
-    {
+    public SRTCPCryptoContext(long ssrcIn) {
         ssrcCtx = ssrcIn;
         mki = null;
         masterKey = null;
@@ -169,17 +143,12 @@ public class SRTCPCryptoContext
      *            encryption algorithm, the authentication algorithm, etc
      */
     @SuppressWarnings("fallthrough")
-    public SRTCPCryptoContext(long ssrcIn,
-            byte[] masterK, byte[] masterS, SRTPPolicy policyIn) 
-    {
+    public SRTCPCryptoContext(long ssrcIn, byte[] masterK, byte[] masterS, SRTPPolicy policyIn) {
         ssrcCtx = ssrcIn;
         mki = null;
-
         policy = policyIn;
-
         masterKey = new byte[policy.getEncKeyLength()];
         System.arraycopy(masterK, 0, masterKey, 0, masterK.length);
-
         masterSalt = new byte[policy.getSaltKeyLength()];
         System.arraycopy(masterS, 0, masterSalt, 0, masterS.length);
 
@@ -241,8 +210,7 @@ public class SRTCPCryptoContext
      * deriveSrtpKeys(...) tah would have cleaned the key data.
      * 
      */
-    public void close()
-    {
+    public void close() {
         Arrays.fill(masterKey, (byte)0);
         Arrays.fill(masterSalt, (byte)0);        
     }
@@ -252,8 +220,7 @@ public class SRTCPCryptoContext
      * 
      * @return the authentication tag length of this SRTP cryptographic context
      */
-    public int getAuthTagLength()
-    {
+    public int getAuthTagLength() {
         return policy.getAuthTagLength();
     }
 
@@ -262,10 +229,10 @@ public class SRTCPCryptoContext
      * 
      * @return the MKI length of this SRTP cryptographic context
      */
-    public int getMKILength()
-    {
-        if (mki != null)
+    public int getMKILength() {
+        if (mki != null) {
             return mki.length;
+        }
         return 0;
     }
 
@@ -274,8 +241,7 @@ public class SRTCPCryptoContext
      *
      * @return the SSRC of this SRTP cryptographic context
      */
-    public long getSSRC()
-    {
+    public long getSSRC() {
         return ssrcCtx;
     }
 
@@ -296,8 +262,7 @@ public class SRTCPCryptoContext
      * 
      * @param pkt the RTP packet that is going to be sent out
      */
-    public void transformPacket(RtcpPacket pkt)
-    {
+    public void transformPacket(RawPacket pkt) {
         boolean encrypt = false;
         // Encrypt the packet using Counter Mode encryption
         if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION || policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION) {
@@ -349,29 +314,26 @@ public class SRTCPCryptoContext
      * @return true if the packet can be accepted
      *         false if authentication or replay check failed 
      */
-    public boolean reverseTransformPacket(RtpPacket pkt)
-    {
+    public boolean reverseTransformPacket(RawPacket pkt) {
         boolean decrypt = false;
         int tagLength = policy.getAuthTagLength();
         int indexEflag = pkt.getSRTCPIndex(tagLength);
 
-        if ((indexEflag & 0x80000000) == 0x80000000)
+        if ((indexEflag & 0x80000000) == 0x80000000) {
             decrypt = true;
+        }
 
         int index = indexEflag & ~0x80000000;
         
         /* Replay control */
-        if (!checkReplay(index))
-        {
+        if (!checkReplay(index)) {
             return false;
         }
 
         /* Authenticate the packet */
-        if (policy.getAuthType() != SRTPPolicy.NULL_AUTHENTICATION)
-        {
+        if (policy.getAuthType() != SRTPPolicy.NULL_AUTHENTICATION) {
             // get original authentication data and store in tempStore
-            pkt.readRegionToBuff(pkt.getLength() - tagLength, tagLength,
-                    tempStore);
+            pkt.readRegionToBuff(pkt.getLength() - tagLength, tagLength, tempStore);
 
             // Shrink packet to remove the authentication tag and index
             // because this is part of authenicated data
@@ -380,33 +342,27 @@ public class SRTCPCryptoContext
             // compute, then save authentication in tagStore
             authenticatePacket(pkt, indexEflag);
 
-            for (int i = 0; i < tagLength; i++)
-            {
-                if ((tempStore[i] & 0xff) == (tagStore[i] & 0xff))
+            for (int i = 0; i < tagLength; i++) {
+                if ((tempStore[i] & 0xff) == (tagStore[i] & 0xff)) {
                     continue;
-                else
-                    return false;
+                } else {
+                	return false;
+                }
             }
         }
 
-        if (decrypt)
-        {
+        if (decrypt) {
             /* Decrypt the packet using Counter Mode encryption */
-            if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION
-                    || policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION)
-            {
+            if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION || policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION) {
                 processPacketAESCM(pkt, index);
             }
 
             /* Decrypt the packet using F8 Mode encryption */
-            else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION
-                    || policy.getEncType() == SRTPPolicy.TWOFISHF8_ENCRYPTION)
-            {
+            else if (policy.getEncType() == SRTPPolicy.AESF8_ENCRYPTION || policy.getEncType() == SRTPPolicy.TWOFISHF8_ENCRYPTION) {
                 processPacketAESF8(pkt, index);
             }
         }
         update(index);
-
         return true;
     }
 
@@ -414,9 +370,8 @@ public class SRTCPCryptoContext
      * Perform Counter Mode AES encryption / decryption 
      * @param pkt the RTP packet to be encrypted / decrypted
      */
-    public void processPacketAESCM(RtpPacket pkt, int index)
-    {
-        long ssrc = pkt.GetRTCPSyncSource();
+    public void processPacketAESCM(RawPacket pkt, int index) {
+        long ssrc = pkt.getRTCPSSRC();
 
         /* Compute the CM IV (refer to chapter 4.1.1 in RFC 3711):
         *
@@ -451,10 +406,7 @@ public class SRTCPCryptoContext
         // Encrypted part excludes fixed header (8 bytes)  
         final int payloadOffset = 8;
         final int payloadLength = pkt.getLength() - payloadOffset;
-
-        cipherCtr.process(cipher, pkt.getBuffer(),
-            payloadOffset,
-            payloadLength, ivStore);
+        cipherCtr.process(cipher, pkt.getBuffer(), payloadOffset, payloadLength, ivStore);
     }
 
     /**
@@ -462,8 +414,7 @@ public class SRTCPCryptoContext
      *
      * @param pkt the RTP packet to be encrypted / decrypted
      */
-    public void processPacketAESF8(RtpPacket pkt, int index)
-    {
+    public void processPacketAESF8(RawPacket pkt, int index) {
         // byte[] iv = new byte[16];
 
         // 4 bytes of the iv are zero
@@ -490,12 +441,8 @@ public class SRTCPCryptoContext
         // Encrypted part excludes fixed header (8 bytes), index (4 bytes), and
         // authentication tag (variable according to policy)  
         final int payloadOffset = 8;
-        final int payloadLength
-            = pkt.getLength() - (4 + policy.getAuthTagLength());
-
-        SRTPCipherF8.process(cipher, pkt.getBuffer(),
-            payloadOffset,
-            payloadLength, ivStore, cipherF8);
+        final int payloadLength = pkt.getLength() - (4 + policy.getAuthTagLength());
+        SRTPCipherF8.process(cipher, pkt.getBuffer(), payloadOffset, payloadLength, ivStore, cipherF8);
     }
 
     byte[] tempBuffer = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
@@ -507,8 +454,7 @@ public class SRTCPCryptoContext
      *
      * @param pkt the RTP packet to be authenticated
      */
-    private void authenticatePacket(RtpPacket pkt, int index)
-    {
+    private void authenticatePacket(RawPacket pkt, int index) {
     	ByteBuffer buf = pkt.getBuffer();
     	buf.rewind();
     	int len = buf.remaining();
@@ -535,33 +481,23 @@ public class SRTCPCryptoContext
      * @return true if this sequence number indicates the packet is not a
      * replayed one, false if not
      */
-    boolean checkReplay(int index)
-    {
+    boolean checkReplay(int index) {
         // compute the index of previously received packet and its
         // delta to the new received packet
         long delta = index - receivedIndex;
 
-        if (delta > 0)
-        {
+        if (delta > 0) {
             /* Packet not yet received */
             return true;
-        }
-        else
-        {
-            if (-delta > REPLAY_WINDOW_SIZE)
-            {
+        } else {
+            if (-delta > REPLAY_WINDOW_SIZE) {
                 /* Packet too old */
                 return false;
-            }
-            else
-            {
-                if (((this.replayWindow >> (-delta)) & 0x1) != 0)
-                {
+            } else {
+                if (((this.replayWindow >> (-delta)) & 0x1) != 0) {
                     /* Packet already received ! */
                     return false;
-                }
-                else
-                {
+                } else {
                     /* Packet not yet received */
                     return true;
                 }
@@ -575,10 +511,8 @@ public class SRTCPCryptoContext
      * 
      * @param label label specified for each type of iv 
      */
-    private void computeIv(byte label)
-    {
-        for (int i = 0; i < 14; i++)
-        {
+    private void computeIv(byte label) {
+        for (int i = 0; i < 14; i++) {
             ivStore[i] = masterSalt[i];
         }
         ivStore[7] ^= label;
@@ -589,8 +523,7 @@ public class SRTCPCryptoContext
      * Derives the srtcp session keys from the master key.
      * 
      */
-    public void deriveSrtcpKeys()
-    {
+    public void deriveSrtcpKeys() {
         // compute the session encryption key
         byte label = 3;
         computeIv(label);
@@ -601,15 +534,12 @@ public class SRTCPCryptoContext
 
         cipherCtr.getCipherStream(cipher, encKey, policy.getEncKeyLength(), ivStore);
 
-        if (authKey != null)
-        {
+        if (authKey != null) {
             label = 4;
             computeIv(label);
-            cipherCtr.getCipherStream(cipher, authKey,
-                policy.getAuthKeyLength(), ivStore);
+            cipherCtr.getCipherStream(cipher, authKey, policy.getAuthKeyLength(), ivStore);
 
-            switch ((policy.getAuthType()))
-            {
+            switch ((policy.getAuthType())) {
 	            case SRTPPolicy.HMACSHA1_AUTHENTICATION:
 	                KeyParameter key =  new KeyParameter(authKey);
 	                mac.init(key);
@@ -628,8 +558,9 @@ public class SRTCPCryptoContext
         Arrays.fill(masterSalt, (byte)0);
 
         // As last step: initialize cipher with derived encryption key.
-        if (cipherF8 != null)
+        if (cipherF8 != null) {
             SRTPCipherF8.deriveForIV(cipherF8, encKey, saltKey);
+        }
         encryptionKey = new KeyParameter(encKey);
         cipher.init(true, encryptionKey);
         Arrays.fill(encKey, (byte)0);

@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpHeader;
-import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -177,18 +176,25 @@ public class RtpHandler implements PacketHandler {
 			return null;
 		}
 		
-		// Transform incoming data directly into an RTP Packet
-		ByteBuffer buffer = this.rtpPacket.getBuffer();
-		buffer.clear();
-		buffer.put(packet, offset, dataLength);
-		buffer.flip();
-		
 		if(this.srtp) {
 			// Decode SRTP packet into RTP. WebRTC calls only.
-			if(!this.dtlsHandler.decodeRTP(rtpPacket)) {
-				logger.warn("SRTP packet is not valid!");
+			byte[] decoded = this.dtlsHandler.decodeRTP(packet, offset, dataLength);
+			if(decoded == null || decoded.length == 0) {
+				logger.warn("SRTP packet is not valid! Dropping packet.");
 				return null;
+			} else {
+				// Transform incoming data directly into an RTP Packet
+				ByteBuffer buffer = this.rtpPacket.getBuffer();
+				buffer.clear();
+				buffer.put(decoded);
+				buffer.flip();
 			}
+		} else {
+			// Transform incoming data directly into an RTP Packet
+			ByteBuffer buffer = this.rtpPacket.getBuffer();
+			buffer.clear();
+			buffer.put(packet, offset, dataLength);
+			buffer.flip();
 		}
 		
 		// Restart jitter buffer for first received packet

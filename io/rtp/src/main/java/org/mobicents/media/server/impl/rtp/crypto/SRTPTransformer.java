@@ -7,11 +7,9 @@
  */
 package org.mobicents.media.server.impl.rtp.crypto;
 
-import java.nio.ByteBuffer;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.impl.rtp.RtpPacket;
 
 /**
  * SRTPTransformer implements PacketTransformer and provides implementations for
@@ -23,14 +21,14 @@ import org.mobicents.media.server.impl.rtp.RtpPacket;
  * transformation and reverse transformation operation.
  * 
  * @author Bing SU (nova.su@gmail.com)
- * @author ivelin.ivanov@telestax.com
- * 
+ * @author Ivelin Ivanov (ivelin.ivanov@telestax.com)
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class SRTPTransformer implements PacketTransformer {
 	
 	private static final Logger logger = Logger.getLogger(SRTPTransformer.class);
 	
-	private final RtpPacket packet;
+	private final RawPacket rawPacket;
 	
 	private SRTPTransformEngine forwardEngine;
 	private SRTPTransformEngine reverseEngine;
@@ -65,25 +63,19 @@ public class SRTPTransformer implements PacketTransformer {
 		this.forwardEngine = forwardEngine;
 		this.reverseEngine = reverseEngine;
 		this.contexts = new Hashtable<Long, SRTPCryptoContext>();
-		this.packet = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
+		this.rawPacket = new RawPacket();
 	}
 
-	/**
-	 * Transforms a specific packet.
-	 * 
-	 * @param pkt
-	 *            the packet to be transformed
-	 * @return the transformed packet
-	 */
-	public boolean transform(byte[] pkt) {
-		// Transform data into readable format
-		ByteBuffer buffer = this.packet.getBuffer();
-		buffer.clear();
-		buffer.put(pkt, 0, pkt.length);
-		buffer.flip();
+	public byte[] transform(byte[] pkt) {
+		return transform(pkt, 0, pkt.length);
+	}
+	
+	public byte[] transform(byte[] pkt, int offset, int length) {
+		// Updates the contents of raw packet with new incoming packet 
+		this.rawPacket.wrap(pkt, offset, length);
 		
-		// Associate packet to a context
-		long ssrc = packet.getSyncSource();
+		// Associate packet to a crypto context
+		long ssrc = rawPacket.getSSRC();
 		SRTPCryptoContext context = contexts.get(ssrc);
 
 		if (context == null) {
@@ -93,8 +85,8 @@ public class SRTPTransformer implements PacketTransformer {
 		}
 
 		// Transform RTP packet into SRTP
-		context.transformPacket(packet);
-		return true;
+		context.transformPacket(rawPacket);
+		return this.rawPacket.getData();
 	}
 
 	/**
@@ -105,28 +97,28 @@ public class SRTPTransformer implements PacketTransformer {
 	 *            the transformed packet to be restored
 	 * @return the restored packet
 	 */
-	public boolean reverseTransform(byte[] pkt) {
-		// Transform data into readable format
-		ByteBuffer buffer = this.packet.getBuffer();
-		buffer.clear();
-		buffer.put(pkt, 0, pkt.length);
-		buffer.flip();
+	public byte[] reverseTransform(byte[] pkt) {
+		return reverseTransform(pkt, 0, pkt.length);
+	}
+	
+	public byte[] reverseTransform(byte[] pkt, int offset, int length) {
+		// Wrap data into the raw packet for readable format
+		this.rawPacket.wrap(pkt, offset, length);
 		
-		// only accept RTP version 2 (SNOM phones send weird packages when on
-		// hold, ignore them with this check (RTP Version must be equal to 2)
-		if (packet.getVersion() != 2) {
-			return false;
-		}
-
-		long ssrc = packet.getSyncSource();
-		SRTPCryptoContext context = contexts.get(ssrc);
+		// Associate packet to a crypto context
+		long ssrc = this.rawPacket.getSSRC();
+		SRTPCryptoContext context = this.contexts.get(ssrc);
 		if (context == null) {
-			context = reverseEngine.getDefaultContext().deriveContext(ssrc, 0, 0);
-			context.deriveSrtpKeys(packet.getSeqNumber());
+			context = this.reverseEngine.getDefaultContext().deriveContext(ssrc, 0, 0);
+			context.deriveSrtpKeys(this.rawPacket.getSequenceNumber());
 			contexts.put(ssrc, context);
 		}
 
-		return context.reverseTransformPacket(packet);
+		boolean reversed = context.reverseTransformPacket(this.rawPacket);
+		if(reversed) {
+			return this.rawPacket.getData();
+		}
+		return null;
 	}
 
 	/**
@@ -148,4 +140,5 @@ public class SRTPTransformer implements PacketTransformer {
 			}
 		}
 	}
+	
 }
