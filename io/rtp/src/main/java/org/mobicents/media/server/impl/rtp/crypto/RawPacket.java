@@ -73,6 +73,7 @@ public class RawPacket {
     	this.buffer.rewind();
     	this.buffer.put(data, offset, length);
     	this.buffer.flip();
+    	this.buffer.rewind();
     }
     
     public byte[] getData() {

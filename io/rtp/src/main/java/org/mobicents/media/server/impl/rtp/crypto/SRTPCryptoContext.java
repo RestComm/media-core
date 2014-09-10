@@ -457,7 +457,7 @@ public class SRTPCryptoContext {
 	 *            the RTP packet to be encrypted / decrypted
 	 */
 	public void processPacketAESCM(RawPacket pkt) {
-		long ssrc = pkt.getRTCPSSRC();
+		long ssrc = pkt.getSSRC();
 		int seqNo = pkt.getSequenceNumber();
 		long index = ((long) this.roc << 16) | seqNo;
 

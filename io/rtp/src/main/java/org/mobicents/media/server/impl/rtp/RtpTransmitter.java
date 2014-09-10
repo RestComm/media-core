@@ -127,9 +127,9 @@ public class RtpTransmitter {
 		
 		// Secure RTP packet. WebRTC calls only. 
 		// SRTP handler returns null if an error occurs
+		ByteBuffer buffer = packet.getBuffer();
 		if (this.srtp) {
-			ByteBuffer buffer = packet.getBuffer();
-			byte[] rtpData = new byte[packet.getLength()];
+			byte[] rtpData = new byte[buffer.limit()];
 			buffer.get(rtpData, 0, rtpData.length);
 			byte[] srtpData = this.dtlsHandler.encodeRTP(rtpData, 0, rtpData.length);
 			if(srtpData == null || srtpData.length == 0) {
@@ -145,13 +145,9 @@ public class RtpTransmitter {
 		}
 		
 		if(packet != null) {
-			// Rewind buffer
-			ByteBuffer buf = packet.getBuffer();
-			buf.rewind();
-			
 			// send RTP packet to the network and update statistics for RTCP
 			statistics.onRtpSent(packet);
-			channel.send(buf, channel.socket().getRemoteSocketAddress());
+			channel.send(buffer, channel.socket().getRemoteSocketAddress());
 		}
 	}
 	

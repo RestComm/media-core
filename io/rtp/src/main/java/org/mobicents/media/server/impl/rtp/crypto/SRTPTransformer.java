@@ -85,7 +85,7 @@ public class SRTPTransformer implements PacketTransformer {
 		}
 
 		// Transform RTP packet into SRTP
-		context.transformPacket(rawPacket);
+		context.transformPacket(this.rawPacket);
 		return this.rawPacket.getData();
 	}
 
