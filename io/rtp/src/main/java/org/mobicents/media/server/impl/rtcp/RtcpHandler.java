@@ -179,11 +179,10 @@ public class RtcpHandler implements PacketHandler {
 	private void schedule(long timestamp, RtcpPacket packet) {
 		// Create the task and schedule it
 		long interval = resolveInterval(timestamp);
-		this.scheduledTask = new TxTask(timestamp, packet);
+		this.scheduledTask = new TxTask(packet);
 		this.txTimer.schedule(this.scheduledTask, interval);
 		// Let the RTP handler know what is the type of scheduled packet
 		this.statistics.setRtcpPacketType(packet.getPacketType());
-		logger.info("Scheduled packet in " + interval + "ms");
 	}
 
 	/**
@@ -194,10 +193,7 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
-		long interval = resolveInterval(timestamp);
-		task.setTimestamp(interval);
 		this.txTimer.schedule(task, TimeUnit.NANOSECONDS.toMillis(timestamp));
-		logger.info("Re-scheduled packet in " + interval + "ms");
 	}
 
 	/**
@@ -338,17 +334,18 @@ public class RtcpHandler implements PacketHandler {
 			return null;
 		}
 		
+		// Decode the RTCP compound packet
+		RtcpPacket rtcpPacket = new RtcpPacket();
 		if(this.secure) {
 			byte[] decoded = this.dtlsHandler.decodeRTCP(packet, offset, dataLength);
-			if(decoded == null || decoded.length > 0) {
+			if(decoded == null || decoded.length == 0) {
 				logger.warn("Could not decode incoming SRTCP packet. Packet will be dropped.");
 				return null;
 			}
+			rtcpPacket.decode(decoded, 0);
+		} else {
+			rtcpPacket.decode(packet, offset);
 		}
-
-		// Decode the RTCP compound packet
-		RtcpPacket rtcpPacket = new RtcpPacket();
-		rtcpPacket.decode(packet, offset);
 		
 		// Upgrade RTCP statistics
 		this.statistics.onRtcpReceive(rtcpPacket);
@@ -402,8 +399,7 @@ public class RtcpHandler implements PacketHandler {
 			this.statistics.onRtcpSent(packet);
 
 			// send packet
-			int sent = this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
-			logger.info("RTCP packet sent! Data Length: " + sent);
+			this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
 		} else {
 			logger.warn("Could not send RTCP packet because channel is closed.");
 		}
@@ -453,20 +449,10 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private class TxTask extends TimerTask {
 
-		private long timestamp;
 		private final RtcpPacket packet;
 
-		public TxTask(long timestamp, RtcpPacket packet) {
-			this.timestamp = timestamp;
+		public TxTask(RtcpPacket packet) {
 			this.packet = packet;
-		}
-
-		public long getTimestamp() {
-			return timestamp;
-		}
-
-		public void setTimestamp(long timestamp) {
-			this.timestamp = timestamp;
 		}
 
 		public RtcpPacket getPacket() {

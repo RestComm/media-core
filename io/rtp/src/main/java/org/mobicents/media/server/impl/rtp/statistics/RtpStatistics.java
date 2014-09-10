@@ -543,7 +543,6 @@ public class RtpStatistics {
 		if (this.rtpSentOn < minTime) {
 			removeSender(this.ssrc);
 		}
-		logger.info("Are we sender? "+ weSent);
 		return this.weSent;
 	}
 

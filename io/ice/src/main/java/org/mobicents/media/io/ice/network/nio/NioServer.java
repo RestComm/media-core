@@ -1,7 +1,6 @@
 package org.mobicents.media.io.ice.network.nio;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -126,9 +125,6 @@ public class NioServer implements Runnable {
 				Iterator<SelectionKey> selectedKeys = this.selector.selectedKeys().iterator();
 				while (selectedKeys.hasNext()) {
 					SelectionKey key = (SelectionKey) selectedKeys.next();
-					DatagramChannel channel = (DatagramChannel) key.channel();
-					InetSocketAddress localAddress = (InetSocketAddress) channel.getLocalAddress();
-					logger.info("Selection key for channel: "+ localAddress.getHostName() + ":"+localAddress.getPort());
 					selectedKeys.remove();
 					
 					// Verify if key was not invalidated in a previous operation
