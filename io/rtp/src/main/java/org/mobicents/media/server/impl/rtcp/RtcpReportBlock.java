@@ -27,7 +27,7 @@ package org.mobicents.media.server.impl.rtcp;
  * @author amit bhayani
  * 
  */
-public class RtcpReceiverReportItem {
+public class RtcpReportBlock {
 
 	/*
 	 * Reception report block
@@ -57,11 +57,11 @@ public class RtcpReceiverReportItem {
 	/* delay since last SR packet */
 	private long dlsr = 0;
 
-	protected RtcpReceiverReportItem() {
+	protected RtcpReportBlock() {
 
 	}
 
-	public RtcpReceiverReportItem(long ssrc, int fraction, int lost, int SeqNumCycle, long lastSeq, int jitter, long lsr, long dlsr) {
+	public RtcpReportBlock(long ssrc, int fraction, int lost, int SeqNumCycle, long lastSeq, int jitter, long lsr, long dlsr) {
 		this.ssrc = ssrc;
 		this.fraction = fraction;
 		this.lost = lost;
@@ -195,6 +195,19 @@ public class RtcpReceiverReportItem {
 		rawData[offSet++] = ((byte) ((this.dlsr & 0x000000FF)));
 
 		return offSet;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("REPORT BLOCK: \n");
+		builder.append("ssrc=").append(this.ssrc).append(", ");
+		builder.append("fraction lost=").append(this.fraction).append(", ");
+		builder.append("packets lots=").append(this.lost).append(", ");
+		builder.append("extended highest seq number=").append(this.lastSeq).append(", ");
+		builder.append("jitter=").append(this.jitter).append(", ");
+		builder.append("last SR=").append(this.lsr).append(", ");
+		builder.append("delay since last SR=").append(this.dlsr).append("\n");
+		return builder.toString();
 	}
 
 }

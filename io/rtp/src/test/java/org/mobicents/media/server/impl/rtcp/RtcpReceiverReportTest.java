@@ -37,15 +37,14 @@ import org.junit.Test;
  * @author amit bhayani
  * 
  */
-public class RtcpReceptionReportTest {
+public class RtcpReceiverReportTest {
 
 	// These values are from wireshark trace
 	private byte[] p = new byte[] { (byte) 0x81, (byte) 0xc9, 0x00, 0x07, 0x0d, (byte) 0xe9, 0x4f, 0x1f, 0x0f,
 			(byte) 0xdf, 0x2b, 0x6f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43, 0x62, 0x00, 0x00, 0x00, 0x39,
 			(byte) 0xfb, (byte) 0x9c, 0x07, (byte) 0xef, 0x00, 0x04, 0x06, (byte) 0xab };
 
-	public RtcpReceptionReportTest() {
-		// TODO Auto-generated constructor stub
+	public RtcpReceiverReportTest() {
 	}
 
 	@BeforeClass
@@ -80,7 +79,7 @@ public class RtcpReceptionReportTest {
 
 		assertEquals(233393951, rtcpReceptionReport.getSsrc());
 
-		RtcpReceiverReportItem rtcpReceptionReportItem = rtcpReceptionReport.getReceiverReports()[0];
+		RtcpReportBlock rtcpReceptionReportItem = rtcpReceptionReport.getReceiverReports()[0];
 
 		assertNotNull(rtcpReceptionReportItem);
 
@@ -100,7 +99,7 @@ public class RtcpReceptionReportTest {
 
 		RtcpReceiverReport rtcpReceptionReport = new RtcpReceiverReport(false, 233393951);
 
-		RtcpReceiverReportItem rtcpReceptionReportItem = new RtcpReceiverReportItem(266283887, 0, 0, 0, 17250, 57,
+		RtcpReportBlock rtcpReceptionReportItem = new RtcpReportBlock(266283887, 0, 0, 0, 17250, 57,
 				4221306863l, 263851);
 		
 		rtcpReceptionReport.addReceiverReport(rtcpReceptionReportItem);

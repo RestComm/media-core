@@ -75,7 +75,7 @@ public class RtcpPacketFactory {
 		for (Long memberSsrc : members) {
 			if (ssrc != memberSsrc) {
 				RtpMember memberStats = statistics.getMember(memberSsrc.longValue());
-				RtcpReceiverReportItem rcvrReport = buildSubReceiverReport(memberStats);
+				RtcpReportBlock rcvrReport = buildSubReceiverReport(memberStats);
 				senderReport.addReceiverReport(rcvrReport);
 			}
 		}
@@ -98,7 +98,7 @@ public class RtcpPacketFactory {
 		for (Long memberSsrc : members) {
 			if (ssrc != memberSsrc) {
 				RtpMember memberStats = statistics.getMember(memberSsrc.longValue());
-				RtcpReceiverReportItem rcvrReport = buildSubReceiverReport(memberStats);
+				RtcpReportBlock rcvrReport = buildSubReceiverReport(memberStats);
 				report.addReceiverReport(rcvrReport);
 			}
 		}
@@ -115,7 +115,7 @@ public class RtcpPacketFactory {
 		return sdes;
 	}
 	
-	private static RtcpReceiverReportItem buildSubReceiverReport(RtpMember statistics) {
+	private static RtcpReportBlock buildSubReceiverReport(RtpMember statistics) {
 		long ssrc = statistics.getSsrc();
 		int fraction = (int) statistics.getFractionLost();
 		int lost = (int) statistics.getPacketsLost();
@@ -125,7 +125,7 @@ public class RtcpPacketFactory {
 		long lsr = statistics.getLastSR();
 		long dlsr = statistics.getLastSRdelay();
 		
-		return new RtcpReceiverReportItem(ssrc, fraction, lost, seqNumCycle, lastSeq, jitter, lsr, dlsr);
+		return new RtcpReportBlock(ssrc, fraction, lost, seqNumCycle, lastSeq, jitter, lsr, dlsr);
 	}
 
 	/**
@@ -204,6 +204,7 @@ public class RtcpPacketFactory {
 		
 		// Build the BYE
 		RtcpBye bye = new RtcpBye(padding);
+		bye.addSsrc(statistics.getSsrc());
 		
 		// Build the compound packet
 		return new RtcpPacket(report, sdes, bye);

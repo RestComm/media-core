@@ -193,16 +193,6 @@ public class RtpStatistics {
 		return cname;
 	}
 
-	/**
-	 * Sets the CNAME that identifies this source
-	 * 
-	 * @param cname
-	 *            The CNAME of the source
-	 */
-	public void setCname(String cname) {
-		this.cname = cname;
-	}
-
 	/*
 	 * RTP Statistics
 	 */

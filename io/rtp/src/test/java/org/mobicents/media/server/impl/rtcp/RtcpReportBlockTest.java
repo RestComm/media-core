@@ -35,13 +35,13 @@ import org.junit.Test;
  * @author amit bhayani
  * 
  */
-public class RtcpReceptionReportItemTest {
+public class RtcpReportBlockTest {
 
 	// These values are from wireshark trace
 	private byte[] p = new byte[] { 0x0f, (byte) 0xdf, 0x2b, 0x6f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x43, 0x62,
 			0x00, 0x00, 0x00, 0x39, (byte) 0xfb, (byte) 0x9c, 0x07, (byte) 0xef, 0x00, 0x04, 0x06, (byte) 0xab };
 
-	public RtcpReceptionReportItemTest() {
+	public RtcpReportBlockTest() {
 
 	}
 
@@ -67,7 +67,7 @@ public class RtcpReceptionReportItemTest {
 	@Test
 	public void testDecode() {
 		// These values are from wireshark trace
-		RtcpReceiverReportItem rr = new RtcpReceiverReportItem();
+		RtcpReportBlock rr = new RtcpReportBlock();
 		int length = rr.decode(p, 0);
 
 		assertEquals(p.length, length);
@@ -83,7 +83,7 @@ public class RtcpReceptionReportItemTest {
 
 	@Test
 	public void testEncode() {
-		RtcpReceiverReportItem rr = new RtcpReceiverReportItem(266283887, 0, 0, 0, 17250, 57, 4221306863l, 263851);
+		RtcpReportBlock rr = new RtcpReportBlock(266283887, 0, 0, 0, 17250, 57, 4221306863l, 263851);
 		byte[] rawData = new byte[256];
 
 		int length = rr.encode(rawData, 0);

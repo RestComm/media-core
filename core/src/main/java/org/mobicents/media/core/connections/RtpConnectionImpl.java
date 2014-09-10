@@ -46,6 +46,7 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
@@ -83,6 +84,9 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 	// Core elements
 	private final ChannelsManager channelsManager;
 	private final Scheduler scheduler;
+	
+	// RTP session elements
+	private final String cname;
 	
 	// Audio Channel
 	private RtpStatistics audioStatistics;
@@ -127,10 +131,13 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		this.channelsManager = channelsManager;
 		this.scheduler = channelsManager.getScheduler();
 		
+		// RTP session elements
+		this.cname = CnameGenerator.generateCname();
+		
 		// Audio Channel
 		this.audioClock = new RtpClock(this.scheduler.getClock());
 		this.audioOobClock = new RtpClock(this.scheduler.getClock());
-		this.audioStatistics = new RtpStatistics(this.audioClock);
+		this.audioStatistics = new RtpStatistics(this.audioClock, this.cname);
 		this.rtpAudioChannel = channelsManager.getRtpChannel(audioStatistics, audioClock, audioOobClock);
 		this.rtpAudioChannel.setRtpChannelListener(this);
 		try {

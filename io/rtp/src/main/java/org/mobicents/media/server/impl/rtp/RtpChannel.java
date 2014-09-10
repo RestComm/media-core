@@ -263,9 +263,6 @@ public class RtpChannel extends MultiplexedChannel {
 	}
 	
 	private void onBinding(boolean useJitterBuffer) {
-		// Statistics
-		this.statistics.setCname(resolveCname());
-		
 		// Transmitter
 		this.transmitter.setChannel(this.channel);
 		

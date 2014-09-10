@@ -22,6 +22,9 @@
 
 package org.mobicents.media.server.impl.rtcp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
  * @author amit bhayani
@@ -32,14 +35,15 @@ public class RtcpSdes extends RtcpHeader {
 	/**
 	 * SDES
 	 */
-	private RtcpSdesChunk[] sdesChunks = new RtcpSdesChunk[31];
+	private final List<RtcpSdesChunk> sdesChunks;
 
 	protected RtcpSdes() {
-
+		this.sdesChunks = new ArrayList<RtcpSdesChunk>(RtcpPacket.MAX_SOURCES);
 	}
 
 	public RtcpSdes(boolean padding) {
 		super(padding, RtcpHeader.RTCP_SDES);
+		this.sdesChunks = new ArrayList<RtcpSdesChunk>(RtcpPacket.MAX_SOURCES);
 	}
 
 	protected int decode(byte[] rawData, int offSet) {
@@ -50,8 +54,8 @@ public class RtcpSdes extends RtcpHeader {
 		while ((offSet - tmp) < this.length) {
 			RtcpSdesChunk rtcpSdesChunk = new RtcpSdesChunk();
 			offSet = rtcpSdesChunk.decode(rawData, offSet);
-
-			sdesChunks[tmpCount++] = rtcpSdesChunk;
+			addRtcpSdesChunk(rtcpSdesChunk);
+			tmpCount++;
 		}
 		return offSet;
 	}
@@ -78,11 +82,30 @@ public class RtcpSdes extends RtcpHeader {
 	}
 
 	public void addRtcpSdesChunk(RtcpSdesChunk rtcpSdesChunk) {
-		this.sdesChunks[this.count++] = rtcpSdesChunk;
+		if(this.count >= RtcpPacket.MAX_SOURCES) {
+			throw new ArrayIndexOutOfBoundsException("Reached maximum number of chunks: "+ RtcpPacket.MAX_SOURCES);
+		}
+		this.sdesChunks.add(rtcpSdesChunk);
+		this.count++;
 	}
 
 	public RtcpSdesChunk[] getSdesChunks() {
-		return sdesChunks;
+		RtcpSdesChunk[] chunks = new RtcpSdesChunk[this.sdesChunks.size()];
+		return this.sdesChunks.toArray(chunks);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("SDES:\n");
+		builder.append("version= ").append(this.version).append(", ");
+		builder.append("padding= ").append(this.padding).append(", ");
+		builder.append("source count= ").append(this.count).append(", ");
+		builder.append("packet type= ").append(this.packetType).append(", ");
+		builder.append("length= ").append(this.length).append(", ");
+		for (RtcpSdesChunk chunk : this.sdesChunks) {
+			builder.append("\n").append(chunk.toString());
+		}
+		return builder.toString();
 	}
 
 }

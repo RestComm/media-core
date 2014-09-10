@@ -56,9 +56,10 @@ public class RtcpReceiverReport extends RtcpReport {
 
 		int tmpCount = 0;
 		while ((offSet - tmp) < this.length) {
-			RtcpReceiverReportItem rtcpReceptionReportItem = new RtcpReceiverReportItem();
+			RtcpReportBlock rtcpReceptionReportItem = new RtcpReportBlock();
 			offSet = rtcpReceptionReportItem.decode(rawData, offSet);
-			this.receiverReports[tmpCount++] = rtcpReceptionReportItem;
+			addReceiverReport(rtcpReceptionReportItem);
+			tmpCount++;
 		}
 
 		return offSet;
@@ -75,7 +76,7 @@ public class RtcpReceiverReport extends RtcpReport {
 		rawData[offSet++] = ((byte) ((this.ssrc & 0x0000FF00) >> 8));
 		rawData[offSet++] = ((byte) ((this.ssrc & 0x000000FF)));
 
-		for (RtcpReceiverReportItem report : this.receiverReports) {
+		for (RtcpReportBlock report : this.receiverReports) {
 			if (report != null) {
 				offSet = report.encode(rawData, offSet);
 			} else {
@@ -97,4 +98,18 @@ public class RtcpReceiverReport extends RtcpReport {
 		return IS_SENDER;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("RECEIVER REPORT: \n");
+		builder.append("version=").append(this.version).append(", ");
+		builder.append("padding=").append(this.padding).append(", ");
+		builder.append("packet type=").append(this.packetType).append(", ");
+		builder.append("length=").append(this.length).append(", ");
+		builder.append("ssrc=").append(this.ssrc).append("\n");
+		for (RtcpReportBlock rr : this.receiverReports) {
+			builder.append("\n").append(rr.toString());
+		}
+		return builder.toString();
+	}
+	
 }

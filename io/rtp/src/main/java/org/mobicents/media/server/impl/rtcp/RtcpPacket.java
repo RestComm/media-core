@@ -44,7 +44,7 @@ public class RtcpPacket implements Serializable {
 	
 	private RtcpSenderReport senderReport = null;
 	private RtcpReceiverReport receiverReport = null;
-	private RtcpSdes sded = null;
+	private RtcpSdes sdes = null;
 	private RtcpBye bye = null;
 	private RtcpAppDefined appDefined = null;
 	
@@ -58,7 +58,7 @@ public class RtcpPacket implements Serializable {
 	public RtcpPacket(RtcpSenderReport senderReport, RtcpReceiverReport receiverReport, RtcpSdes sdes, RtcpBye bye, RtcpAppDefined appDefined) {
 		this.senderReport = senderReport;
 		this.receiverReport = receiverReport;
-		this.sded = sdes;
+		this.sdes = sdes;
 		this.bye = bye;
 		this.appDefined = appDefined;
 	}
@@ -69,7 +69,7 @@ public class RtcpPacket implements Serializable {
 		} else {
 			this.receiverReport = (RtcpReceiverReport) report;
 		}
-		this.sded = sdes;
+		this.sdes = sdes;
 		this.bye = bye;
 	}
 
@@ -94,8 +94,8 @@ public class RtcpPacket implements Serializable {
 				break;
 			case RtcpHeader.RTCP_SDES:
 				packetCount++;
-				this.sded = new RtcpSdes();
-				offSet = this.sded.decode(rawData, offSet);
+				this.sdes = new RtcpSdes();
+				offSet = this.sdes.decode(rawData, offSet);
 				break;
 			case RtcpHeader.RTCP_APP:
 				packetCount++;
@@ -127,9 +127,9 @@ public class RtcpPacket implements Serializable {
 			packetCount++;
 			offSet = this.receiverReport.encode(rawData, offSet);
 		}
-		if (this.sded != null) {
+		if (this.sdes != null) {
 			packetCount++;
-			offSet = this.sded.encode(rawData, offSet);
+			offSet = this.sdes.encode(rawData, offSet);
 		}
 		if (this.appDefined != null) {
 			packetCount++;
@@ -170,7 +170,7 @@ public class RtcpPacket implements Serializable {
 	}
 
 	public RtcpSdes getSdes() {
-		return sded;
+		return sdes;
 	}
 
 	public RtcpBye getBye() {
@@ -191,5 +191,26 @@ public class RtcpPacket implements Serializable {
 
 	public int getSize() {
 		return size;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		// Print RR/SR
+		RtcpReport report = getReport();
+		if(report != null) {
+			builder.append(report.toString());
+		}
+		// Print SDES if exists
+		if(this.sdes != null) {
+			builder.append(this.sdes.toString());
+		}
+		// Print BYE if exists
+		if(this.bye != null) {
+			builder.append(bye.toString());
+		}
+		
+		return builder.toString();
 	}
 }

@@ -115,10 +115,10 @@ public class RtcpSenderReport extends RtcpReport {
 
 		int tmpCount = 0;
 		while ((offSet - tmp) < this.length) {
-			RtcpReceiverReportItem rtcpReceptionReportItem = new RtcpReceiverReportItem();
+			RtcpReportBlock rtcpReceptionReportItem = new RtcpReportBlock();
 			offSet = rtcpReceptionReportItem.decode(rawData, offSet);
-
-			this.receiverReports[tmpCount++] = rtcpReceptionReportItem;
+			addReceiverReport(rtcpReceptionReportItem);
+			tmpCount++;
 		}
 
 		return offSet;
@@ -159,7 +159,7 @@ public class RtcpSenderReport extends RtcpReport {
 		rawData[offSet++] = ((byte) ((this.osent & 0x0000FF00) >> 8));
 		rawData[offSet++] = ((byte) ((this.osent & 0x000000FF)));
 
-		for (RtcpReceiverReportItem report : this.receiverReports) {
+		for (RtcpReportBlock report : this.receiverReports) {
 			if (report != null) {
 				offSet = report.encode(rawData, offSet);
 			} else {
@@ -199,6 +199,25 @@ public class RtcpSenderReport extends RtcpReport {
 	@Override
 	public boolean isSender() {
 		return IS_SENDER;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("SENDER REPORT:\n");
+		builder.append("version=").append(this.version).append(", ");
+		builder.append("padding=").append(this.padding).append(", ");
+		builder.append("packet type=").append(this.packetType).append(", ");
+		builder.append("length=").append(this.length).append(", ");
+		builder.append("ssrc=").append(this.ssrc).append(", ");
+		builder.append("ntp seconds=").append(this.ntpSec).append(", ");
+		builder.append("ntp fraction=").append(this.ntpFrac).append(", ");
+		builder.append("rtp timestamp=").append(this.rtpTs).append(", ");
+		builder.append("packets sent=").append(this.psent).append(", ");
+		builder.append("octets sent=").append(this.osent).append("\n");
+		for (RtcpReportBlock rr : this.receiverReports) {
+			builder.append("\n").append(rr.toString());
+		}
+		return builder.toString();
 	}
 
 }

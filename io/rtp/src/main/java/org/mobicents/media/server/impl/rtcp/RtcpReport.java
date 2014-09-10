@@ -1,5 +1,8 @@
 package org.mobicents.media.server.impl.rtcp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents an abstraction of an RTCP Report.
  * 
@@ -16,16 +19,16 @@ public abstract class RtcpReport extends RtcpHeader {
 	/**
 	 * Reports coming from other sync sources
 	 */
-	protected RtcpReceiverReportItem[] receiverReports;
+	protected List<RtcpReportBlock> receiverReports;
 	
 	protected RtcpReport() {
-		this.receiverReports = new RtcpReceiverReportItem[RtcpPacket.MAX_SOURCES];
+		this.receiverReports = new ArrayList<RtcpReportBlock>(RtcpPacket.MAX_SOURCES);
 	}
 
 	protected RtcpReport(boolean padding, long ssrc, int packetType) {
 		super(padding, packetType);
 		this.ssrc = ssrc;
-		this.receiverReports = new RtcpReceiverReportItem[RtcpPacket.MAX_SOURCES];
+		this.receiverReports = new ArrayList<RtcpReportBlock>(RtcpPacket.MAX_SOURCES);
 	}
 
 	/**
@@ -39,11 +42,16 @@ public abstract class RtcpReport extends RtcpHeader {
 		return this.ssrc;
 	}
 	
-	public RtcpReceiverReportItem[] getReceiverReports() {
-		return this.receiverReports;
+	public RtcpReportBlock[] getReceiverReports() {
+		RtcpReportBlock[] blocks = new RtcpReportBlock[this.receiverReports.size()];
+		return this.receiverReports.toArray(blocks);
 	}
 
-	public void addReceiverReport(RtcpReceiverReportItem rtcpReceptionReportItem) {
-		this.receiverReports[this.count++] = rtcpReceptionReportItem;
+	public void addReceiverReport(RtcpReportBlock rtcpReceptionReportItem) {
+		if(this.count >= RtcpPacket.MAX_SOURCES) {
+			throw new ArrayIndexOutOfBoundsException("Reached maximum number of items: "+ RtcpPacket.MAX_SOURCES);
+		}
+		this.receiverReports.add(rtcpReceptionReportItem);
+		this.count++;
 	}
 }
