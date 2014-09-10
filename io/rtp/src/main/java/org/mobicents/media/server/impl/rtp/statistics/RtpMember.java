@@ -1,7 +1,5 @@
 package org.mobicents.media.server.impl.rtp.statistics;
 
-import java.util.Arrays;
-
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
@@ -320,7 +318,7 @@ public class RtpMember {
 	
 	public void onReceiveSR(RtcpSenderReport report) {
 		this.lastSrReceivedOn = this.wallClock.getCurrentTime();
-		this.lastSrTimestamp = calculateLastSrTimestamp(report.getNtpSec());
+		this.lastSrTimestamp = calculateLastSrTimestamp(report.getNtpSec(), report.getNtpFrac());
 		this.lastSrSequenceNumber = this.lastSequenceNumber;
 		this.receivedSinceSR = 0;
 	}
@@ -333,47 +331,47 @@ public class RtpMember {
 	 * @return The middle 32 bits out of 64 in the NTP timestamp received as
 	 *         part of the most recent RTCP sender report (SR).
 	 */
-	static long calculateLastSrTimestamp(long ntp) {
-		byte[] ntpWord = toByteArray(ntp);
-		byte[] middleWord = Arrays.copyOfRange(ntpWord, 2, 6);
-		return fromBytes(middleWord);
+	static long calculateLastSrTimestamp(long ntp1, long ntp2) {
+		byte[] high = uIntLongToByteWord(ntp1);
+		byte[] low = uIntLongToByteWord(ntp1);
+		low[3] = low[1];
+		low[2] = low[0];
+		low[1] = high[3];
+		low[0] = high[2];
+		return bytesToUIntLong(low, 0);
 	}
 	
-	/**
-	 * Returns a big-endian representation of {@code value} in an 8-element byte
-	 * array; equivalent to
-	 * {@code ByteBuffer.allocate(8).putLong(value).array()}.
-	 * <p>
-	 * For example, the input value {@code 0x1213141516171819L} would yield the
-	 * byte array {@code 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19}.
-	 * </p>
+	/** 
+	 * Converts an unsigned 32 bit integer, stored in a long, into an array of bytes.
 	 * 
-	 * @param value
-	 *            The 64-bit number to be converted
-	 * @return The byte array representing the number
+	 * @param j a long
+	 * @return byte[4] representing the unsigned integer, most significant bit first. 
 	 */
-	static byte[] toByteArray(long value) {
-	    byte[] result = new byte[8];
-	    for (int i = 7; i >= 0; i--) {
-	      result[i] = (byte) (value & 0xffL);
-	      value >>= 8;
-	    }
-	    return result;
+	static byte[] uIntLongToByteWord(long j) {
+		int i = (int) j;
+		byte[] byteWord = new byte[4];
+		byteWord[0] = (byte) ((i >>> 24) & 0x000000FF);
+		byteWord[1] = (byte) ((i >> 16) & 0x000000FF);
+		byteWord[2] = (byte) ((i >> 8) & 0x000000FF);
+		byteWord[3] = (byte) (i & 0x00FF);
+		return byteWord;
 	}
 	
-	/**
-	 * Returns the {@code long} value whose byte representation is the given 8
-	 * bytes, in big-endian order
+	/** 
+	 * Combines four bytes (most significant bit first) into a 32 bit unsigned integer.
 	 * 
-	 * @param b
-	 *            The byte array to be converted
-	 * @return The 32-bit number that represents the byte array
+	 * @param bytes
+	 * @param index of most significant byte
+	 * @return long with the 32 bit unsigned integer
 	 */
-	static long fromBytes(byte[] b) {
-		return (b[0] & 0xFFL) << 24 
-				| (b[1] & 0xFFL) << 16
-				| (b[2] & 0xFFL) << 8 
-				| (b[3] & 0xFFL);
+	static long bytesToUIntLong(byte[] bytes, int index) {
+		long accum = 0;
+		int i = 3;
+		for (int shiftBy = 0; shiftBy < 32; shiftBy += 8 ) {
+			accum |= ( (long)( bytes[index + i] & 0xff ) ) << shiftBy;
+			i--;
+		}
+		return accum;
 	}
 
 }

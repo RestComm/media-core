@@ -207,7 +207,7 @@ public class RtpMemberTest {
 		this.wallClock.tick(20000000L);
 		
 		// then
-		long expectedSrTimestamp = RtpMember.calculateLastSrTimestamp(ntp.getSeconds());
+		long expectedSrTimestamp = RtpMember.calculateLastSrTimestamp(ntp.getSeconds(), ntp.getFraction());
 		assertEquals(expectedSrTimestamp, member.getLastSR());
 		assertEquals(0, member.getReceivedSinceSR());
 		

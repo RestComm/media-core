@@ -348,7 +348,7 @@ public class RtcpHandler implements PacketHandler {
 		}
 		
 		// Trace incoming RTCP report
-		logger.info(rtcpPacket.toString());
+		logger.info("\nINCOMING "+ rtcpPacket.toString());
 		
 		// Upgrade RTCP statistics
 		this.statistics.onRtcpReceive(rtcpPacket);
@@ -399,7 +399,7 @@ public class RtcpHandler implements PacketHandler {
 			this.byteBuffer.flip();
 			
 			// trace outgoing RTCP report
-			logger.info(packet.toString());
+			logger.info("\nOUTGOING "+ packet.toString());
 			
 			// update RTCP statistics
 			this.statistics.onRtcpSent(packet);
