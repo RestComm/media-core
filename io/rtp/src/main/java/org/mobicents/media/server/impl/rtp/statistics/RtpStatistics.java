@@ -13,6 +13,8 @@ import org.mobicents.media.server.impl.rtcp.RtcpReport;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
+import org.mobicents.media.server.impl.rtp.RtpTimestampProvider;
+import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.scheduler.Clock;
 
 /**
@@ -56,6 +58,7 @@ public class RtpStatistics {
 	private final RtpClock rtpClock;
 	private final Clock wallClock;
 	private final Random random;
+	private RtpTimestampProvider rtpTimer;
 
 	/* SSRC Data */
 	private long ssrc;
@@ -104,7 +107,7 @@ public class RtpStatistics {
 		// Common
 		this.rtpClock = clock;
 		this.wallClock = clock.getWallClock();
-		this.ssrc = System.currentTimeMillis();
+		this.ssrc = SsrcGenerator.generateSsrc();
 		this.cname = cname;
 		this.random = new Random();
 
@@ -169,6 +172,14 @@ public class RtpStatistics {
 	public long getCurrentTime() {
 		return this.wallClock.getCurrentTime();
 	}
+	
+	public RtpTimestampProvider getRtpTimer() {
+		return rtpTimer;
+	}
+	
+	public void setRtpTimer(RtpTimestampProvider rtpTimer) {
+		this.rtpTimer = rtpTimer;
+	}
 
 	/**
 	 * Gets the SSRC of the RTP Channel
@@ -177,11 +188,6 @@ public class RtpStatistics {
 	 */
 	public long getSsrc() {
 		return ssrc;
-	}
-
-	public void setSsrc(long ssrc) {
-		// TODO check specs to know what to do when the SSRC changes
-		this.ssrc = ssrc;
 	}
 
 	/**

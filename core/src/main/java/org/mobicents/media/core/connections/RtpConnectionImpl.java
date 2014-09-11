@@ -417,7 +417,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 	}
 	
 	public boolean isAvailable() {
-		return rtpAudioChannel.isAvailable();
+		return rtpAudioChannel.isAvailable() && rtcpAudioChannel.isAvailable() ;
 	}
 
 	@Override

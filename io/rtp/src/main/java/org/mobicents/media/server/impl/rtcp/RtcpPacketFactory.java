@@ -64,7 +64,7 @@ public class RtcpPacketFactory {
 		TimeStamp ntpTs = new TimeStamp(new Date(statistics.getCurrentTime()));
 		long ntpSec = ntpTs.getSeconds();
 		long ntpFrac = ntpTs.getFraction();
-		long rtpTs = statistics.getRtpTime();
+		long rtpTs = statistics.getRtpTimer().getRtpTimestamp();
 		long psent = statistics.getRtpPacketsSent();
 		long osent = statistics.getRtpOctetsSent();
 		

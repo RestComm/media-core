@@ -43,12 +43,10 @@ public class CnameGenerator {
 	public static String generateCname() {
 		// generate unique identifier
 		UUID uuid = UUID.randomUUID();
-		
 		// get the 64 least significant bits 
 		long leastSignificantBits = uuid.getLeastSignificantBits();
 		// get the 64 most significant bits 
 		long mostSignificantBits = uuid.getMostSignificantBits();
-		
 		
 		// convert the 128 bits to byte array
 		// note: 128 / 8 = 16 bytes

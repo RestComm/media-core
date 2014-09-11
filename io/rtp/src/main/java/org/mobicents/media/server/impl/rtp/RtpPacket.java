@@ -467,18 +467,6 @@ public class RtpPacket implements Serializable {
     }
     
     /**
-     * Get SRTCP sequence number from a SRTCP packet
-     *
-     * @param authTagLen authentication tag length
-     * @return SRTCP sequence num from source packet
-     */
-    public int getSRTCPIndex(int authTagLen)
-    {
-        int offset = getLength() - (4 + authTagLen);
-        return buffer.getInt(offset);
-    }
-    
-    /**
      * Grow the internal packet buffer.
      *
      * This will change the data buffer of this packet but not the

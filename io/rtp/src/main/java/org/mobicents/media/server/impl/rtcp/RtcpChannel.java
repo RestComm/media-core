@@ -92,6 +92,16 @@ public class RtcpChannel extends MultiplexedChannel {
 			}
 		}
 	}
+	
+	public boolean isAvailable() {
+		// The channel is available is is connected
+		boolean available = this.channel != null && this.channel.isConnected();
+		// In case of WebRTC calls the DTLS handshake must be completed
+		if(this.secure) {
+			available = available && this.dtlsHandler.isHandshakeComplete();
+		}
+		return available;
+	}
 
 	public boolean isBound() {
 		return bound;

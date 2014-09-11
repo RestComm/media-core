@@ -50,7 +50,7 @@ public class RtcpHandler implements PacketHandler {
 	/** Flag that is true once the handler joined an RTP session */
 	private boolean joined;
 	
-	/** Checks whether communitcation of this channel is secure. WebRTC calls only. */
+	/** Checks whether communication of this channel is secure. WebRTC calls only. */
 	private boolean secure;
 	
 	/** Handles the DTLS handshake and encodes/decodes secured packets. For WebRTC calls only. */
