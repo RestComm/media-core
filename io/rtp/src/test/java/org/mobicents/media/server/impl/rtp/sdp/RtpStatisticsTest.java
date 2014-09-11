@@ -30,6 +30,7 @@ import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 public class RtpStatisticsTest {
 	
 	private final String CNAME = "127.0.0.1";
+	private final long SSRC = 123456789L;
 	
 	private final WallTestClock wallClock;
 	private final RtpClock rtpClock;
@@ -43,7 +44,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testInitialization() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 
 		// then
 		assertTrue(stats.getSsrc() > 0);
@@ -65,7 +66,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testOnRtpSent() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 		RtpPacket p1 = new RtpPacket(172, false);
 		RtpPacket p2 = new RtpPacket(172, false);
 		p1.wrap(false, 8, 1, 160 * 1, stats.getSsrc(), new byte[160], 0, 160);
@@ -88,7 +89,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testOnRtpReceive() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 		RtpPacket p1 = new RtpPacket(172, false);
 		RtpPacket p2 = new RtpPacket(172, false);
 		p1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
@@ -118,7 +119,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testOnRtcpSent() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 		RtcpPacket p1 = RtcpPacketFactory.buildReport(stats);
 		RtcpPacket p2 = RtcpPacketFactory.buildReport(stats);
 		
@@ -142,7 +143,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testOnRtcpReceiveReport() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 		double initialAvgSize = stats.getRtcpAvgSize();
 		stats.setRtcpPacketType(RtcpPacketType.RTCP_REPORT);
 		
@@ -183,7 +184,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testOnRtcpReceiveReportWithByeScheduled() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 		double initialAvgSize = stats.getRtcpAvgSize();
 		stats.setRtcpPacketType(RtcpPacketType.RTCP_BYE);
 		
@@ -230,7 +231,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testOnRtcpReceiveBye() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 		double initialAvgSize = stats.getRtcpAvgSize();
 		stats.setRtcpPacketType(RtcpPacketType.RTCP_REPORT);
 		
@@ -287,7 +288,7 @@ public class RtpStatisticsTest {
 	@Test
 	public void testOnRtcpReceiveByeWithByeScheduled() {
 		// given
-		RtpStatistics stats = new RtpStatistics(rtpClock, CNAME);
+		RtpStatistics stats = new RtpStatistics(rtpClock, SSRC, CNAME);
 		double initialAvgSize = stats.getRtcpAvgSize();
 		stats.setRtcpPacketType(RtcpPacketType.RTCP_REPORT);
 		

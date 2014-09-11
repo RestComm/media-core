@@ -50,6 +50,7 @@ import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RTPChannelListener;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -86,6 +87,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 	private final Scheduler scheduler;
 	
 	// RTP session elements
+	private final long ssrc;
 	private final String cname;
 	
 	// Audio Channel
@@ -132,12 +134,13 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		this.scheduler = channelsManager.getScheduler();
 		
 		// RTP session elements
+		this.ssrc = SsrcGenerator.generateSsrc();
 		this.cname = CnameGenerator.generateCname();
 		
 		// Audio Channel
 		this.audioClock = new RtpClock(this.scheduler.getClock());
 		this.audioOobClock = new RtpClock(this.scheduler.getClock());
-		this.audioStatistics = new RtpStatistics(this.audioClock, this.cname);
+		this.audioStatistics = new RtpStatistics(this.audioClock, this.ssrc, this.cname);
 		this.rtpAudioChannel = channelsManager.getRtpChannel(audioStatistics, audioClock, audioOobClock);
 		this.rtpAudioChannel.setRtpChannelListener(this);
 		try {
@@ -564,6 +567,8 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		this.answerTemplate.setConnectionAddress(bindAddress);
 		// XXX hardcoded fake connection mode!!! - hrosa
 		this.answerTemplate.setConnectionMode("sendrecv");
+		this.answerTemplate.setSsrc(this.ssrc);
+		this.answerTemplate.setCname(this.cname);
 
 		// Media Descriptors
 		this.answerTemplate.setSupportedAudioFormats(this.audioFormats);

@@ -51,6 +51,8 @@ public class SdpTemplate {
     private int videoPort = 0;
     private int applicationPort = 0;
     private String connectionMode = "";
+    private long ssrc = 0;
+    private String cname="";
     
 	/*
 	 * Supported formats to build the final template.
@@ -130,7 +132,7 @@ public class SdpTemplate {
     		boolean audioSupported = isAudioSupported();
     		int rtpPort = audioSupported ? this.rtpAudioPort : 0;
     		int rtcpPort = audioSupported ? this.rtcpAudioPort : 0;
-    		builder.append(String.format(this.audioTemplate, rtpPort, rtcpPort));
+    		builder.append(String.format(this.audioTemplate, rtpPort, rtcpPort, ssrc, cname));
     	}
     	// Write video descriptor
     	if(this.offeredVideoFormats != null) {
@@ -176,6 +178,14 @@ public class SdpTemplate {
     
     public void setConnectionMode(String connectionMode) {
 		this.connectionMode = connectionMode;
+	}
+    
+    public void setSsrc(long ssrc) {
+		this.ssrc = ssrc;
+	}
+    
+    public void setCname(String cname) {
+		this.cname = cname;
 	}
     
     public void setSupportedAudioFormats(RTPFormats supported) {
@@ -426,6 +436,7 @@ public class SdpTemplate {
             builder.append(String.format("a=%s\n", this.connectionMode));
             builder.append(getSdpSessionSetupAttribute());
             builder.append(getExtendedAudioAttributes()).append("\n");
+            builder.append("a=ssrc:%d cname:%s").append("\n");
         } else {
         	builder.append(payloads(this.offeredAudioFormats)).append("\n");
         }

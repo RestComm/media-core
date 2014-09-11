@@ -11,6 +11,7 @@ import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.impl.rtcp.RtcpReport;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
+import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.RtpTimestampProvider;
@@ -103,11 +104,11 @@ public class RtpStatistics {
 	private final List<Long> sendersList;
 	private int senders;
 
-	public RtpStatistics(final RtpClock clock, final String cname) {
+	public RtpStatistics(final RtpClock clock, final long ssrc, final String cname) {
 		// Common
 		this.rtpClock = clock;
 		this.wallClock = clock.getWallClock();
-		this.ssrc = SsrcGenerator.generateSsrc();
+		this.ssrc = ssrc;
 		this.cname = cname;
 		this.random = new Random();
 
@@ -132,7 +133,7 @@ public class RtpStatistics {
 	}
 	
 	public RtpStatistics(final RtpClock clock) {
-		this(clock, "");
+		this(clock, SsrcGenerator.generateSsrc(), CnameGenerator.generateCname());
 	}
 
 	/**
