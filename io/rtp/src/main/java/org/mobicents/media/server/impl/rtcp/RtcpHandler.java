@@ -381,7 +381,8 @@ public class RtcpHandler implements PacketHandler {
 		if (this.channel != null && channel.isOpen() && channel.isConnected()) {
 			// decode packet
 			byte[] data = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
-			int dataLength = packet.encode(data, 0);
+			packet.encode(data, 0);
+			int dataLength = packet.getSize();
 			
 			// If channel is secure, convert RTCP packet to SRTCP. WebRTC calls only.
 			if(this.secure) {
@@ -394,9 +395,11 @@ public class RtcpHandler implements PacketHandler {
 			}
 
 			// prepare buffer
-			this.byteBuffer.clear();
-			this.byteBuffer.put(data, 0, dataLength);
-			this.byteBuffer.flip();
+			byteBuffer.clear();
+			byteBuffer.rewind();
+			byteBuffer.put(data, 0, dataLength);
+			byteBuffer.flip();
+			byteBuffer.rewind();
 			
 			// trace outgoing RTCP report
 			logger.info("\nOUTGOING "+ packet.toString());
