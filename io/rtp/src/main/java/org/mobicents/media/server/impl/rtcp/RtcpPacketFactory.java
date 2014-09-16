@@ -109,9 +109,9 @@ public class RtcpPacketFactory {
 		RtcpSdes sdes = new RtcpSdes(padding);
 		RtcpSdesChunk chunk = new RtcpSdesChunk(statistics.getSsrc());
 		RtcpSdesItem cname = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_CNAME, statistics.getCname());
-		RtcpSdesItem end = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_END, "");
+//		RtcpSdesItem end = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_END, null);
 		chunk.addRtcpSdesItem(cname);
-		chunk.addRtcpSdesItem(end);
+//		chunk.addRtcpSdesItem(end);
 		sdes.addRtcpSdesChunk(chunk);
 		
 		return sdes;

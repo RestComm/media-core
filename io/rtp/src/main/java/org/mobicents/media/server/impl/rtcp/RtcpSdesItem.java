@@ -87,18 +87,12 @@ public class RtcpSdesItem {
 	}
 
 	protected int encode(byte[] rawData, int offSet) {
-
 		byte[] textData = this.text.getBytes();
 		this.length = (short) textData.length;
-
 		rawData[offSet++] = ((byte) ((this.type & 0x000000FF)));
-
 		rawData[offSet++] = ((byte) ((this.length & 0x000000FF)));
-
 		System.arraycopy(textData, 0, rawData, offSet, this.length);
-
 		return (offSet + this.length);
-
 	}
 
 	public int getType() {

@@ -54,7 +54,7 @@ public class RtcpSdes extends RtcpHeader {
 		while ((offSet - tmp) < this.length) {
 			RtcpSdesChunk rtcpSdesChunk = new RtcpSdesChunk();
 			offSet = rtcpSdesChunk.decode(rawData, offSet);
-			addRtcpSdesChunk(rtcpSdesChunk);
+			this.sdesChunks.add(rtcpSdesChunk);
 			tmpCount++;
 		}
 		return offSet;

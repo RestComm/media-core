@@ -167,7 +167,7 @@ public class RtcpSenderReport extends RtcpReport {
 			}
 		}
 
-		/* Reduce 4 octest of header and length is in terms 32bits word */
+		/* Reduce 4 octets of header and length is in terms 32bits word */
 		this.length = (offSet - startPosition - 4) / 4;
 
 		rawData[startPosition + 2] = ((byte) ((this.length & 0xFF00) >> 8));

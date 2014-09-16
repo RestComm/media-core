@@ -69,7 +69,7 @@ public class SRTCPTransformer implements PacketTransformer {
     	this.packet.wrap(pkt, offset, length);
     	
     	// Associate the packet with its encryption context
-        long ssrc = this.packet.getSSRC();
+        long ssrc = this.packet.getRTCPSSRC();
         SRTCPCryptoContext context = contexts.get(ssrc);
 
         if (context == null) {
