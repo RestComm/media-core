@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.impl.rtcp.RtcpReport;
+import org.mobicents.media.server.impl.rtcp.RtcpReportBlock;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpClock;
@@ -629,8 +630,18 @@ public class RtpStatistics {
 			}
 			
 			// Receiving an SR has impact on the statistics of the member
-			if(report.isSender() && member != null) {
+			if(rtcpPacket.isSender() && member != null) {
 				member.onReceiveSR((RtcpSenderReport) report);
+			}
+			
+			// Estimate Round Trip propagation Delay for remaining members
+			RtcpReportBlock[] reportBlocks = report.getReportBlocks();
+			for (RtcpReportBlock reportBlock : reportBlocks) {
+				RtpMember receiver = getMember(reportBlock.getSsrc());
+				if(receiver != null) {
+					receiver.onReceiveReportBlock(reportBlock);
+					logger.info("\n\nROUND TRIP DELAY (ssrc="+receiver.getSsrc()+", rtt="+ receiver.getRoundTripDelay()+")\n\n");
+				}
 			}
 
 			break;

@@ -19,16 +19,16 @@ public abstract class RtcpReport extends RtcpHeader {
 	/**
 	 * Reports coming from other sync sources
 	 */
-	protected List<RtcpReportBlock> receiverReports;
+	protected List<RtcpReportBlock> reportBlocks;
 	
 	protected RtcpReport() {
-		this.receiverReports = new ArrayList<RtcpReportBlock>(RtcpPacket.MAX_SOURCES);
+		this.reportBlocks = new ArrayList<RtcpReportBlock>(RtcpPacket.MAX_SOURCES);
 	}
 
 	protected RtcpReport(boolean padding, long ssrc, int packetType) {
 		super(padding, packetType);
 		this.ssrc = ssrc;
-		this.receiverReports = new ArrayList<RtcpReportBlock>(RtcpPacket.MAX_SOURCES);
+		this.reportBlocks = new ArrayList<RtcpReportBlock>(RtcpPacket.MAX_SOURCES);
 	}
 
 	/**
@@ -42,16 +42,25 @@ public abstract class RtcpReport extends RtcpHeader {
 		return this.ssrc;
 	}
 	
-	public RtcpReportBlock[] getReceiverReports() {
-		RtcpReportBlock[] blocks = new RtcpReportBlock[this.receiverReports.size()];
-		return this.receiverReports.toArray(blocks);
+	public RtcpReportBlock[] getReportBlocks() {
+		RtcpReportBlock[] blocks = new RtcpReportBlock[this.reportBlocks.size()];
+		return this.reportBlocks.toArray(blocks);
+	}
+	
+	public RtcpReportBlock getReportBlock(long ssrc) {
+		for (RtcpReportBlock report : this.reportBlocks) {
+			if(report.getSsrc() == ssrc) {
+				return report;
+			}
+		}
+		return null;
 	}
 
 	public void addReceiverReport(RtcpReportBlock rtcpReceptionReportItem) {
 		if(this.count >= RtcpPacket.MAX_SOURCES) {
 			throw new ArrayIndexOutOfBoundsException("Reached maximum number of items: "+ RtcpPacket.MAX_SOURCES);
 		}
-		this.receiverReports.add(rtcpReceptionReportItem);
+		this.reportBlocks.add(rtcpReceptionReportItem);
 		this.count++;
 	}
 }

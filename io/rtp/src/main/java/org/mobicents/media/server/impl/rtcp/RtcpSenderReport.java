@@ -159,7 +159,7 @@ public class RtcpSenderReport extends RtcpReport {
 		rawData[offSet++] = ((byte) ((this.osent & 0x0000FF00) >> 8));
 		rawData[offSet++] = ((byte) ((this.osent & 0x000000FF)));
 
-		for (RtcpReportBlock report : this.receiverReports) {
+		for (RtcpReportBlock report : this.reportBlocks) {
 			if (report != null) {
 				offSet = report.encode(rawData, offSet);
 			} else {
@@ -214,7 +214,7 @@ public class RtcpSenderReport extends RtcpReport {
 		builder.append("rtp timestamp=").append(this.rtpTs).append(", ");
 		builder.append("packets sent=").append(this.psent).append(", ");
 		builder.append("octets sent=").append(this.osent).append("\n");
-		for (RtcpReportBlock rr : this.receiverReports) {
+		for (RtcpReportBlock rr : this.reportBlocks) {
 			builder.append("\n").append(rr.toString());
 		}
 		return builder.toString();

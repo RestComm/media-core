@@ -79,7 +79,7 @@ public class RtcpReceiverReportTest {
 
 		assertEquals(233393951, rtcpReceptionReport.getSsrc());
 
-		RtcpReportBlock rtcpReceptionReportItem = rtcpReceptionReport.getReceiverReports()[0];
+		RtcpReportBlock rtcpReceptionReportItem = rtcpReceptionReport.getReportBlocks()[0];
 
 		assertNotNull(rtcpReceptionReportItem);
 

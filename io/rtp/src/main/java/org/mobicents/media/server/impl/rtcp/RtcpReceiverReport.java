@@ -76,7 +76,7 @@ public class RtcpReceiverReport extends RtcpReport {
 		rawData[offSet++] = ((byte) ((this.ssrc & 0x0000FF00) >> 8));
 		rawData[offSet++] = ((byte) ((this.ssrc & 0x000000FF)));
 
-		for (RtcpReportBlock report : this.receiverReports) {
+		for (RtcpReportBlock report : this.reportBlocks) {
 			if (report != null) {
 				offSet = report.encode(rawData, offSet);
 			} else {
@@ -106,7 +106,7 @@ public class RtcpReceiverReport extends RtcpReport {
 		builder.append("packet type=").append(this.packetType).append(", ");
 		builder.append("length=").append(this.length).append(", ");
 		builder.append("ssrc=").append(this.ssrc).append("\n");
-		for (RtcpReportBlock rr : this.receiverReports) {
+		for (RtcpReportBlock rr : this.reportBlocks) {
 			builder.append("\n").append(rr.toString());
 		}
 		return builder.toString();

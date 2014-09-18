@@ -1,5 +1,9 @@
 package org.mobicents.media.server.impl.rtp.statistics;
 
+import java.util.Date;
+
+import org.apache.commons.net.ntp.TimeStamp;
+import org.mobicents.media.server.impl.rtcp.RtcpReportBlock;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
@@ -25,6 +29,7 @@ public class RtpMember {
 	private long receivedPackets;
 	private long receivedOctets;
 	private long receivedSinceSR;
+	private long roundTripDelay;
 	private long lastPacketReceivedOn;
 	private long firstSequenceNumber;
 	private long lastSequenceNumber;
@@ -71,6 +76,7 @@ public class RtpMember {
 		this.lastSrTimestamp = 0;
 		this.lastSrReceivedOn = -1;
 		this.lastSrSequenceNumber = -1;
+		this.roundTripDelay = 0;
 	}
 
 	public RtpMember(RtpClock clock, long ssrc) {
@@ -251,6 +257,17 @@ public class RtpMember {
 	protected long getExtHighSequence() {
 		return (65536 * this.sequenceCycle + this.lastSequenceNumber);
 	}
+	
+	public int getRoundTripDelay() {
+		if(this.roundTripDelay > 0) {
+			if(this.roundTripDelay > 4294967L) {
+				return 65536;
+			} else {
+				return (int) ((this.roundTripDelay * 1000L) >> 16);
+			}
+		}
+		return 0;
+	}
 
 	/**
 	 * Calculates interarrival jitter interval.
@@ -284,6 +301,18 @@ public class RtpMember {
 	
     private void initJitter(RtpPacket packet) {
         this.currentTransit = rtpClock.getLocalRtpTime() - packet.getTimestamp();
+    }
+    
+    public void estimateRtt(long lastSR, long delaySinceSR) {
+    	TimeStamp ntp = new TimeStamp(new Date(System.currentTimeMillis()));
+    	long currTime = calculateLastSrTimestamp(ntp.getSeconds(), ntp.getFraction());
+    	this.roundTripDelay = currTime - lastSR - delaySinceSR;
+    }
+    
+    public void onReceiveReportBlock(RtcpReportBlock reportBlock) {
+		if (reportBlock.getSsrc() == this.ssrc) {
+			estimateRtt(reportBlock.getLsr(), reportBlock.getDlsr());
+		}
     }
 
 	public void onReceiveRtp(RtpPacket packet) {
