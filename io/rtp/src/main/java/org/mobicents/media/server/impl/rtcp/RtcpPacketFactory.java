@@ -211,4 +211,17 @@ public class RtcpPacketFactory {
 		// Build the compound packet
 		return new RtcpPacket(report, sdes, bye);
 	}
+	
+	public static RtcpPacket buildPacket(RtcpPacketType packetType, RtpStatistics statistics) {
+		switch (packetType) {
+		case RTCP_REPORT:
+			return buildReport(statistics);
+			
+		case RTCP_BYE:
+			return buildBye(statistics);
+
+		default:
+			throw new IllegalArgumentException("Unsupported RTCP packet type.");
+		}
+	}
 }

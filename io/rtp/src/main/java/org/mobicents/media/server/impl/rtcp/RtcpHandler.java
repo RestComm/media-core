@@ -122,10 +122,8 @@ public class RtcpHandler implements PacketHandler {
 		if(!this.joined) {
 			// Schedule first RTCP packet
 			long t = this.statistics.rtcpInterval(this.initial);
-			RtcpPacket report = RtcpPacketFactory.buildReport(this.statistics);
-			
 			this.tn = this.statistics.getCurrentTime() + t;
-			schedule(this.tn, report);
+			schedule(this.tn, RtcpPacketType.RTCP_REPORT);
 			
 			// Start SSRC timeout timer
 			this.ssrcTimer.scheduleAtFixedRate(this.ssrcTask, SSRC_TASK_DELAY, SSRC_TASK_DELAY);
@@ -142,9 +140,6 @@ public class RtcpHandler implements PacketHandler {
 			this.ssrcTimer.cancel();
 			this.ssrcTimer.purge();
 			
-			// Create a RTCP BYE packet to be scheduled
-			RtcpPacket bye = RtcpPacketFactory.buildBye(this.statistics);
-
 			/*
 			 * When the participant decides to leave the system, tp is reset to tc,
 			 * the current time, members and pmembers are initialized to 1, initial
@@ -158,11 +153,10 @@ public class RtcpHandler implements PacketHandler {
 			this.statistics.resetMembers();
 			this.initial = true;
 			this.statistics.clearSenders();
-			this.statistics.setRtcpAvgSize(bye.getSize());
 
 			long t = this.statistics.rtcpInterval(initial);
 			this.tn = resolveDelay(t);
-			schedule(this.tn, bye);
+			schedule(this.tn, RtcpPacketType.RTCP_BYE);
 			
 			this.joined = false;
 		}
@@ -176,13 +170,13 @@ public class RtcpHandler implements PacketHandler {
 	 * @param packet
 	 *            The RTCP packet to be sent when the timer expires
 	 */
-	private void schedule(long timestamp, RtcpPacket packet) {
+	private void schedule(long timestamp, RtcpPacketType packetType) {
 		// Create the task and schedule it
 		long interval = resolveInterval(timestamp);
-		this.scheduledTask = new TxTask(packet);
+		this.scheduledTask = new TxTask(packetType);
 		this.txTimer.schedule(this.scheduledTask, interval);
 		// Let the RTP handler know what is the type of scheduled packet
-		this.statistics.setRtcpPacketType(packet.getPacketType());
+		this.statistics.setRtcpPacketType(packetType);
 	}
 
 	/**
@@ -227,15 +221,15 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private void onExpire(TxTask task) throws IOException {
 		long tc = this.statistics.getCurrentTime();
-		switch (task.getType()) {
+		switch (task.getPacketType()) {
 		case RTCP_REPORT:
 			long t = this.statistics.rtcpInterval(this.initial);
 			this.tn = this.tp + t;
 
 			if (this.tn <= tc) {
 				// Send currently scheduled packet and update statistics
-				RtcpPacket packet = task.getPacket();
-				sendRtcpPacket(packet);
+				RtcpPacket report = RtcpPacketFactory.buildReport(statistics);
+				sendRtcpPacket(report);
 
 				this.tp = tc;
 
@@ -249,13 +243,11 @@ public class RtcpHandler implements PacketHandler {
 				this.tn = tc + t;
 				
 				// schedule next packet
-				RtcpPacket nextPacket = RtcpPacketFactory.buildReport(this.statistics);
-				schedule(this.tn, nextPacket);
+				schedule(this.tn, RtcpPacketType.RTCP_REPORT);
 				initial = false;
 			} else {
 				// Schedule next packet
-				RtcpPacket nextPacket = RtcpPacketFactory.buildReport(this.statistics);
-				schedule(tn, nextPacket);
+				schedule(tn, RtcpPacketType.RTCP_REPORT);
 			}
 
 			this.statistics.confirmMembers();
@@ -271,14 +263,19 @@ public class RtcpHandler implements PacketHandler {
 
 			if (this.tn <= tc) {
 				// Send BYE and stop scheduling further packets
-				sendRtcpPacket(task.getPacket());
+				RtcpPacket bye = RtcpPacketFactory.buildBye(statistics);
+				
+				// Set the avg_packet_size to the size of the compound BYE packet
+				this.statistics.setRtcpAvgSize(bye.getSize());
+				
+				// Send the BYE and close channel
+				sendRtcpPacket(bye);
 				stop();
 				closeChannel();
 				return;
 			} else {
 				// Delay BYE
-				RtcpPacket nextPacket = RtcpPacketFactory.buildBye(this.statistics);
-				schedule(this.tn, nextPacket);
+				schedule(this.tn, RtcpPacketType.RTCP_BYE);
 			}
 			break;
 
@@ -354,7 +351,7 @@ public class RtcpHandler implements PacketHandler {
 		this.statistics.onRtcpReceive(rtcpPacket);
 
 		if(RtcpPacketType.RTCP_BYE.equals(rtcpPacket.getPacketType())) {
-			if(RtcpPacketType.RTCP_REPORT.equals(this.scheduledTask.getType())) {
+			if(RtcpPacketType.RTCP_REPORT.equals(this.scheduledTask.getPacketType())) {
 				/*
 				 * To make the transmission rate of RTCP packets more adaptive
 				 * to changes in group membership, the following "reverse
@@ -458,18 +455,14 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private class TxTask extends TimerTask {
 
-		private final RtcpPacket packet;
+		private final RtcpPacketType packetType;
 
-		public TxTask(RtcpPacket packet) {
-			this.packet = packet;
+		public TxTask(RtcpPacketType packetType) {
+			this.packetType = packetType;
 		}
 
-		public RtcpPacket getPacket() {
-			return this.packet;
-		}
-
-		public RtcpPacketType getType() {
-			return this.packet.getPacketType();
+		public RtcpPacketType getPacketType() {
+			return this.packetType;
 		}
 
 		@Override
