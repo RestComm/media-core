@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.impl.srtp.DtlsListener;
 import org.mobicents.media.server.impl.stun.StunHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
@@ -21,7 +22,7 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class RtcpChannel extends MultiplexedChannel {
+public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 
 	private static final Logger logger = Logger.getLogger(RtcpChannel.class);
 
@@ -111,12 +112,15 @@ public class RtcpChannel extends MultiplexedChannel {
 		// Protocol Handler pipeline
 		this.rtcpHandler.setChannel(this.channel);
 		this.handlers.addHandler(this.rtcpHandler);
-		this.rtcpHandler.joinRtpSession();
-		
+
 		if(this.secure) {
 			this.dtlsHandler.setChannel(this.channel);
+			this.dtlsHandler.addListener(this);
 			this.stunHandler.setChannel(this.channel);
 			this.handlers.addHandler(this.stunHandler);
+			
+			// Start DTLS handshake
+			this.dtlsHandler.handshake();
 		}
 	}
 
@@ -200,21 +204,6 @@ public class RtcpChannel extends MultiplexedChannel {
 		return new Text("");
 	}
 	
-	
-	@Override
-	public void receive() throws IOException {
-		// Make sure the DTLS handshake is complete for WebRTC calls
-		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
-			// TODO Need to implement own DTLS handler and drop bouncy castle implementation!
-			if(!this.dtlsHandler.isHandshaking()) {
-				this.dtlsHandler.handshake();
-			}
-		} else {
-			// Receive traffic normally through the multiplexed channel
-			super.receive();
-		}
-	}
-	
 	@Override
 	public void close() {
 		/*
@@ -228,4 +217,15 @@ public class RtcpChannel extends MultiplexedChannel {
 		this.rtcpHandler.leaveRtpSession();
 	}
 
+	
+	public void onDtlsHandshakeComplete() {
+		logger.info("DTLS handshake completed for RTCP candidate.\nJoining RTP session.");
+		this.rtcpHandler.joinRtpSession();
+	}
+
+	public void onDtlsHandshakeFailed(Throwable e) {
+		logger.error("DTLS handshake failed for RTCP candidate. Reason: "+ e.getMessage(), e);
+		// TODO close channel
+	}
+	
 }

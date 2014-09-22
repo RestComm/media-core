@@ -321,14 +321,15 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
-		if (!canHandle(packet, dataLength, offset)) {
-			logger.warn("Cannot handle incoming packet!");
-			throw new PacketHandlerException("Cannot handle incoming packet");
-		}
-		
 		// Do NOT handle data while DTLS handshake is ongoing. WebRTC calls only.
 		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return null;
+		}
+
+		// Check if incoming packet is supported by the handler
+		if (!canHandle(packet, dataLength, offset)) {
+			logger.warn("Cannot handle incoming packet!");
+			throw new PacketHandlerException("Cannot handle incoming packet");
 		}
 		
 		// Decode the RTCP compound packet
@@ -375,34 +376,36 @@ public class RtcpHandler implements PacketHandler {
 	}
 
 	private void sendRtcpPacket(RtcpPacket packet) throws IOException {
+		// DO NOT attempt to send packet while DTLS handshake is ongoing
+		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
+			return;
+		}
+		
 		if (this.channel != null && channel.isOpen() && channel.isConnected()) {
 			// decode packet
-			byte[] data = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
-			packet.encode(data, 0);
+			byte[] originalData = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
+			packet.encode(originalData, 0);
 			int dataLength = packet.getSize();
 			
 			// If channel is secure, convert RTCP packet to SRTCP. WebRTC calls only.
+			byte[] encodedData = null;
 			if(this.secure) {
-				// Skip RTCP packets until DTLS handshake is complete
-				if(!this.dtlsHandler.isHandshakeComplete()) {
-					return;
-				}
-				data = this.dtlsHandler.encodeRTCP(data, 0, dataLength);
-				dataLength = data.length;
+				encodedData = this.dtlsHandler.encodeRTCP(originalData, 0, dataLength);
+				dataLength = encodedData.length;
 			}
 
 			// prepare buffer
 			byteBuffer.clear();
 			byteBuffer.rewind();
-			byteBuffer.put(data, 0, dataLength);
+			byteBuffer.put(originalData, 0, dataLength);
 			byteBuffer.flip();
 			byteBuffer.rewind();
 			
-			// trace outgoing RTCP report
-			logger.info("\nOUTGOING "+ packet.toString());
-			
 			// update RTCP statistics
 			this.statistics.onRtcpSent(packet);
+
+			// trace outgoing RTCP report
+			logger.info("\nOUTGOING "+ packet.toString());
 
 			// send packet
 			this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());

@@ -40,7 +40,7 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	
 	// WebRTC
 	private DtlsHandler dtlsHandler;
-	private boolean srtp;
+	private boolean secure;
 
 	// Details of a transmitted packet
 	private RTPFormats formats;
@@ -60,7 +60,7 @@ public class RtpTransmitter implements RtpTimestampProvider {
 		this.dtmfTimestamp = -1;
 		this.timestamp = -1;
 		this.formats = null;
-		this.srtp = false;
+		this.secure = false;
 	}
 	
 	public void setFormatMap(final RTPFormats rtpFormats) {
@@ -85,7 +85,7 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	}
 	
 	public void enableSrtp(final DtlsHandler handler) {
-		this.srtp = true;
+		this.secure = true;
 		this.dtlsHandler = handler;
 	}
 	
@@ -130,14 +130,14 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	
 	private void send(RtpPacket packet) throws IOException {
 		// Do not send data while DTLS handshake is ongoing. WebRTC calls only.
-		if(this.srtp && !this.dtlsHandler.isHandshakeComplete()) {
+		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return;
 		}
 		
 		// Secure RTP packet. WebRTC calls only. 
 		// SRTP handler returns null if an error occurs
 		ByteBuffer buffer = packet.getBuffer();
-		if (this.srtp) {
+		if (this.secure) {
 			byte[] rtpData = new byte[buffer.limit()];
 			buffer.get(rtpData, 0, rtpData.length);
 			byte[] srtpData = this.dtlsHandler.encodeRTP(rtpData, 0, rtpData.length);

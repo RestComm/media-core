@@ -108,7 +108,7 @@ public class RtcpPacket implements Serializable {
 				offSet = this.bye.decode(rawData, offSet);
 				break;
 			default:				
-				logger.error("Received type = "+type+" RTCP Packet decoding falsed. offSet = "+offSet);
+				logger.error("Received type = "+type+" RTCP Packet decoding falsed. offSet = "+offSet +". Packet count = "+ packetCount);
 				offSet = rawData.length;
 				break;
 			}

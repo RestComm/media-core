@@ -40,7 +40,7 @@ public class RtpHandler implements PacketHandler {
 	private final RtpPacket rtpPacket;
 	
 	// SRTP
-	private boolean srtp;
+	private boolean secure;
 	private DtlsHandler dtlsHandler;
 	
 	public RtpHandler(Scheduler scheduler, RtpClock clock, RtpClock oobClock, int jitterBufferSize, RtpStatistics statistics) {
@@ -60,7 +60,7 @@ public class RtpHandler implements PacketHandler {
 		this.receivable = false;
 		this.loopable = false;
 		
-		this.srtp = false;
+		this.secure = false;
 	}
 	
 	public RTPInput getRtpInput() {
@@ -103,7 +103,7 @@ public class RtpHandler implements PacketHandler {
 	}
 	
 	public void enableSrtp(final DtlsHandler handler) {
-		this.srtp = true;
+		this.secure = true;
 		this.dtlsHandler = handler;
 	}
 	
@@ -172,11 +172,11 @@ public class RtpHandler implements PacketHandler {
 
 	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
 		// Do not handle data while DTLS handshake is ongoing. WebRTC calls only.
-		if(this.srtp && !this.dtlsHandler.isHandshakeComplete()) {
+		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return null;
 		}
 		
-		if(this.srtp) {
+		if(this.secure) {
 			// Decode SRTP packet into RTP. WebRTC calls only.
 			byte[] decoded = this.dtlsHandler.decodeRTP(packet, offset, dataLength);
 			if(decoded == null || decoded.length == 0) {

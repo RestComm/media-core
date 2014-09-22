@@ -3,8 +3,10 @@ package org.mobicents.media.server.impl.srtp;
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.crypto.PacketTransformer;
@@ -20,16 +22,17 @@ import org.mobicents.media.server.utils.Text;
  */
 public class DtlsHandler {
 
-	private static final Logger logger = Logger.getLogger("DTLS");
-	
 	private static final int MTU = 1500;
 
 	private DtlsSrtpServer server;
 	private DatagramChannel channel;
 	private volatile boolean handshakeComplete;
+	private volatile boolean handshakeFailed;
 	private volatile boolean handshaking;
 	private Thread worker;
 	private Text remoteFingerprint;
+	
+	private final List<DtlsListener> listeners;
 
 	/**
 	 * Handles encryption of outbound RTP packets for a given RTP stream
@@ -65,8 +68,10 @@ public class DtlsHandler {
 
 	public DtlsHandler(final DatagramChannel channel) {
 		this.server = new DtlsSrtpServer();
+		this.listeners = new ArrayList<DtlsListener>();
 		this.channel = channel;
 		this.handshakeComplete = false;
+		this.handshakeFailed = false;
 		this.handshaking = false;
 	}
 
@@ -81,9 +86,19 @@ public class DtlsHandler {
 	public void setChannel(DatagramChannel channel) {
 		this.channel = channel;
 	}
+	
+	public void addListener(DtlsListener listener) {
+		if(!this.listeners.contains(listener)) {
+			this.listeners.add(listener);
+		}
+	}
 
 	public boolean isHandshakeComplete() {
 		return handshakeComplete;
+	}
+	
+	public boolean isHandshakeFailed() {
+		return handshakeFailed;
 	}
 	
 	public boolean isHandshaking() {
@@ -228,6 +243,24 @@ public class DtlsHandler {
 		}
 	}
 	
+	private void fireHandshakeComplete() {
+		if(this.listeners.size() > 0) {
+			Iterator<DtlsListener> iterator = listeners.iterator();
+			while(iterator.hasNext()) {
+				iterator.next().onDtlsHandshakeComplete();
+			}
+		}
+	}
+
+	private void fireHandshakeFailed(Throwable e) {
+		if(this.listeners.size() > 0) {
+			Iterator<DtlsListener> iterator = listeners.iterator();
+			while(iterator.hasNext()) {
+				iterator.next().onDtlsHandshakeFailed(e);
+			}
+		}
+	}
+	
 	private class HandshakeWorker implements Runnable {
 
 		public void run() {
@@ -237,7 +270,6 @@ public class DtlsHandler {
 			
 			try {
 				// Perform the handshake in a non-blocking fashion
-				logger.info("Started DTLS handshake");
 				serverProtocol.accept(server, transport);
 
 				// Prepare the shared key to be used in RTP streaming
@@ -251,14 +283,22 @@ public class DtlsHandler {
 				
 				// Declare handshake as complete
 				handshakeComplete = true;
-				logger.info("Completed DTLS handshake");
-			} catch (IOException e) {
-				handshakeComplete = false;
-				logger.error("Could not perform DTLS handshake", e);
-			} finally {
+				handshakeFailed = false;
 				handshaking = false;
+				
+				// Warn listeners handshake completed
+				fireHandshakeComplete();
+			} catch (IOException e) {
+				// Declare handshake as failed
+				handshakeComplete = false;
+				handshakeFailed = true;
+				handshaking = false;
+				
+				// Warn listeners handshake completed
+				fireHandshakeFailed(e);
 			}
 		}
+		
 	}
 
 }

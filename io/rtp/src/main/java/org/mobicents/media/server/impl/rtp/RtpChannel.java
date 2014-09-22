@@ -13,6 +13,7 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.impl.srtp.DtlsListener;
 import org.mobicents.media.server.impl.stun.StunHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
@@ -32,9 +33,9 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends MultiplexedChannel {
+public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	
-	private static final Logger LOGGER = Logger.getLogger(RtpChannel.class);
+	private static final Logger logger = Logger.getLogger(RtpChannel.class);
 	
 	/** Tells UDP manager to choose port to bind this channel to */
 	private final static int PORT_ANY = -1;
@@ -170,7 +171,7 @@ public class RtpChannel extends MultiplexedChannel {
 					InetSocketAddress address = (InetSocketAddress) this.channel.getLocalAddress();
 					return address.getHostString();
 				} catch (IOException e) {
-					LOGGER.warn("Could not retrieve local address from channel");
+					logger.warn("Could not retrieve local address from channel");
 					return "";
 				}
 			} else {
@@ -263,16 +264,19 @@ public class RtpChannel extends MultiplexedChannel {
 	}
 	
 	private void onBinding(boolean useJitterBuffer) {
-		// Transmitter
+		// Configure protocol handlers
 		this.transmitter.setChannel(this.channel);
-		
-		// Protocol handlers pipeline
 		this.rtpHandler.useJitterBuffer(useJitterBuffer);
 		this.handlers.addHandler(this.rtpHandler);
+		
 		if(this.srtp) {
 			this.dtlsHandler.setChannel(this.channel);
+			this.dtlsHandler.addListener(this);
 			this.stunHandler.setChannel(this.channel);
 			this.handlers.addHandler(this.stunHandler);
+
+			// Start DTLS handshake
+			this.dtlsHandler.handshake();
 		}
 	}
 	
@@ -336,7 +340,7 @@ public class RtpChannel extends MultiplexedChannel {
 				try {
 					disconnect();
 				} catch (IOException e) {
-					LOGGER.error(e);
+					logger.error(e);
 				}
 
 			connectImmediately = udpManager.connectImmediately((InetSocketAddress) address);
@@ -344,8 +348,8 @@ public class RtpChannel extends MultiplexedChannel {
 				try {
 					this.channel.connect(address);
 				} catch (IOException e) {
-					LOGGER.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
-					LOGGER.error(e.getMessage(), e);
+					logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -390,20 +394,6 @@ public class RtpChannel extends MultiplexedChannel {
 		return new Text();
 	}
 	
-	@Override
-	public void receive() throws IOException {
-		// Make sure the DTLS handshake is complete for WebRTC calls
-		if(this.srtp && !this.dtlsHandler.isHandshakeComplete()) {
-			// TODO Need to implement own DTLS handler and drop bouncy castle implementation!
-			if(!this.dtlsHandler.isHandshaking()) {
-				this.dtlsHandler.handshake();
-			}
-		} else {
-			// Receive traffic normally through the multiplexed channel
-			super.receive();
-		}
-	}
-	
 	public void close() {
 		super.close();
 		reset();
@@ -414,6 +404,15 @@ public class RtpChannel extends MultiplexedChannel {
 		this.rtpHandler.reset();
 		this.transmitter.reset();
 		heartBeat.cancel();
+	}
+	
+	public void onDtlsHandshakeComplete() {
+		logger.info("DTLS handshake completed for RTP candidate.");
+	}
+
+	public void onDtlsHandshakeFailed(Throwable e) {
+		logger.error("DTLS handshake failed for RTP candidate. Reason: "+ e.getMessage(), e);
+		// TODO close channel
 	}
 	
 	private class HeartBeat extends Task {
