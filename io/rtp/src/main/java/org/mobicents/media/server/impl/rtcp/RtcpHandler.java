@@ -38,7 +38,7 @@ public class RtcpHandler implements PacketHandler {
 	private final SsrcTask ssrcTask;
 	
 	private final RtpStatistics statistics;
-
+	
 	/** The elapsed time (milliseconds) since an RTCP packet was transmitted */
 	private long tp;
 	/** The time interval (milliseconds) until next scheduled transmission time of an RTCP packet */
@@ -49,13 +49,13 @@ public class RtcpHandler implements PacketHandler {
 	
 	/** Flag that is true once the handler joined an RTP session */
 	private boolean joined;
-	
+
+	/* WebRTC */
 	/** Checks whether communication of this channel is secure. WebRTC calls only. */
 	private boolean secure;
 	
 	/** Handles the DTLS handshake and encodes/decodes secured packets. For WebRTC calls only. */
 	private DtlsHandler dtlsHandler;
-	
 	
 	public RtcpHandler(final RtpStatistics statistics) {
 		// core stuff

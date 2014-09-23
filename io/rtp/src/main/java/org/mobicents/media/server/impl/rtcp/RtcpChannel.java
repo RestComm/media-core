@@ -8,6 +8,7 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
+import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
@@ -44,6 +45,9 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	
 	// WebRTC
 	private boolean secure;
+	
+	// Listeners
+	private RtpListener rtpListener;
 
 	public RtcpChannel(int channelId, RtpStatistics statistics, UdpManager udpManager) {
 		// Initialize MultiplexedChannel elements
@@ -81,8 +85,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 				logger.error(e.getMessage(), e);
 			}
 
-			boolean connectNow = this.udpManager
-					.connectImmediately((InetSocketAddress) remotePeer);
+			boolean connectNow = this.udpManager.connectImmediately((InetSocketAddress) remotePeer);
 			if (connectNow) {
 				try {
 					this.channel.connect(remotePeer);
@@ -92,6 +95,10 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 				}
 			}
 		}
+	}
+	
+	public void setRtpListener(RtpListener rtpListener) {
+		this.rtpListener = rtpListener;
 	}
 	
 	public boolean isAvailable() {
@@ -225,7 +232,9 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 
 	public void onDtlsHandshakeFailed(Throwable e) {
 		logger.error("DTLS handshake failed for RTCP candidate. Reason: "+ e.getMessage(), e);
-		// TODO close channel
+		if(this.rtpListener != null) {
+			this.rtpListener.onRtcpFailure(e);
+		}
 	}
 	
 }

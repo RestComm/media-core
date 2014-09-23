@@ -81,7 +81,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	private boolean srtp;
 	
 	// Listeners
-	private RTPChannelListener channelListener;
+	private RtpListener rtpListener;
 	
 	protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock, Scheduler scheduler, UdpManager udpManager) {
 		// Initialize MultiplexedChannel elements
@@ -151,8 +151,8 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		this.transmitter.getRtpOutput().setFormats(fmts);
 	}
 	
-	public void setRtpChannelListener(RTPChannelListener listener) {
-		this.channelListener = listener;
+	public void setRtpListener(RtpListener listener) {
+		this.rtpListener = listener;
 	}
 	
 	public long getPacketsReceived() {
@@ -161,25 +161,6 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 
 	public long getPacketsTransmitted() {
 		return this.statistics.getRtpPacketsSent();
-	}
-	
-	public String resolveCname() {
-		String externalAddress = getExternalAddress();
-		if(externalAddress == null || externalAddress.isEmpty()) {
-			if(this.bound) {
-				try {
-					InetSocketAddress address = (InetSocketAddress) this.channel.getLocalAddress();
-					return address.getHostString();
-				} catch (IOException e) {
-					logger.warn("Could not retrieve local address from channel");
-					return "";
-				}
-			} else {
-				return "";
-			}
-		} else {
-			return externalAddress;
-		}
 	}
 	
 	/**
@@ -412,7 +393,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 
 	public void onDtlsHandshakeFailed(Throwable e) {
 		logger.error("DTLS handshake failed for RTP candidate. Reason: "+ e.getMessage(), e);
-		// TODO close channel
+		this.rtpListener.onRtpFailure(e);
 	}
 	
 	private class HeartBeat extends Task {
@@ -423,9 +404,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 
 		@Override
 		public long perform() {
-			if (scheduler.getClock().getTime() - statistics.getLastHeartbeat() > udpManager.getRtpTimeout() * 1000000000L) {
-				if (channelListener != null) {
-					channelListener.onRtpFailure();
+			long elapsedTime = scheduler.getClock().getTime() - statistics.getLastHeartbeat();
+			if (elapsedTime > udpManager.getRtpTimeout() * 1000000000L) {
+				if (rtpListener != null) {
+					rtpListener.onRtpFailure("RTP timeout! Elapsed time since last heartbeat: " + elapsedTime);
 				}
 			} else {
 				scheduler.submitHeatbeat(this);
