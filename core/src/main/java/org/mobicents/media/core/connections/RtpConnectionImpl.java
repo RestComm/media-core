@@ -47,9 +47,9 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
-import org.mobicents.media.server.impl.rtp.RTPChannelListener;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
@@ -78,7 +78,7 @@ import org.mobicents.media.server.utils.Text;
  * @author amit bhayani
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class RtpConnectionImpl extends BaseConnection implements RTPChannelListener {
+public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
 	
@@ -142,7 +142,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		this.audioOobClock = new RtpClock(this.scheduler.getClock());
 		this.audioStatistics = new RtpStatistics(this.audioClock, this.ssrc, this.cname);
 		this.rtpAudioChannel = channelsManager.getRtpChannel(audioStatistics, audioClock, audioOobClock);
-		this.rtpAudioChannel.setRtpChannelListener(this);
+		this.rtpAudioChannel.setRtpListener(this);
 		try {
 			this.rtpAudioChannel.setInputDsp(dspFactory.newProcessor());
 			this.rtpAudioChannel.setOutputDsp(dspFactory.newProcessor());
@@ -420,7 +420,8 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 	}
 	
 	public boolean isAvailable() {
-		return rtpAudioChannel.isAvailable() && rtcpAudioChannel.isAvailable() ;
+		// Ignore RTCP channel availability. Only RTP is mandatory on a call.
+		return rtpAudioChannel.isAvailable();
 	}
 
 	@Override
@@ -428,10 +429,39 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		return "RTP Connection [" + getEndpoint().getLocalName() + "]";
 	}
 
-	public void onRtpFailure() {
-		onFailed();
+	public void onRtpFailure(String message) {
+		if(this.audioCapabale) {
+			logger.warn(message);
+			// RTP is mandatory, if it fails close everything
+			onFailed();
+		}
 	}
-
+	
+	public void onRtpFailure(Throwable e) {
+		String message = "RTP failure!";
+		if(e != null) {
+			message += " Reason: "+ e.getMessage();
+		}
+		onRtpFailure(message);
+	}
+	
+	public void onRtcpFailure(String e) {
+		if (this.audioCapabale) {
+			logger.warn(e);
+			// Close the RTCP channel only
+			// Keep the RTP channel open because RTCP is not mandatory
+			this.rtcpAudioChannel.close();
+		}
+	}
+	
+	public void onRtcpFailure(Throwable e) {
+		String message = "RTCP failure!";
+		if(e != null) {
+			message += " Reason: "+ e.getMessage();
+		}
+		onRtcpFailure(message);
+	}
+	
 	@Override
 	public void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener) {
 		this.connectionFailureListener = connectionFailureListener;
@@ -448,12 +478,9 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 		if (this.connectionFailureListener != null) {
 			this.connectionFailureListener.onFailure();
 		}
-
-		if (this.rtpAudioChannel != null) {
-			this.rtpAudioChannel.close();
-		}
 		
-		if(this.rtcpAudioChannel != null) {
+		if(this.audioCapabale) {
+			this.rtpAudioChannel.close();
 			this.rtcpAudioChannel.close();
 		}
 	}
@@ -647,8 +674,7 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
 					rtcpAudioChannel.bind(rtcpCandidate.getChannel());
 				}
 			} catch (IOException e) {
-				// XXX close connection
-				logger.error("Could not select ICE candidates: "+ e.getMessage(), e);
+				onRtpFailure("Could not select ICE candidates: "+ e.getMessage());
 			}
 		}
 	}
