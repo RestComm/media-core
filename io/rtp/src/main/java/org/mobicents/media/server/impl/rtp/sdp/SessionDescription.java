@@ -48,7 +48,7 @@ public class SessionDescription {
     private Text session;
     private ConnectionField connection = new ConnectionField();
     private TimeField time = new TimeField();
-    private ArrayList<MediaDescriptorField> mds = new ArrayList(3);
+    private ArrayList<MediaDescriptorField> mds = new ArrayList<MediaDescriptorField>(3);
 
     private MediaDescriptorField audioDescriptor;
     private MediaDescriptorField videoDescriptor;

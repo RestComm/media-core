@@ -149,13 +149,16 @@ public class HostCandidateHarvester implements CandidateHarvester {
 				logCandidateNotFound(address.toString(), portManager.getLowestPort(), portManager.getHighestPort());
 			}
 			
-			// Gather candidate for RTCP component IF supported
-			if (gathered && mediaStream.supportsRtcp()) {
-				// RTCP traffic will be bound to next logical port
+			/*
+			 * Gather a new candidate for RTCP component, IF RTCP is supported.
+			 * A new candidate WILL NOT be gathered IF rtcp-mux is enabled. In
+			 * this case, the RTP and RTCP candidates will be the same.
+			 */
+			if (gathered && mediaStream.supportsRtcp() && !mediaStream.isRtcpMux()) {
 				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
+				// RTCP traffic will be bound to next logical port
 				gathered = gatherCandidate(rtcpComponent, address, portManager.current() + 1, portManager, selector);
-				
-				if(!gathered) {
+				if (!gathered) {
 					logCandidateNotFound(address.toString(), portManager.getLowestPort(), portManager.getHighestPort());
 				}
 			}
@@ -205,6 +208,17 @@ public class HostCandidateHarvester implements CandidateHarvester {
 			portManager.next();
 			return gatherCandidate(component, address, startingPort, portManager, selector);
 		}
+	}
+	
+	private void gatherRtcpMuxCandidate(IceComponent rtpComponent, IceComponent rtcpComponent) {
+		// Retrieve data from RTP candidate
+		LocalCandidateWrapper rtpCandidate = rtpComponent.getDefaultLocalCandidate();
+		int port = rtpCandidate.getCandidate().getPort();
+		InetAddress address = rtpCandidate.getCandidate().getAddress();
+		
+		// Create an RTCP host candidate based on the RTP candidate
+		HostCandidate hostCandidate = new HostCandidate(rtcpComponent, address.toString(), port);
+		rtcpComponent.addLocalCandidate(new LocalCandidateWrapper(hostCandidate, rtpCandidate.getChannel()));
 	}
 
 	public CandidateType getCandidateType() {

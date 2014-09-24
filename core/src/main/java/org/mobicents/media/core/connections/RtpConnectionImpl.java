@@ -97,6 +97,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private RtpChannel rtpAudioChannel;
 	private RtcpChannel rtcpAudioChannel;
 	private boolean audioCapabale;
+	private boolean audioRtcpMux;
 
 	// Session Description
 	private SessionDescription sdp = new SessionDescription();
@@ -151,6 +152,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			throw new RuntimeException("There are probably invalid classes specified in the configuration.", e);
 		}
 		this.rtcpAudioChannel = channelsManager.getRtcpChannel(audioStatistics);
+		this.audioRtcpMux = false;
 		this.audioCapabale = true;
 
 		// create sdp template
@@ -523,6 +525,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private void processSdpOffer() throws SocketException, IOException {
 		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
 		this.ice = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
+		this.audioRtcpMux = IceSdpNegotiator.isRtcpMux(this.sdp.toString());
 
 		/*
 		 * For ICE-enabled calls, the RTP channels can only be bound after the
@@ -537,7 +540,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			// https://telestax.atlassian.net/browse/MEDIA-13
 			this.iceAgent = IceFactory.createLiteAgent();
 			this.iceAgent.addIceListener(new IceListener());
-			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), true);
+			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), true, this.audioRtcpMux);
 			try {
 				// Add srflx candidate harvester if external address is defined
 				String externalAddress = this.rtpAudioChannel.getExternalAddress();

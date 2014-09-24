@@ -46,6 +46,18 @@ public class IceSdpNegotiatorTest {
 		}
 		return builder.toString();
 	}
+	
+	@Test
+	public void testIsRtcpMux() throws IOException, SdpException {
+		// given
+		String sdpAnswer = readSdpFile("sdp_vanilla_answer.txt");
+		
+		// when
+		boolean rtcpMux = IceSdpNegotiator.isRtcpMux(sdpAnswer);
+		
+		// then
+		assertTrue(rtcpMux);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Test

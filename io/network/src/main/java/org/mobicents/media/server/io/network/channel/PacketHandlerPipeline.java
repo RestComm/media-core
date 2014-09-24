@@ -40,6 +40,20 @@ public class PacketHandlerPipeline {
 	}
 	
 	/**
+	 * Checks whether a certain handler is already registered in the pipeline.
+	 * 
+	 * @param handler
+	 *            The handler to look for
+	 * @return <code>true</code> if the handler is registered. Returns
+	 *         <code>false</code>, otherwise.
+	 */
+	public boolean contains(PacketHandler handler) {
+		synchronized (this.handlers) {
+			return this.handlers.contains(handler);
+		}
+	}
+	
+	/**
 	 * Gets the protocol handler capable of processing the packet.
 	 * 
 	 * @param packet

@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtcp.RtcpHandler;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
@@ -65,6 +66,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	private RtpHandler rtpHandler;
 	private DtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
+	private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
 	
 	// Media components
 	private AudioComponent audioComponent;
@@ -78,7 +80,8 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	// WebRTC
-	private boolean srtp;
+	private boolean secure;
+	private boolean rtcpMux;
 	
 	// Listeners
 	private RtpListener rtpListener;
@@ -113,7 +116,8 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		oobComponent.addOutput(this.transmitter.getDtmfOutput().getOOBOutput());
 		
 		// WebRTC
-		this.srtp = false;
+		this.secure = false;
+		this.rtcpMux = false;
 		
 		// Heartbeat
 		this.heartBeat =  new HeartBeat();
@@ -250,7 +254,12 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		this.rtpHandler.useJitterBuffer(useJitterBuffer);
 		this.handlers.addHandler(this.rtpHandler);
 		
-		if(this.srtp) {
+		if(this.rtcpMux) {
+			this.rtcpHandler.setChannel(this.channel);
+			this.handlers.addHandler(this.rtcpHandler);
+		}
+		
+		if(this.secure) {
 			this.dtlsHandler.setChannel(this.channel);
 			this.dtlsHandler.addListener(this);
 			this.stunHandler.setChannel(this.channel);
@@ -303,7 +312,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		// The channel is available is is connected
 		boolean available = this.channel != null && this.channel.isConnected();
 		// In case of WebRTC calls the DTLS handshake must be completed
-		if(this.srtp) {
+		if(this.secure) {
 			available = available && this.dtlsHandler.isHandshakeComplete();
 		}
 		return available;
@@ -350,7 +359,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	public void enableSRTP(Text remotePeerFingerprint, IceAuthenticator authenticator) {
-		this.srtp = true;
+		this.secure = true;
 		
 		// setup the DTLS handler
 		if (this.dtlsHandler == null) {
@@ -366,6 +375,20 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		// Setup the RTP handler 
 		this.transmitter.enableSrtp(this.dtlsHandler);
 		this.rtpHandler.enableSrtp(this.dtlsHandler);
+		
+		// Setup the RTCP handler. RTCP-MUX channels only!
+		if(this.rtcpMux) {
+			this.rtcpHandler.enableSRTCP(this.dtlsHandler);
+		}
+	}
+	
+	public void enableRtcpMux() {
+		this.rtcpMux = true;
+		
+		// initialize handler if necessary
+		if(this.rtcpHandler == null) {
+			this.rtcpHandler = new RtcpHandler(this.statistics);
+		}
 	}
 	
 	public Text getWebRtcLocalFingerprint() {

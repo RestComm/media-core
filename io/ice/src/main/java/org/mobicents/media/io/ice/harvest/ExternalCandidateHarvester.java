@@ -36,7 +36,7 @@ public class ExternalCandidateHarvester implements CandidateHarvester {
 	
 	public void harvest(PortManager portManager, IceMediaStream mediaStream, Selector selector) throws HarvestException {
 		harvest(mediaStream.getRtpComponent());
-		if(mediaStream.supportsRtcp()) {
+		if(mediaStream.supportsRtcp() && !mediaStream.isRtcpMux()) {
 			harvest(mediaStream.getRtcpComponent());
 		}
 	}

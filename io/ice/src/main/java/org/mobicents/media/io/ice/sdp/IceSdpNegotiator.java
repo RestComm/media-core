@@ -11,6 +11,7 @@ import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAgent;
 import org.mobicents.media.io.ice.IceCandidate;
 import org.mobicents.media.io.ice.IceComponent;
@@ -21,6 +22,7 @@ import org.mobicents.media.io.ice.sdp.attributes.IceLiteAttribute;
 import org.mobicents.media.io.ice.sdp.attributes.IcePwdAttribute;
 import org.mobicents.media.io.ice.sdp.attributes.IceUfragAttribute;
 import org.mobicents.media.io.ice.sdp.attributes.RtcpAttribute;
+import org.mobicents.media.io.ice.sdp.attributes.RtcpMuxAttribute;
 
 /**
  * Provides methods to update SDP descriptions with information provided by an
@@ -30,6 +32,37 @@ import org.mobicents.media.io.ice.sdp.attributes.RtcpAttribute;
  * 
  */
 public class IceSdpNegotiator {
+	
+	private static final Logger logger = Logger.getLogger(IceSdpNegotiator.class);
+	
+	@SuppressWarnings("unchecked")
+	public static boolean isRtcpMux(String sdp) {
+		try {
+			SdpFactory factory = SdpFactory.getInstance();
+			SessionDescription sessionDescription = factory.createSessionDescription(sdp);
+			
+			Vector<MediaDescription> mediaDescriptions = sessionDescription.getMediaDescriptions(false);
+			if(mediaDescriptions != null) {
+				for (MediaDescription mediaDescription : mediaDescriptions) {
+					String mediaType = mediaDescription.getMedia().getMediaType();
+					if("audio".equals(mediaType)) {
+						Vector<AttributeField> attributes = mediaDescription.getAttributes(false);
+						if(attributes != null) {
+							for (AttributeField attribute : attributes) {
+								if("rtcp-mux".equals(attribute.getName())) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+			return false;
+		} catch (SdpException e) {
+			logger.error("RTCP-MUX will be deactivated because SDP could not be parsed: "+ e.getMessage(), e);
+			return false;
+		}
+	}
 
 	@SuppressWarnings("unchecked")
 	public static SessionDescription updateAnswer(String sdp, IceAgent agent) throws SdpException {
@@ -99,15 +132,21 @@ public class IceSdpNegotiator {
 
 			/*
 			 * If the agent is using RTCP, it must encode the RTCP candidate
-			 * using the 'a=rtcp' attribute.
+			 * using the 'a=rtcp' attribute. In case RTP and RTCP are multiplexed
+			 * in the same channel, then we must signal it using the 'a=rtcp-mux'
+			 * attribute. 
 			 * 
 			 * Otherwise, the agent must signal that using 'b=RS:0' and 'b=RR:0'
 			 */
 			if (iceStream.supportsRtcp()) {
-				IceComponent rtcpComponent = iceStream.getRtcpComponent();
-				IceCandidate defaultRtcpCandidate = rtcpComponent.getDefaultLocalCandidate().getCandidate();
-				RtcpAttribute rtcpAttribute = new RtcpAttribute(defaultRtcpCandidate, "IN");
-				mediaStream.addAttribute(rtcpAttribute);
+				if(iceStream.isRtcpMux()) {
+					mediaStream.addAttribute(new RtcpMuxAttribute());
+				} else {
+					IceComponent rtcpComponent = iceStream.getRtcpComponent();
+					IceCandidate defaultRtcpCandidate = rtcpComponent.getDefaultLocalCandidate().getCandidate();
+					RtcpAttribute rtcpAttribute = new RtcpAttribute(defaultRtcpCandidate, "IN");
+					mediaStream.addAttribute(rtcpAttribute);
+				}
 			} else {
 				// XXX RS and RR attributes not supported on firefox
 				// mediaStream.setBandwidth("RS", 0);

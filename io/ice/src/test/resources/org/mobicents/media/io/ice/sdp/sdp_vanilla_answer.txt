@@ -5,6 +5,7 @@ c=IN IP4 127.0.0.1
 t=0 0
 m=audio 6000 RTP/SAVPF 0 126
 c=IN IP4 127.0.0.1
+a=rtcp-mux
 a=rtpmap:0 PCMU/8000
 a=setup:passive
 a=rtpmap:126 telephone-event/0

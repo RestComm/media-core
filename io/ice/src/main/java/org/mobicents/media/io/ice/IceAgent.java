@@ -134,6 +134,23 @@ public abstract class IceAgent implements IceAuthenticator {
 	 * @return The newly created media stream.
 	 */
 	public IceMediaStream addMediaStream(String streamName, boolean rtcp) {
+		return addMediaStream(streamName, rtcp, false);
+	}
+	
+	/**
+	 * Creates and registers a new media stream with an RTP component.<br>
+	 * An secondary component may be created if the stream supports RTCP.
+	 * 
+	 * @param streamName
+	 *            the name of the media stream
+	 * @param rtcp
+	 *            Indicates whether the media server supports RTCP.
+	 * @param rtcpMux
+	 *            Indicates whether the media stream supports <a
+	 *            href=""http://tools.ietf.org/html/rfc5761">rtcp-mux</a>
+	 * @return The newly created media stream.
+	 */
+	public IceMediaStream addMediaStream(String streamName, boolean rtcp, boolean rtcpMux) {
 		if (!this.mediaStreams.containsKey(streamName)) {
 			// Updates number of maximum allowed candidate pairs
 			this.maxSelectedPairs += rtcp ? 2 : 1;
