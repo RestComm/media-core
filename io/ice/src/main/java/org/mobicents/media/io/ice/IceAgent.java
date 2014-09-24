@@ -153,9 +153,9 @@ public abstract class IceAgent implements IceAuthenticator {
 	public IceMediaStream addMediaStream(String streamName, boolean rtcp, boolean rtcpMux) {
 		if (!this.mediaStreams.containsKey(streamName)) {
 			// Updates number of maximum allowed candidate pairs
-			this.maxSelectedPairs += rtcp ? 2 : 1;
+			this.maxSelectedPairs += (rtcp && !rtcpMux) ? 2 : 1;
 			// Register media stream
-			return this.mediaStreams.put(streamName, new IceMediaStream(streamName, rtcp));
+			return this.mediaStreams.put(streamName, new IceMediaStream(streamName, rtcp, rtcpMux));
 		}
 		return null;
 	}

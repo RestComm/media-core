@@ -45,12 +45,13 @@ public class MediaDescriptorField {
     private int port;
     private Text profile;
     private ConnectionField connection;
+    private boolean rtcpMux = false;
     private List<CandidateField> candidates = new ArrayList<CandidateField>();
 
     private RTPFormats formats = new RTPFormats(15);
 
     // optional SDP attribute used for WebRTC session encryption
-	private Text webRTCFingerprint;    
+	private Text webRTCFingerprint;
 
     // legacy unencrypted RTP media profile
     public final static String RTP_AVP_PROFILE = "RTP/AVP";
@@ -130,6 +131,11 @@ public class MediaDescriptorField {
         
         if(attribute.startsWith(CandidateField.CANDIDATE_FIELD)) {
         	addCandidate(attribute);
+        	return;
+        }
+
+        if(attribute.startsWith(RtcpMuxField.RTCP_MUX_FIELD)) {
+        	this.rtcpMux = true;
         	return;
         }
     }
@@ -312,6 +318,15 @@ public class MediaDescriptorField {
     private RTPFormat getFormat(int payload) {
         return formats.find(payload);
     }
+    
+    /**
+	 * Indicates whether the media channel supports RTCP-MUX or not.
+	 * 
+	 * @return whether rtcp-mux is supported
+	 */
+    public boolean isRtcpMux() {
+		return rtcpMux;
+	}
 
     /**
      * Creates or updates format using payload number and text format description.

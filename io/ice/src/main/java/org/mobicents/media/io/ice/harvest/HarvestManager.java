@@ -93,7 +93,7 @@ public class HarvestManager {
 		// After harvesting all possible candidates, ask the media stream to
 		// select its default local candidates
 		mediaStream.getRtpComponent().selectDefaultLocalCandidate();
-		if (mediaStream.supportsRtcp()) {
+		if (mediaStream.supportsRtcp() && !mediaStream.isRtcpMux()) {
 			mediaStream.getRtcpComponent().selectDefaultLocalCandidate();
 		}
 	}
