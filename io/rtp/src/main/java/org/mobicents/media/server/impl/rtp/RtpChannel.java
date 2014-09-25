@@ -412,6 +412,9 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	
 	public void onDtlsHandshakeComplete() {
 		logger.info("DTLS handshake completed for RTP candidate.");
+		if(this.rtcpMux) {
+			this.rtcpHandler.joinRtpSession();
+		}
 	}
 
 	public void onDtlsHandshakeFailed(Throwable e) {

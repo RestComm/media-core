@@ -156,10 +156,37 @@ public class RtpHandler implements PacketHandler {
 			int version = (b0 & 0xC0) >> 6;
 			
 			if(RtpPacket.VERSION == version) {
-				// Version is fine so lets validate the payload type
-				// to distinguish from incoming RTCP packets
+				/*
+				 * When RTP and RTCP packets are multiplexed onto a single port,
+				 * the RTCP packet type field occupies the same position in the
+				 * packet as the combination of the RTP marker (M) bit and the
+				 * RTP payload type (PT). This field can be used to distinguish
+				 * RTP and RTCP packets when two restrictions are observed:
+				 * 
+				 * 1) the RTP payload type values used are distinct from the
+				 * RTCP packet types used.
+				 * 
+				 * 2) for each RTP payload type (PT), PT+128 is distinct from
+				 * the RTCP packet types used. The first constraint precludes a
+				 * direct conflict between RTP payload type and RTCP packet
+				 * type; the second constraint precludes a conflict between an
+				 * RTP data packet with the marker bit set and an RTCP packet.
+				 */
 				int type = packet[offset + 1] & 0xff & 0x7f;
-				return (type != RtcpHeader.RTCP_SR && type != RtcpHeader.RTCP_RR);
+				int rtcpType = type + 128;
+				
+				// RTP payload types 72-76 conflict with the RTCP SR, RR, SDES, BYE,
+			    // and APP packets defined in the RTP specification
+				switch (rtcpType) {
+				case RtcpHeader.RTCP_SR:
+				case RtcpHeader.RTCP_RR:
+				case RtcpHeader.RTCP_SDES:
+				case RtcpHeader.RTCP_BYE:
+				case RtcpHeader.RTCP_APP:
+					return false;
+				default:
+					return true;
+				}
 			}
 		}
 		return false;

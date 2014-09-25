@@ -526,6 +526,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
 		this.ice = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
 		this.audioRtcpMux = this.sdp.getAudioDescriptor().isRtcpMux();
+		if(this.audioRtcpMux) {
+			this.rtpAudioChannel.enableRtcpMux();
+		}
 
 		/*
 		 * For ICE-enabled calls, the RTP channels can only be bound after the
