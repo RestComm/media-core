@@ -399,12 +399,16 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	public void close() {
-		super.close();
-		reset();
+		if(rtcpMux) {
+			this.rtcpHandler.leaveRtpSession();
+			reset();
+		} else {
+			super.close();
+			reset();
+		}
 	}
 	
 	private void reset() {
-		this.statistics.reset();
 		this.rtpHandler.reset();
 		this.transmitter.reset();
 		heartBeat.cancel();
