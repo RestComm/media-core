@@ -569,7 +569,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		if (this.webrtc) {
 			Text remotePeerFingerprint = this.sdp.getAudioDescriptor().getWebRTCFingerprint();
 			rtpAudioChannel.enableSRTP(remotePeerFingerprint, this.iceAgent);
-			rtcpAudioChannel.enableSRTCP(remotePeerFingerprint, this.iceAgent);
+			if(!this.audioRtcpMux) {
+				rtcpAudioChannel.enableSRTCP(remotePeerFingerprint, this.iceAgent);
+			}
 		}
 	}
 
