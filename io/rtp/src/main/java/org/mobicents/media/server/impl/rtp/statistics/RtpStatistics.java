@@ -640,7 +640,6 @@ public class RtpStatistics {
 				RtpMember receiver = getMember(reportBlock.getSsrc());
 				if(receiver != null) {
 					receiver.onReceiveReportBlock(reportBlock);
-					logger.info("\n\nROUND TRIP DELAY (ssrc="+receiver.getSsrc()+", rtt="+ receiver.getRoundTripDelay()+")\n\n");
 				}
 			}
 

@@ -141,6 +141,9 @@ public class IceSdpNegotiator {
 			if (iceStream.supportsRtcp()) {
 				if(iceStream.isRtcpMux()) {
 					mediaStream.addAttribute(new RtcpMuxAttribute());
+					// Add a=rtcp attribute for legacy compatibility
+					RtcpAttribute rtcpAttribute = new RtcpAttribute(defaultRtpCandidate, "IN");
+					mediaStream.addAttribute(rtcpAttribute);
 				} else {
 					IceComponent rtcpComponent = iceStream.getRtcpComponent();
 					IceCandidate defaultRtcpCandidate = rtcpComponent.getDefaultLocalCandidate().getCandidate();
