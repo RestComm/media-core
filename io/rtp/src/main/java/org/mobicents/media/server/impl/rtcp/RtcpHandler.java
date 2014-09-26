@@ -26,9 +26,11 @@ public class RtcpHandler implements PacketHandler {
 	/** Time (in ms) between SSRC Task executions */
 	private static final long SSRC_TASK_DELAY = 7000;
 
+	
 	/* Core elements */
 	private DatagramChannel channel;
 	private ByteBuffer byteBuffer;
+	private int pipelinePriority;
 
 	/* RTCP elements */
 	private final Timer txTimer;
@@ -59,6 +61,7 @@ public class RtcpHandler implements PacketHandler {
 	
 	public RtcpHandler(final RtpStatistics statistics) {
 		// core stuff
+		this.pipelinePriority = 0;
 		this.byteBuffer = ByteBuffer.allocateDirect(RtpPacket.RTP_PACKET_MAX_SIZE);
 
 		// rtcp stuff
@@ -76,6 +79,14 @@ public class RtcpHandler implements PacketHandler {
 		// webrtc
 		this.secure = false;
 		this.dtlsHandler = null;
+	}
+	
+	public int getPipelinePriority() {
+		return pipelinePriority;
+	}
+	
+	public void setPipelinePriority(int pipelinePriority) {
+		this.pipelinePriority = pipelinePriority;
 	}
 
 	/**
@@ -383,21 +394,20 @@ public class RtcpHandler implements PacketHandler {
 		
 		if (this.channel != null && channel.isOpen() && channel.isConnected()) {
 			// decode packet
-			byte[] originalData = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
-			packet.encode(originalData, 0);
+			byte[] data = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
+			packet.encode(data, 0);
 			int dataLength = packet.getSize();
 			
 			// If channel is secure, convert RTCP packet to SRTCP. WebRTC calls only.
-			byte[] encodedData = null;
 			if(this.secure) {
-				encodedData = this.dtlsHandler.encodeRTCP(originalData, 0, dataLength);
-				dataLength = encodedData.length;
+				data = this.dtlsHandler.encodeRTCP(data, 0, dataLength);
+				dataLength = data.length;
 			}
 
 			// prepare buffer
 			byteBuffer.clear();
 			byteBuffer.rewind();
-			byteBuffer.put(originalData, 0, dataLength);
+			byteBuffer.put(data, 0, dataLength);
 			byteBuffer.flip();
 			byteBuffer.rewind();
 			
@@ -448,6 +458,13 @@ public class RtcpHandler implements PacketHandler {
 				}
 			}
 		}
+	}
+	
+	public int compareTo(PacketHandler o) {
+		if(o == null) {
+			return 1;
+		}
+		return this.getPipelinePriority() - o.getPipelinePriority();
 	}
 
 	/**

@@ -3,6 +3,7 @@ package org.mobicents.media.server.impl.rtp.statistics;
 import java.util.Date;
 
 import org.apache.commons.net.ntp.TimeStamp;
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpReportBlock;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
@@ -17,6 +18,8 @@ import org.mobicents.media.server.scheduler.Clock;
  */
 public class RtpMember {
 
+	private static final Logger logger = Logger.getLogger(RtpMember.class);
+	
 	// Core elements
 	private final RtpClock rtpClock;
 	private final Clock wallClock;
@@ -74,7 +77,7 @@ public class RtpMember {
 
 		// RTCP
 		this.lastSrTimestamp = 0;
-		this.lastSrReceivedOn = -1;
+		this.lastSrReceivedOn = 0;
 		this.lastSrSequenceNumber = -1;
 		this.roundTripDelay = 0;
 	}
@@ -238,7 +241,7 @@ public class RtpMember {
 	 *         zero. seconds
 	 */
 	public long getLastSRdelay() {
-		if (this.lastSrReceivedOn < 0) {
+		if (this.lastSrReceivedOn == 0) {
 			return 0;
 		}
 
@@ -306,6 +309,8 @@ public class RtpMember {
     public void estimateRtt(long lastSR, long delaySinceSR) {
     	TimeStamp ntp = new TimeStamp(new Date(System.currentTimeMillis()));
     	long currTime = calculateLastSrTimestamp(ntp.getSeconds(), ntp.getFraction());
+    	
+		logger.info("rtt=" + currTime + " - " + lastSR + " - " + delaySinceSR);
     	this.roundTripDelay = currTime - lastSR - delaySinceSR;
     }
     

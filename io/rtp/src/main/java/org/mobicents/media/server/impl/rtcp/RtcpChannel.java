@@ -39,6 +39,9 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	private final RtpStatistics statistics;
 
 	// Protocol handler pipeline
+	private static final int STUN_PRIORITY = 2; // a packet each 400ms
+	private static final int RTCP_PRIORITY = 1; // a packet each 5s
+	
 	private RtcpHandler rtcpHandler;
 	private DtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
@@ -116,6 +119,12 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 
 	private void onBinding() {
+		// Set protocol handler priorities
+		this.rtcpHandler.setPipelinePriority(RTCP_PRIORITY);
+		if(this.secure) {
+			this.stunHandler.setPipelinePriority(STUN_PRIORITY);
+		}
+		
 		// Protocol Handler pipeline
 		this.rtcpHandler.setChannel(this.channel);
 		this.handlers.addHandler(this.rtcpHandler);
@@ -128,6 +137,8 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 			
 			// Start DTLS handshake
 			this.dtlsHandler.handshake();
+		} else {
+			this.rtcpHandler.joinRtpSession();
 		}
 	}
 

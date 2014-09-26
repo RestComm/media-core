@@ -62,7 +62,11 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	// Transmitter
 	private RtpTransmitter transmitter;
 	
-	// Receivers - Protocol handlers pipeline
+	// Protocol handlers pipeline
+	private static final int RTP_PRIORITY = 3; // a packet each 20ms
+	private static final int STUN_PRIORITY = 2; // a packet each 400ms
+	private static final int RTCP_PRIORITY = 1; // a packet each 5s
+	
 	private RtpHandler rtpHandler;
 	private DtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
@@ -249,6 +253,15 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	private void onBinding(boolean useJitterBuffer) {
+		// Set protocol handler priorities
+		this.rtpHandler.setPipelinePriority(RTP_PRIORITY);
+		if(this.rtcpMux) {
+			this.rtcpHandler.setPipelinePriority(RTCP_PRIORITY);
+		}
+		if(this.secure) {
+			this.stunHandler.setPipelinePriority(STUN_PRIORITY);
+		}
+		
 		// Configure protocol handlers
 		this.transmitter.setChannel(this.channel);
 		this.rtpHandler.useJitterBuffer(useJitterBuffer);

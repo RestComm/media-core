@@ -3,6 +3,7 @@ package org.mobicents.media.server.impl.stun;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
@@ -26,15 +27,24 @@ public class StunHandler implements PacketHandler {
 	private static final Logger LOGGER = Logger.getLogger(StunHandler.class);
 	
 	private final IceAuthenticator authenticator;
-	// XXX Dont like having this channel here, but the remote address is necessary
 	private DatagramChannel channel;
+	private int pipelinePriority;
 	
 	public StunHandler(final IceAuthenticator authenticator) {
 		this.authenticator = authenticator;
+		this.pipelinePriority = 0;
 	}
 	
 	public void setChannel(DatagramChannel channel) {
 		this.channel = channel;
+	}
+	
+	public int getPipelinePriority() {
+		return pipelinePriority;
+	}
+	
+	public void setPipelinePriority(int pipelinePriority) {
+		this.pipelinePriority = pipelinePriority;
 	}
 	
 	private long extractPriority(StunRequest request) throws IllegalArgumentException {
@@ -170,5 +180,12 @@ public class StunHandler implements PacketHandler {
 		} catch (IOException e) {
 			throw new PacketHandlerException(e.getMessage(), e);
 		}
+	}
+
+	public int compareTo(PacketHandler o) {
+		if(o == null) {
+			return 1;
+		}
+		return this.getPipelinePriority() - o.getPipelinePriority();
 	}
 }

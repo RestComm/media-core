@@ -24,6 +24,8 @@ public class RtpHandler implements PacketHandler {
 	
 	private static final Logger logger = Logger.getLogger(RtpHandler.class);
 	
+	private int pipelinePriority;
+	
 	private RTPFormats rtpFormats;
 	private final RtpClock rtpClock;
 	private final RtpClock oobClock;
@@ -44,6 +46,8 @@ public class RtpHandler implements PacketHandler {
 	private DtlsHandler dtlsHandler;
 	
 	public RtpHandler(Scheduler scheduler, RtpClock clock, RtpClock oobClock, int jitterBufferSize, RtpStatistics statistics) {
+		this.pipelinePriority = 0;
+		
 		this.rtpClock = clock;
 		this.oobClock = oobClock;
 		
@@ -61,6 +65,14 @@ public class RtpHandler implements PacketHandler {
 		this.loopable = false;
 		
 		this.secure = false;
+	}
+	
+	public int getPipelinePriority() {
+		return pipelinePriority;
+	}
+	
+	public void setPipelinePriority(int pipelinePriority) {
+		this.pipelinePriority = pipelinePriority;
 	}
 	
 	public RTPInput getRtpInput() {
@@ -259,5 +271,12 @@ public class RtpHandler implements PacketHandler {
 			}
 		}
 		return null;
+	}
+	
+	public int compareTo(PacketHandler o) {
+		if(o == null) {
+			return 1;
+		}
+		return this.getPipelinePriority() - o.getPipelinePriority();
 	}
 }

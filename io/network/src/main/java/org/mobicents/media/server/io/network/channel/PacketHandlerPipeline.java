@@ -1,6 +1,7 @@
 package org.mobicents.media.server.io.network.channel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,6 +34,7 @@ public class PacketHandlerPipeline {
 		synchronized (this.handlers) {
 			if(!handlers.contains(handler)) {
 				handlers.add(handler);
+				Collections.sort(this.handlers);
 				return true;
 			}
 			return false;
