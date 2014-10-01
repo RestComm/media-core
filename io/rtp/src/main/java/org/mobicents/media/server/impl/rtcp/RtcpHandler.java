@@ -7,6 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
@@ -357,6 +358,8 @@ public class RtcpHandler implements PacketHandler {
 		}
 		
 		// Trace incoming RTCP report
+		TimeStamp ntp = TimeStamp.getCurrentTime();
+		logger.info("Receiving rtcp report. NTP sec: " + ntp.getSeconds() +", NTP frac: "+ ntp.getFraction());
 		logger.info("\nINCOMING "+ rtcpPacket.toString());
 		
 		// Upgrade RTCP statistics
@@ -415,6 +418,8 @@ public class RtcpHandler implements PacketHandler {
 			this.statistics.onRtcpSent(packet);
 
 			// trace outgoing RTCP report
+			TimeStamp ntp = TimeStamp.getCurrentTime();
+			logger.info("Sending rtcp report. NTP sec: " + ntp.getSeconds() +", NTP frac: "+ ntp.getFraction());
 			logger.info("\nOUTGOING "+ packet.toString());
 
 			// send packet

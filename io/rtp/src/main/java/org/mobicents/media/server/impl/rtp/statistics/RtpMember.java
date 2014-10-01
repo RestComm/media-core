@@ -1,10 +1,7 @@
 package org.mobicents.media.server.impl.rtp.statistics;
 
-import java.util.Date;
-
 import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.impl.rtcp.RtcpReportBlock;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
@@ -241,11 +238,15 @@ public class RtpMember {
 	 *         zero. seconds
 	 */
 	public long getLastSRdelay() {
+		return getLastSRdelay(this.wallClock.getCurrentTime(), this.lastSrReceivedOn);
+	}
+	
+	private long getLastSRdelay(long arrivalTime, long lastSrTime) {
 		if (this.lastSrReceivedOn == 0) {
 			return 0;
 		}
 
-		long delay = this.wallClock.getCurrentTime() - this.lastSrReceivedOn;
+		long delay = arrivalTime - lastSrTime;
 		// convert to units 1/65536 seconds
 		return (long) (delay * 65.536);
 	}
@@ -302,20 +303,14 @@ public class RtpMember {
         this.currentTransit = rtpClock.getLocalRtpTime() - packet.getTimestamp();
     }
     
-    private void estimateRtt(long receiptDate, long lastSR, long delaySinceSR) {
-    	TimeStamp receiptNtp = new TimeStamp(new Date(receiptDate));
+    public void estimateRtt(long receiptDate, long lastSR, long delaySinceSR) {
+    	TimeStamp receiptNtp = TimeStamp.getNtpTime(receiptDate);
     	long receiptNtpTime = calculateLastSrTimestamp(receiptNtp.getSeconds(), receiptNtp.getFraction());
     	long delay = receiptNtpTime - lastSR - delaySinceSR;
     	this.roundTripDelay = (delay > 4294967L) ? 65536 : (int) ((delay * 1000L) >> 16);
 		logger.info("rtt=" + receiptNtpTime + " - " + lastSR + " - " + delaySinceSR + " = " + delay + " => " + this.roundTripDelay + "ms");
     }
     
-    public void onReceiveReportBlock(RtcpReportBlock reportBlock) {
-		if (reportBlock.getSsrc() == this.ssrc) {
-			estimateRtt(this.wallClock.getCurrentTime(), reportBlock.getLsr(), reportBlock.getDlsr());
-		}
-    }
-
 	public void onReceiveRtp(RtpPacket packet) {
 		int seqNumber = packet.getSeqNumber();
 
@@ -347,9 +342,9 @@ public class RtpMember {
 	}
 	
 	public void onReceiveSR(RtcpSenderReport report) {
-		this.lastSrReceivedOn = this.wallClock.getCurrentTime();
-		logger.info("LAST SR RECEIVED ON: "+ this.lastSrReceivedOn+", ssrc="+this.ssrc);
+		// Update statistics
 		this.lastSrTimestamp = calculateLastSrTimestamp(report.getNtpSec(), report.getNtpFrac());
+		this.lastSrReceivedOn = this.wallClock.getCurrentTime();
 		this.lastSrSequenceNumber = this.lastSequenceNumber;
 		this.receivedSinceSR = 0;
 	}
@@ -364,7 +359,7 @@ public class RtpMember {
 	 */
 	static long calculateLastSrTimestamp(long ntp1, long ntp2) {
 		byte[] high = uIntLongToByteWord(ntp1);
-		byte[] low = uIntLongToByteWord(ntp1);
+		byte[] low = uIntLongToByteWord(ntp2);
 		low[3] = low[1];
 		low[2] = low[0];
 		low[1] = high[3];

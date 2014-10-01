@@ -629,20 +629,16 @@ public class RtpStatistics {
 				member = addMember(ssrc);
 			}
 			
-			// Receiving an SR has impact on the statistics of the member
 			if(rtcpPacket.isSender() && member != null) {
+				// Receiving an SR has impact on the statistics of the member
 				member.onReceiveSR((RtcpSenderReport) report);
-			}
-			
-			// Estimate Round Trip propagation Delay for remaining members
-			RtcpReportBlock[] reportBlocks = report.getReportBlocks();
-			for (RtcpReportBlock reportBlock : reportBlocks) {
-				RtpMember receiver = getMember(reportBlock.getSsrc());
-				if(receiver != null) {
-					receiver.onReceiveReportBlock(reportBlock);
+
+				// estimate round trip delay
+				RtcpReportBlock reportBlock = report.getReportBlock(this.ssrc);
+				if(reportBlock!= null) {
+					member.estimateRtt(this.wallClock.getCurrentTime(), reportBlock.getLsr(), reportBlock.getDlsr());
 				}
 			}
-
 			break;
 		case RTCP_BYE:
 
