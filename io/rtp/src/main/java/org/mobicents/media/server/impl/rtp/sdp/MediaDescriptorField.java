@@ -56,6 +56,9 @@ public class MediaDescriptorField {
     // legacy unencrypted RTP media profile
     public final static String RTP_AVP_PROFILE = "RTP/AVP";
 
+    // legacy encrypted SRTP media profile 
+    public final static String RTP_SAVP_PROFILE = "RTP/SAVP";
+
     // WebRTC (DTLS SRTP encrypted) RTP media profile
     public final static String RTP_SAVPF_PROFILE = "RTP/SAVPF";
 
@@ -458,8 +461,7 @@ public class MediaDescriptorField {
      * @return true if the media profile requires encryption
      */
 	public boolean isWebRTCProfile() {
-		boolean isEcryptionRequired = getProfile().toString().equals(RTP_SAVPF_PROFILE);
-		return isEcryptionRequired;
+		return getProfile().toString().equals(RTP_SAVP_PROFILE) || getProfile().toString().equals(RTP_SAVPF_PROFILE);
 	}
 
 	public Text getWebRTCFingerprint() {

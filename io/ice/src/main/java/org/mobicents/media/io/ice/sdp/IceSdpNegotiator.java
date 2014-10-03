@@ -150,10 +150,16 @@ public class IceSdpNegotiator {
 					RtcpAttribute rtcpAttribute = new RtcpAttribute(defaultRtcpCandidate, "IN");
 					mediaStream.addAttribute(rtcpAttribute);
 				}
+				
+				// XXX Bandwidth - Default values for G711 RTP/AVP profile
+//				mediaStream.setBandwidth("AS", 64);
+//				mediaStream.setBandwidth("RS", 800);
+//				mediaStream.setBandwidth("RR", 2400);
 			} else {
-				// XXX RS and RR attributes not supported on firefox
-				// mediaStream.setBandwidth("RS", 0);
-				// mediaStream.setBandwidth("RR", 0);
+				// XXX RS and RR attributes not supported on firefox atm
+				// Reduce available RTCP bandwidth to zero
+				mediaStream.setBandwidth("RS", 0);
+				mediaStream.setBandwidth("RR", 0);
 			}
 		}
 		return sessionDescription;
