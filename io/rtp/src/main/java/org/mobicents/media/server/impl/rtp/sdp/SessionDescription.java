@@ -33,15 +33,16 @@ import org.mobicents.media.server.utils.Text;
  * Session Descriptor.
  *
  * @author kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class SessionDescription {
+	
 	public final static Text AUDIO = new Text("audio");
 	public final static Text VIDEO = new Text("video");
 	
     protected final static Text RTPMAP = new Text("a=rtpmap");
     protected final static Text FMTP = new Text("a=fmtp");
     protected final static Text WEBRTC_FINGERPRINT = new Text("a=fingerprint");
-    protected final static Text CANDIDATE = CandidateField.CANDIDATE_FIELD;
 
     private Text version;
     private OriginField origin = new OriginField();
@@ -55,6 +56,13 @@ public class SessionDescription {
     private MediaDescriptorField applicationDescriptor;
 
     private MediaDescriptorField md;
+    
+    /* ICE */
+    protected static final Text ICE_UFRAG = new Text("a=ice-ufrag");
+    protected static final Text ICE_PWD = new Text("a=ice-pwd");
+    protected static final Text ICE_CANDIDATE = CandidateField.CANDIDATE_FIELD;
+    
+    private boolean ice = false;
 
     /**
      * Reads descriptor from binary data
@@ -126,6 +134,11 @@ public class SessionDescription {
                     }
                     break;
                 case 'a':
+                	// Identify ICE usage
+                	if(!this.ice) {
+                		this.ice = isIceAttribute(line);
+                	}
+                	
                 	if (md != null) {
                 		md.addAttribute(line);
                 	}
@@ -236,6 +249,14 @@ public class SessionDescription {
     	return this.applicationDescriptor != null;
     }
     
+    private boolean isIceAttribute(Text line) {
+    	return line.startsWith(ICE_UFRAG) || line.startsWith(ICE_UFRAG) || line.startsWith(ICE_CANDIDATE);
+    }
+    
+    public boolean isIce() {
+		return ice;
+	}
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -243,5 +264,5 @@ public class SessionDescription {
         builder.append(origin.toString());
         return builder.toString();
     }
-
+    
 }

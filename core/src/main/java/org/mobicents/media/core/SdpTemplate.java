@@ -436,7 +436,8 @@ public class SdpTemplate {
             builder.append(String.format("a=%s\n", this.connectionMode));
             builder.append(getSdpSessionSetupAttribute());
             builder.append(getExtendedAudioAttributes()).append("\n");
-            builder.append("a=ssrc:%d cname:%s").append("\n");
+            // XXX Firefox does not support SSRC attribute!!
+//            builder.append("a=ssrc:%d cname:%s").append("\n");
         } else {
         	builder.append(payloads(this.offeredAudioFormats)).append("\n");
         }

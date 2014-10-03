@@ -41,7 +41,7 @@ public class WebRTCSdpTemplate extends SdpTemplate {
     
     @Override
     protected String getMediaProfile() {
-    	return MediaDescriptorField.RTP_SAVP_PROFILE;
+    	return MediaDescriptorField.RTP_SAVPF_PROFILE;
     }
 
     

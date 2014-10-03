@@ -524,7 +524,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 */
 	private void processSdpOffer() throws SocketException, IOException {
 		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
-		this.ice = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
+//XXX		this.ice = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
+		this.ice = this.sdp.isIce();
 		this.audioRtcpMux = this.sdp.getAudioDescriptor().isRtcpMux();
 		if(this.audioRtcpMux) {
 			this.rtpAudioChannel.enableRtcpMux();
