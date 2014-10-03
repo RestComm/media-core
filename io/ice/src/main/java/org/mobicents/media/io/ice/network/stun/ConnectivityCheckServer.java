@@ -3,8 +3,15 @@ package org.mobicents.media.io.ice.network.stun;
 import java.nio.channels.Selector;
 
 import org.mobicents.media.io.ice.IceAgent;
-import org.mobicents.media.io.ice.network.nio.NioServer;
+import org.mobicents.media.server.io.network.server.NioServer;
 
+/**
+ * Non-blocking server to listen to STUN connectivity checks that happen as part
+ * of the ICE handshake.
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ */
 public class ConnectivityCheckServer extends NioServer {
 
 	private final IceAgent agent;
@@ -18,8 +25,7 @@ public class ConnectivityCheckServer extends NioServer {
 		this.stunListener = new StunListenerImpl(this.agent);
 		this.stunHandler.addListener(this.stunListener);
 
-		// Elected protocol handler on NIO server
-		this.protocolHandler = this.stunHandler;
+		super.addPacketHandler(this.stunHandler);
 	}
 
 	protected class StunListenerImpl implements StunListener {

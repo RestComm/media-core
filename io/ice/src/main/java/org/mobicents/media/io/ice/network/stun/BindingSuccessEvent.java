@@ -1,7 +1,6 @@
 package org.mobicents.media.io.ice.network.stun;
 
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
+import java.net.InetSocketAddress;
 
 /**
  * Event that should be thrown when a STUN handler replies successfully to a
@@ -13,24 +12,26 @@ import java.nio.channels.SelectionKey;
 public class BindingSuccessEvent {
 
 	private final StunHandler source;
-	private final SelectionKey key;
+	private final InetSocketAddress localPeer;
+	private final InetSocketAddress remotePeer;
 
-	public BindingSuccessEvent(StunHandler source, SelectionKey key) {
+	public BindingSuccessEvent(StunHandler source, InetSocketAddress localPeer, InetSocketAddress remotePeer) {
 		super();
 		this.source = source;
-		this.key = key;
+		this.localPeer = localPeer;
+		this.remotePeer = remotePeer;
 	}
 
 	public StunHandler getSource() {
 		return source;
 	}
 
-	public SelectionKey getKey() {
-		return key;
+	public InetSocketAddress getLocalPeer() {
+		return localPeer;
 	}
 	
-	public DatagramChannel getChannel() {
-		return (DatagramChannel) this.key.channel();
+	public InetSocketAddress getRemotePeer() {
+		return remotePeer;
 	}
 
 }

@@ -63,6 +63,9 @@ public class SessionDescription {
     protected static final Text ICE_CANDIDATE = CandidateField.CANDIDATE_FIELD;
     
     private boolean ice = false;
+    
+    /* WebRTC */
+    private Text fingerprint;
 
     /**
      * Reads descriptor from binary data
@@ -134,15 +137,20 @@ public class SessionDescription {
                     }
                     break;
                 case 'a':
-                	// Identify ICE usage
-                	if(!this.ice) {
-                		this.ice = isIceAttribute(line);
-                	}
-                	
                 	if (md != null) {
                 		md.addAttribute(line);
+                	} else {
+                    	// Identify ICE usage
+                    	if(!this.ice) {
+                    		this.ice = isIceAttribute(line);
+                    	}
+                    	
+                        if (line.startsWith(WEBRTC_FINGERPRINT)) {
+                        	addFingerprintAttribute(line);
+                        	break;
+                        }
                 	}
-                    break;
+                	break;
             }
         }
     }
@@ -201,6 +209,10 @@ public class SessionDescription {
     public TimeField getTime() {
         return time;
     }
+    
+    public Text getFingerprint() {
+		return fingerprint;
+	}
 
     /**
      * Gets the media attributes.
@@ -256,6 +268,21 @@ public class SessionDescription {
     public boolean isIce() {
 		return ice;
 	}
+    
+	/**
+	 * Register a new fingerprint attribute for WebRTC calls.<br>
+	 * Example: <code>a=fingerprint:sha-256 E5:52:E5:88:CC:B6:7A:D7:8E:...</code>
+	 * 
+	 * @param attribute
+	 *            The attribute line to be registered.
+	 * @throws IllegalArgumentException
+	 *             If the attribute is not a valid FMT line.
+	 */
+    private void addFingerprintAttribute(Text attribute) throws IllegalArgumentException {
+    	// Remove line type 'a=fingerprint:'
+    	Text fingerprint = (Text) attribute.subSequence(WEBRTC_FINGERPRINT.length(), attribute.length());
+    	this.fingerprint = fingerprint;
+    }
     
     @Override
     public String toString() {

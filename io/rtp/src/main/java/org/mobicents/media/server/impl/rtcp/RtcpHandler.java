@@ -1,13 +1,13 @@
 package org.mobicents.media.server.impl.rtcp;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
@@ -328,11 +328,11 @@ public class RtcpHandler implements PacketHandler {
 		return false;
 	}
 
-	public byte[] handle(byte[] packet) throws PacketHandlerException {
-		return handle(packet, packet.length, 0);
+	public byte[] handle(byte[] packet, InetSocketAddress remotePeer) throws PacketHandlerException {
+		return handle(packet, packet.length, 0, remotePeer);
 	}
 
-	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
+	public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress remotePeer) throws PacketHandlerException {
 		// Do NOT handle data while DTLS handshake is ongoing. WebRTC calls only.
 		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return null;

@@ -8,6 +8,7 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
+import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
@@ -15,7 +16,6 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
-import org.mobicents.media.server.impl.stun.StunHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -275,7 +275,6 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		if(this.secure) {
 			this.dtlsHandler.setChannel(this.channel);
 			this.dtlsHandler.addListener(this);
-			this.stunHandler.setChannel(this.channel);
 			this.handlers.addHandler(this.stunHandler);
 
 			// Start DTLS handshake

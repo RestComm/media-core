@@ -1,5 +1,6 @@
 package org.mobicents.media.server.impl.rtp;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
@@ -204,12 +205,11 @@ public class RtpHandler implements PacketHandler {
 		return false;
 	}
 	
-
-	public byte[] handle(byte[] packet) throws PacketHandlerException {
-		return this.handle(packet, packet.length, 0);
+	public byte[] handle(byte[] packet, InetSocketAddress remotePeer) throws PacketHandlerException {
+		return this.handle(packet, packet.length, 0, remotePeer);
 	}
 
-	public byte[] handle(byte[] packet, int dataLength, int offset) throws PacketHandlerException {
+	public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress remotePeer) throws PacketHandlerException {
 		// Do not handle data while DTLS handshake is ongoing. WebRTC calls only.
 		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return null;

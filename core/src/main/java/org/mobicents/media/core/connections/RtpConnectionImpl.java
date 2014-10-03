@@ -568,7 +568,13 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		
 		// Configure WebRTC-related resources on audio channel
 		if (this.webrtc) {
+			// Look at media session-level fingerprint attribute first
+			// If not defined, use the session-level attribute
 			Text remotePeerFingerprint = this.sdp.getAudioDescriptor().getWebRTCFingerprint();
+			if(remotePeerFingerprint == null) {
+				remotePeerFingerprint = this.sdp.getFingerprint();
+			}
+			
 			rtpAudioChannel.enableSRTP(remotePeerFingerprint, this.iceAgent);
 			if(!this.audioRtcpMux) {
 				rtcpAudioChannel.enableSRTCP(remotePeerFingerprint, this.iceAgent);

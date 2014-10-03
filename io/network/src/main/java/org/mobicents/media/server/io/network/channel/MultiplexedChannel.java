@@ -1,6 +1,7 @@
 package org.mobicents.media.server.io.network.channel;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -107,7 +108,7 @@ public class MultiplexedChannel implements Channel {
 			try {
 				// Let the handler process the incoming packet.
 				// A response MAY be provided as result.
-				byte[] response = handler.handle(dataCopy, dataLength, 0);
+				byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) channel.getLocalAddress(), (InetSocketAddress) channel.getRemoteAddress());
 				
 				/*
 				 * If handler intends to send a response to the remote peer,
