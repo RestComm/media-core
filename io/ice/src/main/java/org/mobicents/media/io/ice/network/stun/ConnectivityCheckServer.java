@@ -24,7 +24,6 @@ public class ConnectivityCheckServer extends NioServer {
 		this.stunHandler = new StunHandler(this.agent);
 		this.stunListener = new StunListenerImpl(this.agent);
 		this.stunHandler.addListener(this.stunListener);
-
 		super.addPacketHandler(this.stunHandler);
 	}
 
@@ -37,10 +36,12 @@ public class ConnectivityCheckServer extends NioServer {
 		}
 
 		public void onBinding(BindingSuccessEvent event) {
+			
 			// Tell the ICE agent to select a candidate for the correct media
 			// stream and component
-			this.agent.selectCandidatePair(event.getChannel());
+			this.agent.selectCandidatePair(ConnectivityCheckServer.this.currentChannel);
 		}
+		
 	}
 
 }

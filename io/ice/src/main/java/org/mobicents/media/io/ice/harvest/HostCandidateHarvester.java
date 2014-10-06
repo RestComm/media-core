@@ -130,7 +130,7 @@ public class HostCandidateHarvester implements CandidateHarvester {
 		DatagramChannel channel = DatagramChannel.open();
 		channel.configureBlocking(false);
 		// Register selector for reading operations
-		channel.register(selector, SelectionKey.OP_READ);
+		channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 		channel.bind(new InetSocketAddress(localAddress, port));
 		return channel;
 	}

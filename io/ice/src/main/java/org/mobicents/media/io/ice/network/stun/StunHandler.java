@@ -68,8 +68,7 @@ public class StunHandler implements PacketHandler {
 	private void fireStunBindingEvent(InetSocketAddress localPeer, InetSocketAddress remotePeer) {
 		StunListener[] listenersCopy;
 		synchronized (this.listeners) {
-			listenersCopy = new StunListener[this.listeners.size()];
-			this.listeners.toArray(listenersCopy);
+			listenersCopy = this.listeners.toArray(new StunListener[this.listeners.size()]);
 		}
 		
 		BindingSuccessEvent event = new BindingSuccessEvent(this, localPeer, remotePeer);

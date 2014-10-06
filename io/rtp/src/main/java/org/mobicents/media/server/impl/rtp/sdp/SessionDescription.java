@@ -37,25 +37,25 @@ import org.mobicents.media.server.utils.Text;
  */
 public class SessionDescription {
 	
-	public final static Text AUDIO = new Text("audio");
-	public final static Text VIDEO = new Text("video");
-	
-    protected final static Text RTPMAP = new Text("a=rtpmap");
-    protected final static Text FMTP = new Text("a=fmtp");
-    protected final static Text WEBRTC_FINGERPRINT = new Text("a=fingerprint");
 
     private Text version;
     private OriginField origin = new OriginField();
     private Text session;
     private ConnectionField connection = new ConnectionField();
     private TimeField time = new TimeField();
+    
+    /* MEDIA */
+    protected final static Text RTPMAP = new Text("a=rtpmap");
+    protected final static Text FMTP = new Text("a=fmtp");
+    protected final static Text AUDIO = new Text("audio");
+    protected final static Text VIDEO = new Text("video");
+
     private ArrayList<MediaDescriptorField> mds = new ArrayList<MediaDescriptorField>(3);
+    private MediaDescriptorField md;
 
     private MediaDescriptorField audioDescriptor;
     private MediaDescriptorField videoDescriptor;
     private MediaDescriptorField applicationDescriptor;
-
-    private MediaDescriptorField md;
     
     /* ICE */
     protected static final Text ICE_UFRAG = new Text("a=ice-ufrag");
@@ -65,6 +65,8 @@ public class SessionDescription {
     private boolean ice = false;
     
     /* WebRTC */
+    protected final static Text WEBRTC_FINGERPRINT = new Text("a=fingerprint");
+
     private Text fingerprint;
 
     /**
@@ -115,6 +117,7 @@ public class SessionDescription {
                     time.strain(line);
                     break;
                 case 'm':
+                	
                     md = new MediaDescriptorField();
                     mds.add(md);
                     md.setDescriptor(line);
@@ -262,12 +265,16 @@ public class SessionDescription {
     }
     
     private boolean isIceAttribute(Text line) {
-    	return line.startsWith(ICE_UFRAG) || line.startsWith(ICE_UFRAG) || line.startsWith(ICE_CANDIDATE);
+    	return line.startsWith(ICE_UFRAG) || line.startsWith(ICE_PWD) || line.startsWith(ICE_CANDIDATE);
     }
     
     public boolean isIce() {
 		return ice;
 	}
+
+    public boolean isAudioIce() {
+    	return this.ice || this.getAudioDescriptor().isIce();
+    }
     
 	/**
 	 * Register a new fingerprint attribute for WebRTC calls.<br>

@@ -15,7 +15,8 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.io.network.channel.PacketHandlerPipeline;
 
 /**
- * Non-blocking, single-threaded server that runs on a single thread.
+ * Non-blocking, single-threaded server that relies on a pipeline of handlers to
+ * process incoming packets.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
@@ -30,6 +31,7 @@ public class NioServer {
 	private final ByteBuffer buffer;
 	private final PacketHandlerPipeline packetHandlers;
 	private boolean running;
+	protected DatagramChannel currentChannel;
 	
 	private final Worker worker;
 	private Thread workerThread;
@@ -137,8 +139,8 @@ public class NioServer {
 						keys.remove();
 						
 						// receive data from underlying channel
-						DatagramChannel channel = (DatagramChannel) key.channel();
-						int dataLength = receive(channel, buffer);
+						currentChannel = (DatagramChannel) key.channel();
+						int dataLength = receive(currentChannel, buffer);
 						
 						/*
 						 * If an error occurred, close the channel and continue iterating.
@@ -147,7 +149,7 @@ public class NioServer {
 						 */
 						if(dataLength < 0) {
 							try {
-								channel.close();
+								currentChannel.close();
 							} catch (IOException e) {
 								logger.error("Could not close defective channel: "+ e.getMessage(), e);
 							}
@@ -159,9 +161,9 @@ public class NioServer {
 							if(handler != null) {
 								try {
 									// Process incoming packet and send response back, if any
-									byte[] response = handler.handle(data, (InetSocketAddress) channel.getLocalAddress(), (InetSocketAddress) channel.getRemoteAddress());
+									byte[] response = handler.handle(data, (InetSocketAddress) currentChannel.getLocalAddress(), (InetSocketAddress) currentChannel.getRemoteAddress());
 									if(response != null && key.isWritable()) {
-										send(channel, response, buffer);
+										send(currentChannel, response, buffer);
 									}
 								} catch (PacketHandlerException e) {
 									logger.error("Could not process incoming packet. Packet will be dropped.");
@@ -175,6 +177,7 @@ public class NioServer {
 					logger.error("Could not select keys: "+ e.getMessage(), e);
 				}
 			}
+			currentChannel = null;
 			logger.info("NIO Server stopped");
 		}
 		

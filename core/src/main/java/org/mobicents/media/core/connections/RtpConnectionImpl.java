@@ -481,6 +481,10 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			this.connectionFailureListener.onFailure();
 		}
 		
+		if(this.ice && this.iceAgent.isRunning()) {
+			this.iceAgent.stop();
+		}
+		
 		if(this.audioCapabale) {
 			this.rtpAudioChannel.close();
 			this.rtcpAudioChannel.close();
@@ -500,10 +504,15 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		} catch (ModeNotSupportedException e) {
 		}
 
+		if(this.ice && this.iceAgent.isRunning()) {
+			this.iceAgent.stop();
+		}
+		
 		if (this.audioCapabale) {
 			this.rtpAudioChannel.close();
 			this.rtcpAudioChannel.close();
 		}
+		
 
 		releaseConnection(ConnectionType.RTP);
 		this.connectionFailureListener = null;
@@ -524,8 +533,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 */
 	private void processSdpOffer() throws SocketException, IOException {
 		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
-//XXX		this.ice = !this.sdp.getAudioDescriptor().getCandidates().isEmpty();
-		this.ice = this.sdp.isIce();
+		this.ice = this.sdp.isAudioIce();
 		this.audioRtcpMux = this.sdp.getAudioDescriptor().isRtcpMux();
 		if(this.audioRtcpMux) {
 			this.rtpAudioChannel.enableRtcpMux();

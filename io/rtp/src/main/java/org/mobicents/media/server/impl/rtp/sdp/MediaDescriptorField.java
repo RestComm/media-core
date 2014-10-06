@@ -46,6 +46,9 @@ public class MediaDescriptorField {
     private Text profile;
     private ConnectionField connection;
     private boolean rtcpMux = false;
+    private boolean ice = false;
+    private Text iceUfrag;
+    private Text icePwd;
     private List<CandidateField> candidates = new ArrayList<CandidateField>();
 
     private RTPFormats formats = new RTPFormats(15);
@@ -132,7 +135,20 @@ public class MediaDescriptorField {
         	return;
         }
         
+        if(attribute.startsWith(SessionDescription.ICE_UFRAG)) {
+        	this.ice = true;
+        	addIceUfragAttribute(attribute);
+        	return;
+        }
+
+        if(attribute.startsWith(SessionDescription.ICE_PWD)) {
+        	this.ice = true;
+        	addIcePwdAttribute(attribute);
+        	return;
+        }
+        
         if(attribute.startsWith(CandidateField.CANDIDATE_FIELD)) {
+        	this.ice = true;
         	addCandidate(attribute);
         	return;
         }
@@ -141,6 +157,44 @@ public class MediaDescriptorField {
         	this.rtcpMux = true;
         	return;
         }
+    }
+    
+    /**
+     * Parses an ice-ufrag attribute and registers it in the media session.<br>
+     * Example: <code>a=ice-ufrag:apy5ZU+12zHYMHGq</code>
+     * @param attribute
+     */
+    private void addIceUfragAttribute(Text attribute) {
+		// Copy and trim the attribute
+		Text attr = new Text();
+		attribute.copy(attr);
+		attr.trim();
+		
+		// Extract the value from the attribute
+		Iterator<Text> it = attribute.split(':').iterator();
+    	Text token = it.next();
+        token = it.next();
+        token.trim();
+        this.iceUfrag = token;
+    }
+
+    /**
+     * Parses an ice-pwd attribute and registers it in the media session.<br>
+     * Example: <code>a=ice-pwd:BsDycZCv0plnGR+su8E+3kGJ</code>
+     * @param attribute
+     */
+    private void addIcePwdAttribute(Text attribute) {
+    	// Copy and trim the attribute
+    	Text attr = new Text();
+    	attribute.copy(attr);
+    	attr.trim();
+    	
+    	// Extract the value from the attribute
+    	Iterator<Text> it = attribute.split(':').iterator();
+    	Text token = it.next();
+    	token = it.next();
+    	token.trim();
+    	this.icePwd = token;
     }
     
     /**
@@ -455,7 +509,6 @@ public class MediaDescriptorField {
         return rtpFormat;
     }
 
-    
     /**
      * 
      * @return true if the media profile requires encryption
@@ -470,6 +523,18 @@ public class MediaDescriptorField {
 
 	public void setWebRTCFingerprint(Text webRTCFingerprint) {
 		this.webRTCFingerprint = webRTCFingerprint;
+	}
+	
+    public boolean isIce() {
+    	return this.ice;
+    }
+	
+	public Text getIceUfrag() {
+		return iceUfrag;
+	}
+	
+	public Text getIcePwd() {
+		return icePwd;
 	}
 
 	public List<CandidateField> getCandidates() {

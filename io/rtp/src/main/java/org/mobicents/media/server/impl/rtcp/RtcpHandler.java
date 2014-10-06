@@ -328,11 +328,11 @@ public class RtcpHandler implements PacketHandler {
 		return false;
 	}
 
-	public byte[] handle(byte[] packet, InetSocketAddress remotePeer) throws PacketHandlerException {
-		return handle(packet, packet.length, 0, remotePeer);
+	public byte[] handle(byte[] packet, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws PacketHandlerException {
+		return handle(packet, packet.length, 0, localPeer, remotePeer);
 	}
 
-	public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress remotePeer) throws PacketHandlerException {
+	public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws PacketHandlerException {
 		// Do NOT handle data while DTLS handshake is ongoing. WebRTC calls only.
 		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return null;
