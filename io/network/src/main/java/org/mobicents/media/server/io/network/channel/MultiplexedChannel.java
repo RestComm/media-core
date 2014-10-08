@@ -86,7 +86,7 @@ public class MultiplexedChannel implements Channel {
 			if (!isConnected() && remotePeer != null) {
 				connect(remotePeer);
 			}
-			dataLength = (remotePeer == null) ? -1 : this.receiveBuffer.position();
+			dataLength = this.receiveBuffer.position();
 		} catch (IOException e) {
 			dataLength = -1;
 		}
@@ -95,34 +95,34 @@ public class MultiplexedChannel implements Channel {
 		if (dataLength == -1) {
 			close();
 			return;
-		}
-
-		// Copy data from buffer so we don't mess with original
-		byte[] dataCopy = new byte[dataLength];
-		this.receiveBuffer.rewind();
-		this.receiveBuffer.get(dataCopy, 0, dataLength);
-
-		// Delegate work to the proper handler
-		PacketHandler handler = this.handlers.getHandler(dataCopy);
-		if (handler != null) {
-			try {
-				// Let the handler process the incoming packet.
-				// A response MAY be provided as result.
-				byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) channel.getLocalAddress(), (InetSocketAddress) channel.getRemoteAddress());
-				
-				/*
-				 * If handler intends to send a response to the remote peer,
-				 * queue the data to send it on writing cycle. Only allowed if
-				 * Selection Key is writable!
-				 */
-				if (response != null && response.length > 0) {
-					queueData(response);
+		} else if (dataLength > 0) {
+			// Copy data from buffer so we don't mess with original
+			byte[] dataCopy = new byte[dataLength];
+			this.receiveBuffer.rewind();
+			this.receiveBuffer.get(dataCopy, 0, dataLength);
+			
+			// Delegate work to the proper handler
+			PacketHandler handler = this.handlers.getHandler(dataCopy);
+			if (handler != null) {
+				try {
+					// Let the handler process the incoming packet.
+					// A response MAY be provided as result.
+					byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) channel.getLocalAddress(), (InetSocketAddress) channel.getRemoteAddress());
+					
+					/*
+					 * If handler intends to send a response to the remote peer,
+					 * queue the data to send it on writing cycle. Only allowed if
+					 * Selection Key is writable!
+					 */
+					if (response != null && response.length > 0) {
+						queueData(response);
+					}
+				} catch (PacketHandlerException e) {
+					logger.error("Could not handle incoming packet: " + e.getMessage());
 				}
-			} catch (PacketHandlerException e) {
-				logger.error("Could not handle incoming packet: " + e.getMessage());
+			} else {
+				logger.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
 			}
-		} else {
-			logger.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
 		}
 	}
 
