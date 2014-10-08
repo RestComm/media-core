@@ -34,6 +34,7 @@
 	<concurrent.version>1.3.4</concurrent.version>
 	<version.freetts>1.2.2</version.freetts>
 	<version.jboss.microcontainer>2.2.0.M2</version.jboss.microcontainer>
+	<version.jain.sip.ri>6.1.4.10</version.jain.sip.ri>
 
         <!--mobicents.tools.mavenplugin.eclipse.version>
 			1.0.0.BETA2
