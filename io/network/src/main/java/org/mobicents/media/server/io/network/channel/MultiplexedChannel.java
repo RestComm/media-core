@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
  */
 public class MultiplexedChannel implements Channel {
 	
-	private static final Logger LOGGER = Logger.getLogger(Channel.class);
+	private static final Logger logger = Logger.getLogger(Channel.class);
 	
 	// Data channel where data will be received and transmitted
 	protected DatagramChannel channel;
@@ -60,7 +60,7 @@ public class MultiplexedChannel implements Channel {
 	}
 	
 	protected void flush() {
-		if(this.channel != null) {
+		if(this.channel != null && this.channel.isOpen()) {
 			try {
 				// lets clear the receiver
 				SocketAddress currAddress;
@@ -70,7 +70,7 @@ public class MultiplexedChannel implements Channel {
 					this.receiveBuffer.clear();
 				} while(currAddress != null);
 			} catch (Exception e) {
-				LOGGER.error(e.getMessage(), e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -119,10 +119,10 @@ public class MultiplexedChannel implements Channel {
 					queueData(response);
 				}
 			} catch (PacketHandlerException e) {
-				LOGGER.error("Could not handle incoming packet: " + e.getMessage());
+				logger.error("Could not handle incoming packet: " + e.getMessage());
 			}
 		} else {
-			LOGGER.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
+			logger.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
 		}
 	}
 
@@ -170,12 +170,12 @@ public class MultiplexedChannel implements Channel {
 			try {
 				channel.disconnect();
 			} catch (IOException e) {
-				LOGGER.error(e);
+				logger.error(e);
 			}
 			try {
 				channel.close();
 			} catch (IOException e) {
-				LOGGER.error(e);
+				logger.error(e);
 			}
 		}
 	}
