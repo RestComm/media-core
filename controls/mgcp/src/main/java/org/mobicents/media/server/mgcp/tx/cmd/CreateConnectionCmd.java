@@ -289,6 +289,12 @@ public class CreateConnectionCmd extends Action {
                     } catch (IOException e) {
                     	throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
                     }
+                } else {
+                	try {
+						connections[0].generateLocalDescriptor();
+					} catch (IOException e) {
+						throw new MgcpCommandException(MgcpResponseCode.INTERNAL_INCONSISTENCY_IN_LOCAL_SDP, new Text("Could not generate local connection descriptor."));
+					}
                 }
                 
                 try {

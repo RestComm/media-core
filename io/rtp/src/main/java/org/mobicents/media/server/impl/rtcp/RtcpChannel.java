@@ -73,10 +73,6 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		// WebRTC
 		this.secure = false;
 	}
-	
-	public int getLocalPort() {
-		return this.channel != null ? this.channel.socket().getLocalPort() : 0;
-	}
 
 	public void setRemotePeer(SocketAddress remotePeer) {
 		this.remotePeer = remotePeer;

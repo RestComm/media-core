@@ -41,6 +41,24 @@ public class MultiplexedChannel implements Channel {
 		this.receiveBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	}
 	
+	public String getLocalAddress() {
+		if(this.channel != null && this.channel.isOpen()) {
+			try {
+				return ((InetSocketAddress) this.channel.getLocalAddress()).getHostString();
+			} catch (IOException e) {
+				logger.error("Could not lookup the channel address: "+ e.getMessage(), e);
+			}
+		}
+		return "";
+	}
+	
+	public int getLocalPort() {
+		if(this.channel != null && this.channel.isOpen()) {
+			return this.channel.socket().getLocalPort();
+		}
+		return 0;
+	}
+	
 	public void setChannel(final DatagramChannel channel) {
 		this.channel = channel;
 	}

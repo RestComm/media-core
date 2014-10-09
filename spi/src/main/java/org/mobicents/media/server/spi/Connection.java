@@ -25,12 +25,11 @@ package org.mobicents.media.server.spi;
 import java.io.IOException;
 import org.mobicents.media.server.utils.Text;
 
-
-
 /**
  *
  * @author Yulian Oifa
  * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface Connection {
     /**
@@ -117,6 +116,14 @@ public interface Connection {
 	 *         available.
 	 */
     public String getRemoteDescriptor();
+    
+    /**
+	 * Generates the local connection descriptor and allocates the necessary
+	 * resources.
+	 * 
+	 * @throws IOException
+	 */
+    public void generateLocalDescriptor() throws IOException;
     
     /**
      * Joins endpoint wich executes this connection with other party.

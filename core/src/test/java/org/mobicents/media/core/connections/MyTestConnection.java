@@ -53,6 +53,10 @@ public class MyTestConnection extends BaseConnection {
         audioComponent=new AudioComponent(-1);
         oobComponent=new OOBComponent(-1);
     }
+    
+    public void generateLocalDescriptor() throws IOException {
+    	throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     public AudioComponent getAudioComponent()
     {

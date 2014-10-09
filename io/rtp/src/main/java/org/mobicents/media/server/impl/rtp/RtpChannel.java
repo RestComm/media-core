@@ -330,10 +330,6 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		return available;
 	}
 	
-	public int getLocalPort() {
-		return this.channel != null ? this.channel.socket().getLocalPort() : 0;
-	}
-	
 	public void setRemotePeer(SocketAddress address) {
 		this.remotePeer = address;
 		boolean connectImmediately = false;

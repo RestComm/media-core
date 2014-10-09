@@ -12,6 +12,22 @@ import java.net.SocketAddress;
 public interface Channel {
 
 	/**
+	 * Gets the address the channel is bound to.
+	 * 
+	 * @return Returns the local address of the channel. Returns an empty string
+	 *         if the channel is not currently bound.
+	 */
+	String getLocalAddress();
+
+	/**
+	 * Gets the port that the channel listens to.
+	 * 
+	 * @return The number of the local port. Returns zero if the channel is not
+	 *         currently bound.
+	 */
+	int getLocalPort();
+
+	/**
 	 * Receive data through the channel
 	 * 
 	 * @throws IOException

@@ -114,6 +114,15 @@ public class MgcpConnection implements ConnectionFailureListener {
     	
     	return null;
     }
+    
+    /**
+	 * Generates the local connection descriptor.
+	 * 
+	 * @throws IOException
+	 */
+    public void generateLocalDescriptor() throws IOException {
+    	connection.generateLocalDescriptor();
+    }
 
     public void setOtherParty(Text sdp) throws IOException {
         connection.setOtherParty(sdp);

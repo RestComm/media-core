@@ -373,7 +373,21 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 */
 	@Override
 	public String getDescriptor() {
-		return sdpAnswer != null ? sdpAnswer : sdpOffer;
+		return (sdpAnswer != null && !sdpAnswer.isEmpty()) ? sdpAnswer : sdpOffer;
+	}
+	
+	public void generateLocalDescriptor() throws IOException {
+		// Only open and bind a new channel if not currently configured
+		if(this.audioCapabale && !this.rtpAudioChannel.isBound()) {
+			this.audioRtcpMux = true;
+			this.rtpAudioChannel.bind(this.isLocal);
+		}
+		
+		// Generate SDP offer based on rtp channel
+		String bindAddress = rtpAudioChannel.getLocalAddress();
+		int rtcpPort = this.audioRtcpMux ? rtpAudioChannel.getLocalPort() : rtcpAudioChannel.getLocalPort();
+		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtcpPort, 0);
+		this.sdpAnswer = "";
 	}
 	
 	@Override
@@ -512,7 +526,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			this.rtpAudioChannel.close();
 			this.rtcpAudioChannel.close();
 		}
-		
 
 		releaseConnection(ConnectionType.RTP);
 		this.connectionFailureListener = null;
