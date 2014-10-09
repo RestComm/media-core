@@ -9,7 +9,6 @@
         <version>6.1.2.GA-TelScale</version>
     </parent>
 
-    <groupId>org.mobicents.media</groupId>
     <artifactId>core</artifactId>
     <name>Core</name>
     
@@ -87,10 +86,10 @@
 		<artifactId>xalan</artifactId>
 		<version>2.6.0</version>
 	</dependency>
-		<dependency>
-			<groupId>javax.sip</groupId>
-			<artifactId>jain-sip-ri</artifactId>
-		</dependency>
+	<dependency>
+		<groupId>javax.sip</groupId>
+		<artifactId>jain-sip-ri</artifactId>
+	</dependency>
     </dependencies>
 
 	<!--  -->

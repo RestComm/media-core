@@ -32,7 +32,6 @@
 		<dependency>
 			<groupId>javax.sip</groupId>
 			<artifactId>jain-sip-ri</artifactId>
-			<version>${version.jain.sip.ri}</version>
 		</dependency>
 	</dependencies>
 
