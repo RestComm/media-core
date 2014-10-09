@@ -6,6 +6,12 @@ import gov.nist.javax.sdp.fields.AttributeField;
 
 import org.mobicents.media.io.ice.IceCandidate;
 
+/**
+ * SDP attribute for RTCP address
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ */
 public class RtcpAttribute extends AttributeField {
 
 	private static final long serialVersionUID = 2147297739130543122L;
@@ -38,8 +44,7 @@ public class RtcpAttribute extends AttributeField {
 
 	@Override
 	public void setName(String name) {
-		throw new UnsupportedOperationException(
-				"Cannot change the name of the " + NAME + " attribute");
+		throw new UnsupportedOperationException("Cannot change the name of the " + NAME + " attribute");
 	}
 
 	@Override

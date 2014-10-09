@@ -9,6 +9,7 @@ import javax.sdp.Connection;
 import javax.sdp.MediaDescription;
 import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
+import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 
 import org.apache.log4j.Logger;
@@ -139,6 +140,9 @@ public class IceSdpNegotiator {
 			 * Otherwise, the agent must signal that using 'b=RS:0' and 'b=RR:0'
 			 */
 			if (iceStream.supportsRtcp()) {
+				// Rewrite the RTCP attribute
+				mediaStream.removeAttribute(RtcpAttribute.NAME);
+				
 				if(iceStream.isRtcpMux()) {
 					mediaStream.addAttribute(new RtcpMuxAttribute());
 					// Add a=rtcp attribute for legacy compatibility
@@ -163,6 +167,16 @@ public class IceSdpNegotiator {
 			}
 		}
 		return sessionDescription;
+	}
+	
+	private static AttributeField getRtcpAttribute(MediaDescription mediaDescription) throws SdpParseException {
+		Vector<AttributeField> attributes = mediaDescription.getAttributes(true);
+		for (AttributeField attribute : attributes) {
+			if(RtcpAttribute.NAME.equals(attribute.getName())) {
+				return attribute;
+			}
+		}
+		return null;
 	}
 
 	private static void addCandidates(IceComponent component, MediaDescription media) throws SdpException {
