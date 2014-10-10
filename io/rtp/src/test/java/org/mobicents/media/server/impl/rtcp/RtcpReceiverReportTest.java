@@ -109,6 +109,7 @@ public class RtcpReceiverReportTest {
 		int length = rtcpReceptionReport.encode(rawData, 0);
 
 		assertEquals(p.length, length);
+		assertEquals(1, rtcpReceptionReport.getCount());
 
 		for (int i = 0; i < p.length; i++) {
 			assertEquals(p[i], rawData[i]);

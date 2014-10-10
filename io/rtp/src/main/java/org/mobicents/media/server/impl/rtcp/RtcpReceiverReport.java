@@ -58,7 +58,7 @@ public class RtcpReceiverReport extends RtcpReport {
 		while ((offSet - tmp) < this.length) {
 			RtcpReportBlock rtcpReceptionReportItem = new RtcpReportBlock();
 			offSet = rtcpReceptionReportItem.decode(rawData, offSet);
-			addReceiverReport(rtcpReceptionReportItem);
+			this.reportBlocks.add(rtcpReceptionReportItem);
 			tmpCount++;
 		}
 
