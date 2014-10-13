@@ -142,28 +142,27 @@ public class TransactionManagerTest {
     	}    	
     }
 
-    private class MyTask extends Task {
-        private Random rnd = new Random();
-        
-        public MyTask() {
-            super();
-        }
+	private class MyTask extends Task {
+		private Random rnd = new Random();
 
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
-        }
+		public MyTask() {
+			super();
+		}
 
-        @Override
-        public long perform() {
-            boolean flag = rnd.nextBoolean();
-System.out.println("TXID=" + action.transaction().getId())            ;
-            if (flag) {
-                throw new IllegalStateException();
-            }
-            
-            return 0;
-        }
-    
-    }
+		public int getQueueNumber() {
+			return Scheduler.MANAGEMENT_QUEUE;
+		}
+
+		@Override
+		public long perform() {
+			boolean flag = rnd.nextBoolean();
+			System.out.println("TXID=" + action.transaction().getId());
+			if (flag) {
+				throw new IllegalStateException();
+			}
+
+			return 0;
+		}
+
+	}
 }
