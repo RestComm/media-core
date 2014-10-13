@@ -2,6 +2,7 @@ package org.mobicents.media.server.io.network.channel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -13,15 +14,22 @@ import java.util.List;
  */
 public class PacketHandlerPipeline {
 
-	/**
-	 * List of registered handlers in the pipeline.
-	 */
-	private final List<PacketHandler> handlers;
+	private static final Comparator<PacketHandler> REVERSE_COMPARATOR = new Comparator<PacketHandler>() {
+		
+		@Override
+		public int compare(PacketHandler o1, PacketHandler o2) {
+			return o2.compareTo(o1);
+		}
+	};
 	
+	private final List<PacketHandler> handlers;
+	private int count;
+
 	public PacketHandlerPipeline() {
 		this.handlers = new ArrayList<PacketHandler>(5);
+		this.count = 0;
 	}
-	
+
 	/**
 	 * Registers a new protocol handler in the pipeline.<br>
 	 * Cannot register same handler twice.
@@ -32,15 +40,25 @@ public class PacketHandlerPipeline {
 	 */
 	public boolean addHandler(PacketHandler handler) {
 		synchronized (this.handlers) {
-			if(!handlers.contains(handler)) {
+			if (!handlers.contains(handler)) {
 				handlers.add(handler);
-				Collections.sort(this.handlers);
+				this.count++;
+				Collections.sort(this.handlers, REVERSE_COMPARATOR);
 				return true;
 			}
 			return false;
 		}
 	}
-	
+
+	/**
+	 * Gets the number of handlers registered in the pipeline.
+	 * 
+	 * @return The number of registered handlers.
+	 */
+	public int count() {
+		return this.count;
+	}
+
 	/**
 	 * Checks whether a certain handler is already registered in the pipeline.
 	 * 
@@ -54,7 +72,7 @@ public class PacketHandlerPipeline {
 			return this.handlers.contains(handler);
 		}
 	}
-	
+
 	/**
 	 * Gets the protocol handler capable of processing the packet.
 	 * 
@@ -72,13 +90,24 @@ public class PacketHandlerPipeline {
 
 		// Search for the first handler capable of processing the packet
 		for (PacketHandler protocolHandler : handlersCopy) {
-			if(protocolHandler.canHandle(packet)) {
+			if (protocolHandler.canHandle(packet)) {
 				return protocolHandler;
 			}
 		}
-		
+
 		// Return null in case no handler is capable of decoding the packet
 		return null;
 	}
-
+	
+	/**
+	 * Gets a <b>copy</b> of the handlers registered in the pipeline.
+	 * 
+	 * @return The list of handlers registered.
+	 */
+	public List<PacketHandler> getHandlers() {
+		synchronized (this.handlers) {
+			return new ArrayList<PacketHandler>(this.handlers);
+		}
+	}
+	
 }
