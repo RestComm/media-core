@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  * @author kulikov
  */
 public class ListenersTest {
-    private Listeners<TestListener> listeners = new Listeners();
+    private Listeners<TestListener> listeners = new Listeners<TestListener>();
     private TestEvent event;
     
     public ListenersTest() {
@@ -98,17 +98,17 @@ public class ListenersTest {
         assertEquals(null, event);        
     }
     
-    private class TestListener implements Listener {
+    private class TestListener implements Listener<TestEvent> {
 
-        public void process(Event evt) {            
-            event = (TestEvent) evt;
+        public void process(TestEvent evt) {            
+            event = evt;
             System.out.println("Delivered " + evt);
             listeners.remove(this);
         }
         
     }
     
-    private class TestEvent implements Event {
+    private class TestEvent implements Event<TestEvent> {
         private String name;
         
         public TestEvent(String name) {
@@ -119,7 +119,7 @@ public class ListenersTest {
             return name;
         }
 
-        public Object getSource() {
+        public TestEvent getSource() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }

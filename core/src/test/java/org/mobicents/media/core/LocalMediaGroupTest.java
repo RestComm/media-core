@@ -27,37 +27,36 @@
 
 package org.mobicents.media.core;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.mobicents.media.core.MyTestEndpoint;
-import org.mobicents.media.core.ResourcesPool;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.connections.LocalConnectionImpl;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
-import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.core.endpoints.impl.BridgeEndpoint;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
-import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.utils.Text;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
  *
