@@ -46,7 +46,7 @@ public class RTPFormats {
      * Creates new format collection with default size.
      */
     public RTPFormats() {
-        this.rtpFormats = new ArrayList(size);
+        this.rtpFormats = new ArrayList<RTPFormat>(size);
     }
 
     public int getLen()
@@ -59,7 +59,7 @@ public class RTPFormats {
      * @param size the size of collection to be created.
      */
     public RTPFormats(int size) {
-        this.rtpFormats = new ArrayList(size);
+        this.rtpFormats = new ArrayList<RTPFormat>(size);
     }
 
     public void add(RTPFormat rtpFormat) {
@@ -123,10 +123,11 @@ public class RTPFormats {
     }
     
     public RTPFormat find(int p) {
-        for (int i = 0; i < rtpFormats.size(); i++) {
-            if (rtpFormats.get(i).getID() == p) {
-                return rtpFormats.get(i);
-            }
+    	int size = rtpFormats.size();
+        for (int i = 0; i < size; i++) {
+        	if (rtpFormats.get(i).getID() == p) {
+        		return rtpFormats.get(i);
+        	}
         }
         return null;
     }
