@@ -166,6 +166,14 @@ public class MultiplexedChannel implements Channel {
 		}
 	}
 	
+	@Override
+	public boolean isOpen() {
+		if(this.channel != null) {
+			return this.channel.isOpen();
+		}
+		return false;
+	}
+	
 	public boolean isConnected() {
 		return this.channel != null && this.channel.isConnected();
 	}

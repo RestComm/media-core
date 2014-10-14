@@ -84,5 +84,24 @@ public class PacketHandlerPipelineTest {
 		Assert.assertTrue(handlers.contains(hpHandler));
 		Assert.assertFalse(handlers.contains(mpHandler));
 	}
+
+	@Test
+	public void testGetHandler() {
+		// given
+		PacketHandlerPipeline pipeline = new PacketHandlerPipeline();
+		String msg = "low";
+		byte[] msgData = msg.getBytes();
+		
+		// when
+		pipeline.addHandler(hpHandler);
+		pipeline.addHandler(lpHandler);
+		pipeline.addHandler(mpHandler);
+		
+		PacketHandler handler = pipeline.getHandler(msgData);
+		
+		// then
+		Assert.assertEquals(lpHandler, handler);
+	}
+	
 	
 }

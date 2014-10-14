@@ -57,6 +57,14 @@ public interface Channel {
 	boolean isConnected();
 
 	/**
+	 * Gets whether channel is open or not.
+	 * 
+	 * @return <code>true</code> if the channel is open. Otherwise, returns
+	 *         <code>false</code>.
+	 */
+	boolean isOpen();
+
+	/**
 	 * Connects the channel
 	 * 
 	 * @param address
