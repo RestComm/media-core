@@ -332,7 +332,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			throw new IOException("Audio codecs are not negotiated");
 		}
 
-		rtpAudioChannel.setFormatMap(audioFormats);
+		rtpAudioChannel.setFormatMap(audio);
 		try {
 			rtpAudioChannel.setOutputFormats(audio.getFormats());
 		} catch (FormatNotSupportedException e) {
