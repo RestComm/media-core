@@ -1,12 +1,12 @@
 package org.mobicents.media.server.impl.srtp;
 
-import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.crypto.PacketTransformer;
@@ -17,12 +17,12 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Handler to process DTLS-SRTP packets
  * 
- * @author Henrique Rosa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
 public class DtlsHandler {
-
-	private static final int MTU = 1500;
+	
+	private static final Logger logger = Logger.getLogger(DtlsHandler.class);
 
 	private DtlsSrtpServer server;
 	private DatagramChannel channel;
@@ -266,7 +266,7 @@ public class DtlsHandler {
 		public void run() {
 			SecureRandom secureRandom = new SecureRandom();
 			DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
-			NioUdpTransport transport = new NioUdpTransport(getChannel(), MTU);
+			NioUdpTransport transport = new NioUdpTransport(getChannel());
 			
 			try {
 				// Perform the handshake in a non-blocking fashion
@@ -288,7 +288,9 @@ public class DtlsHandler {
 				
 				// Warn listeners handshake completed
 				fireHandshakeComplete();
-			} catch (IOException e) {
+			} catch (Exception e) {
+				logger.error("DTLS handshake failed: "+ e.getMessage(), e);
+				
 				// Declare handshake as failed
 				handshakeComplete = false;
 				handshakeFailed = true;

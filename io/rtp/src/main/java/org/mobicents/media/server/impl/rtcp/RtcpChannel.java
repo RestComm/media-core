@@ -237,7 +237,6 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 
 	public void onDtlsHandshakeFailed(Throwable e) {
-		logger.error("DTLS handshake failed for RTCP candidate. Reason: "+ e.getMessage(), e);
 		if(this.rtpListener != null) {
 			this.rtpListener.onRtcpFailure(e);
 		}
