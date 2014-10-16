@@ -363,8 +363,7 @@ public class StunAttributeFactory {
 	 * 
 	 * @return the newly created address attribute.
 	 */
-	public static MessageIntegrityAttribute createMessageIntegrityAttribute(
-			String username, byte[] key) {
+	public static MessageIntegrityAttribute createMessageIntegrityAttribute(String username, byte[] key) {
 		MessageIntegrityAttribute attribute = new MessageIntegrityAttribute();
 		attribute.setKey(key);
 		attribute.setUsername(username);

@@ -65,8 +65,7 @@ import org.mobicents.media.io.stun.messages.attributes.StunAttribute;
  * attribute prior to calculating the HMAC. Such adjustment is necessary when
  * attributes, such as FINGERPRINT, appear after MESSAGE-INTEGRITY.
  */
-public class MessageIntegrityAttribute extends StunAttribute implements
-		ContextDependentAttribute {
+public class MessageIntegrityAttribute extends StunAttribute implements ContextDependentAttribute {
 
 	public static final String NAME = "MESSAGE_INTEGRITY";
 	public static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
@@ -161,12 +160,10 @@ public class MessageIntegrityAttribute extends StunAttribute implements
 	 * @throws IllegalArgumentException
 	 *             if the encoding fails for some reason.
 	 */
-	public static byte[] calculateHmacSha1(byte[] message, int offset,
-			int length, byte[] key) throws IllegalArgumentException {
+	public static byte[] calculateHmacSha1(byte[] message, int offset, int length, byte[] key) throws IllegalArgumentException {
 		try {
 			// get an HMAC-SHA1 key from the raw key bytes
-			SecretKeySpec signingKey = new SecretKeySpec(key,
-					HMAC_SHA1_ALGORITHM);
+			SecretKeySpec signingKey = new SecretKeySpec(key, HMAC_SHA1_ALGORITHM);
 
 			// get an HMAC-SHA1 Mac instance and initialize it with the key
 			Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
@@ -177,8 +174,7 @@ public class MessageIntegrityAttribute extends StunAttribute implements
 			System.arraycopy(message, offset, macInput, 0, length);
 			return mac.doFinal(macInput);
 		} catch (Exception exc) {
-			throw new IllegalArgumentException(
-					"Could not create HMAC-SHA1 request encoding", exc);
+			throw new IllegalArgumentException("Could not create HMAC-SHA1 request encoding", exc);
 		}
 	}
 
@@ -201,7 +197,6 @@ public class MessageIntegrityAttribute extends StunAttribute implements
 
 		// username
 		System.arraycopy(hmacSha1Content, 0, binValue, 4, getDataLength());
-
 		return binValue;
 	}
 
@@ -220,13 +215,13 @@ public class MessageIntegrityAttribute extends StunAttribute implements
 		if (other == null || !(other instanceof MessageIntegrityAttribute)) {
 			return false;
 		}
+		
 		if (other == this) {
 			return true;
 		}
+		
 		MessageIntegrityAttribute att = (MessageIntegrityAttribute) other;
-		if (att.getAttributeType() != getAttributeType()
-				|| att.getDataLength() != getDataLength()
-				|| !Arrays.equals(att.hmacSha1Content, hmacSha1Content)) {
+		if (att.getAttributeType() != getAttributeType() || att.getDataLength() != getDataLength() || !Arrays.equals(att.hmacSha1Content, hmacSha1Content)) {
 			return false;
 		}
 		return true;
@@ -234,16 +229,21 @@ public class MessageIntegrityAttribute extends StunAttribute implements
 
 	@Override
 	public byte[] encode() throws UnsupportedOperationException {
-		throw new UnsupportedOperationException(
-				"ContentDependentAttributes should be encoded "
-						+ "through the contend-dependent encode method");
+		throw new UnsupportedOperationException("ContentDependentAttributes should be encoded through the contend-dependent encode method");
 	}
 
 	@Override
-	protected void decodeAttributeBody(byte[] data, char offset, char length)
-			throws StunException {
+	protected void decodeAttributeBody(byte[] data, char offset, char length) throws StunException {
 		this.hmacSha1Content = new byte[length];
 		System.arraycopy(data, offset, this.hmacSha1Content, 0, length);
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(NAME).append(": ");
+		builder.append("username=").append(this.username).append(", ");
+		builder.append("key=").append(this.key);
+		return builder.toString();
 	}
 
 }

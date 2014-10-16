@@ -20,8 +20,7 @@ import org.mobicents.media.io.stun.messages.attributes.general.FingerprintAttrib
 // TODO Implement STUN Properties. See StackProperties from ice4j - hrosa
 public class StunMessage {
 
-	private static final Logger logger = Logger.getLogger(StunMessage.class
-			.getName());
+	private static final Logger logger = Logger.getLogger(StunMessage.class.getName());
 
 	/* general declaration */
 	public static final char STUN_REQUEST = 0x0000;
@@ -325,11 +324,9 @@ public class StunMessage {
 	 * @throws IllegalArgumentException
 	 *             if the message cannot contain such an attribute.
 	 */
-	public void addAttribute(StunAttribute attribute)
-			throws IllegalArgumentException {
+	public void addAttribute(StunAttribute attribute) throws IllegalArgumentException {
 		if (getAttributePresentity(attribute.getAttributeType()) == N_A) {
-			throw new IllegalArgumentException("The attribute "
-					+ attribute.getName() + " is not allowed in a " + getName());
+			throw new IllegalArgumentException("The attribute " + attribute.getName() + " is not allowed in a " + getName());
 		}
 
 		synchronized (attributes) {
@@ -432,13 +429,10 @@ public class StunMessage {
 	 *             ILLEGAL_ARGUMENT if the transaction id is not valid.
 	 */
 	public void setTransactionID(byte[] tranID) throws StunException {
-		if (tranID == null
-				|| (tranID.length != TRANSACTION_ID_LENGTH && tranID.length != RFC3489_TRANSACTION_ID_LENGTH))
-			throw new StunException(StunException.ILLEGAL_ARGUMENT,
-					"Invalid transaction id length");
+		if (tranID == null || (tranID.length != TRANSACTION_ID_LENGTH && tranID.length != RFC3489_TRANSACTION_ID_LENGTH))
+			throw new StunException(StunException.ILLEGAL_ARGUMENT, "Invalid transaction id length");
 
 		int tranIDLength = tranID.length;
-
 		this.transactionID = new byte[tranIDLength];
 		System.arraycopy(tranID, 0, this.transactionID, 0, tranIDLength);
 	}
@@ -463,8 +457,9 @@ public class StunMessage {
 	 *         Message.N_A - for not applicable <br/>
 	 */
 	protected byte getAttributePresentity(char attributeType) {
-		if (!rfc3489CompatibilityMode)
+		if (!rfc3489CompatibilityMode) {
 			return O;
+		}
 
 		byte msgIndex = -1;
 		byte attributeIndex = -1;
@@ -505,10 +500,7 @@ public class StunMessage {
 			break;
 		default:
 			if (logger.isLoggable(Level.FINE)) {
-				logger.log(Level.FINE,
-						"Attribute presentity not defined for STUN "
-								+ "message type: " + ((int) messageType)
-								+ ". Will assume optional.");
+				logger.log(Level.FINE, "Attribute presentity not defined for STUN " + "message type: " + ((int) messageType) + ". Will assume optional.");
 			}
 			return O;
 		}
@@ -661,22 +653,28 @@ public class StunMessage {
 	 * @return true if the messages are equal and false otherwise.
 	 */
 	public boolean equals(Object obj) {
-		if (!(obj instanceof StunMessage) || obj == null)
+		if (!(obj instanceof StunMessage) || obj == null) {
 			return false;
+		}
 
-		if (obj == this)
+		if (obj == this) {
 			return true;
+		}
 
 		StunMessage msg = (StunMessage) obj;
-		if (msg.getMessageType() != getMessageType())
+		if (msg.getMessageType() != getMessageType()) {
 			return false;
-		if (msg.getDataLength() != getDataLength())
+		}
+		
+		if (msg.getDataLength() != getDataLength()) {
 			return false;
+		}
 
 		// compare attributes
 		for (StunAttribute localAtt : attributes.values()) {
-			if (!localAtt.equals(msg.getAttribute(localAtt.getAttributeType())))
+			if (!localAtt.equals(msg.getAttribute(localAtt.getAttributeType()))) {
 				return false;
+			}
 		}
 
 		return true;
@@ -719,8 +717,7 @@ public class StunMessage {
 			offset += TRANSACTION_ID_LENGTH;
 		} else {
 			/* RFC3489 behavior */
-			System.arraycopy(tranID, 0, binMsg, offset,
-					RFC3489_TRANSACTION_ID_LENGTH);
+			System.arraycopy(tranID, 0, binMsg, offset, RFC3489_TRANSACTION_ID_LENGTH);
 			offset += RFC3489_TRANSACTION_ID_LENGTH;
 		}
 
@@ -736,8 +733,7 @@ public class StunMessage {
 
 		while (iter.hasNext()) {
 			StunAttribute attribute = iter.next().getValue();
-			int attributeLength = attribute.getDataLength()
-					+ StunAttribute.HEADER_LENGTH;
+			int attributeLength = attribute.getDataLength() + StunAttribute.HEADER_LENGTH;
 
 			// take attribute padding into account:
 			attributeLength += (4 - attributeLength % 4) % 4;
@@ -754,8 +750,7 @@ public class StunMessage {
 				 */
 				binMsg[messageLengthOffset] = (byte) (dataLengthForContentDependentAttribute >> 8);
 				binMsg[messageLengthOffset + 1] = (byte) (dataLengthForContentDependentAttribute & 0xFF);
-				binAtt = ((ContextDependentAttribute) attribute).encode(binMsg,
-						0, offset);
+				binAtt = ((ContextDependentAttribute) attribute).encode(binMsg, 0, offset);
 			} else {
 				binAtt = attribute.encode();
 			}
@@ -790,10 +785,8 @@ public class StunMessage {
 		// themselves.
 		String software = System.getProperty("TelScale Media Server");
 
-		if (getAttribute(StunAttribute.SOFTWARE) == null && software != null
-				&& software.length() > 0) {
-			addAttribute(StunAttributeFactory.createSoftwareAttribute(software
-					.getBytes()));
+		if (getAttribute(StunAttribute.SOFTWARE) == null && software != null && software.length() > 0) {
+			addAttribute(StunAttributeFactory.createSoftwareAttribute(software.getBytes()));
 		}
 
 		// re-add MESSAGE-INTEGRITY if there was one.
@@ -827,29 +820,25 @@ public class StunMessage {
 	 *             <tt>ILLEGAL_ARGUMENT</tt> if one or more of the arguments
 	 *             have invalid values.
 	 */
-	public static StunMessage decode(byte binMessage[], char offset,
-			char arrayLen) throws StunException {
+	public static StunMessage decode(byte binMessage[], char offset, char arrayLen) throws StunException {
 		int originalOffset = offset;
 		arrayLen = (char) Math.min(binMessage.length, arrayLen);
 
 		if (binMessage == null || arrayLen - offset < StunMessage.HEADER_LENGTH) {
-			throw new StunException(StunException.ILLEGAL_ARGUMENT,
-					"The given binary array is not a valid StunMessage");
+			throw new StunException(StunException.ILLEGAL_ARGUMENT, "The given binary array is not a valid StunMessage");
 		}
 
 		char messageType = (char) ((binMessage[offset++] << 8) | (binMessage[offset++] & 0xFF));
 
 		StunMessage message;
 		/* 0x0115 is a old TURN DATA indication message type */
-		if (StunMessage.isResponseType(messageType)
-				&& messageType != OLD_DATA_INDICATION)
+		if (StunMessage.isResponseType(messageType) && messageType != OLD_DATA_INDICATION) {
 			message = new StunResponse();
-		else if (StunMessage.isRequestType(messageType))
+		} else if (StunMessage.isRequestType(messageType)) {
 			message = new StunRequest();
-		else
-			/* indication */
+		} else {
 			message = new StunIndication();
-
+		}
 		message.setMessageType(messageType);
 
 		int length = (char) ((binMessage[offset++] << 8) | (binMessage[offset++] & 0xFF));
@@ -880,8 +869,7 @@ public class StunMessage {
 			if (rfc3489Compat) {
 				byte rfc3489TranID[] = new byte[TRANSACTION_ID_LENGTH + 4];
 				System.arraycopy(cookie, 0, rfc3489TranID, 0, 4);
-				System.arraycopy(tranID, 0, rfc3489TranID, 4,
-						TRANSACTION_ID_LENGTH);
+				System.arraycopy(tranID, 0, rfc3489TranID, 4, TRANSACTION_ID_LENGTH);
 				message.setTransactionID(rfc3489TranID);
 			} else {
 				message.setTransactionID(tranID);
@@ -895,12 +883,8 @@ public class StunMessage {
 		offset += TRANSACTION_ID_LENGTH;
 
 		while (offset - StunMessage.HEADER_LENGTH < length) {
-			StunAttribute att = StunAttributeDecoder.decode(binMessage, offset,
-					(char) (length - offset));
-
-			performAttributeSpecificActions(att, binMessage, originalOffset,
-					offset);
-
+			StunAttribute att = StunAttributeDecoder.decode(binMessage, offset, (char) (length - offset));
+			performAttributeSpecificActions(att, binMessage, originalOffset, offset);
 			message.addAttribute(att);
 			offset += att.getDataLength() + StunAttribute.HEADER_LENGTH;
 
@@ -910,7 +894,6 @@ public class StunMessage {
 				offset += (4 - (att.getDataLength() % 4));
 			}
 		}
-
 		return message;
 	}
 
@@ -932,13 +915,11 @@ public class StunMessage {
 	 *             to discard the whole message (e.g. an invalid checksum or
 	 *             username)
 	 */
-	private static void performAttributeSpecificActions(
-			StunAttribute attribute, byte[] binMessage, int offset, int msgLen)
+	private static void performAttributeSpecificActions(StunAttribute attribute, byte[] binMessage, int offset, int msgLen) 
 			throws StunException {
 		// check finger print CRC
 		if (attribute instanceof FingerprintAttribute) {
-			if (!validateFingerprint((FingerprintAttribute) attribute,
-					binMessage, offset, msgLen)) {
+			if (!validateFingerprint((FingerprintAttribute) attribute, binMessage, offset, msgLen)) {
 				// RFC 5389 says that we should ignore bad CRCs rather than
 				// reply with an error response.
 				throw new StunException("Wrong value in FINGERPRINT");
@@ -964,32 +945,22 @@ public class StunMessage {
 	 * @return <tt>true</tt> if <tt>FINGERPRINT</tt> contains a valid CRC32
 	 *         value and <tt>false</tt> otherwise.
 	 */
-	private static boolean validateFingerprint(
-			FingerprintAttribute fingerprint, byte[] message, int offset,
-			int length) {
-
+	private static boolean validateFingerprint(FingerprintAttribute fingerprint, byte[] message, int offset, int length) {
 		byte[] incomingCrcBytes = fingerprint.getChecksum();
-
 		// now check whether the CRC really is what it's supposed to be.
 		// re calculate the check sum
-		byte[] realCrcBytes = FingerprintAttribute.calculateXorCRC32(message,
-				offset, length);
+		byte[] realCrcBytes = FingerprintAttribute.calculateXorCRC32(message, offset, length);
 
 		// CRC validation.
 		if (!Arrays.equals(incomingCrcBytes, realCrcBytes)) {
 			if (logger.isLoggable(Level.FINE)) {
-				logger.fine("An incoming message arrived with a wrong FINGERPRINT "
-						+ "attribute value. "
-						+ "CRC Was:"
-						+ Arrays.toString(incomingCrcBytes)
-						+ ". Should have been:"
-						+ Arrays.toString(realCrcBytes)
+				logger.fine("An incoming message arrived with a wrong FINGERPRINT attribute value. "
+						+ "CRC Was:" + Arrays.toString(incomingCrcBytes)
+						+ ". Should have been:" + Arrays.toString(realCrcBytes)
 						+ ". Will ignore.");
 			}
-
 			return false;
 		}
-
 		return true;
 	}
 
@@ -1001,13 +972,15 @@ public class StunMessage {
 	 *             if the message does not have all required attributes.
 	 */
 	protected void validateAttributePresentity() throws IllegalStateException {
-		if (!rfc3489CompatibilityMode)
+		if (!rfc3489CompatibilityMode) {
 			return;
+		}
 
-		for (char i = StunAttribute.MAPPED_ADDRESS; i < StunAttribute.REFLECTED_FROM; i++)
-			if (getAttributePresentity(i) == M && getAttribute(i) == null)
-				throw new IllegalStateException("A mandatory attribute (type="
-						+ (int) i + ") is missing!");
+		for (char i = StunAttribute.MAPPED_ADDRESS; i < StunAttribute.REFLECTED_FROM; i++) {
+			if (getAttributePresentity(i) == M && getAttribute(i) == null) {
+				throw new IllegalStateException("A mandatory attribute (type=" + (int) i + ") is missing!");
+			}
+		}
 	}
 
 	/**
@@ -1041,7 +1014,6 @@ public class StunMessage {
 	 * @return true if type is a valid response type.
 	 */
 	public static boolean isResponseType(char type) {
-		/* return (((type >> 8) & 1) != 0); */
 		return (isSuccessResponseType(type) || isErrorResponseType(type));
 	}
 
@@ -1065,7 +1037,6 @@ public class StunMessage {
 	 * @return true if type is a valid request type.
 	 */
 	public static boolean isRequestType(char type) {
-		/* return !isResponseType(type); */
 		return ((type & 0x0110) == STUN_REQUEST);
 	}
 
@@ -1077,7 +1048,6 @@ public class StunMessage {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
-
 		stringBuilder.append(getName());
 		stringBuilder.append("(0x");
 		stringBuilder.append(Integer.toHexString(getMessageType()));
@@ -1087,7 +1057,6 @@ public class StunMessage {
 		stringBuilder.append((int) this.getDataLength());
 
 		byte[] transactionId = getTransactionId();
-
 		if (transactionId != null) {
 			stringBuilder.append(" tranID=");
 			stringBuilder.append(StunTransactionId.readableFormat(transactionId));
