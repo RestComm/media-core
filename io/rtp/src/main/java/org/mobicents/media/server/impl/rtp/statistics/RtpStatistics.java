@@ -136,6 +136,14 @@ public class RtpStatistics {
 	public RtpStatistics(final RtpClock clock) {
 		this(clock, SsrcGenerator.generateSsrc(), CnameGenerator.generateCname());
 	}
+	
+	public void setSsrc(long ssrc) {
+		this.ssrc = ssrc;
+	}
+	
+	public void setCname(String cname) {
+		this.cname = cname;
+	}
 
 	/**
 	 * Gets the relative time since an RTP packet or Heartbeat was received.
@@ -545,9 +553,28 @@ public class RtpStatistics {
 	}
 
 	public void reset() {
-		// TODO finish reset for RTCP statistics
+		// Common
+		this.ssrc = SsrcGenerator.generateSsrc();
+		this.cname = CnameGenerator.generateCname();
+		
+		// RTP statistics
+		this.rtpLastHeartbeat = 0;
 		this.rtpRxPackets = 0;
 		this.rtpTxPackets = 0;
+		this.rtpReceivedOn = 0;
+		this.rtpSentOn = 0;
+
+		// RTCP statistics
+		this.senders = 0;
+		this.sendersList.clear();
+		this.pmembers = 1;
+		this.members = 1;
+		this.membersMap.clear();
+		this.membersMap.put(Long.valueOf(this.ssrc), new RtpMember(this.rtpClock, this.ssrc));
+		this.rtcpBw = RTP_DEFAULT_BW * RTCP_BW_FRACTION;
+		this.rtcpAvgSize = RTCP_DEFAULT_AVG_SIZE;
+		this.rtcpNextPacketType = RtcpPacketType.RTCP_REPORT;
+		this.weSent = false;
 	}
 
 	/*
@@ -694,5 +721,5 @@ public class RtpStatistics {
 		// For each RTCP packet received, the value of avg_rtcp_size is updated.
 		calculateAvgRtcpSize(rtcpPacket.getSize());
 	}
-	
+
 }

@@ -46,11 +46,9 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -87,8 +85,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private final Scheduler scheduler;
 	
 	// RTP session elements
-	private final long ssrc;
-	private final String cname;
+	private long ssrc;
+	private String cname;
 	
 	// Audio Channel
 	private RtpStatistics audioStatistics;
@@ -134,14 +132,12 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		this.channelsManager = channelsManager;
 		this.scheduler = channelsManager.getScheduler();
 		
-		// RTP session elements
-		this.ssrc = SsrcGenerator.generateSsrc();
-		this.cname = CnameGenerator.generateCname();
-		
 		// Audio Channel
 		this.audioClock = new RtpClock(this.scheduler.getClock());
 		this.audioOobClock = new RtpClock(this.scheduler.getClock());
-		this.audioStatistics = new RtpStatistics(this.audioClock, this.ssrc, this.cname);
+		this.audioStatistics = new RtpStatistics(this.audioClock);
+		this.cname = this.audioStatistics.getCname();
+		this.ssrc= this.audioStatistics.getSsrc();
 		this.rtpAudioChannel = channelsManager.getRtpChannel(audioStatistics, audioClock, audioOobClock);
 		this.rtpAudioChannel.setRtpListener(this);
 		try {
@@ -502,6 +498,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		if(this.audioCapabale) {
 			this.rtpAudioChannel.close();
 			this.rtcpAudioChannel.close();
+			this.audioStatistics.reset();
+			this.cname = this.audioStatistics.getCname();
+			this.ssrc = this.audioStatistics.getSsrc();
 		}
 	}
 
@@ -525,6 +524,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		if (this.audioCapabale) {
 			this.rtpAudioChannel.close();
 			this.rtcpAudioChannel.close();
+			this.audioStatistics.reset();
+			this.cname = this.audioStatistics.getCname();
+			this.ssrc = this.audioStatistics.getSsrc();
 		}
 
 		releaseConnection(ConnectionType.RTP);
@@ -561,10 +563,13 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		 * https://telestax.atlassian.net/browse/MEDIA-16
 		 */
 		if (this.ice) {
-			// Integrate with ICE Lite for WebRTC calls
-			// https://telestax.atlassian.net/browse/MEDIA-13
-			this.iceAgent = IceFactory.createLiteAgent();
-			this.iceAgent.addIceListener(new IceListener());
+			if(this.iceAgent == null) {
+				this.iceAgent = IceFactory.createLiteAgent();
+				this.iceAgent.addIceListener(new IceListener());
+			}
+			// Generate new credentials for each call
+			this.iceAgent.reset();
+			this.iceAgent.generateIceCredentials();
 			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), true, this.audioRtcpMux);
 			try {
 				// Add srflx candidate harvester if external address is defined

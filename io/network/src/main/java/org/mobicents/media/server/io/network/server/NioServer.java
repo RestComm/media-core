@@ -27,17 +27,15 @@ public class NioServer {
 	
 	private static final int MAX_BUFFER_SIZE = 8192;
 	
-	private final Selector selector;
 	private final ByteBuffer buffer;
 	private final PacketHandlerPipeline packetHandlers;
 	private boolean running;
 	protected DatagramChannel currentChannel;
-	
+	private Selector selector;
 	private final Worker worker;
 	private Thread workerThread;
 	
-	public NioServer(final Selector selector) {
-		this.selector = selector;
+	public NioServer() {
 		this.buffer = ByteBuffer.allocateDirect(MAX_BUFFER_SIZE);
 		this.packetHandlers = new PacketHandlerPipeline();
 		this.worker = new Worker();
@@ -106,14 +104,12 @@ public class NioServer {
 		return dataLength;
 	}
 	
-	public void start() {
+	public void start(final Selector selector) {
 		if(!this.running) {
 			logger.info("Started NIO Server");
 			this.running = true;
-			
-			if(this.workerThread == null) {
-				this.workerThread = new Thread(this.worker);
-			}
+			this.selector = selector;
+			this.workerThread = new Thread(this.worker);
 			this.workerThread.start();
 		}
 	}
@@ -126,7 +122,7 @@ public class NioServer {
 	}
 	
 	private class Worker implements Runnable {
-
+		
 		public void run() {
 			while(running && selector.isOpen()) {
 				try {
@@ -177,7 +173,16 @@ public class NioServer {
 					logger.error("Could not select keys: "+ e.getMessage(), e);
 				}
 			}
+			
+			if(selector.isOpen()) {
+				try {
+					selector.close();
+				} catch (IOException e) {
+					logger.error("Could not close selector: "+ e.getMessage(), e);
+				}
+			}
 			currentChannel = null;
+			selector = null;
 			logger.info("NIO Server stopped");
 		}
 		

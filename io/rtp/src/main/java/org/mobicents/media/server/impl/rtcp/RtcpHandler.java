@@ -34,11 +34,11 @@ public class RtcpHandler implements PacketHandler {
 	private int pipelinePriority;
 
 	/* RTCP elements */
-	private final Timer txTimer;
-	private final Timer ssrcTimer;
+	private Timer txTimer;
+	private Timer ssrcTimer;
 	
 	private TxTask scheduledTask;
-	private final SsrcTask ssrcTask;
+	private SsrcTask ssrcTask;
 	
 	private final RtpStatistics statistics;
 	
@@ -66,10 +66,6 @@ public class RtcpHandler implements PacketHandler {
 		this.byteBuffer = ByteBuffer.allocateDirect(RtpPacket.RTP_PACKET_MAX_SIZE);
 
 		// rtcp stuff
-		this.txTimer = new Timer();
-		this.ssrcTimer = new Timer();
-		this.ssrcTask = new SsrcTask();
-
 		this.statistics = statistics;
 		this.scheduledTask = null;
 		this.tp = 0;
@@ -132,12 +128,17 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	public void joinRtpSession() {
 		if(!this.joined) {
+			// Initialize timers
+			this.txTimer = new Timer();
+			this.ssrcTimer = new Timer();
+			
 			// Schedule first RTCP packet
 			long t = this.statistics.rtcpInterval(this.initial);
 			this.tn = this.statistics.getCurrentTime() + t;
 			schedule(this.tn, RtcpPacketType.RTCP_REPORT);
 			
 			// Start SSRC timeout timer
+			this.ssrcTask = new SsrcTask();
 			this.ssrcTimer.scheduleAtFixedRate(this.ssrcTask, SSRC_TASK_DELAY, SSRC_TASK_DELAY);
 
 			this.joined = true;
@@ -433,6 +434,9 @@ public class RtcpHandler implements PacketHandler {
 		this.scheduledTask = null;
 		this.txTimer.cancel();
 		this.txTimer.purge();
+		
+		this.ssrcTask.cancel();
+		this.ssrcTask = null;
 		this.ssrcTimer.cancel();
 		this.ssrcTimer.purge();
 	}

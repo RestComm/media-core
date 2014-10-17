@@ -407,6 +407,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	public void close() {
+		this.statistics.reset();
 		if(rtcpMux) {
 			this.rtcpHandler.leaveRtpSession();
 			reset();
@@ -417,6 +418,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	private void reset() {
+		this.dtlsHandler.reset();
 		this.rtpHandler.reset();
 		this.transmitter.reset();
 		heartBeat.cancel();

@@ -236,9 +236,7 @@ public class DtlsHandler {
 	public void handshake() {
 		if(!handshaking && !handshakeComplete) {
 			this.handshaking = true;
-			if(this.worker == null) {
-				this.worker = new Thread(new HandshakeWorker());
-			}
+			this.worker = new Thread(new HandshakeWorker());
 			this.worker.start();
 		}
 	}
@@ -259,6 +257,13 @@ public class DtlsHandler {
 				iterator.next().onDtlsHandshakeFailed(e);
 			}
 		}
+	}
+	
+	public void reset() {
+		this.channel = null;
+		this.handshakeComplete = false;
+		this.handshakeFailed = false;
+		this.handshaking = false;
 	}
 	
 	private class HandshakeWorker implements Runnable {

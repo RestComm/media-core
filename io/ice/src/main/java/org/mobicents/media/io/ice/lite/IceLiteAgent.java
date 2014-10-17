@@ -31,16 +31,17 @@ public class IceLiteAgent extends IceAgent {
 		}
 		// Initialize connectivity server if necessary
 		if (this.connectivityCheckServer == null) {
-			this.connectivityCheckServer = new ConnectivityCheckServer(this, this.selector);
+			this.connectivityCheckServer = new ConnectivityCheckServer(this);
 		}
 		// Run connectivity check server
-		this.connectivityCheckServer.start();
+		this.connectivityCheckServer.start(this.selector);
 		this.running = true;
 	}
 
 	@Override
 	public void stop() {
 		if (this.running) {
+			this.running = false;
 			// Stop the connectivity check server
 			this.connectivityCheckServer.stop();
 		}

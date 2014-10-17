@@ -1,7 +1,5 @@
 package org.mobicents.media.io.ice.network.stun;
 
-import java.nio.channels.Selector;
-
 import org.mobicents.media.io.ice.IceAgent;
 import org.mobicents.media.server.io.network.server.NioServer;
 
@@ -18,8 +16,8 @@ public class ConnectivityCheckServer extends NioServer {
 	private final StunHandler stunHandler;
 	private final StunListener stunListener;
 
-	public ConnectivityCheckServer(IceAgent agent, Selector selector) {
-		super(selector);
+	public ConnectivityCheckServer(IceAgent agent) {
+		super();
 		this.agent = agent;
 		this.stunHandler = new StunHandler(this.agent);
 		this.stunListener = new StunListenerImpl(this.agent);
