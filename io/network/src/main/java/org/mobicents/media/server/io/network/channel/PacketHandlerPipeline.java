@@ -31,7 +31,7 @@ public class PacketHandlerPipeline {
 	}
 
 	/**
-	 * Registers a new protocol handler in the pipeline.<br>
+	 * Registers a new packet handler in the pipeline.<br>
 	 * Cannot register same handler twice.
 	 * 
 	 * @param handler
@@ -47,6 +47,24 @@ public class PacketHandlerPipeline {
 				return true;
 			}
 			return false;
+		}
+	}
+	
+	/**
+	 * Removes an existing packet handler from the pipeline.
+	 * 
+	 * @param handler
+	 *            The handler to be removed
+	 * @return Returns true if the handler is removed successfully. Returns
+	 *         false, if the handler is not registered in the pipeline.
+	 */
+	public boolean removeHandler(PacketHandler handler) {
+		synchronized (this.handlers) {
+			boolean removed = this.handlers.remove(handler);
+			if(removed) {
+				this.count--;
+			}
+			return removed;
 		}
 	}
 

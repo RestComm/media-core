@@ -204,7 +204,7 @@ public abstract class IceAgent implements IceAuthenticator {
 	 * @throws HarvestException
 	 *             An error occurred while harvesting candidates
 	 */
-	public void gatherCandidates(PortManager portManager) throws HarvestException, NoCandidatesGatheredException {
+	public void harvest(PortManager portManager) throws HarvestException, NoCandidatesGatheredException {
 		// Initialize the selector if necessary
 		if (this.selector == null || !this.selector.isOpen()) {
 			try {
@@ -443,8 +443,13 @@ public abstract class IceAgent implements IceAuthenticator {
 	public void setExternalAddress(final InetAddress externalAddress) {
 		this.externalAddress = externalAddress;
 		
-		// register an SRFLX harvester
-		this.harvestManager.addHarvester(new ExternalCandidateHarvester(harvestManager.getFoundationsRegistry(), externalAddress));
+		if(externalAddress != null) {
+			// register an SRFLX harvester
+			this.harvestManager.addHarvester(new ExternalCandidateHarvester(harvestManager.getFoundationsRegistry(), externalAddress));
+		} else {
+			// remove lookup for SRFLX candidates
+			this.harvestManager.removeHarvester(CandidateType.SRFLX);
+		}
 	}
 	
 	@Override
@@ -459,6 +464,7 @@ public abstract class IceAgent implements IceAuthenticator {
 	}
 	
 	public void reset() {
+		this.iceListeners.clear();
 		this.mediaStreams.clear();
 		this.maxSelectedPairs = 0;
 		this.selectedPairs = 0;

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 
 import javax.sdp.SdpException;
@@ -40,7 +41,6 @@ import org.mobicents.media.io.ice.IceFactory;
 import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
-import org.mobicents.media.io.ice.harvest.NoCandidatesGatheredException;
 import org.mobicents.media.io.ice.sdp.IceSdpNegotiator;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -51,6 +51,7 @@ import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
+import org.mobicents.media.server.impl.rtp.sdp.MediaType;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
@@ -116,6 +117,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	// ICE
 	private boolean ice;
 	private IceAgent iceAgent;
+	private IceListener iceListener;
 	private PortManager icePorts;
 
 	// WebRTC
@@ -440,6 +442,44 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	public String toString() {
 		return "RTP Connection [" + getEndpoint().getLocalName() + "]";
 	}
+	
+	public void closeResources() {
+		if(this.audioCapabale) {
+			this.rtpAudioChannel.close();
+			this.rtcpAudioChannel.close();
+		}
+		
+		if(this.ice && this.iceAgent.isRunning()) {
+			this.iceAgent.stop();
+		}
+	}
+	
+	public void reset() {
+		// Reset SDP
+		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
+		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtpAudioChannel.getLocalPort(), 0);
+		this.sdpAnswer = "";
+		
+		// Reset statistics
+		this.audioStatistics.reset();
+		this.cname = this.audioStatistics.getCname();
+		this.ssrc = this.audioStatistics.getSsrc();
+		
+		// Reset channels
+		this.audioRtcpMux = false;
+		this.rtpAudioChannel.enableRtcpMux(false);
+		
+		// Reset ICE
+		this.ice = false;
+		if(this.iceAgent != null) {
+			this.iceAgent.reset();
+		}
+		
+		// Reset WebRTC
+		this.webrtc = false;
+		this.rtpAudioChannel.disableSRTP();
+		this.rtcpAudioChannel.disableSRTCP();
+	}
 
 	public void onRtpFailure(String message) {
 		if(this.audioCapabale) {
@@ -481,56 +521,47 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
 	@Override
 	protected void onCreated() throws Exception {
-		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
-		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtpAudioChannel.getLocalPort(), 0);
+		// Reset components so they can be re-used in new calls
+		reset();
 	}
 
 	@Override
 	protected void onFailed() {
+		closeResources();
 		if (this.connectionFailureListener != null) {
 			this.connectionFailureListener.onFailure();
-		}
-		
-		if(this.ice && this.iceAgent.isRunning()) {
-			this.iceAgent.stop();
-		}
-		
-		if(this.audioCapabale) {
-			this.rtpAudioChannel.close();
-			this.rtcpAudioChannel.close();
-			this.audioStatistics.reset();
-			this.cname = this.audioStatistics.getCname();
-			this.ssrc = this.audioStatistics.getSsrc();
 		}
 	}
 
 	@Override
 	protected void onOpened() throws Exception {
+		// TODO not implemented
 	}
 
 	@Override
 	protected void onClosed() {
-		sdpAnswer = null;
-
+		closeResources();
 		try {
 			setMode(ConnectionMode.INACTIVE);
 		} catch (ModeNotSupportedException e) {
 		}
-
-		if(this.ice && this.iceAgent.isRunning()) {
-			this.iceAgent.stop();
-		}
-		
-		if (this.audioCapabale) {
-			this.rtpAudioChannel.close();
-			this.rtcpAudioChannel.close();
-			this.audioStatistics.reset();
-			this.cname = this.audioStatistics.getCname();
-			this.ssrc = this.audioStatistics.getSsrc();
-		}
-
 		releaseConnection(ConnectionType.RTP);
 		this.connectionFailureListener = null;
+	}
+	
+	private void configureIceAgent(String externalAddress) throws UnknownHostException {
+		if(this.iceAgent == null) {
+			this.iceAgent = IceFactory.createLiteAgent();
+			this.iceListener = new IceListener();
+		}
+		this.iceAgent.addIceListener(this.iceListener);
+		this.iceAgent.generateIceCredentials();
+		this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), true, this.audioRtcpMux);
+		
+		// Add SRFLX candidate harvester if external address is defined
+		if(externalAddress != null && !externalAddress.isEmpty()) {
+			this.iceAgent.setExternalAddress(InetAddress.getByName(externalAddress));
+		}
 	}
 
 	/**
@@ -547,45 +578,25 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 *             When binding the audio data channel. Non-WebRTC calls only.
 	 */
 	private void processSdpOffer() throws SocketException, IOException {
-		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
 		this.ice = this.sdp.isAudioIce();
+		this.webrtc = this.sdp.getAudioDescriptor().isWebRTCProfile();
 		this.audioRtcpMux = this.sdp.getAudioDescriptor().isRtcpMux();
-		if(this.audioRtcpMux) {
-			this.rtpAudioChannel.enableRtcpMux();
-		}
+		this.rtpAudioChannel.enableRtcpMux(this.audioRtcpMux);
 
 		/*
 		 * For ICE-enabled calls, the RTP channels can only be bound after the
 		 * ICE agent selected the candidate pairs. Since Media Server only
 		 * implements ICE-lite, we need to wait for the SDP to be exchanged
 		 * before we know which candidate socket to use.
-		 * 
-		 * https://telestax.atlassian.net/browse/MEDIA-16
 		 */
 		if (this.ice) {
-			if(this.iceAgent == null) {
-				this.iceAgent = IceFactory.createLiteAgent();
-				this.iceAgent.addIceListener(new IceListener());
-			}
-			// Generate new credentials for each call
-			this.iceAgent.reset();
-			this.iceAgent.generateIceCredentials();
-			this.iceAgent.addMediaStream(MediaTypes.AUDIO.lowerName(), true, this.audioRtcpMux);
+			// Configure ICE Agent and harvest candidates
+			configureIceAgent(this.rtpAudioChannel.getExternalAddress());
 			try {
-				// Add srflx candidate harvester if external address is defined
-				String externalAddress = this.rtpAudioChannel.getExternalAddress();
-				if(externalAddress != null && !externalAddress.isEmpty()) {
-					this.iceAgent.setExternalAddress(InetAddress.getByName(externalAddress));
-				}
-				this.iceAgent.gatherCandidates(icePorts);
-			} catch (NoCandidatesGatheredException e) {
-				throw new IOException("No ICE candidates were gathered.", e);
+				this.iceAgent.harvest(icePorts);
 			} catch (HarvestException e) {
-				throw new IOException("Could not harvest candidates.", e);
+				throw new IOException("Could not harvest ICE candidates: " + e.getMessage(), e);
 			}
-
-			// TODO Streams must match the ones in SDP offer
-			// TODO set ice remote candidates
 		} else {
 			// For non-ICE calls the RTP audio channel can be bound immediately
 			this.rtpAudioChannel.bind(this.isLocal);
@@ -594,13 +605,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		
 		// Configure WebRTC-related resources on audio channel
 		if (this.webrtc) {
-			// Look at media session-level fingerprint attribute first
-			// If not defined, use the session-level attribute
-			Text remotePeerFingerprint = this.sdp.getAudioDescriptor().getWebRTCFingerprint();
-			if(remotePeerFingerprint == null) {
-				remotePeerFingerprint = this.sdp.getFingerprint();
-			}
-			
+			Text remotePeerFingerprint = this.sdp.getFingerprint(MediaType.AUDIO);
 			rtpAudioChannel.enableSRTP(remotePeerFingerprint, this.iceAgent);
 			if(!this.audioRtcpMux) {
 				rtcpAudioChannel.enableSRTCP(remotePeerFingerprint, this.iceAgent);

@@ -217,6 +217,15 @@ public class RtcpHandler implements PacketHandler {
 		this.dtlsHandler = dtlsHandler;
 		this.secure = true;
 	}
+
+	/**
+	 * Disables secure layer on the channel, meaning all traffic is treated as
+	 * plain RTCP.
+	 */
+	public void disableSRTCP() {
+		this.dtlsHandler = null;
+		this.secure = false;
+	}
 	
 	/**
 	 * This function is responsible for deciding whether to send an RTCP report

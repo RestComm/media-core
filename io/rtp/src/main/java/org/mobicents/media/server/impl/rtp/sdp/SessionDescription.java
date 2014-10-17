@@ -216,6 +216,22 @@ public class SessionDescription {
     public Text getFingerprint() {
 		return fingerprint;
 	}
+    
+    public Text getFingerprint(MediaType mediaType) {
+    	if(MediaType.AUDIO.equals(mediaType)) {
+    		return getFingerprint(this.audioDescriptor);
+    	}
+    	return this.fingerprint;
+    }
+    
+    private Text getFingerprint(MediaDescriptorField mediaStream) {
+    	Text value = mediaStream.getWebRTCFingerprint();
+    	if(value != null && value.length() > 0) {
+    		return value;
+    	}
+    	return this.fingerprint;
+    	
+    }
 
     /**
      * Gets the media attributes.

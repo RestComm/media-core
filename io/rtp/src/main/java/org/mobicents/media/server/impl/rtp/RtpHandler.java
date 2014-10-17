@@ -120,6 +120,11 @@ public class RtpHandler implements PacketHandler {
 		this.dtlsHandler = handler;
 	}
 	
+	public void disableSrtp() {
+		this.secure = false;
+		this.dtlsHandler = null;
+	}
+	
 	public void activate() {
 		this.rtpInput.activate();
 		this.dtmfInput.activate();

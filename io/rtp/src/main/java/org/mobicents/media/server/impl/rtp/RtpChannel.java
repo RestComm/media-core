@@ -390,11 +390,33 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		}
 	}
 	
-	public void enableRtcpMux() {
-		this.rtcpMux = true;
+	public void disableSRTP() {
+		this.secure = false;
+		
+		// setup the DTLS handler
+		if(this.dtlsHandler != null) {
+			this.dtlsHandler.setRemoteFingerprint(new Text(""));
+		}
+		
+		// setup the STUN handler
+		if(this.stunHandler != null) {
+			this.handlers.removeHandler(this.stunHandler);
+		}
+		
+		// Setup the RTP handler
+		this.transmitter.disableSrtp();
+		this.rtpHandler.disableSrtp();
+	}
+	
+	/**
+	 * Configures whether rtcp-mux is active in this channel or not.
+	 * @param enable decides whether rtcp-mux is to be enabled
+	 */
+	public void enableRtcpMux(boolean enable) {
+		this.rtcpMux = enable;
 		
 		// initialize handler if necessary
-		if(this.rtcpHandler == null) {
+		if(enable && this.rtcpHandler == null) {
 			this.rtcpHandler = new RtcpHandler(this.statistics);
 		}
 	}

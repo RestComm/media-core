@@ -206,8 +206,27 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		// setup the STUN handler
 		if (this.stunHandler == null) {
 			this.stunHandler = new StunHandler(authenticator);
+		} else {
+			this.stunHandler.setIceAuthenticator(authenticator);
 		}
 		this.handlers.addHandler(stunHandler);
+	}
+
+	public void disableSRTCP() {
+		this.secure = false;
+		
+		// setup the DTLS handler
+		if(this.dtlsHandler != null) {
+			this.dtlsHandler.setRemoteFingerprint(new Text(""));
+		}
+		
+		// setup the SRTCP handler
+		this.rtcpHandler.disableSRTCP();
+		
+		// setup the STUN handler
+		if (this.stunHandler != null) {
+			this.handlers.removeHandler(this.stunHandler);
+		}
 	}
 	
 	public Text getDtlsLocalFingerprint() {

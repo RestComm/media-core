@@ -88,6 +88,11 @@ public class RtpTransmitter implements RtpTimestampProvider {
 		this.secure = true;
 		this.dtlsHandler = handler;
 	}
+
+	public void disableSrtp() {
+		this.secure = false;
+		this.dtlsHandler = null;
+	}
 	
 	public void activate() {
 		this.rtpOutput.activate();

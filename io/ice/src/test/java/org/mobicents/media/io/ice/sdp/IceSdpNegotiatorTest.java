@@ -71,7 +71,7 @@ public class IceSdpNegotiatorTest {
 		PortManager portManager = new PortManager();
 		portManager.setHighestPort(62000);
 		portManager.setLowestPort(61000);
-		agent.gatherCandidates(portManager);
+		agent.harvest(portManager);
 
 		// when
 		SessionDescription sdp = IceSdpNegotiator.updateAnswer(sdpAnswer, agent);
