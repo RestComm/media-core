@@ -8,13 +8,11 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import junit.framework.Assert;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -25,25 +23,8 @@ import org.junit.Test;
  */
 public class MultiplexedChannelTest {
 
-	private DatagramChannel udpChannel;
-
-	@Before
-	public void before() throws IOException {
-		this.udpChannel = DatagramChannel.open();
-		udpChannel.bind(new InetSocketAddress("127.0.0.1", 0));
-	}
-
-	@After
-	public void after() throws IOException {
-		if (udpChannel != null) {
-			if (udpChannel.isConnected()) {
-				udpChannel.disconnect();
-			}
-			if (udpChannel.isOpen()) {
-				udpChannel.close();
-			}
-		}
-	}
+	private static DatagramChannel localChannel;
+	private static DatagramChannel remoteChannel;
 
 	@Test
 	public void testQueueEmptyData() {
@@ -74,117 +55,109 @@ public class MultiplexedChannelTest {
 	public void testChannelSetup() throws IOException {
 		// given
 		MultiplexedChannel channel = new MultiplexedChannel();
-		String localAddress = ((InetSocketAddress) this.udpChannel.getLocalAddress()).getHostString();
-		int port = this.udpChannel.socket().getLocalPort();
+		String localAddress = ((InetSocketAddress) localChannel.getLocalAddress()).getHostString();
+		int port = localChannel.socket().getLocalPort();
 
 		// when
-		channel.setChannel(this.udpChannel);
+		channel.setChannel(localChannel);
 
 		// then
 		Assert.assertTrue(channel.isOpen());
-		Assert.assertFalse(channel.isConnected());
+		Assert.assertEquals(localChannel.isConnected(), channel.isConnected());
 		Assert.assertEquals(localAddress, channel.getLocalAddress());
 		Assert.assertEquals(port, channel.getLocalPort());
 	}
 
 	@Test
-	public void testReceive() throws IOException, InterruptedException {
+	public void testSendReceive() throws IOException, InterruptedException {
 		// given
 		MultiplexedChannel channel = new MultiplexedChannel();
 		PacketHandlerMock handler = new LowPriorityPacketHandlerMock();
-		MockClient client = new MockClient();
-
-		// when
 		channel.handlers.addHandler(handler);
-		channel.setChannel(this.udpChannel);
-		client.setRemotePeer(this.udpChannel.getLocalAddress());
-		client.start();
+		channel.setChannel(localChannel);
+
+		String msg = LowPriorityPacketHandlerMock.DATA;
+		byte[] data = msg.getBytes();
+		ByteBuffer buffer = ByteBuffer.allocate(30);
 		
-		for(int i=0; i < 5; i++) {
-			Thread.sleep(20);
-			channel.receive();
-		}
+		/*
+		 *  RECEIVE
+		 */
+		// when
+		buffer.put(data);
+		buffer.flip();
+		int sent = remoteChannel.send(buffer, localChannel.getLocalAddress());
+		channel.receive();
 		
 		// then
+		Assert.assertEquals(data.length, sent);
 		Assert.assertTrue(channel.hasPendingData());
+		
+		/*
+		 *  SEND
+		 */
+		// when
+		channel.send();
+		buffer.clear();
+		SocketAddress received = remoteChannel.receive(buffer);
+		buffer.flip();
+		byte[] sentData = new byte[buffer.limit()];
+		buffer.get(sentData, buffer.position(), buffer.limit());
+		
+		// then
+		Assert.assertFalse(channel.hasPendingData());
+		Assert.assertEquals(localChannel.getLocalAddress(), received);
+		Assert.assertEquals("received "+msg, new String(sentData));
 	}
 	
-	/**
-	 * Basic client that sends packets to the multiplexed channel
-	 * @author Henrique Rosa
-	 *
+	/*
+	 * Test Setup
 	 */
-	private class MockClient {
-		
-		public static final int MAX_SEND = 5;
-		
-		private DatagramChannel clientChannel;
-		private SocketAddress remotePeer;
-		private final Timer timer;
-		private final SendTask sendTask;
-		private final ByteBuffer buffer;
-		private int sentPackets;
-		private boolean running;
-		
-		public MockClient() {
-			this.timer = new Timer();
-			this.sendTask = new SendTask();
-			this.buffer = ByteBuffer.allocate(50);
-			this.buffer.put(LowPriorityPacketHandlerMock.DATA.getBytes());
-			this.buffer.flip();
-			this.sentPackets = 0;
-			this.running = false;
-		}
-		
-		public void setRemotePeer(SocketAddress remotePeer) {
-			this.remotePeer = remotePeer;
-		}
-		
-		public void start() throws IOException {
-			if(!this.running && this.remotePeer != null) {
-				this.clientChannel = DatagramChannel.open();
-				this.clientChannel.bind(new InetSocketAddress("127.0.0.1", 0));
-				this.running = true;
-				this.timer.schedule(sendTask, 1, 20);
-			}
-		}
-		
-		public void stop() {
-			if(this.running) {
-				this.running = false;
-				try {
-					this.clientChannel.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				this.timer.cancel();
-			}
-		}
-		
-		void onPacketSent() {
-			this.sentPackets++;
-			if(this.sentPackets == MAX_SEND) {
-				stop();
-			}
-		}
-		
-		private class SendTask extends TimerTask {
 
-			@Override
-			public void run() {
-				if(running && clientChannel.isOpen()) {
-					try {
-						clientChannel.send(buffer, remotePeer);
-					} catch (IOException e) {
-						stop();
-					}
-					onPacketSent();
-				}
-			}
-			
+	@BeforeClass
+	public static void beforeClass() {
+		localChannel = openChannel();
+		remoteChannel = openChannel();
+		try {
+			localChannel.connect(remoteChannel.getLocalAddress());
+		} catch (Exception e) {
+			closeChannel(localChannel);
+			closeChannel(remoteChannel);
 		}
-		
-		
 	}
 
+	@AfterClass
+	public static void afterClass() {
+		closeChannel(localChannel);
+		closeChannel(remoteChannel);
+	}
+	
+	private static DatagramChannel openChannel() {
+		DatagramChannel channel = null;
+		try {
+			channel = DatagramChannel.open();
+			channel.bind(new InetSocketAddress("127.0.0.1", 0));
+			return channel;
+		} catch (IOException e) {
+			if (channel != null && channel.isOpen()) {
+				try {
+					channel.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+			return null;
+		}
+	}
+
+	private static void closeChannel(DatagramChannel channel) {
+		if (channel != null && channel.isOpen()) {
+			try {
+				channel.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 }
