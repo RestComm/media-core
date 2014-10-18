@@ -24,7 +24,7 @@ public class NioUdpTransport implements DatagramTransport {
 	private final static int MIN_IP_OVERHEAD = 20;
 	private final static int MAX_IP_OVERHEAD = MIN_IP_OVERHEAD + 64;
 	private final static int UDP_OVERHEAD = 8;
-	public final static int MAX_DELAY = 3000;
+	public final static int MAX_DELAY = 4000;
 
 	private final DatagramChannel channel;
 	private int mtu;
