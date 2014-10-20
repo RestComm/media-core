@@ -5,7 +5,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.io.stun.StunException;
 import org.mobicents.media.io.stun.messages.StunMessage;
@@ -30,8 +29,6 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
  */
 public class StunHandler implements PacketHandler {
 	
-	private static final Logger logger = Logger.getLogger(StunHandler.class);
-
 	private int pipelinePriority;
 
 	private IceAuthenticator iceAuthenticator;
@@ -94,7 +91,6 @@ public class StunHandler implements PacketHandler {
 	}
 	
 	private byte[] processRequest(StunRequest request, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws IOException {
-		logger.info("Stunhandler="+this.toString()+", IceAgent="+this.iceAuthenticator.toString());
 		/*
 		 * The agent MUST use a short-term credential to authenticate the
 		 * request and perform a message integrity check.
@@ -153,7 +149,6 @@ public class StunHandler implements PacketHandler {
 		byte[] localKey = this.iceAuthenticator.getLocalKey(localUFrag);
 		MessageIntegrityAttribute messageIntegrityAttribute = StunAttributeFactory.createMessageIntegrityAttribute(remoteUsername, localKey);
 		response.addAttribute(messageIntegrityAttribute);
-		logger.info(messageIntegrityAttribute.toString());
 		
 		// If the client issues a USE-CANDIDATE, tell ICE Agent to select the candidate
 		if (request.containsAttribute(StunAttribute.USE_CANDIDATE)) {

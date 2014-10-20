@@ -67,8 +67,8 @@ public class DtlsHandler {
 	private PacketTransformer srtcpDecoder;
 
 	public DtlsHandler(final DatagramChannel channel) {
-		this.server = new DtlsSrtpServer();
 		this.listeners = new ArrayList<DtlsListener>();
+		this.server = new DtlsSrtpServer();
 		this.channel = channel;
 		this.handshakeComplete = false;
 		this.handshakeFailed = false;
@@ -260,7 +260,14 @@ public class DtlsHandler {
 	}
 	
 	public void reset() {
+		// XXX try not to create the server every time! 
+		this.server = new DtlsSrtpServer();
 		this.channel = null;
+		this.srtcpDecoder = null;
+		this.srtcpEncoder = null;
+		this.srtpDecoder = null;
+		this.srtpEncoder = null;
+		this.remoteFingerprint = null;
 		this.handshakeComplete = false;
 		this.handshakeFailed = false;
 		this.handshaking = false;

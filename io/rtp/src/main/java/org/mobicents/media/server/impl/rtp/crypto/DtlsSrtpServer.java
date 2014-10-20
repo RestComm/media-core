@@ -87,7 +87,6 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         
         for (int i = 0; i != chain.length; i++) {
             Certificate entry = chain[i];
-            // TODO Create fingerprint based on certificate signature algorithm digest
             LOGGER.info(String.format("WebRTC Client certificate fingerprint:%s (%s)", TlsUtils.fingerprint(entry), entry.getSubject()));
         }
     }
