@@ -40,8 +40,7 @@ public class OriginField {
 
     protected OriginField() {
     }
-    protected OriginField(String name, String sessionID, String sessionVersion,
-            String netType, String addressType, String address) {
+    protected OriginField(String name, String sessionID, String sessionVersion, String netType, String addressType, String address) {
         this.name = new Text(name);
         this.sessionID = new Text(sessionID);
         this.sessionVersion = new Text(sessionVersion);
@@ -86,6 +85,15 @@ public class OriginField {
 
     public String getAddress() {
         return address.toString();
+    }
+    
+    public void reset() {
+        this.name = null;
+        this.sessionID = null;
+        this.sessionVersion = null;
+        this.networkType = null;
+        this.addressType = null;
+        this.address = null;
     }
 
     @Override

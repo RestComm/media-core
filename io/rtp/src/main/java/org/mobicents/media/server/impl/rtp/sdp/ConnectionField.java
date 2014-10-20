@@ -90,5 +90,11 @@ public class ConnectionField {
     public String getAddress() {
         return address.toString();
     }
+    
+    public void reset() {
+        this.networkType = null;
+        this.addressType = null;
+        this.address = null;
+    }
 
 }

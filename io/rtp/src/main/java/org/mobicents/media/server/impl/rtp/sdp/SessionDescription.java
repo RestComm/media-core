@@ -37,12 +37,11 @@ import org.mobicents.media.server.utils.Text;
  */
 public class SessionDescription {
 	
-
     private Text version;
-    private OriginField origin = new OriginField();
+    private OriginField origin;
     private Text session;
-    private ConnectionField connection = new ConnectionField();
-    private TimeField time = new TimeField();
+    private ConnectionField connection;
+    private TimeField time;
     
     /* MEDIA */
     protected final static Text RTPMAP = new Text("a=rtpmap");
@@ -68,6 +67,12 @@ public class SessionDescription {
     protected final static Text WEBRTC_FINGERPRINT = new Text("a=fingerprint");
 
     private Text fingerprint;
+    
+    public SessionDescription() {
+    	this.origin = new OriginField();
+    	this.connection = new ConnectionField();
+    	this.time = new TimeField();
+	}
 
     /**
      * Reads descriptor from binary data
@@ -82,8 +87,7 @@ public class SessionDescription {
 
     public void init(Text text) throws ParseException {
         //clean previous data
-        md = null;
-        mds.clear();
+        reset();
         
         while (text.hasMoreLines()) {
             Text line = text.nextLine();
@@ -305,6 +309,22 @@ public class SessionDescription {
     	// Remove line type 'a=fingerprint:'
     	Text fingerprint = (Text) attribute.subSequence(WEBRTC_FINGERPRINT.length(), attribute.length());
     	this.fingerprint = fingerprint;
+    }
+    
+    public void reset() {
+    	this.version = null;
+        this.session = null;
+        // TODO 
+    	this.origin.reset();
+    	this.connection.reset();
+    	this.time.reset();
+        this.mds.clear();
+        this.md = null;
+        this.audioDescriptor = null;
+        this.videoDescriptor = null;
+        this.applicationDescriptor = null;
+        this.fingerprint = null;
+        this.ice = false;
     }
     
     @Override

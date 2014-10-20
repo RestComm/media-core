@@ -22,8 +22,8 @@
 
 package org.mobicents.media.server.impl.rtp.sdp;
 
-import java.text.ParseException;
 import java.util.Iterator;
+
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -34,7 +34,12 @@ import org.mobicents.media.server.utils.Text;
 public class TimeField {
 
     private int start;
-    private int stop;;
+    private int stop;
+    
+    public TimeField() {
+		this.start = 0;
+		this.stop = 0;
+	}
 
     public void strain(Text line) {
         Iterator<Text> it = line.split('=').iterator();
@@ -58,6 +63,11 @@ public class TimeField {
 
     public long getStop() {
         return stop;
+    }
+    
+    public void reset() {
+    	this.start = 0;
+        this.stop = 0;
     }
     
 }

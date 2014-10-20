@@ -456,9 +456,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	public void reset() {
 		// Reset SDP
-		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
-		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtpAudioChannel.getLocalPort(), 0);
+		this.sdpOffer = "";
 		this.sdpAnswer = "";
+		this.sdp.reset();
 		
 		// Reset statistics
 		this.audioStatistics.reset();
@@ -523,6 +523,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	protected void onCreated() throws Exception {
 		// Reset components so they can be re-used in new calls
 		reset();
+		// XXX for backwards compatibility
+		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
+		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtpAudioChannel.getLocalPort(), 0);
 	}
 
 	@Override
