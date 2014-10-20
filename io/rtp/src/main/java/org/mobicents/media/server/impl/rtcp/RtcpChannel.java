@@ -247,6 +247,14 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		 * channel.
 		 */
 		this.rtcpHandler.leaveRtpSession();
+		this.bound = false;
+	}
+	
+	public void reset() {
+		this.rtcpHandler.reset();
+		if(this.secure) {
+			this.dtlsHandler.reset();
+		}
 	}
 
 	

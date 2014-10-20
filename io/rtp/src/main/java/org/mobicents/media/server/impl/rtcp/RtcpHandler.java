@@ -292,7 +292,7 @@ public class RtcpHandler implements PacketHandler {
 				
 				// Send the BYE and close channel
 				sendRtcpPacket(bye);
-				stop();
+				reset();
 				closeChannel();
 				return;
 			} else {
@@ -435,19 +435,33 @@ public class RtcpHandler implements PacketHandler {
 		}
 	}
 	
-	/**
-	 * Stops the scheduled task (if any) and cancels the timers
-	 */
-	private void stop() {
-		this.scheduledTask.cancel();
-		this.scheduledTask = null;
+	public void reset() {
+		if(joined) {
+			throw new IllegalStateException("Cannot reset handler while is part of active RTP session.");
+		}
+		
+		if(this.scheduledTask != null) {
+			this.scheduledTask.cancel();
+			this.scheduledTask = null;
+		}
 		this.txTimer.cancel();
 		this.txTimer.purge();
 		
-		this.ssrcTask.cancel();
-		this.ssrcTask = null;
+		if(this.ssrcTask != null) {
+			this.ssrcTask.cancel();
+			this.ssrcTask = null;
+		}
 		this.ssrcTimer.cancel();
 		this.ssrcTimer.purge();
+		
+		this.tp = 0;
+		this.tn = -1;
+		this.initial = true;
+		this.joined = false;
+		
+		if(this.secure) {
+			disableSRTCP();
+		}
 	}
 	
 	/**
@@ -505,7 +519,7 @@ public class RtcpHandler implements PacketHandler {
 				onExpire(this);
 			} catch (IOException e) {
 				logger.error("An error occurred while executing a scheduled task. Stopping handler.", e);
-				stop();
+				reset();
 			}
 		}
 

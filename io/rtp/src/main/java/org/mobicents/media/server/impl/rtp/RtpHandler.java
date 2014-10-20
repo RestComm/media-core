@@ -138,6 +138,10 @@ public class RtpHandler implements PacketHandler {
 	public void reset() {
 		this.deactivate();
 		this.dtmfInput.reset();
+		
+		if(this.secure) {
+			disableSrtp();
+		}
 	}
 	
 	public boolean canHandle(byte[] packet) {

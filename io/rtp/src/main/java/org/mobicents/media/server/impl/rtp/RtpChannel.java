@@ -42,7 +42,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	private final static int PORT_ANY = -1;
 	
 	// Channel attributes
-	private int channelId;
+	private final int channelId;
 	private boolean bound;
 	private RtpStatistics statistics;
 	
@@ -406,6 +406,11 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		// Setup the RTP handler
 		this.transmitter.disableSrtp();
 		this.rtpHandler.disableSrtp();
+		
+		// Setup the RTCP handler
+		if(this.rtcpMux) {
+			this.rtcpHandler.disableSRTCP();
+		}
 	}
 	
 	/**
@@ -437,13 +442,26 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 			super.close();
 			reset();
 		}
+		this.bound = false;
 	}
 	
 	private void reset() {
-		this.dtlsHandler.reset();
+		// Heartbeat reset
+		heartBeat.cancel();
+		
+		// RTP reset
 		this.rtpHandler.reset();
 		this.transmitter.reset();
-		heartBeat.cancel();
+		
+		// RTCP reset
+		if(this.rtcpMux) {
+			this.rtcpHandler.reset();
+		}
+
+		// DTLS reset
+		if(this.secure) {
+			this.dtlsHandler.reset();
+		}
 	}
 	
 	public void onDtlsHandshakeComplete() {
