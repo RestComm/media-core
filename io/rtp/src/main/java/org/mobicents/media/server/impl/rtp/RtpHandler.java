@@ -268,11 +268,16 @@ public class RtpHandler implements PacketHandler {
 					// Update statistics for RTCP
 					this.statistics.onRtpReceive(rtpPacket);
 					// Write packet
-					RTPFormat format = rtpFormats.find(rtpPacket.getPayloadType());
-					if (format != null && format.getFormat().matches(RtpChannel.DTMF_FORMAT)) {
-						dtmfInput.write(rtpPacket);
+					int payloadType = rtpPacket.getPayloadType();
+					RTPFormat format = rtpFormats.find(payloadType);
+					if(format != null) {
+						if(RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
+							dtmfInput.write(rtpPacket);
+						} else {
+							jitterBuffer.write(rtpPacket, format);
+						}
 					} else {
-						jitterBuffer.write(rtpPacket, format);
+						logger.warn("Dropping packet because payload type (" + payloadType + ") is unknown.");
 					}
 				}
 			} else {
