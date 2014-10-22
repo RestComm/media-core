@@ -42,10 +42,10 @@ public class RtpStatistics {
 	public static final double RTCP_SENDER_BW_FRACTION = 0.25;
 
 	/** Fraction of the RTCP bandwidth to be shared among receivers. */
-	public static final double RTCP_RECEIVER_BW_FRACTION = 1 - RTCP_SENDER_BW_FRACTION;
+	public static final double RTCP_RECEIVER_BW_FRACTION = 1.0 - RTCP_SENDER_BW_FRACTION;
 
 	/** "timer reconsideration": converges to a value below the intended average */
-	private static final double RTCP_COMPENSATION = Math.E - (3 / 2);
+	private static final double RTCP_COMPENSATION = Math.E - (3.0 / 2.0);
 
 	/** Default value for the average RTCP packet size */
 	public static final int RTCP_DEFAULT_AVG_SIZE = 200;
@@ -54,7 +54,7 @@ public class RtpStatistics {
 	public static final double RTCP_MIN_TIME = 5.0;
 
 	/** Initial delay imposed before the first compound RTCP packet is sent. */
-	public static final double INITIAL_RTCP_MIN_TIME = RTCP_MIN_TIME / 2;
+	public static final double INITIAL_RTCP_MIN_TIME = RTCP_MIN_TIME / 2.0;
 
 	/* Core */
 	private final RtpClock rtpClock;

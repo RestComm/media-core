@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
@@ -111,6 +110,15 @@ public class RtcpHandler implements PacketHandler {
 	public void setChannel(DatagramChannel channel) {
 		this.channel = channel;
 	}
+	
+	/**
+	 * Gets whether the handler is currently joined to an RTP Session.
+	 * 
+	 * @return Return true if joined. Otherwise, returns false.
+	 */
+	public boolean isJoined() {
+		return joined;
+	}
 
 	/**
 	 * Upon joining the session, the participant initializes tp to 0, tc to 0,
@@ -174,6 +182,20 @@ public class RtcpHandler implements PacketHandler {
 			this.joined = false;
 		}
 	}
+	
+	/**
+	 * Gets the time interval untils the next report is sent.
+	 * 
+	 * @return Returns the time interval in milliseconds until the report is
+	 *         sent. Returns -1 if no report is currently scheduled.
+	 */
+	public long getNextScheduledReport() {
+		long delay = -1;
+		if(this.scheduledTask != null) {
+			delay = this.scheduledTask.getElapsedTime();
+		}
+		return delay < 0 ? -1 : delay;
+	}
 
 	/**
 	 * Schedules an event to occur at a certain time.
@@ -186,21 +208,24 @@ public class RtcpHandler implements PacketHandler {
 	private void schedule(long timestamp, RtcpPacketType packetType) {
 		// Create the task and schedule it
 		long interval = resolveInterval(timestamp);
-		this.scheduledTask = new TxTask(packetType);
+		logger.info("Scheduled next report in "+ interval);
+		this.scheduledTask = new TxTask(packetType, timestamp);
 		this.txTimer.schedule(this.scheduledTask, interval);
 		// Let the RTP handler know what is the type of scheduled packet
 		this.statistics.setRtcpPacketType(packetType);
 	}
 
 	/**
-	 * Re-schedules a previously scheduled event
+	 * Re-schedules a previously scheduled event.
 	 * 
 	 * @param timestamp
-	 *            The timestamp (in nanoseconds) of the rescheduled event
+	 *            The timestamp (in milliseconds) of the rescheduled event
 	 */
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
-		this.txTimer.schedule(task, TimeUnit.NANOSECONDS.toMillis(timestamp));
+		task.setTimestamp(timestamp);
+		long interval = resolveInterval(timestamp);
+		this.txTimer.schedule(task, interval);
 	}
 
 	/**
@@ -504,15 +529,31 @@ public class RtcpHandler implements PacketHandler {
 	private class TxTask extends TimerTask {
 
 		private final RtcpPacketType packetType;
+		private long timestamp;
 
-		public TxTask(RtcpPacketType packetType) {
+		public TxTask(RtcpPacketType packetType, long timestamp) {
 			this.packetType = packetType;
+			this.timestamp = timestamp;
+		}
+		
+		public long getTimestamp() {
+			return timestamp;
+		}
+		
+		public void setTimestamp(long timestamp) {
+			this.timestamp = timestamp;
+		}
+		
+		public long getElapsedTime() {
+			long currentTime = statistics.getCurrentTime();
+			long elapsedTime = this.timestamp - currentTime;
+			return elapsedTime;
 		}
 
 		public RtcpPacketType getPacketType() {
 			return this.packetType;
 		}
-
+		
 		@Override
 		public void run() {
 			try {
