@@ -44,7 +44,7 @@ public class RtcpHandlerTest {
 		// n = num_receivers = members - senders
 		int n = statistics.getMembers() - statistics.getSenders();
 		// initial == true, then Tmin = 2.5 seconds
-		double tMin = RtpStatistics.INITIAL_RTCP_MIN_TIME;
+		double tMin = RtcpIntervalCalculator.INITIAL_MIN_TIME;
 		double tD = Math.max(tMin, n * c);
 		// T = [Td * 0.5; Td * 1.5]
 		// t = T / (e - 3/2)

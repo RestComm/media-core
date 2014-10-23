@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.impl.rtcp.RtcpIntervalCalculator;
 import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.impl.rtcp.RtcpReport;
@@ -44,22 +44,12 @@ public class RtpStatistics {
 	/** Fraction of the RTCP bandwidth to be shared among receivers. */
 	public static final double RTCP_RECEIVER_BW_FRACTION = 1.0 - RTCP_SENDER_BW_FRACTION;
 
-	/** "timer reconsideration": converges to a value below the intended average */
-	private static final double RTCP_COMPENSATION = Math.E - (3.0 / 2.0);
-
 	/** Default value for the average RTCP packet size */
-	public static final int RTCP_DEFAULT_AVG_SIZE = 200;
-
-	/** The minimum interval between transmissions of compound RTCP packets. */
-	public static final double RTCP_MIN_TIME = 5.0;
-
-	/** Initial delay imposed before the first compound RTCP packet is sent. */
-	public static final double INITIAL_RTCP_MIN_TIME = RTCP_MIN_TIME / 2.0;
+	public static final double RTCP_DEFAULT_AVG_SIZE = 200.0;
 
 	/* Core */
 	private final RtpClock rtpClock;
 	private final Clock wallClock;
-	private final Random random;
 	private RtpTimestampProvider rtpTimer;
 
 	/* SSRC Data */
@@ -111,7 +101,6 @@ public class RtpStatistics {
 		this.wallClock = clock.getWallClock();
 		this.ssrc = ssrc;
 		this.cname = cname;
-		this.random = new Random();
 
 		// RTP statistics
 		this.rtpLastHeartbeat = 0;
@@ -438,101 +427,38 @@ public class RtpStatistics {
 	}
 
 	/**
-	 * 6.3.1 - Computing the RTCP Transmission Interval
+	 * Calculates a random interval to transmit the next RTCP report, according
+	 * to <a
+	 * href="http://tools.ietf.org/html/rfc3550#section-6.3.1">RFC3550</a>.
 	 * 
-	 * To maintain scalability, the average interval between packets from a
-	 * session participant should scale with the group size. This interval is
-	 * called the calculated interval. It is obtained by combining a number of
-	 * the pieces of state described above. The calculated interval T is then
-	 * determined as follows:
-	 * 
-	 * 1. If the number of senders is less than or equal to 25% of the
-	 * membership (members), the interval depends on whether the participant is
-	 * a sender or not (based on the value of we_sent). If the participant is a
-	 * sender (we_sent true), the constant C is set to the average RTCP packet
-	 * size (avg_rtcp_size) divided by 25% of the RTCP bandwidth (rtcp_bw), and
-	 * the constant n is set to the number of senders. If we_sent is not true,
-	 * the constant C is set to the average RTCP packet size divided by 75% of
-	 * the RTCP bandwidth. The constant n is set to the number of receivers
-	 * (members - senders). If the number of senders is greater than 25%,
-	 * senders and receivers are treated together. The constant C is set to the
-	 * average RTCP packet size divided by the total RTCP bandwidth and n is set
-	 * to the total number of members. As stated in Section 6.2, an RTP profile
-	 * MAY specify that the RTCP bandwidth may be explicitly defined by two
-	 * separate parameters (call them S and R) for those participants which are
-	 * senders and those which are not. In that case, the 25% fraction becomes
-	 * S/(S+R) and the 75% fraction becomes R/(S+R). Note that if R is zero, the
-	 * percentage of senders is never greater than S/(S+R), and the
-	 * implementation must avoid division by zero.
-	 * 
-	 * 2. If the participant has not yet sent an RTCP packet (the variable
-	 * initial is true), the constant Tmin is set to 2.5 seconds, else it is set
-	 * to 5 seconds.
-	 * 
-	 * 3. The deterministic calculated interval Td is set to max(Tmin, n*C).
-	 * 
-	 * 4. The calculated interval T is set to a number uniformly distributed
-	 * between 0.5 and 1.5 times the deterministic calculated interval.
-	 * 
-	 * 5. The resulting value of T is divided by e-3/2=1.21828 to compensate for
-	 * the fact that the timer reconsideration algorithm converges to a value of
-	 * the RTCP bandwidth below the intended average.
-	 * 
-	 * This procedure results in an interval which is random, but which, on
-	 * average, gives at least 25% of the RTCP bandwidth to senders and the rest
-	 * to receivers. If the senders constitute more than one quarter of the
-	 * membership, this procedure splits the bandwidth equally among all
-	 * participants, on average.
+	 * @param initial
+	 *            Whether an RTCP packet was already sent or not. Usually the
+	 *            minimum interval for the first packet is lower than the rest.
 	 * 
 	 * @return the new transmission interval, in milliseconds
 	 */
 	public long rtcpInterval(boolean initial) {
-		return rtcpInterval(this.weSent, initial);
+		return RtcpIntervalCalculator.calculateInterval(initial, weSent,
+				senders, members, rtcpAvgSize, rtcpBw, RTCP_BW_FRACTION,
+				RTCP_SENDER_BW_FRACTION, RTCP_RECEIVER_BW_FRACTION);
 	}
 
 	/**
 	 * Calculates the RTCP interval for a receiver, that is without the
-	 * randomization factor (we_sent=false).
+	 * randomization factor (we_sent=false), according to <a
+	 * href="http://tools.ietf.org/html/rfc3550#section-6.3.1">RFC3550</a>.
 	 * 
 	 * @param initial
+	 *            Whether an RTCP packet was already sent or not. Usually the
+	 *            minimum interval for the first packet is lower than the rest.
 	 * @return the new transmission interval, in milliseconds
 	 */
 	public long rtcpReceiverInterval(boolean initial) {
-		return rtcpInterval(false, initial);
+		return RtcpIntervalCalculator.calculateInterval(initial, false,
+				senders, members, rtcpAvgSize, rtcpBw, RTCP_BW_FRACTION,
+				RTCP_SENDER_BW_FRACTION, RTCP_RECEIVER_BW_FRACTION);
 	}
-
-	private long rtcpInterval(boolean weSent, boolean initial) {
-		// 1 - calculate n and c
-		double c;
-		int n;
-		if (this.senders <= (this.members * RTCP_SENDER_BW_FRACTION)) {
-			if (this.weSent) {
-				c = this.rtcpAvgSize / (RTCP_SENDER_BW_FRACTION * this.rtcpBw);
-				n = this.senders;
-			} else {
-				c = this.rtcpAvgSize / (RTCP_RECEIVER_BW_FRACTION * this.rtcpBw);
-				n = this.members - this.senders;
-			}
-		} else {
-			c = this.rtcpAvgSize / this.rtcpBw;
-			n = this.members;
-		}
-
-		// 2 - calculate Tmin
-		double tMin = initial ? INITIAL_RTCP_MIN_TIME : RTCP_MIN_TIME;
-
-		// 3 - calculate Td
-		double td = Math.max(tMin, n * c);
-
-		// 4 - calculate interval T
-		double min = td * 0.5;
-		double max = td * 1.5;
-		double t = min + (max - min) * this.random.nextDouble();
-
-		// 5 - divide T by e-3/2 and convert to milliseconds
-		return (long) ((t / RTCP_COMPENSATION) * 1000);
-	}
-
+	
 	/**
 	 * Checks whether this SSRC is still a sender.
 	 * 

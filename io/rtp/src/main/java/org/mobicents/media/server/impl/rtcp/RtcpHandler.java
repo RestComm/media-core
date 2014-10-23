@@ -184,16 +184,13 @@ public class RtcpHandler implements PacketHandler {
 	}
 	
 	/**
-	 * Gets the time interval untils the next report is sent.
+	 * Gets the time interval until the next report is sent.
 	 * 
 	 * @return Returns the time interval in milliseconds until the report is
 	 *         sent. Returns -1 if no report is currently scheduled.
 	 */
 	public long getNextScheduledReport() {
-		long delay = -1;
-		if(this.scheduledTask != null) {
-			delay = this.scheduledTask.getElapsedTime();
-		}
+		long delay = this.tn - statistics.getCurrentTime();
 		return delay < 0 ? -1 : delay;
 	}
 
@@ -209,7 +206,7 @@ public class RtcpHandler implements PacketHandler {
 		// Create the task and schedule it
 		long interval = resolveInterval(timestamp);
 		logger.info("Scheduled next report in "+ interval);
-		this.scheduledTask = new TxTask(packetType, timestamp);
+		this.scheduledTask = new TxTask(packetType);
 		this.txTimer.schedule(this.scheduledTask, interval);
 		// Let the RTP handler know what is the type of scheduled packet
 		this.statistics.setRtcpPacketType(packetType);
@@ -223,7 +220,6 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
-		task.setTimestamp(timestamp);
 		long interval = resolveInterval(timestamp);
 		this.txTimer.schedule(task, interval);
 	}
@@ -529,25 +525,9 @@ public class RtcpHandler implements PacketHandler {
 	private class TxTask extends TimerTask {
 
 		private final RtcpPacketType packetType;
-		private long timestamp;
 
-		public TxTask(RtcpPacketType packetType, long timestamp) {
+		public TxTask(RtcpPacketType packetType) {
 			this.packetType = packetType;
-			this.timestamp = timestamp;
-		}
-		
-		public long getTimestamp() {
-			return timestamp;
-		}
-		
-		public void setTimestamp(long timestamp) {
-			this.timestamp = timestamp;
-		}
-		
-		public long getElapsedTime() {
-			long currentTime = statistics.getCurrentTime();
-			long elapsedTime = this.timestamp - currentTime;
-			return elapsedTime;
 		}
 
 		public RtcpPacketType getPacketType() {
