@@ -550,6 +550,7 @@ public class RtpStatistics {
 	}
 	
 	public void onRtcpSent(RtcpPacket packet) {
+		// TODO control number of RTCP packets/bytes sent
 		calculateAvgRtcpSize(packet.getSize());
 	}
 	

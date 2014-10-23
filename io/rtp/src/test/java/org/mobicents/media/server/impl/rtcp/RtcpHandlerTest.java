@@ -15,6 +15,9 @@ import org.mobicents.media.server.scheduler.Clock;
  * 
  */
 public class RtcpHandlerTest {
+	
+	// Default messages
+	private static final String INTERVAL_RANGE = "The interval (%d) must be in range [%d;%d]";
 
 	private Clock wallClock;
 	private RtpClock rtpClock;
@@ -37,29 +40,55 @@ public class RtcpHandlerTest {
 	}
 
 	@Test
-	public void testJoinAndLeaveRtpSession() {
+	public void testJoinAndLeaveRtpSession() throws InterruptedException {
 		// given
-		// we_sent == false, then C = avg_rtcp_size / (rtcp_bw * 0.75)
-		double c = statistics.getRtcpAvgSize() / (RtpStatistics.RTCP_DEFAULT_BW * 0.75);
-		// n = num_receivers = members - senders
-		int n = statistics.getMembers() - statistics.getSenders();
+		// senders > members * 0.25 AND we_sent == false, then C = avg_rtcp_size / rtcp_bw
+		double c = statistics.getRtcpAvgSize() / RtpStatistics.RTCP_DEFAULT_BW;
+		// senders > members * 0.25 THEN n = members
+		int n = statistics.getMembers();
 		// initial == true, then Tmin = 2.5 seconds
 		double tMin = RtcpIntervalCalculator.INITIAL_MIN_TIME;
 		double tD = Math.max(tMin, n * c);
 		// T = [Td * 0.5; Td * 1.5]
 		// t = T / (e - 3/2)
 		double compensation = Math.E - (3.0 / 2.0);
-		double lowT = (tD * 0.5) / compensation;
-		double highT = (tD * 1.5) / compensation;
+		long lowT = (long) (((tD * 0.5) / compensation) * 1000);
+		long highT = (long) (((tD * 1.5) / compensation) * 1000);
 
 		// when
 		handler.joinRtpSession();
 		long nextReport = handler.getNextScheduledReport();
+		
+		// give time to handler supposedly send the initial report
+		Thread.sleep(handler.getNextScheduledReport());
 
 		// then
 		Assert.assertTrue(handler.isJoined());
-		Assert.assertTrue(nextReport >= (long) (lowT * 1000));
-		Assert.assertTrue(nextReport <= (long) (highT * 1000));
+		String msg = String.format(INTERVAL_RANGE, nextReport, lowT, highT);
+		Assert.assertTrue(msg, nextReport >= lowT);
+		Assert.assertTrue(msg, nextReport <= highT);
+		Assert.assertEquals(RtcpPacketType.RTCP_REPORT, statistics.getRtcpPacketType());
+		
+		// Notice handler will still be in initial stage since it cannot send packets
+		// (we have not set a proper data channel)
+		Assert.assertTrue(handler.isInitial());
+		
+		// when
+		/*
+		 * When the participant decides to leave the system, tp is reset to tc,
+		 * the current time, members and pmembers are initialized to 1, initial
+		 * is set to 1, we_sent is set to false, senders is set to 0, and
+		 * avg_rtcp_size is set to the size of the compound BYE packet.
+		 * 
+		 * The calculated interval T is computed. The BYE packet is then
+		 * scheduled for time tn = tc + T.
+		 */
+		handler.leaveRtpSession();
+		nextReport = handler.getNextScheduledReport();
+		
+		// then
+		Assert.assertFalse(handler.isJoined());
+		Assert.assertEquals(RtcpPacketType.RTCP_BYE, statistics.getRtcpPacketType());
 	}
 	
 }

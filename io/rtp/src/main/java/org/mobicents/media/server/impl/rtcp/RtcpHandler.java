@@ -112,6 +112,17 @@ public class RtcpHandler implements PacketHandler {
 	}
 	
 	/**
+	 * Gets whether the handler is in initial stage.<br>
+	 * The handler is in initial stage until it has sent at least one RTCP
+	 * packet during the current RTP session.
+	 * 
+	 * @return true if not rtcp packet has been sent, false otherwise.
+	 */
+	public boolean isInitial() {
+		return initial;
+	}
+	
+	/**
 	 * Gets whether the handler is currently joined to an RTP Session.
 	 * 
 	 * @return Return true if joined. Otherwise, returns false.
@@ -205,7 +216,7 @@ public class RtcpHandler implements PacketHandler {
 	private void schedule(long timestamp, RtcpPacketType packetType) {
 		// Create the task and schedule it
 		long interval = resolveInterval(timestamp);
-		logger.info("Scheduled next report in "+ interval);
+		logger.info("Scheduled an "+ packetType.name() +" packet in "+ interval);
 		this.scheduledTask = new TxTask(packetType);
 		this.txTimer.schedule(this.scheduledTask, interval);
 		// Let the RTP handler know what is the type of scheduled packet
@@ -221,6 +232,7 @@ public class RtcpHandler implements PacketHandler {
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
 		long interval = resolveInterval(timestamp);
+		logger.info("Rescheduled the "+ task.getPacketType().name() +" packet in "+ interval);
 		this.txTimer.schedule(task, interval);
 	}
 
@@ -284,16 +296,13 @@ public class RtcpHandler implements PacketHandler {
 				 */
 				t = this.statistics.rtcpInterval(this.initial);
 				this.tn = tc + t;
-				
-				// schedule next packet
-				schedule(this.tn, RtcpPacketType.RTCP_REPORT);
-				initial = false;
-			} else {
-				// Schedule next packet
-				schedule(tn, RtcpPacketType.RTCP_REPORT);
 			}
-
-			this.statistics.confirmMembers();
+			
+			// schedule next packet (only if still in RTP session)
+			if(this.joined) {
+				schedule(this.tn, RtcpPacketType.RTCP_REPORT);
+				this.statistics.confirmMembers();
+			}
 			break;
 
 		case RTCP_BYE:
@@ -424,6 +433,7 @@ public class RtcpHandler implements PacketHandler {
 			return;
 		}
 		
+		RtcpPacketType type = packet.hasBye() ? RtcpPacketType.RTCP_BYE : RtcpPacketType.RTCP_REPORT;
 		if (this.channel != null && channel.isOpen() && channel.isConnected()) {
 			// decode packet
 			byte[] data = new byte[RtpPacket.RTP_PACKET_MAX_SIZE];
@@ -443,16 +453,20 @@ public class RtcpHandler implements PacketHandler {
 			byteBuffer.flip();
 			byteBuffer.rewind();
 			
-			// update RTCP statistics
-			this.statistics.onRtcpSent(packet);
-
 			// trace outgoing RTCP report
 //			logger.info("\nOUTGOING "+ packet.toString());
 
 			// send packet
+			// XXX Should register on RTP statistics IF sending fails!
 			this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
+			logger.info("Sent "+ type +" packet.");
+			// If we send at least one RTCP packet then initial = false
+			this.initial = false;
+			
+			// update RTCP statistics
+			this.statistics.onRtcpSent(packet);
 		} else {
-			logger.warn("Could not send RTCP packet because channel is closed.");
+			logger.warn("Could not send "+ type +" packet because channel is closed.");
 		}
 	}
 	
