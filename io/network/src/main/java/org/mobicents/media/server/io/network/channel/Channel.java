@@ -2,6 +2,7 @@ package org.mobicents.media.server.io.network.channel;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.DatagramChannel;
 
 /**
  * Represents a channel where data can be exchanged
@@ -17,7 +18,7 @@ public interface Channel {
 	 * @return Returns the local address of the channel. Returns an empty string
 	 *         if the channel is not currently bound.
 	 */
-	String getLocalAddress();
+	String getLocalHost();
 
 	/**
 	 * Gets the port that the channel listens to.
@@ -26,6 +27,8 @@ public interface Channel {
 	 *         currently bound.
 	 */
 	int getLocalPort();
+	
+	SocketAddress getLocalAddress();
 
 	/**
 	 * Receive data through the channel
@@ -65,7 +68,18 @@ public interface Channel {
 	boolean isOpen();
 
 	/**
-	 * Connects the channel
+	 * Binds the channel to an address.
+	 * 
+	 * @param address
+	 *            the address the channel will be bounds to
+	 * @throws IOException
+	 *             In case the channel is closed or could not be bound.
+	 */
+	void bind(SocketAddress address) throws IOException;
+
+	/**
+	 * Connects the channel to a remote peer.<br>
+	 * The channel will only be able to accept traffic from that peer.
 	 * 
 	 * @param address
 	 *            The address of the remote peer to connect to
@@ -81,7 +95,26 @@ public interface Channel {
 	void disconnect() throws IOException;
 
 	/**
-	 * Close the channel
+	 * Opens the channel.
+	 * 
+	 * @throws IOException
+	 *             If the channel is already open or if it could not be opened.
+	 */
+	void open() throws IOException;
+	
+	/**
+	 * Opens the channel with a pre-defined data channel.
+	 * 
+	 * @param transport the underlying data channel where the traffic will flow
+	 * 
+	 * @throws IOException In case the channel is already open or the data channel is invalid.
+	 */
+	void open(DatagramChannel dataChannel) throws IOException;
+	
+	/**
+	 * Disconnects and closes the channel.<br>
+	 * Invoking this method will have no effect if the channel is already
+	 * closed.
 	 */
 	void close();
 

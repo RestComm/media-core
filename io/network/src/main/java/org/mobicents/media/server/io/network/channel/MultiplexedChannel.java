@@ -21,7 +21,7 @@ public class MultiplexedChannel implements Channel {
 	private static final Logger logger = Logger.getLogger(Channel.class);
 	
 	// Data channel where data will be received and transmitted
-	protected DatagramChannel channel;
+	protected DatagramChannel dataChannel;
 
 	// Registered protocol handlers. Used for multiplexing.
 	protected final PacketHandlerPipeline handlers;
@@ -41,10 +41,22 @@ public class MultiplexedChannel implements Channel {
 		this.receiveBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	}
 	
-	public String getLocalAddress() {
-		if(this.channel != null && this.channel.isOpen()) {
+	@Override
+	public SocketAddress getLocalAddress() {
+		if(isOpen()) {
 			try {
-				return ((InetSocketAddress) this.channel.getLocalAddress()).getHostString();
+				return this.dataChannel.getLocalAddress();
+			} catch (IOException e) {
+				logger.error("Could not get local addres of the data channel: "+ e.getMessage());
+			}
+		}
+		return null;
+	}
+	
+	public String getLocalHost() {
+		if(this.dataChannel != null && this.dataChannel.isOpen()) {
+			try {
+				return ((InetSocketAddress) this.dataChannel.getLocalAddress()).getHostString();
 			} catch (IOException e) {
 				logger.error("Could not lookup the channel address: "+ e.getMessage(), e);
 			}
@@ -53,14 +65,14 @@ public class MultiplexedChannel implements Channel {
 	}
 	
 	public int getLocalPort() {
-		if(this.channel != null && this.channel.isOpen()) {
-			return this.channel.socket().getLocalPort();
+		if(this.dataChannel != null && this.dataChannel.isOpen()) {
+			return this.dataChannel.socket().getLocalPort();
 		}
 		return 0;
 	}
 	
-	public void setChannel(final DatagramChannel channel) {
-		this.channel = channel;
+	public void setTransport(final DatagramChannel channel) {
+		this.dataChannel = channel;
 	}
 	
 	protected void queueData(final byte[] data) {
@@ -78,13 +90,13 @@ public class MultiplexedChannel implements Channel {
 	}
 	
 	protected void flush() {
-		if(this.channel != null && this.channel.isOpen()) {
+		if(this.dataChannel != null && this.dataChannel.isOpen()) {
 			try {
 				// lets clear the receiver
 				SocketAddress currAddress;
 				this.receiveBuffer.clear();
 				do {
-					currAddress = this.channel.receive(this.receiveBuffer);
+					currAddress = this.dataChannel.receive(this.receiveBuffer);
 					this.receiveBuffer.clear();
 				} while(currAddress != null);
 			} catch (Exception e) {
@@ -100,7 +112,7 @@ public class MultiplexedChannel implements Channel {
 		// Read data from channel
 		int dataLength = 0;
 		try {
-			SocketAddress remotePeer = channel.receive(this.receiveBuffer);
+			SocketAddress remotePeer = dataChannel.receive(this.receiveBuffer);
 			if (!isConnected() && remotePeer != null) {
 				connect(remotePeer);
 			}
@@ -125,7 +137,7 @@ public class MultiplexedChannel implements Channel {
 				try {
 					// Let the handler process the incoming packet.
 					// A response MAY be provided as result.
-					byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) channel.getLocalAddress(), (InetSocketAddress) channel.getRemoteAddress());
+					byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) dataChannel.getLocalAddress(), (InetSocketAddress) dataChannel.getRemoteAddress());
 					
 					/*
 					 * If handler intends to send a response to the remote peer,
@@ -152,7 +164,7 @@ public class MultiplexedChannel implements Channel {
 			this.pendingDataBuffer.flip();
 			
 			// Send data over the channel
-			this.channel.send(this.pendingDataBuffer, this.channel.getRemoteAddress());
+			this.dataChannel.send(this.pendingDataBuffer, this.dataChannel.getRemoteAddress());
 
 			if (this.pendingDataBuffer.remaining() > 0) {
 				// Channel buffer is full
@@ -168,40 +180,72 @@ public class MultiplexedChannel implements Channel {
 	
 	@Override
 	public boolean isOpen() {
-		if(this.channel != null) {
-			return this.channel.isOpen();
+		if(this.dataChannel != null) {
+			return this.dataChannel.isOpen();
 		}
 		return false;
 	}
 	
 	public boolean isConnected() {
-		return this.channel != null && this.channel.isConnected();
+		return this.dataChannel != null && this.dataChannel.isConnected();
+	}
+	
+	@Override
+	public void bind(SocketAddress address) throws IOException {
+		if(!isOpen()) {
+			throw new IOException("The channel is closed.");
+		}
+		this.dataChannel.bind(address);
 	}
 	
 	public void connect(SocketAddress address) throws IOException {
-		if(this.channel == null) {
+		if(this.dataChannel == null) {
 			throw new IOException("No channel available to connect.");
 		}
-		this.channel.connect(address);
+		this.dataChannel.connect(address);
 	}
 	
 	public void disconnect() throws IOException {
 		if(isConnected()) {
-			this.channel.disconnect();
+			this.dataChannel.disconnect();
 		}
 	}
 	
+	@Override
+	public void open() throws IOException {
+		if(this.dataChannel == null || !this.dataChannel.isOpen()) {
+			this.dataChannel = DatagramChannel.open();
+		} else {
+			throw new IOException("Channel is already open.");
+		}
+	}
+	
+	@Override
+	public void open(DatagramChannel dataChannel) throws IOException {
+		if(dataChannel == null) {
+			throw new IOException("The data channel cannot be null.");
+		}
+		
+		if(!dataChannel.isOpen()) {
+			throw new IOException("The data channel is closed.");
+		}
+		
+		this.dataChannel= dataChannel;
+	}
+	
 	public void close() {
-		if(isConnected()) {
-			try {
-				channel.disconnect();
-			} catch (IOException e) {
-				logger.error(e);
+		if (isOpen()) {
+			if (isConnected()) {
+				try {
+					dataChannel.disconnect();
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 			try {
-				channel.close();
+				dataChannel.close();
 			} catch (IOException e) {
-				logger.error(e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}

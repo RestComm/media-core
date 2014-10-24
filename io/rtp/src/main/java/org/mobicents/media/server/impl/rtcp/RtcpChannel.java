@@ -77,9 +77,9 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	public void setRemotePeer(SocketAddress remotePeer) {
 		this.remotePeer = remotePeer;
 
-		if (this.channel != null && this.channel.isConnected()) {
+		if (this.dataChannel != null && this.dataChannel.isConnected()) {
 			try {
-				this.channel.disconnect();
+				this.dataChannel.disconnect();
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -87,7 +87,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 			boolean connectNow = this.udpManager.connectImmediately((InetSocketAddress) remotePeer);
 			if (connectNow) {
 				try {
-					this.channel.connect(remotePeer);
+					this.dataChannel.connect(remotePeer);
 				} catch (IOException e) {
 					logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
 					logger.error(e.getMessage(), e);
@@ -102,7 +102,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	
 	public boolean isAvailable() {
 		// The channel is available is is connected
-		boolean available = this.channel != null && this.channel.isConnected();
+		boolean available = this.dataChannel != null && this.dataChannel.isConnected();
 		// In case of WebRTC calls the DTLS handshake must be completed
 		if(this.secure) {
 			available = available && this.dtlsHandler.isHandshakeComplete();
@@ -122,11 +122,11 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		}
 		
 		// Protocol Handler pipeline
-		this.rtcpHandler.setChannel(this.channel);
+		this.rtcpHandler.setChannel(this.dataChannel);
 		this.handlers.addHandler(this.rtcpHandler);
 
 		if(this.secure) {
-			this.dtlsHandler.setChannel(this.channel);
+			this.dtlsHandler.setChannel(this.dataChannel);
 			this.dtlsHandler.addListener(this);
 			this.handlers.addHandler(this.stunHandler);
 			
@@ -151,7 +151,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	public void bind(boolean isLocal, int port) throws SocketException {
 		try {
 			// Open this channel with UDP Manager on first available address
-			this.channel = (DatagramChannel) udpManager.open(this).channel();
+			this.dataChannel = (DatagramChannel) udpManager.open(this).channel();
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
@@ -160,7 +160,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		onBinding();
 
 		// bind data channel
-		this.udpManager.bind(this.channel, port, isLocal);
+		this.udpManager.bind(this.dataChannel, port, isLocal);
 		this.bound = true;
 	}
 
@@ -172,7 +172,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 
 		try {
 			// Register the channel on UDP Manager
-			this.channel = (DatagramChannel) udpManager.open(channel, this).channel();
+			this.dataChannel = (DatagramChannel) udpManager.open(channel, this).channel();
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
@@ -196,7 +196,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		
 		// setup the DTLS handler
 		if(this.dtlsHandler == null) {
-			this.dtlsHandler = new DtlsHandler(this.channel);
+			this.dtlsHandler = new DtlsHandler(this.dataChannel);
 		}
 		this.dtlsHandler.setRemoteFingerprint(remotePeerFingerprint);
 		

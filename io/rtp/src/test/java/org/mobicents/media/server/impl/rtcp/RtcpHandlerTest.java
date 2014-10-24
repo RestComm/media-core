@@ -1,13 +1,20 @@
 package org.mobicents.media.server.impl.rtcp;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
+
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.impl.rtp.RtpClock;
-import org.mobicents.media.server.impl.rtp.WallTestClock;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
+import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.DefaultClock;
 
 /**
  * 
@@ -16,9 +23,11 @@ import org.mobicents.media.server.scheduler.Clock;
  */
 public class RtcpHandlerTest {
 	
+	private static final Logger logger = Logger.getLogger(RtcpHandlerTest.class);
+	
 	// Default messages
 	private static final String INTERVAL_RANGE = "The interval (%d) must be in range [%d;%d]";
-
+	
 	private Clock wallClock;
 	private RtpClock rtpClock;
 	private RtpStatistics statistics;
@@ -26,7 +35,7 @@ public class RtcpHandlerTest {
 
 	@Before
 	public void before() {
-		wallClock = new WallTestClock();
+		wallClock = new DefaultClock();
 		rtpClock = new RtpClock(wallClock);
 		statistics = new RtpStatistics(rtpClock);
 		handler = new RtcpHandler(statistics);
@@ -89,6 +98,78 @@ public class RtcpHandlerTest {
 		// then
 		Assert.assertFalse(handler.isJoined());
 		Assert.assertEquals(RtcpPacketType.RTCP_BYE, statistics.getRtcpPacketType());
+	}
+	
+	@Test
+	public void testRtcpSend() throws IOException, InterruptedException {
+		/* GIVEN */
+		SnifferChannel recvChannel = new SnifferChannel();
+		recvChannel.open();
+		recvChannel.bind(new InetSocketAddress("127.0.0.1", 0));
+		
+		DatagramChannel sendChannel = DatagramChannel.open();
+		sendChannel.bind(new InetSocketAddress("127.0.0.1", 0));
+		
+		recvChannel.connect(sendChannel.getLocalAddress());
+		sendChannel.connect(recvChannel.getLocalAddress());
+		
+		/* WHEN */
+		handler.setChannel(sendChannel);
+		handler.joinRtpSession();
+		
+		recvChannel.start();
+		new Thread(recvChannel).start();
+		Thread.sleep(15000);
+		
+		handler.leaveRtpSession();
+		Thread.sleep(5000);
+		recvChannel.stop();
+		
+		/* THEN */
+		Assert.assertEquals(recvChannel.rxPackets, statistics.getRtcpPacketsSent());
+		Assert.assertEquals(recvChannel.rxOctets, statistics.getRtcpOctetsSent());
+	}
+	
+	
+	private class SnifferChannel extends MultiplexedChannel implements Runnable {
+		
+		private volatile boolean running = false;
+		private int rxPackets = 0;
+		private int rxOctets = 0;
+		
+		private final ByteBuffer buffer = ByteBuffer.allocate(300);
+		
+		@Override
+		public void receive() throws IOException {
+			this.buffer.clear();
+			int read = super.dataChannel.read(buffer);
+			
+			if(read > 0) {
+				this.rxPackets++;
+				this.rxOctets += read;
+			}
+		}
+		
+		public void start() {
+			this.running = true;
+		}
+		
+		public void stop() {
+			this.running = false;
+		}
+		
+		@Override
+		public void run() {
+			while(running) {
+				try {
+					receive();
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+					running = false;
+				}
+			}
+		}
+		
 	}
 	
 }

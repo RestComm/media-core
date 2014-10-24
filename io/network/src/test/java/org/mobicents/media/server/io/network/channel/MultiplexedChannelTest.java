@@ -59,12 +59,12 @@ public class MultiplexedChannelTest {
 		int port = localChannel.socket().getLocalPort();
 
 		// when
-		channel.setChannel(localChannel);
+		channel.setTransport(localChannel);
 
 		// then
 		Assert.assertTrue(channel.isOpen());
 		Assert.assertEquals(localChannel.isConnected(), channel.isConnected());
-		Assert.assertEquals(localAddress, channel.getLocalAddress());
+		Assert.assertEquals(localAddress, channel.getLocalHost());
 		Assert.assertEquals(port, channel.getLocalPort());
 	}
 
@@ -74,7 +74,7 @@ public class MultiplexedChannelTest {
 		MultiplexedChannel channel = new MultiplexedChannel();
 		PacketHandlerMock handler = new LowPriorityPacketHandlerMock();
 		channel.handlers.addHandler(handler);
-		channel.setChannel(localChannel);
+		channel.setTransport(localChannel);
 
 		String msg = LowPriorityPacketHandlerMock.DATA;
 		byte[] data = msg.getBytes();

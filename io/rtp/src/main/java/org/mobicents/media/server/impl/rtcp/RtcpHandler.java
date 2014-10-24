@@ -202,6 +202,7 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	public long getNextScheduledReport() {
 		long delay = this.tn - statistics.getCurrentTime();
+		logger.info("next packet will be sent in "+ delay +" ms");
 		return delay < 0 ? -1 : delay;
 	}
 
@@ -459,7 +460,6 @@ public class RtcpHandler implements PacketHandler {
 			// send packet
 			// XXX Should register on RTP statistics IF sending fails!
 			this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
-			logger.info("Sent "+ type +" packet.");
 			// If we send at least one RTCP packet then initial = false
 			this.initial = false;
 			

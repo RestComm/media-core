@@ -70,6 +70,9 @@ public class RtpStatistics {
 	private double rtcpBw;
 	private double rtcpAvgSize;
 	private boolean weSent;
+	
+	private volatile long rtcpTxPackets;
+	private volatile long rtcpTxOctets;
 
 	/**
 	 * Calculation of the RTCP packet interval depends upon an estimate of the
@@ -105,7 +108,9 @@ public class RtpStatistics {
 		// RTP statistics
 		this.rtpLastHeartbeat = 0;
 		this.rtpRxPackets = 0;
+		this.rtpRxOctets = 0;
 		this.rtpTxPackets = 0;
+		this.rtpTxOctets = 0;
 		this.rtpReceivedOn = 0;
 		this.rtpSentOn = 0;
 
@@ -120,6 +125,9 @@ public class RtpStatistics {
 		this.rtcpAvgSize = RTCP_DEFAULT_AVG_SIZE;
 		this.rtcpNextPacketType = RtcpPacketType.RTCP_REPORT;
 		this.weSent = false;
+
+		this.rtcpTxPackets = 0;
+		this.rtcpTxOctets = 0;
 	}
 	
 	public RtpStatistics(final RtpClock clock) {
@@ -425,6 +433,14 @@ public class RtpStatistics {
 		this.rtcpAvgSize = (1.0 / 16.0) * packetSize + (15.0 / 16.0) * this.rtcpAvgSize;
 		return this.rtcpAvgSize;
 	}
+	
+	public long getRtcpPacketsSent() {
+		return rtcpTxPackets;
+	}
+
+	public long getRtcpOctetsSent() {
+		return rtcpTxOctets;
+	}
 
 	/**
 	 * Calculates a random interval to transmit the next RTCP report, according
@@ -550,8 +566,9 @@ public class RtpStatistics {
 	}
 	
 	public void onRtcpSent(RtcpPacket packet) {
-		// TODO control number of RTCP packets/bytes sent
 		calculateAvgRtcpSize(packet.getSize());
+		this.rtcpTxPackets++;
+		this.rtcpTxOctets += packet.getSize();
 	}
 	
 	public void onRtcpReceive(RtcpPacket rtcpPacket) {

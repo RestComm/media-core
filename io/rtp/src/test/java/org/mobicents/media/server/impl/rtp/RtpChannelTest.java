@@ -149,12 +149,12 @@ public class RtpChannelTest {
     @After
     public void tearDown() {
     	source1.deactivate();
-    	channel1.close();
+		channel1.close();
+    	
+		source2.deactivate();
+		channel2.close();
 
-    	source2.deactivate();
-    	channel2.close();
-
-    	audioMixer1.stop();
+		audioMixer1.stop();
     	audioMixer2.stop();
     	
         udpManager.stop();

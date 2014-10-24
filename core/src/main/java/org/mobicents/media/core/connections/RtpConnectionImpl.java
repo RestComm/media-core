@@ -382,7 +382,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Generate SDP offer based on rtp channel
-		String bindAddress = rtpAudioChannel.getLocalAddress();
+		String bindAddress = rtpAudioChannel.getLocalHost();
 		int rtcpPort = this.audioRtcpMux ? rtpAudioChannel.getLocalPort() : rtcpAudioChannel.getLocalPort();
 		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtcpPort, 0);
 		this.sdpAnswer = "";

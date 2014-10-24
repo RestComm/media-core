@@ -263,17 +263,17 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		}
 		
 		// Configure protocol handlers
-		this.transmitter.setChannel(this.channel);
+		this.transmitter.setChannel(this.dataChannel);
 		this.rtpHandler.useJitterBuffer(useJitterBuffer);
 		this.handlers.addHandler(this.rtpHandler);
 		
 		if(this.rtcpMux) {
-			this.rtcpHandler.setChannel(this.channel);
+			this.rtcpHandler.setChannel(this.dataChannel);
 			this.handlers.addHandler(this.rtcpHandler);
 		}
 		
 		if(this.secure) {
-			this.dtlsHandler.setChannel(this.channel);
+			this.dtlsHandler.setChannel(this.dataChannel);
 			this.dtlsHandler.addListener(this);
 			this.handlers.addHandler(this.stunHandler);
 
@@ -285,7 +285,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	public void bind(boolean isLocal) throws IOException, SocketException {
 		try {
 			// Open this channel with UDP Manager on first available address
-			this.channel = (DatagramChannel) udpManager.open(this).channel();
+			this.dataChannel = (DatagramChannel) udpManager.open(this).channel();
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
@@ -294,14 +294,14 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		onBinding(!isLocal);
 
 		// bind data channel
-		this.udpManager.bind(this.channel, PORT_ANY, isLocal);
+		this.udpManager.bind(this.dataChannel, PORT_ANY, isLocal);
 		this.bound = true;
 	}
 
 	public void bind(DatagramChannel channel) throws IOException, SocketException {
 		try {
 			// Register the channel on UDP Manager
-			this.channel = (DatagramChannel) udpManager.open(channel, this).channel();
+			this.dataChannel = (DatagramChannel) udpManager.open(channel, this).channel();
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
@@ -322,7 +322,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	
 	public boolean isAvailable() {
 		// The channel is available is is connected
-		boolean available = this.channel != null && this.channel.isConnected();
+		boolean available = this.dataChannel != null && this.dataChannel.isConnected();
 		// In case of WebRTC calls the DTLS handshake must be completed
 		if(this.secure) {
 			available = available && this.dtlsHandler.isHandshakeComplete();
@@ -333,8 +333,8 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	public void setRemotePeer(SocketAddress address) {
 		this.remotePeer = address;
 		boolean connectImmediately = false;
-		if (this.channel != null) {
-			if (this.channel.isConnected())
+		if (this.dataChannel != null) {
+			if (this.dataChannel.isConnected())
 				try {
 					disconnect();
 				} catch (IOException e) {
@@ -344,7 +344,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 			connectImmediately = udpManager.connectImmediately((InetSocketAddress) address);
 			if (connectImmediately) {
 				try {
-					this.channel.connect(address);
+					this.dataChannel.connect(address);
 				} catch (IOException e) {
 					logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
 					logger.error(e.getMessage(), e);
@@ -434,7 +434,6 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	public void close() {
-		this.statistics.reset();
 		if(rtcpMux) {
 			this.rtcpHandler.leaveRtpSession();
 			reset();
