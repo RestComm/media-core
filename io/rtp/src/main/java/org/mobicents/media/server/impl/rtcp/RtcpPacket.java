@@ -78,7 +78,8 @@ public class RtcpPacket implements Serializable {
 	}
 
 	public int decode(byte[] rawData, int offSet) {
-		this.size = rawData.length - offSet;
+//		this.size = rawData.length - offSet;
+		this.size = 0;
 		while (offSet < rawData.length) {
 			int type = rawData[offSet + 1] & 0x000000FF;
 			switch (type) {
@@ -86,26 +87,31 @@ public class RtcpPacket implements Serializable {
 				packetCount++;
 				this.senderReport = new RtcpSenderReport();
 				offSet = this.senderReport.decode(rawData, offSet);
+				this.size += this.senderReport.length;
 				break;
 			case RtcpHeader.RTCP_RR:
 				packetCount++;
 				this.receiverReport = new RtcpReceiverReport();
 				offSet = this.receiverReport.decode(rawData, offSet);
+				this.size += this.receiverReport.length;
 				break;
 			case RtcpHeader.RTCP_SDES:
 				packetCount++;
 				this.sdes = new RtcpSdes();
 				offSet = this.sdes.decode(rawData, offSet);
+				this.size += this.sdes.length;
 				break;
 			case RtcpHeader.RTCP_APP:
 				packetCount++;
 				this.appDefined = new RtcpAppDefined();
 				offSet = this.appDefined.decode(rawData, offSet);
+				this.size += this.appDefined.length;
 				break;
 			case RtcpHeader.RTCP_BYE:
 				packetCount++;
 				this.bye = new RtcpBye();
 				offSet = this.bye.decode(rawData, offSet);
+				this.size += this.bye.length;
 				break;
 			default:				
 				logger.error("Received type = "+type+" RTCP Packet decoding falsed. offSet = "+offSet +". Packet count = "+ packetCount);
@@ -113,7 +119,6 @@ public class RtcpPacket implements Serializable {
 				break;
 			}
 		}
-
 		return offSet;
 	}
 

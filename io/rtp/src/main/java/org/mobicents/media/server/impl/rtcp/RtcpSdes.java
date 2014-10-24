@@ -50,12 +50,10 @@ public class RtcpSdes extends RtcpHeader {
 		int tmp = offSet;
 		offSet = super.decode(rawData, offSet);
 
-		int tmpCount = 0;
 		while ((offSet - tmp) < this.length) {
 			RtcpSdesChunk rtcpSdesChunk = new RtcpSdesChunk();
 			offSet = rtcpSdesChunk.decode(rawData, offSet);
 			this.sdesChunks.add(rtcpSdesChunk);
-			tmpCount++;
 		}
 		return offSet;
 	}
@@ -92,6 +90,16 @@ public class RtcpSdes extends RtcpHeader {
 	public RtcpSdesChunk[] getSdesChunks() {
 		RtcpSdesChunk[] chunks = new RtcpSdesChunk[this.sdesChunks.size()];
 		return this.sdesChunks.toArray(chunks);
+	}
+	
+	public String getCname() {
+		for (RtcpSdesChunk chunk : this.sdesChunks) {
+			String cname = chunk.getCname();
+			if(cname != null && !cname.isEmpty()) {
+				return cname;
+			}
+		}
+		return "";
 	}
 	
 	@Override

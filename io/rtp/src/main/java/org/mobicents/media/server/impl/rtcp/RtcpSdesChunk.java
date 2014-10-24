@@ -83,6 +83,15 @@ public class RtcpSdesChunk {
 	public long getSsrc() {
 		return ssrc;
 	}
+	
+	public String getCname() {
+		for (RtcpSdesItem item : this.rtcpSdesItems) {
+			if(RtcpSdesItem.RTCP_SDES_CNAME == item.getType()) {
+				return item.getText();
+			}
+		}
+		return "";
+	}
 
 	public RtcpSdesItem[] getRtcpSdesItems() {
 		RtcpSdesItem[] items = new RtcpSdesItem[this.rtcpSdesItems.size()];

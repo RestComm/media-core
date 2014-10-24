@@ -10,9 +10,13 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.SsrcGenerator;
+import org.mobicents.media.server.impl.rtp.statistics.RtpMember;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
+import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 
@@ -24,6 +28,29 @@ import org.mobicents.media.server.scheduler.DefaultClock;
 public class RtcpHandlerTest {
 	
 	private static final Logger logger = Logger.getLogger(RtcpHandlerTest.class);
+	
+	private static final byte[] RTCP_BYE_PACKET = new byte[] { 
+		(byte) 0x81, (byte) 0xc8, 0x00, 0x0c, (byte) 0xf1, (byte) 0xcf, (byte) 0xb8, (byte) 0xf9, (byte) 0xd7, (byte) 0xc3, 0x17, (byte) 0xd1, (byte) 0xdd, (byte) 0xb2, 0x2d, 0x0e,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, (byte) 0xee, 0x7c, (byte) 0xb9, 0x07, (byte) 0xac, (byte) 0xbe,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x83, 0x53, 0x00, 0x00, 0x00, 0x05, (byte) 0x99, 0x4f, 0x54, 0x18,
+		0x00, 0x02, (byte) 0xb6, 0x04, (byte) 0x81, (byte) 0xca, 0x00, 0x06, (byte) 0xf1, (byte) 0xcf, (byte) 0xb8, (byte) 0xf9, 0x01, 0x10, 0x6d, 0x4e,
+		0x56, 0x35, 0x51, 0x31, 0x36, 0x61, 0x6a, 0x52, 0x76, 0x4d, 0x30, 0x30, 0x77, 0x53, 0x00, 0x00,
+		(byte) 0x81, (byte) 0xcb, 0x00, 0x01, (byte) 0xf1, (byte) 0xcf, (byte) 0xb8, (byte) 0xf9
+		};
+	
+	private static final byte[] RTP_PACKET = new byte[] {
+		(byte) 0x80, 0x00, 0x04, 0x5c, 0x00, 0x02, (byte) 0xb9, (byte) 0x80, (byte) 0xf1, (byte) 0xcf, (byte) 0xb8, (byte) 0xf9, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff
+	};
 	
 	// Default messages
 	private static final String INTERVAL_RANGE = "The interval (%d) must be in range [%d;%d]";
@@ -48,6 +75,130 @@ public class RtcpHandlerTest {
 		}
 	}
 
+	@Test
+	public void testCanHandle() {
+		// given
+		
+		// when
+		boolean canHandleRtcp = handler.canHandle(RTCP_BYE_PACKET);
+		boolean canHandleRtp = handler.canHandle(RTP_PACKET);
+		
+		// then
+		Assert.assertTrue(canHandleRtcp);
+		Assert.assertFalse(canHandleRtp);
+	}
+	
+	@Test
+	public void testHandleReceiverReport() throws PacketHandlerException {
+		// given
+		InetSocketAddress localPeer = new InetSocketAddress("127.0.0.1", 6100);
+		InetSocketAddress remotePeer = new InetSocketAddress("127.0.0.1", 6200);
+		
+		long remoteSsr = SsrcGenerator.generateSsrc();
+		String remoteCname = CnameGenerator.generateCname();
+		
+		RtcpReceiverReport rr = new RtcpReceiverReport(false, remoteSsr);
+		
+		RtcpSdes sdes = new RtcpSdes(false);
+		RtcpSdesChunk sdesChunk = new RtcpSdesChunk(remoteSsr);
+		RtcpSdesItem sdesCname = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_CNAME, remoteCname);
+		sdesChunk.addRtcpSdesItem(sdesCname);
+		sdes.addRtcpSdesChunk(sdesChunk);
+		
+		RtcpPacket rtcpPacket = new RtcpPacket(rr, sdes);
+		byte[] rtcpData = new byte[300];
+		rtcpPacket.encode(rtcpData, 0);
+		
+		// when
+		handler.joinRtpSession();
+		byte[] response = handler.handle(rtcpData, localPeer, remotePeer);
+
+		// then
+		// There are no responses in RTCP
+		Assert.assertNull(response);
+		
+		/*
+		 * When an RTCP packet is received from a participant whose SSRC is not in the
+		 * member table, the SSRC is added to the table, and the value for
+		 * members is updated once the participant has been validated.
+		 */
+		RtpMember newMember = statistics.getMember(remoteSsr);
+		Assert.assertEquals(2, statistics.getMembers());
+		Assert.assertNotNull(newMember);
+		Assert.assertEquals(remoteSsr, newMember.getSsrc());
+		Assert.assertEquals(remoteCname, newMember.getCname());
+		
+		// The average packet size is updated:
+		// avg_rtcp_size = (1/16) * packet_size + (15/16) * avg_rtcp_size
+		double expectedSize = (1.0 / 16.0) * rtcpPacket.getSize() + (15.0 / 16.0) * RtpStatistics.RTCP_DEFAULT_AVG_SIZE;
+		Assert.assertEquals(expectedSize, statistics.getRtcpAvgSize(), 0.0);
+	}
+
+	@Test
+	public void testHandleSenderReport() throws PacketHandlerException {
+		// given
+		InetSocketAddress localPeer = new InetSocketAddress("127.0.0.1", 6100);
+		InetSocketAddress remotePeer = new InetSocketAddress("127.0.0.1", 6200);
+		
+		long localSsr = statistics.getSsrc();
+		long remoteSsr = SsrcGenerator.generateSsrc();
+		String remoteCname = CnameGenerator.generateCname();
+		
+		RtcpReceiverReport rr = new RtcpReceiverReport(false, remoteSsr);
+		RtcpReportBlock rrBlock = new RtcpReportBlock(localSsr, 1, 1, 0, 10, 0, 398416412, 223412);
+		rr.addReceiverReport(rrBlock);
+		
+		RtcpSdes sdes = new RtcpSdes(false);
+		RtcpSdesChunk sdesChunk = new RtcpSdesChunk(remoteSsr);
+		RtcpSdesItem sdesCname = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_CNAME, remoteCname);
+		sdesChunk.addRtcpSdesItem(sdesCname);
+		sdes.addRtcpSdesChunk(sdesChunk);
+		
+		RtcpPacket rtcpPacket = new RtcpPacket(rr, sdes);
+		byte[] rtcpData = new byte[300];
+		rtcpPacket.encode(rtcpData, 0);
+		
+		// when
+		handler.joinRtpSession();
+		byte[] response = handler.handle(rtcpData, localPeer, remotePeer);
+		
+		// then
+		// There are no responses in RTCP
+		Assert.assertNull(response);
+		
+		/*
+		 * When an RTCP packet is received from a participant whose SSRC is not in the
+		 * member table, the SSRC is added to the table, and the value for
+		 * members is updated once the participant has been validated.
+		 */
+		Assert.assertEquals(2, statistics.getMembers());
+		
+		// The average packet size is updated:
+		// avg_rtcp_size = (1/16) * packet_size + (15/16) * avg_rtcp_size
+		double expectedSize = (1.0/16.0) * rtcpPacket.getSize() + (15.0/16.0) * RtpStatistics.RTCP_DEFAULT_AVG_SIZE;
+		Assert.assertEquals(expectedSize, statistics.getRtcpAvgSize(), 0.0);
+	}
+	
+	public void testHandleBye() throws PacketHandlerException {
+		// given
+		RtcpPacket packet = new RtcpPacket();
+		packet.decode(RTCP_BYE_PACKET, 0);
+		
+		InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 6100);
+		InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 6200);
+		
+		// when
+		handler.joinRtpSession();
+		byte[] response = handler.handle(RTCP_BYE_PACKET, localAddress, remoteAddress);
+		handler.leaveRtpSession();
+		
+		// then
+		// there is no responses on RTCP
+		Assert.assertNull(response);
+		
+		
+	}
+	
 	@Test
 	public void testJoinAndLeaveRtpSession() throws InterruptedException {
 		// given
@@ -126,11 +277,12 @@ public class RtcpHandlerTest {
 		recvChannel.stop();
 		
 		/* THEN */
+		Assert.assertTrue(recvChannel.rxPackets > 0);
+		Assert.assertTrue(recvChannel.rxOctets > 0);
 		Assert.assertEquals(recvChannel.rxPackets, statistics.getRtcpPacketsSent());
 		Assert.assertEquals(recvChannel.rxOctets, statistics.getRtcpOctetsSent());
 	}
-	
-	
+
 	private class SnifferChannel extends MultiplexedChannel implements Runnable {
 		
 		private volatile boolean running = false;

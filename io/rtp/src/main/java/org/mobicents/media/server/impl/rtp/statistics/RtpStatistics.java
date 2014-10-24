@@ -11,6 +11,7 @@ import org.mobicents.media.server.impl.rtcp.RtcpPacket;
 import org.mobicents.media.server.impl.rtcp.RtcpPacketType;
 import org.mobicents.media.server.impl.rtcp.RtcpReport;
 import org.mobicents.media.server.impl.rtcp.RtcpReportBlock;
+import org.mobicents.media.server.impl.rtcp.RtcpSdes;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpClock;
@@ -380,10 +381,14 @@ public class RtpStatistics {
 	}
 
 	private RtpMember addMember(long ssrc) {
+		return addMember(ssrc, "");
+	}
+	
+	private RtpMember addMember(long ssrc, String cname) {
 		RtpMember member = getMember(ssrc);
 		if (member == null) {
 			synchronized (this.membersMap) {
-				member = new RtpMember(this.rtpClock, ssrc);
+				member = new RtpMember(this.rtpClock, ssrc, cname);
 				this.membersMap.put(Long.valueOf(ssrc), member);
 				this.members++;
 			}
@@ -593,11 +598,13 @@ public class RtpStatistics {
 			 * added to the table, and the value for members is updated once the
 			 * participant has been validated.
 			 * 
-			 * Don't bother registering members if a RTCP BYE is scheduled!
+			 * Don't bother registering members if an RTCP BYE is scheduled!
 			 */
 			RtpMember member = getMember(ssrc);
 			if (member == null && RtcpPacketType.RTCP_REPORT.equals(this.rtcpNextPacketType)) {
-				member = addMember(ssrc);
+				RtcpSdes sdes = rtcpPacket.getSdes();
+				String cname = sdes == null ? "" : sdes.getCname();
+				member = addMember(ssrc, cname);
 			}
 			
 			if(rtcpPacket.isSender() && member != null) {
