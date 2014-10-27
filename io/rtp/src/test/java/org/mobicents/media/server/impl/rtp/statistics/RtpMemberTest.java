@@ -7,6 +7,7 @@ import java.util.Date;
 import org.apache.commons.net.ntp.TimeStamp;
 import org.junit.Test;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
+import org.mobicents.media.server.impl.rtcp.ntp.NtpUtils;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.WallTestClock;
@@ -207,7 +208,7 @@ public class RtpMemberTest {
 		this.wallClock.tick(20000000L);
 		
 		// then
-		long expectedSrTimestamp = RtpMember.calculateLastSrTimestamp(ntp.getSeconds(), ntp.getFraction());
+		long expectedSrTimestamp = NtpUtils.calculateLastSrTimestamp(ntp.getSeconds(), ntp.getFraction());
 		assertEquals(expectedSrTimestamp, member.getLastSR());
 		assertEquals(0, member.getReceivedSinceSR());
 		

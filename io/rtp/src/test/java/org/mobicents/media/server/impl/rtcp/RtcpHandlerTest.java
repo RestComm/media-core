@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
+import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -140,21 +141,22 @@ public class RtcpHandlerTest {
 		InetSocketAddress localPeer = new InetSocketAddress("127.0.0.1", 6100);
 		InetSocketAddress remotePeer = new InetSocketAddress("127.0.0.1", 6200);
 		
-		long localSsr = statistics.getSsrc();
-		long remoteSsr = SsrcGenerator.generateSsrc();
+		long localSsrc = statistics.getSsrc();
+		long remoteSsrc = SsrcGenerator.generateSsrc();
 		String remoteCname = CnameGenerator.generateCname();
 		
-		RtcpReceiverReport rr = new RtcpReceiverReport(false, remoteSsr);
-		RtcpReportBlock rrBlock = new RtcpReportBlock(localSsr, 1, 1, 0, 10, 0, 398416412, 223412);
-		rr.addReceiverReport(rrBlock);
+		TimeStamp ntp = new TimeStamp(wallClock.getCurrentTime());
+		RtcpSenderReport sr = new RtcpSenderReport(false, remoteSsrc, ntp.getSeconds(), ntp.getFraction(), 200, 3, 3 * 200);
+		RtcpReportBlock rrBlock = new RtcpReportBlock(localSsrc, 1, 1, 0, 10, 0, 398416412, 223412);
+		sr.addReceiverReport(rrBlock);
 		
 		RtcpSdes sdes = new RtcpSdes(false);
-		RtcpSdesChunk sdesChunk = new RtcpSdesChunk(remoteSsr);
+		RtcpSdesChunk sdesChunk = new RtcpSdesChunk(remoteSsrc);
 		RtcpSdesItem sdesCname = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_CNAME, remoteCname);
 		sdesChunk.addRtcpSdesItem(sdesCname);
 		sdes.addRtcpSdesChunk(sdesChunk);
 		
-		RtcpPacket rtcpPacket = new RtcpPacket(rr, sdes);
+		RtcpPacket rtcpPacket = new RtcpPacket(sr, sdes);
 		byte[] rtcpData = new byte[300];
 		rtcpPacket.encode(rtcpData, 0);
 		
@@ -171,7 +173,14 @@ public class RtcpHandlerTest {
 		 * member table, the SSRC is added to the table, and the value for
 		 * members is updated once the participant has been validated.
 		 */
+		RtpMember newMember = statistics.getMember(remoteSsrc);
 		Assert.assertEquals(2, statistics.getMembers());
+		Assert.assertNotNull(newMember);
+		Assert.assertEquals(remoteSsrc, newMember.getSsrc());
+		Assert.assertEquals(remoteCname, newMember.getCname());
+		
+		Assert.assertEquals(sr.getNtpTs(), newMember.getLastSR());
+		Assert.assertEquals(0, newMember.getReceivedSinceSR());
 		
 		// The average packet size is updated:
 		// avg_rtcp_size = (1/16) * packet_size + (15/16) * avg_rtcp_size
@@ -179,24 +188,86 @@ public class RtcpHandlerTest {
 		Assert.assertEquals(expectedSize, statistics.getRtcpAvgSize(), 0.0);
 	}
 	
+	@Test
 	public void testHandleBye() throws PacketHandlerException {
 		// given
-		RtcpPacket packet = new RtcpPacket();
-		packet.decode(RTCP_BYE_PACKET, 0);
+		InetSocketAddress localPeer = new InetSocketAddress("127.0.0.1", 6100);
+		InetSocketAddress remotePeer = new InetSocketAddress("127.0.0.1", 6200);
 		
-		InetSocketAddress localAddress = new InetSocketAddress("127.0.0.1", 6100);
-		InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 6200);
+		RtcpPacket rr1 = buildReceiverReportPacket();
+		byte[] rr1Data = new byte[300];
+		rr1.encode(rr1Data, 0);
+
+		RtcpPacket rr2 = buildReceiverReportPacket();
+		byte[] rr2Data = new byte[300];
+		rr2.encode(rr2Data, 0);
+		
+		RtcpPacket rr3 = buildReceiverReportPacket();
+		byte[] rr3Data = new byte[300];
+		rr3.encode(rr3Data, 0);
+		
+		RtcpPacket bye = buildReceiverReportPacket(rr1.getReceiverReport().ssrc, rr1.getSdes().getCname(), true);
+		byte[] byeData = new byte[300];
+		bye.encode(byeData, 0);
 		
 		// when
 		handler.joinRtpSession();
-		byte[] response = handler.handle(RTCP_BYE_PACKET, localAddress, remoteAddress);
-		handler.leaveRtpSession();
+		handler.handle(rr1Data, localPeer, remotePeer);
+		double expectedSize = (1.0/16.0) * rr1.getSize() + (15.0/16.0) * RtpStatistics.RTCP_DEFAULT_AVG_SIZE;
+
+		handler.handle(rr2Data, localPeer, remotePeer);
+		expectedSize = (1.0/16.0) * rr2.getSize() + (15.0/16.0) * expectedSize;
+		
+		handler.handle(rr3Data, localPeer, remotePeer);
+		expectedSize = (1.0/16.0) * rr3.getSize() + (15.0/16.0) * expectedSize;
 		
 		// then
-		// there is no responses on RTCP
-		Assert.assertNull(response);
+		long expectedMembers = 4;
+		Assert.assertEquals(expectedMembers, statistics.getMembers());
 		
+		// when
+		handler.handle(byeData, localPeer, remotePeer);
+		expectedSize = (1.0/16.0) * bye.getSize() + (15.0/16.0) * expectedSize;
 		
+		// then
+		/*
+		 * if the received packet is an RTCP BYE packet, the SSRC is checked
+		 * against the member table. If present, the entry is removed from the
+		 * table, and the value for members is updated. The SSRC is then checked
+		 * against the sender table. If present, the entry is removed from the
+		 * table, and the value for senders is updated.
+		 */
+		Assert.assertEquals(expectedMembers - 1, statistics.getMembers());
+		Assert.assertEquals(expectedSize, statistics.getRtcpAvgSize(), 0.0);
+	}
+	
+	private RtcpPacket buildReceiverReportPacket() {
+		long ssrc = SsrcGenerator.generateSsrc();
+		String cname = CnameGenerator.generateCname();
+		
+		RtcpReceiverReport rr = new RtcpReceiverReport(false, ssrc);
+		RtcpSdes sdes = new RtcpSdes(false);
+		RtcpSdesChunk sdesChunk = new RtcpSdesChunk(ssrc);
+		RtcpSdesItem sdesCname = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_CNAME, cname);
+		sdesChunk.addRtcpSdesItem(sdesCname);
+		sdes.addRtcpSdesChunk(sdesChunk);
+		return new RtcpPacket(rr, sdes);
+	}
+
+	private RtcpPacket buildReceiverReportPacket(long ssrc, String cname, boolean bye) {
+		RtcpReceiverReport rr = new RtcpReceiverReport(false, ssrc);
+		RtcpSdes sdes = new RtcpSdes(false);
+		RtcpSdesChunk sdesChunk = new RtcpSdesChunk(ssrc);
+		RtcpSdesItem sdesCname = new RtcpSdesItem(RtcpSdesItem.RTCP_SDES_CNAME, cname);
+		sdesChunk.addRtcpSdesItem(sdesCname);
+		sdes.addRtcpSdesChunk(sdesChunk);
+		
+		RtcpBye rtcpBye = null;
+		if(bye) {
+			rtcpBye = new RtcpBye(false);
+			return new RtcpPacket(rr, sdes, rtcpBye);
+		}
+		return new RtcpPacket(rr, sdes);
 	}
 	
 	@Test

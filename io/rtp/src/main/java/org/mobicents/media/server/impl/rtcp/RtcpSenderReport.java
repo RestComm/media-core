@@ -22,6 +22,8 @@
 
 package org.mobicents.media.server.impl.rtcp;
 
+import org.mobicents.media.server.impl.rtcp.ntp.NtpUtils;
+
 /**
  * 
  * @author amit bhayani
@@ -36,6 +38,9 @@ public class RtcpSenderReport extends RtcpReport {
 
 	/** NTP fraction */
 	private long ntpFrac;
+	
+	/** The middle 32 bits out of 64 in the NTP timestamp */
+	private long ntpTs;
 
 	/** RTP timestamp */
 	private long rtpTs;
@@ -54,6 +59,7 @@ public class RtcpSenderReport extends RtcpReport {
 		super(padding, ssrc, RtcpHeader.RTCP_SR);
 		this.ntpSec = ntpSec;
 		this.ntpFrac = ntpFrac;
+		this.ntpTs = NtpUtils.calculateLastSrTimestamp(ntpSec, ntpFrac);
 		this.rtpTs = rtpTs;
 		this.psent = psent;
 		this.osent = osent;
@@ -88,6 +94,8 @@ public class RtcpSenderReport extends RtcpReport {
 		this.ntpFrac |= rawData[offSet++] & 0xFF;
 		this.ntpFrac <<= 8;
 		this.ntpFrac |= rawData[offSet++] & 0xFF;
+		
+		this.ntpTs = NtpUtils.calculateLastSrTimestamp(ntpSec, ntpFrac);
 
 		this.rtpTs |= rawData[offSet++] & 0xFF;
 		this.rtpTs <<= 8;
@@ -183,6 +191,10 @@ public class RtcpSenderReport extends RtcpReport {
 	public long getNtpFrac() {
 		return ntpFrac;
 	}
+	
+	public long getNtpTs() {
+		return ntpTs;
+	}
 
 	public long getRtpTs() {
 		return rtpTs;
@@ -219,5 +231,5 @@ public class RtcpSenderReport extends RtcpReport {
 		}
 		return builder.toString();
 	}
-
+	
 }

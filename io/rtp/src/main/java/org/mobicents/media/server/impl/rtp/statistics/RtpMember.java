@@ -3,6 +3,7 @@ package org.mobicents.media.server.impl.rtp.statistics;
 import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
+import org.mobicents.media.server.impl.rtcp.ntp.NtpUtils;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.scheduler.Clock;
@@ -305,7 +306,7 @@ public class RtpMember {
     
     public void estimateRtt(long receiptDate, long lastSR, long delaySinceSR) {
     	TimeStamp receiptNtp = TimeStamp.getNtpTime(receiptDate);
-    	long receiptNtpTime = calculateLastSrTimestamp(receiptNtp.getSeconds(), receiptNtp.getFraction());
+    	long receiptNtpTime = NtpUtils.calculateLastSrTimestamp(receiptNtp.getSeconds(), receiptNtp.getFraction());
     	long delay = receiptNtpTime - lastSR - delaySinceSR;
     	this.roundTripDelay = (delay > 4294967L) ? 65536 : (int) ((delay * 1000L) >> 16);
 		logger.info("rtt=" + receiptNtpTime + " - " + lastSR + " - " + delaySinceSR + " = " + delay + " => " + this.roundTripDelay + "ms");
@@ -343,61 +344,10 @@ public class RtpMember {
 	
 	public void onReceiveSR(RtcpSenderReport report) {
 		// Update statistics
-		this.lastSrTimestamp = calculateLastSrTimestamp(report.getNtpSec(), report.getNtpFrac());
+		this.lastSrTimestamp = report.getNtpTs();
 		this.lastSrReceivedOn = this.wallClock.getCurrentTime();
 		this.lastSrSequenceNumber = this.lastSequenceNumber;
 		this.receivedSinceSR = 0;
 	}
 	
-	/**
-	 * Calculates the time stamp of the last received SR.
-	 * 
-	 * @param ntp
-	 *            The most significant word of the NTP time stamp
-	 * @return The middle 32 bits out of 64 in the NTP timestamp received as
-	 *         part of the most recent RTCP sender report (SR).
-	 */
-	static long calculateLastSrTimestamp(long ntp1, long ntp2) {
-		byte[] high = uIntLongToByteWord(ntp1);
-		byte[] low = uIntLongToByteWord(ntp2);
-		low[3] = low[1];
-		low[2] = low[0];
-		low[1] = high[3];
-		low[0] = high[2];
-		return bytesToUIntLong(low, 0);
-	}
-	
-	/** 
-	 * Converts an unsigned 32 bit integer, stored in a long, into an array of bytes.
-	 * 
-	 * @param j a long
-	 * @return byte[4] representing the unsigned integer, most significant bit first. 
-	 */
-	static byte[] uIntLongToByteWord(long j) {
-		int i = (int) j;
-		byte[] byteWord = new byte[4];
-		byteWord[0] = (byte) ((i >>> 24) & 0x000000FF);
-		byteWord[1] = (byte) ((i >> 16) & 0x000000FF);
-		byteWord[2] = (byte) ((i >> 8) & 0x000000FF);
-		byteWord[3] = (byte) (i & 0x00FF);
-		return byteWord;
-	}
-	
-	/** 
-	 * Combines four bytes (most significant bit first) into a 32 bit unsigned integer.
-	 * 
-	 * @param bytes
-	 * @param index of most significant byte
-	 * @return long with the 32 bit unsigned integer
-	 */
-	static long bytesToUIntLong(byte[] bytes, int index) {
-		long accum = 0;
-		int i = 3;
-		for (int shiftBy = 0; shiftBy < 32; shiftBy += 8 ) {
-			accum |= ( (long)( bytes[index + i] & 0xff ) ) << shiftBy;
-			i--;
-		}
-		return accum;
-	}
-
 }
