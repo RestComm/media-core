@@ -529,7 +529,7 @@ public class RtpStatistics {
 	 */
 	public void onRtpSent(RtpPacket packet) {
 		this.rtpTxPackets++;
-		this.rtpTxOctets += packet.getLength();
+		this.rtpTxOctets += packet.getPayloadLength();
 		this.rtpSentOn = this.wallClock.getCurrentTime();
 		/*
 		 * If the participant sends an RTP packet when we_sent is false, it adds
@@ -543,7 +543,7 @@ public class RtpStatistics {
 	public void onRtpReceive(RtpPacket packet) {
 		// Increment global statistics
 		this.rtpRxPackets++;
-		this.rtpRxOctets += packet.getLength();
+		this.rtpRxOctets += packet.getPayloadLength();
 		this.rtpReceivedOn = this.wallClock.getTime();
 		
 		// Note that there is no point in registering new members if RTCP handler has scheduled a BYE

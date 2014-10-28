@@ -17,6 +17,11 @@ import org.mobicents.media.server.scheduler.Clock;
 public class RtpMember {
 
 	private static final Logger logger = Logger.getLogger(RtpMember.class);
+
+	private static final int RTP_SEQ_MOD = 65536;
+	private static final int MAX_DROPOUT = 3000;
+	private static final int MAX_MISORDER = 100;
+	private static final int MIN_SEQUENTIAL = 2;
 	
 	// Core elements
 	private final RtpClock rtpClock;
@@ -32,9 +37,17 @@ public class RtpMember {
 	private long receivedSinceSR;
 	private int roundTripDelay;
 	private long lastPacketReceivedOn;
-	private long firstSequenceNumber;
-	private long lastSequenceNumber;
+	private int firstSequenceNumber;
+	private int highestSequence;
+	private int extHighestSequence;
 	private int sequenceCycle;
+	private int badSequence;
+	private int probation;
+	private long receivedPrior;
+	private long expectedPrior;
+	private int fractionLost;
+	
+	private long expectedPackets;
 
 	// Jitter
 	/**
@@ -60,14 +73,20 @@ public class RtpMember {
 		this.cname = cname;
 
 		// Packet stats
+		this.expectedPackets = 0;
 		this.receivedPackets = 0;
 		this.receivedOctets = 0;
 		this.receivedSinceSR = 0;
 		this.lastPacketReceivedOn = -1;
 
 		this.firstSequenceNumber = -1;
-		this.lastSequenceNumber = 0;
+		this.highestSequence = 0;
+		this.badSequence = 0;
 		this.sequenceCycle = 0;
+		this.probation = 0;
+		this.receivedPrior = 0;
+		this.expectedPrior = 0;
+		this.fractionLost = 0;
 
 		// Jitter
 		this.currentTransit = 0;
@@ -151,15 +170,27 @@ public class RtpMember {
 	 * @return The fraction of lost packets
 	 */
 	public long getFractionLost() {
-		long expected = this.lastSequenceNumber - this.lastSrSequenceNumber;
-		if (expected < 0) {
-			expected = 65536 + expected;
+//		long expected = this.lastSequenceNumber - this.lastSrSequenceNumber;
+//		if (expected < 0) {
+//			expected = RTP_SEQ_MOD + expected;
+//		}
+//
+//		long fraction = 256 * (expected - this.receivedSinceSR);
+//		fraction = expected > 0 ? (fraction / expected) : 0;
+//
+//		return fraction;
+		
+		long expectedInterval = this.expectedPackets - this.expectedPrior;
+		this.expectedPrior = this.expectedPackets;
+		
+		long receivedInterval = this.receivedPackets - this.receivedPrior;
+		this.receivedPrior = this.receivedPackets;
+		
+		long lostInterval = expectedInterval - receivedInterval;
+		if(expectedInterval == 0 || lostInterval <= 0) {
+			return 0;
 		}
-
-		long fraction = 256 * (expected - this.receivedSinceSR);
-		fraction = expected > 0 ? (fraction / expected) : 0;
-
-		return fraction;
+		return (lostInterval << 8) / expectedInterval;
 	}
 	
 	/**
@@ -177,25 +208,23 @@ public class RtpMember {
 	 * sequence number received, as defined next, less the initial sequence
 	 * number received.</b>
 	 * </p>
+	 * <p>
+	 * Since this signed number is carried in 24 bits, it should be clamped at
+	 * 0x7FFFFF for positive loss or 0x800000 for negative loss rather than
+	 * wrapping around.
+	 * </p>
 	 * 
 	 * @return The number of lost packets.<br>
-	 *         Returns zero if loss is negative, i.e. duplicates have been
-	 *         received.
+	 *         Loss can be negative, i.e. duplicates have been received.
 	 */
 	public long getPacketsLost() {
-		long expected = getExtHighSequence() - this.firstSequenceNumber;
-		long lost = expected - this.receivedPackets;
-		return lost < 0 ? 0 : lost;
-	}
-
-	/**
-	 * Gets the highest sequence number received in an RTP data packet from this
-	 * source.
-	 * 
-	 * @return The highest sequence number on this source
-	 */
-	public long getSequenceNumber() {
-		return lastSequenceNumber;
+		long lost = this.expectedPackets - this.receivedPackets;
+		
+		if(lost > 0x7fffff) {
+			return 0x7fffff;
+		}
+		
+		return lost;
 	}
 
 	/**
@@ -259,8 +288,8 @@ public class RtpMember {
 	 * 
 	 * @return extended highest sequence
 	 */
-	protected long getExtHighSequence() {
-		return (65536 * this.sequenceCycle + this.lastSequenceNumber);
+	public long getExtHighSequence() {
+		return this.extHighestSequence;
 	}
 	
 	public int getRTT() {
@@ -308,30 +337,91 @@ public class RtpMember {
     	TimeStamp receiptNtp = TimeStamp.getNtpTime(receiptDate);
     	long receiptNtpTime = NtpUtils.calculateLastSrTimestamp(receiptNtp.getSeconds(), receiptNtp.getFraction());
     	long delay = receiptNtpTime - lastSR - delaySinceSR;
-    	this.roundTripDelay = (delay > 4294967L) ? 65536 : (int) ((delay * 1000L) >> 16);
+    	this.roundTripDelay = (delay > 4294967L) ? RTP_SEQ_MOD : (int) ((delay * 1000L) >> 16);
 		logger.info("rtt=" + receiptNtpTime + " - " + lastSR + " - " + delaySinceSR + " = " + delay + " => " + this.roundTripDelay + "ms");
     }
     
+    private void setHighestSequence(int sequence) {
+    	this.highestSequence = sequence;
+		this.extHighestSequence = this.highestSequence + (RTP_SEQ_MOD * this.sequenceCycle);
+		this.expectedPackets = this.extHighestSequence - this.firstSequenceNumber + 1;
+    }
+    
+    
+    private void initSequence(int sequence) {
+    	this.firstSequenceNumber = sequence;
+    	setHighestSequence(sequence);
+    	this.badSequence = RTP_SEQ_MOD + 1; // so seq != bad_seq
+    	this.sequenceCycle = 0;
+    	this.receivedPrior = 0;
+    	this.expectedPrior = 0;
+    }
+    
+    private boolean updateSequence(int sequence) {
+    	int delta = Math.max(0, sequence - this.highestSequence);
+    	logger.info("delta = " + sequence +" - " + this.highestSequence + " = " + delta);
+    	
+    	if(this.probation > 0) {
+    		// packet is in sequence
+    		if(sequence == this.highestSequence + 1) {
+    			this.probation--;
+    			setHighestSequence(sequence);
+    			
+    			if(this.probation == 0) {
+    				initSequence(sequence);
+    				return true;
+    			}
+    		} else {
+    			this.probation = MIN_SEQUENTIAL - 1;
+    			setHighestSequence(sequence);
+    		}
+    		return false;
+    	} else if (delta < MAX_DROPOUT) {
+    		// in order, with permissible gap
+    		if(sequence < this.highestSequence) {
+    			// sequence number wrapped - count another 64k cycle
+    			this.sequenceCycle += RTP_SEQ_MOD;
+    		}
+    		setHighestSequence(sequence);
+    	} else if (delta <= RTP_SEQ_MOD - MAX_MISORDER) {
+    		// the sequence number made a very large jump
+    		if(sequence == this.badSequence) {
+				/*
+				 * Two sequential packets -- assume that the other side
+				 * restarted without telling us so just re-sync (i.e., pretend
+				 * this was the first packet).
+				 */
+                initSequence(sequence);
+    		} else {
+    			this.badSequence = (sequence + 1) & (RTP_SEQ_MOD - 1);
+                return false;
+    		}
+    	} else {
+    		// duplicate or reordered packet
+    	}
+    	return true;
+    }
+    
 	public void onReceiveRtp(RtpPacket packet) {
-		int seqNumber = packet.getSeqNumber();
-
-		if (this.firstSequenceNumber < 0) {
-			this.firstSequenceNumber = seqNumber;
-		}
-
 		this.receivedSinceSR++;
 		this.receivedPackets++;
-		this.receivedOctets += packet.getLength();
+		this.receivedOctets += packet.getPayloadLength();
 
-		if (this.lastSequenceNumber < seqNumber) {
-			// In-line packet, all is good
-			this.lastSequenceNumber = seqNumber;
-		} else if (this.lastSequenceNumber - seqNumber > 100) {
-			// Sequence counter rolled over
-			this.lastSequenceNumber = seqNumber;
-			this.sequenceCycle++;
+		int sequence = packet.getSeqNumber();
+		
+		/*
+		 * When a new source is heard for the first time, that is, its SSRC
+		 * identifier is not in the table (see Section 8.2), and the per-source
+		 * state is allocated for it, s->probation is set to the number of
+		 * sequential packets required before declaring a source valid
+		 * (parameter MIN_SEQUENTIAL) and other variables are initialized
+		 */
+		if (this.firstSequenceNumber < 0) {
+			initSequence(sequence);
+			this.highestSequence = sequence - 1;
+			this.probation = MIN_SEQUENTIAL;
 		} else {
-			// Probably a duplicate or late arrival
+			updateSequence(sequence);
 		}
 
 		if(this.lastPacketReceivedOn > 0) {
@@ -346,7 +436,7 @@ public class RtpMember {
 		// Update statistics
 		this.lastSrTimestamp = report.getNtpTs();
 		this.lastSrReceivedOn = this.wallClock.getCurrentTime();
-		this.lastSrSequenceNumber = this.lastSequenceNumber;
+		this.lastSrSequenceNumber = this.highestSequence;
 		this.receivedSinceSR = 0;
 	}
 	

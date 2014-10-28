@@ -122,7 +122,7 @@ public class RtcpPacketFactory {
 		int fraction = (int) statistics.getFractionLost();
 		int lost = (int) statistics.getPacketsLost();
 		int seqNumCycle = statistics.getSequenceCycle();
-		long lastSeq = statistics.getSequenceNumber();
+		long lastSeq = statistics.getExtHighSequence();
 		int jitter = (int) statistics.getJitter();
 		long lsr = statistics.getLastSR();
 		long dlsr = statistics.getLastSRdelay();

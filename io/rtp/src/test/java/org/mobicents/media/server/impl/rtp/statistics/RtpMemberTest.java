@@ -40,6 +40,7 @@ public class RtpMemberTest {
 	private void receiveRtpPackets(RtpMember member, RtpPacket ...packets) {
 		for (RtpPacket packet : packets) {
 			member.onReceiveRtp(packet);
+			wallClock.tick(20000);
 		}
 	}
 
@@ -59,7 +60,7 @@ public class RtpMemberTest {
 		assertEquals(1, member.getPacketsReceived());
 		assertEquals(1, member.getReceivedSinceSR());
 		assertEquals(0, member.getPacketsLost());
-		assertEquals(p1.getSeqNumber(), member.getSequenceNumber());
+//		assertEquals(p1.getSeqNumber(), member.getSequenceNumber());
 		assertEquals(p1.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(0, member.getSequenceCycle());
 		assertEquals(0, member.getLastSR());
@@ -76,7 +77,6 @@ public class RtpMemberTest {
 		p1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
 		p2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
 		p3.wrap(false, 8, 2, 160 * 3, 123, new byte[160], 0, 160);
-		
 
 		// when
 		receiveRtpPackets(member, p1, p2, p3);
@@ -87,7 +87,7 @@ public class RtpMemberTest {
 		assertEquals(3, member.getPacketsReceived());
 		assertEquals(3, member.getReceivedSinceSR());
 		assertEquals(0, member.getPacketsLost());
-		assertEquals(p3.getSeqNumber(), member.getSequenceNumber());
+//		assertEquals(p3.getSeqNumber(), member.getSequenceNumber());
 		assertEquals(p3.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(0, member.getSequenceCycle());
 		assertEquals(0, member.getLastSR());
@@ -117,7 +117,7 @@ public class RtpMemberTest {
 		// then
 		int expectedSeqCycle = 1;
 		assertEquals(expectedSeqCycle, member.getSequenceCycle());
-		assertEquals(p5.getSeqNumber(), member.getSequenceNumber());
+//		assertEquals(p5.getSeqNumber(), member.getSequenceNumber());
 
 		long expectedHighSequence = (65536 * expectedSeqCycle) + p5.getSeqNumber();
 		assertEquals(expectedHighSequence, member.getExtHighSequence());
@@ -251,7 +251,7 @@ public class RtpMemberTest {
 		
 		// then
 		assertEquals(0, member.getSequenceCycle());
-		assertEquals(p5.getSeqNumber(), member.getSequenceNumber());
+//		assertEquals(p5.getSeqNumber(), member.getSequenceNumber());
 		long expectedHighSeq = (65536 * 0 + p5.getSeqNumber());
 		assertEquals(expectedHighSeq, member.getExtHighSequence());
 		assertEquals(5, member.getPacketsReceived());
@@ -303,5 +303,16 @@ public class RtpMemberTest {
 		int receivedSinceSR = 1; // p5
 		long expectedFraction = (256 * (expectedPackets - receivedSinceSR)) / expectedPackets;
 		assertEquals(expectedFraction, member.getFractionLost());
+	}
+	
+	@Test
+	public void testRoundTripDelay() {
+		// given
+		int RTP_SEQ_MOD = (1<<16);
+		
+		// when
+		System.out.println(RTP_SEQ_MOD);
+		
+		// then
 	}
 }

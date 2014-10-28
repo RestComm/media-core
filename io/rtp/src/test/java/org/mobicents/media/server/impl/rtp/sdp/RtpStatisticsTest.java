@@ -174,7 +174,7 @@ public class RtpStatisticsTest {
 		RtpMember member = stats.getMember(123);
 		assertTrue(stats.isMember(sr.getSsrc()));
 		assertNotNull(member);
-		assertEquals(rtp2.getSeqNumber(), member.getSequenceNumber());
+		assertEquals(rtp2.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(0, member.getReceivedSinceSR());
 		
 		double avgSize = calculateAvgSize(initialAvgSize, rtcp1.getSize());
@@ -266,7 +266,7 @@ public class RtpStatisticsTest {
 		RtpMember member = stats.getMember(123);
 		assertTrue(stats.isMember(sr.getSsrc()));
 		assertNotNull(member);
-		assertEquals(rtp2.getSeqNumber(), member.getSequenceNumber());
+		assertEquals(rtp2.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(1, member.getReceivedSinceSR());
 		
 		double avgSize = calculateAvgSize(initialAvgSize, rtcp1.getSize());
@@ -324,7 +324,7 @@ public class RtpStatisticsTest {
 		RtpMember member = stats.getMember(123);
 		assertTrue(stats.isMember(sr.getSsrc()));
 		assertNotNull(member);
-		assertEquals(rtp2.getSeqNumber(), member.getSequenceNumber());
+		assertEquals(rtp2.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(1, member.getReceivedSinceSR());
 		
 		double avgSize = calculateAvgSize(initialAvgSize, rtcp1.getSize());

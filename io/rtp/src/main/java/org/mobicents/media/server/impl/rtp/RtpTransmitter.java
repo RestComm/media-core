@@ -151,17 +151,17 @@ public class RtpTransmitter implements RtpTimestampProvider {
 				return;
 			} else {
 				buffer.clear();
-				buffer.rewind();
 				buffer.put(srtpData);
 				buffer.flip();
-				buffer.rewind();
+//				buffer.rewind();
 			}
 		}
 		
 		if(packet != null) {
+			channel.send(buffer, channel.socket().getRemoteSocketAddress());
+
 			// send RTP packet to the network and update statistics for RTCP
 			statistics.onRtpSent(packet);
-			channel.send(buffer, channel.socket().getRemoteSocketAddress());
 		}
 	}
 	
