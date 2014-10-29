@@ -168,7 +168,7 @@ public class RtpStatistics {
 	 * 
 	 * @return The current time stamp in RTP format.
 	 */
-	public long getRtpTime() {
+	public long getTime() {
 		return this.wallClock.getTime();
 	}
 	
@@ -179,6 +179,10 @@ public class RtpStatistics {
 	 */
 	public long getCurrentTime() {
 		return this.wallClock.getCurrentTime();
+	}
+	
+	public long getRtpTime(long time) {
+		return this.rtpClock.convertToRtpTime(time);
 	}
 	
 	public RtpTimestampProvider getRtpTimer() {

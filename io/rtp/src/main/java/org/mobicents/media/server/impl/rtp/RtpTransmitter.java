@@ -48,7 +48,7 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	private long timestamp;
 	private long dtmfTimestamp;
 	private int sequenceNumber;
-	
+
 	public RtpTransmitter(final Scheduler scheduler, final RtpClock clock, final RtpStatistics statistics) {
 		this.rtpClock = clock;
 		this.statistics = statistics;
@@ -159,9 +159,10 @@ public class RtpTransmitter implements RtpTimestampProvider {
 		
 		if(packet != null) {
 			channel.send(buffer, channel.socket().getRemoteSocketAddress());
-
+			LOGGER.info("Sent RTP packet at "+ packet.getTimestamp());
 			// send RTP packet to the network and update statistics for RTCP
 			statistics.onRtpSent(packet);
+			
 		}
 	}
 	

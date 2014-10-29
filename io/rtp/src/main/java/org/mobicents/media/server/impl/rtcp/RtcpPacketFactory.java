@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.net.ntp.TimeStamp;
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.statistics.RtpMember;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 
@@ -14,6 +15,8 @@ import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
  * 
  */
 public class RtcpPacketFactory {
+	
+	public static final Logger logger = Logger.getLogger(RtcpPacketFactory.class);
 
 	/**
 	 * Builds a packet containing an RTCP Sender Report.
@@ -61,10 +64,13 @@ public class RtcpPacketFactory {
          *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 */
 		long ssrc = statistics.getSsrc();
-		TimeStamp ntpTs = new TimeStamp(new Date(statistics.getCurrentTime()));
+		long currentTime = statistics.getCurrentTime();
+		TimeStamp ntpTs = new TimeStamp(new Date(currentTime));
 		long ntpSec = ntpTs.getSeconds();
 		long ntpFrac = ntpTs.getFraction();
-		long rtpTs = statistics.getRtpTimer().getRtpTimestamp();
+		long elapsedTime = statistics.getCurrentTime() - statistics.getRtpSentOn();
+		logger.info("getting RTP timestamp for RTCP report");
+		long rtpTs = statistics.getRtpTimer().getRtpTimestamp() + statistics.getRtpTime(elapsedTime);
 		long psent = statistics.getRtpPacketsSent();
 		long osent = statistics.getRtpOctetsSent();
 		

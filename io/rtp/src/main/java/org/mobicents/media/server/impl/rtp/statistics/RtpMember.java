@@ -359,8 +359,7 @@ public class RtpMember {
     
     private boolean updateSequence(int sequence) {
     	int delta = Math.max(0, sequence - this.highestSequence);
-    	logger.info("delta = " + sequence +" - " + this.highestSequence + " = " + delta);
-    	
+
     	if(this.probation > 0) {
     		// packet is in sequence
     		if(sequence == this.highestSequence + 1) {
