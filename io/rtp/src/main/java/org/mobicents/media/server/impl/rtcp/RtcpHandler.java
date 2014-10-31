@@ -202,7 +202,6 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	public long getNextScheduledReport() {
 		long delay = this.tn - statistics.getCurrentTime();
-		logger.info("next packet will be sent in "+ delay +" ms");
 		return delay < 0 ? -1 : delay;
 	}
 
@@ -217,11 +216,15 @@ public class RtcpHandler implements PacketHandler {
 	private void schedule(long timestamp, RtcpPacketType packetType) {
 		// Create the task and schedule it
 		long interval = resolveInterval(timestamp);
-		logger.info("Scheduled an "+ packetType.name() +" packet in "+ interval);
 		this.scheduledTask = new TxTask(packetType);
-		this.txTimer.schedule(this.scheduledTask, interval);
-		// Let the RTP handler know what is the type of scheduled packet
-		this.statistics.setRtcpPacketType(packetType);
+		
+		try {
+			this.txTimer.schedule(this.scheduledTask, interval);
+			// Let the RTP handler know what is the type of scheduled packet
+			this.statistics.setRtcpPacketType(packetType);
+		} catch (IllegalStateException e) {
+			logger.warn("RTCP timer already canceled. No more reports will be scheduled.");
+		}
 	}
 
 	/**
@@ -233,8 +236,11 @@ public class RtcpHandler implements PacketHandler {
 	private void reschedule(TxTask task, long timestamp) {
 		task.cancel();
 		long interval = resolveInterval(timestamp);
-		logger.info("Rescheduled the "+ task.getPacketType().name() +" packet in "+ interval);
-		this.txTimer.schedule(task, interval);
+		try {
+			this.txTimer.schedule(task, interval);
+		} catch (IllegalStateException e) {
+			logger.warn("RTCP timer already canceled. Scheduled report was canceled and cannot be re-scheduled.");
+		}
 	}
 
 	/**
