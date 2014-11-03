@@ -189,7 +189,7 @@ public class RtcpHandler implements PacketHandler {
 			long t = this.statistics.rtcpInterval(initial);
 			this.tn = resolveDelay(t);
 			schedule(this.tn, RtcpPacketType.RTCP_BYE);
-			
+
 			this.joined = false;
 		}
 	}
@@ -282,31 +282,32 @@ public class RtcpHandler implements PacketHandler {
 	 *             When a packet cannot be sent over the datagram channel
 	 */
 	private void onExpire(TxTask task) throws IOException {
+		long t;
 		long tc = this.statistics.getCurrentTime();
 		switch (task.getPacketType()) {
 		case RTCP_REPORT:
-			long t = this.statistics.rtcpInterval(this.initial);
-			this.tn = this.tp + t;
-
-			if (this.tn <= tc) {
-				// Send currently scheduled packet and update statistics
-				RtcpPacket report = RtcpPacketFactory.buildReport(statistics);
-				sendRtcpPacket(report);
-
-				this.tp = tc;
-
-				/*
-				 * We must redraw the interval. Don't reuse the one computed
-				 * above, since its not actually distributed the same, as we are
-				 * conditioned on it being small enough to cause a packet to be
-				 * sent.
-				 */
-				t = this.statistics.rtcpInterval(this.initial);
-				this.tn = tc + t;
-			}
-			
-			// schedule next packet (only if still in RTP session)
 			if(this.joined) {
+				t = this.statistics.rtcpInterval(this.initial);
+				this.tn = this.tp + t;
+
+				if (this.tn <= tc) {
+					// Send currently scheduled packet and update statistics
+					RtcpPacket report = RtcpPacketFactory.buildReport(statistics);
+					sendRtcpPacket(report);
+
+					this.tp = tc;
+
+					/*
+					 * We must redraw the interval. Don't reuse the one computed
+					 * above, since its not actually distributed the same, as we
+					 * are conditioned on it being small enough to cause a
+					 * packet to be sent.
+					 */
+					t = this.statistics.rtcpInterval(this.initial);
+					this.tn = tc + t;
+				}
+
+				// schedule next packet (only if still in RTP session)
 				schedule(this.tn, RtcpPacketType.RTCP_REPORT);
 				this.statistics.confirmMembers();
 			}
@@ -329,8 +330,8 @@ public class RtcpHandler implements PacketHandler {
 				
 				// Send the BYE and close channel
 				sendRtcpPacket(bye);
-				reset();
 				closeChannel();
+				reset();
 				return;
 			} else {
 				// Delay BYE

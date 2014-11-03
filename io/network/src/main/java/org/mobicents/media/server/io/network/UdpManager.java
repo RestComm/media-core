@@ -339,6 +339,7 @@ public class UdpManager {
 		 return key;
 	}
 
+	@Deprecated
 	public void open(DatagramChannel channel, ProtocolHandler handler) throws IOException {
 		 // Get a selector
 		 int index = currSelectorIndex.getAndIncrement();

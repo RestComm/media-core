@@ -446,7 +446,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	public void closeResources() {
 		if(this.audioCapabale) {
 			this.rtpAudioChannel.close();
-			this.rtcpAudioChannel.close();
+			if(!this.audioRtcpMux) {
+				this.rtcpAudioChannel.close();
+			}
 		}
 		
 		if(this.ice && this.iceAgent.isRunning()) {

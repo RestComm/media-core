@@ -151,7 +151,8 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	public void bind(boolean isLocal, int port) throws SocketException {
 		try {
 			// Open this channel with UDP Manager on first available address
-			this.dataChannel = (DatagramChannel) udpManager.open(this).channel();
+			this.selectionKey = udpManager.open(this);
+			this.dataChannel = (DatagramChannel) this.selectionKey.channel();
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}
@@ -172,7 +173,8 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 
 		try {
 			// Register the channel on UDP Manager
-			this.dataChannel = (DatagramChannel) udpManager.open(channel, this).channel();
+			this.selectionKey = udpManager.open(channel, this);
+			this.dataChannel = channel;
 		} catch (IOException e) {
 			throw new SocketException(e.getMessage());
 		}

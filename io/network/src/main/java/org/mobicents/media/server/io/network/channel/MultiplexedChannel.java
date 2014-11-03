@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class MultiplexedChannel implements Channel {
 	private static final Logger logger = Logger.getLogger(Channel.class);
 	
 	// Data channel where data will be received and transmitted
+	protected SelectionKey selectionKey;
 	protected DatagramChannel dataChannel;
 
 	// Registered protocol handlers. Used for multiplexing.
@@ -71,6 +73,12 @@ public class MultiplexedChannel implements Channel {
 		return 0;
 	}
 	
+	/**
+	 * 
+	 * @param channel
+	 * @deprecated use {@link #setSelectionKey(SelectionKey)}
+	 */
+	@Deprecated
 	public void setTransport(final DatagramChannel channel) {
 		this.dataChannel = channel;
 	}
@@ -83,6 +91,7 @@ public class MultiplexedChannel implements Channel {
 		}
 	}
 	
+	@Override
 	public boolean hasPendingData() {
 		synchronized (this.pendingData) {
 			return !this.pendingData.isEmpty();
@@ -105,6 +114,7 @@ public class MultiplexedChannel implements Channel {
 		}
 	}
 	
+	@Override
 	public void receive() throws IOException {
 		// Get buffer ready to read new data
 		this.receiveBuffer.clear();
@@ -156,6 +166,7 @@ public class MultiplexedChannel implements Channel {
 		}
 	}
 
+	@Override
 	public void send() throws IOException {
 		while (!this.pendingData.isEmpty()) {
 			// Get pending data into the proper buffer
@@ -186,6 +197,7 @@ public class MultiplexedChannel implements Channel {
 		return false;
 	}
 	
+	@Override
 	public boolean isConnected() {
 		return this.dataChannel != null && this.dataChannel.isConnected();
 	}
@@ -198,6 +210,7 @@ public class MultiplexedChannel implements Channel {
 		this.dataChannel.bind(address);
 	}
 	
+	@Override
 	public void connect(SocketAddress address) throws IOException {
 		if(this.dataChannel == null) {
 			throw new IOException("No channel available to connect.");
@@ -205,6 +218,7 @@ public class MultiplexedChannel implements Channel {
 		this.dataChannel.connect(address);
 	}
 	
+	@Override
 	public void disconnect() throws IOException {
 		if(isConnected()) {
 			this.dataChannel.disconnect();
@@ -233,6 +247,7 @@ public class MultiplexedChannel implements Channel {
 		this.dataChannel= dataChannel;
 	}
 	
+	@Override
 	public void close() {
 		if (isOpen()) {
 			if (isConnected()) {
@@ -243,7 +258,16 @@ public class MultiplexedChannel implements Channel {
 				}
 			}
 			try {
-				dataChannel.close();
+				/*
+				 * All these steps are necessary to effectively close the channel
+				 * on Java NIO. Otherwise the channels will only be elected for
+				 * closing and effectively closed when the Selector is closed!
+				 * 
+				 * https://telestax.atlassian.net/browse/MEDIA-53
+				 */
+				this.selectionKey.cancel();
+				this.dataChannel.socket().close();
+				this.dataChannel.close();
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}

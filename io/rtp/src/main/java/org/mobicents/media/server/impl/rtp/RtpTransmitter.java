@@ -102,6 +102,7 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	public void deactivate() {
 		this.rtpOutput.deactivate();
 		this.dtmfOutput.deactivate();
+		this.dtmfSupported = false;
 	}
 	
 	public void setChannel(final DatagramChannel channel) {
@@ -119,10 +120,8 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	}
 	
 	public void reset() {
-		this.rtpOutput.deactivate();
-		this.dtmfOutput.deactivate();
-		this.dtmfSupported = false;
-		this.clear();
+		deactivate();
+		clear();
 	}
 	
 	public void clear() {
@@ -153,7 +152,6 @@ public class RtpTransmitter implements RtpTimestampProvider {
 				buffer.clear();
 				buffer.put(srtpData);
 				buffer.flip();
-//				buffer.rewind();
 			}
 		}
 		
