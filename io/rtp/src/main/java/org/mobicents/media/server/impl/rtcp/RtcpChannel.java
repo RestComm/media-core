@@ -250,6 +250,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		 */
 		this.rtcpHandler.leaveRtpSession();
 		this.bound = false;
+		super.close();
 	}
 	
 	public void reset() {

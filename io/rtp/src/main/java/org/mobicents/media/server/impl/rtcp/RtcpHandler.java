@@ -188,9 +188,10 @@ public class RtcpHandler implements PacketHandler {
 
 			long t = this.statistics.rtcpInterval(initial);
 			this.tn = resolveDelay(t);
-			schedule(this.tn, RtcpPacketType.RTCP_BYE);
+//			schedule(this.tn, RtcpPacketType.RTCP_BYE);
 
 			this.joined = false;
+			this.reset();
 		}
 	}
 	
