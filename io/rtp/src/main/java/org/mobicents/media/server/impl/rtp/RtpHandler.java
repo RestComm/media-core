@@ -245,8 +245,6 @@ public class RtpHandler implements PacketHandler {
 			buffer.flip();
 		}
 		
-		logger.info("Received RTP packet at "+ rtpPacket.getTimestamp());
-		
 		// Restart jitter buffer for first received packet
 		if(this.statistics.getRtpPacketsReceived() == 0) {
 			logger.info("Restarting jitter buffer");

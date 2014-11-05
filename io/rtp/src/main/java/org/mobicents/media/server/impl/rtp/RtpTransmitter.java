@@ -157,7 +157,6 @@ public class RtpTransmitter implements RtpTimestampProvider {
 		
 		if(packet != null) {
 			channel.send(buffer, channel.socket().getRemoteSocketAddress());
-			LOGGER.info("Sent RTP packet at "+ packet.getTimestamp());
 			// send RTP packet to the network and update statistics for RTCP
 			statistics.onRtpSent(packet);
 			

@@ -172,6 +172,9 @@ public class RtcpHandler implements PacketHandler {
 			this.ssrcTimer.cancel();
 			this.ssrcTimer.purge();
 			
+			// Send BYE and stop scheduling further packets
+			RtcpPacket bye = RtcpPacketFactory.buildBye(statistics);
+
 			/*
 			 * When the participant decides to leave the system, tp is reset to tc,
 			 * the current time, members and pmembers are initialized to 1, initial
@@ -188,10 +191,24 @@ public class RtcpHandler implements PacketHandler {
 
 			long t = this.statistics.rtcpInterval(initial);
 			this.tn = resolveDelay(t);
-//			schedule(this.tn, RtcpPacketType.RTCP_BYE);
-
+			
+			// XXX Sending the BYE packet NOW, since channel will be closed - hrosa
+			// cancel scheduled task and schedule BYE now
+			this.scheduledTask.cancel();
+			
+			
+			// Set the avg_packet_size to the size of the compound BYE packet
+			this.statistics.setRtcpAvgSize(bye.getSize());
+			
+			// Send the BYE and close channel
+			try {
+				sendRtcpPacket(bye);
+			} catch (IOException e) {
+				logger.warn("Could not send BYE packet: " + e.getMessage(), e);
+			}
+			closeChannel();
 			this.joined = false;
-			this.reset();
+			reset();
 		}
 	}
 	
@@ -221,6 +238,17 @@ public class RtcpHandler implements PacketHandler {
 		
 		try {
 			this.txTimer.schedule(this.scheduledTask, interval);
+			// Let the RTP handler know what is the type of scheduled packet
+			this.statistics.setRtcpPacketType(packetType);
+		} catch (IllegalStateException e) {
+			logger.warn("RTCP timer already canceled. No more reports will be scheduled.");
+		}
+	}
+	
+	private void scheduleNow(RtcpPacketType packetType) {
+		this.scheduledTask = new TxTask(packetType);
+		try {
+			this.txTimer.schedule(this.scheduledTask, 0);
 			// Let the RTP handler know what is the type of scheduled packet
 			this.statistics.setRtcpPacketType(packetType);
 		} catch (IllegalStateException e) {
