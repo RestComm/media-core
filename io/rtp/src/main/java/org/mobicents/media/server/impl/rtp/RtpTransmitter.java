@@ -22,7 +22,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpTransmitter implements RtpTimestampProvider {
+public class RtpTransmitter {
 	
 	private static final Logger LOGGER = Logger.getLogger(RtpTransmitter.class);
 	
@@ -52,7 +52,6 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	public RtpTransmitter(final Scheduler scheduler, final RtpClock clock, final RtpStatistics statistics) {
 		this.rtpClock = clock;
 		this.statistics = statistics;
-		this.statistics.setRtpTimer(this);
 		this.dtmfSupported = false;
 		this.rtpOutput = new RTPOutput(scheduler, this);
 		this.dtmfOutput = new DtmfOutput(scheduler, this);
@@ -74,14 +73,6 @@ public class RtpTransmitter implements RtpTimestampProvider {
 	
 	public DtmfOutput getDtmfOutput() {
 		return dtmfOutput;
-	}
-	
-	public long getRtpTimestamp() {
-		return this.timestamp;
-	}
-	
-	public long getDtmfTimestamp() {
-		return this.dtmfTimestamp;
 	}
 	
 	public void enableSrtp(final DtlsHandler handler) {

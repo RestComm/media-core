@@ -69,8 +69,7 @@ public class RtcpPacketFactory {
 		long ntpSec = ntpTs.getSeconds();
 		long ntpFrac = ntpTs.getFraction();
 		long elapsedTime = statistics.getCurrentTime() - statistics.getRtpSentOn();
-		logger.info("getting RTP timestamp for RTCP report");
-		long rtpTs = statistics.getRtpTimer().getRtpTimestamp() + statistics.getRtpTime(elapsedTime);
+		long rtpTs = statistics.getRtpTimestamp() + statistics.getRtpTime(elapsedTime);
 		long psent = statistics.getRtpPacketsSent();
 		long osent = statistics.getRtpOctetsSent();
 		

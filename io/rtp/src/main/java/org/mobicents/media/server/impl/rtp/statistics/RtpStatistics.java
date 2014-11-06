@@ -16,7 +16,6 @@ import org.mobicents.media.server.impl.rtcp.RtcpSenderReport;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
-import org.mobicents.media.server.impl.rtp.RtpTimestampProvider;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.scheduler.Clock;
 
@@ -51,7 +50,6 @@ public class RtpStatistics {
 	/* Core */
 	private final RtpClock rtpClock;
 	private final Clock wallClock;
-	private RtpTimestampProvider rtpTimer;
 
 	/* SSRC Data */
 	private long ssrc;
@@ -65,6 +63,7 @@ public class RtpStatistics {
 	private volatile long rtpTxOctets;
 	private volatile long rtpReceivedOn;
 	private volatile long rtpSentOn;
+	private volatile long rtpTimestamp;
 
 	/* Global RTCP statistics */
 	private RtcpPacketType rtcpNextPacketType;
@@ -114,6 +113,7 @@ public class RtpStatistics {
 		this.rtpTxOctets = 0;
 		this.rtpReceivedOn = 0;
 		this.rtpSentOn = 0;
+		this.rtpTimestamp = -1;
 
 		// RTCP statistics
 		this.senders = 0;
@@ -184,14 +184,6 @@ public class RtpStatistics {
 	public long getRtpTime(long time) {
 		return this.rtpClock.convertToRtpTime(time);
 	}
-	
-	public RtpTimestampProvider getRtpTimer() {
-		return rtpTimer;
-	}
-	
-	public void setRtpTimer(RtpTimestampProvider rtpTimer) {
-		this.rtpTimer = rtpTimer;
-	}
 
 	/**
 	 * Gets the SSRC of the RTP Channel
@@ -256,6 +248,15 @@ public class RtpStatistics {
 	 */
 	public long getRtpSentOn() {
 		return rtpSentOn;
+	}
+	
+	/**
+	 * Gets ths time stamp of the last RTP packet sent.
+	 * 
+	 * @return The time stamp of the packet.
+	 */
+	public long getRtpTimestamp() {
+		return rtpTimestamp;
 	}
 
 	/*
@@ -514,6 +515,7 @@ public class RtpStatistics {
 		this.rtpTxPackets = 0;
 		this.rtpReceivedOn = 0;
 		this.rtpSentOn = 0;
+		this.rtpTimestamp = -1;
 
 		// RTCP statistics
 		this.senders = 0;
@@ -535,6 +537,7 @@ public class RtpStatistics {
 		this.rtpTxPackets++;
 		this.rtpTxOctets += packet.getPayloadLength();
 		this.rtpSentOn = this.wallClock.getCurrentTime();
+		this.rtpTimestamp = packet.getTimestamp();
 		/*
 		 * If the participant sends an RTP packet when we_sent is false, it adds
 		 * itself to the sender table and sets we_sent to true.
