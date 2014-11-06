@@ -64,6 +64,10 @@ public class RtcpHandler implements PacketHandler {
 		this.pipelinePriority = 0;
 		this.byteBuffer = ByteBuffer.allocateDirect(RtpPacket.RTP_PACKET_MAX_SIZE);
 
+		// timers
+		this.txTimer = new Timer();
+		this.ssrcTimer = new Timer();
+		
 		// rtcp stuff
 		this.statistics = statistics;
 		this.scheduledTask = null;
@@ -147,18 +151,14 @@ public class RtcpHandler implements PacketHandler {
 	 */
 	public void joinRtpSession() {
 		if(!this.joined) {
-			// Initialize timers
-			this.txTimer = new Timer();
-			this.ssrcTimer = new Timer();
-			
 			// Schedule first RTCP packet
 			long t = this.statistics.rtcpInterval(this.initial);
 			this.tn = this.statistics.getCurrentTime() + t;
-			schedule(this.tn, RtcpPacketType.RTCP_REPORT);
+			scheduleRtcp(this.tn, RtcpPacketType.RTCP_REPORT);
 			
 			// Start SSRC timeout timer
 			this.ssrcTask = new SsrcTask();
-			this.ssrcTimer.scheduleAtFixedRate(this.ssrcTask, SSRC_TASK_DELAY, SSRC_TASK_DELAY);
+			this.ssrcTimer.schedule(this.ssrcTask, SSRC_TASK_DELAY);
 
 			this.joined = true;
 		}
@@ -166,12 +166,6 @@ public class RtcpHandler implements PacketHandler {
 	
 	public void leaveRtpSession() {
 		if (this.joined) {
-			logger.info("Leaving RTP Session.");
-			
-			// Stop SSRC checks
-			this.ssrcTimer.cancel();
-			this.ssrcTimer.purge();
-			
 			// Send BYE and stop scheduling further packets
 			RtcpPacket bye = RtcpPacketFactory.buildBye(statistics);
 
@@ -231,24 +225,13 @@ public class RtcpHandler implements PacketHandler {
 	 * @param packet
 	 *            The RTCP packet to be sent when the timer expires
 	 */
-	private void schedule(long timestamp, RtcpPacketType packetType) {
+	private void scheduleRtcp(long timestamp, RtcpPacketType packetType) {
 		// Create the task and schedule it
 		long interval = resolveInterval(timestamp);
 		this.scheduledTask = new TxTask(packetType);
 		
 		try {
 			this.txTimer.schedule(this.scheduledTask, interval);
-			// Let the RTP handler know what is the type of scheduled packet
-			this.statistics.setRtcpPacketType(packetType);
-		} catch (IllegalStateException e) {
-			logger.warn("RTCP timer already canceled. No more reports will be scheduled.");
-		}
-	}
-	
-	private void scheduleNow(RtcpPacketType packetType) {
-		this.scheduledTask = new TxTask(packetType);
-		try {
-			this.txTimer.schedule(this.scheduledTask, 0);
 			// Let the RTP handler know what is the type of scheduled packet
 			this.statistics.setRtcpPacketType(packetType);
 		} catch (IllegalStateException e) {
@@ -262,13 +245,30 @@ public class RtcpHandler implements PacketHandler {
 	 * @param timestamp
 	 *            The timestamp (in milliseconds) of the rescheduled event
 	 */
-	private void reschedule(TxTask task, long timestamp) {
+	private void rescheduleRtcp(TxTask task, long timestamp) {
 		task.cancel();
 		long interval = resolveInterval(timestamp);
 		try {
 			this.txTimer.schedule(task, interval);
 		} catch (IllegalStateException e) {
 			logger.warn("RTCP timer already canceled. Scheduled report was canceled and cannot be re-scheduled.");
+		}
+	}
+	
+	/**
+	 * Schedules a task to check whether the SSRC is a sender or not
+	 * 
+	 * @param task
+	 *            The task to be scheduled
+	 * @param delay
+	 *            The delay until the task is executed
+	 */
+	private void scheduleSsrc(SsrcTask task, long delay) {
+		try {
+			this.ssrcTask = new SsrcTask();
+			this.ssrcTimer.schedule(this.ssrcTask, SSRC_TASK_DELAY);
+		} catch (IllegalStateException e) {
+			logger.warn("Could not schedule SSRC task: " + e.getMessage(), e);
 		}
 	}
 
@@ -296,84 +296,6 @@ public class RtcpHandler implements PacketHandler {
 		this.secure = false;
 	}
 	
-	/**
-	 * This function is responsible for deciding whether to send an RTCP report
-	 * or BYE packet now, or to reschedule transmission.
-	 * 
-	 * It is also responsible for updating the pmembers, initial, tp, and
-	 * avg_rtcp_size state variables. This function should be called upon
-	 * expiration of the event timer used by Schedule().
-	 * 
-	 * @param task
-	 *            The scheduled task whose timer expired
-	 * 
-	 * @throws IOException
-	 *             When a packet cannot be sent over the datagram channel
-	 */
-	private void onExpire(TxTask task) throws IOException {
-		long t;
-		long tc = this.statistics.getCurrentTime();
-		switch (task.getPacketType()) {
-		case RTCP_REPORT:
-			if(this.joined) {
-				t = this.statistics.rtcpInterval(this.initial);
-				this.tn = this.tp + t;
-
-				if (this.tn <= tc) {
-					// Send currently scheduled packet and update statistics
-					RtcpPacket report = RtcpPacketFactory.buildReport(statistics);
-					sendRtcpPacket(report);
-
-					this.tp = tc;
-
-					/*
-					 * We must redraw the interval. Don't reuse the one computed
-					 * above, since its not actually distributed the same, as we
-					 * are conditioned on it being small enough to cause a
-					 * packet to be sent.
-					 */
-					t = this.statistics.rtcpInterval(this.initial);
-					this.tn = tc + t;
-				}
-
-				// schedule next packet (only if still in RTP session)
-				schedule(this.tn, RtcpPacketType.RTCP_REPORT);
-				this.statistics.confirmMembers();
-			}
-			break;
-
-		case RTCP_BYE:
-			/*
-			 * In the case of a BYE, we use "timer reconsideration" to
-			 * reschedule the transmission of the BYE if necessary
-			 */
-			t = this.statistics.rtcpInterval(this.initial);
-			this.tn = this.tp + t;
-
-			if (this.tn <= tc) {
-				// Send BYE and stop scheduling further packets
-				RtcpPacket bye = RtcpPacketFactory.buildBye(statistics);
-				
-				// Set the avg_packet_size to the size of the compound BYE packet
-				this.statistics.setRtcpAvgSize(bye.getSize());
-				
-				// Send the BYE and close channel
-				sendRtcpPacket(bye);
-				closeChannel();
-				reset();
-				return;
-			} else {
-				// Delay BYE
-				schedule(this.tn, RtcpPacketType.RTCP_BYE);
-			}
-			break;
-
-		default:
-			logger.warn("Unkown scheduled event type!");
-			break;
-		}
-	}
-
 	public boolean canHandle(byte[] packet) {
 		return canHandle(packet, packet.length, 0);
 	}
@@ -455,7 +377,7 @@ public class RtcpHandler implements PacketHandler {
 					this.tp = tc - (this.statistics.getMembers() / this.statistics.getPmembers()) * (tc - this.tp);
 
 					// Reschedule the next report for time tn
-					reschedule(this.scheduledTask, this.tn);
+					rescheduleRtcp(this.scheduledTask, this.tn);
 					this.statistics.confirmMembers();
 				}
 			}
@@ -515,14 +437,12 @@ public class RtcpHandler implements PacketHandler {
 			this.scheduledTask.cancel();
 			this.scheduledTask = null;
 		}
-		this.txTimer.cancel();
 		this.txTimer.purge();
 		
 		if(this.ssrcTask != null) {
 			this.ssrcTask.cancel();
 			this.ssrcTask = null;
 		}
-		this.ssrcTimer.cancel();
 		this.ssrcTimer.purge();
 		
 		this.tp = 0;
@@ -587,10 +507,88 @@ public class RtcpHandler implements PacketHandler {
 		@Override
 		public void run() {
 			try {
-				onExpire(this);
+				onExpire();
 			} catch (IOException e) {
 				logger.error("An error occurred while executing a scheduled task. Stopping handler.", e);
 				reset();
+			}
+		}
+		
+		/**
+		 * This function is responsible for deciding whether to send an RTCP report
+		 * or BYE packet now, or to reschedule transmission.
+		 * 
+		 * It is also responsible for updating the pmembers, initial, tp, and
+		 * avg_rtcp_size state variables. This function should be called upon
+		 * expiration of the event timer used by Schedule().
+		 * 
+		 * @param task
+		 *            The scheduled task whose timer expired
+		 * 
+		 * @throws IOException
+		 *             When a packet cannot be sent over the datagram channel
+		 */
+		private void onExpire() throws IOException {
+			long t;
+			long tc = statistics.getCurrentTime();
+			switch (this.packetType) {
+			case RTCP_REPORT:
+				if(joined) {
+					t = statistics.rtcpInterval(RtcpHandler.this.initial);
+					RtcpHandler.this.tn = RtcpHandler.this.tp + t;
+
+					if (tn <= tc) {
+						// Send currently scheduled packet and update statistics
+						RtcpPacket report = RtcpPacketFactory.buildReport(statistics);
+						sendRtcpPacket(report);
+
+						tp = tc;
+
+						/*
+						 * We must redraw the interval. Don't reuse the one computed
+						 * above, since its not actually distributed the same, as we
+						 * are conditioned on it being small enough to cause a
+						 * packet to be sent.
+						 */
+						t = statistics.rtcpInterval(initial);
+						tn = tc + t;
+					}
+
+					// schedule next packet (only if still in RTP session)
+					scheduleRtcp(tn, RtcpPacketType.RTCP_REPORT);
+					statistics.confirmMembers();
+				}
+				break;
+
+			case RTCP_BYE:
+				/*
+				 * In the case of a BYE, we use "timer reconsideration" to
+				 * reschedule the transmission of the BYE if necessary
+				 */
+				t = statistics.rtcpInterval(initial);
+				tn = tp + t;
+
+				if (tn <= tc) {
+					// Send BYE and stop scheduling further packets
+					RtcpPacket bye = RtcpPacketFactory.buildBye(statistics);
+					
+					// Set the avg_packet_size to the size of the compound BYE packet
+					statistics.setRtcpAvgSize(bye.getSize());
+					
+					// Send the BYE and close channel
+					sendRtcpPacket(bye);
+					closeChannel();
+					reset();
+					return;
+				} else {
+					// Delay BYE
+					scheduleRtcp(tn, RtcpPacketType.RTCP_BYE);
+				}
+				break;
+
+			default:
+				logger.warn("Unkown scheduled event type!");
+				break;
 			}
 		}
 
@@ -607,6 +605,7 @@ public class RtcpHandler implements PacketHandler {
 		@Override
 		public void run() {
 			statistics.isSenderTimeout();
+			scheduleSsrc(new SsrcTask(), SSRC_TASK_DELAY);
 		}
 
 	}
