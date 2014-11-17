@@ -1,6 +1,6 @@
 package org.mobicents.media.server.impl.rtcp;
 
-import java.util.Random;
+import org.mobicents.media.server.impl.utils.XSRandom;
 
 /**
  * Utility class responsible for calculating intervals for transmission of RTCP
@@ -20,7 +20,7 @@ public class RtcpIntervalCalculator {
 	/** "timer reconsideration": converges to a value below the intended average */
 	private static final double COMPENSATION = Math.E - (3.0 / 2.0);
 	
-	private static final Random RANDOM = new Random();
+	private static final XSRandom RANDOM = new XSRandom();
 
 	/**
 	 * <b>6.3.1 - Computing the RTCP Transmission Interval</b>
