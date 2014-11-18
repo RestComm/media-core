@@ -1,9 +1,10 @@
-package org.mobicents.media.server.io.sdp;
+package org.mobicents.media.server.io.sdp.fields;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.fields.VersionField;
 
 /**
  * 

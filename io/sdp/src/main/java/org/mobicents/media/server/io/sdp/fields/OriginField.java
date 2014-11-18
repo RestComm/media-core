@@ -1,5 +1,6 @@
-package org.mobicents.media.server.io.sdp;
+package org.mobicents.media.server.io.sdp.fields;
 
+import org.mobicents.media.server.io.sdp.Field;
 import org.mobicents.media.server.io.sdp.exception.SdpException;
 
 /**
@@ -28,7 +29,7 @@ public class OriginField implements Field {
 
 	// Parsing
 	private static final char TYPE = 'o';
-	private static final String BEGIN = TYPE + "=";
+	private static final String BEGIN = String.valueOf(TYPE) + SEPARATOR;
 	private static final String FORMAT = BEGIN + "%s %d %d %s %s %s";
 	
 	// Default values

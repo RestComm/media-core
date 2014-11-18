@@ -1,5 +1,6 @@
-package org.mobicents.media.server.io.sdp;
+package org.mobicents.media.server.io.sdp.fields;
 
+import org.mobicents.media.server.io.sdp.Field;
 import org.mobicents.media.server.io.sdp.exception.SdpException;
 
 /**
