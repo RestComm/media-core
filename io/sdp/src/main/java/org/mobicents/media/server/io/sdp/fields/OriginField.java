@@ -29,7 +29,7 @@ public class OriginField implements Field {
 
 	// Parsing
 	private static final char TYPE = 'o';
-	private static final String BEGIN = String.valueOf(TYPE) + SEPARATOR;
+	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
 	private static final String FORMAT = BEGIN + "%s %d %d %s %s %s";
 	
 	// Default values

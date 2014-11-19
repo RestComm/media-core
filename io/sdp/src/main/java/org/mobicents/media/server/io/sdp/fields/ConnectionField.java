@@ -22,7 +22,7 @@ public class ConnectionField implements Field {
 
 	// Parsing
 	private static final char TYPE = 'c';
-	private static final String BEGIN = String.valueOf(TYPE) + SEPARATOR;
+	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
 	private static final String FORMAT = BEGIN + "%s %s %s";
 	
 	// Default values

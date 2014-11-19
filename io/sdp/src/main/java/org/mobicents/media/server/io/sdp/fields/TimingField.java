@@ -28,7 +28,7 @@ public class TimingField implements Field {
 
 	// text parsing
 	private static final char TYPE = 't';
-	private static final String BEGIN = String.valueOf(TYPE) + SEPARATOR;
+	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
 	private static final String FORMAT = BEGIN + "%d %d";
 
 	// error messages

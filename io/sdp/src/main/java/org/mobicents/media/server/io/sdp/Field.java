@@ -9,7 +9,7 @@ import org.mobicents.media.server.io.sdp.exception.SdpException;
  */
 public interface Field {
 	
-	static final String SEPARATOR = "=";  
+	static final String FIELD_SEPARATOR = "=";  
 
 	/**
 	 * Gets the type of the field
