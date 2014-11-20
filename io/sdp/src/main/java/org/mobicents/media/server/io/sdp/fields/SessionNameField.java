@@ -20,13 +20,10 @@ public class SessionNameField implements Field {
 	private static final char TYPE = 's';
 	private static final String BEGIN = TYPE + "=";
 	private static final String FORMAT = BEGIN + "%s";
+	private static final String REGEX = "^" + BEGIN + "\\s|(\\S+\\s?)+$";
 	
 	// Default values
 	private static final String DEFAULT_NAME = " ";
-	
-	// Error Messages
-	private static final String EMPTY_TEXT = "Could not parse Session Name because text is empty";
-	private static final String INVALID_TEXT = "Could not parse Session Name text: %s";
 	
 	private String name;
 	
@@ -47,22 +44,25 @@ public class SessionNameField implements Field {
 	}
 
 	@Override
-	public char getType() {
+	public char getFieldType() {
 		return TYPE;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override
 	public void parse(String text) throws SdpException {
-		if(text == null || text.isEmpty()) {
-			throw new SdpException(EMPTY_TEXT);
-		}
-		
-		if(text.startsWith(BEGIN)) {
+		try {
 			this.name = text.substring(2);
-		} else {
-			throw new SdpException(String.format(INVALID_TEXT, text));
+		} catch (Exception e) {
+			throw new SdpException(String.format(PARSE_ERROR, text), e);
 		}
-		
 	}
 	
 	@Override

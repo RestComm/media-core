@@ -31,6 +31,8 @@ public class OriginField implements Field {
 	private static final char TYPE = 'o';
 	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
 	private static final String FORMAT = BEGIN + "%s %d %d %s %s %s";
+	// TODO use proper regex for IP address instead of [0-9\\.]+
+	private static final String REGEX = "^" + BEGIN + "\\S+\\s\\d+\\s\\d+\\s\\w+\\s\\w+\\s[0-9\\.]+";
 	
 	// Default values
 	private static final String DEFAULT_USERNAME = "-";
@@ -39,10 +41,6 @@ public class OriginField implements Field {
 	private static final String DEFAULT_NET_TYPE = "IN";
 	private static final String DEFAULT_ADDRESS_TYPE = "IP4";
 	private static final String DEFAULT_ADDRESS = "127.0.0.1";
-	
-	// Error Messages
-	private static final String EMPTY_TEXT = "Could not parse Origin Field because text is empty";
-	private static final String INVALID_TEXT = "Could not parse Origin Field text: %s";
 	
 	private String username;
 	private int sessionId;
@@ -117,29 +115,30 @@ public class OriginField implements Field {
 	}
 
 	@Override
-	public char getType() {
+	public char getFieldType() {
 		return TYPE;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override
 	public void parse(String text) throws SdpException {
-		if(text == null || text.isEmpty()) {
-			throw new SdpException(EMPTY_TEXT);
-		}
-		
-		// Extract the value part of the string (remove o=)
-		String value = text.substring(2);
-		// Split values and store them
-		String[] values = value.split(" ");
 		try {
+			String[] values = text.substring(2).split(" ");
 			this.username = values[0];
 			this.sessionId = Integer.valueOf(values[1]);
 			this.sessionVersion = Integer.valueOf(values[2]);
 			this.netType = values[3];
 			this.addressType = values[4];
 			this.address = values[5];
-		} catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-			throw new SdpException(String.format(INVALID_TEXT, text), e);
+		} catch (Exception e) {
+			throw new SdpException(String.format(PARSE_ERROR, text), e);
 		}
 	}
 	

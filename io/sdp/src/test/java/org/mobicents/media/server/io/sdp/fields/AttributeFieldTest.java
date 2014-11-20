@@ -103,6 +103,11 @@ public class AttributeFieldTest {
 			this.key = key;
 		}
 
+		@Override
+		public boolean canParse(String text) {
+			return false;
+		}
+
 	}
 
 	private class ComplexAttributeField extends AttributeField {
@@ -118,6 +123,11 @@ public class AttributeFieldTest {
 
 		public void setValue(String value) {
 			this.value = value;
+		}
+
+		@Override
+		public boolean canParse(String text) {
+			return false;
 		}
 
 	}

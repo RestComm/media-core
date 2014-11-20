@@ -19,11 +19,8 @@ public class VersionField implements Field {
 	private static final char TYPE = 'v';
 	private static final String INITIALIZATION = TYPE + "=";
 	private static final String TEMPLATE = INITIALIZATION + "%d";
+	private static final String REGEX = "^" + INITIALIZATION + "\\d+$";
 	private static final short DEFAULT_VERSION = 0;
-
-	// Error Messages
-	private static final String EMPTY_TEXT = "Could not parse Protocol Version because text is empty";
-	private static final String INVALID_TEXT = "Could not parse Protocol Version text: %s";
 
 	private short version;
 
@@ -40,7 +37,7 @@ public class VersionField implements Field {
 	}
 
 	@Override
-	public char getType() {
+	public char getFieldType() {
 		return TYPE;
 	}
 
@@ -51,21 +48,21 @@ public class VersionField implements Field {
 	public void setVersion(short version) {
 		this.version = version;
 	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
+	}
 
 	@Override
 	public void parse(String text) throws SdpException {
-		if (text == null || text.isEmpty()) {
-			throw new SdpException(EMPTY_TEXT);
-		}
-
-		if (text.startsWith(INITIALIZATION)) {
-			try {
-				this.version = Short.parseShort(text.substring(2));
-			} catch (NumberFormatException e) {
-				throw new SdpException(String.format(INVALID_TEXT, text));
-			}
-		} else {
-			throw new SdpException(String.format(INVALID_TEXT, text));
+		try {
+			this.version = Short.parseShort(text.substring(2));
+		} catch (Exception e) {
+			throw new SdpException(String.format(PARSE_ERROR, text), e);
 		}
 	}
 

@@ -8,15 +8,27 @@ import org.mobicents.media.server.io.sdp.exception.SdpException;
  * 
  */
 public interface Field {
+
+	static final String FIELD_SEPARATOR = "=";
 	
-	static final String FIELD_SEPARATOR = "=";  
+	static final String PARSE_ERROR = "Could not parse SDP: %s";
 
 	/**
 	 * Gets the type of the field
 	 * 
 	 * @return the char that represents the field
 	 */
-	char getType();
+	char getFieldType();
+
+	/**
+	 * Checks whether the attribute can parse or not the provided SDP
+	 * 
+	 * @param text
+	 *            the SDP line to be parsed
+	 * @return <code>true</code> if line can be parsed; <code>false</code>
+	 *         otherwise.
+	 */
+	boolean canParse(String text);
 
 	/**
 	 * Parses a text line to initialize the field

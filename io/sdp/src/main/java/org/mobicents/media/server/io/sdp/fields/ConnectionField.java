@@ -24,15 +24,13 @@ public class ConnectionField implements Field {
 	private static final char TYPE = 'c';
 	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
 	private static final String FORMAT = BEGIN + "%s %s %s";
+	// TODO use proper regex for IP address instead of [0-9\\.]+
+	private static final String REGEX = "^"+ BEGIN + "\\w+\\s\\w+\\s[0-9\\.]+$";
 	
 	// Default values
 	private static final String DEFAULT_NET_TYPE = "IN";
 	private static final String DEFAULT_ADDRESS_TYPE = "IP4"; 
 	private static final String DEFAULT_ADDRESS = "127.0.0.1"; 
-	
-	// Error Messages
-	private static final String EMPTY_TEXT = "Could not parse Connection Field because text is empty";
-	private static final String INVALID_TEXT = "Could not parse Connection Field text: %s";
 	
 	private String networkType;
 	private String addressType;
@@ -73,27 +71,28 @@ public class ConnectionField implements Field {
 	}
 
 	@Override
-	public char getType() {
+	public char getFieldType() {
 		return TYPE;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override
 	public void parse(String text) throws SdpException {
-		if(text == null || text.isEmpty()) {
-			throw new SdpException(EMPTY_TEXT);
-		}
-
-		if(text.startsWith(BEGIN)) {
-			try {
-				String[] values = text.substring(2).split(" ");
-				this.networkType = values[0];
-				this.addressType = values[1];
-				this.address = values[2];
-			} catch (IndexOutOfBoundsException e) {
-				throw new SdpException(String.format(INVALID_TEXT, text), e);
-			}
-		} else {
-			throw new SdpException(String.format(INVALID_TEXT, text));
+		try {
+			String[] values = text.substring(2).split(" ");
+			this.networkType = values[0];
+			this.addressType = values[1];
+			this.address = values[2];
+			// TODO validate IP address
+		} catch (Exception e) {
+			throw new SdpException(String.format(PARSE_ERROR, text), e);
 		}
 	}
 	

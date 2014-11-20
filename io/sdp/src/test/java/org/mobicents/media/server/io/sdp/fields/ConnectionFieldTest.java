@@ -45,6 +45,22 @@ public class ConnectionFieldTest {
 		String expected = "c=" + networkType + " " + addressType + " " + address;
 		Assert.assertEquals(expected, field.toString());
 	}
+	
+	@Test
+	public void testCanParse() {
+		// given
+		String validLine = "c=IN IP6 0.0.0.0";
+		String invalidLine1 = "c=IN 127.0.0.1";
+		String invalidLine2 = "x=IN IP6 0.0.0.0";
+		
+		// when
+		ConnectionField field = new ConnectionField();
+		
+		// then
+		Assert.assertTrue(field.canParse(validLine));
+		Assert.assertFalse(field.canParse(invalidLine1));
+		Assert.assertFalse(field.canParse(invalidLine2));
+	}
 
 	@Test
 	public void testValidParse() throws SdpException {

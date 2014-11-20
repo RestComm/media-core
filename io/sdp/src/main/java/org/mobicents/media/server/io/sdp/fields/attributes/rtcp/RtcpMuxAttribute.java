@@ -19,9 +19,18 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class RtcpMuxAttribute extends AttributeField {
 
 	private static final String NAME = "rtcp-mux";
+	private static final String REGEX = "^" + BEGIN + NAME + "$";
 
 	public RtcpMuxAttribute() {
 		this.key = NAME;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override

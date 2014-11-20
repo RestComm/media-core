@@ -32,6 +32,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class IceUfragAttribute extends AttributeField {
 
 	private static final String NAME = "ice-ufrag";
+	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\S+$";
 
 	public IceUfragAttribute() {
 		this.key = NAME;
@@ -39,6 +40,14 @@ public class IceUfragAttribute extends AttributeField {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override

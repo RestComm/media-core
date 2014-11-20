@@ -11,7 +11,7 @@ import org.mobicents.media.server.io.sdp.fields.VersionField;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class ProtocolVersionTest {
+public class VersionFieldTest {
 
 	@Test
 	public void testDefaultVersion() {
@@ -38,6 +38,24 @@ public class ProtocolVersionTest {
 		// then
 		Assert.assertEquals(version, sdp.getVersion());
 		Assert.assertEquals("v=" + version, sdp.toString());
+	}
+	
+	@Test
+	public void testCanParse() {
+		// given
+		String validLine = "v=123";
+		String invalidLine1 = "x=123";
+		String invalidLine2 = "v=abc";
+		String invalidLine3 = "v=123 213";
+		
+		// when
+		VersionField field = new VersionField();
+		
+		// then
+		Assert.assertTrue(field.canParse(validLine));
+		Assert.assertFalse(field.canParse(invalidLine1));
+		Assert.assertFalse(field.canParse(invalidLine2));
+		Assert.assertFalse(field.canParse(invalidLine3));
 	}
 	
 	@Test

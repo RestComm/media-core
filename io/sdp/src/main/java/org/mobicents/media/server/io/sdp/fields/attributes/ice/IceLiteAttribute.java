@@ -17,9 +17,18 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class IceLiteAttribute extends AttributeField {
 
 	private static final String NAME = "ice-lite";
+	private static final String REGEX = "^" + BEGIN + "(" + NAME + ")$";
 
 	public IceLiteAttribute() {
 		this.key = NAME;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override

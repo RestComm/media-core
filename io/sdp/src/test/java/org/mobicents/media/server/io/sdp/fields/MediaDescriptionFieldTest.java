@@ -37,6 +37,26 @@ public class MediaDescriptionFieldTest {
 	}
 	
 	@Test
+	public void testCanParse() {
+		// given
+		String validLine = "m=video 64534 RTP/AVPF 0 101 120";
+		String invalidLine1 = "x=video 64534 RTP/AVPF 0 101 120";
+		String invalidLine2 = "m=video xyz RTP/AVPF 0 101 120";
+		String invalidLine3 = "m=video 64534 0 101 120";
+		String invalidLine4 = "m=video 64534 RTP/AVPF 0 xyz 120";
+		
+		// when
+		MediaDescriptionField field = new MediaDescriptionField();
+		
+		// then
+		Assert.assertTrue(field.canParse(validLine));
+		Assert.assertFalse(field.canParse(invalidLine1));
+		Assert.assertFalse(field.canParse(invalidLine2));
+		Assert.assertFalse(field.canParse(invalidLine3));
+		Assert.assertFalse(field.canParse(invalidLine4));
+	}
+	
+	@Test
 	public void testValidParsing() throws SdpException {
 		// given
 		String line = "m=video 64534 RTP/AVPF 0 101 120";

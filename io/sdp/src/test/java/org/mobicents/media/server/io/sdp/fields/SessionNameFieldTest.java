@@ -42,7 +42,25 @@ public class SessionNameFieldTest {
 	}
 	
 	@Test
-	public void testValidParsing() throws SdpException {
+	public void testCanParse() {
+		// given
+		String validLine1 = "s=xyz";
+		String validLine2 = "s= ";
+		String validLine3 = "s=";
+		String invalidLine2 = "s=  ";
+		
+		// when
+		SessionNameField field = new SessionNameField();
+		
+		// then
+		Assert.assertTrue(field.canParse(validLine1));
+		Assert.assertTrue(field.canParse(validLine2));
+		Assert.assertTrue(field.canParse(validLine3));
+		Assert.assertFalse(field.canParse(invalidLine2));
+	}
+	
+	@Test
+	public void testParsing() throws SdpException {
 		// given
 		String line = "s=xyz";
 		
@@ -52,16 +70,6 @@ public class SessionNameFieldTest {
 		
 		// then
 		Assert.assertEquals("xyz", field.getName());
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParsing() throws SdpException {
-		// given
-		String line = "v=xyz";
-		
-		// when
-		SessionNameField field = new SessionNameField();
-		field.parse(line);
 	}
 
 }

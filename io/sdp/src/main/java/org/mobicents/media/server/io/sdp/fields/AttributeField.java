@@ -62,7 +62,7 @@ public abstract class AttributeField implements Field {
 	}
 	
 	@Override
-	public char getType() {
+	public char getFieldType() {
 		return TYPE;
 	}
 	

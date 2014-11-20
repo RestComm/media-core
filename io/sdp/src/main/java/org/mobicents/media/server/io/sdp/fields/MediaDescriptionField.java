@@ -77,8 +77,16 @@ public class MediaDescriptionField implements Field {
 	}
 
 	@Override
-	public char getType() {
+	public char getFieldType() {
 		return TYPE;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override

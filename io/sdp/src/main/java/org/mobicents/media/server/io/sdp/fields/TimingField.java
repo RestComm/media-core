@@ -30,11 +30,8 @@ public class TimingField implements Field {
 	private static final char TYPE = 't';
 	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
 	private static final String FORMAT = BEGIN + "%d %d";
+	private static final String REGEX = "^" + BEGIN + "\\d+\\s\\d+$";
 
-	// error messages
-	private static final String EMPTY_TEXT = "Could not parse Timing Field because text is empty";
-	private static final String INVALID_TEXT = "Could not parse Timing Field text: %s";
-	
 	// default values
 	private static final int DEFAULT_START = 0;
 	private static final int DEFAULT_STOP = 0;
@@ -68,26 +65,26 @@ public class TimingField implements Field {
 	}
 
 	@Override
-	public char getType() {
+	public char getFieldType() {
 		return TYPE;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override
 	public void parse(String text) throws SdpException {
-		if(text == null || text.isEmpty()) {
-			throw new SdpException(EMPTY_TEXT);
-		}
-		
-		if(text.startsWith(BEGIN)) {
-			try {
-				String[] values = text.substring(2).split(" ");
-				this.startTime = Integer.valueOf(values[0]);
-				this.stopTime = Integer.valueOf(values[1]);
-			} catch (IndexOutOfBoundsException | NumberFormatException e) {
-				throw new SdpException(String.format(INVALID_TEXT, text), e);
-			}
-		} else {
-			throw new SdpException(String.format(INVALID_TEXT, text));
+		try {
+			String[] values = text.substring(2).split(" ");
+			this.startTime = Integer.valueOf(values[0]);
+			this.stopTime = Integer.valueOf(values[1]);
+		} catch (Exception e) {
+			throw new SdpException(String.format(PARSE_ERROR, text), e);
 		}
 	}
 	

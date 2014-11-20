@@ -53,9 +53,29 @@ public class OriginFieldTest {
 	}
 	
 	@Test
+	public void testCanParse() {
+		// given
+		// o=[username] [sess-id] [sess-version] [nettype] [addrtype] [unicast-address]
+		String validLine = "o=- 30 1 IN IP4 127.0.0.1";
+		String invalidLine1 = "o=- 30 1 IN 127.0.0.1";
+		String invalidLine2 = "o=- xyz 1 IN 127.0.0.1";
+		String invalidLine3 = "a=- 30 1 IN 127.0.0.1";
+		
+		// when
+		OriginField field = new OriginField();
+		
+		// then
+		Assert.assertTrue(field.canParse(validLine));
+		Assert.assertFalse(field.canParse(invalidLine1));
+		Assert.assertFalse(field.canParse(invalidLine2));
+		Assert.assertFalse(field.canParse(invalidLine3));
+	}
+	
+	@Test
 	public void testValidParse() throws SdpException {
 		// given
 		String line = "o=- 30 1 IN IP4 127.0.0.1";
+		
 		
 		// when
 		OriginField field = new OriginField();

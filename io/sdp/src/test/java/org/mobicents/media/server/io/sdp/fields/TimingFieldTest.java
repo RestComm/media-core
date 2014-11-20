@@ -45,6 +45,24 @@ public class TimingFieldTest {
 		String expected = "t=" + startTime + " " + stopTime;
 		Assert.assertEquals(expected, field.toString());
 	}
+	
+	@Test
+	public void testCanParse() {
+		// given
+		String validLine1 = "t=123 456";
+		String invalidLine1 = "t=xyz 456";
+		String invalidLine2 = "t=123 xyz";
+		String invalidLine3 = "x=123 456";
+		
+		// when
+		TimingField field = new TimingField();
+		
+		// then
+		Assert.assertTrue(field.canParse(validLine1));
+		Assert.assertFalse(field.canParse(invalidLine1));
+		Assert.assertFalse(field.canParse(invalidLine2));
+		Assert.assertFalse(field.canParse(invalidLine3));
+	}
 
 	@Test
 	public void testValidParse() throws SdpException {

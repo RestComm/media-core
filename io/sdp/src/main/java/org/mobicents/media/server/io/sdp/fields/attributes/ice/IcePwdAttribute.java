@@ -33,6 +33,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class IcePwdAttribute extends AttributeField {
 	
 	private static final String NAME = "ice-pwd";
+	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR +"\\S+$";
 	
 	public IcePwdAttribute() {
 		this.key = NAME;
@@ -40,6 +41,14 @@ public class IcePwdAttribute extends AttributeField {
 	
 	public void setValue(String value) {
 		this.value = value;
+	}
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
 	}
 
 	@Override

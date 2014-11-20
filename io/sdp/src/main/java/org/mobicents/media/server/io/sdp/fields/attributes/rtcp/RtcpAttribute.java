@@ -18,6 +18,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class RtcpAttribute extends AttributeField {
 	
 	private static final String NAME = "rtcp";
+	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+$";
 	
 	public RtcpAttribute() {
 		this.key = NAME;
@@ -26,7 +27,15 @@ public class RtcpAttribute extends AttributeField {
 	public void setValue(int value) {
 		this.value = String.valueOf(value);
 	}
-
+	
+	@Override
+	public boolean canParse(String text) {
+		if(text == null || text.isEmpty()) {
+			return false;
+		}
+		return text.matches(REGEX);
+	}
+	
 	@Override
 	protected boolean isComplex() {
 		return true;
