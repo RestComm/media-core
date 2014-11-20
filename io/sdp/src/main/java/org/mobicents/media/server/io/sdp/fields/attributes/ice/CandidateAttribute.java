@@ -39,7 +39,7 @@ public class CandidateAttribute extends AttributeField {
 
 	private final StringBuilder builder;
 
-	private int foundation;
+	private long foundation;
 	private short componentId;
 	private String protocol;
 	private int priority;
@@ -55,11 +55,11 @@ public class CandidateAttribute extends AttributeField {
 		this.key = NAME;
 	}
 
-	public int getFoundation() {
+	public long getFoundation() {
 		return foundation;
 	}
 
-	public void setFoundation(int foundation) {
+	public void setFoundation(long foundation) {
 		this.foundation = foundation;
 	}
 
@@ -159,7 +159,7 @@ public class CandidateAttribute extends AttributeField {
 			this.value = text.substring(TO_ATTR_SEPARATOR_LENGTH);
 			String[] values = this.value.split(" ");
 			
-			this.foundation = Integer.valueOf(values[index++]);
+			this.foundation = Long.valueOf(values[index++]);
 			this.componentId = Short.valueOf(values[index++]);
 			this.protocol = values[index++];
 			this.priority = Integer.valueOf(values[index++]);
@@ -177,6 +177,9 @@ public class CandidateAttribute extends AttributeField {
 				this.relatedAddress = values[index++];
 				index++; // RPORT
 				this.relatedPort = Integer.valueOf(values[index++]);
+			} else {
+				this.relatedAddress = null;
+				this.relatedPort = 0;
 			}
 			
 			index++; // GENERATION
