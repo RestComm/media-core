@@ -1,10 +1,10 @@
-package org.mobicents.media.server.io.sdp.fields.attributes.rtcp;
+package org.mobicents.media.server.io.sdp.rtcp.attributes;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
-import org.mobicents.media.server.io.sdp.fields.attributes.rtcp.RtcpAttribute;
+import org.mobicents.media.server.io.sdp.SdpException;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 
 /**
  * 

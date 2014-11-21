@@ -1,7 +1,7 @@
-package org.mobicents.media.server.io.sdp.fields.attributes.ice;
+package org.mobicents.media.server.io.sdp.ice.attributes;
 
-import org.mobicents.media.server.io.sdp.exception.SdpException;
-import org.mobicents.media.server.io.sdp.fields.AttributeField;
+import org.mobicents.media.server.io.sdp.AttributeField;
+import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * a=candidate:[foundation][componentId][protocol][priority][address][port][type][relAddress*][relPort*][generation]<br>

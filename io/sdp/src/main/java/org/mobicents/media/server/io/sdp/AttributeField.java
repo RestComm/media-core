@@ -1,7 +1,5 @@
-package org.mobicents.media.server.io.sdp.fields;
+package org.mobicents.media.server.io.sdp;
 
-import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
 
 /**
  * a=[attribute]<br>

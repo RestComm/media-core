@@ -1,6 +1,5 @@
 package org.mobicents.media.server.io.sdp;
 
-import org.mobicents.media.server.io.sdp.exception.SdpException;
 
 /**
  * 
@@ -11,7 +10,7 @@ public interface Field {
 
 	static final String FIELD_SEPARATOR = "=";
 	
-	static final String PARSE_ERROR = "Could not parse SDP: %s";
+	static final String PARSE_ERROR = "Could not parse SDP: ";
 
 	/**
 	 * Gets the type of the field

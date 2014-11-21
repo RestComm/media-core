@@ -1,6 +1,7 @@
-package org.mobicents.media.server.io.sdp.fields.attributes.rtcp;
+package org.mobicents.media.server.io.sdp.rtcp.attributes;
 
 import org.junit.Test;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 
 import junit.framework.Assert;
 

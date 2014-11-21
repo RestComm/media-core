@@ -1,7 +1,7 @@
-package org.mobicents.media.server.io.sdp.fields.attributes;
+package org.mobicents.media.server.io.sdp.attributes;
 
-import org.mobicents.media.server.io.sdp.exception.SdpException;
-import org.mobicents.media.server.io.sdp.fields.AttributeField;
+import org.mobicents.media.server.io.sdp.AttributeField;
+import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * a=rtpmap:[payload type][encoding name]/[clock rate]/[encoding parameters*]<br>
@@ -18,6 +18,28 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  * to an encoding name denoting the payload format to be used.<br>
  * It also provides information on the clock rate and encoding parameters. It is
  * a media-level attribute that is not dependent on charset.
+ * </p>
+ * 
+ * <p>
+ * Although an RTP profile may make static assignments of payload type numbers
+ * to payload formats, it is more common for that assignment to be done
+ * dynamically using "a=rtpmap:" attributes.<br>
+ * As an example of a static payload type, consider u-law PCM coded
+ * single-channel audio sampled at 8 kHz. This is completely defined in the RTP
+ * Audio/Video profile as payload type 0, so there is no need for an "a=rtpmap:"
+ * attribute, and the media for such a stream sent to UDP port 49232 can be
+ * specified as:<br>
+ * <br>
+ * 
+ * m=audio 49232 RTP/AVP 0<br>
+ * <br>
+ * An example of a dynamic payload type is 16-bit linear encoded stereo audio
+ * sampled at 16 kHz.<br>
+ * If we wish to use the dynamic RTP/AVP payload type 98 for this stream,
+ * additional information is required to decode it:<br>
+ * <br>
+ * m=audio 49232 RTP/AVP 98<br>
+ * a=rtpmap:98 L16/16000/2
  * </p>
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)

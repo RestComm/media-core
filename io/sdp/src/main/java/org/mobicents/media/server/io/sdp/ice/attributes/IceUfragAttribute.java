@@ -1,9 +1,9 @@
-package org.mobicents.media.server.io.sdp.fields.attributes.ice;
+package org.mobicents.media.server.io.sdp.ice.attributes;
 
-import org.mobicents.media.server.io.sdp.fields.AttributeField;
+import org.mobicents.media.server.io.sdp.AttributeField;
 
 /**
- * a=ice-pwd:[value]
+ * a=ice-ufrag:[value]
  * 
  * <p>
  * The "ice-pwd" and "ice-ufrag" attributes can appear at either the
@@ -28,17 +28,16 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
- * @see <a href="https://tools.ietf.org/html/rfc5245#section-15.4">RFC5245</a>
  */
-public class IcePwdAttribute extends AttributeField {
-	
-	private static final String NAME = "ice-pwd";
-	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR +"\\S+$";
-	
-	public IcePwdAttribute() {
+public class IceUfragAttribute extends AttributeField {
+
+	private static final String NAME = "ice-ufrag";
+	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\S+$";
+
+	public IceUfragAttribute() {
 		this.key = NAME;
 	}
-	
+
 	public void setValue(String value) {
 		this.value = value;
 	}

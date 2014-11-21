@@ -1,6 +1,6 @@
-package org.mobicents.media.server.io.sdp.fields.attributes;
+package org.mobicents.media.server.io.sdp.attributes;
 
-import org.mobicents.media.server.io.sdp.fields.AttributeField;
+import org.mobicents.media.server.io.sdp.AttributeField;
 
 /**
  * a=ptime:[packet time]

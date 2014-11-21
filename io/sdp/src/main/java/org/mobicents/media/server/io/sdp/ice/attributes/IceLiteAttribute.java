@@ -1,6 +1,6 @@
-package org.mobicents.media.server.io.sdp.fields.attributes.ice;
+package org.mobicents.media.server.io.sdp.ice.attributes;
 
-import org.mobicents.media.server.io.sdp.fields.AttributeField;
+import org.mobicents.media.server.io.sdp.AttributeField;
 
 /**
  * a=ice-lite

@@ -1,7 +1,7 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * s=[session name]
@@ -18,16 +18,19 @@ import org.mobicents.media.server.io.sdp.exception.SdpException;
 public class SessionNameField implements Field {
 
 	private static final char TYPE = 's';
-	private static final String BEGIN = TYPE + "=";
-	private static final String FORMAT = BEGIN + "%s";
+	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	private static final int BEGIN_LEN = BEGIN.length();
 	private static final String REGEX = "^" + BEGIN + "\\s|(\\S+\\s?)+$";
 	
 	// Default values
 	private static final String DEFAULT_NAME = " ";
 	
+	private final StringBuilder builder;
+	
 	private String name;
 	
 	public SessionNameField(String name) {
+		this.builder = new StringBuilder(BEGIN);
 		this.name = name;
 	}
 	
@@ -67,7 +70,10 @@ public class SessionNameField implements Field {
 	
 	@Override
 	public String toString() {
-		return String.format(FORMAT, this.name);
+		// Clear builder
+		this.builder.setLength(BEGIN_LEN);
+		this.builder.append(this.name);
+		return this.builder.toString();
 	}
 	
 }

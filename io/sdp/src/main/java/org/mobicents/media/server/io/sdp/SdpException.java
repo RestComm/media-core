@@ -1,4 +1,4 @@
-package org.mobicents.media.server.io.sdp.exception;
+package org.mobicents.media.server.io.sdp;
 
 /**
  * High level exception for SDP-related processing.

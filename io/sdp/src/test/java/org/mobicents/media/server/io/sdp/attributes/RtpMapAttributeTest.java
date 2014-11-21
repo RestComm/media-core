@@ -1,7 +1,8 @@
-package org.mobicents.media.server.io.sdp.fields.attributes;
+package org.mobicents.media.server.io.sdp.attributes;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.SdpException;
+import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
 
 import junit.framework.Assert;
 

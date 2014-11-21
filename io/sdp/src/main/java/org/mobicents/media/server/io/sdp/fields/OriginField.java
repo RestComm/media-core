@@ -1,7 +1,7 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * o=[username] [sess-id] [sess-version] [nettype] [addrtype] [unicast-address]
@@ -29,10 +29,10 @@ public class OriginField implements Field {
 
 	// Parsing
 	private static final char TYPE = 'o';
-	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
-	private static final String FORMAT = BEGIN + "%s %d %d %s %s %s";
-	// TODO use proper regex for IP address instead of [0-9\\.]+
+	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	private static final int BEGIN_LEN = BEGIN.length();
 	private static final String REGEX = "^" + BEGIN + "\\S+\\s\\d+\\s\\d+\\s\\w+\\s\\w+\\s[0-9\\.]+";
+	// TODO use proper regex for IP address instead of [0-9\\.]+
 	
 	// Default values
 	private static final String DEFAULT_USERNAME = "-";
@@ -42,6 +42,8 @@ public class OriginField implements Field {
 	private static final String DEFAULT_ADDRESS_TYPE = "IP4";
 	private static final String DEFAULT_ADDRESS = "127.0.0.1";
 	
+	private final StringBuilder builder;
+	
 	private String username;
 	private int sessionId;
 	private int sessionVersion;
@@ -50,6 +52,7 @@ public class OriginField implements Field {
 	private String address;
 	
 	public OriginField(String username, int sessionId, int sessionVersion, String netType, String addressType, String address) {
+		this.builder = new StringBuilder(BEGIN);
 		this.username = username;
 		this.sessionId = sessionId;
 		this.sessionVersion = sessionVersion;
@@ -144,7 +147,15 @@ public class OriginField implements Field {
 	
 	@Override
 	public String toString() {
-		return String.format(FORMAT, this.username, this.sessionId, this.sessionVersion, this.netType, this.addressType, this.address);
+		// clear builder
+		this.builder.setLength(BEGIN_LEN);
+		this.builder.append(this.username).append(" ")
+		        .append(this.sessionId).append(" ")
+		        .append(this.sessionVersion).append(" ")
+		        .append(this.netType).append(" ")
+				.append(this.addressType).append(" ")
+				.append(this.address);
+		return this.builder.toString();
 	}
 	
 }

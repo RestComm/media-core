@@ -1,7 +1,7 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * t=<start-time> <stop-time>
@@ -28,13 +28,15 @@ public class TimingField implements Field {
 
 	// text parsing
 	private static final char TYPE = 't';
-	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
-	private static final String FORMAT = BEGIN + "%d %d";
+	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	private static final int BEGIN_LEN = BEGIN.length();
 	private static final String REGEX = "^" + BEGIN + "\\d+\\s\\d+$";
 
 	// default values
 	private static final int DEFAULT_START = 0;
 	private static final int DEFAULT_STOP = 0;
+	
+	private final StringBuilder builder;
 	
 	private int startTime;
 	private int stopTime;
@@ -44,6 +46,7 @@ public class TimingField implements Field {
 	}
 	
 	public TimingField(int startTime, int stopTime) {
+		this.builder = new StringBuilder(BEGIN);
 		this.startTime = startTime;
 		this.stopTime = stopTime;
 	}
@@ -90,7 +93,10 @@ public class TimingField implements Field {
 	
 	@Override
 	public String toString() {
-		return String.format(FORMAT, this.startTime, this.stopTime);
+		// clear builder
+		this.builder.setLength(BEGIN_LEN);
+		this.builder.append(this.startTime).append(" ").append(this.stopTime);
+		return this.builder.toString();
 	}
 
 }

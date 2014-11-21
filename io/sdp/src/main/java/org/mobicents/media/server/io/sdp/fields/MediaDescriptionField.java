@@ -3,8 +3,9 @@ package org.mobicents.media.server.io.sdp.fields;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.media.server.io.sdp.AttributeField;
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * m=[media] [port] [proto] [fmt]
@@ -21,7 +22,8 @@ import org.mobicents.media.server.io.sdp.exception.SdpException;
 public class MediaDescriptionField implements Field {
 
 	private static final char TYPE = 'm';
-	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
+	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	private static final int BEGIN_LENGTH = BEGIN.length();
 	private static final String REGEX = "^" + BEGIN + "[a-zA-Z]+\\s\\d+\\s[a-zA-Z/]+(\\s\\d+)*$";
 
 	private String media;
@@ -30,9 +32,10 @@ public class MediaDescriptionField implements Field {
 	private final List<Integer> formats;
 	private List<AttributeField> attributes;
 
-	private final StringBuilder builder = new StringBuilder();
+	private final StringBuilder builder;
 
 	public MediaDescriptionField() {
+		this.builder = new StringBuilder(BEGIN);
 		this.formats = new ArrayList<Integer>(15);
 		this.attributes = new ArrayList<AttributeField>(20);
 	}
@@ -112,16 +115,17 @@ public class MediaDescriptionField implements Field {
 	@Override
 	public String toString() {
 		// Clean builder
-		this.builder.setLength(0);
-		// Build new string
-		this.builder.append(BEGIN)
-		        .append(this.media).append(" ")
+		this.builder.setLength(BEGIN_LENGTH);
+		this.builder.append(this.media).append(" ")
 				.append(this.port).append(" ")
 				.append(this.protocol);
 		for (int payload : this.formats) {
 			this.builder.append(" ").append(payload);
 		}
-		// TODO Print attribute fields too
+		// Append new lines for attributes
+		for (AttributeField attribute : this.attributes) {
+			this.builder.append("\n").append(attribute.toString());
+		}
 		return this.builder.toString();
 	}
 

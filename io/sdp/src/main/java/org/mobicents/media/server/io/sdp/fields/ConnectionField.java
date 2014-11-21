@@ -1,7 +1,7 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * c=[nettype] [addrtype] [connection-address]
@@ -22,15 +22,17 @@ public class ConnectionField implements Field {
 
 	// Parsing
 	private static final char TYPE = 'c';
-	private static final String BEGIN = String.valueOf(TYPE) + FIELD_SEPARATOR;
-	private static final String FORMAT = BEGIN + "%s %s %s";
-	// TODO use proper regex for IP address instead of [0-9\\.]+
+	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	private static final int BEGIN_LENGTH = BEGIN.length();
 	private static final String REGEX = "^"+ BEGIN + "\\w+\\s\\w+\\s[0-9\\.]+$";
+	// TODO use proper regex for IP address instead of [0-9\\.]+
 	
 	// Default values
 	private static final String DEFAULT_NET_TYPE = "IN";
 	private static final String DEFAULT_ADDRESS_TYPE = "IP4"; 
-	private static final String DEFAULT_ADDRESS = "127.0.0.1"; 
+	private static final String DEFAULT_ADDRESS = "127.0.0.1";
+	
+	private final StringBuilder builder;
 	
 	private String networkType;
 	private String addressType;
@@ -41,6 +43,8 @@ public class ConnectionField implements Field {
 	}
 	
 	public ConnectionField(String netType, String addressType, String address) {
+		this.builder = new StringBuilder(BEGIN);
+		
 		this.networkType = netType;
 		this.addressType = addressType;
 		this.address = address;
@@ -90,7 +94,6 @@ public class ConnectionField implements Field {
 			this.networkType = values[0];
 			this.addressType = values[1];
 			this.address = values[2];
-			// TODO validate IP address
 		} catch (Exception e) {
 			throw new SdpException(String.format(PARSE_ERROR, text), e);
 		}
@@ -98,7 +101,12 @@ public class ConnectionField implements Field {
 	
 	@Override
 	public String toString() {
-		return String.format(FORMAT, this.networkType, this.addressType, this.address);
+		// Clean builder
+		this.builder.setLength(BEGIN_LENGTH);
+		this.builder.append(this.networkType).append(" ")
+				.append(this.addressType).append(" ")
+				.append(this.address);
+		return this.builder.toString();
 	}
 
 }

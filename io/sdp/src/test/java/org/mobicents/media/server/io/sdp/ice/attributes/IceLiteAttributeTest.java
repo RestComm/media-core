@@ -1,9 +1,9 @@
-package org.mobicents.media.server.io.sdp.fields.attributes.ice;
+package org.mobicents.media.server.io.sdp.ice.attributes;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.fields.attributes.ice.IceLiteAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
 
 /**
  * 

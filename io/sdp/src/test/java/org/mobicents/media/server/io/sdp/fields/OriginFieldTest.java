@@ -1,7 +1,7 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.exception.SdpException;
+import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.fields.OriginField;
 
 import junit.framework.Assert;
