@@ -17,7 +17,7 @@ import org.mobicents.media.server.io.sdp.SdpException;
 public class VersionField implements Field {
 
 	private static final char TYPE = 'v';
-	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	public static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LENGTH = BEGIN.length();
 	private static final String REGEX = "^" + BEGIN + "\\d+$";
 	private static final short DEFAULT_VERSION = 0;

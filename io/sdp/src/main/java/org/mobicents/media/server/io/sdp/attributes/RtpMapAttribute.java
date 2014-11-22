@@ -60,6 +60,11 @@ public class RtpMapAttribute extends AttributeField {
 	private short clockRate;
 	private short codecParams;
 	
+	public RtpMapAttribute() {
+		super(true);
+		this.key = NAME;
+	}
+	
 	public short getPayloadType() {
 		return payloadType;
 	}
@@ -93,11 +98,6 @@ public class RtpMapAttribute extends AttributeField {
 	}
 	
 	@Override
-	protected boolean isComplex() {
-		return true;
-	}
-	
-	@Override
 	public boolean canParse(String text) {
 		if(text == null || text.isEmpty()) {
 			return false;
@@ -109,7 +109,8 @@ public class RtpMapAttribute extends AttributeField {
 	public void parse(String text) throws SdpException {
 		try {
 			int index = 0;
-			String[] values = text.substring(TO_ATTR_SEPARATOR_LENGTH).split("\\s|/");
+			this.value = text.substring(TO_ATTR_SEPARATOR_LENGTH);
+			String[] values = this.value.split("\\s|/");
 			
 			this.payloadType = Short.valueOf(values[index++]);
 			this.codec = values[index++];

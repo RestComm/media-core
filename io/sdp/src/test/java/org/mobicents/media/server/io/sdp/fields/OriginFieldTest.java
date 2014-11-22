@@ -1,10 +1,8 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.junit.Test;
-import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.fields.OriginField;
-
 import junit.framework.Assert;
+
+import org.junit.Test;
 
 /**
  * 
@@ -27,8 +25,8 @@ public class OriginFieldTest {
 		Assert.assertEquals(1, field.getSessionVersion());
 		Assert.assertEquals("IN", field.getNetType());
 		Assert.assertEquals("IP4", field.getAddressType());
-		Assert.assertEquals("127.0.0.1", field.getAddress());
-		String expected = "o=- 0 1 IN IP4 127.0.0.1";
+		Assert.assertEquals("0.0.0.0", field.getAddress());
+		String expected = "o=- 0 1 IN IP4 0.0.0.0";
 		Assert.assertEquals(expected, field.toString());
 	}
 
@@ -36,7 +34,7 @@ public class OriginFieldTest {
 	public void testCustomOrigin() {
 		// given
 		int sessionId = 123;
-		String address = "0.0.0.0";
+		String address = "127.0.0.1";
 
 		// when
 		OriginField field = new OriginField(sessionId, address);
@@ -50,64 +48,6 @@ public class OriginFieldTest {
 		Assert.assertEquals(address, field.getAddress());
 		String expected = "o=- " + sessionId + " 1 IN IP4 " + address;
 		Assert.assertEquals(expected, field.toString());
-	}
-	
-	@Test
-	public void testCanParse() {
-		// given
-		// o=[username] [sess-id] [sess-version] [nettype] [addrtype] [unicast-address]
-		String validLine = "o=- 30 1 IN IP4 127.0.0.1";
-		String invalidLine1 = "o=- 30 1 IN 127.0.0.1";
-		String invalidLine2 = "o=- xyz 1 IN 127.0.0.1";
-		String invalidLine3 = "a=- 30 1 IN 127.0.0.1";
-		
-		// when
-		OriginField field = new OriginField();
-		
-		// then
-		Assert.assertTrue(field.canParse(validLine));
-		Assert.assertFalse(field.canParse(invalidLine1));
-		Assert.assertFalse(field.canParse(invalidLine2));
-		Assert.assertFalse(field.canParse(invalidLine3));
-	}
-	
-	@Test
-	public void testValidParse() throws SdpException {
-		// given
-		String line = "o=- 30 1 IN IP4 127.0.0.1";
-		
-		
-		// when
-		OriginField field = new OriginField();
-		field.parse(line);
-		
-		// then
-		Assert.assertEquals("-", field.getUsername());
-		Assert.assertEquals(30, field.getSessionId());
-		Assert.assertEquals(1, field.getSessionVersion());
-		Assert.assertEquals("IN", field.getNetType());
-		Assert.assertEquals("IP4", field.getAddressType());
-		Assert.assertEquals("127.0.0.1", field.getAddress());
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParseMissingElement() throws SdpException {
-		// given
-		String line = "o=- 30 1 IN 127.0.0.1";
-		
-		// when
-		OriginField field = new OriginField();
-		field.parse(line);
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParseNumberFormat() throws SdpException {
-		// given
-		String line = "o=- xyz 1 IN IP4 127.0.0.1";
-		
-		// when
-		OriginField field = new OriginField();
-		field.parse(line);
 	}
 
 }

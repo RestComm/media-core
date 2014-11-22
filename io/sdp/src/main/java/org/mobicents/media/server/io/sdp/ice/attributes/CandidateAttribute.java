@@ -37,8 +37,6 @@ public class CandidateAttribute extends AttributeField {
 	// TODO use proper IP address regex instead of [0-9\\.]+
 	private static final String REGEX = "^" + TO_ATTR_SEPARATOR + "\\d+\\s\\d\\s\\w+\\s\\d+\\s[0-9\\.]+\\s\\d+\\s(typ)\\s\\w+(\\s(raddr)\\s[0-9\\.]+\\s(rport)\\s\\d+)?\\s(generation)\\s\\d+$";
 
-	private final StringBuilder builder;
-
 	private long foundation;
 	private short componentId;
 	private String protocol;
@@ -51,8 +49,13 @@ public class CandidateAttribute extends AttributeField {
 	private int generation;
 
 	public CandidateAttribute() {
-		this.builder = new StringBuilder();
+		super(true);
 		this.key = NAME;
+	}
+	
+	@Override
+	public String getValue() {
+		return super.getValue();
 	}
 
 	public long getFoundation() {
@@ -193,7 +196,7 @@ public class CandidateAttribute extends AttributeField {
 	@Override
 	public String toString() {
 		// Clear the builder
-		this.builder.setLength(0);
+		super.builder.setLength(0);
 		
 		// Build the candidate string - mandatory fields first
 		this.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR)
@@ -207,13 +210,13 @@ public class CandidateAttribute extends AttributeField {
 		
 		// Depending of type of candidate we may need to parse raddr and rport
 		if(!TYP_HOST.equals(this.type)) {
-			this.builder.append(" ")
+			super.builder.append(" ")
 			        .append(RADDR).append(" ").append(this.relatedAddress).append(" ")
 			        .append(RPORT).append(" ").append(this.relatedPort);
 		}
 		// Append generation and we are done
-		this.builder.append(" ").append(GENERATION).append(" ").append(this.generation);
-		return this.builder.toString();
+		super.builder.append(" ").append(GENERATION).append(" ").append(this.generation);
+		return super.builder.toString();
 	}
 	
 }

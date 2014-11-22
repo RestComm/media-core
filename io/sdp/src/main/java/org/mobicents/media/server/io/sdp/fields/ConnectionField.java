@@ -1,7 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * c=[nettype] [addrtype] [connection-address]
@@ -21,16 +20,14 @@ import org.mobicents.media.server.io.sdp.SdpException;
 public class ConnectionField implements Field {
 
 	// Parsing
-	private static final char TYPE = 'c';
-	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	protected static final char TYPE = 'c';
+	protected static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LENGTH = BEGIN.length();
-	private static final String REGEX = "^"+ BEGIN + "\\w+\\s\\w+\\s[0-9\\.]+$";
-	// TODO use proper regex for IP address instead of [0-9\\.]+
 	
 	// Default values
 	private static final String DEFAULT_NET_TYPE = "IN";
 	private static final String DEFAULT_ADDRESS_TYPE = "IP4"; 
-	private static final String DEFAULT_ADDRESS = "127.0.0.1";
+	private static final String DEFAULT_ADDRESS = "0.0.0.0";
 	
 	private final StringBuilder builder;
 	
@@ -44,7 +41,6 @@ public class ConnectionField implements Field {
 	
 	public ConnectionField(String netType, String addressType, String address) {
 		this.builder = new StringBuilder(BEGIN);
-		
 		this.networkType = netType;
 		this.addressType = addressType;
 		this.address = address;
@@ -77,26 +73,6 @@ public class ConnectionField implements Field {
 	@Override
 	public char getFieldType() {
 		return TYPE;
-	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-
-	@Override
-	public void parse(String text) throws SdpException {
-		try {
-			String[] values = text.substring(2).split(" ");
-			this.networkType = values[0];
-			this.addressType = values[1];
-			this.address = values[2];
-		} catch (Exception e) {
-			throw new SdpException(String.format(PARSE_ERROR, text), e);
-		}
 	}
 	
 	@Override

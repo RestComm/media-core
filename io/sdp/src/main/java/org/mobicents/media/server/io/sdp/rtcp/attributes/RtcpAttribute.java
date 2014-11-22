@@ -21,6 +21,7 @@ public class RtcpAttribute extends AttributeField {
 	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+$";
 	
 	public RtcpAttribute() {
+		super(true);
 		this.key = NAME;
 	}
 	

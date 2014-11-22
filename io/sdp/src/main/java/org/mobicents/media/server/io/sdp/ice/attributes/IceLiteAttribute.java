@@ -20,6 +20,7 @@ public class IceLiteAttribute extends AttributeField {
 	private static final String REGEX = "^" + BEGIN + "(" + NAME + ")$";
 
 	public IceLiteAttribute() {
+		super(false);
 		this.key = NAME;
 	}
 	
@@ -29,11 +30,6 @@ public class IceLiteAttribute extends AttributeField {
 			return false;
 		}
 		return text.matches(REGEX);
-	}
-
-	@Override
-	protected boolean isComplex() {
-		return false;
 	}
 
 }

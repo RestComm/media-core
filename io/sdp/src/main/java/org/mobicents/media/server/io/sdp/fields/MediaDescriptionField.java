@@ -20,7 +20,7 @@ import org.mobicents.media.server.io.sdp.SdpException;
  * 
  */
 public class MediaDescriptionField implements Field {
-
+	
 	private static final char TYPE = 'm';
 	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LENGTH = BEGIN.length();

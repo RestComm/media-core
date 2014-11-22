@@ -36,6 +36,7 @@ public class IcePwdAttribute extends AttributeField {
 	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR +"\\S+$";
 	
 	public IcePwdAttribute() {
+		super(true);
 		this.key = NAME;
 	}
 	
@@ -49,11 +50,6 @@ public class IcePwdAttribute extends AttributeField {
 			return false;
 		}
 		return text.matches(REGEX);
-	}
-
-	@Override
-	protected boolean isComplex() {
-		return true;
 	}
 
 }

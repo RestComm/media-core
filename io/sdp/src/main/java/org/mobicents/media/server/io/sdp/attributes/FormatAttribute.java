@@ -23,6 +23,11 @@ public class FormatAttribute extends AttributeField {
 	private static final String NAME = "fmtp";
 	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+(\\s\\S+)+$";
 	
+	public FormatAttribute() {
+		super(true);
+		this.key = NAME;
+	}
+	
 	@Override
 	public boolean canParse(String text) {
 		if(text == null || text.isEmpty()) {
@@ -31,9 +36,4 @@ public class FormatAttribute extends AttributeField {
 		return text.matches(REGEX);
 	}
 	
-	@Override
-	protected boolean isComplex() {
-		return true;
-	}
-
 }

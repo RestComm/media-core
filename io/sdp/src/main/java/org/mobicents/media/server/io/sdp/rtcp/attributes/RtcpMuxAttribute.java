@@ -22,6 +22,7 @@ public class RtcpMuxAttribute extends AttributeField {
 	private static final String REGEX = "^" + BEGIN + NAME + "$";
 
 	public RtcpMuxAttribute() {
+		super(false);
 		this.key = NAME;
 	}
 	
@@ -31,11 +32,6 @@ public class RtcpMuxAttribute extends AttributeField {
 			return false;
 		}
 		return text.matches(REGEX);
-	}
-
-	@Override
-	protected boolean isComplex() {
-		return false;
 	}
 
 }

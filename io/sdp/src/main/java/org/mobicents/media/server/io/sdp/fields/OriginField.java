@@ -31,8 +31,6 @@ public class OriginField implements Field {
 	private static final char TYPE = 'o';
 	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LEN = BEGIN.length();
-	private static final String REGEX = "^" + BEGIN + "\\S+\\s\\d+\\s\\d+\\s\\w+\\s\\w+\\s[0-9\\.]+";
-	// TODO use proper regex for IP address instead of [0-9\\.]+
 	
 	// Default values
 	private static final String DEFAULT_USERNAME = "-";
@@ -40,7 +38,7 @@ public class OriginField implements Field {
 	private static final int DEFAULT_SESSION_VERSION = 1;
 	private static final String DEFAULT_NET_TYPE = "IN";
 	private static final String DEFAULT_ADDRESS_TYPE = "IP4";
-	private static final String DEFAULT_ADDRESS = "127.0.0.1";
+	private static final String DEFAULT_ADDRESS = "0.0.0.0";
 	
 	private final StringBuilder builder;
 	
@@ -120,29 +118,6 @@ public class OriginField implements Field {
 	@Override
 	public char getFieldType() {
 		return TYPE;
-	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-
-	@Override
-	public void parse(String text) throws SdpException {
-		try {
-			String[] values = text.substring(2).split(" ");
-			this.username = values[0];
-			this.sessionId = Integer.valueOf(values[1]);
-			this.sessionVersion = Integer.valueOf(values[2]);
-			this.netType = values[3];
-			this.addressType = values[4];
-			this.address = values[5];
-		} catch (Exception e) {
-			throw new SdpException(String.format(PARSE_ERROR, text), e);
-		}
 	}
 	
 	@Override

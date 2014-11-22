@@ -21,9 +21,13 @@ import org.mobicents.media.server.io.sdp.AttributeField;
 public class PacketTimeAttribute extends AttributeField {
 	
 	private static final String NAME = "ptime";
-	
 	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+$";
 
+	public PacketTimeAttribute() {
+		super(true);
+		this.key = NAME;
+	}
+	
 	public void setValue(int value) {
 		this.value = String.valueOf(value);
 	}
@@ -34,11 +38,6 @@ public class PacketTimeAttribute extends AttributeField {
 			return false;
 		}
 		return text.matches(REGEX);
-	}
-
-	@Override
-	protected boolean isComplex() {
-		return true;
 	}
 
 }

@@ -35,6 +35,7 @@ public class IceUfragAttribute extends AttributeField {
 	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\S+$";
 
 	public IceUfragAttribute() {
+		super(true);
 		this.key = NAME;
 	}
 
@@ -48,11 +49,6 @@ public class IceUfragAttribute extends AttributeField {
 			return false;
 		}
 		return text.matches(REGEX);
-	}
-
-	@Override
-	protected boolean isComplex() {
-		return true;
 	}
 
 }

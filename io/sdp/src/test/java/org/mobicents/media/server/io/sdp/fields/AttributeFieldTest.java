@@ -95,9 +95,8 @@ public class AttributeFieldTest {
 
 	private class SimpleAttributeField extends AttributeField {
 
-		@Override
-		protected boolean isComplex() {
-			return false;
+		public SimpleAttributeField() {
+			super(false);
 		}
 
 		public void setKey(String key) {
@@ -113,11 +112,10 @@ public class AttributeFieldTest {
 
 	private class ComplexAttributeField extends AttributeField {
 
-		@Override
-		protected boolean isComplex() {
-			return true;
+		public ComplexAttributeField() {
+			super(true);
 		}
-
+		
 		public void setKey(String key) {
 			this.key = key;
 		}

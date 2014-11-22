@@ -23,17 +23,17 @@ public class MaxPacketTimeAttribute extends AttributeField {
 	private static final String NAME = "maxptime";
 	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+$";
 
+	public MaxPacketTimeAttribute() {
+		super(true);
+		this.key = NAME;
+	}
+	
 	@Override
 	public boolean canParse(String text) {
 		if(text == null || text.isEmpty()) {
 			return false;
 		}
 		return text.matches(REGEX);
-	}
-
-	@Override
-	protected boolean isComplex() {
-		return true;
 	}
 
 }
