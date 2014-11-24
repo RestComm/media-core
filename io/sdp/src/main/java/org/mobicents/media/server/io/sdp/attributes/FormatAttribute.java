@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.attributes;
 
-import org.mobicents.media.server.io.sdp.AttributeField;
+import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
  * a=fmtp:[format] [format specific parameters]<br>
@@ -21,19 +21,10 @@ import org.mobicents.media.server.io.sdp.AttributeField;
 public class FormatAttribute extends AttributeField {
 	
 	private static final String NAME = "fmtp";
-	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+(\\s\\S+)+$";
+	private static final String REGEX = "^a=fmtp:\\d+(\\s\\S+)+$";
 	
 	public FormatAttribute() {
-		super(true);
 		this.key = NAME;
 	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-	
+
 }

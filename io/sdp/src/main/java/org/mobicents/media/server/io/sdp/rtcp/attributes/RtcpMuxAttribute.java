@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.rtcp.attributes;
 
-import org.mobicents.media.server.io.sdp.AttributeField;
+import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
  * a=rtcp-mux

@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.ice.attributes;
 
-import org.mobicents.media.server.io.sdp.AttributeField;
+import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
  * a=ice-ufrag:[value]

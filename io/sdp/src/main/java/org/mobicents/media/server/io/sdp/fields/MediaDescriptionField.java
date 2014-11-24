@@ -3,7 +3,6 @@ package org.mobicents.media.server.io.sdp.fields;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.media.server.io.sdp.AttributeField;
 import org.mobicents.media.server.io.sdp.Field;
 
 /**

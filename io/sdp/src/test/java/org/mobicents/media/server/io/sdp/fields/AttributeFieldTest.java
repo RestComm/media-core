@@ -1,10 +1,8 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.junit.Test;
-import org.mobicents.media.server.io.sdp.AttributeField;
-import org.mobicents.media.server.io.sdp.SdpException;
-
 import junit.framework.Assert;
+
+import org.junit.Test;
 
 /**
  * 
@@ -16,11 +14,11 @@ public class AttributeFieldTest {
 	@Test
 	public void testSimpleAttribute() {
 		// given
-		SimpleAttributeField field = new SimpleAttributeField();
+		AttributeField field = new AttributeField();
 		String key = "ice-lite";
 
 		// when
-		field.setKey(key);
+		field.key = key;
 
 		// then
 		Assert.assertEquals(key, field.getKey());
@@ -29,105 +27,20 @@ public class AttributeFieldTest {
 	}
 
 	@Test
-	public void testSimpleAttributeValidParsing() throws SdpException {
-		// given
-		String line = "a=ice-lite";
-
-		// when
-		SimpleAttributeField field = new SimpleAttributeField();
-		field.parse(line);
-
-		// then
-		Assert.assertEquals("ice-lite", field.getKey());
-		Assert.assertNull(field.getValue());
-	}
-
-	@Test(expected = SdpException.class)
-	public void testSimpleAttributeInvalidParsing() throws SdpException {
-		// given
-		String line = "a=:";
-
-		// when
-		SimpleAttributeField field = new SimpleAttributeField();
-		field.parse(line);
-	}
-
-	@Test
 	public void testComplexAttribute() {
 		// given
-		ComplexAttributeField field = new ComplexAttributeField();
+		AttributeField field = new AttributeField();
 		String key = "ice-ufrag";
 		String value = "xmgFsdf";
 
 		// when
-		field.setKey(key);
-		field.setValue(value);
+		field.key = key;
+		field.value = value;
 
 		// then
 		Assert.assertEquals(key, field.getKey());
 		Assert.assertEquals(value, field.getValue());
 		Assert.assertEquals("a=" + key + ":" + value, field.toString());
 	}
-
-	@Test
-	public void testComplexAttributeValidParsing() throws SdpException {
-		// given
-		String line = "a=ice-ufrag:xmgFsdf";
-
-		// when
-		ComplexAttributeField field = new ComplexAttributeField();
-		field.parse(line);
-
-		// then
-		Assert.assertEquals("ice-ufrag", field.getKey());
-		Assert.assertEquals("xmgFsdf", field.getValue());
-	}
-
-	@Test(expected = SdpException.class)
-	public void testComplexAttributeInvalidParsing() throws SdpException {
-		// given
-		String line = "a=ice-lite";
-
-		// when
-		ComplexAttributeField field = new ComplexAttributeField();
-		field.parse(line);
-	}
-
-	private class SimpleAttributeField extends AttributeField {
-
-		public SimpleAttributeField() {
-			super(false);
-		}
-
-		public void setKey(String key) {
-			this.key = key;
-		}
-
-		@Override
-		public boolean canParse(String text) {
-			return false;
-		}
-
-	}
-
-	private class ComplexAttributeField extends AttributeField {
-
-		public ComplexAttributeField() {
-			super(true);
-		}
-		
-		public void setKey(String key) {
-			this.key = key;
-		}
-
-		public void setValue(String value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean canParse(String text) {
-			return false;
-		}
-
-	}
+	
 }

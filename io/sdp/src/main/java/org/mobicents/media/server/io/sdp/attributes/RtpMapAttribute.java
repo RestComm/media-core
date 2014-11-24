@@ -1,7 +1,7 @@
 package org.mobicents.media.server.io.sdp.attributes;
 
-import org.mobicents.media.server.io.sdp.AttributeField;
 import org.mobicents.media.server.io.sdp.SdpException;
+import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
  * a=rtpmap:[payload type][encoding name]/[clock rate]/[encoding parameters*]<br>

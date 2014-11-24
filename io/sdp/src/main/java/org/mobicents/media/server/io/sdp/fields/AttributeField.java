@@ -1,4 +1,6 @@
-package org.mobicents.media.server.io.sdp;
+package org.mobicents.media.server.io.sdp.fields;
+
+import org.mobicents.media.server.io.sdp.Field;
 
 
 /**
@@ -37,24 +39,25 @@ package org.mobicents.media.server.io.sdp;
 public class AttributeField implements Field {
 
 	// text parsing
-	protected static final String ATTRIBUTE_SEPARATOR = ":";
+	public static final String ATTRIBUTE_SEPARATOR = ":";
 	
 	protected static final char TYPE = 'a';
 	protected static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	protected static final int BEGIN_LENGTH = BEGIN.length();
-	protected static final String BASE_REGEX = "^" + BEGIN + "\\S+";
-	protected static final String SIMPLE_REGEX = BASE_REGEX + "$";
-	protected static final String COMPLEX_REGEX = BASE_REGEX + ATTRIBUTE_SEPARATOR + "\\.*+$";
 	
 	protected final StringBuilder builder;
 	
 	protected String key;
 	protected String value;
-	protected boolean complex;
 	
-	public AttributeField(boolean complex) {
+	public AttributeField() {
 		this.builder = new StringBuilder(BEGIN);
-		this.complex = complex;
+	}
+	
+	public AttributeField(String key, String value) {
+		this();
+		this.key = key;
+		this.value = value;
 	}
 	
 	public String getKey() {
@@ -70,49 +73,12 @@ public class AttributeField implements Field {
 		return TYPE;
 	}
 	
-	protected boolean isComplex() {
-		return this.complex;
-	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		
-		if(this.complex) {
-			return text.matches(COMPLEX_REGEX);
-		}
-		return text.matches(SIMPLE_REGEX);
-	}
-	
-	@Override
-	public void parse(String text) throws SdpException {
-		try {
-			String[] values = text.substring(2).split(ATTRIBUTE_SEPARATOR);
-			this.key = values[0];
-			if(key.isEmpty()) {
-				throw new IllegalArgumentException("Attribute name is empty");
-			}
-			if(isComplex()) {
-				this.value = values[1];
-				if(value.isEmpty()) {
-					throw new IllegalAccessException("Attribute value is empty");
-				}
-			} else {
-				this.value = null;
-			}
-		} catch (Exception e) {
-			throw new SdpException(PARSE_ERROR + text, e);
-		}
-	}
-	
 	@Override
 	public String toString() {
 		// Clean String Builder
 		this.builder.setLength(BEGIN_LENGTH);
 		this.builder.append(this.key);
-		if(this.complex) {
+		if(this.value != null && !this.value.isEmpty()) {
 			this.builder.append(ATTRIBUTE_SEPARATOR).append(this.value);
 		}
 		return this.builder.toString();
