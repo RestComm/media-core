@@ -7,6 +7,12 @@ import org.mobicents.media.server.io.sdp.SdpParser;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
 
+/**
+ * Parses SDP text to construct {@link IcePwdAttribute} objects.
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ */
 public class IcePwdAttributeParser implements SdpParser<IcePwdAttribute> {
 
 	private static final String REGEX = "^a=ice-pwd\\S+$";
@@ -28,7 +34,11 @@ public class IcePwdAttributeParser implements SdpParser<IcePwdAttribute> {
 			if(separator == -1) {
 				throw new IllegalArgumentException("Attribute has no value");
 			}
+			
 			String password = sdp.substring(separator + 1);
+			if(password.isEmpty()) {
+				throw new IllegalArgumentException("Value is empty");
+			}
 			
 			// Build object
 			return new IcePwdAttribute(password);
@@ -45,7 +55,11 @@ public class IcePwdAttributeParser implements SdpParser<IcePwdAttribute> {
 			if(separator == -1) {
 				throw new IllegalArgumentException("Attribute has no value");
 			}
+			
 			String password = sdp.substring(separator + 1);
+			if(password.isEmpty()) {
+				throw new IllegalArgumentException("Value is empty");
+			}
 			
 			// Build object
 			field.setPassword(password);

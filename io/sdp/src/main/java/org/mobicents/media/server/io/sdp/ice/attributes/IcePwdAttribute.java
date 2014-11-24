@@ -45,12 +45,19 @@ public class IcePwdAttribute extends AttributeField {
 		this.password = password;
 	}
 	
-	public void setPassword(String value) {
-		this.value = value;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	public String getPassword() {
 		return password;
+	}
+	
+	@Override
+	public String toString() {
+		super.builder.setLength(0);
+		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.password);
+		return super.builder.toString();
 	}
 
 }
