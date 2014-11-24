@@ -13,6 +13,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class GenericAttribute extends AttributeField {
 
 	public GenericAttribute(String key) {
+		super();
 		if(key == null || key.isEmpty()) {
 			throw new IllegalArgumentException("Key cannot be empty");
 		}
@@ -20,6 +21,7 @@ public class GenericAttribute extends AttributeField {
 	}
 	
 	public GenericAttribute(String key, String value) {
+		super();
 		if(key == null || key.isEmpty()) {
 			throw new IllegalArgumentException("Key cannot be empty");
 		}

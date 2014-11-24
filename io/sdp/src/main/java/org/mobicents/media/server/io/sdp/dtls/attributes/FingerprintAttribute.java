@@ -13,8 +13,7 @@ public class FingerprintAttribute extends AttributeField {
 	private static final String NAME = "fingerprint";
 	
 	public FingerprintAttribute() {
-		super(true);
-		this.key = NAME;
+		super(NAME);
 	}
 
 }

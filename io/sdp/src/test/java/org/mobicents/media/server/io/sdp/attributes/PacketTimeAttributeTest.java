@@ -1,10 +1,8 @@
 package org.mobicents.media.server.io.sdp.attributes;
 
-import org.junit.Test;
-import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
-
 import junit.framework.Assert;
+
+import org.junit.Test;
 
 /**
  * 
@@ -14,36 +12,29 @@ import junit.framework.Assert;
 public class PacketTimeAttributeTest {
 	
 	@Test
-	public void testCanParse() {
+	public void testDefaultPacketTime() {
 		// given
-		String validLine = "a=ptime:123";
-		String invalidLine1 = "x=ptime:123";
-		String invalidLine2 = "a=ptime:xyz";
-		String invalidLine3 = "a=ptime:";
-		String invalidLine4 = "a=xyz:123";
 		
 		// when
-		PacketTimeAttribute attr = new PacketTimeAttribute();
+		PacketTimeAttribute obj = new PacketTimeAttribute();
 		
 		// then
-		Assert.assertTrue(attr.canParse(validLine));
-		Assert.assertFalse(attr.canParse(invalidLine1));
-		Assert.assertFalse(attr.canParse(invalidLine2));
-		Assert.assertFalse(attr.canParse(invalidLine3));
-		Assert.assertFalse(attr.canParse(invalidLine4));
+		Assert.assertEquals(0, obj.getTime());
+		Assert.assertEquals("a=ptime:0", obj.toString());
 	}
-
+	
 	@Test
-	public void testParse() throws SdpException {
+	public void testCustomPacketTime() {
 		// given
-		String validLine = "a=ptime:123";
+		short time = 123;
 		
 		// when
-		PacketTimeAttribute attr = new PacketTimeAttribute();
-		attr.parse(validLine);
+		PacketTimeAttribute obj = new PacketTimeAttribute();
+		obj.setTime(123);
 		
 		// then
-		Assert.assertEquals("123", attr.getValue());
+		Assert.assertEquals(time, obj.getTime());
+		Assert.assertEquals("a=ptime:123", obj.toString());
 	}
 
 }

@@ -1,6 +1,5 @@
 package org.mobicents.media.server.io.sdp.attributes;
 
-import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
@@ -48,12 +47,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class RtpMapAttribute extends AttributeField {
 	
 	private static final String NAME = "rtpmap";
-	private static final String TO_ATTR_SEPARATOR = BEGIN + NAME + ATTRIBUTE_SEPARATOR;
-	private static final int TO_ATTR_SEPARATOR_LENGTH = TO_ATTR_SEPARATOR.length();
-	private static final String REGEX = "^" + TO_ATTR_SEPARATOR + "\\d+\\s\\w+/\\d+(/\\d+)?$";
-	
-	private static final String SIMPLE_FORMAT = TO_ATTR_SEPARATOR + "%d %d/%d";
-	private static final String COMPLEX_FORMAT = SIMPLE_FORMAT + "/%d";
+	public static final short DEFAULT_CODEC_PARAMS = -1;
 	
 	private short payloadType;
 	private String codec;
@@ -61,10 +55,18 @@ public class RtpMapAttribute extends AttributeField {
 	private short codecParams;
 	
 	public RtpMapAttribute() {
-		super(true);
-		this.key = NAME;
+		super(NAME);
+		this.codecParams = DEFAULT_CODEC_PARAMS;
 	}
 	
+	public RtpMapAttribute(short payloadType, String codec, short clockRate, short codecParams) {
+		super(NAME);
+		this.payloadType = payloadType;
+		this.codec = codec;
+		this.clockRate = clockRate;
+		this.codecParams = codecParams;
+	}
+
 	public short getPayloadType() {
 		return payloadType;
 	}
@@ -96,41 +98,19 @@ public class RtpMapAttribute extends AttributeField {
 	public void setCodecParams(short codecParams) {
 		this.codecParams = codecParams;
 	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-	
-	@Override
-	public void parse(String text) throws SdpException {
-		try {
-			int index = 0;
-			this.value = text.substring(TO_ATTR_SEPARATOR_LENGTH);
-			String[] values = this.value.split("\\s|/");
-			
-			this.payloadType = Short.valueOf(values[index++]);
-			this.codec = values[index++];
-			this.clockRate = Short.valueOf(values[index++]);
-			if(index == values.length - 1) {
-				this.codecParams = Short.valueOf(values[index]);
-			} else {
-				this.codecParams = -1;
-			}
-		} catch (Exception e) {
-			throw new SdpException(String.format(PARSE_ERROR, text), e);
-		}
-	}
 
 	@Override
 	public String toString() {
-		if(this.codecParams == -1) {
-			return String.format(SIMPLE_FORMAT, this.payloadType, this.codec, this.clockRate);
-		} 
-		return String.format(COMPLEX_FORMAT, this.payloadType, this.codec, this.clockRate, this.codecParams);
+		// clear builder
+		super.builder.setLength(0);
+		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR)
+		        .append(this.payloadType).append(" ")
+		        .append(this.codec).append("/")
+				.append(this.clockRate);
+		if (this.codecParams != DEFAULT_CODEC_PARAMS) {
+			super.builder.append("/").append(this.codecParams);
+		}
+		return builder.toString();
 	}
 
 }

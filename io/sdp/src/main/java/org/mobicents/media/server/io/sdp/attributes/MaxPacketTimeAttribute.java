@@ -21,19 +21,32 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class MaxPacketTimeAttribute extends AttributeField {
 	
 	private static final String NAME = "maxptime";
-	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+$";
+	private static final int DEFAULT_TIME = 0;
 
+	private int time;
+	
 	public MaxPacketTimeAttribute() {
-		super(true);
-		this.key = NAME;
+		this(DEFAULT_TIME);
+	}
+	
+	public MaxPacketTimeAttribute(int time) {
+		super(NAME);
+		this.time = time;
+	}
+	
+	public void setTime(int time) {
+		this.time = time;
+	}
+	
+	public int getTime() {
+		return time;
 	}
 	
 	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
+	public String toString() {
+		super.builder.setLength(0);
+		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.time);
+		return super.builder.toString();
 	}
-
+		
 }

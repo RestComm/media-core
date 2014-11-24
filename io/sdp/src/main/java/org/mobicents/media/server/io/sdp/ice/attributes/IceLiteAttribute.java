@@ -17,19 +17,16 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class IceLiteAttribute extends AttributeField {
 
 	private static final String NAME = "ice-lite";
-	private static final String REGEX = "^" + BEGIN + "(" + NAME + ")$";
 
 	public IceLiteAttribute() {
-		super(false);
-		this.key = NAME;
+		super(NAME);
 	}
 	
 	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
+	public String toString() {
+		super.builder.setLength(0);
+		super.builder.append(BEGIN).append(NAME);
+		return super.builder.toString();
 	}
 
 }

@@ -50,14 +50,18 @@ public class AttributeField implements Field {
 	protected String key;
 	protected String value;
 	
-	public AttributeField() {
+	protected AttributeField() {
 		this.builder = new StringBuilder(BEGIN);
 	}
 	
-	public AttributeField(String key, String value) {
+	protected AttributeField(String key, String value) {
 		this();
 		this.key = key;
 		this.value = value;
+	}
+	
+	protected AttributeField(String key) {
+		this(key, null);
 	}
 	
 	public String getKey() {

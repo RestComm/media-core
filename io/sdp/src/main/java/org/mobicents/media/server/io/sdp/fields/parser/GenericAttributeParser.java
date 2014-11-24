@@ -8,7 +8,7 @@ import org.mobicents.media.server.io.sdp.attributes.GenericAttribute;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
- * Parses SDP text to construct {@link AttributeField} objects.
+ * Parses SDP text to construct {@link GenericAttribute} objects.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 

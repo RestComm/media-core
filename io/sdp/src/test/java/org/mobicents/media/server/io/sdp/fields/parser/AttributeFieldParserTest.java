@@ -1,10 +1,10 @@
 package org.mobicents.media.server.io.sdp.fields.parser;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.fields.AttributeField;
-
-import junit.framework.Assert;
+import org.mobicents.media.server.io.sdp.attributes.GenericAttribute;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class AttributeFieldParserTest {
 		String sdp1 = "a=ice-lite";
 		
 		// when
-		AttributeField field = parser.parse(sdp1);
+		GenericAttribute field = parser.parse(sdp1);
 		
 		// then
 		Assert.assertNotNull(field);
@@ -56,7 +56,7 @@ public class AttributeFieldParserTest {
 		String sdp1 = "a=ice-pwd:P4sSw0Rd";
 		
 		// when
-		AttributeField field = parser.parse(sdp1);
+		GenericAttribute field = parser.parse(sdp1);
 		
 		// then
 		Assert.assertNotNull(field);
@@ -71,7 +71,7 @@ public class AttributeFieldParserTest {
 		String sdp2 = "a=ice-lite";
 		
 		// when
-		AttributeField field = parser.parse(sdp1);
+		GenericAttribute field = parser.parse(sdp1);
 		parser.parse(field, sdp2);
 		
 		// then
@@ -86,7 +86,7 @@ public class AttributeFieldParserTest {
 		String sdp2 = "a=ice-pwd:P4sSw0Rd";
 		
 		// when
-		AttributeField field = parser.parse(sdp1);
+		GenericAttribute field = parser.parse(sdp1);
 		parser.parse(field, sdp2);
 		
 		// then
