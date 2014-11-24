@@ -1,7 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * t=<start-time> <stop-time>
@@ -30,7 +29,6 @@ public class TimingField implements Field {
 	private static final char TYPE = 't';
 	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LEN = BEGIN.length();
-	private static final String REGEX = "^" + BEGIN + "\\d+\\s\\d+$";
 
 	// default values
 	private static final int DEFAULT_START = 0;
@@ -70,25 +68,6 @@ public class TimingField implements Field {
 	@Override
 	public char getFieldType() {
 		return TYPE;
-	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-
-	@Override
-	public void parse(String text) throws SdpException {
-		try {
-			String[] values = text.substring(2).split(" ");
-			this.startTime = Integer.valueOf(values[0]);
-			this.stopTime = Integer.valueOf(values[1]);
-		} catch (Exception e) {
-			throw new SdpException(String.format(PARSE_ERROR, text), e);
-		}
 	}
 	
 	@Override

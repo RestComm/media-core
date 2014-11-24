@@ -1,7 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * s=[session name]
@@ -20,7 +19,6 @@ public class SessionNameField implements Field {
 	private static final char TYPE = 's';
 	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LEN = BEGIN.length();
-	private static final String REGEX = "^" + BEGIN + "\\s|(\\S+\\s?)+$";
 	
 	// Default values
 	private static final String DEFAULT_NAME = " ";
@@ -50,24 +48,7 @@ public class SessionNameField implements Field {
 	public char getFieldType() {
 		return TYPE;
 	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
 
-	@Override
-	public void parse(String text) throws SdpException {
-		try {
-			this.name = text.substring(2);
-		} catch (Exception e) {
-			throw new SdpException(String.format(PARSE_ERROR, text), e);
-		}
-	}
-	
 	@Override
 	public String toString() {
 		// Clear builder

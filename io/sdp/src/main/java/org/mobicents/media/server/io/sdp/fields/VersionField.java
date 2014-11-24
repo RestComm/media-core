@@ -1,7 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * v=[version number]
@@ -19,7 +18,7 @@ public class VersionField implements Field {
 	private static final char TYPE = 'v';
 	public static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LENGTH = BEGIN.length();
-	private static final String REGEX = "^" + BEGIN + "\\d+$";
+
 	private static final short DEFAULT_VERSION = 0;
 	
 	private final StringBuilder builder;
@@ -46,23 +45,6 @@ public class VersionField implements Field {
 
 	public void setVersion(short version) {
 		this.version = version;
-	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-
-	@Override
-	public void parse(String text) throws SdpException {
-		try {
-			this.version = Short.parseShort(text.substring(2));
-		} catch (Exception e) {
-			throw new SdpException(String.format(PARSE_ERROR, text), e);
-		}
 	}
 
 	@Override

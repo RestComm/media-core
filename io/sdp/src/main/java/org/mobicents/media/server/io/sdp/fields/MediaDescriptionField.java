@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.mobicents.media.server.io.sdp.AttributeField;
 import org.mobicents.media.server.io.sdp.Field;
-import org.mobicents.media.server.io.sdp.SdpException;
 
 /**
  * m=[media] [port] [proto] [fmt]
@@ -21,10 +20,14 @@ import org.mobicents.media.server.io.sdp.SdpException;
  */
 public class MediaDescriptionField implements Field {
 	
+	private static final String PROFILE_RTP_AVP = "RTP/AVP";
+	private static final String PROFILE_RTP_AVPF = "RTP/AVPF";
+	private static final String PROFILE_RTP_SAVP = "RTP/SAVP";
+	private static final String PROFILE_RTP_SAVPF = "RTP/SAVPF";
+	
 	private static final char TYPE = 'm';
 	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
 	private static final int BEGIN_LENGTH = BEGIN.length();
-	private static final String REGEX = "^" + BEGIN + "[a-zA-Z]+\\s\\d+\\s[a-zA-Z/]+(\\s\\d+)*$";
 
 	private String media;
 	private int port;
@@ -64,9 +67,18 @@ public class MediaDescriptionField implements Field {
 		this.protocol = protocol;
 	}
 	
+	public void setFormats(int ...formats) {
+		this.formats.clear();
+		int numFormats = formats.length;
+		for (int i = 0; i < numFormats; i++) {
+			this.formats.add(formats[i]);
+		}
+	}
+	
 	public void addFormats(int ...formats) {
-		for (int format : formats) {
-			this.formats.add(format);
+		int numFormats = formats.length;
+		for (int i = 0; i < numFormats; i++) {
+			this.formats.add(formats[i]);
 		}
 	}
 	
@@ -82,34 +94,6 @@ public class MediaDescriptionField implements Field {
 	@Override
 	public char getFieldType() {
 		return TYPE;
-	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-
-	@Override
-	public void parse(String text) throws SdpException {
-		if (text == null || text.isEmpty()) {
-			throw new SdpException("");
-		}
-
-		if (text.matches(REGEX)) {
-			String[] values = text.substring(2).split(" ");
-			this.media = values[0];
-			this.port = Integer.valueOf(values[1]);
-			this.protocol = values[2];
-			for (int i = 3; i < values.length; i++) {
-				this.formats.add(Integer.valueOf(values[i]));
-			}
-		} else {
-			throw new SdpException("");
-		}
-
 	}
 
 	@Override
@@ -127,6 +111,16 @@ public class MediaDescriptionField implements Field {
 			this.builder.append("\n").append(attribute.toString());
 		}
 		return this.builder.toString();
+	}
+	
+	public static boolean isValidProfile(String profile) {
+		if(profile == null || profile.isEmpty()) {
+			return false;
+		}
+		return PROFILE_RTP_AVP.equals(profile)
+				|| PROFILE_RTP_AVPF.equals(profile)
+				|| PROFILE_RTP_SAVP.equals(profile)
+				|| PROFILE_RTP_SAVPF.equals(profile);
 	}
 
 }

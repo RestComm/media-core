@@ -1,10 +1,8 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.junit.Test;
-import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
-
 import junit.framework.Assert;
+
+import org.junit.Test;
 
 /**
  * 
@@ -37,82 +35,4 @@ public class MediaDescriptionFieldTest {
 		Assert.assertFalse(md.containsFormat(126));
 	}
 	
-	@Test
-	public void testCanParse() {
-		// given
-		String validLine = "m=video 64534 RTP/AVPF 0 101 120";
-		String invalidLine1 = "x=video 64534 RTP/AVPF 0 101 120";
-		String invalidLine2 = "m=video xyz RTP/AVPF 0 101 120";
-		String invalidLine3 = "m=video 64534 0 101 120";
-		String invalidLine4 = "m=video 64534 RTP/AVPF 0 xyz 120";
-		
-		// when
-		MediaDescriptionField field = new MediaDescriptionField();
-		
-		// then
-		Assert.assertTrue(field.canParse(validLine));
-		Assert.assertFalse(field.canParse(invalidLine1));
-		Assert.assertFalse(field.canParse(invalidLine2));
-		Assert.assertFalse(field.canParse(invalidLine3));
-		Assert.assertFalse(field.canParse(invalidLine4));
-	}
-	
-	@Test
-	public void testValidParsing() throws SdpException {
-		// given
-		String line = "m=video 64534 RTP/AVPF 0 101 120";
-		
-		// when
-		MediaDescriptionField md = new MediaDescriptionField();
-		md.parse(line);
-		
-		// then
-		Assert.assertEquals("video", md.getMedia());
-		Assert.assertEquals(64534, md.getPort());
-		Assert.assertEquals("RTP/AVPF", md.getProtocol());
-		Assert.assertTrue(md.containsFormat(0));
-		Assert.assertTrue(md.containsFormat(101));
-		Assert.assertTrue(md.containsFormat(120));
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParsingMissingMedia() throws SdpException {
-		// given
-		String line = "m=64534 RTP/AVPF 0 101 120";
-		
-		// when
-		MediaDescriptionField md = new MediaDescriptionField();
-		md.parse(line);
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParsingPortFormat() throws SdpException {
-		// given
-		String line = "m=64534 xyz RTP/AVPF 0 101 120";
-		
-		// when
-		MediaDescriptionField md = new MediaDescriptionField();
-		md.parse(line);
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParsingMissingProtocol() throws SdpException {
-		// given
-		String line = "m=64534 63000 0 101 120";
-		
-		// when
-		MediaDescriptionField md = new MediaDescriptionField();
-		md.parse(line);
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParsingFormats() throws SdpException {
-		// given
-		String line = "m=64534 63000 RTP/AVP a b c";
-		
-		// when
-		MediaDescriptionField md = new MediaDescriptionField();
-		md.parse(line);
-	}
-
 }
