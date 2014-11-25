@@ -1,6 +1,5 @@
 package org.mobicents.media.server.io.sdp.ice.attributes;
 
-import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
@@ -19,24 +18,16 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class CandidateAttribute extends AttributeField {
 	
-	// error messages
-	private static final String INVALID_TYP = "Candidate type %s is not recognized.";
-
 	private static final String NAME = "candidate";
-	private static final String TO_ATTR_SEPARATOR = BEGIN + NAME + ATTRIBUTE_SEPARATOR;
-	private static final int TO_ATTR_SEPARATOR_LENGTH = TO_ATTR_SEPARATOR.length();
 	
-	private static final String TYP = "typ";
-	private static final String TYP_HOST = "host";
-	private static final String TYP_SRFLX = "srflx";
-	private static final String TYP_RELAY = "relay";
-	private static final String GENERATION = "generation";
-	private static final String RADDR = "raddr";
-	private static final String RPORT = "rport";
+	public static final String TYP = "typ";
+	public static final String TYP_HOST = "host";
+	public static final String TYP_SRFLX = "srflx";
+	public static final String TYP_RELAY = "relay";
+	public static final String GENERATION = "generation";
+	public static final String RADDR = "raddr";
+	public static final String RPORT = "rport";
 	
-	// TODO use proper IP address regex instead of [0-9\\.]+
-	private static final String REGEX = "^" + TO_ATTR_SEPARATOR + "\\d+\\s\\d\\s\\w+\\s\\d+\\s[0-9\\.]+\\s\\d+\\s(typ)\\s\\w+(\\s(raddr)\\s[0-9\\.]+\\s(rport)\\s\\d+)?\\s(generation)\\s\\d+$";
-
 	private long foundation;
 	private short componentId;
 	private String protocol;
@@ -49,15 +40,9 @@ public class CandidateAttribute extends AttributeField {
 	private int generation;
 
 	public CandidateAttribute() {
-		super(true);
-		this.key = NAME;
+		super(NAME);
 	}
 	
-	@Override
-	public String getValue() {
-		return super.getValue();
-	}
-
 	public long getFoundation() {
 		return foundation;
 	}
@@ -138,59 +123,8 @@ public class CandidateAttribute extends AttributeField {
 		this.generation = generation;
 	}
 	
-	private boolean isCandidateTypeValid(String type) {
+	public static boolean isCandidateTypeValid(String type) {
 		return TYP_HOST.equals(type) || TYP_SRFLX.equals(type) || TYP_RELAY.equals(type);
-	}
-
-	@Override
-	protected boolean isComplex() {
-		return true;
-	}
-	
-	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
-	}
-
-	@Override
-	public void parse(String text) throws SdpException {
-		int index = 0;
-		try {
-			this.value = text.substring(TO_ATTR_SEPARATOR_LENGTH);
-			String[] values = this.value.split(" ");
-			
-			this.foundation = Long.valueOf(values[index++]);
-			this.componentId = Short.valueOf(values[index++]);
-			this.protocol = values[index++];
-			this.priority = Integer.valueOf(values[index++]);
-			this.address = values[index++];
-			this.port = Integer.valueOf(values[index++]);
-			index++; // TYP
-			this.type = values[index++];
-			
-			if(!isCandidateTypeValid(this.type)) {
-				throw new IllegalArgumentException(String.format(INVALID_TYP, this.type));
-			}
-			
-			if(!TYP_HOST.equals(this.type)) {
-				index++; // RADDR
-				this.relatedAddress = values[index++];
-				index++; // RPORT
-				this.relatedPort = Integer.valueOf(values[index++]);
-			} else {
-				this.relatedAddress = null;
-				this.relatedPort = 0;
-			}
-			
-			index++; // GENERATION
-			this.generation = Integer.valueOf(values[index++]);
-		} catch (Exception e) {
-			throw new SdpException(String.format(PARSE_ERROR, text), e);
-		}
-		
 	}
 
 	@Override

@@ -32,23 +32,31 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class IceUfragAttribute extends AttributeField {
 
 	private static final String NAME = "ice-ufrag";
-	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\S+$";
+	
+	private String ufrag;
 
 	public IceUfragAttribute() {
-		super(true);
-		this.key = NAME;
+		this(null);
 	}
-
-	public void setValue(String value) {
-		this.value = value;
+	
+	public IceUfragAttribute(String ufrag) {
+		super(NAME);
+		this.ufrag = ufrag;
+	}
+	
+	public void setUfrag(String ufrag) {
+		this.ufrag = ufrag;
+	}
+	
+	public String getUfrag() {
+		return ufrag;
 	}
 	
 	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
+	public String toString() {
+		super.builder.setLength(0);
+		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.ufrag);
+		return super.builder.toString();
 	}
 
 }

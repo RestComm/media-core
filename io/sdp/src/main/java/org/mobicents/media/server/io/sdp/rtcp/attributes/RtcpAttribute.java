@@ -18,28 +18,32 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class RtcpAttribute extends AttributeField {
 	
 	private static final String NAME = "rtcp";
-	private static final String REGEX = "^" + BEGIN + NAME + ATTRIBUTE_SEPARATOR + "\\d+$";
+	private static final int DEFAULT_PORT = 0;
+	
+	private int port;
 	
 	public RtcpAttribute() {
-		super(true);
-		this.key = NAME;
+		this(DEFAULT_PORT);
 	}
 	
-	public void setValue(int value) {
-		this.value = String.valueOf(value);
+	public RtcpAttribute(int port) {
+		super(NAME);
+		this.port = port;
+	}
+	
+	public int getPort() {
+		return port;
+	}
+	
+	public void setPort(int port) {
+		this.port = port;
 	}
 	
 	@Override
-	public boolean canParse(String text) {
-		if(text == null || text.isEmpty()) {
-			return false;
-		}
-		return text.matches(REGEX);
+	public String toString() {
+		super.builder.setLength(0);
+		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.port);
+		return super.builder.toString();
 	}
 	
-	@Override
-	protected boolean isComplex() {
-		return true;
-	}
-
 }

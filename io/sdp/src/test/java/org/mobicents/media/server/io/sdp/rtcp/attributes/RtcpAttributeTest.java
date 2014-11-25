@@ -1,47 +1,27 @@
 package org.mobicents.media.server.io.sdp.rtcp.attributes;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
+
+import junit.framework.Assert;
 
 /**
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * 
  */
 public class RtcpAttributeTest {
-	
-	@Test
-	public void testCanParse() {
-		// given
-		String validLine = "a=rtcp:65000";
-		String invalidLine1 = "x=rtcp:65000";
-		String invalidLine2 = "a=rtcp:xyz";
-		String invalidLine3 = "a=rtcp:65000 xyz";
-		
-		// when
-		RtcpAttribute attribute = new RtcpAttribute();
-		
-		// then
-		Assert.assertTrue(attribute.canParse(validLine));
-		Assert.assertFalse(attribute.canParse(invalidLine1));
-		Assert.assertFalse(attribute.canParse(invalidLine2));
-		Assert.assertFalse(attribute.canParse(invalidLine3));
-	}
 
 	@Test
-	public void testParse() throws SdpException {
+	public void testCustomRtcp() {
 		// given
-		String validLine = "a=rtcp:65000";
+		int port = 61234;
 		
 		// when
-		RtcpAttribute attribute = new RtcpAttribute();
-		attribute.parse(validLine);
+		RtcpAttribute obj = new RtcpAttribute();
+		obj.setPort(port);
 		
 		// then
-		Assert.assertEquals("65000", attribute.getValue());
+		Assert.assertEquals("a=rtcp:61234", obj.toString());
 	}
 	
 }

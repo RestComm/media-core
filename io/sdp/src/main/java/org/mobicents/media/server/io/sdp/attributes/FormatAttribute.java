@@ -21,10 +21,43 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class FormatAttribute extends AttributeField {
 	
 	private static final String NAME = "fmtp";
-	private static final String REGEX = "^a=fmtp:\\d+(\\s\\S+)+$";
+	private static final short DEFAULT_FORMAT = -1; 
+
+	private short format;
+	private String params;
 	
+	public FormatAttribute(short format, String params) {
+		super(NAME);
+		this.format = format;
+		this.params = params;
+	}
+
 	public FormatAttribute() {
-		this.key = NAME;
+		this(DEFAULT_FORMAT, null);
+	}
+	
+	public short getFormat() {
+		return format;
+	}
+	
+	public void setFormat(short format) {
+		this.format = format;
+	}
+	
+	public String getParams() {
+		return params;
+	}
+	
+	public void setParams(String params) {
+		this.params = params;
+	}
+	
+	@Override
+	public String toString() {
+		super.builder.setLength(0);
+		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR);
+		super.builder.append(this.format).append(" ").append(this.params);
+		return super.builder.toString();
 	}
 
 }

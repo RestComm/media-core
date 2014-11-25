@@ -3,8 +3,6 @@ package org.mobicents.media.server.io.sdp.ice.attributes;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 
 /**
  * 
@@ -14,34 +12,17 @@ import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 public class IceUfragTest {
 	
 	@Test
-	public void testCanParse() {
+	public void testCustomIceUfrag() {
 		// given
-		String validString = "a=ice-ufrag:Ufr4G";
-		String invalidString1 = "x=ice-ufrag:Ufr4G";
-		String invalidString2 = "a=ice-ufrag: ";
-		String invalidString3 = "a=ice-pwd:Ufr4G";
+		String ufrag = "uFr4g";
 		
 		// when
-		IceUfragAttribute attribute = new IceUfragAttribute();
+		IceUfragAttribute obj = new IceUfragAttribute();
+		obj.setUfrag(ufrag);
 		
 		// then
-		Assert.assertTrue(attribute.canParse(validString));
-		Assert.assertFalse(attribute.canParse(invalidString1));
-		Assert.assertFalse(attribute.canParse(invalidString2));
-		Assert.assertFalse(attribute.canParse(invalidString3));
-	}
-
-	@Test
-	public void testParse() throws SdpException {
-		// given
-		String validString = "a=ice-ufrag:Ufr4G";
-		
-		// when
-		IceUfragAttribute attribute = new IceUfragAttribute();
-		attribute.parse(validString);
-		
-		// then
-		Assert.assertEquals("Ufr4G",attribute.getValue());
+		Assert.assertEquals(ufrag, obj.getUfrag());
+		Assert.assertEquals("a=ice-ufrag:uFr4g", obj.toString());
 	}
 
 }

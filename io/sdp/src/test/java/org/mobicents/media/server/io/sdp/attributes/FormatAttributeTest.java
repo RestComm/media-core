@@ -13,23 +13,20 @@ import junit.framework.Assert;
 public class FormatAttributeTest {
 
 	@Test
-	public void testCanParse() {
+	public void testCustomFormat() {
 		// given
-		String validLine1 = "a=fmtp:18 annexb=no";
-		String validLine2 = "a=fmtp:101 0-15";
-		String invalidLine1 = "x=fmtp:101 0-15";
-		String invalidLine2 = "a=fmtp:xyz 0-15";
-		String invalidLine3 = "a=fmtp:101";
-
+		short format = 101;
+		String params = "0-15";
+		
 		// when
-		FormatAttribute attr = new FormatAttribute();
-
-		// then
-		Assert.assertTrue(attr.canParse(validLine1));
-		Assert.assertTrue(attr.canParse(validLine2));
-		Assert.assertFalse(attr.canParse(invalidLine1));
-		Assert.assertFalse(attr.canParse(invalidLine2));
-		Assert.assertFalse(attr.canParse(invalidLine3));
+		FormatAttribute obj = new FormatAttribute();
+		obj.setFormat(format);
+		obj.setParams(params);
+		
+		// given
+		Assert.assertEquals(format, obj.getFormat());
+		Assert.assertEquals(params, obj.getParams());
+		Assert.assertEquals("a=fmtp:101 0-15", obj.toString());
 	}
 
 }

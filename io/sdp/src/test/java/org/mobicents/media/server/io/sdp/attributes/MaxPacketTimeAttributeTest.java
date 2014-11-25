@@ -1,10 +1,8 @@
 package org.mobicents.media.server.io.sdp.attributes;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
+
+import junit.framework.Assert;
 
 /**
  * 
@@ -14,36 +12,17 @@ import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
 public class MaxPacketTimeAttributeTest {
 	
 	@Test
-	public void testCanParse() {
-		// given
-		String validLine = "a=maxptime:123";
-		String invalidLine1 = "x=maxptime:123";
-		String invalidLine2 = "a=maxptime:xyz";
-		String invalidLine3 = "a=maxptime:";
-		String invalidLine4 = "a=xyz:123";
-		
+	public void testCustomMaxPacketTime() {
 		// when
-		MaxPacketTimeAttribute attr = new MaxPacketTimeAttribute();
+		int maxTime = 123;
+		
+		// given
+		MaxPacketTimeAttribute obj = new MaxPacketTimeAttribute();
+		obj.setTime(maxTime);
 		
 		// then
-		Assert.assertTrue(attr.canParse(validLine));
-		Assert.assertFalse(attr.canParse(invalidLine1));
-		Assert.assertFalse(attr.canParse(invalidLine2));
-		Assert.assertFalse(attr.canParse(invalidLine3));
-		Assert.assertFalse(attr.canParse(invalidLine4));
-	}
-
-	@Test
-	public void testParse() throws SdpException {
-		// given
-		String validLine = "a=maxptime:123";
-		
-		// when
-		MaxPacketTimeAttribute attr = new MaxPacketTimeAttribute();
-		attr.parse(validLine);
-		
-		// then
-		Assert.assertEquals("123", attr.getValue());
+		Assert.assertEquals(maxTime, obj.getTime());
+		Assert.assertEquals("a=maxptime:123", obj.toString());
 	}
 
 }
