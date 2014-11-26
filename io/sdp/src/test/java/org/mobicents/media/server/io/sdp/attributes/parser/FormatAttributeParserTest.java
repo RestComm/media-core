@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.SdpException;
-import org.mobicents.media.server.io.sdp.attributes.FormatAttribute;
+import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 
 /**
  * 
@@ -13,7 +13,7 @@ import org.mobicents.media.server.io.sdp.attributes.FormatAttribute;
  */
 public class FormatAttributeParserTest {
 
-	private final FormatAttributeParser parser = new FormatAttributeParser();
+	private final FormatParameterAttributeParser parser = new FormatParameterAttributeParser();
 	
 	@Test
 	public void testCanParse() {
@@ -45,7 +45,7 @@ public class FormatAttributeParserTest {
 		String sdp1 = "a=fmtp:18 annexb=no";
 		
 		// when
-		FormatAttribute obj = parser.parse(sdp1);
+		FormatParameterAttribute obj = parser.parse(sdp1);
 		
 		// then
 		Assert.assertEquals(18, obj.getFormat());
@@ -59,7 +59,7 @@ public class FormatAttributeParserTest {
 		String sdp2 = "a=fmtp:101 0-15";
 		
 		// when
-		FormatAttribute obj = parser.parse(sdp1);
+		FormatParameterAttribute obj = parser.parse(sdp1);
 		parser.parse(obj, sdp2);
 		
 		// then

@@ -3,6 +3,7 @@ package org.mobicents.media.server.io.sdp.fields;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.mobicents.media.server.io.sdp.MediaProfile;
 
 /**
  * 
@@ -23,7 +24,7 @@ public class MediaDescriptionFieldTest {
 		MediaDescriptionField md = new MediaDescriptionField();
 		md.setMedia(media);
 		md.setPort(port);
-		md.setProtocol(protocol);
+		md.setProtocol(MediaProfile.RTP_AVP);
 		md.addFormats(formats);
 		
 		// then

@@ -6,7 +6,7 @@ package org.mobicents.media.server.io.sdp;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public interface Field {
+public interface SdpField {
 
 	static final String FIELD_SEPARATOR = "=";
 

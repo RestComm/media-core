@@ -1,10 +1,9 @@
 package org.mobicents.media.server.io.sdp;
 
-import gov.nist.core.Separators;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
@@ -30,7 +29,8 @@ public class SessionDescription {
 	private OriginField origin;
 	private SessionNameField sessionName;
 	private ConnectionField connection;
-	private TimingField timingField;
+	private TimingField timing;
+	private ConnectionModeAttribute connectionMode;
 	
 	// ICE attributes (session-level)
 	private IceLiteAttribute iceLite;
@@ -45,25 +45,6 @@ public class SessionDescription {
 	   
 	public SessionDescription() {
 		this.mediaMap = new HashMap<String, MediaDescriptionField>(5);
-	}
-	
-	public void parse(String text) throws SdpException {
-		try {
-			if(text == null || text.isEmpty()) {
-				throw new IllegalArgumentException("No text to parse");
-			}
-			
-			String[] lines = text.split(Separators.NEWLINE);
-			int numLines = lines.length;
-			
-			for (int i = 0; i < numLines; i++) {
-				
-			}
-			
-		} catch (Exception e) {
-			throw new SdpException(PARSE_ERROR + text, e);
-		}
-		
 	}
 	
 }

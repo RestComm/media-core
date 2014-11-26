@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.Field;
+import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
  * c=[nettype] [addrtype] [connection-address]
@@ -17,7 +17,7 @@ import org.mobicents.media.server.io.sdp.Field;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class ConnectionField implements Field {
+public class ConnectionField implements SdpField {
 
 	// Parsing
 	protected static final char TYPE = 'c';

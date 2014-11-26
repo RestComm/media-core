@@ -1,7 +1,7 @@
 package org.mobicents.media.server.io.sdp.attributes;
 
 import org.junit.Test;
-import org.mobicents.media.server.io.sdp.attributes.FormatAttribute;
+import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 
 import junit.framework.Assert;
 
@@ -19,7 +19,7 @@ public class FormatAttributeTest {
 		String params = "0-15";
 		
 		// when
-		FormatAttribute obj = new FormatAttribute();
+		FormatParameterAttribute obj = new FormatParameterAttribute();
 		obj.setFormat(format);
 		obj.setParams(params);
 		

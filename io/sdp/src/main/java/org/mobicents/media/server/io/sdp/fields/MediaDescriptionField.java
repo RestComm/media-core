@@ -1,9 +1,20 @@
 package org.mobicents.media.server.io.sdp.fields;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.mobicents.media.server.io.sdp.Field;
+import org.mobicents.media.server.io.sdp.SdpField;
+import org.mobicents.media.server.io.sdp.MediaProfile;
+import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
+import org.mobicents.media.server.io.sdp.attributes.GenericAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 
 /**
  * m=[media] [port] [proto] [fmt]
@@ -17,29 +28,41 @@ import org.mobicents.media.server.io.sdp.Field;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class MediaDescriptionField implements Field {
-	
-	private static final String PROFILE_RTP_AVP = "RTP/AVP";
-	private static final String PROFILE_RTP_AVPF = "RTP/AVPF";
-	private static final String PROFILE_RTP_SAVP = "RTP/SAVP";
-	private static final String PROFILE_RTP_SAVPF = "RTP/SAVPF";
+public class MediaDescriptionField implements SdpField {
 	
 	private static final char TYPE = 'm';
-	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
-	private static final int BEGIN_LENGTH = BEGIN.length();
+	private static final String BEGIN = "m=";
 
+	// SDP fields (media description specific)
 	private String media;
 	private int port;
-	private String protocol;
+	private MediaProfile protocol;
 	private final List<Integer> formats;
-	private List<AttributeField> attributes;
+	
+	// SDP fields and attributes (media-level)
+	private ConnectionField connection;
+	private ConnectionModeAttribute connectionMode;
+	private RtcpAttribute rtcp;
+	private RtcpMuxAttribute rtcpMux;
+	private final Map<Integer, FormatParameterAttribute> formatParameterMap;
+	
+	// Generic attributes that cannot be recognized
+	private final List<GenericAttribute> genericAttributes;
+	
+	// ICE attributes (session-level)
+	private IcePwdAttribute icePwd;
+	private IceUfragAttribute iceUfrag;
+	
+	// WebRTC attributes (session-level)
+	private FingerprintAttribute fingerprint;
 
 	private final StringBuilder builder;
 
 	public MediaDescriptionField() {
 		this.builder = new StringBuilder(BEGIN);
-		this.formats = new ArrayList<Integer>(15);
-		this.attributes = new ArrayList<AttributeField>(20);
+		this.formats = new ArrayList<Integer>(10);
+		this.formatParameterMap = new HashMap<Integer, FormatParameterAttribute>(10);
+		this.genericAttributes = new ArrayList<GenericAttribute>(10);
 	}
 	
 	public String getMedia() {
@@ -59,10 +82,10 @@ public class MediaDescriptionField implements Field {
 	}
 
 	public String getProtocol() {
-		return protocol;
+		return protocol.getProfile();
 	}
 
-	public void setProtocol(String protocol) {
+	public void setProtocol(MediaProfile protocol) {
 		this.protocol = protocol;
 	}
 	
@@ -98,28 +121,23 @@ public class MediaDescriptionField implements Field {
 	@Override
 	public String toString() {
 		// Clean builder
-		this.builder.setLength(BEGIN_LENGTH);
-		this.builder.append(this.media).append(" ")
+		this.builder.setLength(0);
+		this.builder.append(BEGIN)
+		        .append(this.media).append(" ")
 				.append(this.port).append(" ")
 				.append(this.protocol);
 		for (int payload : this.formats) {
 			this.builder.append(" ").append(payload);
 		}
 		// Append new lines for attributes
-		for (AttributeField attribute : this.attributes) {
+		for (GenericAttribute attribute : this.genericAttributes) {
 			this.builder.append("\n").append(attribute.toString());
 		}
 		return this.builder.toString();
 	}
 	
 	public static boolean isValidProfile(String profile) {
-		if(profile == null || profile.isEmpty()) {
-			return false;
-		}
-		return PROFILE_RTP_AVP.equals(profile)
-				|| PROFILE_RTP_AVPF.equals(profile)
-				|| PROFILE_RTP_SAVP.equals(profile)
-				|| PROFILE_RTP_SAVPF.equals(profile);
+		return MediaProfile.containsProfile(profile);
 	}
 
 }

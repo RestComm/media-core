@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.Field;
+import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
  * s=[session name]
@@ -14,7 +14,7 @@ import org.mobicents.media.server.io.sdp.Field;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class SessionNameField implements Field {
+public class SessionNameField implements SdpField {
 
 	private static final char TYPE = 's';
 	private static final String BEGIN = TYPE + FIELD_SEPARATOR;

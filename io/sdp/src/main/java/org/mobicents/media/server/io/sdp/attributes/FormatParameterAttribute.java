@@ -18,7 +18,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class FormatAttribute extends AttributeField {
+public class FormatParameterAttribute extends AttributeField {
 	
 	private static final String NAME = "fmtp";
 	private static final short DEFAULT_FORMAT = -1; 
@@ -26,13 +26,13 @@ public class FormatAttribute extends AttributeField {
 	private short format;
 	private String params;
 	
-	public FormatAttribute(short format, String params) {
+	public FormatParameterAttribute(short format, String params) {
 		super(NAME);
 		this.format = format;
 		this.params = params;
 	}
 
-	public FormatAttribute() {
+	public FormatParameterAttribute() {
 		this(DEFAULT_FORMAT, null);
 	}
 	

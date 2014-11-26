@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.Field;
+import org.mobicents.media.server.io.sdp.SdpField;
 
 
 /**
@@ -36,7 +36,7 @@ import org.mobicents.media.server.io.sdp.Field;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class AttributeField implements Field {
+public class AttributeField implements SdpField {
 
 	// text parsing
 	public static final String ATTRIBUTE_SEPARATOR = ":";

@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.Field;
+import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
  * o=[username] [sess-id] [sess-version] [nettype] [addrtype] [unicast-address]
@@ -24,7 +24,7 @@ import org.mobicents.media.server.io.sdp.Field;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class OriginField implements Field {
+public class OriginField implements SdpField {
 
 	// Parsing
 	private static final char TYPE = 'o';

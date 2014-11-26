@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.Field;
+import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
  * t=<start-time> <stop-time>
@@ -23,7 +23,7 @@ import org.mobicents.media.server.io.sdp.Field;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class TimingField implements Field {
+public class TimingField implements SdpField {
 
 	// text parsing
 	private static final char TYPE = 't';

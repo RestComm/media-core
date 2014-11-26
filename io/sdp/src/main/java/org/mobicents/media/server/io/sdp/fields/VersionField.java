@@ -1,6 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.Field;
+import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
  * v=[version number]
@@ -13,7 +13,7 @@ import org.mobicents.media.server.io.sdp.Field;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class VersionField implements Field {
+public class VersionField implements SdpField {
 
 	private static final char TYPE = 'v';
 	public static final String BEGIN = TYPE + FIELD_SEPARATOR;
