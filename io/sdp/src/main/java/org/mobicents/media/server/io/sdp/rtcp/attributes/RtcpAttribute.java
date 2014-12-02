@@ -21,16 +21,26 @@ public class RtcpAttribute extends AttributeField {
 	private static final int DEFAULT_PORT = 0;
 	
 	private int port;
+	private String networkType;
+	private String addressType;
+	private String address;
 	
 	public RtcpAttribute() {
 		this(DEFAULT_PORT);
 	}
 	
 	public RtcpAttribute(int port) {
+		this(port, null, null, null);
+	}
+
+	public RtcpAttribute(int port, String networkType, String addressType, String address) {
 		super(NAME);
 		this.port = port;
+		this.networkType = networkType;
+		this.addressType = addressType;
+		this.address = address;
 	}
-	
+
 	public int getPort() {
 		return port;
 	}
@@ -39,10 +49,40 @@ public class RtcpAttribute extends AttributeField {
 		this.port = port;
 	}
 	
+	public String getNetworkType() {
+		return networkType;
+	}
+
+	public void setNetworkType(String networkType) {
+		this.networkType = networkType;
+	}
+
+	public String getAddressType() {
+		return addressType;
+	}
+
+	public void setAddressType(String addressType) {
+		this.addressType = addressType;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
 		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.port);
+		if (this.networkType != null && !this.networkType.isEmpty()) {
+			super.builder.append(" ")
+			        .append(this.networkType).append(" ")
+					.append(this.addressType).append(" ")
+					.append(this.address);
+		}
 		return super.builder.toString();
 	}
 	
