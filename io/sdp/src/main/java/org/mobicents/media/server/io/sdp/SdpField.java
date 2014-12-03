@@ -15,6 +15,6 @@ public interface SdpField {
 	 * 
 	 * @return the char that represents the field
 	 */
-	char getFieldType();
+	FieldType getFieldType();
 
 }

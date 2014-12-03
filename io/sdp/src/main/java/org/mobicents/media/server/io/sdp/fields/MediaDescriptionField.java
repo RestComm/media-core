@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
@@ -30,7 +31,7 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
  */
 public class MediaDescriptionField implements SdpField {
 	
-	private static final char TYPE = 'm';
+	private static final FieldType TYPE = FieldType.MEDIA;
 	private static final String BEGIN = "m=";
 
 	// SDP fields (media description specific)
@@ -114,7 +115,7 @@ public class MediaDescriptionField implements SdpField {
 	}
 
 	@Override
-	public char getFieldType() {
+	public FieldType getFieldType() {
 		return TYPE;
 	}
 

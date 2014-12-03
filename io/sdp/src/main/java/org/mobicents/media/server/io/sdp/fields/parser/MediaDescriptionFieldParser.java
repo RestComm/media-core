@@ -22,10 +22,6 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 
 	@Override
 	public MediaDescriptionField parse(String sdp) throws SdpException {
-
-	}
-	
-	private MediaDescriptionField parseMediaLine(String sdp) throws SdpException {
 		try {
 			// Extract data from SDP
 			String[] values = sdp.substring(2).split(" ");

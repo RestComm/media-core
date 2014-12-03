@@ -10,7 +10,7 @@ package org.mobicents.media.server.io.sdp;
 public interface SdpParser<T extends SdpField> {
 
 	String PARSE_ERROR = "Could not parse SDP: ";
-
+	
 	/**
 	 * Checks whether the parse is capable of parsing a specific SDP line.
 	 * 
@@ -54,5 +54,5 @@ public interface SdpParser<T extends SdpField> {
 	 *             In case the parser cannot parse the SDP line.
 	 */
 	void parse(T field, String sdp) throws SdpException;
-
+	
 }

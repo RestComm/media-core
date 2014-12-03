@@ -1,5 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
+import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
@@ -16,8 +17,8 @@ import org.mobicents.media.server.io.sdp.SdpField;
  */
 public class SessionNameField implements SdpField {
 
-	private static final char TYPE = 's';
-	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	private static final FieldType TYPE = FieldType.SESSION_NAME;
+	private static final String BEGIN = "s=";
 	private static final int BEGIN_LEN = BEGIN.length();
 	
 	// Default values
@@ -45,7 +46,7 @@ public class SessionNameField implements SdpField {
 	}
 
 	@Override
-	public char getFieldType() {
+	public FieldType getFieldType() {
 		return TYPE;
 	}
 

@@ -1,5 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
+import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
@@ -20,8 +21,8 @@ import org.mobicents.media.server.io.sdp.SdpField;
 public class ConnectionField implements SdpField {
 
 	// Parsing
-	protected static final char TYPE = 'c';
-	protected static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	protected static final FieldType TYPE = FieldType.CONNECTION;
+	protected static final String BEGIN = "c=";
 	private static final int BEGIN_LENGTH = BEGIN.length();
 	
 	// Default values
@@ -71,7 +72,7 @@ public class ConnectionField implements SdpField {
 	}
 
 	@Override
-	public char getFieldType() {
+	public FieldType getFieldType() {
 		return TYPE;
 	}
 	

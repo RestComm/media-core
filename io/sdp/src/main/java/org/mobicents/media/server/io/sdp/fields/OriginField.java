@@ -1,5 +1,6 @@
 package org.mobicents.media.server.io.sdp.fields;
 
+import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
@@ -27,8 +28,8 @@ import org.mobicents.media.server.io.sdp.SdpField;
 public class OriginField implements SdpField {
 
 	// Parsing
-	private static final char TYPE = 'o';
-	private static final String BEGIN = TYPE + FIELD_SEPARATOR;
+	private static final FieldType TYPE = FieldType.ORIGIN;
+	private static final String BEGIN = "o=";
 	private static final int BEGIN_LEN = BEGIN.length();
 	
 	// Default values
@@ -42,13 +43,13 @@ public class OriginField implements SdpField {
 	private final StringBuilder builder;
 	
 	private String username;
-	private int sessionId;
+	private long sessionId;
 	private int sessionVersion;
 	private String netType;
 	private String addressType;
 	private String address;
 	
-	public OriginField(String username, int sessionId, int sessionVersion, String netType, String addressType, String address) {
+	public OriginField(String username, long sessionId, int sessionVersion, String netType, String addressType, String address) {
 		this.builder = new StringBuilder(BEGIN);
 		this.username = username;
 		this.sessionId = sessionId;
@@ -74,11 +75,11 @@ public class OriginField implements SdpField {
 		this.username = username;
 	}
 
-	public int getSessionId() {
+	public long getSessionId() {
 		return sessionId;
 	}
 
-	public void setSessionId(int sessionId) {
+	public void setSessionId(long sessionId) {
 		this.sessionId = sessionId;
 	}
 
@@ -115,7 +116,7 @@ public class OriginField implements SdpField {
 	}
 
 	@Override
-	public char getFieldType() {
+	public FieldType getFieldType() {
 		return TYPE;
 	}
 	
