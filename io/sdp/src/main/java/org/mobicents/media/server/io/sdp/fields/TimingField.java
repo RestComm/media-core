@@ -1,6 +1,5 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
@@ -27,7 +26,7 @@ import org.mobicents.media.server.io.sdp.SdpField;
 public class TimingField implements SdpField {
 
 	// text parsing
-	private static final FieldType TYPE = FieldType.TIMING;
+	public static final char FIELD_TYPE = 't';
 	private static final String BEGIN = "t=";
 	private static final int BEGIN_LEN = BEGIN.length();
 
@@ -67,8 +66,8 @@ public class TimingField implements SdpField {
 	}
 
 	@Override
-	public FieldType getFieldType() {
-		return TYPE;
+	public char getFieldType() {
+		return FIELD_TYPE;
 	}
 	
 	@Override

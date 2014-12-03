@@ -12,18 +12,22 @@ package org.mobicents.media.server.io.sdp.attributes;
  * @see {@link InactiveAttribute} {@link RecvOnlyAttribute} {@link SendOnlyAttribute} {@link SendRecvAttribute} 
  */
 public class ConnectionModeAttribute extends AbstractConnectionModeAttribute {
+	
+	public static final String SENDONLY = "sendonly";
+	public static final String RECVONLY = "recvonly";
+	public static final String SENDRECV = "sendrecv";
+	public static final String INACTIVE = "inactive";
 
 	public ConnectionModeAttribute() {
-		this(ConnectionMode.SEND_RECV);
+		this(SENDRECV);
 	}
 
-	public ConnectionModeAttribute(ConnectionMode mode) {
+	public ConnectionModeAttribute(String mode) {
 		super(mode);
 	}
 
-	public void setMode(ConnectionMode mode) {
-		super.key = mode.getMode();
-		super.connectionMode = mode;
+	public void setMode(String mode) {
+		super.key = mode;
 	}
-
+	
 }

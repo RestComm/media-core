@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.fields.AttributeField;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.fields.OriginField;
@@ -94,53 +97,53 @@ public class SessionDescription {
 	}
 	
 	private void parseLine(String line) throws SdpException {
-		FieldType fieldType = FieldType.fromType(line.charAt(0));
-
-		// check whether field type is supported
-		if(fieldType == null) {
-			return;
-		}
-		
+		char fieldType = line.charAt(0);
 		switch (fieldType) {
-		case ATTRIBUTE:
-			// TODO get attribute parser
+		case AttributeField.FIELD_TYPE:
+			int separator = line.indexOf(AttributeField.ATTRIBUTE_SEPARATOR);
+			String attributeType = (separator == - 1) ? line.substring(2) : line.substring(2, separator);
+			
+			SdpParser<? extends AttributeField> attributeParser = this.parsers.getAttributeParser(attributeType);
+			if(attributeParser != null) {
+				convertAndApplyAttribute(attributeParser.parse(line));
+			}
 			break;
 		default:
-			SdpParser<? extends SdpField> parser = this.parsers.getFieldParser(fieldType);
-			if(parser != null) {
-				convertAndApply(parser.parse(line));
+			SdpParser<? extends SdpField> fieldParser = this.parsers.getFieldParser(fieldType);
+			if(fieldParser != null) {
+				convertAndApplyField(fieldParser.parse(line));
 			}
 			break;
 		}
 	}
 	
-	private void convertAndApply(SdpField field) {
+	private void convertAndApplyField(SdpField field) {
 		switch (field.getFieldType()) {
-		case VERSION:
+		case VersionField.FIELD_TYPE:
 			this.version = (VersionField) field;
 			break;
 
-		case ORIGIN:
+		case OriginField.FIELD_TYPE:
 			this.origin = (OriginField) field;
 			break;
 
-		case SESSION_NAME:
+		case SessionNameField.FIELD_TYPE:
 			this.sessionName = (SessionNameField) field;
 
 			break;
-		case TIMING:
+		case TimingField.FIELD_TYPE:
 			this.timing = (TimingField) field;
 			break;
 
-		case CONNECTION:
+		case ConnectionField.FIELD_TYPE:
 			if(this.currentMedia == null) {
 				this.connection = (ConnectionField) field;
 			} else {
-				// TODO this.currentMedia.setConnection((ConnectionField) field);
+				this.currentMedia.setConnection((ConnectionField) field);
 			}
 			break;
 
-		case MEDIA:
+		case MediaDescriptionField.FIELD_TYPE:
 			MediaDescriptionField mediaField = (MediaDescriptionField) field;
 			this.currentMedia = mediaField;
 			this.mediaMap.put(mediaField.getMedia(), mediaField);
@@ -148,6 +151,31 @@ public class SessionDescription {
 
 		default:
 			// Ignore unsupported type
+			break;
+		}
+	}
+	
+	private void convertAndApplyAttribute(AttributeField attribute) {
+		switch (attribute.getKey()) {
+		case PacketTimeAttribute.ATTRIBUTE_TYPE:
+			// TODO apply ptime field
+			break;
+
+		case MaxPacketTimeAttribute.ATTRIBUTE_TYPE:
+			// TODO apply maxptime field
+			break;
+			
+		case ConnectionModeAttribute.SENDONLY:
+		case ConnectionModeAttribute.RECVONLY:
+		case ConnectionModeAttribute.SENDRECV:
+		case ConnectionModeAttribute.INACTIVE:
+			if(this.currentMedia == null) {
+				this.connectionMode = (ConnectionModeAttribute) attribute;
+			} else {
+				this.currentMedia.setConnectionMode((ConnectionModeAttribute) attribute);
+			}
+			break;
+		default:
 			break;
 		}
 	}

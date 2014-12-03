@@ -1,6 +1,5 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 
 
@@ -42,7 +41,7 @@ public class AttributeField implements SdpField {
 	// text parsing
 	public static final String ATTRIBUTE_SEPARATOR = ":";
 	
-	protected static final FieldType TYPE = FieldType.ATTRIBUTE;
+	public static final char FIELD_TYPE = 'a';
 	protected static final String BEGIN = "a=";
 	protected static final int BEGIN_LENGTH = BEGIN.length();
 	
@@ -74,8 +73,8 @@ public class AttributeField implements SdpField {
 	}
 	
 	@Override
-	public FieldType getFieldType() {
-		return TYPE;
+	public char getFieldType() {
+		return FIELD_TYPE;
 	}
 	
 	@Override

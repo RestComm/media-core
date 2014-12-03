@@ -46,21 +46,21 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class RtpMapAttribute extends AttributeField {
 	
-	private static final String NAME = "rtpmap";
+	public static final String ATTRIBUTE_TYPE = "rtpmap";
 	public static final short DEFAULT_CODEC_PARAMS = -1;
 	
 	private short payloadType;
 	private String codec;
-	private short clockRate;
+	private int clockRate;
 	private short codecParams;
 	
 	public RtpMapAttribute() {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 		this.codecParams = DEFAULT_CODEC_PARAMS;
 	}
 	
-	public RtpMapAttribute(short payloadType, String codec, short clockRate, short codecParams) {
-		super(NAME);
+	public RtpMapAttribute(short payloadType, String codec, int clockRate, short codecParams) {
+		super(ATTRIBUTE_TYPE);
 		this.payloadType = payloadType;
 		this.codec = codec;
 		this.clockRate = clockRate;
@@ -83,11 +83,11 @@ public class RtpMapAttribute extends AttributeField {
 		this.codec = codec;
 	}
 
-	public short getClockRate() {
+	public int getClockRate() {
 		return clockRate;
 	}
 
-	public void setClockRate(short clockRate) {
+	public void setClockRate(int clockRate) {
 		this.clockRate = clockRate;
 	}
 
@@ -103,7 +103,7 @@ public class RtpMapAttribute extends AttributeField {
 	public String toString() {
 		// clear builder
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR)
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR)
 		        .append(this.payloadType).append(" ")
 		        .append(this.codec).append("/")
 				.append(this.clockRate);

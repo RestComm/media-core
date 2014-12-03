@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mobicents.media.server.io.sdp.FieldType;
-import org.mobicents.media.server.io.sdp.SdpField;
 import org.mobicents.media.server.io.sdp.MediaProfile;
+import org.mobicents.media.server.io.sdp.SdpField;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.GenericAttribute;
@@ -31,7 +30,7 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
  */
 public class MediaDescriptionField implements SdpField {
 	
-	private static final FieldType TYPE = FieldType.MEDIA;
+	public static final char FIELD_TYPE = 'm';
 	private static final String BEGIN = "m=";
 
 	// SDP fields (media description specific)
@@ -114,9 +113,25 @@ public class MediaDescriptionField implements SdpField {
 		return false;
 	}
 
+	public ConnectionField getConnection() {
+		return connection;
+	}
+
+	public void setConnection(ConnectionField connection) {
+		this.connection = connection;
+	}
+	
+	public ConnectionModeAttribute getConnectionMode() {
+		return connectionMode;
+	}
+	
+	public void setConnectionMode(ConnectionModeAttribute connectionMode) {
+		this.connectionMode = connectionMode;
+	}
+
 	@Override
-	public FieldType getFieldType() {
-		return TYPE;
+	public char getFieldType() {
+		return FIELD_TYPE;
 	}
 
 	@Override

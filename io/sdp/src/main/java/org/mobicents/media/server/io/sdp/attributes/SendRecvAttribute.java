@@ -19,11 +19,11 @@ package org.mobicents.media.server.io.sdp.attributes;
  */
 public class SendRecvAttribute extends AbstractConnectionModeAttribute {
 
-	private static final String NAME = "sendrecv";
+	public static final String ATTRIBUTE_TYPE = "sendrecv";
 	private static final String FULL = "a=sendrecv";
 
 	public SendRecvAttribute() {
-		super(NAME, ConnectionMode.SEND_RECV);
+		super(ATTRIBUTE_TYPE);
 	}
 
 	@Override

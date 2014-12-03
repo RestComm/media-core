@@ -32,7 +32,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class IcePwdAttribute extends AttributeField {
 	
-	private static final String NAME = "ice-pwd";
+	public static final String ATTRIBUTE_TYPE = "ice-pwd";
 	
 	private String password;
 	
@@ -41,7 +41,7 @@ public class IcePwdAttribute extends AttributeField {
 	}
 	
 	public IcePwdAttribute(String password) {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 		this.password = password;
 	}
 	
@@ -56,7 +56,7 @@ public class IcePwdAttribute extends AttributeField {
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.password);
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR).append(this.password);
 		return super.builder.toString();
 	}
 

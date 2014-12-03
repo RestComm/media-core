@@ -1,6 +1,5 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
@@ -28,7 +27,7 @@ import org.mobicents.media.server.io.sdp.SdpField;
 public class OriginField implements SdpField {
 
 	// Parsing
-	private static final FieldType TYPE = FieldType.ORIGIN;
+	public static final char FIELD_TYPE = 'o';
 	private static final String BEGIN = "o=";
 	private static final int BEGIN_LEN = BEGIN.length();
 	
@@ -116,8 +115,8 @@ public class OriginField implements SdpField {
 	}
 
 	@Override
-	public FieldType getFieldType() {
-		return TYPE;
+	public char getFieldType() {
+		return FIELD_TYPE;
 	}
 	
 	@Override

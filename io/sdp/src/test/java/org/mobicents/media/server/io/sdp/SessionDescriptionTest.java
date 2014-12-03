@@ -10,6 +10,8 @@ import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
+import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.fields.OriginField;
 import org.mobicents.media.server.io.sdp.fields.SessionNameField;
@@ -27,7 +29,7 @@ public class SessionDescriptionTest {
 	
 	@BeforeClass
 	public static void setup() throws IOException, URISyntaxException {
-		URL resource = SessionDescriptionTest.class.getResource("media-description-webrtc.txt");
+		URL resource = SessionDescriptionTest.class.getResource("sdp-webrtc.txt");
 		byte[] bytes = Files.readAllBytes(Paths.get(resource.toURI()));
 		webrtcDescription = new String(bytes);
 	}
@@ -77,6 +79,14 @@ public class SessionDescriptionTest {
 		Assert.assertTrue(audio.containsFormat(105));
 		Assert.assertTrue(audio.containsFormat(13));
 		Assert.assertTrue(audio.containsFormat(126));
+		ConnectionField audioConnection = audio.getConnection();
+		Assert.assertNotNull(audioConnection);
+		Assert.assertEquals("IN", audioConnection.getNetworkType());
+		Assert.assertEquals("IP4", audioConnection.getAddressType());
+		Assert.assertEquals("180.6.6.6", audioConnection.getAddress());
+		ConnectionModeAttribute audioConnectionMode = audio.getConnectionMode();
+		Assert.assertNotNull(audioConnectionMode);
+		Assert.assertEquals(ConnectionModeAttribute.SENDRECV, audioConnectionMode.getKey());
 
 		MediaDescriptionField video = sdp.getMediaDescription("video");
 		Assert.assertNotNull(video);
@@ -86,6 +96,14 @@ public class SessionDescriptionTest {
 		Assert.assertTrue(video.containsFormat(100));
 		Assert.assertTrue(video.containsFormat(116));
 		Assert.assertTrue(video.containsFormat(117));
+		ConnectionField videoConnection = video.getConnection();
+		Assert.assertNotNull(videoConnection);
+		Assert.assertEquals("IN", videoConnection.getNetworkType());
+		Assert.assertEquals("IP4", videoConnection.getAddressType());
+		Assert.assertEquals("180.6.6.7", videoConnection.getAddress());
+		ConnectionModeAttribute videoConnectionMode = video.getConnectionMode();
+		Assert.assertNotNull(videoConnectionMode);
+		Assert.assertEquals(ConnectionModeAttribute.SENDRECV, videoConnectionMode.getKey());
 
 		MediaDescriptionField application = sdp.getMediaDescription("application");
 		Assert.assertNull(application);

@@ -4,7 +4,6 @@ import java.util.regex.Pattern;
 
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SdpParser;
-import org.mobicents.media.server.io.sdp.attributes.AbstractConnectionModeAttribute.ConnectionMode;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 
 /**
@@ -13,25 +12,31 @@ import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class ConnectionAttributeParser implements SdpParser<ConnectionModeAttribute> {
+public class ConnectionModeAttributeParser implements SdpParser<ConnectionModeAttribute> {
 
-	private static final String REGEX = "^a=\\w+$";
+	private static final String REGEX = "^a=(sendonly|recvonly|sendrecv|inactive)$";
 	private static final Pattern PATTERN = Pattern.compile(REGEX);
 
+	private boolean isTypeValid(String type) {
+		return ConnectionModeAttribute.SENDONLY.equals(type) ||
+				ConnectionModeAttribute.RECVONLY.equals(type) ||
+				ConnectionModeAttribute.SENDRECV.equals(type) ||
+				ConnectionModeAttribute.INACTIVE.equals(type);
+	}
+	
 	@Override
 	public boolean canParse(String sdp) {
 		if (sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches()
-				&& ConnectionMode.containsMode(sdp.substring(2));
+		return PATTERN.matcher(sdp).matches();
 	}
 
 	@Override
 	public ConnectionModeAttribute parse(String sdp) throws SdpException {
 		try {
-			ConnectionMode mode = ConnectionMode.fromMode(sdp.substring(2));
-			if (mode == null) {
+			String mode = sdp.substring(2);
+			if (!isTypeValid(mode)) {
 				throw new IllegalArgumentException("Unknown connection mode");
 			}
 			return new ConnectionModeAttribute(mode);
@@ -43,8 +48,8 @@ public class ConnectionAttributeParser implements SdpParser<ConnectionModeAttrib
 	@Override
 	public void parse(ConnectionModeAttribute field, String sdp) throws SdpException {
 		try {
-			ConnectionMode mode = ConnectionMode.fromMode(sdp.substring(2));
-			if (mode == null) {
+			String mode = sdp.substring(2);
+			if (!isTypeValid(mode)) {
 				throw new IllegalArgumentException("Unknown connection mode");
 			}
 			field.setMode(mode);

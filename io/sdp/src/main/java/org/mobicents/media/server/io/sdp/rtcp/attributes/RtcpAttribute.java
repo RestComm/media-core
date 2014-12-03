@@ -17,7 +17,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class RtcpAttribute extends AttributeField {
 	
-	private static final String NAME = "rtcp";
+	public static final String ATTRIBUTE_TYPE = "rtcp";
 	private static final int DEFAULT_PORT = 0;
 	
 	private int port;
@@ -34,7 +34,7 @@ public class RtcpAttribute extends AttributeField {
 	}
 
 	public RtcpAttribute(int port, String networkType, String addressType, String address) {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 		this.port = port;
 		this.networkType = networkType;
 		this.addressType = addressType;
@@ -76,7 +76,7 @@ public class RtcpAttribute extends AttributeField {
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.port);
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR).append(this.port);
 		if (this.networkType != null && !this.networkType.isEmpty()) {
 			super.builder.append(" ")
 			        .append(this.networkType).append(" ")

@@ -15,7 +15,7 @@ import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
  */
 public class ConnectionModeAttributeParserTest {
 
-	private final ConnectionAttributeParser parser = new ConnectionAttributeParser();
+	private final ConnectionModeAttributeParser parser = new ConnectionModeAttributeParser();
 
 	@Test
 	public void testCanParse() {

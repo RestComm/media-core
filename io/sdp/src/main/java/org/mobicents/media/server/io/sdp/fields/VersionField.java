@@ -1,6 +1,5 @@
 package org.mobicents.media.server.io.sdp.fields;
 
-import org.mobicents.media.server.io.sdp.FieldType;
 import org.mobicents.media.server.io.sdp.SdpField;
 
 /**
@@ -16,7 +15,7 @@ import org.mobicents.media.server.io.sdp.SdpField;
  */
 public class VersionField implements SdpField {
 
-	private static final FieldType TYPE = FieldType.VERSION;
+	public static final char FIELD_TYPE = 'v';
 	public static final String BEGIN = "v=";
 	private static final int BEGIN_LENGTH = BEGIN.length();
 
@@ -36,8 +35,8 @@ public class VersionField implements SdpField {
 	}
 
 	@Override
-	public FieldType getFieldType() {
-		return TYPE;
+	public char getFieldType() {
+		return FIELD_TYPE;
 	}
 
 	public short getVersion() {

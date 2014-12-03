@@ -31,7 +31,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class IceUfragAttribute extends AttributeField {
 
-	private static final String NAME = "ice-ufrag";
+	public static final String ATTRIBUTE_TYPE = "ice-ufrag";
 	
 	private String ufrag;
 
@@ -40,7 +40,7 @@ public class IceUfragAttribute extends AttributeField {
 	}
 	
 	public IceUfragAttribute(String ufrag) {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 		this.ufrag = ufrag;
 	}
 	
@@ -55,7 +55,7 @@ public class IceUfragAttribute extends AttributeField {
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.ufrag);
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR).append(this.ufrag);
 		return super.builder.toString();
 	}
 

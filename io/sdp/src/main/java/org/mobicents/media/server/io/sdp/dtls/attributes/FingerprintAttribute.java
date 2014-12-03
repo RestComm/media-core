@@ -25,7 +25,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class FingerprintAttribute extends AttributeField {
 
-	private static final String NAME = "fingerprint";
+	public static final String ATTRIBUTE_TYPE = "fingerprint";
 
 	private String hashFunction;
 	private String fingerprint;
@@ -35,7 +35,7 @@ public class FingerprintAttribute extends AttributeField {
 	}
 
 	public FingerprintAttribute(String hashFunction, String fingerprint) {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 		this.hashFunction = hashFunction;
 		this.fingerprint = fingerprint;
 	}
@@ -59,7 +59,7 @@ public class FingerprintAttribute extends AttributeField {
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR);
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR);
 		super.builder.append(this.hashFunction).append(" ").append(this.fingerprint);
 		return super.builder.toString();
 	}

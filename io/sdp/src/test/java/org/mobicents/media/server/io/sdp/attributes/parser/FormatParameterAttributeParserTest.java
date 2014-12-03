@@ -11,7 +11,7 @@ import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class FormatAttributeParserTest {
+public class FormatParameterAttributeParserTest {
 
 	private final FormatParameterAttributeParser parser = new FormatParameterAttributeParser();
 	

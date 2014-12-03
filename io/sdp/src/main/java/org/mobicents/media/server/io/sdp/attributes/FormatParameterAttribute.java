@@ -20,14 +20,14 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class FormatParameterAttribute extends AttributeField {
 	
-	private static final String NAME = "fmtp";
+	public static final String ATTRIBUTE_TYPE = "fmtp";
 	private static final short DEFAULT_FORMAT = -1; 
 
 	private short format;
 	private String params;
 	
 	public FormatParameterAttribute(short format, String params) {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 		this.format = format;
 		this.params = params;
 	}
@@ -55,7 +55,7 @@ public class FormatParameterAttribute extends AttributeField {
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR);
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR);
 		super.builder.append(this.format).append(" ").append(this.params);
 		return super.builder.toString();
 	}

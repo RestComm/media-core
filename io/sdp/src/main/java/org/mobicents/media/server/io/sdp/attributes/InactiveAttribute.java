@@ -18,11 +18,11 @@ package org.mobicents.media.server.io.sdp.attributes;
  */
 public class InactiveAttribute extends AbstractConnectionModeAttribute {
 
-	private static final String NAME = "inactive";
+	public static final String ATTRIBUTE_TYPE = "inactive";
 	private static final String FULL = "a=inactive";
 
 	public InactiveAttribute() {
-		super(NAME, ConnectionMode.INACTIVE);
+		super(ATTRIBUTE_TYPE);
 	}
 
 	@Override

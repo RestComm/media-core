@@ -18,7 +18,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class CandidateAttribute extends AttributeField {
 	
-	private static final String NAME = "candidate";
+	public static final String ATTRIBUTE_TYPE = "candidate";
 	
 	public static final String TYP = "typ";
 	public static final String TYP_HOST = "host";
@@ -40,7 +40,7 @@ public class CandidateAttribute extends AttributeField {
 	private int generation;
 
 	public CandidateAttribute() {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 	}
 	
 	public long getFoundation() {
@@ -133,7 +133,7 @@ public class CandidateAttribute extends AttributeField {
 		super.builder.setLength(0);
 		
 		// Build the candidate string - mandatory fields first
-		this.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR)
+		this.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR)
 				.append(this.foundation).append(" ")
 				.append(this.componentId).append(" ")
 				.append(this.protocol).append(" ")

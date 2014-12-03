@@ -16,16 +16,16 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class IceLiteAttribute extends AttributeField {
 
-	private static final String NAME = "ice-lite";
+	public static final String ATTRIBUTE_TYPE = "ice-lite";
 
 	public IceLiteAttribute() {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 	}
 	
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME);
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE);
 		return super.builder.toString();
 	}
 

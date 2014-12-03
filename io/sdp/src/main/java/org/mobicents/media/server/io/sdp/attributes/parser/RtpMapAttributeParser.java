@@ -34,7 +34,7 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 			
 			short payloadType = Short.parseShort(values[index++]);
 			String codec = values[index++];
-			short clockRate = Short.parseShort(values[index++]);
+			int clockRate = Integer.parseInt(values[index++]);
 			short codecParams = -1;
 			if(index == values.length - 1) {
 				codecParams = Short.parseShort(values[index]);
@@ -56,7 +56,7 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 			
 			short payloadType = Short.parseShort(values[index++]);
 			String codec = values[index++];
-			short clockRate = Short.parseShort(values[index++]);
+			int clockRate = Integer.parseInt(values[index++]);
 			short codecParams = -1;
 			if(index == values.length - 1) {
 				codecParams = Short.parseShort(values[index]);

@@ -20,11 +20,11 @@ package org.mobicents.media.server.io.sdp.attributes;
  */
 public class RecvOnlyAttribute extends AbstractConnectionModeAttribute {
 	
-	private static final String NAME = "recvonly";
+	public static final String ATTRIBUTE_TYPE = "recvonly";
 	private static final String FULL = "a=recvonly";
 	
 	public RecvOnlyAttribute() {
-		super(NAME, ConnectionMode.RECV_ONLY);
+		super(ATTRIBUTE_TYPE);
 	}
 
 	@Override

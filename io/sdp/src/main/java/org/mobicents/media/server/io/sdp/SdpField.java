@@ -7,7 +7,7 @@ package org.mobicents.media.server.io.sdp;
  * 
  */
 public interface SdpField {
-
+	
 	static final String FIELD_SEPARATOR = "=";
 
 	/**
@@ -15,6 +15,6 @@ public interface SdpField {
 	 * 
 	 * @return the char that represents the field
 	 */
-	FieldType getFieldType();
+	char getFieldType();
 
 }

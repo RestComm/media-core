@@ -21,11 +21,11 @@ package org.mobicents.media.server.io.sdp.attributes;
  */
 public class SendOnlyAttribute extends AbstractConnectionModeAttribute {
 
-	private static final String NAME = "sendonly";
+	public static final String ATTRIBUTE_TYPE = "sendonly";
 	private static final String FULL = "a=sendonly";
 
 	public SendOnlyAttribute() {
-		super(NAME, ConnectionMode.SEND_ONLY);
+		super(ATTRIBUTE_TYPE);
 	}
 
 	@Override

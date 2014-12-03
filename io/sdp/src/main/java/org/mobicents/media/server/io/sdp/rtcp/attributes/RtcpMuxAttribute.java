@@ -18,11 +18,11 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class RtcpMuxAttribute extends AttributeField {
 
-	private static final String NAME = "rtcp-mux";
+	public static final String ATTRIBUTE_TYPE = "rtcp-mux";
 	private static final String SDP = "a=rtcp-mux";
 
 	public RtcpMuxAttribute() {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 	}
 	
 	@Override

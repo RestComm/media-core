@@ -20,7 +20,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class MaxPacketTimeAttribute extends AttributeField {
 	
-	private static final String NAME = "maxptime";
+	public static final String ATTRIBUTE_TYPE = "maxptime";
 	private static final int DEFAULT_TIME = 0;
 
 	private int time;
@@ -30,7 +30,7 @@ public class MaxPacketTimeAttribute extends AttributeField {
 	}
 	
 	public MaxPacketTimeAttribute(int time) {
-		super(NAME);
+		super(ATTRIBUTE_TYPE);
 		this.time = time;
 	}
 	
@@ -45,7 +45,7 @@ public class MaxPacketTimeAttribute extends AttributeField {
 	@Override
 	public String toString() {
 		super.builder.setLength(0);
-		super.builder.append(BEGIN).append(NAME).append(ATTRIBUTE_SEPARATOR).append(this.time);
+		super.builder.append(BEGIN).append(ATTRIBUTE_TYPE).append(ATTRIBUTE_SEPARATOR).append(this.time);
 		return super.builder.toString();
 	}
 		
