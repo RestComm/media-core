@@ -50,7 +50,7 @@ public class PacketTimeAttributeParserTest {
 		
 		// then
 		Assert.assertEquals("ptime", obj.getKey());
-		Assert.assertEquals("100", obj.getValue());
+		Assert.assertEquals(100, obj.getTime());
 		Assert.assertEquals(sdp1, obj.toString());
 	}
 
@@ -66,7 +66,7 @@ public class PacketTimeAttributeParserTest {
 		
 		// then
 		Assert.assertEquals("ptime", obj.getKey());
-		Assert.assertEquals("123", obj.getValue());
+		Assert.assertEquals(123, obj.getTime());
 		Assert.assertEquals(sdp2, obj.toString());
 	}
 	

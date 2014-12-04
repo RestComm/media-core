@@ -11,12 +11,18 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.fields.OriginField;
 import org.mobicents.media.server.io.sdp.fields.SessionNameField;
 import org.mobicents.media.server.io.sdp.fields.TimingField;
 import org.mobicents.media.server.io.sdp.fields.VersionField;
+import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 
 /**
  * 
@@ -65,6 +71,7 @@ public class SessionDescriptionTest {
 		Assert.assertEquals(0, timing.getStartTime());
 		Assert.assertEquals(0, timing.getStopTime());
 		
+		/* AUDIO */
 		MediaDescriptionField audio = sdp.getMediaDescription("audio");
 		Assert.assertNotNull(audio);
 		Assert.assertEquals("audio", audio.getMedia());
@@ -79,15 +86,45 @@ public class SessionDescriptionTest {
 		Assert.assertTrue(audio.containsFormat(105));
 		Assert.assertTrue(audio.containsFormat(13));
 		Assert.assertTrue(audio.containsFormat(126));
+		
 		ConnectionField audioConnection = audio.getConnection();
 		Assert.assertNotNull(audioConnection);
 		Assert.assertEquals("IN", audioConnection.getNetworkType());
 		Assert.assertEquals("IP4", audioConnection.getAddressType());
 		Assert.assertEquals("180.6.6.6", audioConnection.getAddress());
+		
 		ConnectionModeAttribute audioConnectionMode = audio.getConnectionMode();
 		Assert.assertNotNull(audioConnectionMode);
 		Assert.assertEquals(ConnectionModeAttribute.SENDRECV, audioConnectionMode.getKey());
+		
+		RtcpAttribute audioRtcp = audio.getRtcp();
+		Assert.assertNotNull(audioRtcp);
+		Assert.assertEquals(54278, audioRtcp.getPort());
+		Assert.assertEquals("IN", audioRtcp.getNetworkType());
+		Assert.assertEquals("IP4", audioRtcp.getAddressType());
+		Assert.assertEquals("180.6.6.6", audioRtcp.getAddress());
+		
+		RtcpMuxAttribute audioRtcpMux = audio.getRtcpMux();
+		Assert.assertNotNull(audioRtcpMux);
+		
+		FingerprintAttribute audioFingerprint = audio.getFingerprint();
+		Assert.assertNotNull(audioFingerprint);
+		Assert.assertEquals("sha-256", audioFingerprint.getHashFunction());
+		Assert.assertEquals("D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39", audioFingerprint.getFingerprint());
+		
+		IceUfragAttribute audioIceUfrag = audio.getIceUfrag();
+		Assert.assertNotNull(audioIceUfrag);
+		Assert.assertEquals("kwlYyWNjhC9JBe/V", audioIceUfrag.getUfrag());
+		
+		IcePwdAttribute audioIcePwd = audio.getIcePwd();
+		Assert.assertNotNull(audioIcePwd);
+		Assert.assertEquals("AU/SQPupllyS0SDG/eRWDCfA", audioIcePwd.getPassword());
+		
+		CandidateAttribute[] audioCandidates = audio.getCandidates();
+		Assert.assertNotNull(audioCandidates);
+		Assert.assertEquals(8, audioCandidates.length);
 
+		/* VIDEO */
 		MediaDescriptionField video = sdp.getMediaDescription("video");
 		Assert.assertNotNull(video);
 		Assert.assertEquals("video", video.getMedia());
@@ -96,17 +133,58 @@ public class SessionDescriptionTest {
 		Assert.assertTrue(video.containsFormat(100));
 		Assert.assertTrue(video.containsFormat(116));
 		Assert.assertTrue(video.containsFormat(117));
+		
 		ConnectionField videoConnection = video.getConnection();
 		Assert.assertNotNull(videoConnection);
 		Assert.assertEquals("IN", videoConnection.getNetworkType());
 		Assert.assertEquals("IP4", videoConnection.getAddressType());
 		Assert.assertEquals("180.6.6.7", videoConnection.getAddress());
+		
 		ConnectionModeAttribute videoConnectionMode = video.getConnectionMode();
 		Assert.assertNotNull(videoConnectionMode);
 		Assert.assertEquals(ConnectionModeAttribute.SENDRECV, videoConnectionMode.getKey());
-
+		
+		RtcpAttribute videoRtcp = video.getRtcp();
+		Assert.assertNotNull(videoRtcp);
+		Assert.assertEquals(54279, videoRtcp.getPort());
+		Assert.assertEquals("IN", videoRtcp.getNetworkType());
+		Assert.assertEquals("IP4", videoRtcp.getAddressType());
+		Assert.assertEquals("180.6.6.7", videoRtcp.getAddress());
+		
+		RtcpMuxAttribute videoRtcpMux = video.getRtcpMux();
+		Assert.assertNotNull(videoRtcpMux);
+		
+		FingerprintAttribute videoFingerprint = video.getFingerprint();
+		Assert.assertNotNull(videoFingerprint);
+		Assert.assertEquals("sha-256", videoFingerprint.getHashFunction());
+		Assert.assertEquals("D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39", videoFingerprint.getFingerprint());
+		
+		IceUfragAttribute videoIceUfrag = video.getIceUfrag();
+		Assert.assertNotNull(videoIceUfrag);
+		Assert.assertEquals("kwlYyWNjhC9JBe/V", videoIceUfrag.getUfrag());
+		
+		IcePwdAttribute videoIcePwd = video.getIcePwd();
+		Assert.assertNotNull(videoIcePwd);
+		Assert.assertEquals("AU/SQPupllyS0SDG/eRWDCfA", videoIcePwd.getPassword());
+		
+		CandidateAttribute[] videoCandidates = video.getCandidates();
+		Assert.assertNotNull(videoCandidates);
+		Assert.assertEquals(8, videoCandidates.length);
+		
+		/* APPLICATiON */
 		MediaDescriptionField application = sdp.getMediaDescription("application");
 		Assert.assertNull(application);
+	}
+	
+	@Test
+	public void loadTest() throws SdpException {
+		long startTime = System.nanoTime();
+		for (int i = 0; i < 10000; i++) {
+			new SessionDescription().parse(webrtcDescription);
+		}
+		long stopTime = System.nanoTime();
+		long runTime = stopTime - startTime;
+		System.out.println("Took " + runTime + "ns");
 	}
 
 }

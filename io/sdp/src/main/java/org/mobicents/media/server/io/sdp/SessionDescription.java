@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
@@ -14,9 +16,12 @@ import org.mobicents.media.server.io.sdp.fields.OriginField;
 import org.mobicents.media.server.io.sdp.fields.SessionNameField;
 import org.mobicents.media.server.io.sdp.fields.TimingField;
 import org.mobicents.media.server.io.sdp.fields.VersionField;
+import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
+import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 
 /**
  * 
@@ -97,23 +102,27 @@ public class SessionDescription {
 	}
 	
 	private void parseLine(String line) throws SdpException {
-		char fieldType = line.charAt(0);
-		switch (fieldType) {
-		case AttributeField.FIELD_TYPE:
-			int separator = line.indexOf(AttributeField.ATTRIBUTE_SEPARATOR);
-			String attributeType = (separator == - 1) ? line.substring(2) : line.substring(2, separator);
-			
-			SdpParser<? extends AttributeField> attributeParser = this.parsers.getAttributeParser(attributeType);
-			if(attributeParser != null) {
-				convertAndApplyAttribute(attributeParser.parse(line));
+		try {
+			char fieldType = line.charAt(0);
+			switch (fieldType) {
+			case AttributeField.FIELD_TYPE:
+				int separator = line.indexOf(AttributeField.ATTRIBUTE_SEPARATOR);
+				String attributeType = (separator == - 1) ? line.substring(2) : line.substring(2, separator);
+				
+				SdpParser<? extends AttributeField> attributeParser = this.parsers.getAttributeParser(attributeType);
+				if(attributeParser != null) {
+					convertAndApplyAttribute(attributeParser.parse(line));
+				}
+				break;
+			default:
+				SdpParser<? extends SdpField> fieldParser = this.parsers.getFieldParser(fieldType);
+				if(fieldParser != null) {
+					convertAndApplyField(fieldParser.parse(line));
+				}
+				break;
 			}
-			break;
-		default:
-			SdpParser<? extends SdpField> fieldParser = this.parsers.getFieldParser(fieldType);
-			if(fieldParser != null) {
-				convertAndApplyField(fieldParser.parse(line));
-			}
-			break;
+		} catch (Exception e) {
+			throw new SdpException("Could not parse SDP: " + line, e);
 		}
 	}
 	
@@ -157,12 +166,20 @@ public class SessionDescription {
 	
 	private void convertAndApplyAttribute(AttributeField attribute) {
 		switch (attribute.getKey()) {
+		case RtpMapAttribute.ATTRIBUTE_TYPE:
+			// TODO apply rtpmap attribute
+			break;
+			
+		case FormatParameterAttribute.ATTRIBUTE_TYPE:
+			// TODO apply fmt attribute
+			break;
+		
 		case PacketTimeAttribute.ATTRIBUTE_TYPE:
-			// TODO apply ptime field
+			// TODO apply ptime attribute
 			break;
 
 		case MaxPacketTimeAttribute.ATTRIBUTE_TYPE:
-			// TODO apply maxptime field
+			// TODO apply maxptime attribute
 			break;
 			
 		case ConnectionModeAttribute.SENDONLY:
@@ -175,6 +192,47 @@ public class SessionDescription {
 				this.currentMedia.setConnectionMode((ConnectionModeAttribute) attribute);
 			}
 			break;
+			
+		case RtcpAttribute.ATTRIBUTE_TYPE:
+			this.currentMedia.setRtcp((RtcpAttribute) attribute);
+			break;
+			
+		case RtcpMuxAttribute.ATTRIBUTE_TYPE:
+			this.currentMedia.setRtcpMux((RtcpMuxAttribute) attribute);
+			break;
+			
+		case IceLiteAttribute.ATTRIBUTE_TYPE:
+			this.iceLite = (IceLiteAttribute) attribute;
+			break;
+			
+		case IceUfragAttribute.ATTRIBUTE_TYPE:
+			if(this.currentMedia == null) {
+				this.iceUfrag = (IceUfragAttribute) attribute;
+			} else {
+				this.currentMedia.setIceUfrag((IceUfragAttribute) attribute);
+			}
+			break;
+			
+		case IcePwdAttribute.ATTRIBUTE_TYPE:
+			if(this.currentMedia == null) {
+				this.icePwd = (IcePwdAttribute) attribute;
+			} else {
+				this.currentMedia.setIcePwd((IcePwdAttribute) attribute);
+			}
+			break;
+			
+		case CandidateAttribute.ATTRIBUTE_TYPE:
+			this.currentMedia.addCandidate((CandidateAttribute) attribute);
+			break;
+			
+		case FingerprintAttribute.ATTRIBUTE_TYPE:
+			if(this.currentMedia == null) {
+				this.fingerprint = (FingerprintAttribute) attribute;
+			} else {
+				this.currentMedia.setFingerprint((FingerprintAttribute) attribute);
+			}
+			break;
+			
 		default:
 			break;
 		}

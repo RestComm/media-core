@@ -5,7 +5,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.attributes.AbstractConnectionModeAttribute;
-import org.mobicents.media.server.io.sdp.attributes.AbstractConnectionModeAttribute.ConnectionMode;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 
 /**
@@ -56,7 +55,7 @@ public class ConnectionModeAttributeParserTest {
 		ConnectionModeAttribute obj = parser.parse(sdp1);
 		
 		// then
-		Assert.assertEquals(ConnectionMode.SEND_ONLY, obj.getConnectionMode());
+		Assert.assertEquals(ConnectionModeAttribute.SENDONLY, obj.getKey());
 		Assert.assertEquals("sendonly", obj.getKey());
 	}
 	
@@ -69,7 +68,7 @@ public class ConnectionModeAttributeParserTest {
 		AbstractConnectionModeAttribute obj = parser.parse(sdp1);
 		
 		// then
-		Assert.assertEquals(ConnectionMode.RECV_ONLY, obj.getConnectionMode());
+		Assert.assertEquals(ConnectionModeAttribute.RECVONLY, obj.getKey());
 		Assert.assertEquals("recvonly", obj.getKey());
 	}
 	
@@ -82,7 +81,7 @@ public class ConnectionModeAttributeParserTest {
 		AbstractConnectionModeAttribute obj = parser.parse(sdp1);
 		
 		// then
-		Assert.assertEquals(ConnectionMode.SEND_RECV, obj.getConnectionMode());
+		Assert.assertEquals(ConnectionModeAttribute.SENDRECV, obj.getKey());
 		Assert.assertEquals("sendrecv", obj.getKey());
 	}
 	
@@ -95,7 +94,7 @@ public class ConnectionModeAttributeParserTest {
 		AbstractConnectionModeAttribute obj = parser.parse(sdp1);
 		
 		// then
-		Assert.assertEquals(ConnectionMode.INACTIVE, obj.getConnectionMode());
+		Assert.assertEquals(ConnectionModeAttribute.INACTIVE, obj.getKey());
 		Assert.assertEquals("inactive", obj.getKey());
 	}
 
@@ -110,7 +109,7 @@ public class ConnectionModeAttributeParserTest {
 		parser.parse(obj, sdp2);
 		
 		// then
-		Assert.assertEquals(ConnectionMode.RECV_ONLY, obj.getConnectionMode());
+		Assert.assertEquals(ConnectionModeAttribute.RECVONLY, obj.getKey());
 		Assert.assertEquals("recvonly", obj.getKey());
 	}
 

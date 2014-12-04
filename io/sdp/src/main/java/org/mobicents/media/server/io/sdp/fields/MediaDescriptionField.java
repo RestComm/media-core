@@ -11,6 +11,7 @@ import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.GenericAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
@@ -52,6 +53,7 @@ public class MediaDescriptionField implements SdpField {
 	// ICE attributes (session-level)
 	private IcePwdAttribute icePwd;
 	private IceUfragAttribute iceUfrag;
+	private List<CandidateAttribute> candidates;
 	
 	// WebRTC attributes (session-level)
 	private FingerprintAttribute fingerprint;
@@ -127,6 +129,74 @@ public class MediaDescriptionField implements SdpField {
 	
 	public void setConnectionMode(ConnectionModeAttribute connectionMode) {
 		this.connectionMode = connectionMode;
+	}
+	
+	public RtcpAttribute getRtcp() {
+		return rtcp;
+	}
+	
+	public void setRtcp(RtcpAttribute rtcp) {
+		this.rtcp = rtcp;
+	}
+	
+	public RtcpMuxAttribute getRtcpMux() {
+		return rtcpMux;
+	}
+	
+	public void setRtcpMux(RtcpMuxAttribute rtcpMux) {
+		this.rtcpMux = rtcpMux;
+	}
+	
+	public IceUfragAttribute getIceUfrag() {
+		return iceUfrag;
+	}
+	
+	public void setIceUfrag(IceUfragAttribute iceUfrag) {
+		this.iceUfrag = iceUfrag;
+	}
+	
+	public IcePwdAttribute getIcePwd() {
+		return icePwd;
+	}
+	
+	public void setIcePwd(IcePwdAttribute icePwd) {
+		this.icePwd = icePwd;
+	}
+	
+	public CandidateAttribute[] getCandidates() {
+		if(this.candidates == null || this.candidates.isEmpty()) {
+			return null;
+		}
+		return candidates.toArray(new CandidateAttribute[this.candidates.size()]);
+	}
+	
+	public void addCandidate(CandidateAttribute candidate) {
+		if(this.candidates == null) {
+			this.candidates = new ArrayList<CandidateAttribute>(8);
+			this.candidates.add(candidate);
+		} else if(!this.candidates.contains(candidate)) {
+			this.candidates.add(candidate);
+		}
+	}
+	
+	public void removeCandidate(CandidateAttribute candidate) {
+		if(this.candidates != null) {
+			this.candidates.remove(candidate);
+		}
+	}
+	
+	public void removeAllCandidates() {
+		if(this.candidates != null) {
+			this.candidates.clear();
+		}
+	}
+	
+	public FingerprintAttribute getFingerprint() {
+		return fingerprint;
+	}
+	
+	public void setFingerprint(FingerprintAttribute fingerprint) {
+		this.fingerprint = fingerprint;
 	}
 
 	@Override
