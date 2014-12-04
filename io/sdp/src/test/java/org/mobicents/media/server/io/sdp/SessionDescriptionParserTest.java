@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
@@ -29,24 +30,24 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SessionDescriptionTest {
+public class SessionDescriptionParserTest {
 	
 	private static String webrtcDescription;
 	
 	@BeforeClass
 	public static void setup() throws IOException, URISyntaxException {
-		URL resource = SessionDescriptionTest.class.getResource("sdp-webrtc.txt");
+		URL resource = SessionDescriptionParserTest.class.getResource("sdp-webrtc.txt");
 		byte[] bytes = Files.readAllBytes(Paths.get(resource.toURI()));
 		webrtcDescription = new String(bytes);
 	}
-	
+
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		SessionDescription sdp = new SessionDescription();
+		SessionDescription sdp;
 		
 		// when
-		sdp.parse(webrtcDescription);
+		sdp = SessionDescriptionParser.parse(webrtcDescription);
 		
 		// then
 		VersionField version = sdp.getVersion();
@@ -171,20 +172,17 @@ public class SessionDescriptionTest {
 		Assert.assertNotNull(videoCandidates);
 		Assert.assertEquals(8, videoCandidates.length);
 		
-		/* APPLICATiON */
+		/* APPLICATION */
 		MediaDescriptionField application = sdp.getMediaDescription("application");
 		Assert.assertNull(application);
 	}
 	
+	@Ignore
 	@Test
 	public void loadTest() throws SdpException {
-		long startTime = System.nanoTime();
 		for (int i = 0; i < 10000; i++) {
-			new SessionDescription().parse(webrtcDescription);
+			SessionDescriptionParser.parse(webrtcDescription);
 		}
-		long stopTime = System.nanoTime();
-		long runTime = stopTime - startTime;
-		System.out.println("Took " + runTime + "ns");
 	}
 
 }

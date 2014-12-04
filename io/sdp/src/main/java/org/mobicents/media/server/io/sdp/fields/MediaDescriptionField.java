@@ -39,13 +39,13 @@ public class MediaDescriptionField implements SdpField {
 	private int port;
 	private MediaProfile protocol;
 	private final List<Integer> formats;
+	private final Map<Integer, FormatParameterAttribute> formatParameterMap;
 	
 	// SDP fields and attributes (media-level)
 	private ConnectionField connection;
 	private ConnectionModeAttribute connectionMode;
 	private RtcpAttribute rtcp;
 	private RtcpMuxAttribute rtcpMux;
-	private final Map<Integer, FormatParameterAttribute> formatParameterMap;
 	
 	// Generic attributes that cannot be recognized
 	private final List<GenericAttribute> genericAttributes;
