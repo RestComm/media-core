@@ -35,12 +35,12 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 				throw new IllegalArgumentException("Unrecognized media profile");
 			}
 
-			int[] formats = null;
+			short[] formats = null;
 			if (maxIndex - index >= 0) {
 				int numFormats = maxIndex - index + 1;
-				formats = new int[numFormats];
+				formats = new short[numFormats];
 				for (int i = 0; i < numFormats; i++) {
-					formats[i] = Integer.parseInt(values[i + index]);
+					formats[i] = Short.parseShort(values[i + index]);
 				}
 			}
 
@@ -49,7 +49,7 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 			md.setMedia(media);
 			md.setPort(port);
 			md.setProtocol(protocol);
-			md.setFormats(formats);
+			md.setPayloadTypes(formats);
 			return md;
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
@@ -71,12 +71,12 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 				throw new IllegalArgumentException("Unrecognized media profile");
 			}
 
-			int[] formats = null;
+			short[] payloadTypes = null;
 			if (maxIndex - index >= 0) {
 				int numFormats = maxIndex - index + 1;
-				formats = new int[numFormats];
+				payloadTypes = new short[numFormats];
 				for (int i = 0; i < numFormats; i++) {
-					formats[i] = Integer.parseInt(values[i + index]);
+					payloadTypes[i] = Short.parseShort(values[i + index]);
 				}
 			}
 
@@ -84,7 +84,7 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 			field.setMedia(media);
 			field.setPort(port);
 			field.setProtocol(protocol);
-			field.setFormats(formats);
+			field.setPayloadTypes(payloadTypes);
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
 		}

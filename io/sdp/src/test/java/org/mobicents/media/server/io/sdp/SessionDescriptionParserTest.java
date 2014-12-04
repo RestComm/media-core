@@ -9,9 +9,9 @@ import java.nio.file.Paths;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
@@ -78,15 +78,15 @@ public class SessionDescriptionParserTest {
 		Assert.assertEquals("audio", audio.getMedia());
 		Assert.assertEquals(54278, audio.getPort());
 		Assert.assertEquals("RTP/SAVPF", audio.getProtocol());
-		Assert.assertTrue(audio.containsFormat(111));
-		Assert.assertTrue(audio.containsFormat(103));
-		Assert.assertTrue(audio.containsFormat(104));
-		Assert.assertTrue(audio.containsFormat(0));
-		Assert.assertTrue(audio.containsFormat(8));
-		Assert.assertTrue(audio.containsFormat(106));
-		Assert.assertTrue(audio.containsFormat(105));
-		Assert.assertTrue(audio.containsFormat(13));
-		Assert.assertTrue(audio.containsFormat(126));
+		Assert.assertTrue(audio.containsFormat((short) 111));
+		Assert.assertTrue(audio.containsFormat((short) 103));
+		Assert.assertTrue(audio.containsFormat((short) 104));
+		Assert.assertTrue(audio.containsFormat((short) 0));
+		Assert.assertTrue(audio.containsFormat((short) 8));
+		Assert.assertTrue(audio.containsFormat((short) 106));
+		Assert.assertTrue(audio.containsFormat((short) 105));
+		Assert.assertTrue(audio.containsFormat((short) 13));
+		Assert.assertTrue(audio.containsFormat((short) 126));
 		
 		ConnectionField audioConnection = audio.getConnection();
 		Assert.assertNotNull(audioConnection);
@@ -107,7 +107,60 @@ public class SessionDescriptionParserTest {
 		
 		RtcpMuxAttribute audioRtcpMux = audio.getRtcpMux();
 		Assert.assertNotNull(audioRtcpMux);
-		
+
+		Assert.assertNotNull(audio.getFormats());
+		Assert.assertEquals(10, audio.getFormats().length);
+		RtpMapAttribute audioOpus = audio.getFormat((short) 111);
+		Assert.assertNotNull(audioOpus);
+		Assert.assertNotNull(audioOpus.getParameters());
+		Assert.assertNull(audioOpus.getPtime());
+		Assert.assertNull(audioOpus.getMaxptime());
+		RtpMapAttribute audioIsac16 = audio.getFormat((short) 103);
+		Assert.assertNotNull(audioIsac16);
+		Assert.assertNull(audioIsac16.getParameters());
+		Assert.assertNull(audioIsac16.getPtime());
+		Assert.assertNull(audioIsac16.getMaxptime());
+		RtpMapAttribute audioIsac32 = audio.getFormat((short) 104);
+		Assert.assertNotNull(audioIsac32);
+		Assert.assertNull(audioIsac32.getParameters());
+		Assert.assertNull(audioIsac32.getPtime());
+		Assert.assertNull(audioIsac32.getMaxptime());
+		RtpMapAttribute audioPcmu = audio.getFormat((short) 0);
+		Assert.assertNotNull(audioPcmu);
+		Assert.assertNull(audioPcmu.getParameters());
+		Assert.assertNull(audioPcmu.getPtime());
+		Assert.assertNull(audioPcmu.getMaxptime());
+		RtpMapAttribute audioPcma = audio.getFormat((short) 8);
+		Assert.assertNotNull(audioPcma);
+		Assert.assertNull(audioPcma.getParameters());
+		Assert.assertNull(audioPcma.getPtime());
+		Assert.assertNull(audioPcma.getMaxptime());
+		RtpMapAttribute audioCn48 = audio.getFormat((short) 107);
+		Assert.assertNotNull(audioCn48);
+		Assert.assertNull(audioCn48.getParameters());
+		Assert.assertNull(audioCn48.getPtime());
+		Assert.assertNull(audioCn48.getMaxptime());
+		RtpMapAttribute audioCn32 = audio.getFormat((short) 106);
+		Assert.assertNotNull(audioCn32);
+		Assert.assertNull(audioCn32.getParameters());
+		Assert.assertNull(audioCn32.getPtime());
+		Assert.assertNull(audioCn32.getMaxptime());
+		RtpMapAttribute audioCn16 = audio.getFormat((short) 105);
+		Assert.assertNotNull(audioCn16);
+		Assert.assertNull(audioCn16.getParameters());
+		Assert.assertNull(audioCn16.getPtime());
+		Assert.assertNull(audioCn16.getMaxptime());
+		RtpMapAttribute audioCn8 = audio.getFormat((short) 13);
+		Assert.assertNotNull(audioCn8);
+		Assert.assertNull(audioCn8.getParameters());
+		Assert.assertNull(audioCn8.getPtime());
+		Assert.assertNull(audioCn8.getMaxptime());
+		RtpMapAttribute audioDtmf = audio.getFormat((short) 126);
+		Assert.assertNotNull(audioDtmf);
+		Assert.assertNull(audioDtmf.getParameters());
+		Assert.assertNull(audioDtmf.getPtime());
+		Assert.assertNotNull(audioDtmf.getMaxptime());
+				
 		FingerprintAttribute audioFingerprint = audio.getFingerprint();
 		Assert.assertNotNull(audioFingerprint);
 		Assert.assertEquals("sha-256", audioFingerprint.getHashFunction());
@@ -131,9 +184,9 @@ public class SessionDescriptionParserTest {
 		Assert.assertEquals("video", video.getMedia());
 		Assert.assertEquals(54279, video.getPort());
 		Assert.assertEquals("RTP/SAVPF", video.getProtocol());
-		Assert.assertTrue(video.containsFormat(100));
-		Assert.assertTrue(video.containsFormat(116));
-		Assert.assertTrue(video.containsFormat(117));
+		Assert.assertTrue(video.containsFormat((short) 100));
+		Assert.assertTrue(video.containsFormat((short) 116));
+		Assert.assertTrue(video.containsFormat((short) 117));
 		
 		ConnectionField videoConnection = video.getConnection();
 		Assert.assertNotNull(videoConnection);
@@ -154,6 +207,22 @@ public class SessionDescriptionParserTest {
 		
 		RtcpMuxAttribute videoRtcpMux = video.getRtcpMux();
 		Assert.assertNotNull(videoRtcpMux);
+
+		RtpMapAttribute videoVP8 = video.getFormat((short) 100);
+		Assert.assertNotNull(videoVP8);
+		Assert.assertNull(videoVP8.getParameters());
+		Assert.assertNull(videoVP8.getPtime());
+		Assert.assertNull(videoVP8.getMaxptime());
+		RtpMapAttribute videoRed = video.getFormat((short) 116);
+		Assert.assertNotNull(videoRed);
+		Assert.assertNull(videoRed.getParameters());
+		Assert.assertNull(videoRed.getPtime());
+		Assert.assertNull(videoRed.getMaxptime());
+		RtpMapAttribute videoUlpFec = video.getFormat((short) 117);
+		Assert.assertNotNull(videoUlpFec);
+		Assert.assertNull(videoUlpFec.getParameters());
+		Assert.assertNull(videoUlpFec.getPtime());
+		Assert.assertNull(videoUlpFec.getMaxptime());
 		
 		FingerprintAttribute videoFingerprint = video.getFingerprint();
 		Assert.assertNotNull(videoFingerprint);
@@ -177,12 +246,19 @@ public class SessionDescriptionParserTest {
 		Assert.assertNull(application);
 	}
 	
-	@Ignore
 	@Test
 	public void loadTest() throws SdpException {
-		for (int i = 0; i < 10000; i++) {
+		int runs = 500000;
+		long start = System.nanoTime();
+		for (int i = 0; i < runs; i++) {
 			SessionDescriptionParser.parse(webrtcDescription);
 		}
+		long end = System.nanoTime();
+		
+		long runtime = end - start;
+		long unitTime = runtime / runs;
+		
+		System.out.println("Load test took " + runtime + "ns (" + unitTime + "ns per SDP)");
 	}
 
 }

@@ -9,7 +9,7 @@ import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SdpField;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
-import org.mobicents.media.server.io.sdp.attributes.GenericAttribute;
+import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
@@ -38,17 +38,14 @@ public class MediaDescriptionField implements SdpField {
 	private String media;
 	private int port;
 	private MediaProfile protocol;
-	private final List<Integer> formats;
-	private final Map<Integer, FormatParameterAttribute> formatParameterMap;
+	private final List<Short> payloadTypes;
+	private final Map<Short, RtpMapAttribute> formats;
 	
 	// SDP fields and attributes (media-level)
 	private ConnectionField connection;
 	private ConnectionModeAttribute connectionMode;
 	private RtcpAttribute rtcp;
 	private RtcpMuxAttribute rtcpMux;
-	
-	// Generic attributes that cannot be recognized
-	private final List<GenericAttribute> genericAttributes;
 	
 	// ICE attributes (session-level)
 	private IcePwdAttribute icePwd;
@@ -62,9 +59,8 @@ public class MediaDescriptionField implements SdpField {
 
 	public MediaDescriptionField() {
 		this.builder = new StringBuilder(BEGIN);
-		this.formats = new ArrayList<Integer>(10);
-		this.formatParameterMap = new HashMap<Integer, FormatParameterAttribute>(10);
-		this.genericAttributes = new ArrayList<GenericAttribute>(10);
+		this.payloadTypes = new ArrayList<Short>(10);
+		this.formats = new HashMap<Short, RtpMapAttribute>(10);
 	}
 	
 	public String getMedia() {
@@ -91,28 +87,51 @@ public class MediaDescriptionField implements SdpField {
 		this.protocol = protocol;
 	}
 	
-	public void setFormats(int ...formats) {
+	public void addPayloadType(short payloadType) {
+		if(!this.payloadTypes.contains(payloadType)) {
+			this.payloadTypes.add(payloadType);
+		}
+	}
+	
+	public void setPayloadTypes(short... payloadTypes) {
+		this.payloadTypes.clear();
+		for (short payloadType : payloadTypes) {
+			addPayloadType(payloadType);
+		}
+	}
+	
+	public boolean containsPayloadType(short payloadType) {
+		return this.payloadTypes.contains(payloadType);
+	}
+	
+	public void setFormats(RtpMapAttribute ...formats) {
 		this.formats.clear();
 		int numFormats = formats.length;
 		for (int i = 0; i < numFormats; i++) {
-			this.formats.add(formats[i]);
+			addFormat(formats[i]);
 		}
 	}
 	
-	public void addFormats(int ...formats) {
+	public void addFormat(RtpMapAttribute format) {
+		this.formats.put(format.getPayloadType(), format);
+	}
+	
+	public void addFormats(RtpMapAttribute ...formats) {
 		int numFormats = formats.length;
 		for (int i = 0; i < numFormats; i++) {
-			this.formats.add(formats[i]);
+			addFormat(formats[i]);
 		}
 	}
 	
-	public boolean containsFormat(int format) {
-		for (int fmt : this.formats) {
-			if(format == fmt) {
-				return true;
-			}
+	public boolean containsFormat(short format) {
+		return this.formats.containsKey(format);
+	}
+	
+	public void setFormatParameters(short payloadType, FormatParameterAttribute parameters) {
+		RtpMapAttribute format = this.formats.get(payloadType);
+		if(format != null) {
+			format.setParameters(parameters);
 		}
-		return false;
 	}
 
 	public ConnectionField getConnection() {
@@ -129,6 +148,17 @@ public class MediaDescriptionField implements SdpField {
 	
 	public void setConnectionMode(ConnectionModeAttribute connectionMode) {
 		this.connectionMode = connectionMode;
+	}
+	
+	public RtpMapAttribute[] getFormats() {
+		if(this.formats.isEmpty()) {
+			return null;
+		}
+		return this.formats.values().toArray(new RtpMapAttribute[this.formats.size()]);
+	}
+	
+	public RtpMapAttribute getFormat(short payloadType) {
+		return this.formats.get(payloadType);
 	}
 	
 	public RtcpAttribute getRtcp() {
@@ -212,13 +242,15 @@ public class MediaDescriptionField implements SdpField {
 		        .append(this.media).append(" ")
 				.append(this.port).append(" ")
 				.append(this.protocol);
-		for (int payload : this.formats) {
-			this.builder.append(" ").append(payload);
+		
+		for (Short payloadType : this.payloadTypes) {
+			this.builder.append(" ").append(payloadType);
 		}
-		// Append new lines for attributes
-		for (GenericAttribute attribute : this.genericAttributes) {
-			this.builder.append("\n").append(attribute.toString());
+
+		for (RtpMapAttribute format : this.formats.values()) {
+			this.builder.append("\n").append(format.toString());
 		}
+		
 		return this.builder.toString();
 	}
 	

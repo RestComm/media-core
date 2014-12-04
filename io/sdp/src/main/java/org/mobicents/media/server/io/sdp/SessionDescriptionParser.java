@@ -40,8 +40,7 @@ public class SessionDescriptionParser {
 			throw new SdpException(PARSE_ERROR_EMPTY);
 		}
 		
-		SessionDescription sdp = new SessionDescription();
-		MediaDescriptionField currentMedia = null;
+		SdpParsingInfo info = new SdpParsingInfo();
 		
 		// Process each line of SDP
 		String[] lines = text.split(NEWLINE);
@@ -59,14 +58,14 @@ public class SessionDescriptionParser {
 					// Get the right parser for the attribute and parse the text
 					SdpParser<? extends AttributeField> attributeParser = PARSERS.getAttributeParser(attributeType);
 					if(attributeParser != null) {
-						convertAndApplyAttribute(attributeParser.parse(line), sdp, currentMedia);
+						convertAndApplyAttribute(attributeParser.parse(line), info);
 					}
 					break;
 				default:
 					// Get the right parser for the field and parse the text
 					SdpParser<? extends SdpField> fieldParser = PARSERS.getFieldParser(fieldType);
 					if(fieldParser != null) {
-						currentMedia = convertAndApplyField(fieldParser.parse(line), sdp, currentMedia);
+						convertAndApplyField(fieldParser.parse(line), info);
 					}
 					break;
 				}
@@ -74,120 +73,131 @@ public class SessionDescriptionParser {
 				throw new SdpException("Could not parse SDP: " + line, e);
 			}
 		}
-		return sdp;
+		return info.sdp;
 	}
 	
-	private static MediaDescriptionField convertAndApplyField(SdpField field, SessionDescription sdp, MediaDescriptionField media) {
+	private static void convertAndApplyField(SdpField field, SdpParsingInfo info) {
 		switch (field.getFieldType()) {
 		case VersionField.FIELD_TYPE:
-			sdp.setVersion((VersionField) field);
+			info.sdp.setVersion((VersionField) field);
 			break;
 
 		case OriginField.FIELD_TYPE:
-			sdp.setOrigin((OriginField) field);
+			info.sdp.setOrigin((OriginField) field);
 			break;
 
 		case SessionNameField.FIELD_TYPE:
-			sdp.setSessionName((SessionNameField) field);
+			info.sdp.setSessionName((SessionNameField) field);
 			break;
 			
 		case TimingField.FIELD_TYPE:
-			sdp.setTiming((TimingField) field);
+			info.sdp.setTiming((TimingField) field);
 			break;
 
 		case ConnectionField.FIELD_TYPE:
-			if(media == null) {
-				sdp.setConnection((ConnectionField) field);
+			if(info.media == null) {
+				info.sdp.setConnection((ConnectionField) field);
 			} else {
-				media.setConnection((ConnectionField) field);
+				info.media.setConnection((ConnectionField) field);
 			}
 			break;
 
 		case MediaDescriptionField.FIELD_TYPE:
-			media = (MediaDescriptionField) field;
-			sdp.addMediaDescription(media);
+			info.media = (MediaDescriptionField) field;
+			info.sdp.addMediaDescription(info.media);
 			break;
 
 		default:
 			// Ignore unsupported type
 			break;
 		}
-		
-		return media;
 	}
 	
-	private static void convertAndApplyAttribute(AttributeField attribute, SessionDescription sdp, MediaDescriptionField media) {
+	private static void convertAndApplyAttribute(AttributeField attribute, SdpParsingInfo info) {
 		switch (attribute.getKey()) {
 		case RtpMapAttribute.ATTRIBUTE_TYPE:
-			// TODO apply rtpmap attribute
+			info.format = (RtpMapAttribute) attribute;
+			info.media.addFormat(info.format);
 			break;
 			
 		case FormatParameterAttribute.ATTRIBUTE_TYPE:
-			// TODO apply fmt attribute
+			info.format.setParameters((FormatParameterAttribute) attribute);
 			break;
 		
 		case PacketTimeAttribute.ATTRIBUTE_TYPE:
-			// TODO apply ptime attribute
+			info.format.setPtime((PacketTimeAttribute) attribute);
 			break;
 
 		case MaxPacketTimeAttribute.ATTRIBUTE_TYPE:
-			// TODO apply maxptime attribute
+			info.format.setMaxptime((MaxPacketTimeAttribute) attribute);
 			break;
 			
 		case ConnectionModeAttribute.SENDONLY:
 		case ConnectionModeAttribute.RECVONLY:
 		case ConnectionModeAttribute.SENDRECV:
 		case ConnectionModeAttribute.INACTIVE:
-			if(media == null) {
-				sdp.setConnectionMode((ConnectionModeAttribute) attribute);
+			if(info.media == null) {
+				info.sdp.setConnectionMode((ConnectionModeAttribute) attribute);
 			} else {
-				media.setConnectionMode((ConnectionModeAttribute) attribute);
+				info.media.setConnectionMode((ConnectionModeAttribute) attribute);
 			}
 			break;
 			
 		case RtcpAttribute.ATTRIBUTE_TYPE:
-			media.setRtcp((RtcpAttribute) attribute);
+			info.media.setRtcp((RtcpAttribute) attribute);
 			break;
 			
 		case RtcpMuxAttribute.ATTRIBUTE_TYPE:
-			media.setRtcpMux((RtcpMuxAttribute) attribute);
+			info.media.setRtcpMux((RtcpMuxAttribute) attribute);
 			break;
 			
 		case IceLiteAttribute.ATTRIBUTE_TYPE:
-			sdp.setIceLite((IceLiteAttribute) attribute);
+			info.sdp.setIceLite((IceLiteAttribute) attribute);
 			break;
 			
 		case IceUfragAttribute.ATTRIBUTE_TYPE:
-			if(media == null) {
-				sdp.setIceUfrag((IceUfragAttribute) attribute);
+			if(info.media == null) {
+				info.sdp.setIceUfrag((IceUfragAttribute) attribute);
 			} else {
-				media.setIceUfrag((IceUfragAttribute) attribute);
+				info.media.setIceUfrag((IceUfragAttribute) attribute);
 			}
 			break;
 			
 		case IcePwdAttribute.ATTRIBUTE_TYPE:
-			if(media == null) {
-				sdp.setIcePwd((IcePwdAttribute) attribute);
+			if(info.media == null) {
+				info.sdp.setIcePwd((IcePwdAttribute) attribute);
 			} else {
-				media.setIcePwd((IcePwdAttribute) attribute);
+				info.media.setIcePwd((IcePwdAttribute) attribute);
 			}
 			break;
 			
 		case CandidateAttribute.ATTRIBUTE_TYPE:
-			media.addCandidate((CandidateAttribute) attribute);
+			info.media.addCandidate((CandidateAttribute) attribute);
 			break;
 			
 		case FingerprintAttribute.ATTRIBUTE_TYPE:
-			if(media == null) {
-				sdp.setFingerprint((FingerprintAttribute) attribute);
+			if(info.media == null) {
+				info.sdp.setFingerprint((FingerprintAttribute) attribute);
 			} else {
-				media.setFingerprint((FingerprintAttribute) attribute);
+				info.media.setFingerprint((FingerprintAttribute) attribute);
 			}
 			break;
 			
 		default:
 			break;
 		}
+	}
+	
+	private static class SdpParsingInfo {
+		
+		final SessionDescription sdp;
+		MediaDescriptionField media;
+		RtpMapAttribute format;
+		
+		public SdpParsingInfo() {
+			this.sdp = new SessionDescription();
+		}
+		
 	}
 	
 }

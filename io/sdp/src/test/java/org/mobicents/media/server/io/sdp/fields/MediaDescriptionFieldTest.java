@@ -18,22 +18,22 @@ public class MediaDescriptionFieldTest {
 		String media = "audio";
 		int port = 65535;
 		String protocol = "RTP/AVP";
-		int[] formats = new int[] { 0, 101 };
+		short[] formats = new short[] { 0, 101 };
 		
 		// when
 		MediaDescriptionField md = new MediaDescriptionField();
 		md.setMedia(media);
 		md.setPort(port);
 		md.setProtocol(MediaProfile.RTP_AVP);
-		md.addFormats(formats);
+		md.setPayloadTypes(formats);
 		
 		// then
 		Assert.assertEquals(media, md.getMedia());
 		Assert.assertEquals(port, md.getPort());
 		Assert.assertEquals(protocol, md.getProtocol());
-		Assert.assertTrue(md.containsFormat(0));
-		Assert.assertTrue(md.containsFormat(101));
-		Assert.assertFalse(md.containsFormat(126));
+		Assert.assertTrue(md.containsPayloadType((short) 0));
+		Assert.assertTrue(md.containsPayloadType((short) 101));
+		Assert.assertFalse(md.containsPayloadType((short) 126));
 	}
 	
 }

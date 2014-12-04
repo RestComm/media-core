@@ -51,9 +51,9 @@ public class MediaDescriptionFieldParserTest {
 		Assert.assertEquals("video", md.getMedia());
 		Assert.assertEquals(64534, md.getPort());
 		Assert.assertEquals("RTP/AVPF", md.getProtocol());
-		Assert.assertTrue(md.containsFormat(0));
-		Assert.assertTrue(md.containsFormat(101));
-		Assert.assertTrue(md.containsFormat(120));
+		Assert.assertTrue(md.containsPayloadType((short) 0));
+		Assert.assertTrue(md.containsPayloadType((short) 101));
+		Assert.assertTrue(md.containsPayloadType((short) 120));
 	}
 
 	@Test
@@ -70,10 +70,10 @@ public class MediaDescriptionFieldParserTest {
 		Assert.assertEquals("audio", md.getMedia());
 		Assert.assertEquals(65000, md.getPort());
 		Assert.assertEquals("RTP/SAVPF", md.getProtocol());
-		Assert.assertTrue(md.containsFormat(0));
-		Assert.assertTrue(md.containsFormat(101));
-		Assert.assertTrue(md.containsFormat(180));
-		Assert.assertFalse(md.containsFormat(120));
+		Assert.assertTrue(md.containsPayloadType((short) 0));
+		Assert.assertTrue(md.containsPayloadType((short) 101));
+		Assert.assertTrue(md.containsPayloadType((short) 180));
+		Assert.assertFalse(md.containsPayloadType((short) 120));
 	}
 
 	@Test(expected=SdpException.class)

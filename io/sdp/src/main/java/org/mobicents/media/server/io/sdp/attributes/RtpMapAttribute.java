@@ -54,6 +54,10 @@ public class RtpMapAttribute extends AttributeField {
 	private int clockRate;
 	private short codecParams;
 	
+	private FormatParameterAttribute parameters;
+	private PacketTimeAttribute ptime;
+	private MaxPacketTimeAttribute maxptime;
+	
 	public RtpMapAttribute() {
 		super(ATTRIBUTE_TYPE);
 		this.codecParams = DEFAULT_CODEC_PARAMS;
@@ -97,6 +101,30 @@ public class RtpMapAttribute extends AttributeField {
 
 	public void setCodecParams(short codecParams) {
 		this.codecParams = codecParams;
+	}
+
+	public FormatParameterAttribute getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(FormatParameterAttribute parameters) {
+		this.parameters = parameters;
+	}
+
+	public PacketTimeAttribute getPtime() {
+		return ptime;
+	}
+
+	public void setPtime(PacketTimeAttribute ptime) {
+		this.ptime = ptime;
+	}
+
+	public MaxPacketTimeAttribute getMaxptime() {
+		return maxptime;
+	}
+
+	public void setMaxptime(MaxPacketTimeAttribute maxptime) {
+		this.maxptime = maxptime;
 	}
 
 	@Override
