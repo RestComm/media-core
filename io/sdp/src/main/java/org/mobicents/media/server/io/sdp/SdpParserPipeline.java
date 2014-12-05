@@ -8,13 +8,17 @@ import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
+import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
 import org.mobicents.media.server.io.sdp.attributes.parser.ConnectionModeAttributeParser;
 import org.mobicents.media.server.io.sdp.attributes.parser.FormatParameterAttributeParser;
 import org.mobicents.media.server.io.sdp.attributes.parser.MaxPacketTimeAttributeParser;
 import org.mobicents.media.server.io.sdp.attributes.parser.PacketTimeAttributeParser;
 import org.mobicents.media.server.io.sdp.attributes.parser.RtpMapAttributeParser;
+import org.mobicents.media.server.io.sdp.attributes.parser.SsrcAttributeParser;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.parser.FingerprintAttributeParser;
+import org.mobicents.media.server.io.sdp.dtls.attributes.parser.SetupAttributeParser;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
@@ -77,6 +81,7 @@ public class SdpParserPipeline {
 		this.attributeParsers.put(FormatParameterAttribute.ATTRIBUTE_TYPE, new FormatParameterAttributeParser());
 		this.attributeParsers.put(RtcpAttribute.ATTRIBUTE_TYPE, new RtcpAttributeParser());
 		this.attributeParsers.put(RtcpMuxAttribute.ATTRIBUTE_TYPE, new RtcpMuxAttributeParser());
+		this.attributeParsers.put(SsrcAttribute.ATTRIBUTE_TYPE, new SsrcAttributeParser());
 		
 		// ICE attributes
 		this.attributeParsers.put(IceLiteAttribute.ATTRIBUTE_TYPE, new IceLiteAttributeParser());
@@ -85,7 +90,7 @@ public class SdpParserPipeline {
 		this.attributeParsers.put(CandidateAttribute.ATTRIBUTE_TYPE, new CandidateAttributeParser());
 		
 		// DTLS attributes
-		this.attributeParsers.put("setup", null);
+		this.attributeParsers.put(SetupAttribute.ATTRIBUTE_TYPE, new SetupAttributeParser());
 		this.attributeParsers.put(FingerprintAttribute.ATTRIBUTE_TYPE, new FingerprintAttributeParser());
 	}
 

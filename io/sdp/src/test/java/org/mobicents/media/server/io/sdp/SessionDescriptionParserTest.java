@@ -9,10 +9,13 @@ import java.nio.file.Paths;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
+import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.fields.OriginField;
@@ -160,11 +163,20 @@ public class SessionDescriptionParserTest {
 		Assert.assertNull(audioDtmf.getParameters());
 		Assert.assertNull(audioDtmf.getPtime());
 		Assert.assertNotNull(audioDtmf.getMaxptime());
-				
+		
+		SetupAttribute audioSetup = audio.getSetup();
+		Assert.assertNotNull(audioSetup);
+		Assert.assertEquals("actpass", audioSetup.getValue());
+		
 		FingerprintAttribute audioFingerprint = audio.getFingerprint();
 		Assert.assertNotNull(audioFingerprint);
 		Assert.assertEquals("sha-256", audioFingerprint.getHashFunction());
 		Assert.assertEquals("D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39", audioFingerprint.getFingerprint());
+		
+		SsrcAttribute audioSsrc = audio.getSsrc();
+		Assert.assertNotNull(audioSsrc);
+		Assert.assertEquals("189858836", audioSsrc.getSsrcId());
+		Assert.assertEquals("rfQMs6/rvuHHWkM4", audioSsrc.getAttributeValue("cname"));
 		
 		IceUfragAttribute audioIceUfrag = audio.getIceUfrag();
 		Assert.assertNotNull(audioIceUfrag);
@@ -241,11 +253,21 @@ public class SessionDescriptionParserTest {
 		Assert.assertNotNull(videoCandidates);
 		Assert.assertEquals(8, videoCandidates.length);
 		
+		SetupAttribute videoSetup = video.getSetup();
+		Assert.assertNotNull(videoSetup);
+		Assert.assertEquals("active", videoSetup.getValue());
+		
+		SsrcAttribute videoSsrc = video.getSsrc();
+		Assert.assertNotNull(videoSsrc);
+		Assert.assertEquals("1993357196", videoSsrc.getSsrcId());
+		Assert.assertEquals("rfQMs6/rvuHHWkM4", videoSsrc.getAttributeValue("cname"));
+		
 		/* APPLICATION */
 		MediaDescriptionField application = sdp.getMediaDescription("application");
 		Assert.assertNull(application);
 	}
 	
+	@Ignore
 	@Test
 	public void loadTest() throws SdpException {
 		int runs = 500000;

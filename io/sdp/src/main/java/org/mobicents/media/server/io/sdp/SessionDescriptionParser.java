@@ -5,7 +5,9 @@ import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
+import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
@@ -175,12 +177,20 @@ public class SessionDescriptionParser {
 			info.media.addCandidate((CandidateAttribute) attribute);
 			break;
 			
+		case SetupAttribute.ATTRIBUTE_TYPE:
+			info.media.setSetup((SetupAttribute) attribute);
+			break;
+			
 		case FingerprintAttribute.ATTRIBUTE_TYPE:
 			if(info.media == null) {
 				info.sdp.setFingerprint((FingerprintAttribute) attribute);
 			} else {
 				info.media.setFingerprint((FingerprintAttribute) attribute);
 			}
+			break;
+			
+		case SsrcAttribute.ATTRIBUTE_TYPE:
+			info.media.setSsrc((SsrcAttribute) attribute);
 			break;
 			
 		default:

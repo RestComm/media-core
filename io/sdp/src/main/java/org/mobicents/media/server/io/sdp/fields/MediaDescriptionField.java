@@ -10,7 +10,9 @@ import org.mobicents.media.server.io.sdp.SdpField;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
+import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
@@ -31,6 +33,7 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
  */
 public class MediaDescriptionField implements SdpField {
 	
+	private static final String NEWLINE = "\n";
 	public static final char FIELD_TYPE = 'm';
 	private static final String BEGIN = "m=";
 
@@ -46,6 +49,7 @@ public class MediaDescriptionField implements SdpField {
 	private ConnectionModeAttribute connectionMode;
 	private RtcpAttribute rtcp;
 	private RtcpMuxAttribute rtcpMux;
+	private SsrcAttribute ssrc;
 	
 	// ICE attributes (session-level)
 	private IcePwdAttribute icePwd;
@@ -54,6 +58,7 @@ public class MediaDescriptionField implements SdpField {
 	
 	// WebRTC attributes (session-level)
 	private FingerprintAttribute fingerprint;
+	private SetupAttribute setup;
 
 	private final StringBuilder builder;
 
@@ -177,6 +182,14 @@ public class MediaDescriptionField implements SdpField {
 		this.rtcpMux = rtcpMux;
 	}
 	
+	public SsrcAttribute getSsrc() {
+		return ssrc;
+	}
+	
+	public void setSsrc(SsrcAttribute ssrc) {
+		this.ssrc = ssrc;
+	}
+	
 	public IceUfragAttribute getIceUfrag() {
 		return iceUfrag;
 	}
@@ -228,6 +241,15 @@ public class MediaDescriptionField implements SdpField {
 	public void setFingerprint(FingerprintAttribute fingerprint) {
 		this.fingerprint = fingerprint;
 	}
+	
+	public SetupAttribute getSetup() {
+		return setup;
+	}
+	
+	public void setSetup(SetupAttribute setup) {
+		this.setup = setup;
+	}
+	
 
 	@Override
 	public char getFieldType() {
@@ -242,16 +264,39 @@ public class MediaDescriptionField implements SdpField {
 		        .append(this.media).append(" ")
 				.append(this.port).append(" ")
 				.append(this.protocol);
-		
 		for (Short payloadType : this.payloadTypes) {
 			this.builder.append(" ").append(payloadType);
 		}
+		
+		appendField(this.connection);
+		appendField(this.connectionMode);
+		appendField(this.rtcp);
+		appendField(this.rtcpMux);
+		appendField(this.iceUfrag);
+		appendField(this.icePwd);
+		
+		if (this.candidates != null && !this.candidates.isEmpty()) {
+			for (CandidateAttribute candidate : this.candidates) {
+				appendField(candidate);
+			}
+		}
 
-		for (RtpMapAttribute format : this.formats.values()) {
-			this.builder.append("\n").append(format.toString());
+		if (this.formats != null && !this.formats.isEmpty()) {
+			for (RtpMapAttribute format : this.formats.values()) {
+				appendField(format);
+			}
 		}
 		
+		appendField(this.setup);
+		appendField(this.fingerprint);
+		appendField(this.ssrc);
 		return this.builder.toString();
+	}
+	
+	private void appendField(SdpField field) {
+		if(field != null) {
+			this.builder.append(NEWLINE).append(field.toString());
+		}
 	}
 	
 	public static boolean isValidProfile(String profile) {
