@@ -32,9 +32,9 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class SdpComparator {
-    protected final static Text AUDIO = new Text("audio");
-    protected final static Text VIDEO = new Text("video");
-    protected final static Text APPLICATION = new Text("application");
+    public final static Text AUDIO = new Text("audio");
+    public final static Text VIDEO = new Text("video");
+    public final static Text APPLICATION = new Text("application");
 
     private RTPFormats audio = new RTPFormats();
     private RTPFormats video = new RTPFormats();
