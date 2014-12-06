@@ -121,6 +121,16 @@ public class SessionDescription {
 		return fingerprint;
 	}
 
+	public FingerprintAttribute getFingerprint(String media) {
+		if(this.mediaMap.containsKey(media)) {
+			FingerprintAttribute audioFingerprint = this.mediaMap.get(media).getFingerprint();
+			if(audioFingerprint != null) {
+				return audioFingerprint;
+			}
+		}
+		return fingerprint;
+	}
+
 	public void setFingerprint(FingerprintAttribute fingerprint) {
 		this.fingerprint = fingerprint;
 	}
@@ -131,6 +141,40 @@ public class SessionDescription {
 	
 	public void addMediaDescription(MediaDescriptionField media) {
 		this.mediaMap.put(media.getMedia(), media);
+	}
+	
+	public boolean containsIce() {
+		// Look for session-level ICE attributes
+		if(this.iceLite != null || this.iceUfrag != null || this.icePwd != null) {
+			return true;
+		}
+		// Look for media-level ICE attributes
+		if(!this.mediaMap.isEmpty()) {
+			for (MediaDescriptionField media : this.mediaMap.values()) {
+				if(media.containsIce()) {
+					return true;
+				}
+			}
+		}
+		// No ICE attributes found
+		return false;
+	}
+	
+	public boolean containsDtls() {
+		// Look for session-level DTLS attributes
+		if(this.fingerprint != null) {
+			return true;
+		}
+		// Look for media-level DTLS attributes
+		if(!this.mediaMap.isEmpty()) {
+			for (MediaDescriptionField media : this.mediaMap.values()) {
+				if(media.containsDtls()) {
+					return true;
+				}
+			}
+		}
+		// No DTLS attributes found
+		return false;
 	}
 	
 }

@@ -162,6 +162,15 @@ public class MediaDescriptionField implements SdpField {
 		return this.formats.values().toArray(new RtpMapAttribute[this.formats.size()]);
 	}
 	
+	public short[] getPayloadTypes() {
+		short[] values = new short[this.payloadTypes.size()];
+		int index = 0;
+		for (Short value : this.payloadTypes) {
+			values[index++] = value;
+		}
+		return values;
+	}
+	
 	public RtpMapAttribute getFormat(short payloadType) {
 		return this.formats.get(payloadType);
 	}
@@ -176,6 +185,10 @@ public class MediaDescriptionField implements SdpField {
 	
 	public RtcpMuxAttribute getRtcpMux() {
 		return rtcpMux;
+	}
+	
+	public boolean isRtcpMux() {
+		return this.rtcpMux != null;
 	}
 	
 	public void setRtcpMux(RtcpMuxAttribute rtcpMux) {
@@ -213,6 +226,10 @@ public class MediaDescriptionField implements SdpField {
 		return candidates.toArray(new CandidateAttribute[this.candidates.size()]);
 	}
 	
+	public boolean hasCandidates() {
+		return !this.candidates.isEmpty();
+	}
+	
 	public void addCandidate(CandidateAttribute candidate) {
 		if(this.candidates == null) {
 			this.candidates = new ArrayList<CandidateAttribute>(8);
@@ -234,12 +251,23 @@ public class MediaDescriptionField implements SdpField {
 		}
 	}
 	
+	public boolean containsIce() {
+		if(this.iceUfrag != null || this.icePwd != null || hasCandidates()) {
+			return true;
+		}
+		return false;
+	}
+	
 	public FingerprintAttribute getFingerprint() {
 		return fingerprint;
 	}
 	
 	public void setFingerprint(FingerprintAttribute fingerprint) {
 		this.fingerprint = fingerprint;
+	}
+	
+	public boolean containsDtls() {
+		return (this.fingerprint != null);
 	}
 	
 	public SetupAttribute getSetup() {
@@ -249,7 +277,6 @@ public class MediaDescriptionField implements SdpField {
 	public void setSetup(SetupAttribute setup) {
 		this.setup = setup;
 	}
-	
 
 	@Override
 	public char getFieldType() {
