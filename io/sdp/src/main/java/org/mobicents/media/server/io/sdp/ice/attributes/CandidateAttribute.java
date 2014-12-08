@@ -28,10 +28,10 @@ public class CandidateAttribute extends AttributeField {
 	public static final String RADDR = "raddr";
 	public static final String RPORT = "rport";
 	
-	private long foundation;
+	private String foundation;
 	private short componentId;
 	private String protocol;
-	private int priority;
+	private long priority;
 	private String address;
 	private int port;
 	private String type;
@@ -43,11 +43,11 @@ public class CandidateAttribute extends AttributeField {
 		super(ATTRIBUTE_TYPE);
 	}
 	
-	public long getFoundation() {
+	public String getFoundation() {
 		return foundation;
 	}
 
-	public void setFoundation(long foundation) {
+	public void setFoundation(String foundation) {
 		this.foundation = foundation;
 	}
 
@@ -67,11 +67,11 @@ public class CandidateAttribute extends AttributeField {
 		this.protocol = protocol;
 	}
 
-	public int getPriority() {
+	public long getPriority() {
 		return priority;
 	}
 
-	public void setPriority(int priority) {
+	public void setPriority(long priority) {
 		this.priority = priority;
 	}
 

@@ -44,8 +44,8 @@ public class MediaDescriptionField implements SdpField {
 	private String media;
 	private int port;
 	private MediaProfile protocol;
-	private final List<Short> payloadTypes;
-	private final Map<Short, RtpMapAttribute> formats;
+	private final List<Integer> payloadTypes;
+	private final Map<Integer, RtpMapAttribute> formats;
 	
 	// SDP fields and attributes (media-level)
 	private ConnectionField connection;
@@ -72,8 +72,8 @@ public class MediaDescriptionField implements SdpField {
 	public MediaDescriptionField(final SessionLevelAccessor sessionAccessor) {
 		this.session = sessionAccessor;
 		this.builder = new StringBuilder(BEGIN);
-		this.payloadTypes = new ArrayList<Short>(10);
-		this.formats = new HashMap<Short, RtpMapAttribute>(10);
+		this.payloadTypes = new ArrayList<Integer>(10);
+		this.formats = new HashMap<Integer, RtpMapAttribute>(10);
 	}
 	
 	public String getMedia() {
@@ -100,20 +100,20 @@ public class MediaDescriptionField implements SdpField {
 		this.protocol = protocol;
 	}
 	
-	public void addPayloadType(short payloadType) {
+	public void addPayloadType(int payloadType) {
 		if(!this.payloadTypes.contains(payloadType)) {
 			this.payloadTypes.add(payloadType);
 		}
 	}
 	
-	public void setPayloadTypes(short... payloadTypes) {
+	public void setPayloadTypes(int... payloadTypes) {
 		this.payloadTypes.clear();
-		for (short payloadType : payloadTypes) {
+		for (int payloadType : payloadTypes) {
 			addPayloadType(payloadType);
 		}
 	}
 	
-	public boolean containsPayloadType(short payloadType) {
+	public boolean containsPayloadType(int payloadType) {
 		return this.payloadTypes.contains(payloadType);
 	}
 	
@@ -136,7 +136,7 @@ public class MediaDescriptionField implements SdpField {
 		}
 	}
 	
-	public boolean containsFormat(short format) {
+	public boolean containsFormat(int format) {
 		return this.formats.containsKey(format);
 	}
 	
@@ -173,16 +173,16 @@ public class MediaDescriptionField implements SdpField {
 		return this.formats.values().toArray(new RtpMapAttribute[this.formats.size()]);
 	}
 	
-	public short[] getPayloadTypes() {
-		short[] values = new short[this.payloadTypes.size()];
+	public int[] getPayloadTypes() {
+		int[] values = new int[this.payloadTypes.size()];
 		int index = 0;
-		for (Short value : this.payloadTypes) {
+		for (Integer value : this.payloadTypes) {
 			values[index++] = value;
 		}
 		return values;
 	}
 	
-	public RtpMapAttribute getFormat(short payloadType) {
+	public RtpMapAttribute getFormat(int payloadType) {
 		return this.formats.get(payloadType);
 	}
 	
@@ -311,7 +311,7 @@ public class MediaDescriptionField implements SdpField {
 		        .append(this.media).append(" ")
 				.append(this.port).append(" ")
 				.append(this.protocol);
-		for (Short payloadType : this.payloadTypes) {
+		for (Integer payloadType : this.payloadTypes) {
 			this.builder.append(" ").append(payloadType);
 		}
 		

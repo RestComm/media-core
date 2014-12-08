@@ -49,10 +49,10 @@ public class RtpMapAttribute extends AttributeField {
 	public static final String ATTRIBUTE_TYPE = "rtpmap";
 	public static final short DEFAULT_CODEC_PARAMS = -1;
 	
-	private short payloadType;
+	private int payloadType;
 	private String codec;
 	private int clockRate;
-	private short codecParams;
+	private int codecParams;
 	
 	private FormatParameterAttribute parameters;
 	private PacketTimeAttribute ptime;
@@ -63,7 +63,7 @@ public class RtpMapAttribute extends AttributeField {
 		this.codecParams = DEFAULT_CODEC_PARAMS;
 	}
 	
-	public RtpMapAttribute(short payloadType, String codec, int clockRate, short codecParams) {
+	public RtpMapAttribute(int payloadType, String codec, int clockRate, int codecParams) {
 		super(ATTRIBUTE_TYPE);
 		this.payloadType = payloadType;
 		this.codec = codec;
@@ -71,11 +71,11 @@ public class RtpMapAttribute extends AttributeField {
 		this.codecParams = codecParams;
 	}
 
-	public short getPayloadType() {
+	public int getPayloadType() {
 		return payloadType;
 	}
 
-	public void setPayloadType(short payloadType) {
+	public void setPayloadType(int payloadType) {
 		this.payloadType = payloadType;
 	}
 
@@ -95,11 +95,11 @@ public class RtpMapAttribute extends AttributeField {
 		this.clockRate = clockRate;
 	}
 
-	public short getCodecParams() {
+	public int getCodecParams() {
 		return codecParams;
 	}
 
-	public void setCodecParams(short codecParams) {
+	public void setCodecParams(int codecParams) {
 		this.codecParams = codecParams;
 	}
 

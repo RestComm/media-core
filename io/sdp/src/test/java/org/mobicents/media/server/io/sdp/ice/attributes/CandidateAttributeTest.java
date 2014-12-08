@@ -14,7 +14,7 @@ public class CandidateAttributeTest {
 	@Test
 	public void testHostCandidate() {
 		// given
-		long foundation = 1995739850L;
+		String foundation = "1995739850";
 		short componentId = 1;
 		String protocol = "udp";
 		int priority = 2113937151;
@@ -42,7 +42,7 @@ public class CandidateAttributeTest {
 	@Test
 	public void testSrflxCandidate() {
 		// given
-		long foundation = 2162486046L;
+		String foundation = "2162486046";
 		short componentId = 1;
 		String protocol = "udp";
 		int priority = 1845501695;

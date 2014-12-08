@@ -23,10 +23,10 @@ public class FormatParameterAttribute extends AttributeField {
 	public static final String ATTRIBUTE_TYPE = "fmtp";
 	private static final short DEFAULT_FORMAT = -1; 
 
-	private short format;
+	private int format;
 	private String params;
 	
-	public FormatParameterAttribute(short format, String params) {
+	public FormatParameterAttribute(int format, String params) {
 		super(ATTRIBUTE_TYPE);
 		this.format = format;
 		this.params = params;
@@ -36,11 +36,11 @@ public class FormatParameterAttribute extends AttributeField {
 		this(DEFAULT_FORMAT, null);
 	}
 	
-	public short getFormat() {
+	public int getFormat() {
 		return format;
 	}
 	
-	public void setFormat(short format) {
+	public void setFormat(int format) {
 		this.format = format;
 	}
 	

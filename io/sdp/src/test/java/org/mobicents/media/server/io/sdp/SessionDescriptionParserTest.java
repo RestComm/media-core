@@ -81,15 +81,15 @@ public class SessionDescriptionParserTest {
 		Assert.assertEquals("audio", audio.getMedia());
 		Assert.assertEquals(54278, audio.getPort());
 		Assert.assertEquals("RTP/SAVPF", audio.getProtocol());
-		Assert.assertTrue(audio.containsFormat((short) 111));
-		Assert.assertTrue(audio.containsFormat((short) 103));
-		Assert.assertTrue(audio.containsFormat((short) 104));
-		Assert.assertTrue(audio.containsFormat((short) 0));
-		Assert.assertTrue(audio.containsFormat((short) 8));
-		Assert.assertTrue(audio.containsFormat((short) 106));
-		Assert.assertTrue(audio.containsFormat((short) 105));
-		Assert.assertTrue(audio.containsFormat((short) 13));
-		Assert.assertTrue(audio.containsFormat((short) 126));
+		Assert.assertTrue(audio.containsFormat(111));
+		Assert.assertTrue(audio.containsFormat(103));
+		Assert.assertTrue(audio.containsFormat(104));
+		Assert.assertTrue(audio.containsFormat(0));
+		Assert.assertTrue(audio.containsFormat(8));
+		Assert.assertTrue(audio.containsFormat(106));
+		Assert.assertTrue(audio.containsFormat(105));
+		Assert.assertTrue(audio.containsFormat(13));
+		Assert.assertTrue(audio.containsFormat(126));
 		
 		ConnectionField audioConnection = audio.getConnection();
 		Assert.assertNotNull(audioConnection);
