@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SdpField;
+import org.mobicents.media.server.io.sdp.SessionLevelAccessor;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
@@ -36,6 +37,8 @@ public class MediaDescriptionField implements SdpField {
 	private static final String NEWLINE = "\n";
 	public static final char FIELD_TYPE = 'm';
 	private static final String BEGIN = "m=";
+	
+	private SessionLevelAccessor session;
 
 	// SDP fields (media description specific)
 	private String media;
@@ -63,6 +66,11 @@ public class MediaDescriptionField implements SdpField {
 	private final StringBuilder builder;
 
 	public MediaDescriptionField() {
+		this(null);
+	}
+	
+	public MediaDescriptionField(final SessionLevelAccessor sessionAccessor) {
+		this.session = sessionAccessor;
 		this.builder = new StringBuilder(BEGIN);
 		this.payloadTypes = new ArrayList<Short>(10);
 		this.formats = new HashMap<Short, RtpMapAttribute>(10);
@@ -140,7 +148,10 @@ public class MediaDescriptionField implements SdpField {
 	}
 
 	public ConnectionField getConnection() {
-		return connection;
+		if(this.connection == null && this.session != null) {
+			return session.getConnection();
+		}
+		return this.connection;
 	}
 
 	public void setConnection(ConnectionField connection) {
@@ -204,7 +215,10 @@ public class MediaDescriptionField implements SdpField {
 	}
 	
 	public IceUfragAttribute getIceUfrag() {
-		return iceUfrag;
+		if(this.iceUfrag == null && this.session != null) {
+			return this.session.getIceUfrag();
+		}
+		return this.iceUfrag;
 	}
 	
 	public void setIceUfrag(IceUfragAttribute iceUfrag) {
@@ -212,7 +226,10 @@ public class MediaDescriptionField implements SdpField {
 	}
 	
 	public IcePwdAttribute getIcePwd() {
-		return icePwd;
+		if(this.icePwd == null && this.session != null) {
+			return this.session.getIcePwd();
+		}
+		return this.icePwd;
 	}
 	
 	public void setIcePwd(IcePwdAttribute icePwd) {
@@ -226,7 +243,7 @@ public class MediaDescriptionField implements SdpField {
 		return candidates.toArray(new CandidateAttribute[this.candidates.size()]);
 	}
 	
-	public boolean hasCandidates() {
+	public boolean containsCandidates() {
 		return !this.candidates.isEmpty();
 	}
 	
@@ -252,13 +269,16 @@ public class MediaDescriptionField implements SdpField {
 	}
 	
 	public boolean containsIce() {
-		if(this.iceUfrag != null || this.icePwd != null || hasCandidates()) {
+		if(this.iceUfrag != null || this.icePwd != null || containsCandidates()) {
 			return true;
 		}
 		return false;
 	}
 	
 	public FingerprintAttribute getFingerprint() {
+		if(this.fingerprint == null && this.session != null) {
+			return session.getFingerprint();
+		}
 		return fingerprint;
 	}
 	
