@@ -22,13 +22,13 @@ public class TimingFieldParser implements SdpParser<TimingField> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public TimingField parse(String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			int startTime = Integer.parseInt(values[0]);
 			int stopTime = Integer.parseInt(values[1]);
 			return new TimingField(startTime, stopTime);
@@ -40,7 +40,7 @@ public class TimingFieldParser implements SdpParser<TimingField> {
 	@Override
 	public void parse(TimingField field, String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			int startTime = Integer.parseInt(values[0]);
 			int stopTime = Integer.parseInt(values[1]);
 			field.setStartTime(startTime);

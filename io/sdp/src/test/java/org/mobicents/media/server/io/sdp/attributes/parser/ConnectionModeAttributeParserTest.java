@@ -19,13 +19,13 @@ public class ConnectionModeAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=sendonly";
-		String sdp2 = "a=recvonly";
-		String sdp3 = "a=sendrecv";
-		String sdp4 = "a=inactive";
-		String sdp5 = "x=inactive";
-		String sdp6 = "a=invalid";
-		String sdp7 = "a=inactive:123";
+		String sdp1 = "a=sendonly\n\r";
+		String sdp2 = "a=recvonly\n\r";
+		String sdp3 = "a=sendrecv\n\r";
+		String sdp4 = "a=inactive\n\r";
+		String sdp5 = "x=inactive\n\r";
+		String sdp6 = "a=invalid\n\r";
+		String sdp7 = "a=inactive:123\n\r";
 
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -49,7 +49,7 @@ public class ConnectionModeAttributeParserTest {
 	@Test
 	public void testParseSendOnly() throws SdpException {
 		// given
-		String sdp1 = "a=sendonly";
+		String sdp1 = "a=sendonly\n\r";
 		
 		// when
 		ConnectionModeAttribute obj = parser.parse(sdp1);
@@ -62,7 +62,7 @@ public class ConnectionModeAttributeParserTest {
 	@Test
 	public void testParseRecvOnly() throws SdpException {
 		// given
-		String sdp1 = "a=recvonly";
+		String sdp1 = "a=recvonly\n\r";
 		
 		// when
 		AbstractConnectionModeAttribute obj = parser.parse(sdp1);
@@ -75,7 +75,7 @@ public class ConnectionModeAttributeParserTest {
 	@Test
 	public void testParseSendRecv() throws SdpException {
 		// given
-		String sdp1 = "a=sendrecv";
+		String sdp1 = "a=sendrecv\n\r";
 		
 		// when
 		AbstractConnectionModeAttribute obj = parser.parse(sdp1);
@@ -88,7 +88,7 @@ public class ConnectionModeAttributeParserTest {
 	@Test
 	public void testParseInactive() throws SdpException {
 		// given
-		String sdp1 = "a=inactive";
+		String sdp1 = "a=inactive\n\r";
 		
 		// when
 		AbstractConnectionModeAttribute obj = parser.parse(sdp1);
@@ -101,8 +101,8 @@ public class ConnectionModeAttributeParserTest {
 	@Test
 	public void testParseOverwrite() throws SdpException {
 		// given
-		String sdp1 = "a=inactive";
-		String sdp2 = "a=recvonly";
+		String sdp1 = "a=inactive\n\r";
+		String sdp2 = "a=recvonly\n\r";
 		
 		// when
 		ConnectionModeAttribute obj = parser.parse(sdp1);

@@ -18,13 +18,13 @@ public class SetupAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=setup:active";
-		String sdp2 = "a=setup:passive";
-		String sdp3 = "a=setup:actpass";
-		String sdp4 = "a=setup:holdconn";
-		String sdp5 = "x=setup:active";
-		String sdp6 = "a=setup:xyz";
-		String sdp7 = "a=setup:";
+		String sdp1 = "a=setup:active\n\r";
+		String sdp2 = "a=setup:passive\n\r";
+		String sdp3 = "a=setup:actpass\n\r";
+		String sdp4 = "a=setup:holdconn\n\r";
+		String sdp5 = "x=setup:active\n\r";
+		String sdp6 = "a=setup:xyz\n\r";
+		String sdp7 = "a=setup:\n\r";
 		
 		// when
 		boolean canParseSdp1 = PARSER.canParse(sdp1);
@@ -48,7 +48,7 @@ public class SetupAttributeParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String sdp1 = "a=setup:active";
+		String sdp1 = "a=setup:active\n\r";
 		
 		// when
 		SetupAttribute obj = PARSER.parse(sdp1);
@@ -61,8 +61,8 @@ public class SetupAttributeParserTest {
 	@Test
 	public void testParseOverwirte() throws SdpException {
 		// given
-		String sdp1 = "a=setup:active";
-		String sdp2 = "a=setup:passive";
+		String sdp1 = "a=setup:active\n\r";
+		String sdp2 = "a=setup:passive\n\r";
 		
 		// when
 		SetupAttribute obj = PARSER.parse(sdp1);
@@ -75,7 +75,7 @@ public class SetupAttributeParserTest {
 	@Test(expected = SdpException.class)
 	public void testParseMissingRole() throws SdpException {
 		// given
-		String sdp1 = "a=setup:";
+		String sdp1 = "a=setup:\n\r";
 
 		// when
 		PARSER.parse(sdp1);

@@ -18,11 +18,11 @@ public class MediaDescriptionFieldParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "m=video 64534 RTP/AVPF 0 101 120";
-		String sdp2 = "x=video 64534 RTP/AVPF 0 101 120";
-		String sdp3 = "m=video xyz RTP/AVPF 0 101 120";
-		String sdp4 = "m=video 64534 0 101 120";
-		String sdp5 = "m=video 64534 RTP/AVPF 0 xyz 120";
+		String sdp1 = "m=video 64534 RTP/AVPF 0 101 120\n\r";
+		String sdp2 = "x=video 64534 RTP/AVPF 0 101 120\n\r";
+		String sdp3 = "m=video xyz RTP/AVPF 0 101 120\n\r";
+		String sdp4 = "m=video 64534 0 101 120\n\r";
+		String sdp5 = "m=video 64534 RTP/AVPF 0 xyz 120\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -42,7 +42,7 @@ public class MediaDescriptionFieldParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String line = "m=video 64534 RTP/AVPF 0 101 120";
+		String line = "m=video 64534 RTP/AVPF 0 101 120\n\r";
 		
 		// when
 		MediaDescriptionField md = parser.parse(line);
@@ -59,8 +59,8 @@ public class MediaDescriptionFieldParserTest {
 	@Test
 	public void testParseOverwrite() throws SdpException {
 		// given
-		String line1 = "m=video 64534 RTP/AVPF 0 101 120";
-		String line2 = "m=audio 65000 RTP/SAVPF 0 101 180";
+		String line1 = "m=video 64534 RTP/AVPF 0 101 120\n\r";
+		String line2 = "m=audio 65000 RTP/SAVPF 0 101 180\n\r";
 		
 		// when
 		MediaDescriptionField md = parser.parse(line1);
@@ -79,7 +79,7 @@ public class MediaDescriptionFieldParserTest {
 	@Test(expected=SdpException.class)
 	public void testParseMissingMedia() throws SdpException {
 		// given
-		String line = "m=64534 RTP/AVPF 0 101 120";
+		String line = "m=64534 RTP/AVPF 0 101 120\n\r";
 		
 		// when
 		parser.parse(line);
@@ -88,7 +88,7 @@ public class MediaDescriptionFieldParserTest {
 	@Test(expected=SdpException.class)
 	public void testParseInvalidPortFormat() throws SdpException {
 		// given
-		String line = "m=64534 xyz RTP/AVPF 0 101 120";
+		String line = "m=64534 xyz RTP/AVPF 0 101 120\n\r";
 		
 		// when
 		parser.parse(line);
@@ -97,7 +97,7 @@ public class MediaDescriptionFieldParserTest {
 	@Test(expected=SdpException.class)
 	public void testParseMissingProtocol() throws SdpException {
 		// given
-		String line = "m=64534 63000 0 101 120";
+		String line = "m=64534 63000 0 101 120\n\r";
 		
 		// when
 		parser.parse(line);
@@ -106,7 +106,7 @@ public class MediaDescriptionFieldParserTest {
 	@Test(expected=SdpException.class)
 	public void testParseInvalidFormats() throws SdpException {
 		// given
-		String line = "m=64534 63000 RTP/AVP a b c";
+		String line = "m=64534 63000 RTP/AVP a b c\n\r";
 		
 		// when
 		parser.parse(line);

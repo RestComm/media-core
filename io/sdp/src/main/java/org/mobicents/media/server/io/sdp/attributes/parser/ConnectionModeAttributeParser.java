@@ -29,13 +29,13 @@ public class ConnectionModeAttributeParser implements SdpParser<ConnectionModeAt
 		if (sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public ConnectionModeAttribute parse(String sdp) throws SdpException {
 		try {
-			String mode = sdp.substring(2);
+			String mode = sdp.trim().substring(2);
 			if (!isTypeValid(mode)) {
 				throw new IllegalArgumentException("Unknown connection mode");
 			}
@@ -48,7 +48,7 @@ public class ConnectionModeAttributeParser implements SdpParser<ConnectionModeAt
 	@Override
 	public void parse(ConnectionModeAttribute field, String sdp) throws SdpException {
 		try {
-			String mode = sdp.substring(2);
+			String mode = sdp.trim().substring(2);
 			if (!isTypeValid(mode)) {
 				throw new IllegalArgumentException("Unknown connection mode");
 			}

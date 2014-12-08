@@ -18,11 +18,11 @@ public class SsrcAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4";
-		String sdp2 = "a=ssrc:1993357196 xyz";
-		String sdp3 = "x=ssrc:1993357196 xyz";
-		String sdp4 = "a=ssrc:1993357196";
-		String sdp5 = "a=ssrc:1993357196 cname:";
+		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4\n\r";
+		String sdp2 = "a=ssrc:1993357196 xyz\n\r";
+		String sdp3 = "x=ssrc:1993357196 xyz\n\r";
+		String sdp4 = "a=ssrc:1993357196\n\r";
+		String sdp5 = "a=ssrc:1993357196 cname:\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -42,7 +42,7 @@ public class SsrcAttributeParserTest {
 	@Test
 	public void testParseSimpleAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=ssrc:1993357196 xyz";
+		String sdp1 = "a=ssrc:1993357196 xyz\n\r";
 		
 		// when
 		SsrcAttribute ssrc = parser.parse(sdp1);
@@ -56,7 +56,7 @@ public class SsrcAttributeParserTest {
 	@Test
 	public void testParseComplexAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4";
+		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4\n\r";
 		
 		// when
 		SsrcAttribute ssrc = parser.parse(sdp1);
@@ -70,8 +70,8 @@ public class SsrcAttributeParserTest {
 	@Test
 	public void testParseOverwriteSameSsrc() throws SdpException {
 		// given
-		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4";
-		String sdp2 = "a=ssrc:1993357196 label:753ad6b1-31a6-4fea-8070-269c6df6ff0e";
+		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4\n\r";
+		String sdp2 = "a=ssrc:1993357196 label:753ad6b1-31a6-4fea-8070-269c6df6ff0e\n\r";
 		
 		// when
 		SsrcAttribute ssrc = parser.parse(sdp1);
@@ -87,8 +87,8 @@ public class SsrcAttributeParserTest {
 	@Test
 	public void testParseOverwriteNewSsrc() throws SdpException {
 		// given
-		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4";
-		String sdp2 = "a=ssrc:1111111111 label:753ad6b1-31a6-4fea-8070-269c6df6ff0e";
+		String sdp1 = "a=ssrc:1993357196 cname:rfQMs6/rvuHHWkM4\n\r";
+		String sdp2 = "a=ssrc:1111111111 label:753ad6b1-31a6-4fea-8070-269c6df6ff0e\n\r";
 		
 		// when
 		SsrcAttribute ssrc = parser.parse(sdp1);

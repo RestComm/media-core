@@ -22,13 +22,13 @@ public class SetupAttributeParser implements SdpParser<SetupAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public SetupAttribute parse(String sdp) throws SdpException {
 		try {			
-			return new SetupAttribute(sdp.substring(8));
+			return new SetupAttribute(sdp.trim().substring(8));
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
 		}
@@ -37,7 +37,7 @@ public class SetupAttributeParser implements SdpParser<SetupAttribute> {
 	@Override
 	public void parse(SetupAttribute field, String sdp) throws SdpException {
 		try {
-			field.setValue(sdp.substring(8));
+			field.setValue(sdp.trim().substring(8));
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
 		}		

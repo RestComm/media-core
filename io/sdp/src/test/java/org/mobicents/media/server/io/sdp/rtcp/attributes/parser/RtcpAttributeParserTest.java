@@ -18,15 +18,15 @@ public class RtcpAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=rtcp:65000";
-		String sdp2 = "x=rtcp:65000";
-		String sdp3 = "a=rtcp:xyz";
-		String sdp4 = "a=rtcp:65000 xyz";
+		String sdp1 = "a=rtcp:65000\n\r";
+		String sdp2 = "x=rtcp:65000\n\r";
+		String sdp3 = "a=rtcp:xyz\n\r";
+		String sdp4 = "a=rtcp:65000 xyz\n\r";
 		
-		String sdp5 = "a=rtcp:65000 IN IP4 127.0.0.1";
-		String sdp6 = "a=rtcp:65000 IP4 127.0.0.1";
-		String sdp7 = "a=rtcp:65000 IN 127.0.0.1";
-		String sdp8 = "a=rtcp:65000 IN IP4 xyz";
+		String sdp5 = "a=rtcp:65000 IN IP4 127.0.0.1\n\r";
+		String sdp6 = "a=rtcp:65000 IP4 127.0.0.1\n\r";
+		String sdp7 = "a=rtcp:65000 IN 127.0.0.1\n\r";
+		String sdp8 = "a=rtcp:65000 IN IP4 xyz\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -52,7 +52,7 @@ public class RtcpAttributeParserTest {
 	@Test
 	public void testParseSimpleAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=rtcp:65000";
+		String sdp1 = "a=rtcp:65000\n\r";
 		
 		// when
 		RtcpAttribute obj = parser.parse(sdp1);
@@ -67,7 +67,7 @@ public class RtcpAttributeParserTest {
 	@Test
 	public void testParseComplexAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=rtcp:65000 IN IP4 127.0.0.1";
+		String sdp1 = "a=rtcp:65000 IN IP4 127.0.0.1\n\r";
 		
 		// when
 		RtcpAttribute obj = parser.parse(sdp1);
@@ -82,8 +82,8 @@ public class RtcpAttributeParserTest {
 	@Test
 	public void testParseSimpleToComplexOverwrite() throws SdpException {
 		// given
-		String sdp1 = "a=rtcp:65000";
-		String sdp2 = "a=rtcp:64000 IN IP4 127.0.0.1";
+		String sdp1 = "a=rtcp:65000\n\r";
+		String sdp2 = "a=rtcp:64000 IN IP4 127.0.0.1\n\r";
 		
 		// when
 		RtcpAttribute obj = parser.parse(sdp1);
@@ -99,8 +99,8 @@ public class RtcpAttributeParserTest {
 	@Test
 	public void testParseComplexToSimpleOverwrite() throws SdpException {
 		// given
-		String sdp1 = "a=rtcp:64000 IN IP4 127.0.0.1";
-		String sdp2 = "a=rtcp:65000";
+		String sdp1 = "a=rtcp:64000 IN IP4 127.0.0.1\n\r";
+		String sdp2 = "a=rtcp:65000\n\r";
 		
 		// when
 		RtcpAttribute obj = parser.parse(sdp1);

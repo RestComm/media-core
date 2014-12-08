@@ -17,7 +17,7 @@ public class IceUfragAttributeParser implements SdpParser<IceUfragAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class IceUfragAttributeParser implements SdpParser<IceUfragAttribute> {
 				throw new IllegalAccessException("No value found");
 			}
 			
-			String ufrag = sdp.substring(separator + 1);
+			String ufrag = sdp.trim().substring(separator + 1);
 			if(ufrag.isEmpty()) {
 				throw new IllegalArgumentException("No value found");
 			}
@@ -46,7 +46,7 @@ public class IceUfragAttributeParser implements SdpParser<IceUfragAttribute> {
 				throw new IllegalAccessException("No value found");
 			}
 			
-			String ufrag = sdp.substring(separator + 1);
+			String ufrag = sdp.trim().substring(separator + 1);
 			if(ufrag.isEmpty()) {
 				throw new IllegalArgumentException("No value found");
 			}

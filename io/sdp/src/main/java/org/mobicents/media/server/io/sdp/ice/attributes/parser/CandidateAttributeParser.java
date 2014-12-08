@@ -24,13 +24,13 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public CandidateAttribute parse(String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(12).split(" ");
+			String[] values = sdp.trim().substring(12).split(" ");
 			int index = 0;
 
 			// extract data from SDP
@@ -80,7 +80,7 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 	@Override
 	public void parse(CandidateAttribute field, String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(12).split(" ");
+			String[] values = sdp.trim().substring(12).split(" ");
 			int index = 0;
 
 			// extract data from SDP

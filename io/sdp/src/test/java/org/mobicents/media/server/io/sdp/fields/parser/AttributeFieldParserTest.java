@@ -18,10 +18,10 @@ public class AttributeFieldParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=ice-lite";
-		String sdp2 = "a=ice-pwd:P4sSw0rD";
-		String sdp3 = "x=ice-lite";
-		String sdp4 = "a=ice-pwd: ";
+		String sdp1 = "a=ice-lite\n\r";
+		String sdp2 = "a=ice-pwd:P4sSw0rD\n\r";
+		String sdp3 = "x=ice-lite\n\r";
+		String sdp4 = "a=ice-pwd: \n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -39,7 +39,7 @@ public class AttributeFieldParserTest {
 	@Test
 	public void testParseSimpleAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=ice-lite";
+		String sdp1 = "a=ice-lite\n\r";
 		
 		// when
 		GenericAttribute field = parser.parse(sdp1);
@@ -53,7 +53,7 @@ public class AttributeFieldParserTest {
 	@Test
 	public void testParseValuedAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=ice-pwd:P4sSw0Rd";
+		String sdp1 = "a=ice-pwd:P4sSw0Rd\n\r";
 		
 		// when
 		GenericAttribute field = parser.parse(sdp1);
@@ -67,8 +67,8 @@ public class AttributeFieldParserTest {
 	@Test
 	public void testParseOverwriteValuedToSimpleAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=ice-pwd:P4sSw0Rd";
-		String sdp2 = "a=ice-lite";
+		String sdp1 = "a=ice-pwd:P4sSw0Rd\n\r";
+		String sdp2 = "a=ice-lite\n\r";
 		
 		// when
 		GenericAttribute field = parser.parse(sdp1);
@@ -82,8 +82,8 @@ public class AttributeFieldParserTest {
 	@Test
 	public void testParseOverwriteSimpleToValuedAttribute() throws SdpException {
 		// given
-		String sdp1 = "a=ice-lite";
-		String sdp2 = "a=ice-pwd:P4sSw0Rd";
+		String sdp1 = "a=ice-lite\n\r";
+		String sdp2 = "a=ice-pwd:P4sSw0Rd\n\r";
 		
 		// when
 		GenericAttribute field = parser.parse(sdp1);
@@ -93,6 +93,5 @@ public class AttributeFieldParserTest {
 		Assert.assertEquals("ice-pwd", field.getKey());
 		Assert.assertEquals("P4sSw0Rd", field.getValue());
 	}
-
 
 }

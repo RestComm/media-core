@@ -18,10 +18,10 @@ public class TimingFieldParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "t=123 456";
-		String sdp2 = "t=xyz 456";
-		String sdp3 = "t=123 xyz";
-		String sdp4 = "x=123 456";
+		String sdp1 = "t=123 456\n\r";
+		String sdp2 = "t=xyz 456\n\r";
+		String sdp3 = "t=123 xyz\n\r";
+		String sdp4 = "x=123 456\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -39,7 +39,7 @@ public class TimingFieldParserTest {
 	@Test
 	public void testValidParse() throws SdpException {
 		// given
-		String line = "t=123 456";
+		String line = "t=123 456\n\r";
 
 		// when
 		TimingField field = parser.parse(line);
@@ -52,7 +52,7 @@ public class TimingFieldParserTest {
 	@Test(expected = SdpException.class)
 	public void testInvalidParseMissingElement() throws SdpException {
 		// given
-		String line = "t=123";
+		String line = "t=123\n\r";
 
 		// when
 		parser.parse(line);
@@ -61,7 +61,7 @@ public class TimingFieldParserTest {
 	@Test(expected = SdpException.class)
 	public void testInvalidParseNumberFormat() throws SdpException {
 		// given
-		String line = "t=123 xyz";
+		String line = "t=123 xyz\n\r";
 		
 		// when
 		parser.parse(line);

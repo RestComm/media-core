@@ -18,11 +18,11 @@ public class FormatParameterAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=fmtp:18 annexb=no";
-		String sdp2 = "a=fmtp:101 0-15";
-		String sdp3 = "x=fmtp:101 0-15";
-		String sdp4 = "a=fmtp:xyz 0-15";
-		String sdp5 = "a=fmtp:101";
+		String sdp1 = "a=fmtp:18 annexb=no\n\r";
+		String sdp2 = "a=fmtp:101 0-15\n\r";
+		String sdp3 = "x=fmtp:101 0-15\n\r";
+		String sdp4 = "a=fmtp:xyz 0-15\n\r";
+		String sdp5 = "a=fmtp:101\n\r";
 
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -42,7 +42,7 @@ public class FormatParameterAttributeParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String sdp1 = "a=fmtp:18 annexb=no";
+		String sdp1 = "a=fmtp:18 annexb=no\n\r";
 		
 		// when
 		FormatParameterAttribute obj = parser.parse(sdp1);
@@ -55,8 +55,8 @@ public class FormatParameterAttributeParserTest {
 	@Test
 	public void testParseOverwrite() throws SdpException {
 		// given
-		String sdp1 = "a=fmtp:18 annexb=no";
-		String sdp2 = "a=fmtp:101 0-15";
+		String sdp1 = "a=fmtp:18 annexb=no\n\r";
+		String sdp2 = "a=fmtp:101 0-15\n\r";
 		
 		// when
 		FormatParameterAttribute obj = parser.parse(sdp1);

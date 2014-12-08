@@ -23,7 +23,7 @@ public class FingerprintAttributeParser implements SdpParser<FingerprintAttribut
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class FingerprintAttributeParser implements SdpParser<FingerprintAttribut
 				throw new IllegalArgumentException("No value found");
 			}
 			
-			String[] values = sdp.substring(separator + 1).split(" ");
+			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			String hashFunction = values[0];
 			String fingerprint = values[1];
 			return new FingerprintAttribute(hashFunction, fingerprint);
@@ -51,7 +51,7 @@ public class FingerprintAttributeParser implements SdpParser<FingerprintAttribut
 				throw new IllegalArgumentException("No value found");
 			}
 			
-			String[] values = sdp.substring(separator + 1).split(" ");
+			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			String hashFunction = values[0];
 			String fingerprint = values[1];
 			field.setHashFunction(hashFunction);

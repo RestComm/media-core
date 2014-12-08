@@ -18,9 +18,9 @@ public class IcePwdAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=ice-pwd:P4ssW0rD";
-		String sdp2 = "a=ice-pass: ";
-		String sdp3 = "x=ice-pwd:P4ssW0rD";
+		String sdp1 = "a=ice-pwd:P4ssW0rD\n\r";
+		String sdp2 = "a=ice-pass: \n\r";
+		String sdp3 = "x=ice-pwd:P4ssW0rD\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -36,7 +36,7 @@ public class IcePwdAttributeParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String sdp1 = "a=ice-pwd:P4ssW0rD";
+		String sdp1 = "a=ice-pwd:P4ssW0rD\n\r";
 		
 		// when
 		IcePwdAttribute obj = parser.parse(sdp1);
@@ -48,8 +48,8 @@ public class IcePwdAttributeParserTest {
 	@Test
 	public void testParseOverwrite() throws SdpException {
 		// given
-		String sdp1 = "a=ice-pwd:P4ssW0rD";
-		String sdp2 = "a=ice-pwd:N3wP4sS";
+		String sdp1 = "a=ice-pwd:P4ssW0rD\n\r";
+		String sdp2 = "a=ice-pwd:N3wP4sS\n\r";
 		
 		// when
 		IcePwdAttribute obj = parser.parse(sdp1);
@@ -62,7 +62,7 @@ public class IcePwdAttributeParserTest {
 	@Test(expected=SdpException.class)
 	public void testParseMissingPassword() throws SdpException {
 		// given
-		String sdp1 = "a=ice-pwd:";
+		String sdp1 = "a=ice-pwd:\n\r";
 		
 		// when
 		parser.parse(sdp1);

@@ -17,14 +17,14 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public MediaDescriptionField parse(String sdp) throws SdpException {
 		try {
 			// Extract data from SDP
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			int index = 0;
 			int maxIndex = values.length - 1;
 
@@ -60,7 +60,7 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 	public void parse(MediaDescriptionField field, String sdp) throws SdpException {
 		try {
 			// Extract data from SDP
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			int index = 0;
 			int maxIndex = values.length - 1;
 

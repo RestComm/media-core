@@ -18,10 +18,10 @@ public class IceUfragParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=ice-ufrag:Ufr4G";
-		String sdp2 = "x=ice-ufrag:Ufr4G";
-		String sdp3 = "a=ice-ufrag: ";
-		String sdp4 = "a=ice-pwd:Ufr4G";
+		String sdp1 = "a=ice-ufrag:Ufr4G\n\r";
+		String sdp2 = "x=ice-ufrag:Ufr4G\n\r";
+		String sdp3 = "a=ice-ufrag: \n\r";
+		String sdp4 = "a=ice-pwd:Ufr4G\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -39,7 +39,7 @@ public class IceUfragParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String sdp1 = "a=ice-ufrag:Ufr4G";
+		String sdp1 = "a=ice-ufrag:Ufr4G\n\r";
 		
 		// when
 		IceUfragAttribute obj = parser.parse(sdp1);
@@ -51,7 +51,7 @@ public class IceUfragParserTest {
 	@Test(expected=SdpException.class)
 	public void testParseMissingValue() throws SdpException {
 		// given
-		String sdp1 = "a=ice-ufrag:";
+		String sdp1 = "a=ice-ufrag:\n\r";
 		
 		// when
 		parser.parse(sdp1);
