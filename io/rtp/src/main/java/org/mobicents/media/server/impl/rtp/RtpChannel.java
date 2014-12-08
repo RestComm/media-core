@@ -435,6 +435,28 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		return new Text();
 	}
 	
+	public Text getFingerprintHash() {
+		if(this.dtlsHandler != null) {
+			Text fingerprint = this.dtlsHandler.getLocalFingerprint();
+			int whitespace = fingerprint.indexOf(' ');
+			if(whitespace != -1) {
+				return fingerprint.subtext(0, whitespace);
+			}
+		}
+		return null;
+	}
+
+	public Text getFingerprintValue() {
+		if(this.dtlsHandler != null) {
+			Text fingerprint = this.dtlsHandler.getLocalFingerprint();
+			int whitespace = fingerprint.indexOf(' ');
+			if(whitespace != -1) {
+				return fingerprint.subtext(whitespace + 1);
+			}
+		}
+		return null;
+	}
+	
 	public void close() {
 		if(rtcpMux) {
 			this.rtcpHandler.leaveRtpSession();
