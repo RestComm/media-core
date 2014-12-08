@@ -7,7 +7,6 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
-import org.hamcrest.core.IsEqual;
 import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.component.audio.AudioComponent;

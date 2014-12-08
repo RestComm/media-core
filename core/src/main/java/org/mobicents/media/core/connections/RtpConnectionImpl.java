@@ -22,32 +22,23 @@
 
 package org.mobicents.media.core.connections;
 
-import gov.nist.javax.sdp.fields.ConnectionAddress;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.text.ParseException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.MediaTypes;
-import org.mobicents.media.core.SdpTemplate;
-import org.mobicents.media.core.WebRTCSdpTemplate;
 import org.mobicents.media.io.ice.CandidatePair;
 import org.mobicents.media.io.ice.IceAgent;
 import org.mobicents.media.io.ice.IceCandidate;
 import org.mobicents.media.io.ice.IceComponent;
 import org.mobicents.media.io.ice.IceFactory;
 import org.mobicents.media.io.ice.IceMediaStream;
-import org.mobicents.media.io.ice.LocalCandidateWrapper;
 import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
-import org.mobicents.media.io.ice.sdp.IceSdpNegotiator;
-import org.mobicents.media.io.ice.sdp.attributes.IceLiteAttribute;
-import org.mobicents.media.io.ice.sdp.attributes.IceUfragAttribute;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
@@ -56,14 +47,11 @@ import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
-import org.mobicents.media.server.impl.rtp.sdp.MediaType;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
-import org.mobicents.media.server.io.network.channel.Channel;
 import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
@@ -82,7 +70,9 @@ import org.mobicents.media.server.io.sdp.fields.SessionNameField;
 import org.mobicents.media.server.io.sdp.fields.TimingField;
 import org.mobicents.media.server.io.sdp.fields.VersionField;
 import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -95,7 +85,6 @@ import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.utils.Text;
@@ -417,8 +406,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// Generate SDP offer based on rtp channel
 		String bindAddress = rtpAudioChannel.getLocalHost();
 		int rtcpPort = this.audioRtcpMux ? rtpAudioChannel.getLocalPort() : rtcpAudioChannel.getLocalPort();
-		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtcpPort, 0);
-		this.sdpAnswer = "";
+//		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtcpPort, 0);
+//		this.sdpAnswer = "";
 	}
 	
 	@Override
@@ -676,16 +665,15 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		String originatorAddress = this.rtpAudioChannel.hasExternalAddress() ? this.rtpAudioChannel.getExternalAddress() : bindAddress;
 		
 		// Session Description
-		VersionField version = new VersionField((short) 0);
-		OriginField origin = new OriginField("-", System.currentTimeMillis(), 1, "IN", "IP4", originatorAddress);
-		SessionNameField session = new SessionNameField("Mobicents Media Server");
-		ConnectionField connection = new ConnectionField("IN", "IP4", bindAddress);
-		TimingField timing = new TimingField(0, 0);
-		ConnectionModeAttribute connectionMode = new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV);
+		answer.setVersion(new VersionField((short) 0));
+		answer.setOrigin(new OriginField("-", System.currentTimeMillis(), 1, "IN", "IP4", originatorAddress));
+		answer.setSessionName(new SessionNameField("Mobicents Media Server"));
+		answer.setConnection(new ConnectionField("IN", "IP4", bindAddress));
+		answer.setTiming(new TimingField(0, 0));
 
 		// Session-level ICE
 		if(this.ice) {
-			IceLiteAttribute iceLite = new IceLiteAttribute();
+			answer.setIceLite(new IceLiteAttribute());
 		}
 		
 		// Media Description - audio
@@ -699,7 +687,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			
 			// ICE attributes
 			if(this.ice) {
-				IceUfragAttribute iceUfrag = new IceUfragAttribute(this.iceAgent.getUfrag());
+				audioDescription.setIceUfrag(new IceUfragAttribute(this.iceAgent.getUfrag()));
 				IcePwdAttribute icePwd = new IcePwdAttribute(this.iceAgent.getPassword());
 				
 				IceMediaStream audio = iceAgent.getMediaStream("audio");
@@ -737,6 +725,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 				Text fingerprintValue = this.rtpAudioChannel.getFingerprintValue();
 				answer.setFingerprint(new FingerprintAttribute(fingerprintHash.toString(), fingerprintValue.toString()));
 			}
+			ConnectionModeAttribute connectionMode = new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV);
 			SsrcAttribute ssrcAttribute = new SsrcAttribute(Long.toString(this.ssrc));
 			ssrcAttribute.addAttribute("cname", this.cname);
 		}
