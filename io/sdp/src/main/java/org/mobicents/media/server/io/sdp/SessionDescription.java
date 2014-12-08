@@ -20,7 +20,7 @@ import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SessionDescription {
+public class SessionDescription implements SessionLevelAccessor {
 	
 	// SDP fields (session-level)
 	private VersionField version;
@@ -69,8 +69,19 @@ public class SessionDescription {
 		this.sessionName = sessionName;
 	}
 	
+	@Override
 	public ConnectionField getConnection() {
 		return connection;
+	}
+
+	public ConnectionField getConnection(String media) {
+		if(this.mediaMap.containsKey(media)) {
+			ConnectionField mediaConn = this.mediaMap.get("media").getConnection();
+			if(mediaConn != null) {
+				return mediaConn;
+			}
+		}
+		return this.connection;
 	}
 	
 	public void setConnection(ConnectionField connection) {
@@ -101,6 +112,7 @@ public class SessionDescription {
 		this.iceLite = iceLite;
 	}
 
+	@Override
 	public IcePwdAttribute getIcePwd() {
 		return icePwd;
 	}
@@ -109,6 +121,7 @@ public class SessionDescription {
 		this.icePwd = icePwd;
 	}
 
+	@Override
 	public IceUfragAttribute getIceUfrag() {
 		return iceUfrag;
 	}
@@ -117,6 +130,7 @@ public class SessionDescription {
 		this.iceUfrag = iceUfrag;
 	}
 
+	@Override
 	public FingerprintAttribute getFingerprint() {
 		return fingerprint;
 	}
@@ -137,6 +151,10 @@ public class SessionDescription {
 
 	public MediaDescriptionField getMediaDescription(String mediaType) {
 		return this.mediaMap.get(mediaType);
+	}
+	
+	public boolean containsMediaDescription(String mediaType) {
+		return this.mediaMap.containsKey(mediaType);
 	}
 	
 	public void addMediaDescription(MediaDescriptionField media) {
