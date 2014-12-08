@@ -24,7 +24,7 @@ public class RtcpAttributeParser implements SdpParser<RtcpAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class RtcpAttributeParser implements SdpParser<RtcpAttribute> {
 				throw new IllegalArgumentException("No value found");
 			}
 			
-			String[] values = sdp.substring(separator + 1).split(" ");
+			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			
 			// Parse mandatory values
 			int port = Integer.parseInt(values[0]);
@@ -62,7 +62,7 @@ public class RtcpAttributeParser implements SdpParser<RtcpAttribute> {
 			if(separator == -1) {
 				throw new IllegalArgumentException("No value found");
 			}
-			String[] values = sdp.substring(separator + 1).split(" ");
+			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			
 			// Parse mandatory values
 			int port = Integer.parseInt(values[0]);

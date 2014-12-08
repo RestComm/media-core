@@ -18,9 +18,9 @@ public class ConnectionFieldParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String validLine = "c=IN IP6 0.0.0.0";
-		String invalidLine1 = "c=IN 127.0.0.1";
-		String invalidLine2 = "x=IN IP6 0.0.0.0";
+		String validLine = "c=IN IP6 0.0.0.0\n\r";
+		String invalidLine1 = "c=IN 127.0.0.1\n\r";
+		String invalidLine2 = "x=IN IP6 0.0.0.0\n\r";
 		
 		// when
 		boolean canParseValidLine = parser.canParse(validLine);
@@ -36,7 +36,7 @@ public class ConnectionFieldParserTest {
 	@Test
 	public void testValidParse() throws SdpException {
 		// given
-		String line = "c=IN IP6 0.0.0.0";
+		String line = "c=IN IP6 0.0.0.0\n\r";
 
 		// when
 		ConnectionField connection = parser.parse(line);
@@ -50,8 +50,8 @@ public class ConnectionFieldParserTest {
 	@Test
 	public void testValidParseOverwrite() throws SdpException {
 		// given
-		String line1 = "c=IN IP6 0.0.0.0";
-		String line2 = "c=IN IP4 127.0.0.1";
+		String line1 = "c=IN IP6 0.0.0.0\n\r";
+		String line2 = "c=IN IP4 127.0.0.1\n\r";
 
 		// when
 		ConnectionField connection = parser.parse(line1);
@@ -66,7 +66,7 @@ public class ConnectionFieldParserTest {
 	@Test(expected = SdpException.class)
 	public void testInvalidParseMissingElement() throws SdpException {
 		// given
-		String line = "o=IN 127.0.0.1";
+		String line = "o=IN 127.0.0.1\n\r";
 
 		// when
 		parser.parse(line);

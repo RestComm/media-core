@@ -22,7 +22,7 @@ public class IceLiteAttributeParser implements SdpParser<IceLiteAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override

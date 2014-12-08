@@ -23,7 +23,7 @@ public class FormatParameterAttributeParser implements SdpParser<FormatParameter
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class FormatParameterAttributeParser implements SdpParser<FormatParameter
 				throw new IllegalArgumentException("No value found");
 			}
 			
-			String[] values = sdp.substring(separator + 1).split(" ");
+			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			int format = Integer.parseInt(values[0]);
 			String params = values[1];
 			return new FormatParameterAttribute(format, params);
@@ -51,7 +51,7 @@ public class FormatParameterAttributeParser implements SdpParser<FormatParameter
 				throw new IllegalArgumentException("No value found");
 			}
 			
-			String[] values = sdp.substring(separator + 1).split(" ");
+			String[] values = sdp.trim().substring(separator + 1).split(" ");
 			int format = Integer.parseInt(values[0]);
 			String params = values[1];
 

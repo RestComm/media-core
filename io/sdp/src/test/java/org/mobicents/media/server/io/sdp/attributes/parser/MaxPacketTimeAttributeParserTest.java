@@ -19,11 +19,11 @@ public class MaxPacketTimeAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=maxptime:100";
-		String sdp2 = "x=maxptime:100";
-		String sdp3 = "a=ptime:100";
-		String sdp4 = "a=ptime:xyz";
-		String sdp5 = "a=ptime: ";
+		String sdp1 = "a=maxptime:100\n\r";
+		String sdp2 = "x=maxptime:100\n\r";
+		String sdp3 = "a=ptime:100\n\r";
+		String sdp4 = "a=ptime:xyz\n\r";
+		String sdp5 = "a=ptime: \n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -43,7 +43,7 @@ public class MaxPacketTimeAttributeParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String sdp1 = "a=maxptime:100";
+		String sdp1 = "a=maxptime:100\n\r";
 		
 		// when
 		MaxPacketTimeAttribute obj = parser.parse(sdp1);
@@ -51,14 +51,14 @@ public class MaxPacketTimeAttributeParserTest {
 		// then
 		Assert.assertEquals("maxptime", obj.getKey());
 		Assert.assertEquals(100, obj.getTime());
-		Assert.assertEquals(sdp1, obj.toString());
+		Assert.assertEquals(sdp1.trim(), obj.toString());
 	}
 
 	@Test
 	public void testParseOverwrite() throws SdpException {
 		// given
-		String sdp1 = "a=maxptime:100";
-		String sdp2 = "a=maxptime:123";
+		String sdp1 = "a=maxptime:100\n\r";
+		String sdp2 = "a=maxptime:123\n\r";
 		
 		// when
 		MaxPacketTimeAttribute obj = parser.parse(sdp1);
@@ -67,13 +67,13 @@ public class MaxPacketTimeAttributeParserTest {
 		// then
 		Assert.assertEquals("maxptime", obj.getKey());
 		Assert.assertEquals(123, obj.getTime());
-		Assert.assertEquals(sdp2, obj.toString());
+		Assert.assertEquals(sdp2.trim(), obj.toString());
 	}
 	
 	@Test(expected = SdpException.class)
 	public void testParseInvalidTimeFormat() throws SdpException {
 		// given
-		String sdp1 = "a=maxptime:abc";
+		String sdp1 = "a=maxptime:abc\n\r";
 		
 		// when
 		parser.parse(sdp1);

@@ -23,13 +23,13 @@ public class OriginFieldParser implements SdpParser<OriginField> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public OriginField parse(String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			String username = values[0];
 			long sessionId = Long.parseLong(values[1]);
 			int sessionVersion = Integer.parseInt(values[2]);
@@ -45,7 +45,7 @@ public class OriginFieldParser implements SdpParser<OriginField> {
 	@Override
 	public void parse(OriginField field, String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			field.setUsername(values[0]);
 			field.setSessionId(Long.parseLong(values[1]));
 			field.setSessionVersion(Integer.parseInt(values[2]));

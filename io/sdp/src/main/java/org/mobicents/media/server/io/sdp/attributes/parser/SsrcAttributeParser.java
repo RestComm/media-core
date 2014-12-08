@@ -25,13 +25,13 @@ public class SsrcAttributeParser implements SdpParser<SsrcAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public SsrcAttribute parse(String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(7).split(WHITESPACE);
+			String[] values = sdp.trim().substring(7).split(WHITESPACE);
 			int separator = values[1].indexOf(COLON);
 
 			String attName = (separator == -1) ? values[1] : values[1].substring(0, separator);
@@ -48,7 +48,7 @@ public class SsrcAttributeParser implements SdpParser<SsrcAttribute> {
 	@Override
 	public void parse(SsrcAttribute field, String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(7).split(WHITESPACE);
+			String[] values = sdp.trim().substring(7).split(WHITESPACE);
 			int separator = values[1].indexOf(COLON);
 
 			String attName = (separator == -1) ? values[1] : values[1].substring(0, separator);

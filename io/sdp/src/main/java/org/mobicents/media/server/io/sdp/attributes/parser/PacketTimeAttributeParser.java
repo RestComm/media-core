@@ -23,7 +23,7 @@ public class PacketTimeAttributeParser implements SdpParser<PacketTimeAttribute>
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class PacketTimeAttributeParser implements SdpParser<PacketTimeAttribute>
 			if(separator == -1) {
 				throw new IllegalArgumentException("No value found");
 			}
-			int value = Integer.parseInt(sdp.substring(separator + 1));
+			int value = Integer.parseInt(sdp.trim().substring(separator + 1));
 			return new PacketTimeAttribute(value);
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
@@ -47,7 +47,7 @@ public class PacketTimeAttributeParser implements SdpParser<PacketTimeAttribute>
 			if(separator == -1) {
 				throw new IllegalArgumentException("No value found");
 			}
-			int value = Integer.parseInt(sdp.substring(separator + 1));
+			int value = Integer.parseInt(sdp.trim().substring(separator + 1));
 			field.setTime(value);
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);

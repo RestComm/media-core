@@ -18,13 +18,13 @@ public class FingerprintAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39";
-		String sdp2 = "x=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39";
-		String sdp3 = "a=finger:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39";
-		String sdp4 = "a=fingerprint:D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39";
-		String sdp5 = "a=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39:";
-		String sdp6 = "a=fingerprint:sha-256 D1:2C:BE: AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39:";
-		String sdp7 = "a=fingerprint:sha-256";
+		String sdp1 = "a=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39\n\r";
+		String sdp2 = "x=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39\n\r";
+		String sdp3 = "a=finger:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39\n\r";
+		String sdp4 = "a=fingerprint:D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39\n\r";
+		String sdp5 = "a=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39:\n\r";
+		String sdp6 = "a=fingerprint:sha-256 D1:2C:BE: AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39:\n\r";
+		String sdp7 = "a=fingerprint:sha-256\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -48,7 +48,7 @@ public class FingerprintAttributeParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String sdp1 = "a=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39";
+		String sdp1 = "a=fingerprint:sha-256 D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39\n\r";
 
 		// when
 		FingerprintAttribute obj = parser.parse(sdp1);
@@ -61,7 +61,7 @@ public class FingerprintAttributeParserTest {
 	@Test(expected=SdpException.class)
 	public void testParseMissingHashFunction() throws SdpException {
 		// given
-		String sdp1 = "a=fingerprint:D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39";
+		String sdp1 = "a=fingerprint:D1:2C:BE:AD:C4:F6:64:5C:25:16:11:9C:AF:E7:0F:73:79:36:4E:9C:1E:15:54:39:0C:06:8B:ED:96:86:00:39\n\r";
 		
 		// when
 		parser.parse(sdp1);

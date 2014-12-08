@@ -16,10 +16,10 @@ public class IceLiteAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=ice-lite";
-		String sdp2 = "x=ice-lite";
-		String sdp3 = "a=ice-pwd";
-		String sdp4 = "a=ice-lite:xyz";
+		String sdp1 = "a=ice-lite\n\r";
+		String sdp2 = "x=ice-lite\n\r";
+		String sdp3 = "a=ice-pwd\n\r";
+		String sdp4 = "a=ice-lite:xyz\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);

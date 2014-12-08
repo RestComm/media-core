@@ -18,28 +18,28 @@ public class SessionNameFieldParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String validLine1 = "s=xyz";
-		String validLine2 = "s= ";
-		String validLine3 = "s=";
-		String invalidLine1 = "s=  ";
+		String validLine1 = "s=xyz\n\r";
+		String validLine2 = "s= \n\r";
+		String validLine3 = "s=\n\r";
+		String validLine4 = "s=  \n\r";
 		
 		// when
 		boolean canParseValidLine1 = parser.canParse(validLine1);
 		boolean canParseValidLine2 = parser.canParse(validLine2);
 		boolean canParseValidLine3 = parser.canParse(validLine3);
-		boolean canParseInvalidLine1 = parser.canParse(invalidLine1);
+		boolean canParseValidLine4 = parser.canParse(validLine4);
 		
 		// then
 		Assert.assertTrue(canParseValidLine1);
 		Assert.assertTrue(canParseValidLine2);
 		Assert.assertTrue(canParseValidLine3);
-		Assert.assertFalse(canParseInvalidLine1);
+		Assert.assertTrue(canParseValidLine4);
 	}
 	
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String line = "s=xyz";
+		String line = "s=xyz\n\r";
 		
 		// when
 		SessionNameField field = parser.parse(line);
@@ -51,8 +51,8 @@ public class SessionNameFieldParserTest {
 	@Test
 	public void testParseOverwrite() throws SdpException {
 		// given
-		String line1 = "s=xyz";
-		String line2 = "s=abc";
+		String line1 = "s=xyz\n\r";
+		String line2 = "s=abc\n\r";
 		
 		// when
 		SessionNameField field = parser.parse(line1);

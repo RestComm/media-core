@@ -22,7 +22,7 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 		try {
 			// Extract data from SDP
 			int index = 0;
-			String[] values = sdp.substring(9).split("\\s|/");
+			String[] values = sdp.trim().substring(9).split("\\s|/");
 			
 			int payloadType = Integer.parseInt(values[index++]);
 			String codec = values[index++];
@@ -52,7 +52,7 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 		try {
 			// Extract data from SDP
 			int index = 0;
-			String[] values = sdp.substring(9).split("\\s|/");
+			String[] values = sdp.trim().substring(9).split("\\s|/");
 			
 			int payloadType = Integer.parseInt(values[index++]);
 			String codec = values[index++];

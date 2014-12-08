@@ -16,9 +16,9 @@ public class RtcpMuxAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=rtcp-mux";
-		String sdp2 = "x=rtcp-mux";
-		String sdp3 = "a=rtcp";
+		String sdp1 = "a=rtcp-mux\n\r";
+		String sdp2 = "x=rtcp-mux\n\r";
+		String sdp3 = "a=rtcp\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);

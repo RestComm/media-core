@@ -22,13 +22,13 @@ public class VersionFieldParser implements SdpParser<VersionField> {
 		if (sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public VersionField parse(String sdp) throws SdpException {
 		try {
-			short version = Short.parseShort(sdp.substring(2));
+			short version = Short.parseShort(sdp.trim().substring(2));
 			return new VersionField(version);
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
@@ -38,7 +38,7 @@ public class VersionFieldParser implements SdpParser<VersionField> {
 	@Override
 	public void parse(VersionField field, String sdp) throws SdpException {
 		try {
-			short version = Short.parseShort(sdp.substring(2));
+			short version = Short.parseShort(sdp.trim().substring(2));
 			field.setVersion(version);
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);

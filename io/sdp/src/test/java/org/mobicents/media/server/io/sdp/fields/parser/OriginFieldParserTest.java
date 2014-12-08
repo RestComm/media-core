@@ -19,10 +19,10 @@ public class OriginFieldParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String validLine = "o=- 30 1 IN IP4 127.0.0.1";
-		String invalidLine1 = "o=- 30 1 IN 127.0.0.1";
-		String invalidLine2 = "o=- xyz 1 IN 127.0.0.1";
-		String invalidLine3 = "a=- 30 1 IN 127.0.0.1";
+		String validLine = "o=- 30 1 IN IP4 127.0.0.1\n\r";
+		String invalidLine1 = "o=- 30 1 IN 127.0.0.1\n\r";
+		String invalidLine2 = "o=- xyz 1 IN 127.0.0.1\n\r";
+		String invalidLine3 = "a=- 30 1 IN 127.0.0.1\n\r";
 		
 		// when
 		boolean canParseValidLine = parser.canParse(validLine);
@@ -40,7 +40,7 @@ public class OriginFieldParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String line = "o=- 30 1 IN IP4 127.0.0.1";
+		String line = "o=- 30 1 IN IP4 127.0.0.1\n\r";
 		
 		// when
 		OriginField field = parser.parse(line);
@@ -57,8 +57,8 @@ public class OriginFieldParserTest {
 	@Test
 	public void testParseOverwrite() throws SdpException {
 		// given
-		String line1 = "o=- 30 1 IN IP4 127.0.0.1";
-		String line2 = "o=xyz 40 2 IN IP6 0.0.0.0";
+		String line1 = "o=- 30 1 IN IP4 127.0.0.1\n\r";
+		String line2 = "o=xyz 40 2 IN IP6 0.0.0.0\n\r";
 		
 		// when
 		OriginField field = parser.parse(line1);
@@ -76,7 +76,7 @@ public class OriginFieldParserTest {
 	@Test(expected=SdpException.class)
 	public void testInvalidParseMissingElement() throws SdpException {
 		// given
-		String line = "o=- 30 1 IN 127.0.0.1";
+		String line = "o=- 30 1 IN 127.0.0.1\n\r";
 		
 		// when
 		parser.parse(line);
@@ -85,7 +85,7 @@ public class OriginFieldParserTest {
 	@Test(expected=SdpException.class)
 	public void testInvalidParseNumberFormat() throws SdpException {
 		// given
-		String line = "o=- xyz 1 IN IP4 127.0.0.1";
+		String line = "o=- xyz 1 IN IP4 127.0.0.1\n\r";
 		
 		// when
 		parser.parse(line);

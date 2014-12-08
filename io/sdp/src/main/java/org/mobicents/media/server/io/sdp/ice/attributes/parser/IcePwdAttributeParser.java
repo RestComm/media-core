@@ -23,7 +23,7 @@ public class IcePwdAttributeParser implements SdpParser<IcePwdAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class IcePwdAttributeParser implements SdpParser<IcePwdAttribute> {
 				throw new IllegalArgumentException("Attribute has no value");
 			}
 			
-			String password = sdp.substring(separator + 1);
+			String password = sdp.trim().substring(separator + 1);
 			if(password.isEmpty()) {
 				throw new IllegalArgumentException("Value is empty");
 			}
@@ -56,7 +56,7 @@ public class IcePwdAttributeParser implements SdpParser<IcePwdAttribute> {
 				throw new IllegalArgumentException("Attribute has no value");
 			}
 			
-			String password = sdp.substring(separator + 1);
+			String password = sdp.trim().substring(separator + 1);
 			if(password.isEmpty()) {
 				throw new IllegalArgumentException("Value is empty");
 			}

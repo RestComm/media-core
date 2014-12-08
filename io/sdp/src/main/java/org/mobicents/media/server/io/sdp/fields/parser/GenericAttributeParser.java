@@ -15,7 +15,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  */
 public class GenericAttributeParser implements SdpParser<GenericAttribute> {
 
-	protected static final String REGEX = "^a=\\S+(:\\S+\\s?)?$";
+	protected static final String REGEX = "^a=[\\w-]+(:\\S+\\s?)?$";
 	protected static final Pattern PATTERN = Pattern.compile(REGEX);
 	
 	@Override
@@ -23,7 +23,7 @@ public class GenericAttributeParser implements SdpParser<GenericAttribute> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
@@ -36,6 +36,7 @@ public class GenericAttributeParser implements SdpParser<GenericAttribute> {
 			String key;
 			String value;
 
+			sdp = sdp.trim();
 			if(!hasValue) {
 				key = sdp.substring(2);
 				value = null;
@@ -61,6 +62,7 @@ public class GenericAttributeParser implements SdpParser<GenericAttribute> {
 			String key;
 			String value;
 
+			sdp = sdp.trim();
 			if(!hasValue) {
 				key = sdp.substring(2);
 				value = null;

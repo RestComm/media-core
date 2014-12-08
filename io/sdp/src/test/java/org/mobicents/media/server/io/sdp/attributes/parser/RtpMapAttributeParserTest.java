@@ -19,13 +19,13 @@ public class RtpMapAttributeParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "a=rtpmap:97 L16/8000";
-		String sdp2 = "a=rtpmap:98 L16/11025/2";
-		String sdp3 = "x=rtpmap:98 L16/11025/2";
-		String sdp4 = "a=xyz:98 L16/11025/2";
-		String sdp5 = "a=rtpmap:xyz L16/11025/2";
-		String sdp6 = "a=rtpmap:98 L16/xyz/2";
-		String sdp7 = "a=rtpmap:98 L16/11025/xyz";
+		String sdp1 = "a=rtpmap:97 L16/8000\n\r";
+		String sdp2 = "a=rtpmap:98 L16/11025/2\n\r";
+		String sdp3 = "x=rtpmap:98 L16/11025/2\n\r";
+		String sdp4 = "a=xyz:98 L16/11025/2\n\r";
+		String sdp5 = "a=rtpmap:xyz L16/11025/2\n\r";
+		String sdp6 = "a=rtpmap:98 L16/xyz/2\n\r";
+		String sdp7 = "a=rtpmap:98 L16/11025/xyz\n\r";
 
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -49,7 +49,7 @@ public class RtpMapAttributeParserTest {
 	@Test
 	public void testSimpleParse() throws SdpException {
 		// given
-		String line = "a=rtpmap:97 L16/8000";
+		String line = "a=rtpmap:97 L16/8000\n\r";
 
 		// when
 		RtpMapAttribute attr = parser.parse(line);
@@ -64,7 +64,7 @@ public class RtpMapAttributeParserTest {
 	@Test
 	public void testComplexParse() throws SdpException {
 		// given
-		String line = "a=rtpmap:98 L16/11025/2";
+		String line = "a=rtpmap:98 L16/11025/2\n\r";
 
 		// when
 		RtpMapAttribute attr = parser.parse(line);
@@ -79,8 +79,8 @@ public class RtpMapAttributeParserTest {
 	@Test
 	public void testSimpleToComplexParseOverwrite() throws SdpException {
 		// given
-		String line1 = "a=rtpmap:97 L16/8000";
-		String line2 = "a=rtpmap:98 L16/11025/2";
+		String line1 = "a=rtpmap:97 L16/8000\n\r";
+		String line2 = "a=rtpmap:98 L16/11025/2\n\r";
 		
 		// when
 		RtpMapAttribute attr = parser.parse(line1);
@@ -96,8 +96,8 @@ public class RtpMapAttributeParserTest {
 	@Test
 	public void testComplexToSimpleParseOverwrite() throws SdpException {
 		// given
-		String line1 = "a=rtpmap:98 L16/11025/2";
-		String line2 = "a=rtpmap:97 L16/8000";
+		String line1 = "a=rtpmap:98 L16/11025/2\n\r";
+		String line2 = "a=rtpmap:97 L16/8000\n\r";
 		
 		// when
 		RtpMapAttribute attr = parser.parse(line1);

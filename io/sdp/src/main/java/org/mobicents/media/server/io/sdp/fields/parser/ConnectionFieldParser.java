@@ -23,13 +23,13 @@ public class ConnectionFieldParser implements SdpParser<ConnectionField> {
 		if (sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public ConnectionField parse(String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			String networkType = values[0];
 			String addressType = values[1];
 			String address = values[2];
@@ -42,7 +42,7 @@ public class ConnectionFieldParser implements SdpParser<ConnectionField> {
 	@Override
 	public void parse(ConnectionField field, String sdp) throws SdpException {
 		try {
-			String[] values = sdp.substring(2).split(" ");
+			String[] values = sdp.trim().substring(2).split(" ");
 			field.setNetworkType(values[0]);
 			field.setAddressType(values[1]);
 			field.setAddress(values[2]);

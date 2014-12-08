@@ -18,10 +18,10 @@ public class VersionFieldParserTest {
 	@Test
 	public void testCanParse() {
 		// given
-		String sdp1 = "v=123";
-		String sdp2 = "x=123";
-		String sdp3 = "v=abc";
-		String sdp4 = "v=123 213";
+		String sdp1 = "v=123\n\r";
+		String sdp2 = "x=123\n\r";
+		String sdp3 = "v=abc\n\r";
+		String sdp4 = "v=123 213\n\r";
 		
 		// when
 		boolean canParseSdp1 = parser.canParse(sdp1);
@@ -39,7 +39,7 @@ public class VersionFieldParserTest {
 	@Test
 	public void testParse() throws SdpException {
 		// given
-		String line = "v=111";
+		String line = "v=111\n\r";
 		
 		// when
 		VersionField field = parser.parse(line);
@@ -51,7 +51,7 @@ public class VersionFieldParserTest {
 	@Test(expected=SdpException.class)
 	public void testInvalidParse() throws SdpException {
 		// given
-		String line = "v=1 xyz";
+		String line = "v=1 xyz\n\r";
 		
 		// when
 		parser.parse(line);

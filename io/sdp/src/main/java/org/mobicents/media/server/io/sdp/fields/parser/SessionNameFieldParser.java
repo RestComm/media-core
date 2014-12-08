@@ -22,13 +22,13 @@ public class SessionNameFieldParser implements SdpParser<SessionNameField> {
 		if(sdp == null || sdp.isEmpty()) {
 			return false;
 		}
-		return PATTERN.matcher(sdp).matches();
+		return PATTERN.matcher(sdp.trim()).matches();
 	}
 
 	@Override
 	public SessionNameField parse(String sdp) throws SdpException {
 		try {
-			return new SessionNameField(sdp.substring(2));
+			return new SessionNameField(sdp.trim().substring(2));
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
 		}
@@ -37,7 +37,7 @@ public class SessionNameFieldParser implements SdpParser<SessionNameField> {
 	@Override
 	public void parse(SessionNameField field, String sdp) throws SdpException {
 		try {
-			field.setName(sdp.substring(2));
+			field.setName(sdp.trim().substring(2));
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);
 		}
