@@ -131,7 +131,7 @@ public class IceCandidate extends TransportAddress implements Comparable<IceCand
 		return (IceCandidate) super.clone();
 	}
 
-	public int getComponentId() {
+	public short getComponentId() {
 		return this.component.getComponentId();
 	}
 }

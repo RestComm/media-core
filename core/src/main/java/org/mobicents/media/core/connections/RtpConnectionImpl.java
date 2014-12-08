@@ -654,7 +654,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// Configure WebRTC-related resources on audio channel
 		this.webrtc = this.sessionDescriptionOffer.containsDtls();
 		if (this.webrtc) {
-			String remoteFingerprint = this.sessionDescriptionOffer.getFingerprint("audio").getValue();
+			String remoteFingerprint = audio.getFingerprint().getValue();
 			rtpAudioChannel.enableSRTP(remoteFingerprint, this.iceAgent);
 			if(!this.audioRtcpMux) {
 				rtcpAudioChannel.enableSRTCP(remoteFingerprint, this.iceAgent);
@@ -670,13 +670,14 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 *             In case the SDP is malformed
 	 */
 	private void generateSdpAnswer() throws SdpException {
-		SessionDescription sdp = new SessionDescription();
+		SessionDescription answer = new SessionDescription();
 
 		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
-
+		String originatorAddress = this.rtpAudioChannel.hasExternalAddress() ? this.rtpAudioChannel.getExternalAddress() : bindAddress;
+		
 		// Session Description
 		VersionField version = new VersionField((short) 0);
-		OriginField origin = new OriginField("-", System.currentTimeMillis(), 1, "IN", "IP4", bindAddress);
+		OriginField origin = new OriginField("-", System.currentTimeMillis(), 1, "IN", "IP4", originatorAddress);
 		SessionNameField session = new SessionNameField("Mobicents Media Server");
 		ConnectionField connection = new ConnectionField("IN", "IP4", bindAddress);
 		TimingField timing = new TimingField(0, 0);
@@ -688,8 +689,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Media Description - audio
-		if(this.sessionDescriptionOffer.containsMedia("audio")) { 
-			MediaDescriptionField audioDescription = new MediaDescriptionField();
+		if(this.sessionDescriptionOffer.getMediaDescription("audio") != null) { 
+			MediaDescriptionField audioDescription = new MediaDescriptionField(answer);
 			audioDescription.setMedia("audio");
 			audioDescription.setPort(this.rtpAudioChannel.getLocalPort());
 			audioDescription.setProtocol(this.webrtc ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
@@ -713,7 +714,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 				AudioFormat audioFormat = (AudioFormat) f.getFormat();
 				
 				audioDescription.addPayloadType(f.getID());
-				// a=rtpmap:[payload type][encoding name]/[clock rate]/[encoding parameters*]<br>
 				RtpMapAttribute rtpMap = new RtpMapAttribute();
 				rtpMap.setPayloadType(f.getID());
 				rtpMap.setCodec(f.getFormat().getName().toString());
@@ -735,14 +735,14 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 				audioDescription.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
 				Text fingerprintHash = this.rtpAudioChannel.getFingerprintHash();
 				Text fingerprintValue = this.rtpAudioChannel.getFingerprintValue();
-				sdp.setFingerprint(new FingerprintAttribute(fingerprintHash.toString(), fingerprintValue.toString()));
+				answer.setFingerprint(new FingerprintAttribute(fingerprintHash.toString(), fingerprintValue.toString()));
 			}
 			SsrcAttribute ssrcAttribute = new SsrcAttribute(Long.toString(this.ssrc));
 			ssrcAttribute.addAttribute("cname", this.cname);
 		}
 		
 		// Media Description - video
-		if(this.sessionDescriptionOffer.containsMedia("video")) { 
+		if(this.sessionDescriptionOffer.getMediaDescription("video") != null) { 
 			MediaDescriptionField videoDescription = new MediaDescriptionField();
 			videoDescription.setMedia("video");
 			// Video is unsupported - reject channel

@@ -30,6 +30,8 @@ import org.mobicents.media.server.utils.Text;
  * t=<start time>  <stop time>.
  *
  * @author kulikov
+ * 
+ * @deprecated use new /io/sdp library
  */
 public class TimeField {
 

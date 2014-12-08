@@ -36,7 +36,7 @@ public class IceComponentTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidComponentId() {
 		// given
-		int invalidComponentId = 3;
+		short invalidComponentId = 3;
 		
 		// when
 		new IceComponent(invalidComponentId);

@@ -19,8 +19,9 @@ import org.mobicents.media.server.utils.Text;
  * </p>
  * 
  * @author Henrique Rosa
- * 
+ * @deprecated Use new /network/io/sdp library
  */
+@Deprecated
 public class CandidateField implements Comparable<CandidateField>{
 
 	public static final Text CANDIDATE_FIELD = new Text("a=candidate");

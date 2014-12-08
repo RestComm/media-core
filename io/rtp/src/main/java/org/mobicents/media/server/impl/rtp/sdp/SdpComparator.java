@@ -30,6 +30,8 @@ import org.mobicents.media.server.utils.Text;
  * Compares two SDPs.
  *
  * @author kulikov
+ * 
+ * @deprecated use new /io/sdp library
  */
 public class SdpComparator {
     public final static Text AUDIO = new Text("audio");

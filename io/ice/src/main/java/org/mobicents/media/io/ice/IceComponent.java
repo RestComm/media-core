@@ -12,22 +12,22 @@ import java.util.List;
  */
 public class IceComponent {
 
-	public static final int RTP_ID = 1;
-	public static final int RTCP_ID = 2;
+	public static final short RTP_ID = 1;
+	public static final short RTCP_ID = 2;
 
-	private int componentId;
+	private short componentId;
 
 	private final List<LocalCandidateWrapper> localCandidates;
 	private LocalCandidateWrapper defaultLocalCandidate;
-	private final List<IceCandidate> remoteCandidates;
-	private IceCandidate defaultRemoteCandidate;
+//	private final List<IceCandidate> remoteCandidates;
+//	private IceCandidate defaultRemoteCandidate;
 
 	private CandidatePair candidatePair;
 
-	public IceComponent(int componentId) {
+	public IceComponent(short componentId) {
 		setComponentId(componentId);
 		this.localCandidates = new ArrayList<LocalCandidateWrapper>(5);
-		this.remoteCandidates = new ArrayList<IceCandidate>(5);
+//		this.remoteCandidates = new ArrayList<IceCandidate>(5);
 	}
 
 	/**
@@ -49,11 +49,11 @@ public class IceComponent {
 		return true;
 	}
 
-	public int getComponentId() {
+	public short getComponentId() {
 		return componentId;
 	}
 
-	public void setComponentId(int componentId) {
+	public void setComponentId(short componentId) {
 		if (!isValidComponentId(componentId)) {
 			throw new IllegalArgumentException("Invalid Component ID: " + componentId);
 		}

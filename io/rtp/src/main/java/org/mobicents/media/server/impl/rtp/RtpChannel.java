@@ -7,6 +7,7 @@ import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
+import org.hamcrest.core.IsEqual;
 import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.component.audio.AudioComponent;
@@ -366,6 +367,14 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	
 	public String getExternalAddress() {
 		return this.udpManager.getExternalAddress();
+	}
+	
+	public boolean hasExternalAddress() {
+		return notEmpty(this.udpManager.getExternalAddress());
+	}
+	
+	private boolean notEmpty(String text) {
+		return text != null && !text.isEmpty();
 	}
 	
 	public void enableSRTP(String remotePeerFingerprint, IceAuthenticator authenticator) {

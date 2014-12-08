@@ -29,6 +29,8 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Origin attribute.
  * @author kulikov
+ * 
+ * @deprecated use new /io/sdp library
  */
 public class OriginField {
     private Text name;

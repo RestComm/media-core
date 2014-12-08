@@ -39,6 +39,8 @@ import org.mobicents.media.server.utils.Text;
  * Media descriptor attribute.
  *
  * @author kulikov
+ * 
+ * @deprecated use new /io/sdp library
  */
 public class MediaDescriptorField {
     private Text mediaType;
