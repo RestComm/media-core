@@ -19,7 +19,7 @@ public class CandidateAttributeParserTest {
 	public void testCanParse() {
 		// given
 		String validHost = "a=candidate:1995739850 1 udp 2113937151 192.168.1.65 54550 typ host generation 0";
-		String invalidHost1 = "a=candidate:xyz 1 udp 2113937151 192.168.1.65 54550 typ host generation 0";
+		String validHost2 = "a=candidate:xyz 1 udp 2113937151 192.168.1.65 54550 typ host generation 0";
 		String invalidHost2 = "a=candidate:1995739850 x udp 2113937151 192.168.1.65 54550 typ host generation 0";
 		String invalidHost3 = "a=candidate:1995739850 1 udp xyz 192.168.1.65 54550 typ host generation 0";
 		String validSrflx = "a=candidate:2162486046 1 udp 1845501695 85.241.121.60 60495 typ srflx raddr 192.168.1.65 rport 54550 generation 0";
@@ -30,7 +30,7 @@ public class CandidateAttributeParserTest {
 		
 		// when/then
 		Assert.assertTrue(parser.canParse(validHost));
-		Assert.assertFalse(parser.canParse(invalidHost1));
+		Assert.assertTrue(parser.canParse(validHost2));
 		Assert.assertFalse(parser.canParse(invalidHost2));
 		Assert.assertFalse(parser.canParse(invalidHost3));
 		Assert.assertTrue(parser.canParse(validSrflx));
@@ -49,7 +49,7 @@ public class CandidateAttributeParserTest {
 		CandidateAttribute candidate = parser.parse(line);
 		
 		// then
-		Assert.assertEquals(1995739850L, candidate.getFoundation());
+		Assert.assertEquals("1995739850", candidate.getFoundation());
 		Assert.assertEquals(1, candidate.getComponentId());
 		Assert.assertEquals("udp", candidate.getProtocol());
 		Assert.assertEquals(2113937151, candidate.getPriority());
@@ -70,7 +70,7 @@ public class CandidateAttributeParserTest {
 		CandidateAttribute candidate = parser.parse(line);
 		
 		// then
-		Assert.assertEquals(2162486046L, candidate.getFoundation());
+		Assert.assertEquals("2162486046", candidate.getFoundation());
 		Assert.assertEquals(1, candidate.getComponentId());
 		Assert.assertEquals("udp", candidate.getProtocol());
 		Assert.assertEquals(1845501695, candidate.getPriority());
@@ -93,7 +93,7 @@ public class CandidateAttributeParserTest {
 		parser.parse(candidate, line2);
 		
 		// then
-		Assert.assertEquals(1995739850L, candidate.getFoundation());
+		Assert.assertEquals("1995739850", candidate.getFoundation());
 		Assert.assertEquals(1, candidate.getComponentId());
 		Assert.assertEquals("udp", candidate.getProtocol());
 		Assert.assertEquals(2113937151, candidate.getPriority());

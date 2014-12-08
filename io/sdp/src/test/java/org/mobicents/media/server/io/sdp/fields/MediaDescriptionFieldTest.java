@@ -22,7 +22,7 @@ public class MediaDescriptionFieldTest {
 		String media = "audio";
 		int port = 65535;
 		String protocol = "RTP/AVP";
-		short[] formats = new short[] { 0, 101 };
+		int[] formats = new int[] { 0, 101 };
 		
 		// when
 		MediaDescriptionField md = new MediaDescriptionField();

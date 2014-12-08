@@ -35,7 +35,7 @@ public class FormatParameterAttributeParser implements SdpParser<FormatParameter
 			}
 			
 			String[] values = sdp.substring(separator + 1).split(" ");
-			short format = Short.parseShort(values[0]);
+			int format = Integer.parseInt(values[0]);
 			String params = values[1];
 			return new FormatParameterAttribute(format, params);
 		} catch (Exception e) {
@@ -52,7 +52,7 @@ public class FormatParameterAttributeParser implements SdpParser<FormatParameter
 			}
 			
 			String[] values = sdp.substring(separator + 1).split(" ");
-			short format = Short.parseShort(values[0]);
+			int format = Integer.parseInt(values[0]);
 			String params = values[1];
 
 			field.setFormat(format);

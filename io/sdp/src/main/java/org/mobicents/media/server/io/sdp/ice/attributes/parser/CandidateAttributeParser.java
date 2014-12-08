@@ -16,7 +16,7 @@ import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 	
 	// TODO use proper IP address regex instead of [0-9\\.]+
-	private static final String REGEX = "^a=candidate:\\d+\\s\\d\\s\\w+\\s\\d+\\s[0-9\\.]+\\s\\d+\\s(typ)\\s\\w+(\\s(raddr)\\s[0-9\\.]+\\s(rport)\\s\\d+)?\\s(generation)\\s\\d+$";
+	private static final String REGEX = "^a=candidate:\\w+\\s\\d\\s\\w+\\s\\d+\\s[0-9\\.]+\\s\\d+\\s(typ)\\s\\w+(\\s(raddr)\\s[0-9\\.]+\\s(rport)\\s\\d+)?\\s(generation)\\s\\d+$";
 	private static final Pattern PATTERN = Pattern.compile(REGEX);
 
 	@Override
@@ -34,10 +34,10 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 			int index = 0;
 
 			// extract data from SDP
-			long foundation = Long.parseLong(values[index++]);
+			String foundation = values[index++];
 			short componentId = Short.parseShort(values[index++]);
 			String protocol = values[index++];
-			int priority = Integer.parseInt(values[index++]);
+			long priority = Long.parseLong(values[index++]);
 			String address = values[index++];
 			int port = Integer.parseInt(values[index++]);
 			index++; // TYP
@@ -84,10 +84,10 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 			int index = 0;
 
 			// extract data from SDP
-			long foundation = Long.parseLong(values[index++]);
+			String foundation = values[index++];
 			short componentId = Short.parseShort(values[index++]);
 			String protocol = values[index++];
-			int priority = Integer.parseInt(values[index++]);
+			long priority = Long.parseLong(values[index++]);
 			String address = values[index++];
 			int port = Integer.parseInt(values[index++]);
 			index++; // TYP

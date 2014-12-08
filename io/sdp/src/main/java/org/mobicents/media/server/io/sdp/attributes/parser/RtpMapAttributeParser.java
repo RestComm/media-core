@@ -32,12 +32,12 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 			int index = 0;
 			String[] values = sdp.substring(9).split("\\s|/");
 			
-			short payloadType = Short.parseShort(values[index++]);
+			int payloadType = Integer.parseInt(values[index++]);
 			String codec = values[index++];
 			int clockRate = Integer.parseInt(values[index++]);
-			short codecParams = -1;
+			int codecParams = -1;
 			if(index == values.length - 1) {
-				codecParams = Short.parseShort(values[index]);
+				codecParams = Integer.parseInt(values[index]);
 			}
 			
 			// Build object from extracted data
@@ -54,12 +54,12 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 			int index = 0;
 			String[] values = sdp.substring(9).split("\\s|/");
 			
-			short payloadType = Short.parseShort(values[index++]);
+			int payloadType = Integer.parseInt(values[index++]);
 			String codec = values[index++];
 			int clockRate = Integer.parseInt(values[index++]);
-			short codecParams = -1;
+			int codecParams = -1;
 			if(index == values.length - 1) {
-				codecParams = Short.parseShort(values[index]);
+				codecParams = Integer.parseInt(values[index]);
 			}
 			
 			// Build object from extracted data
