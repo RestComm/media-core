@@ -36,6 +36,7 @@ import org.mobicents.media.io.ice.IceCandidate;
 import org.mobicents.media.io.ice.IceComponent;
 import org.mobicents.media.io.ice.IceFactory;
 import org.mobicents.media.io.ice.IceMediaStream;
+import org.mobicents.media.io.ice.LocalCandidateWrapper;
 import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
@@ -407,17 +408,23 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// Generate SDP offer based on rtp channel
 		String bindAddress = rtpAudioChannel.getLocalHost();
 		int rtcpPort = this.audioRtcpMux ? rtpAudioChannel.getLocalPort() : rtcpAudioChannel.getLocalPort();
-//		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtcpPort, 0);
-//		this.sdpAnswer = "";
+//XXX		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtcpPort, 0);
+		this.sessionDescriptionAnswer = null;
 	}
 	
 	@Override
 	public String getLocalDescriptor() {
+		if(this.sessionDescriptionAnswer == null) {
+			return "";
+		}
 		return this.sessionDescriptionAnswer.toString();
 	}
 	
 	@Override
 	public String getRemoteDescriptor() {
+		if(this.sessionDescriptionOffer == null) {
+			return "";
+		}
 		return this.sessionDescriptionOffer.toString();
 	}
 
@@ -679,13 +686,38 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Media Description - audio
-		if(this.sessionDescriptionOffer.getMediaDescription("audio") != null) { 
+		if(this.sessionDescriptionOffer.getMediaDescription("audio") != null) {
+			String rtpAddress = bindAddress;
+			String rtcpAddress = bindAddress;
+			int rtpPort = this.rtpAudioChannel.getLocalPort();
+			int rtcpPort = this.audioRtcpMux ? rtpPort : this.rtcpAudioChannel.getLocalPort();
+			if(this.ice) {
+				LocalCandidateWrapper rtpCandidate = this.iceAgent.getMediaStream("audio").getRtpComponent().getDefaultLocalCandidate();
+				rtpAddress = rtpCandidate.getCandidate().getHostString();
+				rtpPort = rtpCandidate.getCandidate().getPort();
+
+				if(this.audioRtcpMux) {
+					rtcpAddress = rtpAddress;
+					rtcpPort = rtpPort;
+				} else {
+					CandidatePair rtcpCandidate = this.iceAgent.getSelectedRtcpCandidate("audio");
+					rtcpAddress = rtcpCandidate.getLocalAddress();
+					rtcpPort = rtcpCandidate.getLocalPort();
+				}
+				
+				// Fix session-level attribute
+				answer.getConnection().setAddress(rtpAddress);
+			}
+
 			MediaDescriptionField audioDescription = new MediaDescriptionField(answer);
 			audioDescription.setMedia("audio");
-			audioDescription.setPort(this.rtpAudioChannel.getLocalPort());
+			audioDescription.setPort(rtpPort);
 			audioDescription.setProtocol(this.webrtc ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
-			audioDescription.setRtcp(new RtcpAttribute(this.rtpAudioChannel.getLocalPort(), "IN", "IP4", bindAddress));
-			audioDescription.setRtcpMux(new RtcpMuxAttribute());
+			audioDescription.setConnection(new ConnectionField("IN", "IP4", rtpAddress));
+			audioDescription.setRtcp(new RtcpAttribute(rtcpPort, "IN", "IP4", rtcpAddress));
+			if(this.audioRtcpMux) {
+				audioDescription.setRtcpMux(new RtcpMuxAttribute());
+			}
 			
 			// ICE attributes
 			if(this.ice) {
@@ -693,8 +725,10 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 				audioDescription.setIcePwd(new IcePwdAttribute(this.iceAgent.getPassword()));
 				
 				IceMediaStream audioIce = iceAgent.getMediaStream("audio");
-				audioDescription.addCandidate(processCandidate(audioIce.getRtpComponent(), bindAddress));
-				audioDescription.addCandidate(processCandidate(audioIce.getRtcpComponent(), bindAddress));
+				audioDescription.addCandidate(processCandidate(audioIce.getRtpComponent(), rtpAddress));
+				if(!this.audioRtcpMux) {
+					audioDescription.addCandidate(processCandidate(audioIce.getRtcpComponent(), rtcpAddress));
+				}
 			}
 			
 			// Media formats
@@ -725,9 +759,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			// DTLS attributes
 			if(this.webrtc) {
 				audioDescription.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
-				Text fingerprintHash = this.rtpAudioChannel.getFingerprintHash();
-				Text fingerprintValue = this.rtpAudioChannel.getFingerprintValue();
-				answer.setFingerprint(new FingerprintAttribute(fingerprintHash.toString(), fingerprintValue.toString()));
+				String fingerprint = this.rtpAudioChannel.getWebRtcLocalFingerprint().toString();
+				int whitespace = fingerprint.indexOf(" ");
+				String fingerprintHash = fingerprint.substring(0, whitespace);
+				String fingerprintValue = fingerprint.substring(whitespace + 1);
+				answer.setFingerprint(new FingerprintAttribute(fingerprintHash, fingerprintValue));
 			}
 			
 			audioDescription.setConnectionMode(new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV));
@@ -741,14 +777,14 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		
 		// Media Description - video
 		if(this.sessionDescriptionOffer.getMediaDescription("video") != null) { 
-			MediaDescriptionField videoDescription = new MediaDescriptionField();
+			MediaDescriptionField videoDescription = new MediaDescriptionField(answer);
 			videoDescription.setMedia("video");
 			// Video is unsupported - reject channel
 			videoDescription.setPort(0);
 			videoDescription.setProtocol(this.webrtc ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
 			answer.addMediaDescription(videoDescription);
 		}
-		
+		logger.info("SDP answer: " + answer.toString());
 		return answer;
 	}
 	
