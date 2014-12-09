@@ -107,6 +107,7 @@ public class SessionDescriptionParser {
 		case MediaDescriptionField.FIELD_TYPE:
 			info.media = (MediaDescriptionField) field;
 			info.sdp.addMediaDescription(info.media);
+			info.media.setSession(info.sdp);
 			break;
 
 		default:

@@ -76,6 +76,10 @@ public class MediaDescriptionField implements SdpField {
 		this.formats = new HashMap<Integer, RtpMapAttribute>(10);
 	}
 	
+	public void setSession(SessionLevelAccessor session) {
+		this.session = session;
+	}
+	
 	public String getMedia() {
 		return media;
 	}
@@ -320,7 +324,7 @@ public class MediaDescriptionField implements SdpField {
 		this.builder.append(BEGIN)
 		        .append(this.media).append(" ")
 				.append(this.port).append(" ")
-				.append(this.protocol);
+				.append(this.protocol.getProfile());
 		for (Integer payloadType : this.payloadTypes) {
 			this.builder.append(" ").append(payloadType);
 		}
