@@ -406,10 +406,61 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Generate SDP offer based on rtp channel
-		String bindAddress = rtpAudioChannel.getLocalHost();
-		int rtcpPort = this.audioRtcpMux ? rtpAudioChannel.getLocalPort() : rtcpAudioChannel.getLocalPort();
-//XXX		this.sdpOffer = offerTemplate.getSDP(bindAddress, "IN", "IP4", bindAddress, rtcpPort, 0);
+		this.sessionDescriptionOffer = generateSdpOffer();
 		this.sessionDescriptionAnswer = null;
+	}
+	
+	private SessionDescription generateSdpOffer() {
+		String bindAddress = this.isLocal ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
+		String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
+		String originAddress = (externalAddress == null) ? bindAddress : externalAddress;
+		
+		// Session-level fields
+		SessionDescription offer = new SessionDescription();
+		offer.setVersion(new VersionField((short) 0));
+		offer.setOrigin(new OriginField("-", System.currentTimeMillis(), 1, "IN", "IP4", originAddress));
+		offer.setSessionName(new SessionNameField("Mobicents Media Server"));
+		offer.setConnection(new ConnectionField("IN", "IP4", bindAddress));
+		offer.setTiming(new TimingField(0, 0));
+		
+		// Media Descrription - audio
+		MediaDescriptionField audio = new MediaDescriptionField(offer);
+		audio.setMedia("audio");
+		audio.setPort(this.rtpAudioChannel.getLocalPort());
+		audio.setProtocol(MediaProfile.RTP_AVP);
+		audio.setConnection(new ConnectionField("IN", "IP4", bindAddress));
+		audio.setRtcp(new RtcpAttribute(this.rtcpAudioChannel.getLocalPort(), "IN", "IP4", bindAddress));
+		// Media formats
+		this.audioSupportedFormats.rewind();
+		while(this.audioSupportedFormats.hasMore()) {
+			RTPFormat f = this.audioSupportedFormats.next();
+			AudioFormat audioFormat = (AudioFormat) f.getFormat();
+
+			RtpMapAttribute rtpMap = new RtpMapAttribute();
+			rtpMap.setPayloadType(f.getID());
+			rtpMap.setCodec(f.getFormat().getName().toString());
+			rtpMap.setClockRate(f.getClockRate());
+			if(audioFormat.getChannels() > 1) {
+				rtpMap.setCodecParams(audioFormat.getChannels());
+			}
+			if(audioFormat.getOptions() != null) {
+				rtpMap.setParameters(new FormatParameterAttribute(f.getID(), audioFormat.getOptions().toString()));
+			}
+			
+			if(audioFormat.shouldSendPTime()) {
+				rtpMap.setPtime(new PacketTimeAttribute(20));
+			}
+
+			audio.addPayloadType(f.getID());
+			audio.addFormat(rtpMap);
+		}
+		audio.setConnectionMode(new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV));
+		SsrcAttribute ssrcAttribute = new SsrcAttribute(Long.toString(this.ssrc));
+		ssrcAttribute.addAttribute("cname", this.cname);
+		audio.setSsrc(ssrcAttribute);
+		offer.addMediaDescription(audio);
+		
+		return offer;
 	}
 	
 	@Override
