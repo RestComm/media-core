@@ -1,6 +1,8 @@
 package org.mobicents.media.server.io.sdp;
 
+import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
@@ -18,11 +20,15 @@ public interface SessionLevelAccessor {
 	 *  Common
 	 */
 	ConnectionField getConnection();
+	
+	ConnectionModeAttribute getConnectionMode();
 
 	/*
 	 *  DTLS
 	 */
 	FingerprintAttribute getFingerprint();
+	
+	SetupAttribute getSetup();
 
 	/*
 	 *  ICE

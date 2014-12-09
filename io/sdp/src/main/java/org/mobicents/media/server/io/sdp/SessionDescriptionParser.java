@@ -178,7 +178,11 @@ public class SessionDescriptionParser {
 			break;
 			
 		case SetupAttribute.ATTRIBUTE_TYPE:
-			info.media.setSetup((SetupAttribute) attribute);
+			if(info.media == null) {
+				info.sdp.setSetup((SetupAttribute) attribute);
+			} else {
+				info.media.setSetup((SetupAttribute) attribute);
+			}
 			break;
 			
 		case FingerprintAttribute.ATTRIBUTE_TYPE:
