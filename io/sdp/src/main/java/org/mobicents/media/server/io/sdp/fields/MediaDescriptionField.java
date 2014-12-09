@@ -159,7 +159,12 @@ public class MediaDescriptionField implements SdpField {
 	}
 	
 	public ConnectionModeAttribute getConnectionMode() {
-		return connectionMode;
+		if(this.connectionMode == null && this.session != null) {
+			if(session.getConnectionMode() != null) {
+				return session.getConnectionMode();
+			}
+		}
+		return this.connectionMode;
 	}
 	
 	public void setConnectionMode(ConnectionModeAttribute connectionMode) {
@@ -244,7 +249,7 @@ public class MediaDescriptionField implements SdpField {
 	}
 	
 	public boolean containsCandidates() {
-		return !this.candidates.isEmpty();
+		return this.candidates != null && !this.candidates.isEmpty();
 	}
 	
 	public void addCandidate(CandidateAttribute candidate) {
@@ -291,7 +296,12 @@ public class MediaDescriptionField implements SdpField {
 	}
 	
 	public SetupAttribute getSetup() {
-		return setup;
+		if(this.setup == null && this.session != null) {
+			if(this.session.getSetup() != null) {
+				return this.session.getSetup();
+			}
+		}
+		return this.setup;
 	}
 	
 	public void setSetup(SetupAttribute setup) {

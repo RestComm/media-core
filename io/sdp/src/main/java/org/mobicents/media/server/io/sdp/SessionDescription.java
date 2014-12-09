@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
+import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.fields.OriginField;
@@ -22,6 +23,9 @@ import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
  */
 public class SessionDescription implements SessionLevelAccessor {
 	
+	private static final String NEWLINE = "\n";
+	private final StringBuilder builder;
+	
 	// SDP fields (session-level)
 	private VersionField version;
 	private OriginField origin;
@@ -37,11 +41,13 @@ public class SessionDescription implements SessionLevelAccessor {
 	
 	// WebRTC attributes (session-level)
 	private FingerprintAttribute fingerprint;
+	private SetupAttribute setup;
 
 	// Media Descriptions
 	private final Map<String, MediaDescriptionField> mediaMap;
 	   
 	public SessionDescription() {
+		this.builder = new StringBuilder();
 		this.mediaMap = new HashMap<String, MediaDescriptionField>(5);
 	}
 	
@@ -76,7 +82,7 @@ public class SessionDescription implements SessionLevelAccessor {
 
 	public ConnectionField getConnection(String media) {
 		if(this.mediaMap.containsKey(media)) {
-			ConnectionField mediaConn = this.mediaMap.get("media").getConnection();
+			ConnectionField mediaConn = this.mediaMap.get(media).getConnection();
 			if(mediaConn != null) {
 				return mediaConn;
 			}
@@ -96,8 +102,19 @@ public class SessionDescription implements SessionLevelAccessor {
 		this.timing = timing;
 	}
 	
+	@Override
 	public ConnectionModeAttribute getConnectionMode() {
 		return connectionMode;
+	}
+
+	public ConnectionModeAttribute getConnectionMode(String media) {
+		if(this.mediaMap.containsKey(media)) {
+			ConnectionModeAttribute connectionMode = this.mediaMap.get(media).getConnectionMode();
+			if(connectionMode != null) {
+				return connectionMode;
+			}
+		}
+		return this.connectionMode;
 	}
 	
 	public void setConnectionMode(ConnectionModeAttribute connectionMode) {
@@ -142,7 +159,26 @@ public class SessionDescription implements SessionLevelAccessor {
 				return audioFingerprint;
 			}
 		}
-		return fingerprint;
+		return this.fingerprint;
+	}
+	
+	@Override
+	public SetupAttribute getSetup() {
+		return this.setup;
+	}
+	
+	public SetupAttribute getSetupAttribute(String media) {
+		if(this.mediaMap.containsKey(media)) {
+			SetupAttribute setup = this.mediaMap.get(media).getSetup();
+			if(setup != null) {
+				return setup;
+			}
+		}
+		return this.setup;
+	}
+	
+	public void setSetup(SetupAttribute setup) {
+		this.setup = setup;
 	}
 
 	public void setFingerprint(FingerprintAttribute fingerprint) {
@@ -195,4 +231,30 @@ public class SessionDescription implements SessionLevelAccessor {
 		return false;
 	}
 	
+	@Override
+	public String toString() {
+		this.builder.setLength(0);
+		append(this.version);
+		append(this.origin);
+		append(this.sessionName);
+		append(this.connection);
+		append(this.timing);
+		append(this.iceLite);
+		append(this.iceUfrag);
+		append(this.icePwd);
+		append(this.fingerprint);
+		append(this.setup);
+		
+		for (MediaDescriptionField media : this.mediaMap.values()) {
+			append(media);
+		}
+		this.builder.deleteCharAt(this.builder.length() - 1);
+		return this.builder.toString();
+	}
+	
+	private void append(SdpField field) {
+		if(field != null) {
+			this.builder.append(field.toString()).append(NEWLINE);
+		}
+	}
 }
