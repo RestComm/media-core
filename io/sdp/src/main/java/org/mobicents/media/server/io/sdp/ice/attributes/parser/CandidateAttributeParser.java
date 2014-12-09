@@ -16,7 +16,7 @@ import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 	
 	// TODO use proper IP address regex instead of [0-9\\.]+
-	private static final String REGEX = "^a=candidate:\\w+\\s\\d\\s\\w+\\s\\d+\\s[0-9\\.]+\\s\\d+\\s(typ)\\s\\w+(\\s(raddr)\\s[0-9\\.]+\\s(rport)\\s\\d+)?\\s(generation)\\s\\d+$";
+	private static final String REGEX = "^a=candidate:\\w+\\s\\d\\s\\w+\\s\\d+\\s[0-9\\.]+\\s\\d+\\s(typ)\\s\\w+(\\stcptype\\s\\w+)?(\\s(raddr)\\s[0-9\\.]+\\s(rport)\\s\\d+)?\\s(generation)\\s\\d+$";
 	private static final Pattern PATTERN = Pattern.compile(REGEX);
 
 	@Override
@@ -56,6 +56,12 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 				relatedPort = Integer.parseInt(values[index++]);
 			}
 			
+			String tcptype = null;
+			if(protocol.equals("tcp")) {
+				index++; // TCPTYPE
+				tcptype = values[index++];
+			}
+			
 			index++; // GENERATION
 			int generation = Integer.parseInt(values[index++]);
 			
@@ -70,6 +76,7 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 			candidate.setCandidateType(type);
 			candidate.setRelatedAddress(relatedAddress);
 			candidate.setRelatedPort(relatedPort);
+			candidate.setTcpType(tcptype);
 			candidate.setGeneration(generation);
 			return candidate;
 		} catch (Exception e) {
@@ -106,6 +113,12 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 				relatedPort = Integer.parseInt(values[index++]);
 			}
 			
+			String tcptype = null;
+			if(protocol.equals("tcp")) {
+				index++; // TCPTYPE
+				tcptype = values[index++];
+			}
+			
 			index++; // GENERATION
 			int generation = Integer.parseInt(values[index++]);
 			
@@ -119,6 +132,7 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 			field.setCandidateType(type);
 			field.setRelatedAddress(relatedAddress);
 			field.setRelatedPort(relatedPort);
+			field.setTcpType(tcptype);
 			field.setGeneration(generation);
 		} catch (Exception e) {
 			throw new SdpException(PARSE_ERROR + sdp, e);

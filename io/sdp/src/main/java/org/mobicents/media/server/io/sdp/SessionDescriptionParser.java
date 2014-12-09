@@ -55,7 +55,7 @@ public class SessionDescriptionParser {
 					// The field is an attribute
 					// Get the type of attribute so we can invoke the right parser 
 					int separator = line.indexOf(AttributeField.ATTRIBUTE_SEPARATOR);
-					String attributeType = (separator == - 1) ? line.substring(2) : line.substring(2, separator);
+					String attributeType = (separator == - 1) ? line.substring(2).trim() : line.substring(2, separator);
 					
 					// Get the right parser for the attribute and parse the text
 					SdpParser<? extends AttributeField> attributeParser = PARSERS.getAttributeParser(attributeType);

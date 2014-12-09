@@ -20,6 +20,7 @@ public class CandidateAttributeParserTest {
 		// given
 		String validHost = "a=candidate:1995739850 1 udp 2113937151 192.168.1.65 54550 typ host generation 0\n\r";
 		String validHost2 = "a=candidate:xyz 1 udp 2113937151 192.168.1.65 54550 typ host generation 0\n\r";
+		String validHost3 = "a=candidate:9473510980 1 tcp 1518280447 192.168.1.65 0 typ host tcptype active generation 0";
 		String invalidHost2 = "a=candidate:1995739850 x udp 2113937151 192.168.1.65 54550 typ host generation 0\n\r";
 		String invalidHost3 = "a=candidate:1995739850 1 udp xyz 192.168.1.65 54550 typ host generation 0\n\r";
 		String validSrflx = "a=candidate:2162486046 1 udp 1845501695 85.241.121.60 60495 typ srflx raddr 192.168.1.65 rport 54550 generation 0\n\r";
@@ -31,6 +32,7 @@ public class CandidateAttributeParserTest {
 		// when/then
 		Assert.assertTrue(parser.canParse(validHost));
 		Assert.assertTrue(parser.canParse(validHost2));
+		Assert.assertTrue(parser.canParse(validHost3));
 		Assert.assertFalse(parser.canParse(invalidHost2));
 		Assert.assertFalse(parser.canParse(invalidHost3));
 		Assert.assertTrue(parser.canParse(validSrflx));

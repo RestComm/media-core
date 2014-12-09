@@ -3,9 +3,9 @@ package org.mobicents.media.server.io.sdp.ice.attributes;
 import org.mobicents.media.server.io.sdp.fields.AttributeField;
 
 /**
- * a=candidate:[foundation][componentId][protocol][priority][address][port][type][relAddress*][relPort*][generation]<br>
+ * a=candidate:[foundation][componentId][protocol][priority][address][port][type][relAddress*][relPort*][tcptype*][generation]<br>
  * 
- * [*] - optional param
+ * [*] - optional parameter
  * 
  * <p>
  * a=candidate:1995739850 1 udp 2113937151 192.168.1.65 54550 typ host generation 0<br>
@@ -15,6 +15,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * @see <a href="http://tools.ietf.org/html/rfc5245">RFC5245</a> 
+ * @see <a href="http://tools.ietf.org/html/rfc6544">RFC6544</a> 
  */
 public class CandidateAttribute extends AttributeField {
 	
@@ -24,6 +25,10 @@ public class CandidateAttribute extends AttributeField {
 	public static final String TYP_HOST = "host";
 	public static final String TYP_SRFLX = "srflx";
 	public static final String TYP_RELAY = "relay";
+	public static final String TCPTYPE = "tcptype";
+	public static final String TCPTYPE_ACTIVE = "active";
+	public static final String TCPTYPE_PASSIVE = "passive";
+	public static final String TCPTYPE_SO = "so";
 	public static final String GENERATION = "generation";
 	public static final String RADDR = "raddr";
 	public static final String RPORT = "rport";
@@ -35,6 +40,7 @@ public class CandidateAttribute extends AttributeField {
 	private String address;
 	private int port;
 	private String type;
+	private String tcpType;
 	private String relatedAddress;
 	private int relatedPort;
 	private int generation;
@@ -97,6 +103,14 @@ public class CandidateAttribute extends AttributeField {
 
 	public void setCandidateType(String type) {
 		this.type = type;
+	}
+	
+	public String getTcpType() {
+		return tcpType;
+	}
+	
+	public void setTcpType(String tcpType) {
+		this.tcpType = tcpType;
 	}
 
 	public String getRelatedAddress() {

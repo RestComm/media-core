@@ -36,12 +36,31 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 public class SessionDescriptionParserTest {
 	
 	private static String webrtcDescription;
+	private static String chrome39offer;
 	
 	@BeforeClass
 	public static void setup() throws IOException, URISyntaxException {
 		URL resource = SessionDescriptionParserTest.class.getResource("sdp-webrtc.txt");
 		byte[] bytes = Files.readAllBytes(Paths.get(resource.toURI()));
 		webrtcDescription = new String(bytes);
+
+		resource = SessionDescriptionParserTest.class.getResource("chrome-39-offer.txt");
+		bytes = Files.readAllBytes(Paths.get(resource.toURI()));
+		chrome39offer = new String(bytes);
+	}
+	
+	@Test
+	public void testParseChrome39Offer() throws SdpException {
+		// given
+		SessionDescription sdp;
+		
+		// when
+		sdp = SessionDescriptionParser.parse(chrome39offer);
+		
+		// then
+		MediaDescriptionField audio = sdp.getMediaDescription("audio");
+		Assert.assertNotNull(audio);
+		Assert.assertTrue(audio.isRtcpMux());
 	}
 
 	@Test
