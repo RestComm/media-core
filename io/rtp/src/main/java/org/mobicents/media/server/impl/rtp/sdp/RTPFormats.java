@@ -180,22 +180,19 @@ public class RTPFormats {
     	return false;
     }
     
-    public void intersection(RTPFormats other, RTPFormats res) {
-    	Boolean hasNonDtmf=false;
-        for (int i = 0; i < this.rtpFormats.size(); i++) {
-            for (int j = 0; j < other.size(); j++) {
-                if (this.rtpFormats.get(i).getFormat().matches(other.rtpFormats.get(j).getFormat())) {
-                	if(this.rtpFormats.get(i).getFormat().getName().equals(AVProfile.telephoneEvent.getName()))                		
-                		res.add(this.rtpFormats.get(i));                    
-                	else if(!hasNonDtmf)
-                	{
-                		res.add(this.rtpFormats.get(i));
-                		hasNonDtmf=true;
-                	}
-                }
-            }
-        }
-    }
+	public void intersection(RTPFormats other, RTPFormats res) {
+		for (int i = 0; i < this.rtpFormats.size(); i++) {
+			RTPFormat supportedFormat = this.rtpFormats.get(i);
+			for (int j = 0; j < other.size(); j++) {
+				RTPFormat offeredFormat = other.rtpFormats.get(j);
+				if (supportedFormat.getFormat().matches(offeredFormat.getFormat())) {
+					// Add offered (instead of supported) format for DTMF dynamic payload
+					res.add(offeredFormat);
+					break;
+				}
+			}
+		}
+	}
     
     @Override
     public String toString() {

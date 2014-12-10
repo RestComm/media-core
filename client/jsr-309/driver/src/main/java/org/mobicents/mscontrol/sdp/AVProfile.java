@@ -39,19 +39,16 @@ public class AVProfile implements Cloneable {
     public final static AudioFormat G729 =  new AudioFormat(AudioFormat.G729, 8000, AudioFormat.NOT_SPECIFIED, 1);
     public final static AudioFormat GSM =  new AudioFormat(AudioFormat.GSM, 8000, AudioFormat.NOT_SPECIFIED, 1);
     public final static AudioFormat MPEG4_GENERIC = new AudioFormat("mpeg4-generic", 8000, AudioFormat.NOT_SPECIFIED, 2);
-    public final static AudioFormat L16_STEREO =  
-            new AudioFormat(AudioFormat.LINEAR, 44100, 16, 2, AudioFormat.LITTLE_ENDIAN, AudioFormat.SIGNED);
-    public final static AudioFormat L16_MONO =  
-            new AudioFormat(AudioFormat.LINEAR, 44100, 16, 1, AudioFormat.LITTLE_ENDIAN, AudioFormat.SIGNED);
+    public final static AudioFormat L16_STEREO = new AudioFormat(AudioFormat.LINEAR, 44100, 16, 2, AudioFormat.LITTLE_ENDIAN, AudioFormat.SIGNED);
+    public final static AudioFormat L16_MONO = new AudioFormat(AudioFormat.LINEAR, 44100, 16, 1, AudioFormat.LITTLE_ENDIAN, AudioFormat.SIGNED);
     public final static AudioFormat DTMF =  new AudioFormat("telephone-event", 8000, AudioFormat.NOT_SPECIFIED, AudioFormat.NOT_SPECIFIED);
     
     public final static VideoFormat H261 =  new VideoFormat(VideoFormat.H261, 25, 90000);
     public final static VideoFormat MP4V =  new VideoFormat("MP4V-ES", 25, 90000);
     public final static VideoFormat H263 =  new VideoFormat("H263", 25, 90000);
     
-    private final HashMap<Integer, AudioFormat> audio = new HashMap();
-    private final HashMap<Integer, VideoFormat> video = new HashMap();
-    
+    private final HashMap<Integer, AudioFormat> audio = new HashMap<Integer, AudioFormat>();
+    private final HashMap<Integer, VideoFormat> video = new HashMap<Integer, VideoFormat>();
     
     public AVProfile() {
         audio.put(0, PCMU);
@@ -83,7 +80,7 @@ public class AVProfile implements Cloneable {
     }
     
     public Hashtable<Integer, Format> getProfile() {
-        Hashtable<Integer, Format> profile = new Hashtable();
+        Hashtable<Integer, Format> profile = new Hashtable<Integer, Format>();
         profile.putAll(audio);
         profile.putAll(video);
         return profile;

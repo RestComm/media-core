@@ -249,7 +249,15 @@ public class Text implements CharSequence {
      * @see java.lang.CharSequence#subSequence(int, int);
      */
     public CharSequence subSequence(int start, int end) {
-        return new Text(chars, this.pos + start, end - start);
+        return subtext(start, end);
+    }
+    
+    public Text subtext(int start, int end) {
+    	return new Text(chars, this.pos + start, end - start);
+    }
+    
+    public Text subtext(int start) {
+    	return new Text(this.chars, this.pos + start, this.len);
     }
 
     /**
@@ -340,6 +348,16 @@ public class Text implements CharSequence {
             pointer++;                    
         }
         
+        return -1;
+    }
+    
+    public int indexOf(char value) {
+        int limit = this.pos + this.len;
+        for (int pointer = this.pos; pointer < limit; pointer++) {
+			if(value == this.chars[pointer]) {
+				return pointer;
+			}
+		}
         return -1;
     }
     

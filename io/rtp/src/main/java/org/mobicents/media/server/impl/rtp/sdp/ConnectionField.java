@@ -30,7 +30,10 @@ import org.mobicents.media.server.utils.Text;
  * Connection attribute.
  * 
  * @author kulikov
+ * 
+ * @deprecated use new /io/sdp library
  */
+@Deprecated
 public class ConnectionField {
 
     private Text networkType;

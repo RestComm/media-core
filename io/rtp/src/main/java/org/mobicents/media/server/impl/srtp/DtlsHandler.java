@@ -30,7 +30,7 @@ public class DtlsHandler {
 	private volatile boolean handshakeFailed;
 	private volatile boolean handshaking;
 	private Thread worker;
-	private Text remoteFingerprint;
+	private String remoteFingerprint;
 	
 	private final List<DtlsListener> listeners;
 
@@ -109,11 +109,11 @@ public class DtlsHandler {
 		return new Text(this.server.getFingerprint());
 	}
 
-	public Text getRemoteFingerprint() {
+	public String getRemoteFingerprint() {
 		return remoteFingerprint;
 	}
 
-	public void setRemoteFingerprint(Text remotePeerFingerprint) {
+	public void setRemoteFingerprint(String remotePeerFingerprint) {
 		this.remoteFingerprint = remotePeerFingerprint;
 	}
 

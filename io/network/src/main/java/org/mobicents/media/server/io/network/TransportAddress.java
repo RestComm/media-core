@@ -16,7 +16,18 @@ public class TransportAddress extends InetSocketAddress {
 	private static final long serialVersionUID = -4227068181007895183L;
 
 	public enum TransportProtocol {
-		UDP;
+		UDP("udp");
+		
+		private final String description;
+		
+		private TransportProtocol(String description) {
+			this.description = description;
+		}
+		
+		public String getDescription() {
+			return description;
+		}
+		
 	}
 
 	protected TransportProtocol protocol;

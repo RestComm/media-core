@@ -5,6 +5,8 @@ import org.mobicents.media.server.utils.Text;
 /**
  * Supported media types in an SDP description.
  * @author Henrique Rosa
+ * 
+ * @deprecated use new /io/sdp library
  */
 public enum MediaType {
 

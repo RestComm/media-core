@@ -34,6 +34,8 @@ import org.mobicents.media.server.utils.Text;
  *
  * @author kulikov
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ * @deprecated use new /io/sdp library
  */
 public class SessionDescription {
 	

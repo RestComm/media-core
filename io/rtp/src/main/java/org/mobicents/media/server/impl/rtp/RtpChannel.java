@@ -368,7 +368,15 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		return this.udpManager.getExternalAddress();
 	}
 	
-	public void enableSRTP(Text remotePeerFingerprint, IceAuthenticator authenticator) {
+	public boolean hasExternalAddress() {
+		return notEmpty(this.udpManager.getExternalAddress());
+	}
+	
+	private boolean notEmpty(String text) {
+		return text != null && !text.isEmpty();
+	}
+	
+	public void enableSRTP(String remotePeerFingerprint, IceAuthenticator authenticator) {
 		this.secure = true;
 		
 		// setup the DTLS handler
@@ -397,7 +405,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		
 		// setup the DTLS handler
 		if(this.dtlsHandler != null) {
-			this.dtlsHandler.setRemoteFingerprint(new Text(""));
+			this.dtlsHandler.setRemoteFingerprint("");
 		}
 		
 		// setup the STUN handler

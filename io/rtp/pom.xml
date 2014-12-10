@@ -21,6 +21,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.media.io</groupId>
+			<artifactId>sdp</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media.io</groupId>
 			<artifactId>ice</artifactId>
 			<version>${project.version}</version>
 		</dependency>
