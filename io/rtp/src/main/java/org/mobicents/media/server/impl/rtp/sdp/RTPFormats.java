@@ -180,22 +180,24 @@ public class RTPFormats {
     	return false;
     }
     
-    public void intersection(RTPFormats other, RTPFormats res) {
-    	Boolean hasNonDtmf=false;
-        for (int i = 0; i < this.rtpFormats.size(); i++) {
-            for (int j = 0; j < other.size(); j++) {
-                if (this.rtpFormats.get(i).getFormat().matches(other.rtpFormats.get(j).getFormat())) {
-                	if(this.rtpFormats.get(i).getFormat().getName().equals(AVProfile.telephoneEvent.getName()))                		
-                		res.add(this.rtpFormats.get(i));                    
-                	else if(!hasNonDtmf)
-                	{
-                		res.add(this.rtpFormats.get(i));
-                		hasNonDtmf=true;
-                	}
-                }
-            }
-        }
-    }
+	public void intersection(RTPFormats other, RTPFormats res) {
+		for (int i = 0; i < this.rtpFormats.size(); i++) {
+			Format supportedFormat = this.rtpFormats.get(i).getFormat();
+			for (int j = 0; j < other.size(); j++) {
+				Format offeredFormat = other.rtpFormats.get(j).getFormat();
+				
+				System.out.println(supportedFormat.toString() + " VS " + offeredFormat.toString());
+				
+				if (supportedFormat.matches(offeredFormat)) {
+					System.out.println("-> IS a match!");
+					res.add(this.rtpFormats.get(i));
+					break;
+				} else {
+					System.out.println("-> IS NOT a match!");
+				}
+			}
+		}
+	}
     
     @Override
     public String toString() {
