@@ -29,9 +29,11 @@ package org.mobicents.media.server.impl.rtp.sdp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.EncodingName;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -209,8 +211,11 @@ public class RTPFormatsTest {
     }
     
     @Test
-    public void testFormatIntersection() {
+    public void testFormatIntersectionWithDynamicNegotiation() {
     	// given
+    	AudioFormat telephoneEvent126 = FormatFactory.createAudioFormat("telephone-event", 8000);
+    	RTPFormat dtmf126 = new RTPFormat(126, telephoneEvent126, 8000);
+    	
     	RTPFormats supported = new RTPFormats();
     	supported.add(AVProfile.audio.find(0));
     	supported.add(AVProfile.audio.find(8));
@@ -220,7 +225,7 @@ public class RTPFormatsTest {
     	RTPFormats offered = new RTPFormats();
     	offered.add(AVProfile.audio.find(0));
     	offered.add(AVProfile.audio.find(97));
-    	offered.add(AVProfile.audio.find(101));
+    	offered.add(dtmf126);
     	
     	// when
     	RTPFormats negotiated = new RTPFormats();
@@ -229,6 +234,7 @@ public class RTPFormatsTest {
     	
     	// then
     	assertEquals(3, negotiated.size());
+    	assertNotNull(negotiated.find(126));
     }
     
 }
