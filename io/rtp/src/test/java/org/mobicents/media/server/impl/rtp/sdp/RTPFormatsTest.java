@@ -27,10 +27,7 @@
 
 package org.mobicents.media.server.impl.rtp.sdp;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -235,6 +232,7 @@ public class RTPFormatsTest {
     	// then
     	assertEquals(3, negotiated.size());
     	assertNotNull(negotiated.find(126));
+    	assertNull(negotiated.find(101));
     }
     
 }
