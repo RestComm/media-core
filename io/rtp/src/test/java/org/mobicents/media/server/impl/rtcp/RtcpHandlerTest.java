@@ -315,7 +315,6 @@ public class RtcpHandlerTest {
 		 * scheduled for time tn = tc + T.
 		 */
 		handler.leaveRtpSession();
-		nextReport = handler.getNextScheduledReport();
 		
 		// then
 		Assert.assertFalse(handler.isJoined());
