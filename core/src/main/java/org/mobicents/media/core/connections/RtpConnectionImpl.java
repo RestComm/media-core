@@ -413,7 +413,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private SessionDescription generateSdpOffer() {
 		String bindAddress = this.isLocal ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
 		String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
-		String originAddress = (externalAddress == null) ? bindAddress : externalAddress;
+		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? bindAddress : externalAddress;
 		
 		// Session-level fields
 		SessionDescription offer = new SessionDescription();

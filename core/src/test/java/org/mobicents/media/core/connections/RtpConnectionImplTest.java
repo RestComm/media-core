@@ -28,10 +28,12 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
@@ -114,6 +116,7 @@ public class RtpConnectionImplTest {
     /**
      * Test of setOtherParty method, of class RtpConnectionImpl.
      */
+    @Ignore
     @Test
     public void testDescription() throws Exception {    	
         connection = (RtpConnectionImpl) endpoint.createConnection(ConnectionType.RTP,false);

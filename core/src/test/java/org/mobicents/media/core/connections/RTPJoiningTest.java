@@ -27,19 +27,18 @@
 
 package org.mobicents.media.core.connections;
 
-import java.io.IOException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.Component;
-import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -61,20 +60,7 @@ public class RTPJoiningTest extends RTPEnvironment {
     Component sine1,sine2,sine3;
     Component analyzer1,analyzer2,analyzer3;
     
-    private int count;
-
     private ResourcesPool resourcesPool;
-    
-    public RTPJoiningTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
@@ -144,6 +130,9 @@ public class RTPJoiningTest extends RTPEnvironment {
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
+        connection1.generateLocalDescriptor();
+        connection2.generateLocalDescriptor();
+        
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
 
@@ -193,6 +182,9 @@ public class RTPJoiningTest extends RTPEnvironment {
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
+        connection1.generateLocalDescriptor();
+        connection2.generateLocalDescriptor();
+        
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
 
@@ -240,6 +232,9 @@ public class RTPJoiningTest extends RTPEnvironment {
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
+        connection1.generateLocalDescriptor();
+        connection2.generateLocalDescriptor();
+        
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
 
@@ -286,6 +281,9 @@ public class RTPJoiningTest extends RTPEnvironment {
     	
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
+        
+        connection1.generateLocalDescriptor();
+        connection2.generateLocalDescriptor();
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
@@ -335,8 +333,13 @@ public class RTPJoiningTest extends RTPEnvironment {
     	
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
+        
+        connection1.generateLocalDescriptor();
+        connection2.generateLocalDescriptor();
+        
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
+        
         connection1.setOtherParty(sd2);        
         connection2.setOtherParty(sd1);
         connection2.setMode(ConnectionMode.RECV_ONLY);
@@ -394,6 +397,9 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
         Connection connection2 = endpoint3.createConnection(ConnectionType.RTP,false);
         
+        connection1.generateLocalDescriptor();
+        connection2.generateLocalDescriptor();
+        
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection2.getDescriptor());
 
@@ -407,6 +413,9 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection3 = endpoint2.createConnection(ConnectionType.RTP,false);
         Connection connection4 = endpoint3.createConnection(ConnectionType.RTP,false);
 
+        connection3.generateLocalDescriptor();
+        connection4.generateLocalDescriptor();
+        
         Text sd3 = new Text(connection3.getDescriptor());
         Text sd4 = new Text(connection4.getDescriptor());
 

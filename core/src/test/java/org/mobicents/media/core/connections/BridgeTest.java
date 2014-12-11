@@ -27,19 +27,17 @@
 
 package org.mobicents.media.core.connections;
 
-import java.io.IOException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.mobicents.media.core.MyTestEndpoint;
-import org.mobicents.media.core.ResourcesPool;
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.connections.BaseConnection;
+import org.mobicents.media.core.MyTestEndpoint;
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -61,21 +59,9 @@ public class BridgeTest extends RTPEnvironment {
     private MyTestEndpoint endpoint4;
 
     private ResourcesPool resourcesPool;
-    private int count;
 
     Component sine1,sine2,sine3,sine4;
     Component analyzer1,analyzer2,analyzer3,analyzer4;
-    
-    public BridgeTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
@@ -145,8 +131,6 @@ public class BridgeTest extends RTPEnvironment {
      */
     @Test
     public void testTransmission() throws Exception {
-        long s = System.nanoTime();
-
         sine1.activate();
     	sine2.activate();
     	sine3.activate();
@@ -158,9 +142,11 @@ public class BridgeTest extends RTPEnvironment {
     	analyzer4.activate();
     	
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
-        connection1.setMode(ConnectionMode.SEND_ONLY);
+    	Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);
         
-        Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);
+    	connection1.setMode(ConnectionMode.SEND_ONLY);
+    	connection1.generateLocalDescriptor();
+    	connection3.generateLocalDescriptor();
         
         Text sd1 = new Text(connection1.getDescriptor());
         Text sd2 = new Text(connection3.getDescriptor());

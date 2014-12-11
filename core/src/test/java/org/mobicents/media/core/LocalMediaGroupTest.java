@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.connections.LocalConnectionImpl;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.core.endpoints.impl.BridgeEndpoint;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
@@ -74,7 +73,6 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     //endpoint and connection
-    private LocalConnectionImpl connection;
     private BaseMixerEndpointImpl endpoint1,endpoint2;
     private BridgeEndpoint endpoint3;
     private ResourcesPool resourcesPool;
@@ -152,6 +150,7 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
     public void testResources() throws Exception {
     	Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);        
         Connection connection2 = endpoint3.createConnection(ConnectionType.LOCAL,false);       
+        
         connection1.setOtherParty(connection2);        
         
         connection1.setMode(ConnectionMode.SEND_RECV);
@@ -159,6 +158,9 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
         
         Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);        
         Connection connection4 = endpoint2.createConnection(ConnectionType.RTP,false);       
+        
+        connection3.generateLocalDescriptor();
+        connection4.generateLocalDescriptor();
         
         Text sd1 = new Text(connection3.getDescriptor());
         Text sd2 = new Text(connection4.getDescriptor());
