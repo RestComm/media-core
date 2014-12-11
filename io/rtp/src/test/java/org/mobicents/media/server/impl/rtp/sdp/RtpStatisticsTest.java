@@ -79,7 +79,7 @@ public class RtpStatisticsTest {
 		
 		// then
 		assertEquals(2, stats.getRtpPacketsSent());
-		assertEquals(p1.getLength() + p2.getLength(), stats.getRtpOctetsSent());
+		assertEquals(p1.getPayloadLength() + p2.getPayloadLength(), stats.getRtpOctetsSent());
 		assertEquals(wallClock.getCurrentTime(), stats.getRtpSentOn());
 		assertTrue(stats.hasSent());
 		assertTrue(stats.isSender(stats.getSsrc()));
@@ -102,7 +102,7 @@ public class RtpStatisticsTest {
 		
 		// then
 		assertEquals(2, stats.getRtpPacketsReceived());
-		assertEquals(p1.getLength() + p2.getLength(), stats.getRtpOctetsReceived());
+		assertEquals(p1.getPayloadLength() + p2.getPayloadLength(), stats.getRtpOctetsReceived());
 		assertEquals(wallClock.getTime(), stats.getRtpReceivedOn());
 		assertFalse(stats.hasSent());
 		assertEquals(2, stats.getSenders());
@@ -237,8 +237,10 @@ public class RtpStatisticsTest {
 		
 		RtpPacket rtp1 = new RtpPacket(172, false);
 		RtpPacket rtp2 = new RtpPacket(172, false);
+		RtpPacket rtp3 = new RtpPacket(172, false);
 		rtp1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
-		rtp2.wrap(false, 8, 1, 160 * 2, 123, new byte[160], 0, 160);
+		rtp2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
+		rtp3.wrap(false, 8, 3, 160 * 2, 123, new byte[160], 0, 160);
 		
 		TimeStamp ntp = new TimeStamp(System.currentTimeMillis());
 		RtcpSenderReport sr = new RtcpSenderReport(false, 123, ntp.getSeconds(), ntp.getFraction(), 160 * 1, 5, 5 * 160);
@@ -261,12 +263,14 @@ public class RtpStatisticsTest {
 		stats.onRtcpReceive(rtcp1);
 		wallClock.tick(20000000L);
 		stats.onRtpReceive(rtp2);
+		wallClock.tick(20000000L);
+		stats.onRtpReceive(rtp3);
 
 		// then (1) - sender 123 is registered
 		RtpMember member = stats.getMember(123);
 		assertTrue(stats.isMember(sr.getSsrc()));
 		assertNotNull(member);
-		assertEquals(rtp2.getSeqNumber(), member.getExtHighSequence());
+		assertEquals(rtp3.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(1, member.getReceivedSinceSR());
 		
 		double avgSize = calculateAvgSize(initialAvgSize, rtcp1.getSize());
@@ -294,8 +298,10 @@ public class RtpStatisticsTest {
 		
 		RtpPacket rtp1 = new RtpPacket(172, false);
 		RtpPacket rtp2 = new RtpPacket(172, false);
+		RtpPacket rtp3 = new RtpPacket(172, false);
 		rtp1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
-		rtp2.wrap(false, 8, 1, 160 * 2, 123, new byte[160], 0, 160);
+		rtp2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
+		rtp3.wrap(false, 8, 3, 160 * 2, 123, new byte[160], 0, 160);
 		
 		TimeStamp ntp = new TimeStamp(System.currentTimeMillis());
 		RtcpSenderReport sr = new RtcpSenderReport(false, 123, ntp.getSeconds(), ntp.getFraction(), 160 * 1, 5, 5 * 160);
@@ -318,13 +324,15 @@ public class RtpStatisticsTest {
 		stats.onRtcpReceive(rtcp1);
 		wallClock.tick(20000000L);
 		stats.onRtpReceive(rtp2);
+		wallClock.tick(20000000L);
+		stats.onRtpReceive(rtp3);
 		
 		// then (1) - sender 123 is registered
 		int memberCount = stats.getMembers();
 		RtpMember member = stats.getMember(123);
 		assertTrue(stats.isMember(sr.getSsrc()));
 		assertNotNull(member);
-		assertEquals(rtp2.getSeqNumber(), member.getExtHighSequence());
+		assertEquals(rtp3.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(1, member.getReceivedSinceSR());
 		
 		double avgSize = calculateAvgSize(initialAvgSize, rtcp1.getSize());

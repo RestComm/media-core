@@ -43,6 +43,7 @@ public class NioUdpTransportTest {
 		DatagramChannel channel = null;
 		try {
 			channel = DatagramChannel.open();
+			channel.configureBlocking(false);
 			channel.bind(new InetSocketAddress("127.0.0.1", 0));
 			return channel;
 		} catch (IOException e) {
@@ -85,7 +86,7 @@ public class NioUdpTransportTest {
 		Assert.assertEquals(msg, new String(data));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test(timeout = NioUdpTransport.MAX_DELAY * 2, expected = IllegalStateException.class)
 	public void testTimeout() throws InterruptedException, IOException {
 		// given
 		NioUdpTransport dtlsTransport = new NioUdpTransport(localChannel);
