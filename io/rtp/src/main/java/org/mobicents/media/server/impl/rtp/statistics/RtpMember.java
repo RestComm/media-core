@@ -18,10 +18,10 @@ public class RtpMember {
 
 	private static final Logger logger = Logger.getLogger(RtpMember.class);
 
-	private static final int RTP_SEQ_MOD = 65536;
-	private static final int MAX_DROPOUT = 3000;
-	private static final int MAX_MISORDER = 100;
-	private static final int MIN_SEQUENTIAL = 2;
+	public static final int RTP_SEQ_MOD = 65536;
+	public static final int MAX_DROPOUT = 100;
+	public static final int MAX_MISORDER = 100;
+	public static final int MIN_SEQUENTIAL = 2;
 	
 	// Core elements
 	private final RtpClock rtpClock;
@@ -219,11 +219,15 @@ public class RtpMember {
 	 */
 	public long getPacketsLost() {
 		long lost = this.expectedPackets - this.receivedPackets;
-		
-		if(lost > 0x7fffff) {
+
+		if (lost > 0x7fffff) {
 			return 0x7fffff;
 		}
-		
+
+		if (lost < -0x800000) {
+			return -0x800000;
+		}
+
 		return lost;
 	}
 
@@ -233,7 +237,7 @@ public class RtpMember {
 	 * @return The number of cycles
 	 */
 	public int getSequenceCycle() {
-		return sequenceCycle;
+		return (sequenceCycle >> 16);
 	}
 
 	/**
@@ -288,7 +292,7 @@ public class RtpMember {
 	 * 
 	 * @return extended highest sequence
 	 */
-	public long getExtHighSequence() {
+	public int getExtHighSequence() {
 		return this.extHighestSequence;
 	}
 	
@@ -343,7 +347,7 @@ public class RtpMember {
     
     private void setHighestSequence(int sequence) {
     	this.highestSequence = sequence;
-		this.extHighestSequence = this.highestSequence + (RTP_SEQ_MOD * this.sequenceCycle);
+		this.extHighestSequence = this.highestSequence + this.sequenceCycle;
 		this.expectedPackets = this.extHighestSequence - this.firstSequenceNumber + 1;
     }
     
@@ -358,8 +362,12 @@ public class RtpMember {
     }
     
     private boolean updateSequence(int sequence) {
-    	int delta = Math.max(0, sequence - this.highestSequence);
+    	int delta = Math.abs(sequence - this.highestSequence);
 
+    	/*
+         * Source is not valid until MIN_SEQUENTIAL packets with
+         * sequential sequence numbers have been received.
+         */
     	if(this.probation > 0) {
     		// packet is in sequence
     		if(sequence == this.highestSequence + 1) {
@@ -402,33 +410,36 @@ public class RtpMember {
     }
     
 	public void onReceiveRtp(RtpPacket packet) {
-		this.receivedSinceSR++;
-		this.receivedPackets++;
-		this.receivedOctets += packet.getPayloadLength();
-
-		int sequence = packet.getSeqNumber();
-		
+		if(validateSequence(packet.getSeqNumber())) {
+			this.receivedSinceSR++;
+			this.receivedPackets++;
+			this.receivedOctets += packet.getPayloadLength();
+			
+			if(this.lastPacketReceivedOn > 0) {
+				estimateJitter(packet);
+			} else {
+				initJitter(packet);
+			}
+			this.lastPacketReceivedOn = rtpClock.getLocalRtpTime();
+		}
+	}
+	
+	private boolean validateSequence(int sequence) {
 		/*
 		 * When a new source is heard for the first time, that is, its SSRC
 		 * identifier is not in the table (see Section 8.2), and the per-source
 		 * state is allocated for it, s->probation is set to the number of
 		 * sequential packets required before declaring a source valid
 		 * (parameter MIN_SEQUENTIAL) and other variables are initialized
-		 */
+		 */	
 		if (this.firstSequenceNumber < 0) {
 			initSequence(sequence);
 			this.highestSequence = sequence - 1;
 			this.probation = MIN_SEQUENTIAL;
+			return false;
 		} else {
-			updateSequence(sequence);
+			return updateSequence(sequence);
 		}
-
-		if(this.lastPacketReceivedOn > 0) {
-			estimateJitter(packet);
-		} else {
-			initJitter(packet);
-		}
-		this.lastPacketReceivedOn = rtpClock.getLocalRtpTime();
 	}
 	
 	public void onReceiveSR(RtcpSenderReport report) {

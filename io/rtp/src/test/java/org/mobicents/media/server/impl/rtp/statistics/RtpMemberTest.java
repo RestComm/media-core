@@ -32,7 +32,7 @@ public class RtpMemberTest {
 	private int sumOctets(RtpPacket ...packets) {
 		int sum = 0;
 		for (RtpPacket packet : packets) {
-			sum += packet.getLength();
+			sum += packet.getPayloadLength();
 		}
 		return sum;
 	}
@@ -56,11 +56,10 @@ public class RtpMemberTest {
 
 		// then
 		assertEquals(p1.getSyncSource(), member.getSsrc());
-		assertEquals(p1.getLength(), member.getOctetsReceived());
-		assertEquals(1, member.getPacketsReceived());
-		assertEquals(1, member.getReceivedSinceSR());
+		assertEquals(0, member.getOctetsReceived());
+		assertEquals(0, member.getPacketsReceived());
+		assertEquals(0, member.getReceivedSinceSR());
 		assertEquals(0, member.getPacketsLost());
-//		assertEquals(p1.getSeqNumber(), member.getSequenceNumber());
 		assertEquals(p1.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(0, member.getSequenceCycle());
 		assertEquals(0, member.getLastSR());
@@ -74,21 +73,22 @@ public class RtpMemberTest {
 		RtpPacket p1 = new RtpPacket(172, false);
 		RtpPacket p2 = new RtpPacket(172, false);
 		RtpPacket p3 = new RtpPacket(172, false);
+		RtpPacket p4 = new RtpPacket(172, false);
 		p1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
 		p2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
-		p3.wrap(false, 8, 2, 160 * 3, 123, new byte[160], 0, 160);
+		p3.wrap(false, 8, 3, 160 * 3, 123, new byte[160], 0, 160);
+		p4.wrap(false, 8, 3, 160 * 4, 123, new byte[160], 0, 160);
 
 		// when
-		receiveRtpPackets(member, p1, p2, p3);
+		receiveRtpPackets(member, p1, p2, p3, p4);
 
 		// then
 		assertEquals(p1.getSyncSource(), member.getSsrc());
-		assertEquals(sumOctets(p1, p2, p3), member.getOctetsReceived());
-		assertEquals(3, member.getPacketsReceived());
-		assertEquals(3, member.getReceivedSinceSR());
-		assertEquals(0, member.getPacketsLost());
-//		assertEquals(p3.getSeqNumber(), member.getSequenceNumber());
-		assertEquals(p3.getSeqNumber(), member.getExtHighSequence());
+		assertEquals(sumOctets(p3, p4), member.getOctetsReceived());
+		assertEquals(2, member.getPacketsReceived());
+		assertEquals(2, member.getReceivedSinceSR());
+		assertEquals(-1, member.getPacketsLost()); // expected 1 packet but received 2 (with same seqnum)
+		assertEquals(p4.getSeqNumber(), member.getExtHighSequence());
 		assertEquals(0, member.getSequenceCycle());
 		assertEquals(0, member.getLastSR());
 		assertEquals(0, member.getLastSRdelay());
@@ -105,11 +105,11 @@ public class RtpMemberTest {
 		RtpPacket p5 = new RtpPacket(172, false);
 		
 		p1.wrap(false, 8, 100, 160 * 1, 123, new byte[160], 0, 160);
-		p2.wrap(false, 8, 120, 160 * 2, 123, new byte[160], 0, 160);
-		p3.wrap(false, 8, 150, 160 * 3, 123, new byte[160], 0, 160);
-		p4.wrap(false, 8, 155, 160 * 4, 123, new byte[160], 0, 160);
+		p2.wrap(false, 8, 101, 160 * 2, 123, new byte[160], 0, 160);
+		p3.wrap(false, 8, 102, 160 * 3, 123, new byte[160], 0, 160);
+		p4.wrap(false, 8, 103, 160 * 4, 123, new byte[160], 0, 160);
 		// The 100+ sequence number gap will cause the sequence cycle to increment
-		p5.wrap(false, 8, 54, 160 * 5, 123, new byte[160], 0, 160);
+		p5.wrap(false, 8, 50, 160 * 5, 123, new byte[160], 0, 160);
 		
 		// when
 		receiveRtpPackets(member, p1, p2, p3, p4, p5);
@@ -117,15 +117,11 @@ public class RtpMemberTest {
 		// then
 		int expectedSeqCycle = 1;
 		assertEquals(expectedSeqCycle, member.getSequenceCycle());
-//		assertEquals(p5.getSeqNumber(), member.getSequenceNumber());
 
-		long expectedHighSequence = (65536 * expectedSeqCycle) + p5.getSeqNumber();
+		int expectedHighSequence = (expectedSeqCycle * RtpMember.RTP_SEQ_MOD) + p5.getSeqNumber();
 		assertEquals(expectedHighSequence, member.getExtHighSequence());
-		
-		long expectedLostPackets = expectedHighSequence - p1.getSeqNumber() - member.getPacketsReceived();
-		if(expectedLostPackets < 0) {
-			expectedLostPackets = 0;
-		}
+		int expected = expectedHighSequence - p1.getSeqNumber() - 1; // discard last packet hence the -1
+		long expectedLostPackets = expected - member.getPacketsReceived();
 		assertEquals(expectedLostPackets, member.getPacketsLost());
 	}
 	
@@ -251,19 +247,15 @@ public class RtpMemberTest {
 		
 		// then
 		assertEquals(0, member.getSequenceCycle());
-//		assertEquals(p5.getSeqNumber(), member.getSequenceNumber());
 		long expectedHighSeq = (65536 * 0 + p5.getSeqNumber());
 		assertEquals(expectedHighSeq, member.getExtHighSequence());
-		assertEquals(5, member.getPacketsReceived());
-		assertEquals(sumOctets(p1, p2, p3, p4, p5), member.getOctetsReceived());
+		assertEquals(3, member.getPacketsReceived());
+		assertEquals(sumOctets(p3, p4, p5), member.getOctetsReceived());
 		assertEquals(1, member.getReceivedSinceSR());
-		long expectedPackets = p5.getSeqNumber() - p4.getSeqNumber();
-		long expectedFraction = (256 * (expectedPackets - 1)) / expectedPackets;
-		assertEquals(expectedFraction, member.getFractionLost());
+		assertEquals(0, member.getPacketsLost());
+		assertEquals(0, member.getFractionLost()); // expected packets = received packets = no loss
 		long expectedDelay = (long) ((wallClock.getCurrentTime() - receivedSrOn) * 65.536);
 		assertEquals(expectedDelay, member.getLastSRdelay());
-		long expectedLost = expectedHighSeq - p1.getSeqNumber() - member.getPacketsReceived();
-		assertEquals(expectedLost < 0 ? 0 : expectedLost, member.getPacketsLost());
 	}
 	
 	@Test
@@ -299,10 +291,14 @@ public class RtpMemberTest {
 		wallClock.tick(20000000L);
 		
 		// then
-		long expectedPackets = p5.getSeqNumber() - p4.getSeqNumber();
-		int receivedSinceSR = 1; // p5
-		long expectedFraction = (256 * (expectedPackets - receivedSinceSR)) / expectedPackets;
-		assertEquals(expectedFraction, member.getFractionLost());
+		int packetsReceived = 5;
+		int expected = p5.getSeqNumber() - p3.getSeqNumber() + 1; // only considers valid sequence after 2 consecutive packets
+		long expectedLostPackets = expected - packetsReceived;
+		long lostInterval = expected - packetsReceived;
+		long fractionLost = (lostInterval * 256) / expected;
+		
+		assertEquals(expectedLostPackets, member.getPacketsLost());
+		assertEquals(fractionLost, member.getFractionLost());
 	}
 	
 	@Test
