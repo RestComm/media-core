@@ -39,15 +39,11 @@ public class RtpMember {
 	private long lastPacketReceivedOn;
 	private int firstSequenceNumber;
 	private int highestSequence;
-	private int extHighestSequence;
 	private int sequenceCycle;
 	private int badSequence;
 	private int probation;
 	private long receivedPrior;
 	private long expectedPrior;
-	private int fractionLost;
-	
-	private long expectedPackets;
 
 	// Jitter
 	/**
@@ -61,7 +57,6 @@ public class RtpMember {
 	// RTCP
 	private long lastSrTimestamp;
 	private long lastSrReceivedOn;
-	private long lastSrSequenceNumber;
 
 	public RtpMember(RtpClock clock, long ssrc, String cname) {
 		// Core elements
@@ -73,7 +68,6 @@ public class RtpMember {
 		this.cname = cname;
 
 		// Packet stats
-		this.expectedPackets = 0;
 		this.receivedPackets = 0;
 		this.receivedOctets = 0;
 		this.receivedSinceSR = 0;
@@ -86,7 +80,6 @@ public class RtpMember {
 		this.probation = 0;
 		this.receivedPrior = 0;
 		this.expectedPrior = 0;
-		this.fractionLost = 0;
 
 		// Jitter
 		this.currentTransit = 0;
@@ -95,7 +88,6 @@ public class RtpMember {
 		// RTCP
 		this.lastSrTimestamp = 0;
 		this.lastSrReceivedOn = 0;
-		this.lastSrSequenceNumber = -1;
 		this.roundTripDelay = 0;
 	}
 
@@ -140,6 +132,10 @@ public class RtpMember {
 	public long getPacketsReceived() {
 		return receivedPackets;
 	}
+	
+	public long getPacketsExpected() {
+		return getExtHighSequence() - this.firstSequenceNumber + 1;
+	}
 
 	/**
 	 * Gets the total of incoming RTP octets
@@ -180,8 +176,9 @@ public class RtpMember {
 //
 //		return fraction;
 		
-		long expectedInterval = this.expectedPackets - this.expectedPrior;
-		this.expectedPrior = this.expectedPackets;
+		long expected = getPacketsExpected();
+		long expectedInterval = expected - this.expectedPrior;
+		this.expectedPrior = expected;
 		
 		long receivedInterval = this.receivedPackets - this.receivedPrior;
 		this.receivedPrior = this.receivedPackets;
@@ -218,7 +215,7 @@ public class RtpMember {
 	 *         Loss can be negative, i.e. duplicates have been received.
 	 */
 	public long getPacketsLost() {
-		long lost = this.expectedPackets - this.receivedPackets;
+		long lost = getPacketsExpected() - this.receivedPackets;
 
 		if (lost > 0x7fffff) {
 			return 0x7fffff;
@@ -293,7 +290,7 @@ public class RtpMember {
 	 * @return extended highest sequence
 	 */
 	public int getExtHighSequence() {
-		return this.extHighestSequence;
+		return this.highestSequence + this.sequenceCycle;
 	}
 	
 	public int getRTT() {
@@ -345,16 +342,9 @@ public class RtpMember {
 		logger.info("rtt=" + receiptNtpTime + " - " + lastSR + " - " + delaySinceSR + " = " + delay + " => " + this.roundTripDelay + "ms");
     }
     
-    private void setHighestSequence(int sequence) {
-    	this.highestSequence = sequence;
-		this.extHighestSequence = this.highestSequence + this.sequenceCycle;
-		this.expectedPackets = this.extHighestSequence - this.firstSequenceNumber + 1;
-    }
-    
-    
     private void initSequence(int sequence) {
     	this.firstSequenceNumber = sequence;
-    	setHighestSequence(sequence);
+    	this.highestSequence = sequence;
     	this.badSequence = RTP_SEQ_MOD + 1; // so seq != bad_seq
     	this.sequenceCycle = 0;
     	this.receivedPrior = 0;
@@ -372,7 +362,7 @@ public class RtpMember {
     		// packet is in sequence
     		if(sequence == this.highestSequence + 1) {
     			this.probation--;
-    			setHighestSequence(sequence);
+    			this.highestSequence = sequence;
     			
     			if(this.probation == 0) {
     				initSequence(sequence);
@@ -380,7 +370,7 @@ public class RtpMember {
     			}
     		} else {
     			this.probation = MIN_SEQUENTIAL - 1;
-    			setHighestSequence(sequence);
+    			this.highestSequence = sequence;
     		}
     		return false;
     	} else if (delta < MAX_DROPOUT) {
@@ -389,7 +379,7 @@ public class RtpMember {
     			// sequence number wrapped - count another 64k cycle
     			this.sequenceCycle += RTP_SEQ_MOD;
     		}
-    		setHighestSequence(sequence);
+    		this.highestSequence = sequence;
     	} else if (delta <= RTP_SEQ_MOD - MAX_MISORDER) {
     		// the sequence number made a very large jump
     		if(sequence == this.badSequence) {
@@ -446,7 +436,6 @@ public class RtpMember {
 		// Update statistics
 		this.lastSrTimestamp = report.getNtpTs();
 		this.lastSrReceivedOn = this.wallClock.getCurrentTime();
-		this.lastSrSequenceNumber = this.highestSequence;
 		this.receivedSinceSR = 0;
 	}
 	

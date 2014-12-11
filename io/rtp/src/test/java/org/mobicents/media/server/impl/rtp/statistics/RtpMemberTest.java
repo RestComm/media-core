@@ -55,12 +55,13 @@ public class RtpMemberTest {
 		member.onReceiveRtp(p1);
 
 		// then
+		// packet is still in probation so all values are zero
 		assertEquals(p1.getSyncSource(), member.getSsrc());
 		assertEquals(0, member.getOctetsReceived());
 		assertEquals(0, member.getPacketsReceived());
 		assertEquals(0, member.getReceivedSinceSR());
 		assertEquals(0, member.getPacketsLost());
-		assertEquals(p1.getSeqNumber(), member.getExtHighSequence());
+		assertEquals(0, member.getExtHighSequence());
 		assertEquals(0, member.getSequenceCycle());
 		assertEquals(0, member.getLastSR());
 		assertEquals(0, member.getLastSRdelay());
@@ -139,12 +140,19 @@ public class RtpMemberTest {
 		RtpPacket p3 = new RtpPacket(172, false);
 		RtpPacket p4 = new RtpPacket(172, false);
 		RtpPacket p5 = new RtpPacket(172, false);
+		RtpPacket p6 = new RtpPacket(172, false);
+		RtpPacket p7 = new RtpPacket(172, false);
 
-		p1.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
-		p2.wrap(false, 8, 2, 160 * 2, 123, new byte[160], 0, 160);
-		p3.wrap(false, 8, 2, 160 * 3, 123, new byte[160], 0, 160);
-		p4.wrap(false, 8, 3, 160 * 4, 123, new byte[160], 0, 160);
-		p5.wrap(false, 8, 3, 160 * 5, 123, new byte[160], 0, 160);
+		// packets in probation
+		p6.wrap(false, 8, 1, 160 * 1, 123, new byte[160], 0, 160);
+		p7.wrap(false, 8, 3, 160 * 1, 123, new byte[160], 0, 160);
+		
+		// valid packets
+		p1.wrap(false, 8, 3, 160 * 1, 123, new byte[160], 0, 160);
+		p2.wrap(false, 8, 4, 160 * 2, 123, new byte[160], 0, 160);
+		p3.wrap(false, 8, 5, 160 * 3, 123, new byte[160], 0, 160);
+		p4.wrap(false, 8, 6, 160 * 4, 123, new byte[160], 0, 160);
+		p5.wrap(false, 8, 7, 160 * 5, 123, new byte[160], 0, 160);
 
 		// 1 sampling units delta for timing and rounding errors , i.e. 1/8ms
 		long jitterDeltaLimit = 1;
@@ -152,6 +160,10 @@ public class RtpMemberTest {
 		/*
 		 * When/Then
 		 */
+		// send two dummy ordered packets to pass probation period
+		member.onReceiveRtp(p6);
+		member.onReceiveRtp(p7);
+		
 		// write first packet, expected jitter = 0
 		member.onReceiveRtp(p1);
 		assertEquals(0, member.getJitter(), jitterDeltaLimit);
@@ -291,7 +303,7 @@ public class RtpMemberTest {
 		wallClock.tick(20000000L);
 		
 		// then
-		int packetsReceived = 5;
+		int packetsReceived = 3; // 2 first packets were in probation period
 		int expected = p5.getSeqNumber() - p3.getSeqNumber() + 1; // only considers valid sequence after 2 consecutive packets
 		long expectedLostPackets = expected - packetsReceived;
 		long lostInterval = expected - packetsReceived;
@@ -300,15 +312,5 @@ public class RtpMemberTest {
 		assertEquals(expectedLostPackets, member.getPacketsLost());
 		assertEquals(fractionLost, member.getFractionLost());
 	}
-	
-	@Test
-	public void testRoundTripDelay() {
-		// given
-		int RTP_SEQ_MOD = (1<<16);
-		
-		// when
-		System.out.println(RTP_SEQ_MOD);
-		
-		// then
-	}
+
 }
