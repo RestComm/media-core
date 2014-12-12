@@ -108,6 +108,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private long ssrc;
 	private String cname;
 	
+	// inbound vs outbound call
+	private boolean outbound;
+	
 	// Audio Channel
 	private RtpStatistics audioStatistics;
 	private final RtpClock audioClock;
@@ -118,8 +121,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private boolean audioRtcpMux;
 
 	// Session Description
-	private SessionDescription sessionDescriptionOffer;
-	private SessionDescription sessionDescriptionAnswer;
+	private SessionDescription localSdp;
+	private SessionDescription remoteSdp;
 	
 	// Registered formats
 	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
@@ -153,6 +156,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// Core elements
 		this.channelsManager = channelsManager;
 		this.scheduler = channelsManager.getScheduler();
+		
+		// outbound vs inbound call
+		this.outbound = false;
 		
 		// Audio Channel
 		this.audioClock = new RtpClock(this.scheduler.getClock());
@@ -320,11 +326,18 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 //		if (sdp_old != null && sdp_old.getAudioDescriptor() != null && sdp_old.getAudioDescriptor().getFormats() != null) {
 //			logger.info("Audio Formats" + sdp_old.getAudioDescriptor().getFormats());
 //		}
-
-		MediaDescriptionField audioOffer = this.sessionDescriptionOffer.getMediaDescription("audio");
+		if(this.outbound) {
+			setOtherPartyOutboundCall();
+		} else {
+			setOtherPartyInboundCall();
+		}
+	}
+	
+	private void setOtherPartyInboundCall() throws IOException {
+		MediaDescriptionField audioOffer = this.remoteSdp.getMediaDescription("audio");
 		
 		// Process the SDP offer to know whether this is a WebRTC call or not
-		processSdpOffer();
+		processRemoteOffer();
 
 		/*
 		 * For ICE-enabled calls, we need to wait for the ICE agent to provide a
@@ -356,7 +369,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		
 		// Process the SDP answer
 		try {
-			this.sessionDescriptionAnswer = generateSdpAnswer();
+			this.localSdp = generateSdpAnswer();
 		} catch (SdpException e) {
 			throw new IOException(e.getMessage(), e);
 		}
@@ -368,11 +381,49 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			// exception is possible here when already joined , should not log
 		}
 	}
+	
+	private void setOtherPartyOutboundCall() throws IOException {
+		// process remote sdp answer
+		MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
+		
+		// connect to remote peer
+		String remoteRtpAddress = remoteAudio.getConnection().getAddress();
+		int remoteRtpPort = remoteAudio.getPort();
+		this.rtpAudioChannel.setRemotePeer(new InetSocketAddress(remoteRtpAddress, remoteRtpPort));
+		
+		boolean remoteRtcpMux = remoteAudio.isRtcpMux();
+		if(remoteRtcpMux) {
+			this.rtcpAudioChannel.setRemotePeer(new InetSocketAddress(remoteRtpAddress, remoteRtpPort));
+		} else {
+			RtcpAttribute remoteRtcp = remoteAudio.getRtcp();
+			if(remoteRtcp == null) {
+				// No specific RTCP port, so default is RTP port + 1
+				this.rtcpAudioChannel.setRemotePeer(new InetSocketAddress(remoteRtpAddress, remoteRtpPort + 1));
+			} else {
+				// Specific RTCP address and port contained in SDP
+				String remoteRtcpAddress = remoteRtcp.getAddress();
+				if(remoteRtcpAddress == null) {
+					// address is optional in rtcp attribute
+					// will match RTP address if not defined
+					remoteRtcpAddress = remoteRtpAddress;
+				}
+				int remoteRtcpPort = remoteRtcp.getPort();
+				this.rtcpAudioChannel.setRemotePeer(new InetSocketAddress(remoteRtcpAddress, remoteRtcpPort));
+			}
+		}
+		
+		// Change the state of this RTP connection from HALF_OPEN to OPEN
+		try {
+			this.join();
+		} catch (Exception e) {
+			// exception is possible here when already joined , should not log
+		}
+	}
 
 	@Override
 	public void setOtherParty(byte[] descriptor) throws IOException {
 		try {
-			this.sessionDescriptionOffer = SessionDescriptionParser.parse(new String(descriptor));
+			this.remoteSdp = SessionDescriptionParser.parse(new String(descriptor));
 			setOtherParty();
 		} catch (SdpException e) {
 			throw new IOException(e);
@@ -381,33 +432,32 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
 	@Override
 	public void setOtherParty(Text descriptor) throws IOException {
-		try {
-			this.sessionDescriptionOffer = SessionDescriptionParser.parse(descriptor.toString());
-			setOtherParty();
-		} catch (SdpException e) {
-			throw new IOException(e);
-		}
+		setOtherParty(descriptor.toString().getBytes());
 	}
 
 	@Override
 	public String getDescriptor() {
-		if(this.sessionDescriptionAnswer != null) {
-			return this.sessionDescriptionAnswer.toString();
+		if(this.remoteSdp != null) {
+			return this.remoteSdp.toString();
 		}
-		return this.sessionDescriptionOffer.toString();
+		return this.localSdp.toString();
 	}
 	
 	@Override
 	public void generateLocalDescriptor() throws IOException {
 		// Only open and bind a new channel if not currently configured
 		if(this.audioCapabale && !this.rtpAudioChannel.isBound()) {
-			this.audioRtcpMux = true;
+			// call is outbound since the connection is generating the offer
+			this.outbound = true;
+			
+			this.audioRtcpMux = false;
 			this.rtpAudioChannel.bind(this.isLocal);
+			this.rtcpAudioChannel.bind(this.isLocal, this.rtpAudioChannel.getLocalPort() + 1);
+
+			// Generate SDP offer based on rtp channel
+			this.localSdp = generateSdpOffer();
+			this.remoteSdp = null;
 		}
-		
-		// Generate SDP offer based on rtp channel
-		this.sessionDescriptionOffer = generateSdpOffer();
-		this.sessionDescriptionAnswer = null;
 	}
 	
 	private SessionDescription generateSdpOffer() {
@@ -465,18 +515,18 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	@Override
 	public String getLocalDescriptor() {
-		if(this.sessionDescriptionAnswer == null) {
+		if(this.localSdp == null) {
 			return "";
 		}
-		return this.sessionDescriptionAnswer.toString();
+		return this.localSdp.toString();
 	}
 	
 	@Override
 	public String getRemoteDescriptor() {
-		if(this.sessionDescriptionOffer == null) {
+		if(this.remoteSdp == null) {
 			return "";
 		}
-		return this.sessionDescriptionOffer.toString();
+		return this.remoteSdp.toString();
 	}
 
 	public long getPacketsReceived() {
@@ -529,8 +579,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	public void reset() {
 		// Reset SDP
-		this.sessionDescriptionOffer = null;
-		this.sessionDescriptionAnswer = null;
+		this.outbound = false;
+		this.localSdp = null;
+		this.remoteSdp = null;
 		
 		// Reset statistics
 		this.audioStatistics.reset();
@@ -673,9 +724,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * @throws SocketException
 	 *             When binding the audio data channel. Non-WebRTC calls only.
 	 */
-	private void processSdpOffer() throws SocketException, IOException {
+	private void processRemoteOffer() throws SocketException, IOException {
 		// Configure RTCP
-		MediaDescriptionField audio = this.sessionDescriptionOffer.getMediaDescription("audio");
+		MediaDescriptionField audio = this.remoteSdp.getMediaDescription("audio");
 		this.audioRtcpMux = audio.isRtcpMux();
 		this.rtpAudioChannel.enableRtcpMux(this.audioRtcpMux);
 
@@ -685,7 +736,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		 * implements ICE-lite, we need to wait for the SDP to be exchanged
 		 * before we know which candidate socket to use.
 		 */
-		this.ice = this.sessionDescriptionOffer.containsIce();
+		this.ice = this.remoteSdp.containsIce();
 		if (this.ice) {
 			try {
 				// Configure ICE Agent and harvest candidates
@@ -701,7 +752,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Configure WebRTC-related resources on audio channel
-		this.webrtc = this.sessionDescriptionOffer.containsDtls();
+		this.webrtc = this.remoteSdp.containsDtls();
 		if (this.webrtc) {
 			String remoteFingerprint = audio.getFingerprint().getValue();
 			rtpAudioChannel.enableSRTP(remoteFingerprint, this.iceAgent);
@@ -737,7 +788,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Media Description - audio
-		if(this.sessionDescriptionOffer.getMediaDescription("audio") != null) {
+		if(this.remoteSdp.getMediaDescription("audio") != null) {
 			String rtpAddress = bindAddress;
 			String rtcpAddress = bindAddress;
 			int rtpPort = this.rtpAudioChannel.getLocalPort();
@@ -827,7 +878,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Media Description - video
-		if(this.sessionDescriptionOffer.getMediaDescription("video") != null) { 
+		if(this.remoteSdp.getMediaDescription("video") != null) { 
 			MediaDescriptionField videoDescription = new MediaDescriptionField(answer);
 			videoDescription.setMedia("video");
 			// Video is unsupported - reject channel

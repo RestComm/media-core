@@ -219,6 +219,8 @@ public class RtpHandler implements PacketHandler {
 	}
 
 	public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws PacketHandlerException {
+		System.out.println("RECEIVED RTP PACKET");
+		
 		// Do not handle data while DTLS handshake is ongoing. WebRTC calls only.
 		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return null;

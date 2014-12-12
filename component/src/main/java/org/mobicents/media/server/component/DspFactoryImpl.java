@@ -24,6 +24,7 @@ package org.mobicents.media.server.component;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
@@ -33,9 +34,13 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author kulikov
  */
 public class DspFactoryImpl implements DspFactory {
-    //list of registered codecs
-    //where codec is represented by its fully qualified class name
-    private ArrayList<String> classes = new ArrayList();
+	
+    //list of registered codecs where codec is represented by its fully qualified class name
+    private final ArrayList<String> classes;
+    
+    public DspFactoryImpl() {
+    	this.classes = new ArrayList<String>();
+    } 
 
     /**
      * Registers codec.
@@ -43,7 +48,7 @@ public class DspFactoryImpl implements DspFactory {
      * @param fqn the fully qualified name of codec class.
      */
     public void addCodec(String fqn) {
-        classes.add(fqn);
+    	this.classes.add(fqn);
     }
 
     /**
@@ -52,7 +57,7 @@ public class DspFactoryImpl implements DspFactory {
      * @param fqn the fully qualified name of the codec class.
      */
     public void remove(String fqn) {
-        classes.remove(fqn);
+    	this.classes.remove(fqn);
     }
 
     /**
@@ -63,18 +68,21 @@ public class DspFactoryImpl implements DspFactory {
      * @throws ClassNotFoundException
      * @throws IllegalAccessException
      */
+    @Override
     public Dsp newProcessor() throws InstantiationException, ClassNotFoundException, IllegalAccessException {
-        Codec[] codecs = new Codec[classes.size()];
-        int i = 0;
-        for (String fqn : classes) {
-            Class codecClass = DspFactoryImpl.class.getClassLoader().loadClass(fqn);
-            codecs[i++] = (Codec) codecClass.newInstance();
+        int numClasses = this.classes.size();
+    	Codec[] codecs = new Codec[numClasses];
+        
+        for(int i = 0; i < numClasses; i++) {
+        	String fqn = this.classes.get(i);
+        	Class<?> codecClass = DspFactoryImpl.class.getClassLoader().loadClass(fqn);
+        	codecs[i] = (Codec) codecClass.newInstance();
         }
-
         return new Dsp(codecs);
     }
     
+    @Override
     public void setCodecs(List<String> list) {
-        classes.addAll(list);
+        this.classes.addAll(list);
     }
 }
