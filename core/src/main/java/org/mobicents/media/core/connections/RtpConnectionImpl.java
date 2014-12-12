@@ -386,6 +386,20 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// process remote sdp answer
 		MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
 		
+		// negotiate codecs
+		this.audioNegotiatedFormats = negotiateFormats(remoteAudio);
+		if (audioNegotiatedFormats.isEmpty() || !audioNegotiatedFormats.hasNonDTMF()) {
+			throw new IOException("Audio codecs are not negotiated");
+		}
+		
+		try {
+			rtpAudioChannel.setFormatMap(this.audioNegotiatedFormats);
+			rtpAudioChannel.setOutputFormats(this.audioNegotiatedFormats.getFormats());
+		} catch (FormatNotSupportedException e) {
+			// never happen
+			throw new IOException(e);
+		}
+		
 		// connect to remote peer
 		String remoteRtpAddress = remoteAudio.getConnection().getAddress();
 		int remoteRtpPort = remoteAudio.getPort();

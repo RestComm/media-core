@@ -57,6 +57,7 @@ import org.mobicents.media.server.utils.Text;
 /**
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class MediaGroupTest {
 
@@ -124,30 +125,23 @@ public class MediaGroupTest {
 		scheduler.stop();
 	}
 	
+	/**
+	 * Test of setOtherParty method, of class RtpConnectionImpl.
+	 */
 	@Test
-	public void testXXX() throws Exception {
+	public void testResources() throws Exception {
 		// given
 		Connection connection1 = endpoint1.createConnection(ConnectionType.RTP, false);
-		connection1.setMode(ConnectionMode.SEND_RECV);
 		
 		Connection connection2 = endpoint2.createConnection(ConnectionType.RTP, false);
-		connection2.setMode(ConnectionMode.SEND_RECV);
 		
 		connection1.generateLocalDescriptor();
-		System.out.println("Connection 1 offer, " + connection1.getLocalDescriptor());
-		
 		connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
-		System.out.println("\n");
-		System.out.println("Connection 2 offer, " + connection2.getRemoteDescriptor());
-		System.out.println("\n");
-		System.out.println("Connection 2 answer, " + connection2.getLocalDescriptor());
-		System.out.println("\n");
-		
 		connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
-		System.out.println("Connection 1 offer, " + connection1.getLocalDescriptor());
-		System.out.println("\n");
-		System.out.println("Connection 1 answer, " + connection1.getRemoteDescriptor());
-		
+
+		connection1.setMode(ConnectionMode.SEND_RECV);
+		connection2.setMode(ConnectionMode.SEND_RECV);
+
 		GeneratorImpl generator = (GeneratorImpl) endpoint1.getResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
 		generator.setToneDuration(200);
 		generator.setVolume(-20);
@@ -157,8 +151,8 @@ public class MediaGroupTest {
 
 		// when
 		generator.setDigit("1");
-		detector.activate();
 		generator.activate();
+		detector.activate();
 		
 		Thread.sleep(1000);
 
@@ -176,61 +170,10 @@ public class MediaGroupTest {
 		assertEquals("1", tone);
 	}
 
-	/**
-	 * Test of setOtherParty method, of class RtpConnectionImpl.
-	 */
-	@Test
-	public void testResources() throws Exception {
-		DtmfDetectorListener listener = new MockDtmfDetectorListener();
-
-		Connection connection1 = endpoint1.createConnection(ConnectionType.RTP, false);
-		Connection connection2 = endpoint2.createConnection(ConnectionType.RTP, false);
-
-		connection1.generateLocalDescriptor();
-		connection2.generateLocalDescriptor();
-
-		Text sd1 = new Text(connection1.getDescriptor());
-		Text sd2 = new Text(connection2.getDescriptor());
-
-		connection1.setOtherParty(sd2);
-		connection2.setOtherParty(sd1);
-
-		connection1.setMode(ConnectionMode.SEND_RECV);
-		connection2.setMode(ConnectionMode.SEND_RECV);
-
-		GeneratorImpl generator = (GeneratorImpl) endpoint1.getResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
-		DetectorImpl detector = (DetectorImpl) endpoint2.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
-
-		detector.addListener(listener);
-
-		generator.setToneDuration(200);
-		generator.setVolume(-20);
-
-		tone = "";
-		generator.setDigit("1");
-		generator.activate();
-		detector.activate();
-
-		Thread.sleep(1000);
-
-		assertEquals("1", tone);
-		generator.deactivate();
-
-		tone = "";
-		generator.setOOBDigit("1");
-		detector.activate();
-		generator.activate();
-
-		Thread.sleep(1000);
-
-		assertEquals("1", tone);
-	}
-
 	private class MockDtmfDetectorListener implements DtmfDetectorListener {
 
 		@Override
 		public void process(DtmfEvent event) {
-			System.out.println("YAY!!!");
 			tone = event.getTone();
 		}
 

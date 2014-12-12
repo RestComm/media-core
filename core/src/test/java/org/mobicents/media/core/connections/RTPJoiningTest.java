@@ -131,13 +131,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         connection1.generateLocalDescriptor();
-        connection2.generateLocalDescriptor();
-        
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection2.getDescriptor());
-
-        connection1.setOtherParty(sd2);
-        connection2.setOtherParty(sd1);
+        connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
 
         connection2.setMode(ConnectionMode.SEND_RECV);
         connection1.setMode(ConnectionMode.SEND_RECV);
@@ -183,13 +178,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         connection1.generateLocalDescriptor();
-        connection2.generateLocalDescriptor();
-        
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection2.getDescriptor());
-
-        connection1.setOtherParty(sd2);
-        connection2.setOtherParty(sd1);
+        connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
 
         connection2.setMode(ConnectionMode.SEND_RECV);
         connection1.setMode(ConnectionMode.NETWORK_LOOPBACK);
@@ -233,13 +223,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         connection1.generateLocalDescriptor();
-        connection2.generateLocalDescriptor();
-        
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection2.getDescriptor());
-
-        connection1.setOtherParty(sd2);
-        connection2.setOtherParty(sd1);
+        connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
 
         connection2.setMode(ConnectionMode.SEND_RECV);
         connection1.setMode(ConnectionMode.SEND_ONLY);
@@ -283,13 +268,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         connection1.generateLocalDescriptor();
-        connection2.generateLocalDescriptor();
-        
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection2.getDescriptor());
-
-        connection1.setOtherParty(sd2);
-        connection2.setOtherParty(sd1);
+        connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
 
         connection2.setMode(ConnectionMode.RECV_ONLY);
         connection1.setMode(ConnectionMode.SEND_ONLY);
@@ -335,13 +315,9 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP,false);
         
         connection1.generateLocalDescriptor();
-        connection2.generateLocalDescriptor();
+        connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
         
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection2.getDescriptor());
-        
-        connection1.setOtherParty(sd2);        
-        connection2.setOtherParty(sd1);
         connection2.setMode(ConnectionMode.RECV_ONLY);
         connection1.setMode(ConnectionMode.SEND_ONLY);
         
@@ -398,13 +374,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         Connection connection2 = endpoint3.createConnection(ConnectionType.RTP,false);
         
         connection1.generateLocalDescriptor();
-        connection2.generateLocalDescriptor();
-        
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection2.getDescriptor());
-
-        connection1.setOtherParty(sd2);
-        connection2.setOtherParty(sd1);
+        connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
 
         connection2.setMode(ConnectionMode.CONFERENCE);
         connection1.setMode(ConnectionMode.SEND_RECV);

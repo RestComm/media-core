@@ -124,8 +124,6 @@ public class RtpTransmitter {
 	}
 	
 	private void send(RtpPacket packet) throws IOException {
-		
-		System.out.println("Sending packet!!!");
 		// Do not send data while DTLS handshake is ongoing. WebRTC calls only.
 		if(this.secure && !this.dtlsHandler.isHandshakeComplete()) {
 			return;

@@ -191,11 +191,9 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		connectionRTP1.generateLocalDescriptor();
 		connectionBepRTP1.generateLocalDescriptor();
 		
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		connectionRTP1.generateLocalDescriptor();
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);
@@ -323,13 +321,8 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
 		connectionRTP1.generateLocalDescriptor();
-		connectionBepRTP1.generateLocalDescriptor();
-		
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);
@@ -444,13 +437,8 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
 		connectionRTP1.generateLocalDescriptor();
-		connectionBepRTP1.generateLocalDescriptor();
-		
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);
@@ -525,13 +513,8 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 		
 		connectionRTP1.generateLocalDescriptor();
-		connectionBepRTP1.generateLocalDescriptor();
-		
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);

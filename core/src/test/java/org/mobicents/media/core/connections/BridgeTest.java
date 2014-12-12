@@ -145,14 +145,10 @@ public class BridgeTest extends RTPEnvironment {
     	Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);
         
     	connection1.setMode(ConnectionMode.SEND_ONLY);
+    	
     	connection1.generateLocalDescriptor();
-    	connection3.generateLocalDescriptor();
-        
-        Text sd1 = new Text(connection1.getDescriptor());
-        Text sd2 = new Text(connection3.getDescriptor());
-
-        connection1.setOtherParty(sd2);        
-        connection3.setOtherParty(sd1);
+        connection3.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection3.getLocalDescriptor()));
 
         //make inactive first        
         
