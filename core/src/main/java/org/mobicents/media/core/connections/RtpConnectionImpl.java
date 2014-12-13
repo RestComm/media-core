@@ -467,7 +467,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			this.audioRtcpMux = false;
 			this.rtpAudioChannel.bind(this.isLocal);
 			this.rtcpAudioChannel.bind(this.isLocal, this.rtpAudioChannel.getLocalPort() + 1);
-
+			this.rtpAudioChannel.setFormatMap(this.audioSupportedFormats);
 			// Generate SDP offer based on rtp channel
 			this.localSdp = generateSdpOffer();
 			this.remoteSdp = null;

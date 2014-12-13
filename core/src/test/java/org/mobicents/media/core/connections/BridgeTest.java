@@ -144,9 +144,9 @@ public class BridgeTest extends RTPEnvironment {
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
     	Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);
         
+    	connection1.generateLocalDescriptor();
     	connection1.setMode(ConnectionMode.SEND_ONLY);
     	
-    	connection1.generateLocalDescriptor();
         connection3.setOtherParty(new Text(connection1.getLocalDescriptor()));
         connection1.setOtherParty(new Text(connection3.getLocalDescriptor()));
 
@@ -154,23 +154,24 @@ public class BridgeTest extends RTPEnvironment {
         
         connection3.setMode(ConnectionMode.CONFERENCE);
         connection1.setMode(ConnectionMode.CONFERENCE);
-        
+
         Connection connection12 = endpoint1.createConnection(ConnectionType.LOCAL,false);
         Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL,false);
         
         connection12.setOtherParty(connection2);
+        
         //initial mode
         connection12.setMode(ConnectionMode.SEND_RECV);
+        
         //working mode
         connection12.setMode(ConnectionMode.CONFERENCE);
-        
         connection2.setMode(ConnectionMode.SEND_RECV);
 
-        Connection connection32 = endpoint3.createConnection(ConnectionType.LOCAL,false);
+        Connection connection34 = endpoint3.createConnection(ConnectionType.LOCAL,false);
         Connection connection4 = endpoint4.createConnection(ConnectionType.LOCAL,false);
 
-        connection32.setOtherParty(connection4);
-        connection32.setMode(ConnectionMode.CONFERENCE);
+        connection34.setOtherParty(connection4);
+        connection34.setMode(ConnectionMode.CONFERENCE);
         
         connection4.setMode(ConnectionMode.SEND_RECV);
         Thread.sleep(100);
@@ -204,7 +205,7 @@ public class BridgeTest extends RTPEnvironment {
         endpoint2.deleteConnection(connection2);
 
         endpoint3.deleteConnection(connection3);
-        endpoint3.deleteConnection(connection32);
+        endpoint3.deleteConnection(connection34);
         
         endpoint4.deleteConnection(connection4);
         
@@ -212,8 +213,6 @@ public class BridgeTest extends RTPEnvironment {
         printSpectra("E2", s2);
         printSpectra("E3", s3);
         printSpectra("E4", s4);
-        
-        
         System.out.println("===============");
 
         assertEquals(3, s2.length);
