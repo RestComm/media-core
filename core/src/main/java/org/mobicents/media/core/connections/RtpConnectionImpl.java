@@ -451,10 +451,10 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
 	@Override
 	public String getDescriptor() {
-		if(this.remoteSdp != null) {
-			return this.remoteSdp.toString();
+		if(this.localSdp != null) {
+			return this.localSdp.toString();
 		}
-		return this.localSdp.toString();
+		return "";
 	}
 	
 	@Override
