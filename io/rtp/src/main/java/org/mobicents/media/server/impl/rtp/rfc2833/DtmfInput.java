@@ -91,7 +91,7 @@ public class DtmfInput extends AbstractSource {
     public void write(RtpPacket event) 
     {
     	//obtain payload        
-        event.getPyalod(data, 0);
+        event.getPayload(data, 0);
         
         if(data.length==0)
         	return;

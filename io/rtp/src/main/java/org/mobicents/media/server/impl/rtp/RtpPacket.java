@@ -35,10 +35,33 @@ import java.nio.ByteBuffer;
  *
  * @author Oleg Kulikov
  * @author amit bhayani
+ * @author ivelin.ivanov@telestax.com
  */
 public class RtpPacket implements Serializable {
 
-    //underlying buffer
+    public static final int RTP_PACKET_MAX_SIZE = 8192;
+
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1590053946635208723L;
+
+	/**
+     * The size of the fixed part of the RTP header as defined by RFC 3550.
+     */
+    public static final int FIXED_HEADER_SIZE = 12;
+    
+    /**
+     * The size of the extension header as defined by RFC 3550.
+     */
+    public static final int EXT_HEADER_SIZE = 4;    
+    
+    /**
+     * Current supported RTP version
+     */
+    public static final int VERSION = 2;
+    
+    //underlying byte buffer
     private ByteBuffer buffer;
 
     /**
@@ -46,23 +69,27 @@ public class RtpPacket implements Serializable {
      *
      * @param capacity the maximum available size for packet.
      * @param allocateDirect if false then packet will use backing array to hold
-     * raw data and if true the direct buffer will be allocated
+     * raw data and if true a direct OS buffer will be allocated
      */
-    public RtpPacket(int capacity, boolean allocateDirect) {    	
-        buffer = allocateDirect ? 
-            ByteBuffer.allocateDirect(capacity) :
-            ByteBuffer.allocate(capacity);
+    public RtpPacket(int capacity, boolean allocateDirect) {
+    	this.buffer = allocateDirect ? ByteBuffer.allocateDirect(capacity) : ByteBuffer.allocate(capacity);
     }
-
+    
+    public RtpPacket(boolean allocateDirect) {
+    	this(RTP_PACKET_MAX_SIZE, allocateDirect);
+    }
+    
     /**
      * Provides access to the underlying buffer.
+     * Any modifications to the returned buffer 
+     * can affect all other operations on this packet.
      *
      * @return the underlying buffer instance.
      */
-    protected ByteBuffer getBuffer() {
+    public ByteBuffer getBuffer() {
         return buffer;
     }
-
+    
     /**
      * Verion field.
      *
@@ -83,7 +110,7 @@ public class RtpPacket implements Serializable {
      * The CSRC list identifies the contributing sources for the
      * payload contained in this packet. The number of identifiers is
      * given by the CC field. If there are more than 15 contributing
-     * sources, only 15 may be identified. CSRC identifiers areinserted by
+     * sources, only 15 may be identified. CSRC identifiers are inserted by
      * mixers, using the SSRC identifiers of contributing
      * sources. For example, for audio packets the SSRC identifiers of
      * all sources that were mixed together to create a packet are
@@ -232,21 +259,34 @@ public class RtpPacket implements Serializable {
      * @return the sysncronization source 
      */
     public long getSyncSource() {
-        return ((long)(buffer.get(8) & 0xff) << 24) |
-               ((long)(buffer.get(9) & 0xff) << 16) |
-               ((long)(buffer.get(10) & 0xff) << 8) |
-               ((long)(buffer.get(11) & 0xff));
+        return readUnsignedIntAsLong(8);
     }
 
     /**
-     * The number of bytes transmitted by RTP in a packet.
+     * Get RTCP SSRC from a RTCP packet
      *
-     * @return the number of bytes.
+     * @return RTP SSRC from source RTP packet
      */
-    public int getPayloadLength() {
-        return buffer.limit() - 12;
+    public long GetRTCPSyncSource()
+    {
+        return (readUnsignedIntAsLong(4));
+    }    
+    
+    /**
+     * Read an unsigned integer as long at specified offset
+     *
+     * @param off start offset of this unsigned integer
+     * @return unsigned integer as long at offset
+     */
+    public long readUnsignedIntAsLong(int off)
+    {
+    	buffer.position(off);
+        return (((long)(buffer.get() & 0xff) << 24) |
+                ((long)(buffer.get() & 0xff) << 16) |
+                ((long)(buffer.get() & 0xff) << 8) |
+                ((long)(buffer.get() & 0xff))) & 0xFFFFFFFFL;
     }
-
+    
     /**
      * Reads the data transported by RTP in a packet, for example
      * audio samples or compressed video data.
@@ -254,13 +294,13 @@ public class RtpPacket implements Serializable {
      * @param buff the buffer used for reading
      * @param offset the initial offset inside buffer.
      */
-    public void getPyalod(byte[] buff, int offset) {
-        buffer.position(12);
-        buffer.get(buff, offset, buffer.limit() - 12);
+    public void getPayload(byte[] buff, int offset) {
+        buffer.position(FIXED_HEADER_SIZE);
+        buffer.get(buff, offset, buffer.limit() - FIXED_HEADER_SIZE);
     }
 
     /**
-     * Incapsulates data into the packet for transmission via RTP.
+     * Encapsulates data into the packet for transmission via RTP.
      *
      * @param mark mark field
      * @param payloadType payload type field.
@@ -312,5 +352,190 @@ public class RtpPacket implements Serializable {
                 ", timestamp=" + getTimestamp() + ", payload_size=" + getPayloadLength() +
                 ", payload=" + getPayloadType() + "]";
     }
+    
+    /**
+     * Shrink the buffer of this packet by specified length
+     *
+     * @param len length to shrink
+     */
+    public void shrink(int delta)
+    {
+        if (delta <= 0)
+        {
+            return;
+        }
 
+        int newLimit = buffer.limit() - delta;
+        if (newLimit <= 0)
+        {
+            newLimit = 0;
+        }
+        this.buffer.limit(newLimit);
+    }    
+
+    /**
+     * Get RTP header length from a RTP packet
+     *
+     * @return RTP header length from source RTP packet
+     */
+    public int getHeaderLength()
+    {
+        if(getExtensionBit())
+            return FIXED_HEADER_SIZE + 4 * getCsrcCount()
+                + EXT_HEADER_SIZE + getExtensionLength();
+        else
+            return FIXED_HEADER_SIZE + 4 * getCsrcCount();
+    }
+
+    /**
+     * Get RTP payload length from a RTP packet
+     *
+     * @return RTP payload length from source RTP packet
+     */
+    public int getPayloadLength()
+    {
+        return buffer.limit() - getHeaderLength();
+    }
+    
+
+    /**
+     * Returns the length of the extensions currently added to this packet.
+     *
+     * @return the length of the extensions currently added to this packet.
+     */
+    public int getExtensionLength()
+    {
+        if (!getExtensionBit())
+            return 0;
+
+        //the extension length comes after the RTP header, the CSRC list, and
+        //after two bytes in the extension header called "defined by profile"
+        int extLenIndex =  FIXED_HEADER_SIZE
+                        + getCsrcCount()*4 + 2;
+        
+        return ((buffer.get(extLenIndex) << 8) | buffer.get(extLenIndex + 1) * 4);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the extension bit of this packet has been set
+     * and false otherwise.
+     *
+     * @return  <tt>true</tt> if the extension bit of this packet has been set
+     * and false otherwise.
+     */
+    public boolean getExtensionBit()
+    {
+    	buffer.rewind();
+        return (buffer.get() & 0x10) == 0x10;
+    }    
+
+    /**
+     * Returns the number of CSRC identifiers currently included in this packet.
+     *
+     * @return the CSRC count for this <tt>RawPacket</tt>.
+     */
+    public int getCsrcCount()
+    {
+    	buffer.rewind();
+        return (buffer.get() & 0x0f);
+    }
+    
+    /**
+     * Get RTP padding size from a RTP packet
+     *
+     * @return RTP padding size from source RTP packet
+     */
+    public int getPaddingSize()
+    {
+    	buffer.rewind();
+        if ((buffer.get() & 0x4) == 0) {
+            return 0;
+        } else {
+            return buffer.get(buffer.limit() - 1);
+        }
+    }
+    
+
+    /**
+     * Get the length of this packet's raw data
+     *
+     * @return length of this packet's raw data
+     */
+    public int getLength()
+    {
+        return buffer.limit();
+    }
+    
+    /**
+     * Grow the internal packet buffer.
+     *
+     * This will change the data buffer of this packet but not the
+     * length of the valid data. Use this to grow the internal buffer
+     * to avoid buffer re-allocations when appending data.
+     *
+     * @param delta number of bytes to grow
+     */
+    public void grow(int delta) {
+        if (delta == 0) {
+            return;
+        }
+        int newLen = buffer.limit()+delta; 
+        if (newLen <= buffer.capacity()) {
+        	// there is more room in the underlying reserved buffer memory 
+        	buffer.limit(newLen);
+        	return;
+        } else {
+        	// create a new bigger buffer
+            ByteBuffer newBuffer = buffer.isDirect() ? ByteBuffer.allocateDirect(newLen) : ByteBuffer.allocate(newLen);
+            buffer.rewind();
+            newBuffer.put(buffer);
+            newBuffer.limit(newLen);
+            // switch to new buffer
+            buffer = newBuffer;
+        }
+    }
+    
+    /**
+     * Append a byte array to the end of the packet. This may change the data
+     * buffer of this packet.
+     *
+     * @param data byte array to append
+     * @param len the number of bytes to append
+     */
+    public void append(byte[] data, int len) {
+        if (data == null || len <= 0 || len > data.length)  {
+            throw new IllegalArgumentException("Invalid combination of parameters data and length to append()");
+        }
+
+        int oldLimit = buffer.limit();
+        // grow buffer if necessary
+        grow(len);
+        // set positing to begin writing immediately after the last byte of the current buffer
+        buffer.position(oldLimit);
+        // set the buffer limit to exactly the old size plus the new appendix length
+        buffer.limit(oldLimit + len);
+        // append data
+        buffer.put(data, 0, len);
+    }
+
+    /**
+     * Read a byte region from specified offset in the RTP packet 
+     * and with specified length into a given buffer
+     *
+     * @param off start offset in the RTP packet of the region to be read
+     * @param len length of the region to be read
+     * @param outBuff output buffer
+     */
+    public void readRegionToBuff(int off, int len, byte[] outBuff)
+    {
+    	assert off >= 0;
+    	assert len > 0;
+    	assert outBuff != null;
+    	assert outBuff.length >= len;
+    	assert buffer.limit() >= off + len;
+
+    	buffer.position(off);
+    	buffer.get(outBuff, 0, len);
+    }    
+    
 }

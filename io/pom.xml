@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media</groupId>
         <artifactId>server</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>6.1.2.GA-TelScale</version>
     </parent>
 
     <groupId>org.mobicents.media.io</groupId>
@@ -17,7 +17,10 @@
         <module>rtp</module>
         <module>network</module>
       	<module>ss7</module>
-    </modules>
+      	<module>stun</module>
+      	<module>ice</module>
+    <module>sdp</module>
+  </modules>
 	
 
 </project>

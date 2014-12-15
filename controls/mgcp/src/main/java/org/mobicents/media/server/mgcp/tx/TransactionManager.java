@@ -31,8 +31,8 @@ import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import java.util.Enumeration;
+import java.util.Iterator;
 
 /**
  * Implements pool of transactions.
@@ -145,6 +145,27 @@ public class TransactionManager {
     	Transaction currTransaction=active.get(id);
     	return currTransaction;    	  
     }
+    
+	/**
+	 * Finds a transaction by number (rather than unique transaction ID) in the
+	 * active transaction pool.
+	 * 
+	 * @param transactionNumber
+	 *            the number of the transaction to look for
+	 * @return The transaction with the desired number. Returns null if none
+	 *         matches criteria.
+	 * @author hrosa
+	 */
+	public Transaction findByTransactionNumber(int transactionNumber) {
+		Iterator<Transaction> transactions = this.active.valuesIterator();
+		while (transactions.hasNext()) {
+			Transaction transaction = transactions.next();
+			if (transaction.getId() == transactionNumber) {
+				return transaction;
+			}
+		}
+		return null;
+	}
     
     public Transaction allocateNew(int id)
     {

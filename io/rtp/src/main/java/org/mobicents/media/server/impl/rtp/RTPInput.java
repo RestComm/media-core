@@ -22,32 +22,14 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.text.Format;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioInput;
-import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.apache.log4j.Logger;
 /**
  *
  * @author Oifa Yulian
@@ -78,7 +60,7 @@ public class RTPInput extends AbstractSource implements BufferListener {
      * Creates new receiver.
      */
     protected RTPInput(Scheduler scheduler,JitterBuffer rxBuffer) {
-        super("rtpinput", scheduler,scheduler.INPUT_QUEUE);
+        super("rtpinput", scheduler,Scheduler.INPUT_QUEUE);
         this.rxBuffer=rxBuffer;        
         input=new AudioInput(1,packetSize);
         this.connect(input);        

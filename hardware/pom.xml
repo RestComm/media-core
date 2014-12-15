@@ -4,7 +4,7 @@
 	<parent>
         	<groupId>org.mobicents.media</groupId>
 	        <artifactId>server</artifactId>
-        	<version>3.0.1-SNAPSHOT</version>
+        	<version>6.1.2.GA-TelScale</version>
         </parent>
 
 	<groupId>org.mobicents.media.hardware</groupId>
@@ -63,8 +63,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>

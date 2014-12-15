@@ -44,6 +44,10 @@ public class DefaultClock implements Clock {
     public long getTime() {
         return System.nanoTime();
     }
+    
+	public long getCurrentTime() {
+		return System.currentTimeMillis();
+	}
 
     /**
      * (Non Java-doc.)
@@ -62,4 +66,5 @@ public class DefaultClock implements Clock {
     public long getTime(TimeUnit timeUnit) {
         return timeUnit.convert(System.nanoTime(), this.timeUnit);
     }
+
 }

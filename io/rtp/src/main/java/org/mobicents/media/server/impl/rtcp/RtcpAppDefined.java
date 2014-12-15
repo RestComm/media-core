@@ -27,7 +27,7 @@ package org.mobicents.media.server.impl.rtcp;
  * @author amit bhayani
  * 
  */
-public class RtcpAppDefined extends RtcpCommonHeader {
+public class RtcpAppDefined extends RtcpHeader {
 
 	private byte[] data;
 	private String name;
@@ -38,7 +38,7 @@ public class RtcpAppDefined extends RtcpCommonHeader {
 	}
 
 	protected RtcpAppDefined(boolean padding, int subType, long ssrc, String name, byte[] data) {
-		super(padding, RtcpCommonHeader.RTCP_APP);
+		super(padding, RtcpHeader.RTCP_APP);
 		this.count = subType;
 		this.ssrc = ssrc;
 

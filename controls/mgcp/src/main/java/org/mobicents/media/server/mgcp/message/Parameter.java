@@ -47,6 +47,9 @@ public class Parameter {
     public final static Text LOCAL_CONNECTION_OPTIONS= new Text("L");
     public final static Text REASON_CODE = new Text("E");
     public final static Text BARER_INFORMATION = new Text("B");
+    public final static Text REQUESTED_INFO = new Text("F");
+    public final static Text REMOTE_CONNECTION_DESCRIPTION = new Text("RC");
+    public final static Text LOCAL_CONNECTION_DESCRIPTION = new Text("LC");
     
     private Text key = new Text();
     private Text value = new Text();

@@ -30,7 +30,10 @@ import org.mobicents.media.server.utils.Text;
  * Connection attribute.
  * 
  * @author kulikov
+ * 
+ * @deprecated use new /io/sdp library
  */
+@Deprecated
 public class ConnectionField {
 
     private Text networkType;
@@ -89,6 +92,12 @@ public class ConnectionField {
      */
     public String getAddress() {
         return address.toString();
+    }
+    
+    public void reset() {
+        this.networkType = null;
+        this.addressType = null;
+        this.address = null;
     }
 
 }

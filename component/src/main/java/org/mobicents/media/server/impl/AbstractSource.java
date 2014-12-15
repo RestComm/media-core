@@ -23,12 +23,11 @@
 package org.mobicents.media.server.impl;
 
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSource;
-import org.mobicents.media.MediaSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.apache.log4j.Logger;
 
 /**
  * The base implementation of the Media source.
@@ -444,7 +443,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
 
             	//check synchronization
             	if (frameDuration <= 0) {
-            		//los of synchronization
+            		//loss of synchronization
                 	isSynchronized = false;
                 	return 0;
             	}            

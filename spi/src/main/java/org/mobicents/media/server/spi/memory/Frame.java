@@ -22,9 +22,8 @@
 
 package org.mobicents.media.server.spi.memory;
 
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.mobicents.media.server.spi.format.Format;
 
 /**

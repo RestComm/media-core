@@ -46,7 +46,7 @@ public class RTPFormats {
      * Creates new format collection with default size.
      */
     public RTPFormats() {
-        this.rtpFormats = new ArrayList(size);
+        this.rtpFormats = new ArrayList<RTPFormat>(size);
     }
 
     public int getLen()
@@ -59,7 +59,7 @@ public class RTPFormats {
      * @param size the size of collection to be created.
      */
     public RTPFormats(int size) {
-        this.rtpFormats = new ArrayList(size);
+        this.rtpFormats = new ArrayList<RTPFormat>(size);
     }
 
     public void add(RTPFormat rtpFormat) {
@@ -123,12 +123,17 @@ public class RTPFormats {
     }
     
     public RTPFormat find(int p) {
-        for (int i = 0; i < rtpFormats.size(); i++) {
-            if (rtpFormats.get(i).getID() == p) {
-                return rtpFormats.get(i);
-            }
+    	int size = rtpFormats.size();
+        for (int i = 0; i < size; i++) {
+        	if (rtpFormats.get(i).getID() == p) {
+        		return rtpFormats.get(i);
+        	}
         }
         return null;
+    }
+    
+    public boolean contains(int p) {
+    	return this.find(p) != null;
     }
     
     public boolean contains(Format fmt) {
@@ -175,22 +180,19 @@ public class RTPFormats {
     	return false;
     }
     
-    public void intersection(RTPFormats other, RTPFormats res) {
-    	Boolean hasNonDtmf=false;
-        for (int i = 0; i < this.rtpFormats.size(); i++) {
-            for (int j = 0; j < other.size(); j++) {
-                if (this.rtpFormats.get(i).getFormat().matches(other.rtpFormats.get(j).getFormat())) {
-                	if(this.rtpFormats.get(i).getFormat().getName().equals(AVProfile.telephoneEvent.getName()))                		
-                		res.add(this.rtpFormats.get(i));                    
-                	else if(!hasNonDtmf)
-                	{
-                		res.add(this.rtpFormats.get(i));
-                		hasNonDtmf=true;
-                	}
-                }
-            }
-        }
-    }
+	public void intersection(RTPFormats other, RTPFormats res) {
+		for (int i = 0; i < this.rtpFormats.size(); i++) {
+			RTPFormat supportedFormat = this.rtpFormats.get(i);
+			for (int j = 0; j < other.size(); j++) {
+				RTPFormat offeredFormat = other.rtpFormats.get(j);
+				if (supportedFormat.getFormat().matches(offeredFormat.getFormat())) {
+					// Add offered (instead of supported) format for DTMF dynamic payload
+					res.add(offeredFormat);
+					break;
+				}
+			}
+		}
+	}
     
     @Override
     public String toString() {

@@ -77,7 +77,7 @@ public class RtcpAppDefinedTest {
 		assertFalse(rtcpAppDefined.isPadding());
 		assertEquals(1, rtcpAppDefined.getCount()); // subtype
 
-		assertEquals(RtcpCommonHeader.RTCP_APP, rtcpAppDefined.getPt());
+		assertEquals(RtcpHeader.RTCP_APP, rtcpAppDefined.getPacketType());
 
 		assertEquals(266283887, rtcpAppDefined.getSsrc());
 

@@ -4,12 +4,10 @@
     <parent>
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>jsr-309</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>6.1.2.GA-TelScale</version>
     </parent>
 
-	<groupId>org.mobicents.media.client</groupId>
 	<artifactId>jsr-309-driver</artifactId>
-	<version>3.0.1-SNAPSHOT</version>
 	<name>Mobicents JSR-309 Impl</name>
 	<url>http://www.mobicents.org/products_media_server.html</url>
 
@@ -145,8 +143,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<verbose>true</verbose>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<executable>${JAVA_HOME}/bin/javac</executable>
 				</configuration>
 			</plugin>

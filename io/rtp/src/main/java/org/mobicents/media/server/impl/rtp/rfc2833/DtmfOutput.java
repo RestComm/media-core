@@ -22,31 +22,17 @@
 
 package org.mobicents.media.server.impl.rtp.rfc2833;
 
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import java.io.IOException;
-import java.net.SocketAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.text.Format;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.oob.OOBOutput;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
-import org.mobicents.media.server.io.network.ProtocolHandler;
+import org.mobicents.media.server.impl.rtp.RtpTransmitter;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.apache.log4j.Logger;
 /**
  *
  * @author Yulian oifa
@@ -56,20 +42,30 @@ import org.apache.log4j.Logger;
  *
  */
 public class DtmfOutput extends AbstractSink {
-	private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
+	private static final Logger LOGGER = Logger.getLogger(DtmfOutput.class);
+
+	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
 	
+	@Deprecated
     private RTPDataChannel channel;
-    
-    private static final Logger logger = Logger.getLogger(DtmfOutput.class);
+	private RtpTransmitter transmitter;
     
     private OOBOutput oobOutput;
     
     /**
      * Creates new transmitter
      */
+    @Deprecated
     public DtmfOutput(Scheduler scheduler,RTPDataChannel channel) {
         super("Output");
         this.channel=channel;
+        oobOutput=new OOBOutput(scheduler,1);
+        oobOutput.join(this);        
+    }
+    
+    public DtmfOutput(final Scheduler scheduler,final RtpTransmitter transmitter) {
+        super("Output");
+        this.transmitter = transmitter;
         oobOutput=new OOBOutput(scheduler,1);
         oobOutput.join(this);        
     }
@@ -91,6 +87,13 @@ public class DtmfOutput extends AbstractSink {
     
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
-    	channel.sendDtmf(frame);
+    	// TODO deprecated - hrosa
+    	if(this.channel != null) {
+    		channel.sendDtmf(frame);
+    	}
+    	
+    	if(this.transmitter != null) {
+    		this.transmitter.sendDtmf(frame);
+    	}
     }            
 }

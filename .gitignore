@@ -1,25 +1,29 @@
--/.project
--/**/.classpath
--
--# ignore .svn metadata files
--.svn
--# ignore Maven generated target folders
--~
--target
--bin
--classes
--*.zip
--
--# temp files
--*~
--
--# Ignore Maven target/ dirs
--/**/target/**/* 
--
--#Ignore Maven generated artifacts
--/**/.classpath
--/**/.project
--/**/.settings
--
--media-server-docs/sources-mobicents/src
--client/jsr-309/tck/tck-run
+/.project
+/**/.classpath
+
+# ignore .svn metadata files
+.svn
+
+# ignore OS junk files
+.DS_Store
+
+# ignore Maven generated target folders
+~
+target
+bin
+classes
+*.zip
+
+# temp files
+*~
+
+# Ignore Maven target/ dirs
+/**/target/**/* 
+
+#Ignore Maven generated artifacts
+/**/.classpath
+/**/.project
+/**/.settings
+
+media-server-docs/sources-mobicents/src
+client/jsr-309/tck/tck-run

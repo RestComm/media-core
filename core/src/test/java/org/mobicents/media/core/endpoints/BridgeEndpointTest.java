@@ -28,9 +28,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
@@ -95,33 +93,20 @@ public class BridgeEndpointTest extends RTPEnvironment {
 			this.tones = tonesQueue;
 		}
 		
+		@Override
 		public void process(DtmfEvent event) {
 			tones.add(event.getTone());
 		}
 		
 	}
-	
-	public BridgeEndpointTest() {
-	}
-
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownClass() throws Exception {
-	}
 
 	@Before
-	public void setUp() throws ResourceUnavailableException,
-			TooManyConnectionsException, IOException, TooManyListenersException {
+	public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException, TooManyListenersException {
 		super.setup();
 
-		resourcesPool = new ResourcesPool(scheduler, channelsManager,
-				dspFactory);
+		resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
 
 		// assign scheduler to the end points
-		
 		endpointRTP1 = new MyTestEndpoint("test-ep-RTP1");
 		endpointRTP1.setScheduler(scheduler);
 		endpointRTP1.setResourcesPool(resourcesPool);
@@ -149,26 +134,17 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		sineLocal1 = endpointLocal1.getResource(MediaType.AUDIO, ComponentType.SINE);
 		sineLocal2 = endpointLocal2.getResource(MediaType.AUDIO, ComponentType.SINE);
 
-		analyzerRTP1 = endpointRTP1.getResource(MediaType.AUDIO,
-				ComponentType.SPECTRA_ANALYZER);
-		analyzerLocal1 = endpointLocal1.getResource(MediaType.AUDIO,
-				ComponentType.SPECTRA_ANALYZER);
-		analyzerLocal2 = endpointLocal2.getResource(MediaType.AUDIO,
-				ComponentType.SPECTRA_ANALYZER);
+		analyzerRTP1 = endpointRTP1.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
+		analyzerLocal1 = endpointLocal1.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
+		analyzerLocal2 = endpointLocal2.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
 		
-		dtmfGeneratorRTP1 = (DtmfGenerator) endpointRTP1.getResource(MediaType.AUDIO, 
-				ComponentType.DTMF_GENERATOR);
-		dtmfGeneratorLocal1 = (DtmfGenerator) endpointLocal1.getResource(MediaType.AUDIO, 
-				ComponentType.DTMF_GENERATOR);
-		dtmfGeneratorLocal2 = (DtmfGenerator) endpointLocal2.getResource(MediaType.AUDIO, 
-				ComponentType.DTMF_GENERATOR);
+		dtmfGeneratorRTP1 = (DtmfGenerator) endpointRTP1.getResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
+		dtmfGeneratorLocal1 = (DtmfGenerator) endpointLocal1.getResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
+		dtmfGeneratorLocal2 = (DtmfGenerator) endpointLocal2.getResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
 		
-		dtmfDetectorRTP1 = (DtmfDetector) endpointRTP1.getResource(MediaType.AUDIO, 
-				ComponentType.DTMF_DETECTOR);
-		dtmfDetectorLocal1 = (DtmfDetector) endpointLocal1.getResource(MediaType.AUDIO, 
-				ComponentType.DTMF_DETECTOR);
-		dtmfDetectorLocal2 = (DtmfDetector) endpointLocal2.getResource(MediaType.AUDIO, 
-				ComponentType.DTMF_DETECTOR);
+		dtmfDetectorRTP1 = (DtmfDetector) endpointRTP1.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+		dtmfDetectorLocal1 = (DtmfDetector) endpointLocal1.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+		dtmfDetectorLocal2 = (DtmfDetector) endpointLocal2.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
 		
 		dtmfDetectorRTP1.setVolume(-36);
 		dtmfDetectorLocal1.setVolume(-36);
@@ -181,7 +157,6 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		dtmfDetectorRTP1.addListener(new ADtmfDetectorListener(tonesReceivedAtRTP1));
 		dtmfDetectorLocal1.addListener(new ADtmfDetectorListener(tonesReceivedAtLocal1));
 		dtmfDetectorLocal2.addListener(new ADtmfDetectorListener(tonesReceivedAtLocal2));
-		
 	}
 
 	@After
@@ -210,24 +185,21 @@ public class BridgeEndpointTest extends RTPEnvironment {
 	public void testBridgeBetweenOneRTPAndOneLocalMixOfAudioAndEvents() throws Exception {
 		long s = System.nanoTime();
 
-		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP,
-				false);
-		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP,
-				false);
+		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
+		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		connectionRTP1.generateLocalDescriptor();
+		connectionBepRTP1.generateLocalDescriptor();
+		
+		connectionRTP1.generateLocalDescriptor();
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);
 
-		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL,
-				false);
-		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL,
-				false);
+		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL, false);
+		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL, false);
 
 		connectionEPLocal1.setOtherParty(connectionBepLocal1);
 
@@ -345,34 +317,26 @@ public class BridgeEndpointTest extends RTPEnvironment {
 	public void testBridgeBetweenOneRTPAndTwoLocalConnectionsMixOfAudioAndEvents() throws Exception {
 		long s = System.nanoTime();
 
-		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP,
-				false);
-		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP,
-				false);
+		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
+		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		connectionRTP1.generateLocalDescriptor();
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);
 
-		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL,
-				false);
-		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL,
-				false);
+		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL, false);
+		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL, false);
 
 		connectionEPLocal1.setOtherParty(connectionBepLocal1);
 
 		connectionEPLocal1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepLocal1.setMode(ConnectionMode.SEND_RECV);
 
-		Connection connectionEPLocal2 = endpointLocal2.createConnection(ConnectionType.LOCAL,
-				false);
-		Connection connectionBepLocal2 = bridgeEndpoint.createConnection(ConnectionType.LOCAL,
-				false);
+		Connection connectionEPLocal2 = endpointLocal2.createConnection(ConnectionType.LOCAL, false);
+		Connection connectionBepLocal2 = bridgeEndpoint.createConnection(ConnectionType.LOCAL, false);
 
 		connectionEPLocal2.setOtherParty(connectionBepLocal2);
 
@@ -469,34 +433,26 @@ public class BridgeEndpointTest extends RTPEnvironment {
 	public void testBridgeBetweenOneRTPAndTwoLocalConnectionsAudioOnly() throws Exception {
 		long s = System.nanoTime();
 
-		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP,
-				false);
-		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP,
-				false);
+		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
+		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		connectionRTP1.generateLocalDescriptor();
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);
 
-		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL,
-				false);
-		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL,
-				false);
+		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL, false);
+		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL, false);
 
 		connectionEPLocal1.setOtherParty(connectionBepLocal1);
 
 		connectionEPLocal1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepLocal1.setMode(ConnectionMode.SEND_RECV);
 
-		Connection connectionEPLocal2 = endpointLocal2.createConnection(ConnectionType.LOCAL,
-				false);
-		Connection connectionBepLocal2 = bridgeEndpoint.createConnection(ConnectionType.LOCAL,
-				false);
+		Connection connectionEPLocal2 = endpointLocal2.createConnection(ConnectionType.LOCAL, false);
+		Connection connectionBepLocal2 = bridgeEndpoint.createConnection(ConnectionType.LOCAL, false);
 
 		connectionEPLocal2.setOtherParty(connectionBepLocal2);
 
@@ -549,39 +505,30 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		assertEquals(80, sLocal2[0], 5);
 	}
 
-
 	@Test
 	public void testBridgeBetweenOneRTPAndTwoLocalConnectionsEventsOnly() throws Exception {
 		long s = System.nanoTime();
 
-		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP,
-				false);
-		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP,
-				false);
-
-		Text sd1 = new Text(connectionRTP1.getDescriptor());
-		Text sdBep1 = new Text(connectionBepRTP1.getDescriptor());
-
-		connectionRTP1.setOtherParty(sdBep1);
-		connectionBepRTP1.setOtherParty(sd1);
+		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
+		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
+		
+		connectionRTP1.generateLocalDescriptor();
+		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
+		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
 		connectionRTP1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepRTP1.setMode(ConnectionMode.SEND_RECV);
 
-		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL,
-				false);
-		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL,
-				false);
+		Connection connectionEPLocal1 = endpointLocal1.createConnection(ConnectionType.LOCAL, false);
+		Connection connectionBepLocal1 = bridgeEndpoint.createConnection(ConnectionType.LOCAL, false);
 
 		connectionEPLocal1.setOtherParty(connectionBepLocal1);
 
 		connectionEPLocal1.setMode(ConnectionMode.SEND_RECV);
 		connectionBepLocal1.setMode(ConnectionMode.SEND_RECV);
 
-		Connection connectionEPLocal2 = endpointLocal2.createConnection(ConnectionType.LOCAL,
-				false);
-		Connection connectionBepLocal2 = bridgeEndpoint.createConnection(ConnectionType.LOCAL,
-				false);
+		Connection connectionEPLocal2 = endpointLocal2.createConnection(ConnectionType.LOCAL, false);
+		Connection connectionBepLocal2 = bridgeEndpoint.createConnection(ConnectionType.LOCAL, false);
 
 		connectionEPLocal2.setOtherParty(connectionBepLocal2);
 

@@ -25,12 +25,11 @@ package org.mobicents.media.server.spi;
 import java.io.IOException;
 import org.mobicents.media.server.utils.Text;
 
-
-
 /**
  *
  * @author Yulian Oifa
  * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface Connection {
     /**
@@ -100,7 +99,31 @@ public interface Connection {
      * 
      * @return SDP descriptor as text string.
      */
-    public String getDescriptor();    
+    public String getDescriptor();
+    
+	/**
+	 * Gets the local descriptor of this connection in SDP format
+	 * 
+	 * @return The local SDP descriptor. Returns an empty string if not
+	 *         available.
+	 */
+    public String getLocalDescriptor();
+    
+	/**
+	 * Gets the remote descriptor of this connection in SDP format
+	 * 
+	 * @return The remote SDP descriptor. Returns an empty string if not
+	 *         available.
+	 */
+    public String getRemoteDescriptor();
+    
+    /**
+	 * Generates the local connection descriptor and allocates the necessary
+	 * resources.
+	 * 
+	 * @throws IOException
+	 */
+    public void generateLocalDescriptor() throws IOException;
     
     /**
      * Joins endpoint wich executes this connection with other party.
@@ -183,5 +206,12 @@ public interface Connection {
      * @return average jitter value. 
      */
     public double getJitter();
-    
+
+	/**
+	 * Checks whether a connection has finished gathering all necessary
+	 * resources and is ready to use.
+	 * 
+	 * @return whether connection is available
+	 */
+	public boolean isAvailable();
 }

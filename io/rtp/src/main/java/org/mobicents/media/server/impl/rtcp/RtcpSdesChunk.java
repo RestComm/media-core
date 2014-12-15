@@ -22,6 +22,9 @@
 
 package org.mobicents.media.server.impl.rtcp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
  * @author amit bhayani
@@ -29,18 +32,21 @@ package org.mobicents.media.server.impl.rtcp;
  */
 public class RtcpSdesChunk {
 
+	public static final int MAX_ITEMS = 9;
+	
 	private long ssrc;
 
-	private RtcpSdesItem[] rtcpSdesItems = new RtcpSdesItem[9];
+	private final List<RtcpSdesItem> rtcpSdesItems;
 
 	private int itemCount = 0;
 
 	public RtcpSdesChunk(long ssrc) {
 		this.ssrc = ssrc;
+		this.rtcpSdesItems = new ArrayList<RtcpSdesItem>(MAX_ITEMS);
 	}
 
 	protected RtcpSdesChunk() {
-
+		this.rtcpSdesItems = new ArrayList<RtcpSdesItem>(MAX_ITEMS);
 	}
 
 	protected int decode(byte[] rawData, int offSet) {
@@ -56,7 +62,7 @@ public class RtcpSdesChunk {
 		while (true) {
 			RtcpSdesItem sdesItem = new RtcpSdesItem();
 			offSet = sdesItem.decode(rawData, offSet);
-			rtcpSdesItems[itemCount++] = sdesItem;
+			addRtcpSdesItem(sdesItem);
 
 			if (RtcpSdesItem.RTCP_SDES_END == sdesItem.getType()) {
 				break;
@@ -67,15 +73,29 @@ public class RtcpSdesChunk {
 	}
 
 	public void addRtcpSdesItem(RtcpSdesItem rtcpSdesItem) {
-		this.rtcpSdesItems[itemCount++] = rtcpSdesItem;
+		if(this.itemCount >= MAX_ITEMS) {
+			throw new ArrayIndexOutOfBoundsException("Reached maximum number of items: "+ MAX_ITEMS);
+		}
+		this.rtcpSdesItems.add(rtcpSdesItem);
+		this.itemCount++;
 	}
 
 	public long getSsrc() {
 		return ssrc;
 	}
+	
+	public String getCname() {
+		for (RtcpSdesItem item : this.rtcpSdesItems) {
+			if(RtcpSdesItem.RTCP_SDES_CNAME == item.getType()) {
+				return item.getText();
+			}
+		}
+		return "";
+	}
 
 	public RtcpSdesItem[] getRtcpSdesItems() {
-		return rtcpSdesItems;
+		RtcpSdesItem[] items = new RtcpSdesItem[this.rtcpSdesItems.size()];
+		return rtcpSdesItems.toArray(items);
 	}
 
 	public int getItemCount() {
@@ -111,5 +131,16 @@ public class RtcpSdesChunk {
 		}
 
 		return offSet;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("SDES CHUNK:\n");
+		builder.append("ssrc= ").append(this.ssrc).append(", ");
+		builder.append("item count= ").append(this.itemCount);
+		for (RtcpSdesItem item : this.rtcpSdesItems) {
+			builder.append("\n").append(item.toString());
+		}
+		return builder.toString();
 	}
 }

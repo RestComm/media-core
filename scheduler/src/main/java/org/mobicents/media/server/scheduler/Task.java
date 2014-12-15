@@ -130,7 +130,7 @@ public abstract class Task implements Runnable {
     				if (this.listener != null) 
     					listener.handlerError(e);
     				else
-    					logger.error(e);
+    					logger.error(e.getMessage(), e);
     			}
     		}      		    		    	
     }

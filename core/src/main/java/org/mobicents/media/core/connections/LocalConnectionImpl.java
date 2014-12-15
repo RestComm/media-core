@@ -23,16 +23,16 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
+
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -56,6 +56,10 @@ public class LocalConnectionImpl extends BaseConnection {
     public OOBComponent getOOBComponent()
     {
     	return this.localAudioChannel.getOOBComponent();
+    }
+    
+    public void generateLocalDescriptor() throws IOException {
+    	throw new UnsupportedOperationException("Not supported yet!");
     }
     
     @Override
@@ -152,5 +156,10 @@ public class LocalConnectionImpl extends BaseConnection {
         //release connection
         releaseConnection(ConnectionType.LOCAL);        
     }
+
+	public boolean isAvailable() {
+		// TODO What is criteria for this type of channel to be available
+		return true;
+	}
 
 }

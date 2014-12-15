@@ -25,15 +25,11 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.utils.Text;
-
-import org.apache.log4j.Logger;
 
 /**
  * Implements jitter buffer.
@@ -53,11 +49,14 @@ import org.apache.log4j.Logger;
  *
  * @author oifa yulian
  */
-public class JitterBuffer implements Serializable {    
-    //The underlying buffer size
+public class JitterBuffer implements Serializable {
+	
+	private static final long serialVersionUID = -389930569631795779L;
+
+	//The underlying buffer size
     private static final int QUEUE_SIZE = 10;
     //the underlying buffer
-    private ArrayList<Frame> queue = new ArrayList(QUEUE_SIZE);
+    private ArrayList<Frame> queue = new ArrayList<Frame>(QUEUE_SIZE);
     
     //RTP clock
     private RtpClock rtpClock;
@@ -123,23 +122,23 @@ public class JitterBuffer implements Serializable {
         currentTransit = arrival - firstPacketTimestamp;
     }
     
-    /**
-     * 
-     * Calculates the current network jitter, which is 
-     * an estimate of the statistical variance of the RTP data packet interarrival time:
-     * http://tools.ietf.org/html/rfc3550#appendix-A.8
-     * 
-     */
-    private void estimateJitter(RtpPacket newPacket) {
-            long arrival = rtpClock.getLocalRtpTime();
-            long newPacketTimestamp = newPacket.getTimestamp();
-            long transit = arrival - newPacketTimestamp;
-        long d = transit - currentTransit;
-        if (d<0) d = -d;
-        // logger.info(String.format("recalculating jitter: arrival=%d, newPacketTimestamp=%d, transit=%d, transit delta=%d", arrival, newPacketTimestamp, transit, d ));
-        currentTransit = transit;           
-            currentJitter += d - ((currentJitter + 8) >> 4);  
-    }
+	/**
+	 * Calculates the current network jitter, which is an estimate of the
+	 * statistical variance of the RTP data packet interarrival time:
+	 * http://tools.ietf.org/html/rfc3550#appendix-A.8
+	 */
+	private void estimateJitter(RtpPacket newPacket) {
+		long arrival = rtpClock.getLocalRtpTime();
+		long newPacketTimestamp = newPacket.getTimestamp();
+		long transit = arrival - newPacketTimestamp;
+		long d = transit - currentTransit;
+		if (d < 0) {
+			d = -d;
+		}
+		//logger.info(String.format("recalculating jitter: arrival=%d, newPacketTimestamp=%d, transit=%d, transit delta=%d", arrival, newPacketTimestamp, transit, d ));
+		currentTransit = transit;
+		currentJitter += d - ((currentJitter + 8) >> 4);
+	}
     
     /**
      * 
@@ -207,122 +206,116 @@ public class JitterBuffer implements Serializable {
      *
      * @param packet the packet to accept
      */
-    public void write(RtpPacket packet,RTPFormat format) {    	
-    	//checking format
-    	if(format==null)
-    		return;
-    	
-    	if(this.format==null || this.format.getID() != format.getID())
-    	{
-    		this.format=format;
-    		logger.info("Format has been changed: " + this.format.toString()); 
-    	}
-    	    	
-    	//if this is first packet then synchronize clock
-    	if (isn == -1) {
-    		rtpClock.synchronize(packet.getTimestamp());
-    		isn = packet.getSeqNumber();
-    		initJitter(packet);
-    	}
-    	else
-            estimateJitter(packet);
-            
-    	//update clock rate
-    	rtpClock.setClockRate(this.format.getClockRate());            		    		
-        
-    	Frame f=null;
-    	//drop outstanding packets
-		//packet is outstanding if its timestamp of arrived packet is less
-		//then consumer media time
-		if (packet.getTimestamp() < this.arrivalDeadLine) {
-			System.out.println("drop packet: dead line=" + arrivalDeadLine
-                + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber()
-                + ", payload length=" + packet.getPayloadLength() + ", format=" + this.format.toString());
-			dropCount++;
-			
-			//checking if not dropping too much  			
-			droppedInRaw++;
-			if(droppedInRaw==QUEUE_SIZE/2 || queue.size()==0)
-				arrivalDeadLine=0;
-			else
-				return;
+	public void write(RtpPacket packet, RTPFormat format) {
+		// checking format
+		if (format == null) {
+			logger.warn("No format specified. Packet dropped!");
+			return;
 		}
-			
-		f=Memory.allocate(packet.getPayloadLength());
-		//put packet into buffer irrespective of its sequence number
+
+		if (this.format == null || this.format.getID() != format.getID()) {
+			this.format = format;
+			logger.info("Format has been changed: " + this.format.toString());
+		}
+
+		// if this is first packet then synchronize clock
+		if (isn == -1) {
+			rtpClock.synchronize(packet.getTimestamp());
+			isn = packet.getSeqNumber();
+			initJitter(packet);
+		} else {
+			estimateJitter(packet);
+		}
+
+		// update clock rate
+		rtpClock.setClockRate(this.format.getClockRate());
+
+		// drop outstanding packets
+		// packet is outstanding if its timestamp of arrived packet is less
+		// then consumer media time
+		if (packet.getTimestamp() < this.arrivalDeadLine) {
+			logger.warn("drop packet: dead line=" + arrivalDeadLine + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber() + ", payload length=" + packet.getPayloadLength() + ", format=" + this.format.toString());
+			dropCount++;
+
+			// checking if not dropping too much
+			droppedInRaw++;
+			if (droppedInRaw == QUEUE_SIZE / 2 || queue.size() == 0) {
+				arrivalDeadLine = 0;
+			} else {
+				return;
+			}
+		}
+
+		Frame f = Memory.allocate(packet.getPayloadLength());
+		// put packet into buffer irrespective of its sequence number
 		f.setHeader(null);
 		f.setSequenceNumber(packet.getSeqNumber());
-		//here time is in milliseconds
+		// here time is in milliseconds
 		f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
 		f.setOffset(0);
 		f.setLength(packet.getPayloadLength());
-		packet.getPyalod(f.getData(), 0);
+		packet.getPayload(f.getData(), 0);
 
-		//set format
+		// set format
 		f.setFormat(this.format.getFormat());
-    		
-    	//make checks only if have packet
-    	if(f!=null)
-    	{    
-    		droppedInRaw=0;
-    		
-    		//find correct position to insert a packet 
-    		//use timestamp since its always positive
-    		int currIndex=queue.size()-1;    		    		
-    		while (currIndex>=0 && queue.get(currIndex).getTimestamp() > f.getTimestamp())
-    			currIndex--;
-    		
-    		if(currIndex>=0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber())
-    		{
-    			//duplicate packet
-    			return;
-    		}
-    				    			
-    		queue.add(currIndex+1, f);
-    			
-    		//recalculate duration of each frame in queue and overall duration , since we could insert the
-    		//frame in the middle of the queue    			
-    		duration=0;    			
-    		if(queue.size()>1)
-    			duration=queue.get(queue.size()-1).getTimestamp() - queue.get(0).getTimestamp();
-    		
-    		for(int i=0;i<queue.size()-1;i++)
-    		{
-    			//duration measured by wall clock
-    			long d = queue.get(i+1).getTimestamp() - queue.get(i).getTimestamp();
-    			//in case of RFC2833 event timestamp remains same
-    			if (d > 0)    				
-    				queue.get(i).setDuration(d);    					
-    			else
-    				queue.get(i).setDuration(0);
-    		}
-    			
-    		//if overall duration is negative we have some mess here,try to reset
-    		if(duration<0 && queue.size()>1)
-    		{
-    			reset();
-    			return;
-    		}
-    			    			
-    		//overflow?
-    		//only now remove packet if overflow , possibly the same packet we just received
-    		if (queue.size()>QUEUE_SIZE) {
-    			//System.out.println("Buffer overflow");    			
-    			dropCount++;        			
-    			queue.remove(0).recycle();    				
-    		}    		
-    			    		       
-    		//check if this buffer already full
-    		if (!ready) {    			
-    			ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
-    			if (ready) {    				
-    				if (listener != null) {
-    					listener.onFill();
-    				}
-    			}
-    		}
-    	}
-    }        
+
+		// make checks only if have packet
+		if (f != null) {
+			droppedInRaw = 0;
+
+			// find correct position to insert a packet
+			// use timestamp since its always positive
+			int currIndex = queue.size() - 1;
+			while (currIndex >= 0 && queue.get(currIndex).getTimestamp() > f.getTimestamp()) {
+				currIndex--;
+			}
+
+			// check for duplicate packet
+			if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
+				return;
+			}
+
+			queue.add(currIndex + 1, f);
+
+			// recalculate duration of each frame in queue and overall duration
+			// since we could insert the frame in the middle of the queue
+			duration = 0;
+			if (queue.size() > 1) {
+				duration = queue.get(queue.size() - 1).getTimestamp() - queue.get(0).getTimestamp();
+			}
+
+			for (int i = 0; i < queue.size() - 1; i++) {
+				// duration measured by wall clock
+				long d = queue.get(i + 1).getTimestamp() - queue.get(i).getTimestamp();
+				// in case of RFC2833 event timestamp remains same
+				queue.get(i).setDuration(d > 0 ? d : 0);
+			}
+
+			// if overall duration is negative we have some mess here,try to
+			// reset
+			if (duration < 0 && queue.size() > 1) {
+				logger.warn("Something messy happened. Reseting jitter buffer!");
+				reset();
+				return;
+			}
+
+			// overflow?
+			// only now remove packet if overflow , possibly the same packet we just received
+			if (queue.size() > QUEUE_SIZE) {
+				logger.warn("Buffer overflow!");
+				dropCount++;
+				queue.remove(0).recycle();
+			}
+
+			// check if this buffer already full
+			if (!ready) {
+				ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
+				if (ready && listener != null) {
+					listener.onFill();
+				}
+			}
+		}
+	}     
 
     /**
      * Polls packet from buffer's head.

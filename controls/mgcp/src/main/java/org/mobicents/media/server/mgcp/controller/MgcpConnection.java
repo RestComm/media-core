@@ -23,19 +23,17 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import java.io.IOException;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.utils.Text;
+import java.net.SocketAddress;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
-
-import java.net.SocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.utils.Text;
 /**
  * Represents the connection activity.
  * 
@@ -65,6 +63,13 @@ public class MgcpConnection implements ConnectionFailureListener {
     public Text getTextualID() {
         return textualId;
     }
+    
+    public int getCallId() {
+    	if(call == null) {
+    		return 0;
+    	}
+		return call.id;
+	}
     
     /**
      * Assigns call object to which this connection belongs.
@@ -109,6 +114,15 @@ public class MgcpConnection implements ConnectionFailureListener {
     	
     	return null;
     }
+    
+    /**
+	 * Generates the local connection descriptor.
+	 * 
+	 * @throws IOException
+	 */
+    public void generateLocalDescriptor() throws IOException {
+    	connection.generateLocalDescriptor();
+    }
 
     public void setOtherParty(Text sdp) throws IOException {
         connection.setOtherParty(sdp);
@@ -117,6 +131,10 @@ public class MgcpConnection implements ConnectionFailureListener {
     public void setOtherParty(MgcpConnection other) throws IOException {
         this.connection.setOtherParty(other.connection);
     }
+    
+    public Connection getConnection() {
+		return this.connection;
+	}
     
     /**
      * Terminates this activity and deletes connection.
@@ -143,7 +161,7 @@ public class MgcpConnection implements ConnectionFailureListener {
 		msg.setEndpoint(mgcpEndpoint.fullName);
 		msg.setParameter(Parameter.CONNECTION_ID, textualId);
 		msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
-		msg.setParameter(Parameter.REASON_CODE,this.REASON_CODE);
+		msg.setParameter(Parameter.REASON_CODE, MgcpConnection.REASON_CODE);
 		mgcpEndpoint.send(evt, callAgent);		
     }
 }

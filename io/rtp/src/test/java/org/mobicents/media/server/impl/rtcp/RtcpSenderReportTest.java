@@ -73,7 +73,7 @@ public class RtcpSenderReportTest {
 		assertFalse(rtcpSenderReport.isPadding());
 		assertEquals(0, rtcpSenderReport.getCount());
 
-		assertEquals(RtcpCommonHeader.RTCP_SR, rtcpSenderReport.getPt());
+		assertEquals(RtcpHeader.RTCP_SR, rtcpSenderReport.getPacketType());
 
 		assertEquals(28, rtcpSenderReport.getLength());
 

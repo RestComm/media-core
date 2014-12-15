@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="media.server.release" default="release" basedir=".">
 
-	<property name="release.version" value="2.1.0.BETA2-SNAPSHOT" />
+	<!--property name="release.version" value="2.1.0.BETA2-SNAPSHOT" /-->
 
 	<property name="release.dir" location="${ant.file.media.server.release}/../target/release" />
 	<property name="release.dir.standalone" location="${ant.file.media.server.release}/../standalone" />
@@ -87,16 +87,29 @@
 	<target name="release-standalone">
 		<delete dir="${release.dir.standalone}" />
 
-		<exec executable="${mvn.executable}" dir="${core.location}">
-			<arg line="clean install -P set-svn-revision,standalone,ss7,linux" />
+		<exec executable="${mvn.executable}" dir="${core.location}/..">
+			<!--arg line="clean install -P set-svn-revision,standalone,ss7,linux" /-->
+			<arg line="clean install -Dmaven.test.failure.ignore=true" />
+
 		</exec>
 		<copy overwrite="true" todir="${release.dir.standalone}">
-			<fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" />
+			<!--fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" /-->
+			<fileset file="${core.location}/../bootstrap/target/mms-server/**" />
 		</copy>
 
-		<antcall target="build-documentation">
+		<copy overwrite="true" todir="${release.dir.standalone}/clients">
+			<!--fileset file="${core.location}/server-standalone/target/mms-standalone-server/**" /-->
+			<fileset file="${core.location}/../concurrent/target/*.jar" />
+			<fileset file="${core.location}/../client/mgcp/driver/target/*.jar" />
+			<fileset file="${core.location}/../client/jsr-309/driver/target/*.jar" />
+		</copy>
+		<!--antcall target="build-documentation">
 			<param name="documentation.target.dir" location="${release.dir.standalone}/documentation" />
-		</antcall>
+		</antcall-->
+		
+		<copy overwrite="true" todir="${release.dir.standalone}/docs">
+			<fileset file="${core.location}/../media-server-docs/jdocbook-telscale/target/docbook/publish/en-US/**" />
+		</copy>
 
 		<copy overwrite="true" file="${ant.file.media.server.release}/../release-standalone-README.txt" tofile="${release.dir.standalone}/README.txt" />
 
@@ -147,13 +160,13 @@
 		<delete dir="." includes="mms-*${release.version}-*.zip" />
 
 		<antcall target="release-standalone">
-			<param name="zip.filename" value="mms-standalone-${release.version}-${time.stamp}.zip" />
+			<param name="zip.filename" value="TelScale-media-server-${release.version}.zip" />
 		</antcall>
 	
-		<antcall target="release-src">
+		<!--antcall target="release-src">
 			<param name="zip.filename" value="mms-${release.version}-${time.stamp}-src.zip" />
 			<param name="src.location" value="${ant.file.media.server.release}/../../" />
-		</antcall>
+		</antcall-->
 
 		<antcall target="clean" />
 	</target>
@@ -167,7 +180,8 @@
 		<delete dir="." includes="mms-*${release.version}-*.zip" />
 
 		<antcall target="release-standalone">
-			<param name="zip.filename" value="mms-standalone-${release.version}-${time.stamp}.zip" />
+			<!--param name="zip.filename" value="mms-standalone-${release.version}-${time.stamp}.zip" /-->
+			<param name="zip.filename" value="TelScale-media-server-${release.version}.zip" />
 			<param name="core.location" location="${ant.file.media.server.release}/../target/servers/media/core" />
 			<param name="test.suite.location" location="${ant.file.media.server.release}/../target/servers/media/test-suite" />
 

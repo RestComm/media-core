@@ -23,6 +23,8 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.util.concurrent.TimeUnit;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.scheduler.Clock;
 
 /**
@@ -31,6 +33,9 @@ import org.mobicents.media.server.scheduler.Clock;
  * @author kulikov
  */
 public class RtpClock {
+	
+	public static final Logger logger = Logger.getLogger(RtpClock.class);
+	
     //absolute time clock
     private Clock wallClock;
 
@@ -53,6 +58,10 @@ public class RtpClock {
     public RtpClock(Clock wallClock) {
         this.wallClock = wallClock;
     }
+    
+    public Clock getWallClock() {
+		return wallClock;
+	}
 
     /**
      * Modifies clock rate.
@@ -126,7 +135,7 @@ public class RtpClock {
      * @return rtp timestamp.
      */
     public long convertToRtpTime(long time) {
-        return time * clockRate / 1000;
+    	return time * clockRate / 1000;
     }
 
 }

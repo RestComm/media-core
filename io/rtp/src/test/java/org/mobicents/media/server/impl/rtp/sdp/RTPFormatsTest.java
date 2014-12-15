@@ -27,12 +27,10 @@
 
 package org.mobicents.media.server.impl.rtp.sdp;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.EncodingName;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -40,6 +38,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 /**
  *
  * @author kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class RTPFormatsTest {
 
@@ -52,25 +51,6 @@ public class RTPFormatsTest {
     private RTPFormat f1 = new RTPFormat(1, fmt1);
     private RTPFormat f2 = new RTPFormat(2, fmt2);
     private RTPFormat f3 = new RTPFormat(3, fmt3);
-
-    public RTPFormatsTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     /**
      * Test of add method, of class RTPFormats.
@@ -225,6 +205,34 @@ public class RTPFormatsTest {
         RTPFormat f = res.next();
         
         assertTrue("Wrong format", f2.getFormat().matches(f.getFormat()));
+    }
+    
+    @Test
+    public void testFormatIntersectionWithDynamicNegotiation() {
+    	// given
+    	AudioFormat telephoneEvent126 = FormatFactory.createAudioFormat("telephone-event", 8000);
+    	RTPFormat dtmf126 = new RTPFormat(126, telephoneEvent126, 8000);
+    	
+    	RTPFormats supported = new RTPFormats();
+    	supported.add(AVProfile.audio.find(0));
+    	supported.add(AVProfile.audio.find(8));
+    	supported.add(AVProfile.audio.find(97));
+    	supported.add(AVProfile.audio.find(101));
+
+    	RTPFormats offered = new RTPFormats();
+    	offered.add(AVProfile.audio.find(0));
+    	offered.add(AVProfile.audio.find(97));
+    	offered.add(dtmf126);
+    	
+    	// when
+    	RTPFormats negotiated = new RTPFormats();
+    	supported.intersection(offered, negotiated);
+    	negotiated.rewind();
+    	
+    	// then
+    	assertEquals(3, negotiated.size());
+    	assertNotNull(negotiated.find(126));
+    	assertNull(negotiated.find(101));
     }
     
 }

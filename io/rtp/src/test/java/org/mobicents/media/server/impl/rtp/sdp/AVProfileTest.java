@@ -31,7 +31,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -64,6 +66,7 @@ public class AVProfileTest {
     /**
      * Test of getFormat method, of class AVProfile.
      */
+    @Ignore
     @Test
     public void testGetFormatExecutionTime() {
         long s = System.nanoTime();

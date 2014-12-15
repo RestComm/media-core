@@ -1,62 +1,40 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.Dsp;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+import static org.junit.Assert.assertEquals;
+
 import java.net.InetSocketAddress;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mobicents.media.server.component.Dsp;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import static org.junit.Assert.*;
+import org.mobicents.media.server.spi.format.Formats;
 
 /**
- *
+ * 
  * @author oifa yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
  */
-public class RTPChannelTest {
-
+public class RtpChannelTest {
+	
     //clock and scheduler
+	private Scheduler scheduler;
     private Clock clock;
-    private Scheduler scheduler;
 
     private ChannelsManager channelsManager;
     private UdpManager udpManager;
@@ -64,7 +42,10 @@ public class RTPChannelTest {
     private SpectraAnalyzer analyzer1, analyzer2;
     private Sine source1, source2;
 
-    private RTPDataChannel channel1, channel2;
+    private RtpChannel channel1, channel2;
+    private RtpClock rtpClock1, rtpClock2;
+    private RtpClock oobClock1, oobClock2;
+    private RtpStatistics statistics1, statistics2;
     
     private int fcount;
 
@@ -76,9 +57,6 @@ public class RTPChannelTest {
     private AudioMixer audioMixer1,audioMixer2;
     private AudioComponent component1,component2;
     
-    public RTPChannelTest() {
-    }
-
     @Before
     public void setUp() throws Exception {
     	AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
@@ -99,6 +77,10 @@ public class RTPChannelTest {
         
         //use default clock
         clock = new DefaultClock();
+        rtpClock1 = new RtpClock(clock);
+        rtpClock2 = new RtpClock(clock);
+        oobClock1 = new RtpClock(clock);
+        oobClock2 = new RtpClock(clock);
 
         //create single thread scheduler
         scheduler = new Scheduler();
@@ -120,13 +102,16 @@ public class RTPChannelTest {
         analyzer1 = new SpectraAnalyzer("analyzer",scheduler);        
         analyzer2 = new SpectraAnalyzer("analyzer",scheduler);
         
-        channel1 = channelsManager.getChannel();
+        this.statistics1 = new RtpStatistics(rtpClock1);
+        this.statistics2 = new RtpStatistics(rtpClock2);
+        
+        channel1 = channelsManager.getRtpChannel(statistics1, rtpClock1, oobClock1);
         channel1.updateMode(ConnectionMode.SEND_RECV);
         channel1.setOutputDsp(dsp11);
         channel1.setOutputFormats(fmts);        
         channel1.setInputDsp(dsp12);
         
-        channel2 = channelsManager.getChannel();
+        channel2 = channelsManager.getRtpChannel(statistics2, rtpClock2, oobClock2);
         channel2.updateMode(ConnectionMode.SEND_RECV);
         channel2.setOutputDsp(dsp21);
         channel2.setOutputFormats(fmts);
@@ -135,8 +120,8 @@ public class RTPChannelTest {
         channel1.bind(false);
         channel2.bind(false);
 
-        channel1.setPeer(new InetSocketAddress("127.0.0.1", channel2.getLocalPort()));
-        channel2.setPeer(new InetSocketAddress("127.0.0.1", channel1.getLocalPort()));
+        channel1.setRemotePeer(new InetSocketAddress("127.0.0.1", channel2.getLocalPort()));
+        channel2.setRemotePeer(new InetSocketAddress("127.0.0.1", channel1.getLocalPort()));
 
         channel1.setFormatMap(AVProfile.audio);
         channel2.setFormatMap(AVProfile.audio);
@@ -164,12 +149,12 @@ public class RTPChannelTest {
     @After
     public void tearDown() {
     	source1.deactivate();
-    	channel1.close();
+		channel1.close();
+    	
+		source2.deactivate();
+		channel2.close();
 
-    	source2.deactivate();
-    	channel2.close();
-
-    	audioMixer1.stop();
+		audioMixer1.stop();
     	audioMixer2.stop();
     	
         udpManager.stop();
@@ -195,13 +180,8 @@ public class RTPChannelTest {
         audioMixer1.stop();        
         audioMixer2.stop();
         
-//        Thread.sleep(5000);
-
         int s1[] = analyzer1.getSpectra();
         int s2[] = analyzer2.getSpectra();
-
-//        print(s1);
-//        print(s2);
 
         System.out.println("rx-channel1: " + channel1.getPacketsReceived());
         System.out.println("tx-channel1: " + channel1.getPacketsTransmitted());
@@ -212,7 +192,9 @@ public class RTPChannelTest {
         if (s1.length != 1 || s2.length != 1) {
             System.out.println("Failure ,s1:" + s1.length + ",s2:" + s2.length);
             fcount++;
-        } else System.out.println("Passed");
+        } else {
+        	System.out.println("Passed");
+        }
         
         assertEquals(1, s1.length);
         assertEquals(1, s2.length);
@@ -249,7 +231,9 @@ public class RTPChannelTest {
 
         if (s2.length != 0 || s1.length != 1) {
         	fcount++;
-        } else System.out.println("Passed");
+        } else {
+        	System.out.println("Passed");
+        }
         
         assertEquals(0, fcount);
         assertEquals(50, s1[0], 5);
@@ -264,10 +248,4 @@ public class RTPChannelTest {
         assertEquals(0, fcount);
     }
 
-    private void print(int[] s) {
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
-    }
 }

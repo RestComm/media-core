@@ -22,46 +22,44 @@
 
 package org.mobicents.media.server.impl.rtcp;
 
+import org.mobicents.media.server.impl.rtcp.ntp.NtpUtils;
+
 /**
  * 
  * @author amit bhayani
  * 
  */
-public class RtcpSenderReport extends RtcpCommonHeader {
+public class RtcpSenderReport extends RtcpReport {
+	
+	private static final boolean IS_SENDER = true;
 
-	/**
-	 * sender report (SR)
-	 */
-
-	/* sender generating this report */
-	private long ssrc;
-
-	/* NTP timestamp */
+	/** NTP timestamp */
 	private long ntpSec;
 
+	/** NTP fraction */
 	private long ntpFrac;
+	
+	/** The middle 32 bits out of 64 in the NTP timestamp */
+	private long ntpTs;
 
-	/* RTP timestamp */
+	/** RTP timestamp */
 	private long rtpTs;
 
-	/* packets sent */
+	/** packets sent */
 	private long psent;
 
-	/* octets sent */
+	/** octets sent */
 	private long osent;
 
-	private RtcpReceptionReportItem[] rtcpReceptionReports = new RtcpReceptionReportItem[31]; /* variable-length list */
-
 	protected RtcpSenderReport() {
-
+		super();
 	}
 
-	public RtcpSenderReport(boolean padding, long ssrc, long ntpSec, long ntpFrac, long rtpTs, long psent,
-			long osent) {
-		super(padding, RtcpCommonHeader.RTCP_SR);
-		this.ssrc = ssrc;
+	public RtcpSenderReport(boolean padding, long ssrc, long ntpSec, long ntpFrac, long rtpTs, long psent, long osent) {
+		super(padding, ssrc, RtcpHeader.RTCP_SR);
 		this.ntpSec = ntpSec;
 		this.ntpFrac = ntpFrac;
+		this.ntpTs = NtpUtils.calculateLastSrTimestamp(ntpSec, ntpFrac);
 		this.rtpTs = rtpTs;
 		this.psent = psent;
 		this.osent = osent;
@@ -96,6 +94,8 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 		this.ntpFrac |= rawData[offSet++] & 0xFF;
 		this.ntpFrac <<= 8;
 		this.ntpFrac |= rawData[offSet++] & 0xFF;
+		
+		this.ntpTs = NtpUtils.calculateLastSrTimestamp(ntpSec, ntpFrac);
 
 		this.rtpTs |= rawData[offSet++] & 0xFF;
 		this.rtpTs <<= 8;
@@ -123,10 +123,10 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 
 		int tmpCount = 0;
 		while ((offSet - tmp) < this.length) {
-			RtcpReceptionReportItem rtcpReceptionReportItem = new RtcpReceptionReportItem();
+			RtcpReportBlock rtcpReceptionReportItem = new RtcpReportBlock();
 			offSet = rtcpReceptionReportItem.decode(rawData, offSet);
-
-			rtcpReceptionReports[tmpCount++] = rtcpReceptionReportItem;
+			addReceiverReport(rtcpReceptionReportItem);
+			tmpCount++;
 		}
 
 		return offSet;
@@ -167,15 +167,15 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 		rawData[offSet++] = ((byte) ((this.osent & 0x0000FF00) >> 8));
 		rawData[offSet++] = ((byte) ((this.osent & 0x000000FF)));
 
-		for (RtcpReceptionReportItem rtcpReceptionReportItem : rtcpReceptionReports) {
-			if (rtcpReceptionReportItem != null) {
-				offSet = rtcpReceptionReportItem.encode(rawData, offSet);
+		for (RtcpReportBlock report : this.reportBlocks) {
+			if (report != null) {
+				offSet = report.encode(rawData, offSet);
 			} else {
 				break;
 			}
 		}
 
-		/* Reduce 4 octest of header and length is in terms 32bits word */
+		/* Reduce 4 octets of header and length is in terms 32bits word */
 		this.length = (offSet - startPosition - 4) / 4;
 
 		rawData[startPosition + 2] = ((byte) ((this.length & 0xFF00) >> 8));
@@ -184,16 +184,16 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 		return offSet;
 	}
 
-	public long getSsrc() {
-		return ssrc;
-	}
-
 	public long getNtpSec() {
 		return ntpSec;
 	}
 
 	public long getNtpFrac() {
 		return ntpFrac;
+	}
+	
+	public long getNtpTs() {
+		return ntpTs;
 	}
 
 	public long getRtpTs() {
@@ -208,12 +208,28 @@ public class RtcpSenderReport extends RtcpCommonHeader {
 		return osent;
 	}
 
-	public RtcpReceptionReportItem[] getRtcpReceptionReports() {
-		return rtcpReceptionReports;
+	@Override
+	public boolean isSender() {
+		return IS_SENDER;
 	}
-
-	public void addRtcpReceptionReportItem(RtcpReceptionReportItem rtcpReceptionReportItem) {
-		this.rtcpReceptionReports[this.count++] = rtcpReceptionReportItem;
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("SENDER REPORT:\n");
+		builder.append("version=").append(this.version).append(", ");
+		builder.append("padding=").append(this.padding).append(", ");
+		builder.append("packet type=").append(this.packetType).append(", ");
+		builder.append("length=").append(this.length).append(", ");
+		builder.append("ssrc=").append(this.ssrc).append(", ");
+		builder.append("ntp seconds=").append(this.ntpSec).append(", ");
+		builder.append("ntp fraction=").append(this.ntpFrac).append(", ");
+		builder.append("rtp timestamp=").append(this.rtpTs).append(", ");
+		builder.append("packets sent=").append(this.psent).append(", ");
+		builder.append("octets sent=").append(this.osent).append("\n");
+		for (RtcpReportBlock rr : this.reportBlocks) {
+			builder.append("\n").append(rr.toString());
+		}
+		return builder.toString();
 	}
-
+	
 }

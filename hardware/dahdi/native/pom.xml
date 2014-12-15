@@ -4,7 +4,7 @@
 	<parent>
                 <groupId>org.mobicents.media.hardware</groupId>
                 <artifactId>mobicents-dahdi-parent</artifactId>
-                <version>3.0.1-SNAPSHOT</version>
+                <version>6.1.2.GA-TelScale</version>
         </parent>
 
 	<artifactId>mobicents-dahdi-native</artifactId>

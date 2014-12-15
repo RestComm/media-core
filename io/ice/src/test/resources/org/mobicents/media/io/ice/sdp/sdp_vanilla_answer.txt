@@ -1,0 +1,17 @@
+v=0
+o=- 1389657909416 1 IN IP4 127.0.0.1
+s=Mobicents Media Server
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 6000 RTP/SAVPF 0 126
+c=IN IP4 127.0.0.1
+a=rtcp-mux
+a=rtpmap:0 PCMU/8000
+a=setup:passive
+a=rtpmap:126 telephone-event/0
+a=fmtp:126 0-15
+a=setup:passive
+a=fingerprint:sha-256 28:D5:4A:00:0E:4A:53:F9:DC:57:67:17:49:BC:E2:85:24:A3:52:70:99:76:48:B8:72:11:BB:DF:14:A7:4D:3B
+a=mid:audio
+m=video 0 RTP/SAVPF 100 116 117
+m=application 0 RTP/SAVPF 101

@@ -1,5 +1,5 @@
 <assembly>
-	<id>server-${project.version}</id>
+	<id>server</id>
 	<formats>
 		<format>dir</format>
 	</formats>

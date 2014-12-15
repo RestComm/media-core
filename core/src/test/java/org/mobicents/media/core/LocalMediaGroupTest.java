@@ -27,41 +27,38 @@
 
 package org.mobicents.media.core;
 
-import java.io.IOException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.mobicents.media.core.MyTestEndpoint;
-import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.core.connections.LocalConnectionImpl;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
-import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
-import org.mobicents.media.core.endpoints.impl.BridgeEndpoint;
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
+import org.mobicents.media.core.endpoints.impl.BridgeEndpoint;
+import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
-import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.utils.Text;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
  *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class LocalMediaGroupTest implements DtmfDetectorListener {
 
@@ -75,24 +72,12 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     //endpoint and connection
-    private LocalConnectionImpl connection;
     private BaseMixerEndpointImpl endpoint1,endpoint2;
     private BridgeEndpoint endpoint3;
     private ResourcesPool resourcesPool;
     protected UdpManager udpManager;
     
     private String tone;
-    
-    public LocalMediaGroupTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws ResourceUnavailableException, IOException {
@@ -151,24 +136,23 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
      */
     @Test
     public void testResources() throws Exception {
-    	Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);        
-        Connection connection2 = endpoint3.createConnection(ConnectionType.LOCAL,false);       
-        connection1.setOtherParty(connection2);        
+    	Connection localConnection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);        
+        Connection localConnection2 = endpoint3.createConnection(ConnectionType.LOCAL,false);       
         
-        connection1.setMode(ConnectionMode.SEND_RECV);
-        connection2.setMode(ConnectionMode.SEND_RECV);
+        localConnection1.setOtherParty(localConnection2);        
         
-        Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);        
-        Connection connection4 = endpoint2.createConnection(ConnectionType.RTP,false);       
+        localConnection1.setMode(ConnectionMode.SEND_RECV);
+        localConnection2.setMode(ConnectionMode.SEND_RECV);
         
-        Text sd1 = new Text(connection3.getDescriptor());
-        Text sd2 = new Text(connection4.getDescriptor());
-
-        connection3.setOtherParty(sd2);        
-        connection4.setOtherParty(sd1);
+        Connection rtpConnection1 = endpoint3.createConnection(ConnectionType.RTP,false);        
+        Connection rtpConnection2 = endpoint2.createConnection(ConnectionType.RTP,false);       
         
-        connection3.setMode(ConnectionMode.SEND_RECV);
-        connection4.setMode(ConnectionMode.SEND_RECV);
+        rtpConnection1.generateLocalDescriptor();
+        rtpConnection2.setOtherParty(new Text(rtpConnection1.getLocalDescriptor()));
+        rtpConnection1.setOtherParty(new Text(rtpConnection2.getLocalDescriptor()));
+        
+        rtpConnection1.setMode(ConnectionMode.SEND_RECV);
+        rtpConnection2.setMode(ConnectionMode.SEND_RECV);
         
         GeneratorImpl generator1=(GeneratorImpl)endpoint1.getResource(MediaType.AUDIO,ComponentType.DTMF_GENERATOR);
         GeneratorImpl generator2=(GeneratorImpl)endpoint2.getResource(MediaType.AUDIO,ComponentType.DTMF_GENERATOR);

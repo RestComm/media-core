@@ -41,15 +41,25 @@ import org.mobicents.media.server.utils.Text;
  */
 public enum ConnectionMode {	
     
-		INACTIVE, 
-        SEND_ONLY,
-        RECV_ONLY,
-        SEND_RECV,
-        CONFERENCE,
-        NETWORK_LOOPBACK,
-        LOOPBACK,
-        CONTINUITY_TEST,
-        NETWORK_CONTINUITY_TEST;
+		INACTIVE(new Text("inactive")), 
+        SEND_ONLY(new Text("sendonly")),
+        RECV_ONLY(new Text("recvonly")),
+        SEND_RECV(new Text("sendrecv")),
+        CONFERENCE(new Text("confrnce")),
+        NETWORK_LOOPBACK(new Text("netwloop")),
+        LOOPBACK(new Text("loopback")),
+        CONTINUITY_TEST(new Text("conttest")),
+        NETWORK_CONTINUITY_TEST(new Text("netwtest"));
+		
+		private Text description;
+		
+		private ConnectionMode(Text value) {
+			this.description = value;
+		}
+		
+		public Text getDescription() {
+			return description;
+		}
 
         public static ConnectionMode valueOf(Text v) {
             if (v.equals(inactive)) {

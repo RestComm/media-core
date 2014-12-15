@@ -23,12 +23,16 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
+
+import org.mobicents.media.server.impl.rtcp.RtcpChannel;
+import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -103,8 +107,17 @@ public class ChannelsManager {
     	return this.udpManager;
     }    
     
+    @Deprecated
     public RTPDataChannel getChannel() {
         return new RTPDataChannel(this,channelIndex.incrementAndGet());
+    }
+    
+    public RtpChannel getRtpChannel(RtpStatistics statistics, RtpClock clock, RtpClock oobClock) {
+    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager);
+    }
+
+    public RtcpChannel getRtcpChannel(RtpStatistics statistics) {
+    	return new RtcpChannel(channelIndex.incrementAndGet(), statistics, udpManager);
     }
     
     public LocalDataChannel getLocalChannel() {

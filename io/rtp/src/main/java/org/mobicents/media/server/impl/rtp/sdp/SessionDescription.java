@@ -26,31 +26,55 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
 import org.mobicents.media.server.utils.Text;
 
 /**
  * Session Descriptor.
  *
  * @author kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ * @deprecated use new /io/sdp library
  */
 public class SessionDescription {
+	
+    private Text version;
+    private OriginField origin;
+    private Text session;
+    private ConnectionField connection;
+    private TimeField time;
+    
+    /* MEDIA */
+    protected final static Text RTPMAP = new Text("a=rtpmap");
+    protected final static Text FMTP = new Text("a=fmtp");
     protected final static Text AUDIO = new Text("audio");
     protected final static Text VIDEO = new Text("video");
 
-    protected final static Text RTPMAP = new Text("a=rtpmap");
-    protected final static Text FMTP = new Text("a=fmtp");
-
-    private Text version;
-    private OriginField origin = new OriginField();
-    private Text session;
-    private ConnectionField connection = new ConnectionField();
-    private TimeField time = new TimeField();
-    private ArrayList<MediaDescriptorField> mds = new ArrayList(2);
+    private ArrayList<MediaDescriptorField> mds = new ArrayList<MediaDescriptorField>(3);
+    private MediaDescriptorField md;
 
     private MediaDescriptorField audioDescriptor;
     private MediaDescriptorField videoDescriptor;
+    private MediaDescriptorField applicationDescriptor;
+    
+    /* ICE */
+    protected static final Text ICE_UFRAG = new Text("a=ice-ufrag");
+    protected static final Text ICE_PWD = new Text("a=ice-pwd");
+    protected static final Text ICE_CANDIDATE = CandidateField.CANDIDATE_FIELD;
+    
+    private boolean ice = false;
+    
+    /* WebRTC */
+    protected final static Text WEBRTC_FINGERPRINT = new Text("a=fingerprint");
 
-    private MediaDescriptorField md;
+    private Text fingerprint;
+    
+    public SessionDescription() {
+    	this.origin = new OriginField();
+    	this.connection = new ConnectionField();
+    	this.time = new TimeField();
+	}
 
     /**
      * Reads descriptor from binary data
@@ -58,68 +82,14 @@ public class SessionDescription {
      * @throws ParseException
      */
     public void parse(byte[] data) throws ParseException {
-        //clean previous data
-        md = null;
-        mds.clear();
-        
         Text text = new Text();
         text.strain(data, 0, data.length);
-
-        while (text.hasMoreLines()) {
-            Text line = text.nextLine();
-            if (line.length() == 0) continue;
-            switch (line.charAt(0)) {
-                case 'v':
-                    Iterator<Text> it = line.split('=').iterator();
-                    it.next();
-
-                    version = it.next();
-                    version.trim();
-                    break;
-                case 'o':
-                    origin.strain(line);
-                    break;
-                case 's':
-                    it = line.split('=').iterator();
-                    it.next();
-                    
-                    session = it.next();
-                    session.trim();
-                    break;
-                case 'c':
-                    if (md == null) {
-                        connection.strain(line);
-                    } else {
-                        md.setConnection(line);
-                    }
-                    break;
-                case 't':
-                    time.strain(line);
-                    break;
-                case 'm':
-                    md = new MediaDescriptorField();
-                    mds.add(md);
-                    md.setDescriptor(line);
-
-                    if (md.getMediaType().equals(AUDIO)) {
-                        this.audioDescriptor = md;
-                    } else {
-                        this.videoDescriptor = md;
-                    }
-                    break;
-                case 'a':
-                	if (md != null) {
-                		md.addAttribute(line);
-                	}
-                    break;
-            }
-        }
+        init(text);
     }
 
     public void init(Text text) throws ParseException {
         //clean previous data
-        md = null;
-        mds.clear();
+        reset();
         
         while (text.hasMoreLines()) {
             Text line = text.nextLine();
@@ -153,21 +123,43 @@ public class SessionDescription {
                     time.strain(line);
                     break;
                 case 'm':
+                	
                     md = new MediaDescriptorField();
                     mds.add(md);
                     md.setDescriptor(line);
-
-                    if (md.getMediaType().equals(AUDIO)) {
-                        this.audioDescriptor = md;
-                    } else {
-                        this.videoDescriptor = md;
+                    
+                    MediaType mediaType = MediaType.fromDescription(md.getMediaType());
+                    if (mediaType != null) {
+                    	switch (mediaType) {
+    					case AUDIO:
+    						this.audioDescriptor = md;
+    						break;
+    					case VIDEO:
+    						this.videoDescriptor = md;
+    						break;
+    					case APPLICATION:
+    						this.applicationDescriptor = md;
+    						break;
+    					default:
+    						break;
+    					}
                     }
                     break;
                 case 'a':
                 	if (md != null) {
                 		md.addAttribute(line);
+                	} else {
+                    	// Identify ICE usage
+                    	if(!this.ice) {
+                    		this.ice = isIceAttribute(line);
+                    	}
+                    	
+                        if (line.startsWith(WEBRTC_FINGERPRINT)) {
+                        	addFingerprintAttribute(line);
+                        	break;
+                        }
                 	}
-                    break;
+                	break;
             }
         }
     }
@@ -226,6 +218,26 @@ public class SessionDescription {
     public TimeField getTime() {
         return time;
     }
+    
+    public Text getFingerprint() {
+		return fingerprint;
+	}
+    
+    public Text getFingerprint(MediaType mediaType) {
+    	if(MediaType.AUDIO.equals(mediaType)) {
+    		return getFingerprint(this.audioDescriptor);
+    	}
+    	return this.fingerprint;
+    }
+    
+    private Text getFingerprint(MediaDescriptorField mediaStream) {
+    	Text value = mediaStream.getWebRTCFingerprint();
+    	if(value != null && value.length() > 0) {
+    		return value;
+    	}
+    	return this.fingerprint;
+    	
+    }
 
     /**
      * Gets the media attributes.
@@ -254,6 +266,69 @@ public class SessionDescription {
         return this.videoDescriptor;
     }
     
+    /**
+     * Gets the description of application stream
+     * @return the description object
+     */
+    public MediaDescriptorField getApplicationDescriptor() {
+		return applicationDescriptor;
+	}
+    
+    public boolean hasAudioDescriptor() {
+    	return this.audioDescriptor != null;
+    }
+    
+    public boolean hasVideoDescriptor() {
+    	return this.videoDescriptor != null;
+    }
+    
+    public boolean hasApplicationDescriptor() {
+    	return this.applicationDescriptor != null;
+    }
+    
+    private boolean isIceAttribute(Text line) {
+    	return line.startsWith(ICE_UFRAG) || line.startsWith(ICE_PWD) || line.startsWith(ICE_CANDIDATE);
+    }
+    
+    public boolean isIce() {
+		return ice;
+	}
+
+    public boolean isAudioIce() {
+    	return this.ice || this.getAudioDescriptor().isIce();
+    }
+    
+	/**
+	 * Register a new fingerprint attribute for WebRTC calls.<br>
+	 * Example: <code>a=fingerprint:sha-256 E5:52:E5:88:CC:B6:7A:D7:8E:...</code>
+	 * 
+	 * @param attribute
+	 *            The attribute line to be registered.
+	 * @throws IllegalArgumentException
+	 *             If the attribute is not a valid FMT line.
+	 */
+    private void addFingerprintAttribute(Text attribute) throws IllegalArgumentException {
+    	// Remove line type 'a=fingerprint:'
+    	Text fingerprint = (Text) attribute.subSequence(WEBRTC_FINGERPRINT.length(), attribute.length());
+    	this.fingerprint = fingerprint;
+    }
+    
+    public void reset() {
+    	this.version = null;
+        this.session = null;
+        // TODO 
+    	this.origin.reset();
+    	this.connection.reset();
+    	this.time.reset();
+        this.mds.clear();
+        this.md = null;
+        this.audioDescriptor = null;
+        this.videoDescriptor = null;
+        this.applicationDescriptor = null;
+        this.fingerprint = null;
+        this.ice = false;
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -261,5 +336,5 @@ public class SessionDescription {
         builder.append(origin.toString());
         return builder.toString();
     }
-
+    
 }

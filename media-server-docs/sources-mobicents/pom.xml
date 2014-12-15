@@ -6,16 +6,16 @@
 	<parent>
 		<artifactId>mobicents-mms-docs</artifactId>
 		<groupId>org.mobicents.media.docs</groupId>
-		<version>3.0.1-SNAPSHOT</version>
+		<version>6.1.2.GA-TelScale</version>
 	</parent>
 
 	<artifactId>mobicents-mms-docs-sources-mobicents</artifactId>
   <name>
-    Mobicents Media :: Docs :: Sources-Mobicents :: ${pom.artifactId}
+    Telscale Media :: Docs :: Sources-Telscale :: ${pom.artifactId}
   </name>
   
 	<properties>
-		<THIS.PLATFORM>Mobicents</THIS.PLATFORM>
+		<THIS.PLATFORM>Telscale</THIS.PLATFORM>
 		<JEE.PLATFORM>JBoss Application Server</JEE.PLATFORM>
 		<THIS.ISSUE_TRACKER_URL>http://code.google.com/p/mediaserver/issues/list</THIS.ISSUE_TRACKER_URL>
 		<THIS.RELEASE_SOURCE_CODE_URL>http://code.google.com/p/mediaserver/source/browse/</THIS.RELEASE_SOURCE_CODE_URL>

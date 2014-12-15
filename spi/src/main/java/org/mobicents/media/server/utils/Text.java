@@ -249,7 +249,15 @@ public class Text implements CharSequence {
      * @see java.lang.CharSequence#subSequence(int, int);
      */
     public CharSequence subSequence(int start, int end) {
-        return new Text(chars, this.pos + start, end - start);
+        return subtext(start, end);
+    }
+    
+    public Text subtext(int start, int end) {
+    	return new Text(chars, this.pos + start, end - start);
+    }
+    
+    public Text subtext(int start) {
+    	return new Text(this.chars, this.pos + start, this.len);
     }
 
     /**
@@ -343,6 +351,16 @@ public class Text implements CharSequence {
         return -1;
     }
     
+    public int indexOf(char value) {
+        int limit = this.pos + this.len;
+        for (int pointer = this.pos; pointer < limit; pointer++) {
+			if(value == this.chars[pointer]) {
+				return pointer;
+			}
+		}
+        return -1;
+    }
+    
     /**
      * Removes whitespace from the head and tail of the string.
      * 
@@ -416,7 +434,7 @@ public class Text implements CharSequence {
         //return this.hashCode() == t.hashCode();
         return compareChars(t.chars, t.pos);
     }
-
+    
     @Override
     public int hashCode() {
         if (hash == -1) {
@@ -437,6 +455,22 @@ public class Text implements CharSequence {
             if (differentChars((char) this.chars[i + this.pos], (char) chars[i + pos])) return false;
         }
         return true;
+    }
+    
+	/**
+	 * Indicates whether the text starts with a certain pattern.
+	 * 
+	 * @param pattern
+	 *            The pattern to match
+	 * @return <code>true</code> if this text starts with the pattern.
+	 *         Otherwise, or if the pattern is null, returns <code>false</code>.
+	 * @author hrosa
+	 */
+    public boolean startsWith(Text pattern) {
+    	if (pattern == null) {
+    		return false;
+    	}
+    	return this.subSequence(0, pattern.len).equals(pattern);
     }
 
     /**
@@ -468,6 +502,41 @@ public class Text implements CharSequence {
      */
     public int toInteger() throws NumberFormatException {
         int res = 0;
+        byte currChar;
+        int i=1;
+        currChar=chars[pos];
+        boolean isMinus=false;
+        
+        if(currChar==minus_byte)
+        	isMinus=true;
+        else if(currChar>=zero_byte && currChar<=nine_byte)
+    		res+=currChar-zero_byte;
+    	else
+    		throw new NumberFormatException("value is not numeric");
+    	
+        for (; i < len; i++) {
+        	currChar=chars[pos+i];        		
+        	if(currChar>=zero_byte && currChar<=nine_byte)
+        	{
+        		res*=10;
+        		res+=currChar-zero_byte;
+        	}        
+        	else
+        		throw new NumberFormatException("value is not numeric");
+        }
+        
+        if(isMinus)
+        	return 0-res;
+        else
+        	return res;
+    }
+    
+    /**
+     * Converts string value to long
+     * @return long value
+     */
+    public long toLong() throws NumberFormatException {
+        long res = 0;
         byte currChar;
         int i=1;
         currChar=chars[pos];
