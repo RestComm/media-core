@@ -34,7 +34,7 @@ import org.mobicents.media.server.scheduler.Clock;
  *
  * @author kulikov
  */
-public class WallTestClock implements Clock {
+public class MockWallClock implements Clock {
 
     private TimeUnit unit = TimeUnit.NANOSECONDS;
     private long time = System.nanoTime();

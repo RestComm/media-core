@@ -71,7 +71,7 @@ public class AVProfileTest {
     public void testGetFormatExecutionTime() {
         long s = System.nanoTime();
         for (int i = 0; i < 1000; i++) {
-            RTPFormat f = AVProfile.getFormat(8);
+            AVProfile.getFormat(8);
         }
         long f = System.nanoTime();
         System.out.println("Execution time: " + (f-s));

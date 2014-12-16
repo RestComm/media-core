@@ -1,3 +1,11 @@
+/*
+ * 
+ * Code derived and adapted from the Jitsi client side STUN framework.
+ * 
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+
 package org.mobicents.media.io.stun.messages.attributes.address;
 
 import org.mobicents.media.io.stun.messages.attributes.StunAttribute;

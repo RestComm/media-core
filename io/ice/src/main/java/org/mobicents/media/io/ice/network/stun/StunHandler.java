@@ -1,3 +1,23 @@
+/*
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2014, Telestax Inc and individual contributors
+ * by the @authors tag.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
 package org.mobicents.media.io.ice.network.stun;
 
 import java.io.IOException;
@@ -40,6 +60,7 @@ public class StunHandler implements PacketHandler {
 		this.pipelinePriority = 0;
 	}
 	
+	@Override
 	public int getPipelinePriority() {
 		return pipelinePriority;
 	}
@@ -163,6 +184,7 @@ public class StunHandler implements PacketHandler {
 		throw new UnsupportedOperationException("Support to handle STUN responses is not implemented.");
 	}
 
+	@Override
 	public boolean canHandle(byte[] packet) {
 		return canHandle(packet, packet.length, 0);
 	}
@@ -188,6 +210,7 @@ public class StunHandler implements PacketHandler {
 	 * @return
 	 * @see <a href="http://tools.ietf.org/html/rfc5389#page-10">RFC5389</a>
 	 */
+	@Override
 	public boolean canHandle(byte[] data, int length, int offset) {
 		/*
 		 * All STUN messages MUST start with a 20-byte header followed by zero
@@ -208,10 +231,12 @@ public class StunHandler implements PacketHandler {
 		return false;
 	}
 
+	@Override
 	public byte[] handle(byte[] packet, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws PacketHandlerException {
 		return handle(packet, packet.length, 0, localPeer, remotePeer);
 	}
 
+	@Override
 	public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws PacketHandlerException {
 		// Decode and process the packet
 		StunMessage message;
@@ -232,6 +257,7 @@ public class StunHandler implements PacketHandler {
 		}
 	}
 
+	@Override
 	public int compareTo(PacketHandler o) {
 		if(o == null) {
 			return 1;

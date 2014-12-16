@@ -27,38 +27,28 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
-import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.component.oob.OOBSplitter;
-import org.mobicents.media.server.component.oob.OOBInput;
+import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.net.DatagramSocket;
 import java.net.SocketException;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.Dsp;
-import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Clock;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import static org.junit.Assert.*;
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.component.oob.OOBInput;
+import org.mobicents.media.server.component.oob.OOBSplitter;
+import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
+import org.mobicents.media.server.spi.dtmf.DtmfEvent;
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  *
@@ -165,6 +155,7 @@ public class LocalEventTest implements DtmfDetectorListener {
     	assertEquals(4,count);
     }
 
+    @Override
     public void process(DtmfEvent event) {
     	count++;
         System.out.println("TONE=" + event.getTone());
@@ -172,7 +163,9 @@ public class LocalEventTest implements DtmfDetectorListener {
     
     private class Sender extends AbstractSource {
         
-        private Frame currFrame;        
+		private static final long serialVersionUID = 4468618469974148422L;
+
+//		private Frame currFrame;        
         private OOBInput oobInput;        
         int index=0;
         
@@ -191,7 +184,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         };
         
         public Sender() throws SocketException {
-        	super("oob generator", scheduler,scheduler.INPUT_QUEUE);            
+        	super("oob generator", scheduler, Scheduler.INPUT_QUEUE);            
         	
         	index=0;
         	this.oobInput=new OOBInput(ComponentType.DTMF_GENERATOR.getType());

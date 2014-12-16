@@ -27,42 +27,35 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
-import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import static org.junit.Assert.assertEquals;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.util.ArrayList;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mobicents.media.server.component.Dsp;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBMixer;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.dtmf.DtmfTonesData;
-import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.Dsp;
+import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import java.net.InetSocketAddress;
-import org.mobicents.media.server.component.audio.Sine;
-import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
+import org.mobicents.media.server.spi.dtmf.DtmfEvent;
+import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-
-import static org.junit.Assert.*;
+import org.mobicents.media.server.spi.format.Formats;
 
 /**
  *
@@ -200,7 +193,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     private class Sender implements Runnable {
         
         private DatagramSocket socket;
-        private ArrayList<byte[]> stream = new ArrayList();
+        private ArrayList<byte[]> stream = new ArrayList<byte[]>();
         
         private int port;
         private InetSocketAddress dst;
@@ -271,6 +264,7 @@ public class RTPEventTest implements DtmfDetectorListener {
             }
         }
         
+        @Override
         public void run() {
             while (!stream.isEmpty()) {
                 byte[] data = stream.remove(0);

@@ -40,7 +40,7 @@ import static org.junit.Assert.*;
  */
 public class RtpClockTest {
 
-    private WallTestClock wallClock = new WallTestClock();
+    private MockWallClock wallClock = new MockWallClock();
     private RtpClock clock = new RtpClock(wallClock);
     
     public RtpClockTest() {

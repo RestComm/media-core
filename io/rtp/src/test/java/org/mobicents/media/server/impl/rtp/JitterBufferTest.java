@@ -40,7 +40,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class JitterBufferTest {
     
-    private WallTestClock wallClock = new WallTestClock();
+    private MockWallClock wallClock = new MockWallClock();
     private RtpClock rtpClock = new RtpClock(wallClock);
 
     private int period = 20;

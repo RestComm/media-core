@@ -1,3 +1,23 @@
+/*
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2014, Telestax Inc and individual contributors
+ * by the @authors tag.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+
 package org.mobicents.media.server.impl.rtp.sdp;
 
 import java.util.ArrayList;
@@ -9,6 +29,11 @@ import org.mobicents.media.server.utils.Text;
 
 import static org.junit.Assert.*;
 
+/**
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
+ */
 public class CandidateFieldTest {
 
 	private final Text CANDIDATE_HOST  = new Text("a=candidate:1995739850 1 udp 2113937151 192.168.1.65 54550 typ host generation 0");
