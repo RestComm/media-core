@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.MediaTypes;
@@ -331,6 +332,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		} else {
 			setOtherPartyInboundCall();
 		}
+		logger.info("outbound call?: " + this.outbound + "\n");
+		logger.info("local SDP: " + this.localSdp.toString() + "\n");
+		logger.info("remote SDP: " + this.remoteSdp.toString() + "\n");
 	}
 	
 	private void setOtherPartyInboundCall() throws IOException {
@@ -403,6 +407,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// connect to remote peer
 		String remoteRtpAddress = remoteAudio.getConnection().getAddress();
 		int remoteRtpPort = remoteAudio.getPort();
+		
 		this.rtpAudioChannel.setRemotePeer(new InetSocketAddress(remoteRtpAddress, remoteRtpPort));
 		
 		boolean remoteRtcpMux = remoteAudio.isRtcpMux();
@@ -437,6 +442,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	@Override
 	public void setOtherParty(byte[] descriptor) throws IOException {
 		try {
+			logger.info("RECEIVED REMOTE SDP: \n" + new String(descriptor));
 			this.remoteSdp = SessionDescriptionParser.parse(new String(descriptor));
 			setOtherParty();
 		} catch (SdpException e) {
@@ -841,9 +847,15 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 				audioDescription.setIcePwd(new IcePwdAttribute(this.iceAgent.getPassword()));
 				
 				IceMediaStream audioIce = iceAgent.getMediaStream("audio");
-				audioDescription.addCandidate(processCandidate(audioIce.getRtpComponent(), rtpAddress));
+				List<LocalCandidateWrapper> rtpCandidates = audioIce.getRtpComponent().getLocalCandidates();
+				for (LocalCandidateWrapper candidate : rtpCandidates) {
+					audioDescription.addCandidate(processCandidate(candidate.getCandidate()));
+				}
 				if(!this.audioRtcpMux) {
-					audioDescription.addCandidate(processCandidate(audioIce.getRtcpComponent(), rtcpAddress));
+					List<LocalCandidateWrapper> rtcpCandidates = audioIce.getRtcpComponent().getLocalCandidates();
+					for (LocalCandidateWrapper candidate : rtcpCandidates) {
+						audioDescription.addCandidate(processCandidate(candidate.getCandidate()));
+					}
 				}
 			}
 			
@@ -900,24 +912,22 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			videoDescription.setProtocol(this.webrtc ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
 			answer.addMediaDescription(videoDescription);
 		}
-		logger.info("SDP answer: " + answer.toString());
 		return answer;
 	}
 	
-	private CandidateAttribute processCandidate(IceComponent component, String bindAddress) {
-		IceCandidate candidate = component.getDefaultLocalCandidate().getCandidate();
+	private CandidateAttribute processCandidate(IceCandidate candidate) {
 		CandidateAttribute candidateSdp = new CandidateAttribute();
 		candidateSdp.setFoundation(candidate.getFoundation());
 		candidateSdp.setComponentId(candidate.getComponentId());
 		candidateSdp.setProtocol(candidate.getProtocol().getDescription());
 		candidateSdp.setPriority(candidate.getPriority());
-		candidateSdp.setAddress(bindAddress);
+		candidateSdp.setAddress(candidate.getHostString());
 		candidateSdp.setPort(candidate.getPort());
 		String candidateType = candidate.getType().getDescription();
 		candidateSdp.setCandidateType(candidateType);
 		if(CandidateAttribute.TYP_HOST != candidateType) {
-			candidateSdp.setRelatedAddress(this.rtpAudioChannel.getExternalAddress());
-			candidateSdp.setRelatedPort(this.rtpAudioChannel.getLocalPort());
+			candidateSdp.setRelatedAddress(candidate.getBase().getHostString());
+			candidateSdp.setRelatedPort(candidate.getBase().getPort());
 		}
 		candidateSdp.setGeneration(0);
 		return candidateSdp;

@@ -93,14 +93,11 @@ public class HarvestManager {
 		return externalAddress;
 	}
 
-	public void harvest(IceMediaStream mediaStream, PortManager portManager,
-			Selector selector) throws HarvestException,
-			NoCandidatesGatheredException {
+	public void harvest(IceMediaStream mediaStream, PortManager portManager, Selector selector) throws HarvestException, NoCandidatesGatheredException {
 		// Safe copy of currently registered harvesters
 		Map<CandidateType, CandidateHarvester> copy;
 		synchronized (this.harvesters) {
-			copy = new HashMap<CandidateType, CandidateHarvester>(
-					this.harvesters);
+			copy = new HashMap<CandidateType, CandidateHarvester>(this.harvesters);
 		}
 
 		// Ask each harvester to gather candidates for the media stream
@@ -124,9 +121,7 @@ public class HarvestManager {
 
 		// Verify at least one candidate was gathered
 		if (!mediaStream.hasLocalRtpCandidates()) {
-			throw new NoCandidatesGatheredException(
-					"No RTP candidates were gathered for "
-							+ mediaStream.getName() + " stream");
+			throw new NoCandidatesGatheredException("No RTP candidates were gathered for " + mediaStream.getName() + " stream");
 		}
 
 		// After harvesting all possible candidates, ask the media stream to
