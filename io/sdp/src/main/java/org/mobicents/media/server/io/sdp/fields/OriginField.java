@@ -53,8 +53,8 @@ public class OriginField implements SdpField {
 	
 	// Default values
 	private static final String DEFAULT_USERNAME = "-";
-	private static final int DEFAULT_SESSION_ID = 0;
-	private static final int DEFAULT_SESSION_VERSION = 1;
+	private static final String DEFAULT_SESSION_ID = "0";
+	private static final String DEFAULT_SESSION_VERSION = "1";
 	private static final String DEFAULT_NET_TYPE = "IN";
 	private static final String DEFAULT_ADDRESS_TYPE = "IP4";
 	private static final String DEFAULT_ADDRESS = "0.0.0.0";
@@ -62,13 +62,13 @@ public class OriginField implements SdpField {
 	private final StringBuilder builder;
 	
 	private String username;
-	private long sessionId;
-	private int sessionVersion;
+	private String sessionId;
+	private String sessionVersion;
 	private String netType;
 	private String addressType;
 	private String address;
 	
-	public OriginField(String username, long sessionId, int sessionVersion, String netType, String addressType, String address) {
+	public OriginField(String username, String sessionId, String sessionVersion, String netType, String addressType, String address) {
 		this.builder = new StringBuilder(BEGIN);
 		this.username = username;
 		this.sessionId = sessionId;
@@ -78,7 +78,7 @@ public class OriginField implements SdpField {
 		this.address = address;
 	}
 	
-	public OriginField(int sessionId, String address) {
+	public OriginField(String sessionId, String address) {
 		this(DEFAULT_USERNAME, sessionId, DEFAULT_SESSION_VERSION, DEFAULT_NET_TYPE, DEFAULT_ADDRESS_TYPE, address);
 	}
 	
@@ -94,19 +94,19 @@ public class OriginField implements SdpField {
 		this.username = username;
 	}
 
-	public long getSessionId() {
+	public String getSessionId() {
 		return sessionId;
 	}
 
-	public void setSessionId(long sessionId) {
+	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
 	}
 
-	public int getSessionVersion() {
+	public String getSessionVersion() {
 		return sessionVersion;
 	}
 
-	public void setSessionVersion(int sessionVersion) {
+	public void setSessionVersion(String sessionVersion) {
 		this.sessionVersion = sessionVersion;
 	}
 

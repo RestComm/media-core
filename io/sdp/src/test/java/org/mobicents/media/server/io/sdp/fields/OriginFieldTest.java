@@ -41,8 +41,8 @@ public class OriginFieldTest {
 
 		// then
 		Assert.assertEquals("-", field.getUsername());
-		Assert.assertEquals(0, field.getSessionId());
-		Assert.assertEquals(1, field.getSessionVersion());
+		Assert.assertEquals("0", field.getSessionId());
+		Assert.assertEquals("1", field.getSessionVersion());
 		Assert.assertEquals("IN", field.getNetType());
 		Assert.assertEquals("IP4", field.getAddressType());
 		Assert.assertEquals("0.0.0.0", field.getAddress());
@@ -53,7 +53,7 @@ public class OriginFieldTest {
 	@Test
 	public void testCustomOrigin() {
 		// given
-		int sessionId = 123;
+		String sessionId = String.valueOf(System.currentTimeMillis());
 		String address = "127.0.0.1";
 
 		// when
@@ -62,7 +62,7 @@ public class OriginFieldTest {
 		// then
 		Assert.assertEquals("-", field.getUsername());
 		Assert.assertEquals(sessionId, field.getSessionId());
-		Assert.assertEquals(1, field.getSessionVersion());
+		Assert.assertEquals("1", field.getSessionVersion());
 		Assert.assertEquals("IN", field.getNetType());
 		Assert.assertEquals("IP4", field.getAddressType());
 		Assert.assertEquals(address, field.getAddress());

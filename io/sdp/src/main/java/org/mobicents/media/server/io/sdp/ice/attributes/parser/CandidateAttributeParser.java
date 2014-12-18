@@ -82,8 +82,11 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 				tcptype = values[index++];
 			}
 			
-			index++; // GENERATION
-			int generation = Integer.parseInt(values[index++]);
+			index++; // GENERATION which is optional
+			int generation = 0;
+			if(index == values.length - 1) {
+				generation = Integer.parseInt(values[index]);
+			}
 			
 			// Create object from extracted data
 			CandidateAttribute candidate = new CandidateAttribute();
@@ -139,8 +142,11 @@ public class CandidateAttributeParser implements SdpParser<CandidateAttribute> {
 				tcptype = values[index++];
 			}
 			
-			index++; // GENERATION
-			int generation = Integer.parseInt(values[index++]);
+			index++; // GENERATION which is optional
+			int generation = 0;
+			if(index == values.length - 1) {
+				generation = Integer.parseInt(values[index]);
+			}
 			
 			// Create object from extracted data
 			field.setFoundation(foundation);

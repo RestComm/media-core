@@ -26,12 +26,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
 import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
@@ -57,6 +57,8 @@ public class SessionDescriptionParserTest {
 	
 	private static String webrtcDescription;
 	private static String chrome39offer;
+	private static String firefox33offer;
+	private static String androidSdkOffer;
 	
 	@BeforeClass
 	public static void setup() throws IOException, URISyntaxException {
@@ -67,8 +69,29 @@ public class SessionDescriptionParserTest {
 		resource = SessionDescriptionParserTest.class.getResource("chrome-39-offer.txt");
 		bytes = Files.readAllBytes(Paths.get(resource.toURI()));
 		chrome39offer = new String(bytes);
+
+		resource = SessionDescriptionParserTest.class.getResource("firefox-33-offer.txt");
+		bytes = Files.readAllBytes(Paths.get(resource.toURI()));
+		firefox33offer = new String(bytes);
+
+		resource = SessionDescriptionParserTest.class.getResource("android-sdk-offer.txt");
+		bytes = Files.readAllBytes(Paths.get(resource.toURI()));
+		androidSdkOffer = new String(bytes);
 	}
 	
+	@Test
+	public void testParseAndroidSdkOffer() throws SdpException {
+		// given
+		SessionDescription sdp;
+		
+		// when
+		sdp = SessionDescriptionParser.parse(androidSdkOffer);
+		
+		// then
+		MediaDescriptionField audio = sdp.getMediaDescription("audio");
+		Assert.assertNotNull(audio);
+	}
+
 	@Test
 	public void testParseChrome39Offer() throws SdpException {
 		// given
@@ -84,7 +107,20 @@ public class SessionDescriptionParserTest {
 	}
 
 	@Test
-	public void testParse() throws SdpException {
+	public void testParseFirefox33Offer() throws SdpException {
+		// given
+		SessionDescription sdp;
+		
+		// when
+		sdp = SessionDescriptionParser.parse(firefox33offer);
+		
+		// then
+		MediaDescriptionField audio = sdp.getMediaDescription("audio");
+		Assert.assertNotNull(audio);
+	}
+
+	@Test
+	public void testParseGenericWebRtcOffer() throws SdpException {
 		// given
 		SessionDescription sdp;
 		
@@ -94,13 +130,13 @@ public class SessionDescriptionParserTest {
 		// then
 		VersionField version = sdp.getVersion();
 		Assert.assertNotNull(version);
-		Assert.assertEquals(0, version.getVersion());
+		Assert.assertEquals((short) 0, version.getVersion());
 		
 		OriginField origin = sdp.getOrigin();
 		Assert.assertNotNull(origin);
 		Assert.assertEquals("-", origin.getUsername());
-		Assert.assertEquals(680121471469462884L, origin.getSessionId());
-		Assert.assertEquals(2, origin.getSessionVersion());
+		Assert.assertEquals("680121471469462884", origin.getSessionId());
+		Assert.assertEquals("2", origin.getSessionVersion());
 		Assert.assertEquals("IN", origin.getNetType());
 		Assert.assertEquals("IP4", origin.getAddressType());
 		Assert.assertEquals("127.0.0.1", origin.getAddress());
@@ -130,6 +166,12 @@ public class SessionDescriptionParserTest {
 		Assert.assertTrue(audio.containsFormat(13));
 		Assert.assertTrue(audio.containsFormat(126));
 		
+		PacketTimeAttribute audioPtime = audio.getPtime();
+		Assert.assertNull(audioPtime);
+		MaxPacketTimeAttribute audioMaxPtime = audio.getMaxptime();
+		Assert.assertNotNull(audioMaxPtime);
+		Assert.assertEquals(60, audioMaxPtime.getTime());
+		
 		ConnectionField audioConnection = audio.getConnection();
 		Assert.assertNotNull(audioConnection);
 		Assert.assertEquals("IN", audioConnection.getNetworkType());
@@ -155,53 +197,33 @@ public class SessionDescriptionParserTest {
 		RtpMapAttribute audioOpus = audio.getFormat((short) 111);
 		Assert.assertNotNull(audioOpus);
 		Assert.assertNotNull(audioOpus.getParameters());
-		Assert.assertNull(audioOpus.getPtime());
-		Assert.assertNull(audioOpus.getMaxptime());
 		RtpMapAttribute audioIsac16 = audio.getFormat((short) 103);
 		Assert.assertNotNull(audioIsac16);
 		Assert.assertNull(audioIsac16.getParameters());
-		Assert.assertNull(audioIsac16.getPtime());
-		Assert.assertNull(audioIsac16.getMaxptime());
 		RtpMapAttribute audioIsac32 = audio.getFormat((short) 104);
 		Assert.assertNotNull(audioIsac32);
 		Assert.assertNull(audioIsac32.getParameters());
-		Assert.assertNull(audioIsac32.getPtime());
-		Assert.assertNull(audioIsac32.getMaxptime());
 		RtpMapAttribute audioPcmu = audio.getFormat((short) 0);
 		Assert.assertNotNull(audioPcmu);
 		Assert.assertNull(audioPcmu.getParameters());
-		Assert.assertNull(audioPcmu.getPtime());
-		Assert.assertNull(audioPcmu.getMaxptime());
 		RtpMapAttribute audioPcma = audio.getFormat((short) 8);
 		Assert.assertNotNull(audioPcma);
 		Assert.assertNull(audioPcma.getParameters());
-		Assert.assertNull(audioPcma.getPtime());
-		Assert.assertNull(audioPcma.getMaxptime());
 		RtpMapAttribute audioCn48 = audio.getFormat((short) 107);
 		Assert.assertNotNull(audioCn48);
 		Assert.assertNull(audioCn48.getParameters());
-		Assert.assertNull(audioCn48.getPtime());
-		Assert.assertNull(audioCn48.getMaxptime());
 		RtpMapAttribute audioCn32 = audio.getFormat((short) 106);
 		Assert.assertNotNull(audioCn32);
 		Assert.assertNull(audioCn32.getParameters());
-		Assert.assertNull(audioCn32.getPtime());
-		Assert.assertNull(audioCn32.getMaxptime());
 		RtpMapAttribute audioCn16 = audio.getFormat((short) 105);
 		Assert.assertNotNull(audioCn16);
 		Assert.assertNull(audioCn16.getParameters());
-		Assert.assertNull(audioCn16.getPtime());
-		Assert.assertNull(audioCn16.getMaxptime());
 		RtpMapAttribute audioCn8 = audio.getFormat((short) 13);
 		Assert.assertNotNull(audioCn8);
 		Assert.assertNull(audioCn8.getParameters());
-		Assert.assertNull(audioCn8.getPtime());
-		Assert.assertNull(audioCn8.getMaxptime());
 		RtpMapAttribute audioDtmf = audio.getFormat((short) 126);
 		Assert.assertNotNull(audioDtmf);
 		Assert.assertNull(audioDtmf.getParameters());
-		Assert.assertNull(audioDtmf.getPtime());
-		Assert.assertNotNull(audioDtmf.getMaxptime());
 		
 		SetupAttribute audioSetup = audio.getSetup();
 		Assert.assertNotNull(audioSetup);
@@ -239,6 +261,11 @@ public class SessionDescriptionParserTest {
 		Assert.assertTrue(video.containsFormat((short) 116));
 		Assert.assertTrue(video.containsFormat((short) 117));
 		
+		PacketTimeAttribute videoPtime = video.getPtime();
+		Assert.assertNull(videoPtime);
+		MaxPacketTimeAttribute videoMaxPtime = video.getMaxptime();
+		Assert.assertNull(videoMaxPtime);
+		
 		ConnectionField videoConnection = video.getConnection();
 		Assert.assertNotNull(videoConnection);
 		Assert.assertEquals("IN", videoConnection.getNetworkType());
@@ -262,18 +289,12 @@ public class SessionDescriptionParserTest {
 		RtpMapAttribute videoVP8 = video.getFormat((short) 100);
 		Assert.assertNotNull(videoVP8);
 		Assert.assertNull(videoVP8.getParameters());
-		Assert.assertNull(videoVP8.getPtime());
-		Assert.assertNull(videoVP8.getMaxptime());
 		RtpMapAttribute videoRed = video.getFormat((short) 116);
 		Assert.assertNotNull(videoRed);
 		Assert.assertNull(videoRed.getParameters());
-		Assert.assertNull(videoRed.getPtime());
-		Assert.assertNull(videoRed.getMaxptime());
 		RtpMapAttribute videoUlpFec = video.getFormat((short) 117);
 		Assert.assertNotNull(videoUlpFec);
 		Assert.assertNull(videoUlpFec.getParameters());
-		Assert.assertNull(videoUlpFec.getPtime());
-		Assert.assertNull(videoUlpFec.getMaxptime());
 		
 		FingerprintAttribute videoFingerprint = video.getFingerprint();
 		Assert.assertNotNull(videoFingerprint);
@@ -306,20 +327,6 @@ public class SessionDescriptionParserTest {
 		Assert.assertNull(application);
 	}
 	
-	@Ignore
-	@Test
-	public void loadTest() throws SdpException {
-		int runs = 500000;
-		long start = System.nanoTime();
-		for (int i = 0; i < runs; i++) {
-			SessionDescriptionParser.parse(webrtcDescription);
-		}
-		long end = System.nanoTime();
-		
-		long runtime = end - start;
-		long unitTime = runtime / runs;
-		
-		System.out.println("Load test took " + runtime + "ns (" + unitTime + "ns per SDP)");
-	}
+	
 
 }

@@ -1,0 +1,19 @@
+v=0
+o=doubango 1983 678901 IN IP4 85.240.134.182
+s=-
+c=IN IP4 85.240.134.182
+t=0 0
+a=tcap:1 RTP/AVPF
+m=audio 64826 RTP/AVP 8 0 101
+a=ptime:20
+a=silenceSupp:off - - - -
+a=rtpmap:8 PCMA/8000/1
+a=rtpmap:0 PCMU/8000/1
+a=rtpmap:101 telephone-event/8000/1
+a=fmtp:101 0-16
+a=pcfg:1 t=1
+a=sendrecv
+a=rtcp-mux
+a=ssrc:358658856 cname:doubango@365226042
+a=ssrc:358658856 mslabel:6994f7d1-6ce9-4fbd-acfd-84e5131ca2e2
+a=ssrc:358658856 label:doubango@audio

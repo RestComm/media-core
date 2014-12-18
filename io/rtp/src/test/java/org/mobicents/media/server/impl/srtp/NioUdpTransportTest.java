@@ -112,7 +112,7 @@ public class NioUdpTransportTest {
 		NioUdpTransport dtlsTransport = new NioUdpTransport(localChannel);
 
 		// when
-		Thread.sleep(NioUdpTransport.MAX_DELAY);
+		Thread.sleep(NioUdpTransport.MAX_DELAY + 1000);
 		dtlsTransport.receive(new byte[5], 0, 5, 0);
 	}
 

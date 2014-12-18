@@ -67,8 +67,8 @@ public class OriginFieldParserTest {
 		
 		// then
 		Assert.assertEquals("-", field.getUsername());
-		Assert.assertEquals(30, field.getSessionId());
-		Assert.assertEquals(1, field.getSessionVersion());
+		Assert.assertEquals("30", field.getSessionId());
+		Assert.assertEquals("1", field.getSessionVersion());
 		Assert.assertEquals("IN", field.getNetType());
 		Assert.assertEquals("IP4", field.getAddressType());
 		Assert.assertEquals("127.0.0.1", field.getAddress());
@@ -86,8 +86,8 @@ public class OriginFieldParserTest {
 		
 		// then
 		Assert.assertEquals("xyz", field.getUsername());
-		Assert.assertEquals(40, field.getSessionId());
-		Assert.assertEquals(2, field.getSessionVersion());
+		Assert.assertEquals("40", field.getSessionId());
+		Assert.assertEquals("2", field.getSessionVersion());
 		Assert.assertEquals("IN", field.getNetType());
 		Assert.assertEquals("IP6", field.getAddressType());
 		Assert.assertEquals("0.0.0.0", field.getAddress());
@@ -97,15 +97,6 @@ public class OriginFieldParserTest {
 	public void testInvalidParseMissingElement() throws SdpException {
 		// given
 		String line = "o=- 30 1 IN 127.0.0.1\n\r";
-		
-		// when
-		parser.parse(line);
-	}
-
-	@Test(expected=SdpException.class)
-	public void testInvalidParseNumberFormat() throws SdpException {
-		// given
-		String line = "o=- xyz 1 IN IP4 127.0.0.1\n\r";
 		
 		// when
 		parser.parse(line);

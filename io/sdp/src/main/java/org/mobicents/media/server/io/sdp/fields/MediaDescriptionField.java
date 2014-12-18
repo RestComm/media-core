@@ -30,6 +30,8 @@ import org.mobicents.media.server.io.sdp.SdpField;
 import org.mobicents.media.server.io.sdp.SessionLevelAccessor;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
+import org.mobicents.media.server.io.sdp.attributes.MaxPacketTimeAttribute;
+import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
 import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
@@ -73,7 +75,9 @@ public class MediaDescriptionField implements SdpField {
 	private RtcpAttribute rtcp;
 	private RtcpMuxAttribute rtcpMux;
 	private SsrcAttribute ssrc;
-	
+	private PacketTimeAttribute ptime;
+	private MaxPacketTimeAttribute maxptime;
+
 	// ICE attributes (session-level)
 	private IcePwdAttribute icePwd;
 	private IceUfragAttribute iceUfrag;
@@ -82,6 +86,7 @@ public class MediaDescriptionField implements SdpField {
 	// WebRTC attributes (session-level)
 	private FingerprintAttribute fingerprint;
 	private SetupAttribute setup;
+	
 
 	private final StringBuilder builder;
 
@@ -235,6 +240,22 @@ public class MediaDescriptionField implements SdpField {
 		this.rtcpMux = rtcpMux;
 	}
 	
+	public PacketTimeAttribute getPtime() {
+		return ptime;
+	}
+
+	public void setPtime(PacketTimeAttribute ptime) {
+		this.ptime = ptime;
+	}
+
+	public MaxPacketTimeAttribute getMaxptime() {
+		return maxptime;
+	}
+
+	public void setMaxptime(MaxPacketTimeAttribute maxptime) {
+		this.maxptime = maxptime;
+	}
+	
 	public SsrcAttribute getSsrc() {
 		return ssrc;
 	}
@@ -353,6 +374,8 @@ public class MediaDescriptionField implements SdpField {
 		appendField(this.connectionMode);
 		appendField(this.rtcp);
 		appendField(this.rtcpMux);
+		appendField(this.ptime);
+		appendField(this.maxptime);
 		appendField(this.iceUfrag);
 		appendField(this.icePwd);
 		

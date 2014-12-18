@@ -51,8 +51,8 @@ public class OriginFieldParser implements SdpParser<OriginField> {
 		try {
 			String[] values = sdp.trim().substring(2).split(" ");
 			String username = values[0];
-			long sessionId = Long.parseLong(values[1]);
-			int sessionVersion = Integer.parseInt(values[2]);
+			String sessionId = values[1];
+			String sessionVersion = values[2];
 			String netType = values[3];
 			String addressType = values[4];
 			String address = values[5];
@@ -67,8 +67,8 @@ public class OriginFieldParser implements SdpParser<OriginField> {
 		try {
 			String[] values = sdp.trim().substring(2).split(" ");
 			field.setUsername(values[0]);
-			field.setSessionId(Long.parseLong(values[1]));
-			field.setSessionVersion(Integer.parseInt(values[2]));
+			field.setSessionId(values[1]);
+			field.setSessionVersion(values[2]);
 			field.setNetType(values[3]);
 			field.setAddressType(values[4]);
 			field.setAddress(values[5]);

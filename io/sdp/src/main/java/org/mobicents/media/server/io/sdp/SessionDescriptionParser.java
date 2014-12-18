@@ -148,11 +148,11 @@ public class SessionDescriptionParser {
 			break;
 		
 		case PacketTimeAttribute.ATTRIBUTE_TYPE:
-			info.format.setPtime((PacketTimeAttribute) attribute);
+			info.media.setPtime((PacketTimeAttribute) attribute);
 			break;
 
 		case MaxPacketTimeAttribute.ATTRIBUTE_TYPE:
-			info.format.setMaxptime((MaxPacketTimeAttribute) attribute);
+			info.media.setMaxptime((MaxPacketTimeAttribute) attribute);
 			break;
 			
 		case ConnectionModeAttribute.SENDONLY:

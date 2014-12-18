@@ -34,7 +34,6 @@ import org.mobicents.media.core.MediaTypes;
 import org.mobicents.media.io.ice.CandidatePair;
 import org.mobicents.media.io.ice.IceAgent;
 import org.mobicents.media.io.ice.IceCandidate;
-import org.mobicents.media.io.ice.IceComponent;
 import org.mobicents.media.io.ice.IceFactory;
 import org.mobicents.media.io.ice.IceMediaStream;
 import org.mobicents.media.io.ice.LocalCandidateWrapper;
@@ -488,7 +487,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// Session-level fields
 		SessionDescription offer = new SessionDescription();
 		offer.setVersion(new VersionField((short) 0));
-		offer.setOrigin(new OriginField("-", System.currentTimeMillis(), 1, "IN", "IP4", originAddress));
+		offer.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originAddress));
 		offer.setSessionName(new SessionNameField("Mobicents Media Server"));
 		offer.setConnection(new ConnectionField("IN", "IP4", bindAddress));
 		offer.setTiming(new TimingField(0, 0));
@@ -499,7 +498,9 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		audio.setPort(this.rtpAudioChannel.getLocalPort());
 		audio.setProtocol(MediaProfile.RTP_AVP);
 		audio.setConnection(new ConnectionField("IN", "IP4", bindAddress));
+		audio.setPtime(new PacketTimeAttribute(20));
 		audio.setRtcp(new RtcpAttribute(this.rtcpAudioChannel.getLocalPort(), "IN", "IP4", bindAddress));
+		
 		// Media formats
 		this.audioSupportedFormats.rewind();
 		while(this.audioSupportedFormats.hasMore()) {
@@ -516,11 +517,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			if(audioFormat.getOptions() != null) {
 				rtpMap.setParameters(new FormatParameterAttribute(f.getID(), audioFormat.getOptions().toString()));
 			}
-			
-			if(audioFormat.shouldSendPTime()) {
-				rtpMap.setPtime(new PacketTimeAttribute(20));
-			}
-
 			audio.addPayloadType(f.getID());
 			audio.addFormat(rtpMap);
 		}
@@ -797,7 +793,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		
 		// Session Description
 		answer.setVersion(new VersionField((short) 0));
-		answer.setOrigin(new OriginField("-", System.currentTimeMillis(), 1, "IN", "IP4", originatorAddress));
+		answer.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originatorAddress));
 		answer.setSessionName(new SessionNameField("Mobicents Media Server"));
 		answer.setConnection(new ConnectionField("IN", "IP4", bindAddress));
 		answer.setTiming(new TimingField(0, 0));
@@ -836,6 +832,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			audioDescription.setPort(rtpPort);
 			audioDescription.setProtocol(this.webrtc ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
 			audioDescription.setConnection(new ConnectionField("IN", "IP4", rtpAddress));
+			audioDescription.setPtime(new PacketTimeAttribute(20));
 			audioDescription.setRtcp(new RtcpAttribute(rtcpPort, "IN", "IP4", rtcpAddress));
 			if(this.audioRtcpMux) {
 				audioDescription.setRtcpMux(new RtcpMuxAttribute());
@@ -875,11 +872,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 				if(audioFormat.getOptions() != null) {
 					rtpMap.setParameters(new FormatParameterAttribute(f.getID(), audioFormat.getOptions().toString()));
 				}
-				
-				if(audioFormat.shouldSendPTime()) {
-					rtpMap.setPtime(new PacketTimeAttribute(20));
-				}
-
 				audioDescription.addPayloadType(f.getID());
 				audioDescription.addFormat(rtpMap);
 			}

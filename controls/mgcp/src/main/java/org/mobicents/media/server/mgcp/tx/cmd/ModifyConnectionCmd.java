@@ -56,8 +56,6 @@ public class ModifyConnectionCmd extends Action {
     private Parameter connectionID;
     private TaskChain handler;
 
-    private Scheduler scheduler;
-    
     //error code and message
     private int code;
     private Text message;
@@ -69,8 +67,6 @@ public class ModifyConnectionCmd extends Action {
     private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);    
     
     public ModifyConnectionCmd(Scheduler scheduler) {
-        this.scheduler=scheduler;
-        
     	handler = new TaskChain(1,scheduler);
         
         Modifier modifier = new Modifier();
@@ -91,7 +87,7 @@ public class ModifyConnectionCmd extends Action {
 
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -139,6 +135,7 @@ public class ModifyConnectionCmd extends Action {
                 try {
                     mgcpConnection.setOtherParty(sdp.getValue());
                 } catch (IOException e) {
+                	logger.error("Could not set remote peer", e);
                     throw new MgcpCommandException(MgcpResponseCode.UNSUPPORTED_SDP, SDP_NEGOTIATION_FAILED);
                 }
             }
@@ -185,9 +182,9 @@ public class ModifyConnectionCmd extends Action {
             super();
         }
         
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
+        @Override
+        public int getQueueNumber() {
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
