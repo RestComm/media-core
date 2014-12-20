@@ -75,6 +75,7 @@ public class MultiplexedChannel implements Channel {
 		return null;
 	}
 	
+	@Override
 	public String getLocalHost() {
 		if(this.dataChannel != null && this.dataChannel.isOpen()) {
 			try {
@@ -86,6 +87,7 @@ public class MultiplexedChannel implements Channel {
 		return "";
 	}
 	
+	@Override
 	public int getLocalPort() {
 		if(this.dataChannel != null && this.dataChannel.isOpen()) {
 			return this.dataChannel.socket().getLocalPort();
