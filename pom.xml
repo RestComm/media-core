@@ -171,9 +171,9 @@
     </profiles>
 
     <scm>
-      <connection>scm:git:https://code.google.com/p/mediaserver/</connection>
-      <developerConnection>scm:git:https://code.google.com/p/mediaserver/</developerConnection>
-      <url>https://code.google.com/p/mediaserver/</url>
+      <connection>scm:git:https://github.com/Mobicents/mediaserver/</connection>
+      <developerConnection>scm:git:https://github.com/Mobicents/mediaserver/</developerConnection>
+      <url>https://github.com/Mobicents/mediaserver/</url>
     </scm>
 
 	<!--  -->
