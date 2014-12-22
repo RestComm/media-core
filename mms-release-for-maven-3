@@ -1,4 +1,4 @@
 
-mvn release:prepare -P maven-release -Dmaven.test.skip=true -DdevelopmentVersion=3.0.2-SNAPSHOT -DreleaseVersion=3.0.1.FINAL -Dtag=3.0.1.FINAL -DmavenExecutorId=forked-path -Dgpg.passphrase=2w3e4r5t
+mvn release:prepare -P maven-release -Dmaven.test.skip=true -DdevelopmentVersion=3.0.2-SNAPSHOT -DreleaseVersion=3.0.1.FINAL -Dtag=3.0.1.FINAL -DmavenExecutorId=forked-path
 
 mvn release:perform -Darguments="-Dgpg.passphrase=2w3e4r5t -Dmaven.test.skip=true"
