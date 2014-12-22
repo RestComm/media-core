@@ -172,7 +172,7 @@
 
     <scm>
       <connection>scm:git:https://github.com/Mobicents/mediaserver/</connection>
-      <developerConnection>scm:git:git@github.com:Mobicents/mediaserver.git/</developerConnection>
+      <developerConnection>scm:git:https://github.com/Mobicents/mediaserver/</developerConnection>
       <url>https://github.com/Mobicents/mediaserver/</url>
     </scm>
 
