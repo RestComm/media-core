@@ -31,6 +31,9 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class AVProfile {
+	public final static Text AUDIO = new Text("audio");
+	public final static Text VIDEO = new Text("video");
+	
 	public final static int telephoneEventsID=101;
 	public final static int telephoneEvent126=126;
     public final static AudioFormat telephoneEvent = FormatFactory.createAudioFormat("telephone-event", 8000);
@@ -78,13 +81,12 @@ public class AVProfile {
     }    
     
     public static RTPFormat getFormat(int p,Text mediaType) {
-    	
     	RTPFormat res=null;
-    	if(mediaType.equals(SessionDescription.AUDIO))
+    	if(mediaType.equals(AUDIO)) {
     		res = audio.find(p);    		
-    	else if(mediaType.equals(SessionDescription.VIDEO))
+    	} else if(mediaType.equals(VIDEO)) {
     		res = video.find(p);    		
-    	
+    	}
     	return res;
     }
 }

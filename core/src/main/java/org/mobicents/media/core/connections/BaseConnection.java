@@ -329,8 +329,10 @@ public abstract class BaseConnection implements Connection {
 	public abstract void setOtherParty(Text descriptor) throws IOException;
 
 	/**
-	 * Gets whether connection should be bound to local or remote interface ,
-	 * supported only for rtp connections.
+	 * Gets whether connection should be bound to local or remote interface.
+	 * <p>
+	 * <b>Supported only for RTP connections.</b>
+	 * </p>
 	 * 
 	 * @return boolean value
 	 */
@@ -340,10 +342,10 @@ public abstract class BaseConnection implements Connection {
 	}
 
 	/**
-	 * Gets whether connection should be bound to local or remote interface ,
-	 * supported only for rtp connections.
-	 * 
-	 * @return boolean value
+	 * Sets whether connection should be bound to local or remote interface.
+	 * <p>
+	 * <b>Supported only for RTP connections.</b>
+	 * </p>
 	 */
 	@Override
 	public void setIsLocal(boolean isLocal) {

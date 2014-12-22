@@ -23,72 +23,34 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.MediaTypes;
-import org.mobicents.media.io.ice.CandidatePair;
-import org.mobicents.media.io.ice.IceAgent;
-import org.mobicents.media.io.ice.IceCandidate;
-import org.mobicents.media.io.ice.IceFactory;
-import org.mobicents.media.io.ice.IceMediaStream;
-import org.mobicents.media.io.ice.LocalCandidateWrapper;
-import org.mobicents.media.io.ice.events.IceEventListener;
-import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.MediaChannel;
-import org.mobicents.media.server.impl.rtp.RtpChannel;
-import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
-import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
-import org.mobicents.media.server.io.network.PortManager;
+import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.SessionDescriptionParser;
-import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
-import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
-import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
-import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
-import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
-import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
-import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.fields.OriginField;
 import org.mobicents.media.server.io.sdp.fields.SessionNameField;
 import org.mobicents.media.server.io.sdp.fields.TimingField;
 import org.mobicents.media.server.io.sdp.fields.VersionField;
-import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
-import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
-import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
-import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -96,6 +58,8 @@ import org.mobicents.media.server.utils.Text;
  * @author Oifa Yulian
  * @author Amit Bhayani
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ * @see BaseConnection 
  */
 public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
@@ -103,61 +67,42 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	// Core elements
 	private final ChannelsManager channelsManager;
-	private final Scheduler scheduler;
-	
-	private final String externalAddress;
 	
 	// RTP session elements
 	private String cname;
 	private boolean outbound;
+	private boolean local = false;
 	
+	private ConnectionFailureListener connectionFailureListener;
+
 	// Media
-	private MediaChannel audioChannel;
+	private AudioChannel audioChannel;
 
 	// Session Description
 	private SessionDescription localSdp;
 	private SessionDescription remoteSdp;
-	
-	// Registered formats
-	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
-	private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-	
-	// Supported formats
-	protected RTPFormats audioSupportedFormats;
-	protected RTPFormats videoFormats;
-	protected RTPFormats applicationFormats;
-	
-	private RTPFormats audioOfferedFormats = new RTPFormats();
-	
-	private RTPFormats audioNegotiatedFormats = new RTPFormats();
-
-	// Connection status
-	private boolean isLocal = false;
-	private ConnectionFailureListener connectionFailureListener;
 
 	public RtpConnectionImpl(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
-		super(id, channelsManager.getScheduler());
-		
 		// Core elements
+		super(id, channelsManager.getScheduler());
 		this.channelsManager = channelsManager;
-		this.scheduler = channelsManager.getScheduler();
-		this.externalAddress = channelsManager.getUdpManager().getExternalAddress();
 		
-		// outbound vs inbound call
+		// Connection state
 		this.outbound = false;
+		this.local = false;
+		this.cname = CnameGenerator.generateCname();
 		
-		this.cname = this.audioStatistics.getCname();
-
 		// Audio Channel
-		this.audioChannel = new MediaChannel("audio", scheduler.getClock(), channelsManager);
+		this.audioChannel = this.channelsManager.getAudioChannel();
+		this.audioChannel.setCname(this.cname);
 		this.audioChannel.setRtpListener(this);
-		this.audioChannel.setInputDsp(dspFactory.newProcessor());
-		this.audioChannel.setOutputDsp(dspFactory.newProcessor());
-		
-		// create sdp template
-		this.audioSupportedFormats = getRTPMap(AVProfile.audio);
-		this.videoFormats = getRTPMap(AVProfile.video);
-		this.applicationFormats = getRTPMap(AVProfile.application);
+		try {
+			this.audioChannel.setInputDsp(dspFactory.newProcessor());
+			this.audioChannel.setOutputDsp(dspFactory.newProcessor());
+		} catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+			// exception may happen only if invalid classes have been set in configuration
+			throw new RuntimeException("There are invalid classes specified in the configuration.", e);
+		}
 	}
 
 	@Override
@@ -170,62 +115,14 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		return this.audioChannel.getAudioOobComponent();
 	}
 
-	/**
-	 * Gets whether connection should be bound to local or remote interface ,
-	 * supported only for rtp connections.
-	 * 
-	 * @return boolean value
-	 */
 	@Override
 	public boolean getIsLocal() {
-		return this.isLocal;
+		return this.local;
 	}
 
-	/**
-	 * Gets whether connection should be bound to local or remote interface ,
-	 * supported only for rtp connections.
-	 * 
-	 * @return boolean value
-	 */
 	@Override
 	public void setIsLocal(boolean isLocal) {
-		this.isLocal = isLocal;
-	}
-
-	/**
-	 * Constructs RTP payloads for given channel.
-	 * 
-	 * @param channel
-	 *            the media channel
-	 * @param profile
-	 *            AVProfile part for media type of given channel
-	 * @return collection of RTP formats.
-	 */
-	private RTPFormats getRTPMap(RTPFormats profile) {
-		RTPFormats list = new RTPFormats();
-		Formats fmts = new Formats();
-		
-		if (this.audioChannel.getOutputDsp() != null) {
-			Codec[] currCodecs = this.audioChannel.getOutputDsp().getCodecs();
-			for (int i = 0; i < currCodecs.length; i++) {
-				if (currCodecs[i].getSupportedInputFormat().matches(LINEAR_FORMAT)) {
-					fmts.add(currCodecs[i].getSupportedOutputFormat());
-				}
-			}
-		}
-
-		fmts.add(DTMF_FORMAT);
-
-		if (fmts != null) {
-			for (int i = 0; i < fmts.size(); i++) {
-				RTPFormat f = profile.find(fmts.get(i));
-				if (f != null) {
-					list.add(f.clone());
-				}
-			}
-		}
-
-		return list;
+		this.local = isLocal;
 	}
 
 	@Override
@@ -264,13 +161,15 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * @throws IOException
 	 */
 	private void setOtherParty() throws IOException {
-//		if (sdp_old != null && sdp_old.getAudioDescriptor() != null && sdp_old.getAudioDescriptor().getFormats() != null) {
-//			logger.info("Audio Formats" + sdp_old.getAudioDescriptor().getFormats());
-//		}
+		
 		if(this.outbound) {
 			setOtherPartyOutboundCall();
 		} else {
 			setOtherPartyInboundCall();
+		}
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Audio formats: " + this.audioChannel.getFormats());
 		}
 	}
 	
@@ -295,13 +194,10 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			this.audioChannel.startIceAgent();
 		}
 
-		this.audioNegotiatedFormats = negotiateFormats(audioOffer);
-		if (audioNegotiatedFormats.isEmpty() || !audioNegotiatedFormats.hasNonDTMF()) {
+		this.audioChannel.negotiateFormats(audioOffer);
+		if (!this.audioChannel.hasNegotiatedFormats()) {
 			throw new IOException("Audio codecs are not negotiated");
 		}
-		
-		this.audioChannel.setFormats(this.audioNegotiatedFormats);
-		this.audioChannel.setOutputFormats(this.audioNegotiatedFormats);
 		
 		// Process the SDP answer
 		try {
@@ -323,13 +219,10 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
 		
 		// negotiate codecs
-		this.audioNegotiatedFormats = negotiateFormats(remoteAudio);
-		if (audioNegotiatedFormats.isEmpty() || !audioNegotiatedFormats.hasNonDTMF()) {
+		this.audioChannel.negotiateFormats(remoteAudio);
+		if (!this.audioChannel.hasNegotiatedFormats()) {
 			throw new IOException("Audio codecs are not negotiated");
 		}
-		
-		this.audioChannel.setFormats(this.audioNegotiatedFormats);
-		this.audioChannel.setOutputFormats(this.audioNegotiatedFormats);
 		
 		// connect to remote peer
 		String remoteRtpAddress = remoteAudio.getConnection().getAddress();
@@ -394,8 +287,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			this.outbound = true;
 			
 			// setup audio channel
-			this.audioChannel.bind(this.isLocal, false);
-			this.audioChannel.setFormats(this.audioSupportedFormats);
+			this.audioChannel.bind(this.local, false);
+			this.audioChannel.resetFormats();
 			
 			// generate SDP offer based on audio channel
 			this.localSdp = generateSdpOffer();
@@ -404,7 +297,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	}
 	
 	private SessionDescription generateSdpOffer() {
-		String bindAddress = this.isLocal ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
+		String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
 		String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
 		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? bindAddress : externalAddress;
 		
@@ -416,8 +309,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		offer.setConnection(new ConnectionField("IN", "IP4", bindAddress));
 		offer.setTiming(new TimingField(0, 0));
 		
-		// Media Descrription - audio
-		MediaDescriptionField audio = this.audioChannel.getMediaDescriptor(this.audioSupportedFormats);
+		// Media Description - audio
+		MediaDescriptionField audio = this.audioChannel.getMediaDescriptor();
 		audio.setSession(offer);
 		offer.addMediaDescription(audio);
 		
@@ -553,28 +446,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		this.connectionFailureListener = null;
 	}
 	
-
-	
-	// TODO integrate this logic somewhere else...
-	private RTPFormats negotiateFormats(MediaDescriptionField media) {
-		// Clean currently offered formats
-		this.audioOfferedFormats.clean();
-		
-		// Map payload types tp RTP Format
-		
-		for (int payloadType : media.getPayloadTypes()) {
-			RTPFormat format = AVProfile.getFormat(payloadType, SdpComparator.AUDIO);
-			if(format != null) {
-				this.audioOfferedFormats.add(format);
-			}
-		}
-		
-		// Negotiate the formats and store intersection
-		RTPFormats negotiated = new RTPFormats();
-		this.audioSupportedFormats.intersection(this.audioOfferedFormats, negotiated);
-		return negotiated;
-	}
-
 	/**
 	 * Reads the SDP offer and sets up the available resources according to the
 	 * call type.<br>
@@ -603,14 +474,14 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		if (ice) {
 			try {
 				// Configure ICE Agent and harvest candidates
-				this.audioChannel.enableICE(this.externalAddress);
-				this.audioChannel.gatherIceCandidates();
+				this.audioChannel.enableICE(this.channelsManager.getExternalAddress());
+				this.audioChannel.gatherIceCandidates(this.channelsManager.getPortManager());
 			} catch (HarvestException e) {
 				throw new IOException("Could not harvest ICE candidates: " + e.getMessage(), e);
 			}
 		} else {
 			// For non-ICE calls the RTP audio channel can be bound immediately
-			this.audioChannel.bind(this.isLocal, rtcpMux);
+			this.audioChannel.bind(this.local, rtcpMux);
 		}
 		
 		// Configure WebRTC-related resources on audio channel
@@ -630,8 +501,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private SessionDescription generateSdpAnswer() throws SdpException {
 		SessionDescription answer = new SessionDescription();
 
-		String bindAddress = isLocal ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
-		String originatorAddress = this.externalAddress;
+		String bindAddress = local ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
+		String originatorAddress = this.channelsManager.getExternalAddress();
 		if(originatorAddress == null || originatorAddress.isEmpty()) {
 			originatorAddress = bindAddress;
 		}
@@ -650,7 +521,14 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		
 		// Media Description - audio
 		if(this.remoteSdp.getMediaDescription("audio") != null) {
-			
+			MediaDescriptionField audioDescription = this.audioChannel.generateAnswer();
+			answer.addMediaDescription(audioDescription);
+			audioDescription.setSession(answer);
+			if(audioDescription.containsIce()) {
+				// Fix session-level attribute
+				String rtpAddress = audioDescription.getConnection().getAddress();
+				answer.getConnection().setAddress(rtpAddress);
+			}
 		}
 		
 		// Media Description - video
@@ -659,30 +537,12 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			videoDescription.setMedia("video");
 			// Video is unsupported - reject channel
 			videoDescription.setPort(0);
-			videoDescription.setProtocol(this.webrtc ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
+			videoDescription.setProtocol(videoDescription.containsDtls() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
 			answer.addMediaDescription(videoDescription);
 		}
 		return answer;
 	}
 	
-	private CandidateAttribute processCandidate(IceCandidate candidate) {
-		CandidateAttribute candidateSdp = new CandidateAttribute();
-		candidateSdp.setFoundation(candidate.getFoundation());
-		candidateSdp.setComponentId(candidate.getComponentId());
-		candidateSdp.setProtocol(candidate.getProtocol().getDescription());
-		candidateSdp.setPriority(candidate.getPriority());
-		candidateSdp.setAddress(candidate.getHostString());
-		candidateSdp.setPort(candidate.getPort());
-		String candidateType = candidate.getType().getDescription();
-		candidateSdp.setCandidateType(candidateType);
-		if(CandidateAttribute.TYP_HOST != candidateType) {
-			candidateSdp.setRelatedAddress(candidate.getBase().getHostString());
-			candidateSdp.setRelatedPort(candidate.getBase().getPort());
-		}
-		candidateSdp.setGeneration(0);
-		return candidateSdp;
-	}
-
 	/**
 	 * Binds the audio channel to its internal <code>bindAddress</code> and sets
 	 * the remote peer.
@@ -695,8 +555,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * @throws IOException
 	 */
 	private void setAudioChannelRemotePeer(String address, int port) throws SocketException, IOException {
-		if (this.audioCapabale) {
-			rtpAudioChannel.setRemotePeer(new InetSocketAddress(address, port));
+		if (this.audioChannel.isActive()) {
+			this.audioChannel.connectRtp(address, port);
 		}
 	}
 

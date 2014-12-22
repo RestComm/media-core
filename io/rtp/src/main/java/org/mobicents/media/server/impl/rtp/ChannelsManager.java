@@ -23,17 +23,18 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
+import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
+import org.mobicents.media.server.io.network.PortManager;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.io.ss7.SS7Manager;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  * Local and RTP channels storage
@@ -57,7 +58,7 @@ public class ChannelsManager {
     private int jitterBufferSize=50;
     
     //channel id generator
-    private AtomicInteger channelIndex=new AtomicInteger(100);
+    private AtomicInteger channelIndex = new AtomicInteger(100);
     
     public ChannelsManager(UdpManager udpManager) {
         this.udpManager = udpManager;         
@@ -77,6 +78,14 @@ public class ChannelsManager {
 
     public String getLocalBindAddress() {
         return udpManager.getLocalBindAddress();
+    }
+    
+    public String getExternalAddress() {
+    	return udpManager.getExternalAddress();
+    }
+    
+    public PortManager getPortManager() {
+    	return udpManager.getPortManager();
     }
 
     public void setScheduler(Scheduler scheduler) {
@@ -121,13 +130,18 @@ public class ChannelsManager {
     }
     
     public LocalDataChannel getLocalChannel() {
-        return new LocalDataChannel(this,channelIndex.incrementAndGet());
+        return new LocalDataChannel(this, channelIndex.incrementAndGet());
     }
     
-    public SS7DataChannel getSS7Channel(int dahdiChannelID,boolean isAlaw) throws IOException {
-    	if(ss7Manager==null)
-    		throw new IOException("SS7 Not enabled");
-    	
-    	return new SS7DataChannel(ss7Manager,dahdiChannelID,channelIndex.incrementAndGet(),isAlaw);
+	public SS7DataChannel getSS7Channel(int dahdiChannelID, boolean isAlaw) throws IOException {
+		if (ss7Manager == null) {
+			throw new IOException("SS7 Not enabled");
+		}
+		return new SS7DataChannel(ss7Manager, dahdiChannelID, channelIndex.incrementAndGet(), isAlaw);
+	}
+    
+    public AudioChannel getAudioChannel() {
+    	return new AudioChannel(this.scheduler.getClock(), this);
     }
+    
 }

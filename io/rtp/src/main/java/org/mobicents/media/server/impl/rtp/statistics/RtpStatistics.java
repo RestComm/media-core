@@ -151,6 +151,10 @@ public class RtpStatistics {
 		this.rtcpTxOctets = 0;
 	}
 	
+	public RtpStatistics(final RtpClock clock, final long ssrc) {
+		this(clock, ssrc, "");
+	}
+	
 	public RtpStatistics(final RtpClock clock) {
 		this(clock, SsrcGenerator.generateSsrc(), CnameGenerator.generateCname());
 	}

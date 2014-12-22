@@ -203,6 +203,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		this.transmitter.setFormatMap(rtpFormats);
 	}
 	
+	public RTPFormats getFormatMap() {
+		return this.rtpHandler.getFormatMap();
+	}
+	
 	/**
 	 * Sets the connection mode of the channel.<br>
 	 * Possible modes: send_only, recv_only, inactive, send_recv, conference, network_loopback.

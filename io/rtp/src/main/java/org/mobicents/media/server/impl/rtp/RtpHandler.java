@@ -135,6 +135,10 @@ public class RtpHandler implements PacketHandler {
 		this.jitterBuffer.setFormats(rtpFormats);
 	}
 	
+	public RTPFormats getFormatMap() {
+		return this.rtpFormats;
+	}
+	
 	public void enableSrtp(final DtlsHandler handler) {
 		this.secure = true;
 		this.dtlsHandler = handler;
