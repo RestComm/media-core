@@ -140,6 +140,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * Reads the SDP offer and generates an answer.<br>
 	 * This is where we know if this is a WebRTC call or not, and the resources
 	 * are allocated and configured accordingly.<br>
+	 * 
 	 * <p>
 	 * <b>For a WebRTC call:</b><br>
 	 * An ICE-lite agent is created. This agent assumes a controlled role, and
@@ -150,6 +151,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * ICE agent has selected the candidate pairs and made such socket
 	 * available.
 	 * </p>
+	 * 
 	 * <p>
 	 * <b>For a regular SIP call:</b><br>
 	 * The RTP audio channel can be immediately bound to the configured bind
@@ -174,32 +176,14 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	}
 	
 	private void setOtherPartyInboundCall() throws IOException {
-		MediaDescriptionField audioOffer = this.remoteSdp.getMediaDescription("audio");
-		
-		// Process the SDP offer to know whether this is a WebRTC call or not
-		processRemoteOffer();
-
-		/*
-		 * For ICE-enabled calls, we need to wait for the ICE agent to provide a
-		 * socket. This only happens once the SDP has been exchanged between
-		 * both parties and ICE agent replies to remote connectivity checks.
-		 */
-		if (audioOffer.containsIce()) {
-			ConnectionField audioOfferConnection = audioOffer.getConnection();
-			setAudioChannelRemotePeer(audioOfferConnection.getAddress(), audioOffer.getPort());
-		} else {
-			// Start ICE agent before we send the SDP answer.
-			// The ICE agent will start listening for connectivity checks.
-			// FULL ICE implementations will also start connectivity checks.
-			this.audioChannel.startIceAgent();
-		}
-
-		this.audioChannel.negotiateFormats(audioOffer);
-		if (!this.audioChannel.hasNegotiatedFormats()) {
-			throw new IOException("Audio codecs are not negotiated");
+		// Setup the audio channel based on remote offer
+		MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
+		if(remoteAudio != null) {
+			this.audioChannel.activate();
+			setupAudioChannel(remoteAudio);
 		}
 		
-		// Process the SDP answer
+		// Generate SDP answer
 		try {
 			this.localSdp = generateSdpAnswer();
 		} catch (SdpException e) {
@@ -210,7 +194,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		try {
 			this.join();
 		} catch (Exception e) {
-			// exception is possible here when already joined , should not log
+			// exception is possible here when already joined
+			logger.warn("Could not set connection state to OPEN", e);
 		}
 	}
 	
@@ -448,46 +433,57 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	/**
 	 * Reads the SDP offer and sets up the available resources according to the
-	 * call type.<br>
+	 * call type.
+	 * 
+	 * <p>
 	 * In case of a WebRTC call, an ICE-lite agent is created. The agent will
 	 * start listening for connectivity checks from the remote peer.<br>
 	 * Also, a WebRTC handler will be enabled on the corresponding audio
 	 * channel.
+	 * </p>
+	 * 
+	 * @param remoteAudio
+	 *            The description of the remote audio channel.
 	 * 
 	 * @throws IOException
 	 *             When binding the audio data channel. Non-WebRTC calls only.
 	 * @throws SocketException
 	 *             When binding the audio data channel. Non-WebRTC calls only.
 	 */
-	private void processRemoteOffer() throws SocketException, IOException {
-		// Configure RTCP
-		MediaDescriptionField audio = this.remoteSdp.getMediaDescription("audio");
-		boolean rtcpMux = audio.isRtcpMux();
-		
-		/*
-		 * For ICE-enabled calls, the RTP channels can only be bound after the
-		 * ICE agent selected the candidate pairs. Since Media Server only
-		 * implements ICE-lite, we need to wait for the SDP to be exchanged
-		 * before we know which candidate socket to use.
-		 */
-		boolean ice = audio.containsIce();
-		if (ice) {
-			try {
-				// Configure ICE Agent and harvest candidates
-				this.audioChannel.enableICE(this.channelsManager.getExternalAddress());
-				this.audioChannel.gatherIceCandidates(this.channelsManager.getPortManager());
-			} catch (HarvestException e) {
-				throw new IOException("Could not harvest ICE candidates: " + e.getMessage(), e);
-			}
-		} else {
-			// For non-ICE calls the RTP audio channel can be bound immediately
-			this.audioChannel.bind(this.local, rtcpMux);
+	private void setupAudioChannel(MediaDescriptionField remoteAudio) throws IOException {
+		// Negotiate audio codecs
+		this.audioChannel.negotiateFormats(remoteAudio);
+		if (!this.audioChannel.hasNegotiatedFormats()) {
+			throw new IOException("Audio codecs were not supported");
 		}
 		
-		// Configure WebRTC-related resources on audio channel
-		boolean webrtc = this.remoteSdp.containsDtls();
-		if (webrtc) {
-			audioChannel.enableDTLS(audio.getFingerprint().getValue());
+		boolean rtcpMux = remoteAudio.isRtcpMux();
+		if(remoteAudio.containsIce()) {
+			/*
+			 * Operate media channel in ICE mode.
+			 * 
+			 * Candidates will be gathered and chosen via STUN handshake. The
+			 * underlying datagram channel of the selected candidate will be set
+			 * directly in the MediaChannel.
+			 */
+			try {
+				this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), rtcpMux);
+				this.audioChannel.gatherIceCandidates(this.channelsManager.getPortManager());
+				this.audioChannel.startIceAgent();
+			} catch (HarvestException | IllegalStateException e) {
+				throw new IOException("Cannot harvest ICE candidates", e);
+			}
+		} else {
+			// ICE is not active. Bind RTP and RTCP channels right now.
+			String remoteAddr = remoteAudio.getConnection().getAddress();
+			this.audioChannel.bind(this.local, rtcpMux);
+			this.audioChannel.connectRtp(remoteAddr, remoteAudio.getPort());
+			this.audioChannel.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
+		}
+		
+		// Check whether SRTP should be active
+		if(remoteAudio.containsDtls()) {
+			this.audioChannel.enableDTLS(remoteAudio.getFingerprint().getValue());
 		}
 	}
 

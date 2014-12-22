@@ -257,6 +257,10 @@ public abstract class MediaChannel {
 	}
 
 	public void bind(boolean isLocal, boolean rtcpMux) throws SocketException, IOException {
+		if(this.ice) {
+			throw new IllegalStateException("Cannot bind when ICE is enabled");
+		}
+		
 		this.bindRtp(isLocal);
 		this.bindRtcp(isLocal, rtcpMux);
 		this.rtcpMux = rtcpMux;
@@ -369,20 +373,23 @@ public abstract class MediaChannel {
 	/*
 	 * ICE
 	 */
-	public void enableICE(String externalAddress) throws UnknownHostException, IllegalStateException {
+	public void enableICE(String externalAddress, boolean rtcpMux) throws UnknownHostException, IllegalStateException {
 		if (!this.active) {
 			throw new IllegalStateException("Media Channel is not active");
 		}
-
+		
 		if (this.ice) {
 			throw new IllegalStateException("ICE is already enabled");
 		}
 
 		this.ice = true;
+		this.rtcpMux = rtcpMux;
+		
 		if (this.iceAgent == null) {
 			this.iceAgent = IceFactory.createLiteAgent();
 			this.iceListener = new IceListener();
 		}
+		
 		this.iceAgent.addIceListener(this.iceListener);
 		this.iceAgent.generateIceCredentials();
 		this.iceAgent.addMediaStream("audio", true, this.rtcpMux);
@@ -404,8 +411,7 @@ public abstract class MediaChannel {
 
 	public void gatherIceCandidates(PortManager portManager) throws HarvestException, IllegalStateException {
 		if (!this.ice) {
-			throw new IllegalStateException(
-					"ICE is not enabled on this media channel");
+			throw new IllegalStateException("ICE is not enabled on this media channel");
 		}
 		this.iceAgent.harvest(portManager);
 	}

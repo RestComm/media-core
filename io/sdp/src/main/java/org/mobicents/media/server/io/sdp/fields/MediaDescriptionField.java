@@ -224,6 +224,16 @@ public class MediaDescriptionField implements SdpField {
 		return rtcp;
 	}
 	
+	public int getRtcpPort() {
+		if(this.rtcp != null) {
+			return rtcp.getPort();
+		} else if(this.rtcpMux != null) {
+			return this.port;
+		} else {
+			return this.port + 1;
+		}
+	}
+	
 	public void setRtcp(RtcpAttribute rtcp) {
 		this.rtcp = rtcp;
 	}
