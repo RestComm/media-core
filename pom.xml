@@ -10,7 +10,7 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>6.1.2.GA-TelScale</version>
+    <version>3.0.1-SNAPSHOT</version>
 
     <name>Mobicents Media Server</name>
     <url>http://code.google.com/p/mediaserver/</url>
