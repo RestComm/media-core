@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.controls</groupId>
         <artifactId>controls</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1.FINAL</version>
     </parent>
 
     <artifactId>mgcp</artifactId>
