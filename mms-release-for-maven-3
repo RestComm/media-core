@@ -1,4 +1,19 @@
 
 mvn release:prepare -P maven-release -Dmaven.test.skip=true -DdevelopmentVersion=3.0.2-SNAPSHOT -DreleaseVersion=3.0.1.FINAL -Dtag=3.0.1.FINAL -DmavenExecutorId=forked-path
 
-mvn release:perform -Darguments="-Dgpg.passphrase=2w3e4r5t -Dmaven.test.skip=true"
+mvn release:perform -DreleaseVersion=3.0.1.FINAL -Darguments="-Dgpg.passphrase=2w3e4r5t -Dmaven.test.skip=true"
+
+
+For Sonatype you need the following:
+
+1. Extract the gpg public key usign
+   1.1 list the keys with "gpg --list-keys" and note the email
+   1.2 gpg --armor --export gvagenas@gmail.com
+   1.3 copy the public key (with the -----BEGIN PGP PUBLIC KEY BLOCK----- && -----END PGP PUBLIC KEY BLOCK-----) and submit it to http://pgp.mit.edu:11371/
+   1.4 Login to oss.sonatype.org
+   1.5 Go to staging repositories
+   1.6 Find the repo for MMS
+   1.7 Close it
+   1.8 Release it
+
+   
