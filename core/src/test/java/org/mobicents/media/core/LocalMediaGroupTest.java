@@ -147,7 +147,7 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
         Connection rtpConnection1 = endpoint3.createConnection(ConnectionType.RTP,false);        
         Connection rtpConnection2 = endpoint2.createConnection(ConnectionType.RTP,false);       
         
-        rtpConnection1.generateLocalDescriptor();
+        rtpConnection1.generateOffer();
         rtpConnection2.setOtherParty(new Text(rtpConnection1.getLocalDescriptor()));
         rtpConnection1.setOtherParty(new Text(rtpConnection2.getLocalDescriptor()));
         

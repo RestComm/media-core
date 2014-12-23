@@ -123,7 +123,7 @@ public interface Connection {
 	 * 
 	 * @throws IOException
 	 */
-    public void generateLocalDescriptor() throws IOException;
+    public void generateOffer() throws IOException;
     
     /**
      * Joins endpoint wich executes this connection with other party.
