@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.io</groupId>
         <artifactId>io</artifactId>
-        <version>3.0.1.FINAL</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>network</artifactId>
