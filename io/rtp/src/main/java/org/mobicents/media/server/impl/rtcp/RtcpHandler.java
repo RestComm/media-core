@@ -101,6 +101,7 @@ public class RtcpHandler implements PacketHandler {
 		this.dtlsHandler = null;
 	}
 	
+	@Override
 	public int getPipelinePriority() {
 		return pipelinePriority;
 	}
@@ -426,9 +427,18 @@ public class RtcpHandler implements PacketHandler {
 				logger.info("\nSENDING "+ packet.toString());
 			}
 
-			// send packet
-			// XXX Should register on RTP statistics IF sending fails!
-			this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
+			// Make double sure channel is still open and connected before sending
+			if(channel.isOpen() && channel.isConnected()) {
+				// send packet
+				// XXX Should register on RTP statistics IF sending fails!
+				this.channel.send(this.byteBuffer, this.channel.getRemoteAddress());
+			} else {
+				// cancel packet transmission
+				if(logger.isDebugEnabled()) {
+					logger.debug("Could not send "+ type +" packet because channel is closed or disconnected.");
+				}
+				return;
+			}
 			// If we send at least one RTCP packet then initial = false
 			this.initial = false;
 			
@@ -436,7 +446,7 @@ public class RtcpHandler implements PacketHandler {
 			this.statistics.onRtcpSent(packet);
 		} else {
 			if(logger.isDebugEnabled()) {
-				logger.debug("Could not send "+ type +" packet because channel is closed.");
+				logger.debug("Could not send "+ type +" packet because channel is closed or disconnected.");
 			}
 		}
 	}
