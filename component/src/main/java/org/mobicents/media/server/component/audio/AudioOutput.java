@@ -22,76 +22,67 @@
 
 package org.mobicents.media.server.component.audio;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
-import org.apache.log4j.Logger;
 /**
  * Implements output for compound components.
  * 
  * @author Yulian Oifa
  */
 public class AudioOutput extends AbstractSource {
+
+	private static final long serialVersionUID = -5988244809612104056L;
+
 	private int outputId;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO();
-    
-    /**
-     * Creates new instance with default name.
-     */
-    public AudioOutput(Scheduler scheduler,int outputId) {
-        super("compound.output", scheduler,scheduler.OUTPUT_QUEUE);
-        this.outputId=outputId;
-    }
+	private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
 
-    public int getOutputId()
-    {
-    	return outputId;
-    }
-    
-    public void join(AbstractSink sink)
-    {
-    	connect(sink);
-    }
-    
-    public void unjoin()
-    {
-    	disconnect();
-    }
-    
-    @Override
-    public Frame evolve(long timestamp) {
-    	return buffer.poll();
-    }        
+	/**
+	 * Creates new instance with default name.
+	 */
+	public AudioOutput(Scheduler scheduler, int outputId) {
+		super("compound.output", scheduler, Scheduler.OUTPUT_QUEUE);
+		this.outputId = outputId;
+	}
 
-    @Override
-    public void stop() {
-    	while(buffer.size()>0)
-    		buffer.poll().recycle();
-    	
-    	super.stop();            
-    }
-    
-    public void resetBuffer()
-    {
-    	while(buffer.size()>0)
-    		buffer.poll().recycle();
-    }
-    
-    public void offer(Frame frame)
-    {
-    	if(buffer.size()>1)
-        	buffer.poll().recycle();
-    	
-    	buffer.offer(frame);
-    }
+	public int getOutputId() {
+		return outputId;
+	}
+
+	public void join(AbstractSink sink) {
+		connect(sink);
+	}
+
+	public void unjoin() {
+		disconnect();
+	}
+
+	@Override
+	public Frame evolve(long timestamp) {
+		return buffer.poll();
+	}
+
+	@Override
+	public void stop() {
+		while (buffer.size() > 0) {
+			buffer.poll().recycle();
+		}
+		super.stop();
+	}
+
+	public void resetBuffer() {
+		while (buffer.size() > 0) {
+			buffer.poll().recycle();
+		}
+	}
+
+	public void offer(Frame frame) {
+		if (buffer.size() > 1) {
+			buffer.poll().recycle();
+		}
+		buffer.offer(frame);
+	}
 }

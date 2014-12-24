@@ -34,118 +34,116 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-/**
- *
- * @author Yulian oifa
- */
+
 /**
  * Transmitter implementation.
- *
+ * 
+ * @author Yulian oifa
  */
 public class RTPOutput extends AbstractSink {
-	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);	
-	
+
+	private static final long serialVersionUID = 3227885808614338323L;
+
+	private static final Logger logger = Logger.getLogger(RTPOutput.class);
+
+	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+
 	@Deprecated
-    private RTPDataChannel channel;
+	private RTPDataChannel channel;
 
 	private RtpTransmitter transmitter;
-	
-    //active formats
-    private Formats formats;
-    
-    //signaling processor
-    private Processor dsp;                               
-        
-    private static final Logger logger = Logger.getLogger(RTPOutput.class);
-    
-    private AudioOutput output;
-    
-    /**
-     * Creates new transmitter
-     */
-    @Deprecated
-    protected RTPOutput(Scheduler scheduler,RTPDataChannel channel) {
-        super("Output");
-        this.channel=channel;
-        output=new AudioOutput(scheduler,1);
-        output.join(this);        
-    }
 
-    protected RTPOutput(Scheduler scheduler,RtpTransmitter transmitter) {
-    	super("Output");
-    	this.transmitter = transmitter;
-    	output=new AudioOutput(scheduler,1);
-    	output.join(this);        
-    }
-    
-    public AudioOutput getAudioOutput()
-    {
-    	return this.output;
-    }
-    
-    public void activate()
-    {
-    	output.start();
-    }
-    
-    public void deactivate()
-    {
-    	output.stop();
-    }
-    
-    /**
-     * Assigns the digital signaling processor of this component.
-     * The DSP allows to get more output formats.
-     *
-     * @param dsp the dsp instance
-     */
-    public void setDsp(Processor dsp) {
-        //assign processor
-        this.dsp = dsp;        
-    }
-    
-    /**
-     * Gets the digital signaling processor associated with this media source
-     *
-     * @return DSP instance.
-     */
-    public Processor getDsp() {
-        return this.dsp;
-    }
+	// active formats
+	private Formats formats;
 
-    /**
-     * (Non Java-doc.)
-     *
-     *
-     * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
-     */
-    public void setFormats(Formats formats) throws FormatNotSupportedException {
-    	this.formats=formats;    	
-    }       
+	// signaling processor
+	private Processor dsp;
 
-    @Override
-    public void onMediaTransfer(Frame frame) throws IOException {
-    	//do transcoding
-    	if (dsp != null && formats!=null && !formats.isEmpty()) {
-    		try
-    		{
-    			frame = dsp.process(frame,format,formats.get(0));            			
-    		}
-    		catch(Exception e)
-    		{
-    			//transcoding error , print error and try to move to next frame
-    			logger.error(e);
-    			return;
-    		} 
-    	}
+	private AudioOutput output;
 
-    	// XXX deprecated code
-    	if(this.channel != null) {
-    		channel.send(frame);
-    	}
-    	
-    	if(this.transmitter != null) {
-    		this.transmitter.send(frame);
-    	}
-    }            
+	/**
+	 * Creates new transmitter
+	 */
+	@Deprecated
+	protected RTPOutput(Scheduler scheduler, RTPDataChannel channel) {
+		super("Output");
+		this.channel = channel;
+		output = new AudioOutput(scheduler, 1);
+		output.join(this);
+	}
+
+	protected RTPOutput(Scheduler scheduler, RtpTransmitter transmitter) {
+		super("Output");
+		this.transmitter = transmitter;
+		output = new AudioOutput(scheduler, 1);
+		output.join(this);
+	}
+
+	public AudioOutput getAudioOutput() {
+		return this.output;
+	}
+
+	@Override
+	public void activate() {
+		output.start();
+	}
+
+	@Override
+	public void deactivate() {
+		output.stop();
+	}
+
+	/**
+	 * Assigns the digital signaling processor of this component. The DSP allows
+	 * to get more output formats.
+	 * 
+	 * @param dsp
+	 *            the dsp instance
+	 */
+	public void setDsp(Processor dsp) {
+		this.dsp = dsp;
+	}
+
+	/**
+	 * Gets the digital signaling processor associated with this media source
+	 * 
+	 * @return DSP instance.
+	 */
+	public Processor getDsp() {
+		return this.dsp;
+	}
+
+	/**
+	 * (Non Java-doc.)
+	 * 
+	 * 
+	 * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
+	 */
+	public void setFormats(Formats formats) throws FormatNotSupportedException {
+		this.formats = formats;
+	}
+
+	@Override
+	public void onMediaTransfer(Frame frame) throws IOException {
+		// do transcoding
+		if (dsp != null && formats != null && !formats.isEmpty()) {
+			try {
+				frame = dsp.process(frame, format, formats.get(0));
+			} catch (Exception e) {
+				// transcoding error , print error and try to move to next frame
+				logger.error(e.getMessage(), e);
+				return;
+			}
+		}
+
+		if (this.transmitter != null) {
+			this.transmitter.send(frame);
+		}
+
+		// XXX deprecated code
+		if (this.channel != null) {
+			channel.send(frame);
+		}
+
+	}
 }

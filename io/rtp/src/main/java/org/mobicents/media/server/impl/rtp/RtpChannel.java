@@ -306,14 +306,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		}
 	}
 	
-	public void bind(boolean isLocal) throws IOException, SocketException {
-		try {
-			// Open this channel with UDP Manager on first available address
-			this.selectionKey = udpManager.open(this);
-			this.dataChannel = (DatagramChannel) this.selectionKey.channel();
-		} catch (IOException e) {
-			throw new SocketException(e.getMessage());
-		}
+	public void bind(boolean isLocal) throws IOException {
+		// Open this channel with UDP Manager on first available address
+		this.selectionKey = udpManager.open(this);
+		this.dataChannel = (DatagramChannel) this.selectionKey.channel();
 
 		// activate media elements
 		onBinding(!isLocal);
@@ -360,12 +356,13 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		this.remotePeer = address;
 		boolean connectImmediately = false;
 		if (this.dataChannel != null) {
-			if (this.dataChannel.isConnected())
+			if (this.dataChannel.isConnected()) {
 				try {
 					disconnect();
 				} catch (IOException e) {
 					logger.error(e);
 				}
+			}
 
 			connectImmediately = udpManager.connectImmediately((InetSocketAddress) address);
 			if (connectImmediately) {

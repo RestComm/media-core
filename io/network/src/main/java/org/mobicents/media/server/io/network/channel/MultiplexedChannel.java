@@ -81,7 +81,7 @@ public class MultiplexedChannel implements Channel {
 			try {
 				return ((InetSocketAddress) this.dataChannel.getLocalAddress()).getHostString();
 			} catch (IOException e) {
-				logger.error("Could not lookup the channel address: "+ e.getMessage(), e);
+				logger.error("Could not lookup the local channel address: "+ e.getMessage(), e);
 			}
 		}
 		return "";
@@ -91,6 +91,28 @@ public class MultiplexedChannel implements Channel {
 	public int getLocalPort() {
 		if(this.dataChannel != null && this.dataChannel.isOpen()) {
 			return this.dataChannel.socket().getLocalPort();
+		}
+		return 0;
+	}
+	
+	public String getRemoteHost() {
+		if(this.dataChannel != null && this.dataChannel.isConnected()) {
+			try {
+				return ((InetSocketAddress) this.dataChannel.getRemoteAddress()).getHostString();
+			} catch (IOException e) {
+				logger.error("Could not lookup the remote peer address", e);
+			}
+		}
+		return "";
+	}
+	
+	public int getRemotePort() {
+		if(this.dataChannel != null && this.dataChannel.isConnected()) {
+			try {
+				return ((InetSocketAddress) this.dataChannel.getRemoteAddress()).getPort();
+			} catch (IOException e) {
+				logger.error("Could not lookup the remote peer port", e);
+			}
 		}
 		return 0;
 	}

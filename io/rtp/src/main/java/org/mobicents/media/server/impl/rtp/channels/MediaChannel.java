@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.List;
 
@@ -112,17 +111,35 @@ public abstract class MediaChannel {
 	// DTLS
 	private boolean dtls;
 
-	public MediaChannel(String mediaType, Clock wallClock, ChannelsManager channelsManager) {
+	/**
+	 * Constructs a new media channel containing both RTP and RTCP components.
+	 * 
+	 * <p>
+	 * The channel supports SRTP and ICE, but these features are turned off by
+	 * default.
+	 * </p>
+	 * 
+	 * @param mediaType
+	 *            The type of media flowing in the channel
+	 * @param wallClock
+	 *            The wall clock used to synchronize media flows
+	 * @param channelsManager
+	 *            The RTP and RTCP channel provider
+	 */
+	protected MediaChannel(String mediaType, Clock wallClock, ChannelsManager channelsManager) {
 		this.ssrc = SsrcGenerator.generateSsrc();
 		this.mediaType = mediaType;
-
-		this.statistics = new RtpStatistics(clock, this.ssrc);
 
 		this.clock = new RtpClock(wallClock);
 		this.oobClock = new RtpClock(wallClock);
 
+		this.statistics = new RtpStatistics(clock, this.ssrc);
+
 		this.rtpChannel = channelsManager.getRtpChannel(this.statistics, this.clock, this.oobClock);
 		this.rtcpChannel = channelsManager.getRtcpChannel(this.statistics);
+		
+		this.offeredFormats = new RTPFormats();
+		this.negotiatedFormats = new RTPFormats();
 
 		this.rtcpMux = false;
 		this.ice = false;
@@ -130,28 +147,64 @@ public abstract class MediaChannel {
 		this.active = false;
 	}
 
+	/**
+	 * Gets the synchronization source of the channel.
+	 * 
+	 * @return The unique SSRC identifier of the channel
+	 */
 	public long getSsrc() {
 		return ssrc;
 	}
 
+	/**
+	 * Sets the synchronization source of the channel.
+	 * 
+	 * @param ssrc
+	 *            The unique SSRC identifier of the channel
+	 */
 	public void setSsrc(long ssrc) {
 		this.ssrc = ssrc;
 	}
 
+	/**
+	 * Gets the CNAME of the channel.
+	 * 
+	 * @return The CNAME associated with the channel
+	 */
 	public String getCname() {
 		return cname;
 	}
 
+	/**
+	 * Sets the CNAME of the channel.
+	 * 
+	 * <p>
+	 * This attribute associates a media source with its endpoint, so it must be
+	 * shared between all media channels owned by the same connection.
+	 * </p>
+	 * 
+	 * @param cname The Canonical End-Point Identifier of the channel
+	 */
 	public void setCname(String cname) {
 		this.cname = cname;
 		this.statistics.setCname(cname);
 	}
 
+	/**
+	 * Enables the channel and activates it's resources.
+	 */
 	public void activate() {
 		// TODO open channels
 		this.active = true;
 	}
 
+	/**
+	 * Disables the channel and deactivates it's resources.
+	 * 
+	 * @throws IllegalStateException
+	 *             When an attempt is done to deactivate the channel while
+	 *             inactive.
+	 */
 	public void deactivate() throws IllegalStateException {
 		if (this.active) {
 			// Close channels
@@ -175,6 +228,12 @@ public abstract class MediaChannel {
 		}
 	}
 
+	/**
+	 * Resets the state of the channel.
+	 * 
+	 * Should be invoked whenever there is intention of reusing the same channel
+	 * for different calls.
+	 */
 	private void reset() {
 		// Reset statistics
 		this.statistics.reset();
@@ -203,10 +262,25 @@ public abstract class MediaChannel {
 		}
 	}
 
+	/**
+	 * Indicates whether the channel is active or not.
+	 * 
+	 * @return Returns true if the channel is active. Returns false otherwise.
+	 */
 	public boolean isActive() {
 		return active;
 	}
 
+	/**
+	 * Indicates whether the channel is available (ready to use).
+	 * 
+	 * For regular SIP calls, the channel should be available as soon as it is
+	 * activated.<br>
+	 * But for WebRTC calls the channel will only become available as soon as
+	 * the DTLS handshake completes.
+	 * 
+	 * @return Returns true if the channel is available. Returns false otherwise.
+	 */
 	public boolean isAvailable() {
 		boolean available = this.rtpChannel.isAvailable();
 		if (!this.rtcpMux) {
@@ -215,86 +289,208 @@ public abstract class MediaChannel {
 		return available;
 	}
 
+	/**
+	 * Sets the RTP listener of the channel.
+	 * 
+	 * <p>
+	 * The listener will always be warned whenever an RTP or RTCP failure
+	 * occurs. Such listener must be capable of handling such situations gracefully.
+	 * </p>
+	 * 
+	 * @param listener
+	 *            The RTP listener capable of handling RTP/RTCP failures.
+	 */
 	public void setRtpListener(RtpListener listener) {
 		this.rtpListener = listener;
 	}
 
+	/**
+	 * Sets the input Digital Signaling Processor (DSP) of the RTP component.
+	 * 
+	 * @param dsp The input DSP of the RTP component
+	 */
 	public void setInputDsp(Processor dsp) {
 		this.rtpChannel.setInputDsp(dsp);
 	}
 
+	/**
+	 * Gets the input Digital Signaling Processor (DSP) of the RTP component.
+	 * 
+	 * @return The input DSP of the RTP component
+	 */
 	public Processor getInputDsp() {
 		return this.rtpChannel.getInputDsp();
 	}
 
+	/**
+	 * Sets the output Digital Signaling Processor (DSP) of the RTP component.
+	 * 
+	 * @param dsp The input DSP of the RTP component
+	 */
 	public void setOutputDsp(Processor dsp) {
 		this.rtpChannel.setOutputDsp(dsp);
 	}
 
+	/**
+	 * Gets the output Digital Signaling Processor (DSP) of the RTP component.
+	 * 
+	 * @return The input DSP of the RTP component
+	 */
 	public Processor getOutputDsp() {
 		return this.rtpChannel.getOutputDsp();
 	}
 
+	/**
+	 * Sets the connection mode of the channel, affecting the receiving and
+	 * transmitting capabilities of the underlying RTP component.
+	 * 
+	 * @param mode
+	 *            The new connection mode of the RTP component
+	 */
 	public void setConnectionMode(ConnectionMode mode) {
 		this.rtpChannel.updateMode(mode);
 	}
 
-	public void setFormats(RTPFormats formats) {
-		this.rtpChannel.setFormatMap(formats);
-	}
-	
-	public RTPFormats getFormats() {
-		return this.rtpChannel.getFormatMap();
-	}
-
-	public void setOutputFormats(RTPFormats formats) {
+	/**
+	 * Sets the supported codecs of the RTP components.
+	 * 
+	 * @param formats
+	 *            The supported codecs resulting from SDP negotiation
+	 */
+	private void setFormats(RTPFormats formats) {
 		try {
+			this.rtpChannel.setFormatMap(formats);
 			this.rtpChannel.setOutputFormats(formats.getFormats());
 		} catch (FormatNotSupportedException e) {
 			// Never happens
 			logger.warn("Could not set output formats", e);
 		}
 	}
+	
+	/**
+	 * Gets the supported codecs of the RTP components.
+	 * 
+	 * @return The codecs currently supported by the RTP component
+	 */
+	public RTPFormats getFormats() {
+		return this.rtpChannel.getFormatMap();
+	}
 
-	public void bind(boolean isLocal, boolean rtcpMux) throws SocketException, IOException {
+	/**
+	 * Binds the RTP and RTCP components to a suitable address and port.
+	 * 
+	 * @param isLocal
+	 *            Whether the binding address is in local range.
+	 * @param rtcpMux
+	 *            Whether RTCP multiplexing is supported.<br>
+	 *            If so, both RTP and RTCP components will be merged into one
+	 *            channel only. Otherwise, the RTCP component will be bound to
+	 *            the odd port immediately after the RTP port.
+	 * @throws IOException
+	 *             When channel cannot be bound to an address.
+	 * @throws IllegalStateException
+	 *             Binding operation is not allowed when ICE is active.
+	 */
+	public void bind(boolean isLocal, boolean rtcpMux) throws IOException, IllegalStateException {
 		if(this.ice) {
 			throw new IllegalStateException("Cannot bind when ICE is enabled");
 		}
-		
-		this.bindRtp(isLocal);
-		this.bindRtcp(isLocal, rtcpMux);
-		this.rtcpMux = rtcpMux;
-	}
-
-	private void bindRtp(boolean isLocal) throws SocketException, IOException {
 		this.rtpChannel.bind(isLocal);
-	}
-
-	private void bindRtcp(boolean isLocal, boolean mux) throws SocketException, IOException {
-		if (mux) {
-			this.rtcpChannel.bind(isLocal, this.rtpChannel.getLocalPort());
-		} else {
+		if(!rtcpMux) {
 			this.rtcpChannel.bind(isLocal, this.rtpChannel.getLocalPort() + 1);
 		}
+		this.rtcpMux = rtcpMux;
+	}
+	
+	/**
+	 * Indicates whether the media channel is multiplexing RTCP or not.
+	 * 
+	 * @return Returns true if using rtcp-mux. Returns false otherwise.
+	 */
+	public boolean isRtcpMux() {
+		return this.rtcpMux;
 	}
 
+	/**
+	 * Connected the RTP component to the remote peer.
+	 * 
+	 * <p>
+	 * Once connected, the RTP component can only send/received traffic to/from
+	 * the remote peer.
+	 * </p>
+	 * 
+	 * @param address
+	 *            The address of the remote peer
+	 */
 	public void connectRtp(SocketAddress address) {
 		this.rtpChannel.setRemotePeer(address);
 	}
 
+	/**
+	 * Connected the RTP component to the remote peer.
+	 * 
+	 * <p>
+	 * Once connected, the RTP component can only send/received traffic to/from
+	 * the remote peer.
+	 * </p>
+	 * 
+	 * @param address
+	 *            The address of the remote peer
+	 * @param port
+	 *            The port of the remote peer
+	 */
 	public void connectRtp(String address, int port) {
 		this.connectRtp(new InetSocketAddress(address, port));
 	}
-
-	public void bindRtcp(boolean isLocal, int port) throws SocketException, IOException {
+	
+	/**
+	 * Binds the RTCP component to a suitable address and port.
+	 * 
+	 * @param isLocal
+	 *            Whether the binding address must be in local range.
+	 * @param port
+	 *            A specific port to bind to
+	 * @throws IOException
+	 *             When the RTCP component cannot be bound to an address.
+	 * @throws IllegalStateException
+	 *             The binding operation is not allowed if ICE is active
+	 */
+	public void bindRtcp(boolean isLocal, int port) throws IOException, IllegalStateException {
+		if(this.ice) {
+			throw new IllegalStateException("Cannot bind when ICE is enabled");
+		}
 		this.rtcpChannel.bind(isLocal, port);
 		this.rtcpMux = (port == this.rtpChannel.getLocalPort());
 	}
 
+	/**
+	 * Connects the RTCP component to the remote peer.
+	 * 
+	 * <p>
+	 * Once connected, the RTCP component can only send/received traffic to/from
+	 * the remote peer.
+	 * </p>
+	 * 
+	 * @param address
+	 *            The address of the remote peer
+	 */
 	public void connectRtcp(SocketAddress remoteAddress) {
 		this.rtcpChannel.setRemotePeer(remoteAddress);
 	}
 
+	/**
+	 * Connects the RTCP component to the remote peer.
+	 * 
+	 * <p>
+	 * Once connected, the RTCP component can only send/received traffic to/from
+	 * the remote peer.
+	 * </p>
+	 * 
+	 * @param address
+	 *            The address of the remote peer
+	 * @param port
+	 *            A specific port to connect to
+	 */
 	public void connectRtcp(String address, int port) {
 		this.connectRtcp(new InetSocketAddress(address, port));
 	}
@@ -337,14 +533,23 @@ public abstract class MediaChannel {
 
 		return list;
 	}
-	
+
+	/**
+	 * Resets the list of supported codecs.
+	 */
 	public void resetFormats() {
 		this.offeredFormats.clean();
 		this.negotiatedFormats.clean();
 		setFormats(this.supportedFormats);
-		setOutputFormats(this.supportedFormats);
 	}
 	
+	/**
+	 * Negotiates the list of supported codecs with the remote peer over SDP.
+	 * 
+	 * @param media
+	 *            The corresponding media description of the remote peer which
+	 *            contains the payload types.
+	 */
 	public void negotiateFormats(MediaDescriptionField media) {
 		// Clean currently offered formats
 		this.offeredFormats.clean();
@@ -363,15 +568,45 @@ public abstract class MediaChannel {
 		
 		// Apply formats
 		setFormats(this.negotiatedFormats);
-		setOutputFormats(this.negotiatedFormats);
 	}
 	
+	/**
+	 * Indicates whether the channel has successfully negotiated supported
+	 * codecs over SDP.
+	 * 
+	 * @return Returns true if codecs have been negotiated. Returns false
+	 *         otherwise.
+	 */
 	public boolean hasNegotiatedFormats() {
 		return !negotiatedFormats.isEmpty() && negotiatedFormats.hasNonDTMF();
 	}
 
 	/*
 	 * ICE
+	 */
+	/**
+	 * Enables ICE on the channel.
+	 * 
+	 * <p>
+	 * An ICE-enabled channel will start an ICE Agent which gathers local
+	 * candidates and listens to incoming STUN requests as a mean to select the
+	 * proper address to be used during the call.
+	 * </p>
+	 * <p>
+	 * As such <b>bind() operations are not allowed when ICE is enabled</b>
+	 * </p>
+	 * 
+	 * @param externalAddress
+	 *            The public address of the Media Server. Used for SRFLX
+	 *            candidates.
+	 * @param rtcpMux
+	 *            Whether RTCP is multiplexed or not. Affects number of
+	 *            candidates.
+	 * @throws UnknownHostException
+	 *             When the external address is invalid
+	 * @throws IllegalStateException
+	 *             Attempt to enable ICE when channel is inactive or ICE is
+	 *             already enabled.
 	 */
 	public void enableICE(String externalAddress, boolean rtcpMux) throws UnknownHostException, IllegalStateException {
 		if (!this.active) {
@@ -400,15 +635,35 @@ public abstract class MediaChannel {
 		}
 	}
 
+	/**
+	 * Disables ICE and closes ICE-related resources
+	 */
 	public void disableICE() {
 		// XXX close ICE resources
 		this.ice = false;
 	}
 
+	/**
+	 * Indicates whether ICE is active or not.
+	 * 
+	 * @return Returns true if ICE is enabled. Returns false otherwise.
+	 */
 	public boolean hasICE() {
 		return this.ice;
 	}
 
+	/**
+	 * Asks the underlying ICE Agent to gather candidates on all available
+	 * network interfaces.
+	 * 
+	 * @param portManager
+	 *            The manager that restricts interval for port lookup.
+	 * @throws HarvestException
+	 *             When an error occurs when gathering candidates on available
+	 *             network interfaces.
+	 * @throws IllegalStateException
+	 *             ICE candidates cannot be gathered while ICE is inactive.
+	 */
 	public void gatherIceCandidates(PortManager portManager) throws HarvestException, IllegalStateException {
 		if (!this.ice) {
 			throw new IllegalStateException("ICE is not enabled on this media channel");
@@ -416,6 +671,26 @@ public abstract class MediaChannel {
 		this.iceAgent.harvest(portManager);
 	}
 
+	/**
+	 * Runs the ICE agent which starts listening for incoming STUN connectivity
+	 * checks from the remote peer.
+	 * 
+	 * <p>
+	 * Whenever a successful connectivity check is received, the ICE Agent
+	 * passes the selected candidate using the ICE Listener registered on this
+	 * channel.<br>
+	 * Upon receiving the event, the listener will bind the RTP and RTCP
+	 * components directly to the DatagramChannels provided by the ICE Agent.
+	 * The media channel then becomes ready for media flowing.
+	 * </p>
+	 * 
+	 * <p>
+	 * Starting the ICE Agent multiple times has no effect.
+	 * </p>
+	 * 
+	 * @throws IllegalStateException
+	 *             The ICE Agent cannot be started while ICE is inactive
+	 */
 	public void startIceAgent() throws IllegalStateException {
 		if (!this.ice) {
 			throw new IllegalStateException("ICE is not enabled on this media channel");
@@ -427,6 +702,16 @@ public abstract class MediaChannel {
 		}
 	}
 
+	/**
+	 * Stops the ICE Agent.
+	 * 
+	 * <p>
+	 * Has no effect if the agent is not running.
+	 * </p>
+	 * 
+	 * @throws IllegalStateException
+	 *             The ICE Agent cannot be stopped while ICE is inactive.
+	 */
 	public void stopIceAgent() throws IllegalStateException {
 		if (!this.ice) {
 			throw new IllegalStateException("ICE is not enabled on this media channel");
@@ -438,26 +723,45 @@ public abstract class MediaChannel {
 		}
 	}
 
+	/**
+	 * Implementation of a listener that handles ICE-related events.
+	 * 
+	 * <p>
+	 * Whenever an ICE Agent selects the effective candidate pairs to be used on
+	 * an ICE-enabled call, it will fire a {@link SelectedCandidatesEvent} which
+	 * will be handled by this listener.
+	 * <p>
+	 * <p>
+	 * The listener will then grab the underlyind DatagramChannels of each
+	 * selected candidate and bind them directly to the RTP and RTCP components
+	 * of the media channel.<br>
+	 * The media channel is then prepared for media flowing.
+	 * </p>
+	 * 
+	 * @author Henrique Rosa (henrique.rosa@telestax.com)
+	 * 
+	 */
 	private class IceListener implements IceEventListener {
 
 		@Override
 		public void onSelectedCandidates(SelectedCandidatesEvent event) {
 			try {
 				if(logger.isDebugEnabled()) {
-					logger.debug("Finished ICE candidates selection! Preparing for binding.");
+					logger.debug("Finished ICE candidates selection for " + mediaType + "! Preparing for binding.");
 				}
 
 				// Get selected RTP candidate for audio channel
 				IceAgent agent = event.getSource();
-				CandidatePair rtpCandidate = agent.getSelectedRtpCandidate("audio");
+				CandidatePair rtpCandidate = agent.getSelectedRtpCandidate(mediaType);
 				// Bind candidate to RTP audio channel
 				rtpChannel.bind(rtpCandidate.getChannel());
 
-				CandidatePair rtcpCandidate = agent.getSelectedRtcpCandidate("audio");
+				CandidatePair rtcpCandidate = agent.getSelectedRtcpCandidate(mediaType);
 				if (rtcpCandidate != null) {
 					rtcpChannel.bind(rtcpCandidate.getChannel());
 				}
 			} catch (IOException e) {
+				// Warn RTP listener a failure happened and connection must be closed
 				rtpListener.onRtpFailure("Could not select ICE candidates: " + e.getMessage());
 			}
 		}
@@ -466,14 +770,18 @@ public abstract class MediaChannel {
 	/*
 	 * DTLS
 	 */
-	public void enableDTLS(String remoteFingerprint)
-			throws IllegalStateException {
+	/**
+	 * Enables DTLS on the channel. RTP and RTCP packets flowing through this
+	 * channel will be secured.
+	 * 
+	 * @param remoteFingerprint
+	 *            The DTLS finger print of the remote peer.
+	 * @throws IllegalStateException
+	 *             Cannot be invoked when DTLS is already enabled
+	 */
+	public void enableDTLS(String remoteFingerprint) throws IllegalStateException {
 		if (this.dtls) {
 			throw new IllegalStateException("DTLS is already enabled on this channel");
-		}
-
-		if (!this.ice) {
-			throw new IllegalStateException("ICE must be enabled on this channel");
 		}
 
 		this.rtpChannel.enableSRTP(remoteFingerprint, this.iceAgent);
@@ -482,7 +790,17 @@ public abstract class MediaChannel {
 		}
 	}
 
+	/**
+	 * Disables DTLS and closes related resources.
+	 * 
+	 * @throws IllegalStateException
+	 *             Cannot be invoked when DTLS is already disabled
+	 */
 	public void disableDTLS() throws IllegalStateException {
+		if (this.dtls) {
+			throw new IllegalStateException("DTLS is already enabled on this channel");
+		}
+		
 		// XXX disable DTLS components
 		this.dtls = false;
 	}
@@ -490,24 +808,78 @@ public abstract class MediaChannel {
 	/*
 	 * Statistics
 	 */
+	/**
+	 * Gets the number of RTP packets received during the current call.
+	 * 
+	 * @return The number of packets received
+	 */
 	public long getPacketsReceived() {
-		return this.statistics.getRtpPacketsReceived();
+		if(this.active) {
+			return this.statistics.getRtpPacketsReceived();
+		}
+		return 0;
 	}
 
+	/**
+	 * Gets the number of bytes received during the current call.
+	 * <p>
+	 * <b>This number reflects only the payload of all RTP packets</b> received
+	 * up to the moment the method is invoked.
+	 * </p>
+	 * 
+	 * @return The number of bytes received.
+	 */
 	public long getOctetsReceived() {
-		return this.statistics.getRtpOctetsReceived();
+		if(this.active) {
+			return this.statistics.getRtpOctetsReceived();
+		}
+		return 0;
 	}
 
+	/**
+	 * Gets the number of RTP packets sent during the current call.
+	 * 
+	 * @return The number of packets sent
+	 */
 	public long getPacketsSent() {
-		return this.statistics.getRtpPacketsSent();
+		if(this.active) {
+			return this.statistics.getRtpPacketsSent();
+		}
+		return 0;
 	}
 
+	/**
+	 * Gets the number of bytes sent during the current call.
+	 * <p>
+	 * <b>This number reflects only the payload of all RTP packets</b> sent
+	 * up to the moment the method is invoked.
+	 * </p>
+	 * 
+	 * @return The number of bytes sent.
+	 */
 	public long getOctetsSent() {
-		return this.statistics.getRtpOctetsSent();
+		if(this.active) {
+			return this.statistics.getRtpOctetsSent();
+		}
+		return 0;
 	}
 
+	/**
+	 * Gets the current jitter of the call.
+	 * 
+	 * <p>
+	 * The jitter is an estimate of the statistical variance of the RTP data packet
+	 * interarrival time, measured in timestamp units and expressed as an
+	 * unsigned integer.
+	 * </p>
+	 * 
+	 * @return The current jitter.
+	 */
 	public long getJitter() {
-		return this.statistics.getMember(this.ssrc).getJitter();
+		if(this.active) {
+			return this.statistics.getMember(this.ssrc).getJitter();
+		}
+		return 0;
 	}
 
 	/*
