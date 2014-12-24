@@ -364,7 +364,9 @@ public class RtcpHandler implements PacketHandler {
 		}
 		
 		// Trace incoming RTCP report
-		logger.info("\nINCOMING "+ rtcpPacket.toString());
+		if(logger.isDebugEnabled()) {
+			logger.debug("\nRECEIVED "+ rtcpPacket.toString());
+		}
 		
 		// Upgrade RTCP statistics
 		this.statistics.onRtcpReceive(rtcpPacket);
@@ -420,7 +422,9 @@ public class RtcpHandler implements PacketHandler {
 			byteBuffer.rewind();
 			
 			// trace outgoing RTCP report
-			logger.info("\nOUTGOING "+ packet.toString());
+			if(logger.isDebugEnabled()) {
+				logger.info("\nSENDING "+ packet.toString());
+			}
 
 			// send packet
 			// XXX Should register on RTP statistics IF sending fails!
@@ -431,7 +435,9 @@ public class RtcpHandler implements PacketHandler {
 			// update RTCP statistics
 			this.statistics.onRtcpSent(packet);
 		} else {
-			logger.warn("Could not send "+ type +" packet because channel is closed.");
+			if(logger.isDebugEnabled()) {
+				logger.debug("Could not send "+ type +" packet because channel is closed.");
+			}
 		}
 	}
 	

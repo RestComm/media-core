@@ -323,17 +323,15 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * @throws IOException
 	 */
 	private void setOtherParty() throws IOException {
-//		if (sdp_old != null && sdp_old.getAudioDescriptor() != null && sdp_old.getAudioDescriptor().getFormats() != null) {
-//			logger.info("Audio Formats" + sdp_old.getAudioDescriptor().getFormats());
-//		}
 		if(this.outbound) {
 			setOtherPartyOutboundCall();
 		} else {
 			setOtherPartyInboundCall();
 		}
-		logger.info("outbound call?: " + this.outbound + "\n");
-		logger.info("local SDP: " + this.localSdp.toString() + "\n");
-		logger.info("remote SDP: " + this.remoteSdp.toString() + "\n");
+		
+		if(logger.isDebugEnabled() && this.localSdp != null) {
+			logger.debug("Audio Formats: " + this.localSdp.getMediaDescription("audio").getFormats());
+		}
 	}
 	
 	private void setOtherPartyInboundCall() throws IOException {
@@ -441,7 +439,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	@Override
 	public void setOtherParty(byte[] descriptor) throws IOException {
 		try {
-			logger.info("RECEIVED REMOTE SDP: \n" + new String(descriptor));
 			this.remoteSdp = SessionDescriptionParser.parse(new String(descriptor));
 			setOtherParty();
 		} catch (SdpException e) {
