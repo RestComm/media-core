@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>mgcp</artifactId>
-        <version>6.1.2.GA-TelScale</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
 
         <artifactId>mgcp-driver</artifactId>
@@ -110,7 +110,8 @@
 		<url>
 			http://mobicents.googlecode.com/svn/trunk/protocols/jain-mgcp/stack/
 		</url>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<profiles>
 		<profile>
