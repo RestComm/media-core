@@ -67,7 +67,7 @@ import org.mobicents.media.server.io.sdp.fields.AttributeField;
 public class RtpMapAttribute extends AttributeField {
 	
 	public static final String ATTRIBUTE_TYPE = "rtpmap";
-	public static final short DEFAULT_CODEC_PARAMS = -1;
+	public static final short DEFAULT_CODEC_PARAMS = 1;
 	
 	private int payloadType;
 	private String codec;

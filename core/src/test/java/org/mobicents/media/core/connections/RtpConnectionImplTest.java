@@ -126,5 +126,4 @@ public class RtpConnectionImplTest {
         System.out.println(connection.getDescriptor());
     }
 
-
 }

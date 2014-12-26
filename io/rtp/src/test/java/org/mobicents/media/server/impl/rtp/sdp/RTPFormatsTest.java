@@ -47,10 +47,12 @@ public class RTPFormatsTest {
     private Format fmt1 = FormatFactory.createAudioFormat(new EncodingName("test1"));
     private Format fmt2 = FormatFactory.createAudioFormat(new EncodingName("test2"));
     private Format fmt3 = FormatFactory.createAudioFormat(new EncodingName("test3"));
+    private Format fmt4 = FormatFactory.createAudioFormat(new EncodingName("test4"));
 
     private RTPFormat f1 = new RTPFormat(1, fmt1);
     private RTPFormat f2 = new RTPFormat(2, fmt2);
     private RTPFormat f3 = new RTPFormat(3, fmt3);
+    private RTPFormat f4 = new RTPFormat(1, fmt4);
 
     /**
      * Test of add method, of class RTPFormats.
@@ -196,6 +198,7 @@ public class RTPFormatsTest {
         
         other.add(f2);
         other.add(f3);
+        other.add(f4);
         
         formats.intersection(other, res);
         

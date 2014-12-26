@@ -78,7 +78,7 @@ public class RtpMapAttributeParserTest {
 		Assert.assertEquals(97, attr.getPayloadType());
 		Assert.assertEquals("L16", attr.getCodec());
 		Assert.assertEquals(8000, attr.getClockRate());
-		Assert.assertEquals(-1, attr.getCodecParams());
+		Assert.assertEquals(1, attr.getCodecParams());
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class RtpMapAttributeParserTest {
 		Assert.assertEquals(97, attr.getPayloadType());
 		Assert.assertEquals("L16", attr.getCodec());
 		Assert.assertEquals(8000, attr.getClockRate());
-		Assert.assertEquals(-1, attr.getCodecParams());
+		Assert.assertEquals(1, attr.getCodecParams());
 	}
 
 }

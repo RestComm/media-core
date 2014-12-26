@@ -55,7 +55,7 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 			int payloadType = Integer.parseInt(values[index++]);
 			String codec = values[index++];
 			int clockRate = Integer.parseInt(values[index++]);
-			int codecParams = -1;
+			int codecParams = 1;
 			if(index == values.length - 1) {
 				codecParams = Integer.parseInt(values[index]);
 			}
@@ -77,7 +77,7 @@ public class RtpMapAttributeParser implements SdpParser<RtpMapAttribute> {
 			int payloadType = Integer.parseInt(values[index++]);
 			String codec = values[index++];
 			int clockRate = Integer.parseInt(values[index++]);
-			int codecParams = -1;
+			int codecParams = 1;
 			if(index == values.length - 1) {
 				codecParams = Integer.parseInt(values[index]);
 			}

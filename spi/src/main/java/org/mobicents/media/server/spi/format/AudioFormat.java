@@ -22,8 +22,6 @@
 
 package org.mobicents.media.server.spi.format;
 
-import org.mobicents.media.server.utils.Text;
-
 /**
  * Descriptor for audio format.
  *
@@ -131,7 +129,8 @@ public class AudioFormat extends Format implements Cloneable {
         AudioFormat f = (AudioFormat) other;
 
         if (f.sampleRate != this.sampleRate) return false;
-        if (f.sampleSize != this.sampleSize) return false;
+        // XXX dirty patch for issue #7 - https://github.com/Mobicents/mediaserver/issues/7
+//        if (f.sampleSize != this.sampleSize) return false;
         if (f.channels != this.channels) return false;
 
         return true;

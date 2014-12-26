@@ -710,11 +710,24 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		this.audioOfferedFormats.clean();
 		
 		// Map payload types tp RTP Format
-		
 		for (int payloadType : media.getPayloadTypes()) {
-			RTPFormat format = AVProfile.getFormat(payloadType, SdpComparator.AUDIO);
-			if(format != null) {
-				this.audioOfferedFormats.add(format);
+			RtpMapAttribute rtpMap = media.getFormat(payloadType);
+			RTPFormat rtpFormat;
+			if(rtpMap == null) {
+				// no info about codec so load from MMS audio profile
+				rtpFormat = AVProfile.getFormat(payloadType, SdpComparator.AUDIO);
+			} else {
+				// build format from rtpmap information
+				int pt = rtpMap.getPayloadType();
+				String name = rtpMap.getCodec();
+				int sampleRate = rtpMap.getClockRate();
+				int channels = rtpMap.getCodecParams();
+				AudioFormat audioFormat = FormatFactory.createAudioFormat(name, sampleRate);
+				audioFormat.setChannels(channels);
+				rtpFormat = new RTPFormat(pt, audioFormat, sampleRate);
+			}
+			if(rtpFormat != null) {
+				this.audioOfferedFormats.add(rtpFormat);
 			}
 		}
 		
