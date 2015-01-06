@@ -38,7 +38,8 @@ public class AudioChannel extends MediaChannel {
 
 	public AudioChannel(Clock wallClock, ChannelsManager channelsManager) {
 		super(MEDIA_TYPE, wallClock, channelsManager);
-		super.supportedFormats = super.buildRTPMap(AVProfile.audio);
+//		super.supportedFormats = super.buildRTPMap(AVProfile.audio);
+		super.supportedFormats = AVProfile.audio;
 	}
 
 	public AudioComponent getAudioComponent() {

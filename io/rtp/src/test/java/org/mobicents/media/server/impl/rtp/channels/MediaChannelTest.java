@@ -36,6 +36,7 @@ import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -68,18 +69,17 @@ public class MediaChannelTest {
 	public void before() throws InterruptedException {
 		this.scheduler.start();
 		this.udpManager.start();
-		Thread.sleep(1000);
 	}
 	
 	@After
 	public void after() {
 		this.scheduler.stop();
 		this.udpManager.stop();
-		if(this.localChannel.isActive()) {
-			this.localChannel.deactivate();
+		if(this.localChannel.isOpen()) {
+			this.localChannel.close();
 		}
-		if(this.remoteChannel.isActive()) {
-			this.remoteChannel.deactivate();
+		if(this.remoteChannel.isOpen()) {
+			this.remoteChannel.close();
 		}
 	}
 
@@ -91,7 +91,7 @@ public class MediaChannelTest {
 		/* WHEN */
 		// activate local channel and bind it to local address
 		// there will be two underlying channels for RTP and RTCP
-		localChannel.activate();
+		localChannel.open();
 		localChannel.bind(false, false);
 		
 		String localAddress = localChannel.rtpChannel.getLocalHost();
@@ -101,7 +101,7 @@ public class MediaChannelTest {
 		
 		// activate "remote" channel and bind it to local address
 		// there will be two underlying channels for RTP and RTCP
-		remoteChannel.activate();
+		remoteChannel.open();
 		remoteChannel.bind(false, rtcpMux);
 		
 		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
@@ -126,7 +126,7 @@ public class MediaChannelTest {
 		localChannel.connectRtcp(remoteAddress, remoteRtcpPort);
 		
 		// THEN
-		assertTrue(localChannel.isActive());
+		assertTrue(localChannel.isOpen());
 		assertTrue(localChannel.isAvailable());
 		assertFalse(localChannel.isRtcpMux());
 		assertEquals(remoteAddress, localChannel.rtpChannel.getRemoteHost());
@@ -134,7 +134,7 @@ public class MediaChannelTest {
 		assertEquals(remoteAddress, localChannel.rtcpChannel.getRemoteHost());
 		assertEquals(remoteRtcpPort, localChannel.rtcpChannel.getRemotePort());
 
-		assertTrue(remoteChannel.isActive());
+		assertTrue(remoteChannel.isOpen());
 		assertTrue(remoteChannel.isAvailable());
 		assertFalse(remoteChannel.isRtcpMux());
 		assertEquals(localAddress, remoteChannel.rtpChannel.getRemoteHost());
@@ -142,7 +142,69 @@ public class MediaChannelTest {
 		assertEquals(localAddress, remoteChannel.rtcpChannel.getRemoteHost());
 		assertEquals(localRtcpPort, remoteChannel.rtcpChannel.getRemotePort());
 	}
+
+	@Test
+	public void testSipCallWithRtcpMux() throws IllegalStateException, IOException, InterruptedException {
+		/* GIVEN */
+		boolean rtcpMux = true;
+		
+		/* WHEN */
+		// activate local channel and bind it to local address
+		// there will be two underlying channels for RTP and RTCP
+		localChannel.open();
+		localChannel.bind(false, rtcpMux);
+		
+		String localAddress = localChannel.rtpChannel.getLocalHost();
+		int localPort = localChannel.rtpChannel.getLocalPort();
+		MediaDescriptionField audioOffer = localChannel.getMediaDescriptor();
+		
+		// activate "remote" channel and bind it to local address
+		// there will be two underlying channels for RTP and RTCP
+		remoteChannel.open();
+		remoteChannel.bind(false, rtcpMux);
+		
+		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
+		int remotePort = remoteChannel.rtpChannel.getLocalPort();
+		MediaDescriptionField audioAnswer = remoteChannel.getMediaDescriptor();
+		
+		// ... remote peer receives SDP offer from local peer
+		// negotiate codecs with local peer
+		remoteChannel.negotiateFormats(audioOffer);
+		
+		// connect to RTP and RTCP endpoints of local channel
+		remoteChannel.connectRtp(localAddress, localPort);
+		remoteChannel.connectRtcp(localAddress, localPort);
+		
+		// ... local peer receives SDP answer from remote peer
+		// negotiate codecs with remote peer
+		localChannel.negotiateFormats(audioAnswer);
+		
+		// connect to RTP and RTCP endpoints of remote channel
+		localChannel.connectRtp(remoteAddress, remotePort);
+		localChannel.connectRtcp(remoteAddress, remotePort);
+		
+		// THEN
+		assertTrue(localChannel.isOpen());
+		assertTrue(localChannel.isAvailable());
+		assertTrue(localChannel.isRtcpMux());
+		assertEquals(remoteAddress, localChannel.rtpChannel.getRemoteHost());
+		assertEquals(remotePort, localChannel.rtpChannel.getRemotePort());
+		assertFalse(localChannel.rtcpChannel.isOpen());
+		
+		assertTrue(remoteChannel.isOpen());
+		assertTrue(remoteChannel.isAvailable());
+		assertTrue(remoteChannel.isRtcpMux());
+		assertEquals(localAddress, remoteChannel.rtpChannel.getRemoteHost());
+		assertEquals(localPort, remoteChannel.rtpChannel.getRemotePort());
+		assertFalse(remoteChannel.rtcpChannel.isOpen());
+	}
 	
+	/**
+	 * Produces Media Channels
+	 * 
+	 * @author Henrique Rosa
+	 * 
+	 */
 	private class ChannelFactory {
 		
 		public AudioChannel buildAudioChannel() {

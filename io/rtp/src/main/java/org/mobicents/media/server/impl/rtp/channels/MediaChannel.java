@@ -42,7 +42,6 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -95,7 +94,7 @@ public abstract class MediaChannel {
 	protected RtcpChannel rtcpChannel;
 	protected boolean rtcpMux;
 	protected RtpStatistics statistics;
-	protected boolean active;
+	protected boolean open;
 
 	protected RTPFormats supportedFormats;
 	protected RTPFormats offeredFormats;
@@ -127,7 +126,7 @@ public abstract class MediaChannel {
 	 *            The RTP and RTCP channel provider
 	 */
 	protected MediaChannel(String mediaType, Clock wallClock, ChannelsManager channelsManager) {
-		this.ssrc = SsrcGenerator.generateSsrc();
+		this.ssrc = 0L;
 		this.mediaType = mediaType;
 
 		this.clock = new RtpClock(wallClock);
@@ -144,7 +143,7 @@ public abstract class MediaChannel {
 		this.rtcpMux = false;
 		this.ice = false;
 		this.dtls = false;
-		this.active = false;
+		this.open = false;
 	}
 
 	/**
@@ -193,9 +192,13 @@ public abstract class MediaChannel {
 	/**
 	 * Enables the channel and activates it's resources.
 	 */
-	public void activate() {
+	public void open() {
 		// TODO open channels
-		this.active = true;
+		this.open = true;
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug(this.mediaType + " channel is open");
+		}
 	}
 
 	/**
@@ -205,24 +208,23 @@ public abstract class MediaChannel {
 	 *             When an attempt is done to deactivate the channel while
 	 *             inactive.
 	 */
-	public void deactivate() throws IllegalStateException {
-		if (this.active) {
+	public void close() throws IllegalStateException {
+		if (this.open) {
 			// Close channels
 			this.rtpChannel.close();
 			if (!this.rtcpMux) {
 				this.rtcpChannel.close();
 			}
 
-			// Stop ICE agent
-			if (this.ice && this.iceAgent.isRunning()) {
-				this.iceAgent.stop();
-			}
-
 			// Reset state
 			reset();
 
 			// Update flag
-			this.active = false;
+			this.open = false;
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug(this.mediaType + " channel is closed");
+			}
 		} else {
 			throw new IllegalStateException("Channel is already inactive");
 		}
@@ -238,7 +240,7 @@ public abstract class MediaChannel {
 		// Reset statistics
 		this.statistics.reset();
 		this.cname = "";
-		this.ssrc = 0;
+		this.ssrc = 0L;
 
 		// Reset channels
 		if (this.rtcpMux) {
@@ -248,17 +250,12 @@ public abstract class MediaChannel {
 
 		// Reset ICE
 		if (this.ice) {
-			this.ice = false;
-			if (this.iceAgent != null) {
-				this.iceAgent.reset();
-			}
+			disableICE();
 		}
 
 		// Reset WebRTC
 		if (this.dtls) {
-			this.dtls = false;
-			this.rtpChannel.disableSRTP();
-			this.rtcpChannel.disableSRTCP();
+			disableDTLS();
 		}
 	}
 
@@ -267,8 +264,8 @@ public abstract class MediaChannel {
 	 * 
 	 * @return Returns true if the channel is active. Returns false otherwise.
 	 */
-	public boolean isActive() {
-		return active;
+	public boolean isOpen() {
+		return open;
 	}
 
 	/**
@@ -400,6 +397,15 @@ public abstract class MediaChannel {
 			this.rtcpChannel.bind(isLocal, this.rtpChannel.getLocalPort() + 1);
 		}
 		this.rtcpMux = rtcpMux;
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug(this.mediaType + " RTP channel is bound to " + this.rtpChannel.getLocalHost() + ":" + this.rtpChannel.getLocalPort());
+			if(rtcpMux) {
+				logger.debug(this.mediaType + " is multiplexing RTCP");
+			} else {
+				logger.debug(this.mediaType + " RTCP channel is bound to " + this.rtcpChannel.getLocalHost() + ":" + this.rtcpChannel.getLocalPort());
+			}
+		}
 	}
 	
 	/**
@@ -424,6 +430,10 @@ public abstract class MediaChannel {
 	 */
 	public void connectRtp(SocketAddress address) {
 		this.rtpChannel.setRemotePeer(address);
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug(this.mediaType + " RTP channel connected to remote peer " + address.toString());
+		}
 	}
 
 	/**
@@ -476,6 +486,10 @@ public abstract class MediaChannel {
 	 */
 	public void connectRtcp(SocketAddress remoteAddress) {
 		this.rtcpChannel.setRemotePeer(remoteAddress);
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug(this.mediaType + " channel has connected to remote peer " + remoteAddress.toString());
+		}
 	}
 
 	/**
@@ -609,7 +623,7 @@ public abstract class MediaChannel {
 	 *             already enabled.
 	 */
 	public void enableICE(String externalAddress, boolean rtcpMux) throws UnknownHostException, IllegalStateException {
-		if (!this.active) {
+		if (!this.open) {
 			throw new IllegalStateException("Media Channel is not active");
 		}
 		
@@ -633,14 +647,34 @@ public abstract class MediaChannel {
 		if (externalAddress != null && !externalAddress.isEmpty()) {
 			this.iceAgent.setExternalAddress(InetAddress.getByName(externalAddress));
 		}
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug(this.mediaType + " channel enabled ICE");
+		}
 	}
 
 	/**
 	 * Disables ICE and closes ICE-related resources
 	 */
-	public void disableICE() {
-		// XXX close ICE resources
+	public void disableICE() throws IllegalStateException {
+		if (!this.open) {
+			throw new IllegalStateException("Media Channel is not active");
+		}
+		
+		if (!this.ice) {
+			throw new IllegalStateException("ICE is not enabled");
+		}
+
+		// Stop the ICE agent
+		if(this.iceAgent.isRunning()) {
+			this.iceAgent.stop();
+		}
+		this.iceAgent.reset();
 		this.ice = false;
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug(this.mediaType + " channel disabled ICE");
+		}
 	}
 
 	/**
@@ -801,7 +835,10 @@ public abstract class MediaChannel {
 			throw new IllegalStateException("DTLS is already enabled on this channel");
 		}
 		
-		// XXX disable DTLS components
+		this.rtpChannel.disableSRTP();
+		if(!this.rtcpMux) {
+			this.rtcpChannel.disableSRTCP();
+		}
 		this.dtls = false;
 	}
 
@@ -814,7 +851,7 @@ public abstract class MediaChannel {
 	 * @return The number of packets received
 	 */
 	public long getPacketsReceived() {
-		if(this.active) {
+		if(this.open) {
 			return this.statistics.getRtpPacketsReceived();
 		}
 		return 0;
@@ -830,7 +867,7 @@ public abstract class MediaChannel {
 	 * @return The number of bytes received.
 	 */
 	public long getOctetsReceived() {
-		if(this.active) {
+		if(this.open) {
 			return this.statistics.getRtpOctetsReceived();
 		}
 		return 0;
@@ -842,7 +879,7 @@ public abstract class MediaChannel {
 	 * @return The number of packets sent
 	 */
 	public long getPacketsSent() {
-		if(this.active) {
+		if(this.open) {
 			return this.statistics.getRtpPacketsSent();
 		}
 		return 0;
@@ -858,7 +895,7 @@ public abstract class MediaChannel {
 	 * @return The number of bytes sent.
 	 */
 	public long getOctetsSent() {
-		if(this.active) {
+		if(this.open) {
 			return this.statistics.getRtpOctetsSent();
 		}
 		return 0;
@@ -876,7 +913,7 @@ public abstract class MediaChannel {
 	 * @return The current jitter.
 	 */
 	public long getJitter() {
-		if(this.active) {
+		if(this.open) {
 			return this.statistics.getMember(this.ssrc).getJitter();
 		}
 		return 0;

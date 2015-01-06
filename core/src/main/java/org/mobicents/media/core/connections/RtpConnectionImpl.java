@@ -214,7 +214,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// Setup the audio channel based on remote offer
 		MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
 		if(remoteAudio != null) {
-			this.audioChannel.activate();
+			this.audioChannel.open();
 			setupAudioChannelInbound(remoteAudio);
 		}
 		
@@ -378,11 +378,12 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	@Override
 	public void generateOffer() throws IOException {
 		// Only open and bind a new channel if not currently configured
-		if(this.audioChannel.isActive()) {
+		if(!this.audioChannel.isOpen()) {
 			// call is outbound since the connection is generating the offer
 			this.outbound = true;
 			
 			// setup audio channel
+			this.audioChannel.open();
 			this.audioChannel.bind(this.local, false);
 			this.audioChannel.resetFormats();
 			
@@ -526,8 +527,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * connection.
 	 */
 	private void closeResources() {
-		if(this.audioChannel.isActive()) {
-			this.audioChannel.deactivate();
+		if(this.audioChannel.isOpen()) {
+			this.audioChannel.close();
 		}
 	}
 	
@@ -543,7 +544,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
 	@Override
 	public void onRtpFailure(String message) {
-		if(this.audioChannel.isActive()) {
+		if(this.audioChannel.isOpen()) {
 			logger.warn(message);
 			// RTP is mandatory, if it fails close everything
 			onFailed();
@@ -561,7 +562,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	@Override
 	public void onRtcpFailure(String e) {
-		if (this.audioChannel.isActive()) {
+		if (this.audioChannel.isOpen()) {
 			logger.warn(e);
 			// Close the RTCP channel only
 			// Keep the RTP channel open because RTCP is not mandatory
