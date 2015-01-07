@@ -488,7 +488,7 @@ public abstract class MediaChannel {
 		this.rtcpChannel.setRemotePeer(remoteAddress);
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug(this.mediaType + " channel has connected to remote peer " + remoteAddress.toString());
+			logger.debug(this.mediaType + " RTCP channel has connected to remote peer " + remoteAddress.toString());
 		}
 	}
 
@@ -822,6 +822,11 @@ public abstract class MediaChannel {
 		if (!this.rtcpMux) {
 			rtcpChannel.enableSRTCP(remoteFingerprint, this.iceAgent);
 		}
+		this.dtls = true;
+		
+		if(logger.isDebugEnabled()) { 
+			logger.debug(this.mediaType + " channel enabled DTLS");
+		}
 	}
 
 	/**
@@ -831,8 +836,8 @@ public abstract class MediaChannel {
 	 *             Cannot be invoked when DTLS is already disabled
 	 */
 	public void disableDTLS() throws IllegalStateException {
-		if (this.dtls) {
-			throw new IllegalStateException("DTLS is already enabled on this channel");
+		if (!this.dtls) {
+			throw new IllegalStateException("DTLS is already disabled on this channel");
 		}
 		
 		this.rtpChannel.disableSRTP();
@@ -840,6 +845,11 @@ public abstract class MediaChannel {
 			this.rtcpChannel.disableSRTCP();
 		}
 		this.dtls = false;
+		
+		if(logger.isDebugEnabled()) { 
+			logger.debug(this.mediaType + " channel disabled DTLS");
+		}
+
 	}
 
 	/*
@@ -1008,6 +1018,14 @@ public abstract class MediaChannel {
 					audioDescription.addCandidate(processCandidate(candidate.getCandidate()));
 				}
 			}
+		}
+		
+		// DTLS attributes
+		if(this.dtls) {
+			String fingerprint = this.rtpChannel.getWebRtcLocalFingerprint().toString();
+			int whitespace = fingerprint.indexOf(" ");
+			audioDescription.setFingerprint(new FingerprintAttribute(fingerprint.substring(0, whitespace), fingerprint.substring(whitespace + 1)));
+			audioDescription.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
 		}
 
 		// Media formats
