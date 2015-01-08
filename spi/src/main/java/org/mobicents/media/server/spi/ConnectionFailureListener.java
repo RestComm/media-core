@@ -27,5 +27,7 @@ package org.mobicents.media.server.spi;
  * @author kulikov
  */
 public interface ConnectionFailureListener {
+	
     public void onFailure();
+    
 }

@@ -21,6 +21,7 @@
 package org.mobicents.media.server.impl.rtp;
 
 /**
+ * Listens for failures on RTP and RTP flows.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 

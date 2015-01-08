@@ -121,7 +121,7 @@ public class MgcpConnection implements ConnectionFailureListener {
 	 * @throws IOException
 	 */
     public void generateLocalDescriptor() throws IOException {
-    	connection.generateLocalDescriptor();
+    	connection.generateOffer();
     }
 
     public void setOtherParty(Text sdp) throws IOException {

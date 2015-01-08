@@ -225,6 +225,10 @@ public class UdpManager {
 	public void setUseSbc(Boolean useSbc) {
 		this.useSbc = useSbc;
 	}
+	
+	public PortManager getPortManager() {
+		return portManager;
+	}
 
 	/**
 	 * Modify the low boundary.

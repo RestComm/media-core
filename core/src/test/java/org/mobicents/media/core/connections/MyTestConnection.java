@@ -54,7 +54,7 @@ public class MyTestConnection extends BaseConnection {
         oobComponent=new OOBComponent(-1);
     }
     
-    public void generateLocalDescriptor() throws IOException {
+    public void generateOffer() throws IOException {
     	throw new UnsupportedOperationException("Not supported yet.");
     }
 

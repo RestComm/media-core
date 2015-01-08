@@ -52,11 +52,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 
 	// Channel attribute
 	private int channelId;
-	private SocketAddress remotePeer;
 	private boolean bound;
-
-	// Statistics
-	private final RtpStatistics statistics;
 
 	// Protocol handler pipeline
 	private static final int STUN_PRIORITY = 2; // a packet each 400ms
@@ -81,11 +77,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 
 		// Channel attributes
 		this.channelId = channelId;
-		this.remotePeer = null;
 		this.bound = false;
-
-		// Statistics
-		this.statistics = statistics;
 
 		// Protocol Handler pipeline
 		this.rtcpHandler = new RtcpHandler(statistics);
@@ -95,13 +87,13 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 
 	public void setRemotePeer(SocketAddress remotePeer) {
-		this.remotePeer = remotePeer;
-
-		if (this.dataChannel != null && this.dataChannel.isConnected()) {
-			try {
-				this.dataChannel.disconnect();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
+		if (this.dataChannel != null) {
+			if (this.dataChannel.isConnected()) {
+				try {
+					this.dataChannel.disconnect();
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
 			}
 
 			boolean connectNow = this.udpManager.connectImmediately((InetSocketAddress) remotePeer);
@@ -109,8 +101,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 				try {
 					this.dataChannel.connect(remotePeer);
 				} catch (IOException e) {
-					logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
-					logger.error(e.getMessage(), e);
+					logger.error("Can not connect to remote address. Check that you are not using local address (127.0.0.X)", e);
 				}
 			}
 		}

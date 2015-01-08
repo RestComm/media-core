@@ -58,7 +58,7 @@ public class LocalConnectionImpl extends BaseConnection {
     	return this.localAudioChannel.getOOBComponent();
     }
     
-    public void generateLocalDescriptor() throws IOException {
+    public void generateOffer() throws IOException {
     	throw new UnsupportedOperationException("Not supported yet!");
     }
     
