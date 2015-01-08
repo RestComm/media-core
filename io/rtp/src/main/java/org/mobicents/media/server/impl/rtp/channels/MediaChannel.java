@@ -42,6 +42,7 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
+import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -193,11 +194,12 @@ public abstract class MediaChannel {
 	 * Enables the channel and activates it's resources.
 	 */
 	public void open() {
-		// TODO open channels
+		// generate a new unique identifier for the channel
+		this.ssrc = SsrcGenerator.generateSsrc();
 		this.open = true;
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug(this.mediaType + " channel is open");
+			logger.debug(this.mediaType + " channel " + this.ssrc + " is open");
 		}
 	}
 
@@ -215,16 +217,14 @@ public abstract class MediaChannel {
 			if (!this.rtcpMux) {
 				this.rtcpChannel.close();
 			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug(this.mediaType + " channel " + this.ssrc + " is closed");
+			}
 
 			// Reset state
 			reset();
-
-			// Update flag
 			this.open = false;
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug(this.mediaType + " channel is closed");
-			}
 		} else {
 			throw new IllegalStateException("Channel is already inactive");
 		}
@@ -237,11 +237,6 @@ public abstract class MediaChannel {
 	 * for different calls.
 	 */
 	private void reset() {
-		// Reset statistics
-		this.statistics.reset();
-		this.cname = "";
-		this.ssrc = 0L;
-
 		// Reset channels
 		if (this.rtcpMux) {
 			this.rtcpMux = false;
@@ -257,6 +252,11 @@ public abstract class MediaChannel {
 		if (this.dtls) {
 			disableDTLS();
 		}
+		
+		// Reset statistics
+		this.statistics.reset();
+		this.cname = "";
+		this.ssrc = 0L;
 	}
 
 	/**
@@ -399,11 +399,11 @@ public abstract class MediaChannel {
 		this.rtcpMux = rtcpMux;
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug(this.mediaType + " RTP channel is bound to " + this.rtpChannel.getLocalHost() + ":" + this.rtpChannel.getLocalPort());
+			logger.debug(this.mediaType + " RTP channel " + this.ssrc + " is bound to " + this.rtpChannel.getLocalHost() + ":" + this.rtpChannel.getLocalPort());
 			if(rtcpMux) {
 				logger.debug(this.mediaType + " is multiplexing RTCP");
 			} else {
-				logger.debug(this.mediaType + " RTCP channel is bound to " + this.rtcpChannel.getLocalHost() + ":" + this.rtcpChannel.getLocalPort());
+				logger.debug(this.mediaType + " RTCP channel " + this.ssrc + " is bound to " + this.rtcpChannel.getLocalHost() + ":" + this.rtcpChannel.getLocalPort());
 			}
 		}
 	}
@@ -432,7 +432,7 @@ public abstract class MediaChannel {
 		this.rtpChannel.setRemotePeer(address);
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug(this.mediaType + " RTP channel connected to remote peer " + address.toString());
+			logger.debug(this.mediaType + " RTP channel " + this.ssrc + " connected to remote peer " + address.toString());
 		}
 	}
 
@@ -488,7 +488,7 @@ public abstract class MediaChannel {
 		this.rtcpChannel.setRemotePeer(remoteAddress);
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug(this.mediaType + " RTCP channel has connected to remote peer " + remoteAddress.toString());
+			logger.debug(this.mediaType + " RTCP channel " + this.ssrc + " has connected to remote peer " + remoteAddress.toString());
 		}
 	}
 
@@ -649,7 +649,7 @@ public abstract class MediaChannel {
 		}
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug(this.mediaType + " channel enabled ICE");
+			logger.debug(this.mediaType + " channel " + this.ssrc + " enabled ICE");
 		}
 	}
 
@@ -673,7 +673,7 @@ public abstract class MediaChannel {
 		this.ice = false;
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug(this.mediaType + " channel disabled ICE");
+			logger.debug(this.mediaType + " channel " + this.ssrc + " disabled ICE");
 		}
 	}
 
@@ -781,7 +781,7 @@ public abstract class MediaChannel {
 		public void onSelectedCandidates(SelectedCandidatesEvent event) {
 			try {
 				if(logger.isDebugEnabled()) {
-					logger.debug("Finished ICE candidates selection for " + mediaType + "! Preparing for binding.");
+					logger.debug("Finished ICE candidates selection for " + mediaType + " channel  " + ssrc + "! Preparing for binding.");
 				}
 
 				// Get selected RTP candidate for audio channel
@@ -825,7 +825,7 @@ public abstract class MediaChannel {
 		this.dtls = true;
 		
 		if(logger.isDebugEnabled()) { 
-			logger.debug(this.mediaType + " channel enabled DTLS");
+			logger.debug(this.mediaType + " channel " + this.ssrc + " enabled DTLS");
 		}
 	}
 
@@ -847,7 +847,7 @@ public abstract class MediaChannel {
 		this.dtls = false;
 		
 		if(logger.isDebugEnabled()) { 
-			logger.debug(this.mediaType + " channel disabled DTLS");
+			logger.debug(this.mediaType + " channel " + this.ssrc + " disabled DTLS");
 		}
 
 	}
