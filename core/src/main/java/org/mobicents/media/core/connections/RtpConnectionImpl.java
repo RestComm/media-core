@@ -33,6 +33,7 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
+import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
@@ -450,13 +451,13 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		answer.setTiming(new TimingField(0, 0));
 
 		// Session-level ICE
-		if(this.audioChannel.hasICE()) {
+		if(this.audioChannel.isIceEnabled()) {
 			answer.setIceLite(new IceLiteAttribute());
 		}
 		
 		// Media Description - audio
 		if(this.remoteSdp.getMediaDescription("audio") != null) {
-			MediaDescriptionField audioDescription = this.audioChannel.generateAnswer();
+			MediaDescriptionField audioDescription = SdpFactory.buildMediaDescription(this.audioChannel);
 			answer.addMediaDescription(audioDescription);
 			audioDescription.setSession(answer);
 			if(audioDescription.containsIce()) {

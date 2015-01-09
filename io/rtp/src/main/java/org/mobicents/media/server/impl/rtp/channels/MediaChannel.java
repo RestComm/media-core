@@ -25,12 +25,12 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.CandidatePair;
 import org.mobicents.media.io.ice.IceAgent;
-import org.mobicents.media.io.ice.IceCandidate;
 import org.mobicents.media.io.ice.IceFactory;
 import org.mobicents.media.io.ice.IceMediaStream;
 import org.mobicents.media.io.ice.LocalCandidateWrapper;
@@ -54,15 +54,9 @@ import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
 import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
-import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
-import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
-import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
-import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
-import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
-import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpMuxAttribute;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
@@ -146,6 +140,15 @@ public abstract class MediaChannel {
 		this.dtls = false;
 		this.open = false;
 	}
+	
+	/**
+	 * Gets the type of media handled by the channel.
+	 * 
+	 * @return The type of media
+	 */
+	public String getMediaType() {
+		return mediaType;
+	}
 
 	/**
 	 * Gets the synchronization source of the channel.
@@ -188,6 +191,66 @@ public abstract class MediaChannel {
 	public void setCname(String cname) {
 		this.cname = cname;
 		this.statistics.setCname(cname);
+	}
+	
+	/**
+	 * Gets the address the RTP channel is bound to.
+	 * 
+	 * @return The address of the RTP channel. Returns empty String if RTP
+	 *         channel is not bound.
+	 */
+	public String getRtpAddress() {
+		if(this.rtpChannel.isBound()) {
+			return this.rtpChannel.getLocalHost();
+		}
+		return "";
+	}
+	
+	/**
+	 * Gets the port where the RTP channel is bound to.
+	 * 
+	 * @return The port of the RTP channel. Returns zero if RTP channel is not
+	 *         bound.
+	 */
+	public int getRtpPort() {
+		if(this.rtpChannel.isBound()) {
+			return this.rtpChannel.getLocalPort();
+		}
+		return 0;
+	}
+
+	/**
+	 * Gets the address the RTCP channel is bound to.
+	 * 
+	 * @return The address of the RTCP channel. Returns empty String if RTCP
+	 *         channel is not bound.
+	 */
+	public String getRtcpAddress() {
+		if(this.rtcpMux) {
+			return getRtpAddress();
+		}
+		
+		if(this.rtcpChannel.isBound()) {
+			return this.rtcpChannel.getLocalHost();
+		}
+		return "";
+	}
+	
+	/**
+	 * Gets the port where the RTCP channel is bound to.
+	 * 
+	 * @return The port of the RTCP channel. Returns zero if RTCP channel is not
+	 *         bound.
+	 */
+	public int getRtcpPort() {
+		if(this.rtcpMux) {
+			return getRtpPort();
+		}
+		
+		if(this.rtcpChannel.isBound()) {
+			return this.rtcpChannel.getLocalPort();
+		}
+		return 0;
 	}
 
 	/**
@@ -558,6 +621,16 @@ public abstract class MediaChannel {
 	}
 	
 	/**
+	 * Gets the list of negotiated codecs.
+	 * 
+	 * @return The list of negotiated codecs. The list may be empty is no codecs
+	 *         were negotiated over SDP with remote peer.
+	 */
+	public RTPFormats getNegotiatedFormats() {
+		return this.negotiatedFormats;
+	}
+	
+	/**
 	 * Negotiates the list of supported codecs with the remote peer over SDP.
 	 * 
 	 * @param media
@@ -682,8 +755,62 @@ public abstract class MediaChannel {
 	 * 
 	 * @return Returns true if ICE is enabled. Returns false otherwise.
 	 */
-	public boolean hasICE() {
+	public boolean isIceEnabled() {
 		return this.ice;
+	}
+	
+	/**
+	 * Gets the user fragment used in ICE negotiation.
+	 * 
+	 * @return The ICE ufrag. Returns an empty String if ICE is disabled on the
+	 *         channel.
+	 */
+	public String getIceUfrag() {
+		if(this.ice) {
+			return this.iceAgent.getUfrag();
+		}
+		return "";
+	}
+
+	/**
+	 * Gets the password used in ICE negotiation.
+	 * 
+	 * @return The ICE password. Returns an empty String if ICE is disabled on
+	 *         the channel.
+	 */
+	public String getIcePwd() {
+		if(this.ice) {
+			return this.iceAgent.getPassword();
+		}
+		return "";
+	}
+	
+	/**
+	 * Gets the list of possible RTP candidates.
+	 * 
+	 * @return The list of RTP candidates. Returns an empty list if ICE is not
+	 *         enabled on the channel.
+	 */
+	public List<LocalCandidateWrapper> getRtpCandidates() {
+		if(this.ice) {
+			IceMediaStream audioIce = this.iceAgent.getMediaStream(this.mediaType);
+			return audioIce.getRtpComponent().getLocalCandidates();
+		}
+		return new ArrayList<LocalCandidateWrapper>();
+	}
+
+	/**
+	 * Gets the list of possible RTCP candidates.
+	 * 
+	 * @return The list of RTCP candidates. Returns an empty list if ICE is not
+	 *         enabled on the channel.
+	 */
+	public List<LocalCandidateWrapper> getRtcpCandidates() {
+		if(this.ice) {
+			IceMediaStream audioIce = this.iceAgent.getMediaStream(this.mediaType);
+			return audioIce.getRtcpComponent().getLocalCandidates();
+		}
+		return new ArrayList<LocalCandidateWrapper>();
 	}
 
 	/**
@@ -849,7 +976,28 @@ public abstract class MediaChannel {
 		if(logger.isDebugEnabled()) { 
 			logger.debug(this.mediaType + " channel " + this.ssrc + " disabled DTLS");
 		}
-
+	}
+	
+	/**
+	 * Gets whether DTLS is enabled on the channel.
+	 * 
+	 * @return Returns true if DTLS is enabled. Returns false otherwise.
+	 */
+	public boolean isDtlsEnabled() {
+		return this.dtls;
+	}
+	
+	/**
+	 * Gets the DTLS finger print.
+	 * 
+	 * @return The DTLS finger print. Returns an empty String if DTLS is not
+	 *         enabled on the channel.
+	 */
+	public String getDtlsFingerprint() {
+		if(this.dtls) {
+			return this.rtpChannel.getWebRtcLocalFingerprint().toString();
+		}
+		return "";
 	}
 
 	/*
@@ -967,119 +1115,4 @@ public abstract class MediaChannel {
 		return mediaField;
 	}
 
-	public MediaDescriptionField generateAnswer() {
-		String rtpAddress = this.rtpChannel.getLocalHost();
-		int rtpPort = this.rtpChannel.getLocalPort();
-
-		String rtcpAddress = this.rtcpMux ? rtpAddress : this.rtcpChannel.getLocalHost();
-		int rtcpPort = this.rtcpMux ? rtpPort : this.rtcpChannel.getLocalPort();
-
-		if (this.ice) {
-			LocalCandidateWrapper rtpCandidate = this.iceAgent
-					.getMediaStream(this.mediaType).getRtpComponent()
-					.getDefaultLocalCandidate();
-			rtpAddress = rtpCandidate.getCandidate().getHostString();
-			rtpPort = rtpCandidate.getCandidate().getPort();
-
-			if (this.rtcpMux) {
-				rtcpAddress = rtpAddress;
-				rtcpPort = rtpPort;
-			} else {
-				CandidatePair rtcpCandidate = this.iceAgent.getSelectedRtcpCandidate("audio");
-				rtcpAddress = rtcpCandidate.getLocalAddress();
-				rtcpPort = rtcpCandidate.getLocalPort();
-			}
-		}
-
-		MediaDescriptionField audioDescription = new MediaDescriptionField();
-		audioDescription.setMedia("audio");
-		audioDescription.setPort(rtpPort);
-		audioDescription.setProtocol(this.dtls ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
-		audioDescription.setConnection(new ConnectionField("IN", "IP4", rtpAddress));
-		audioDescription.setPtime(new PacketTimeAttribute(20));
-		audioDescription.setRtcp(new RtcpAttribute(rtcpPort, "IN", "IP4", rtcpAddress));
-		if (this.rtcpMux) {
-			audioDescription.setRtcpMux(new RtcpMuxAttribute());
-		}
-
-		// ICE attributes
-		if (this.ice) {
-			audioDescription.setIceUfrag(new IceUfragAttribute(this.iceAgent.getUfrag()));
-			audioDescription.setIcePwd(new IcePwdAttribute(this.iceAgent.getPassword()));
-
-			IceMediaStream audioIce = iceAgent.getMediaStream("audio");
-			List<LocalCandidateWrapper> rtpCandidates = audioIce.getRtpComponent().getLocalCandidates();
-			for (LocalCandidateWrapper candidate : rtpCandidates) {
-				audioDescription.addCandidate(processCandidate(candidate.getCandidate()));
-			}
-			if (!this.rtcpMux) {
-				List<LocalCandidateWrapper> rtcpCandidates = audioIce.getRtcpComponent().getLocalCandidates();
-				for (LocalCandidateWrapper candidate : rtcpCandidates) {
-					audioDescription.addCandidate(processCandidate(candidate.getCandidate()));
-				}
-			}
-		}
-		
-		// DTLS attributes
-		if(this.dtls) {
-			String fingerprint = this.rtpChannel.getWebRtcLocalFingerprint().toString();
-			int whitespace = fingerprint.indexOf(" ");
-			audioDescription.setFingerprint(new FingerprintAttribute(fingerprint.substring(0, whitespace), fingerprint.substring(whitespace + 1)));
-			audioDescription.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
-		}
-
-		// Media formats
-		this.negotiatedFormats.rewind();
-		while (this.negotiatedFormats.hasMore()) {
-			RTPFormat f = this.negotiatedFormats.next();
-			AudioFormat audioFormat = (AudioFormat) f.getFormat();
-
-			RtpMapAttribute rtpMap = new RtpMapAttribute();
-			rtpMap.setPayloadType(f.getID());
-			rtpMap.setCodec(f.getFormat().getName().toString());
-			rtpMap.setClockRate(f.getClockRate());
-			if (audioFormat.getChannels() > 1) {
-				rtpMap.setCodecParams(audioFormat.getChannels());
-			}
-			if (audioFormat.getOptions() != null) {
-				rtpMap.setParameters(new FormatParameterAttribute(f.getID(), audioFormat.getOptions().toString()));
-			}
-			audioDescription.addPayloadType(f.getID());
-			audioDescription.addFormat(rtpMap);
-		}
-
-		// DTLS attributes
-		if (this.dtls) {
-			audioDescription.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
-			String fingerprint = this.rtpChannel.getWebRtcLocalFingerprint().toString();
-			int whitespace = fingerprint.indexOf(" ");
-			String fingerprintHash = fingerprint.substring(0, whitespace);
-			String fingerprintValue = fingerprint.substring(whitespace + 1);
-			audioDescription.setFingerprint(new FingerprintAttribute(fingerprintHash, fingerprintValue));
-		}
-
-		audioDescription.setConnectionMode(new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV));
-		SsrcAttribute ssrcAttribute = new SsrcAttribute(Long.toString(this.ssrc));
-		ssrcAttribute.addAttribute("cname", this.cname);
-		audioDescription.setSsrc(ssrcAttribute);
-		return audioDescription;
-	}
-
-	private CandidateAttribute processCandidate(IceCandidate candidate) {
-		CandidateAttribute candidateSdp = new CandidateAttribute();
-		candidateSdp.setFoundation(candidate.getFoundation());
-		candidateSdp.setComponentId(candidate.getComponentId());
-		candidateSdp.setProtocol(candidate.getProtocol().getDescription());
-		candidateSdp.setPriority(candidate.getPriority());
-		candidateSdp.setAddress(candidate.getHostString());
-		candidateSdp.setPort(candidate.getPort());
-		String candidateType = candidate.getType().getDescription();
-		candidateSdp.setCandidateType(candidateType);
-		if (CandidateAttribute.TYP_HOST != candidateType) {
-			candidateSdp.setRelatedAddress(candidate.getBase().getHostString());
-			candidateSdp.setRelatedPort(candidate.getBase().getPort());
-		}
-		candidateSdp.setGeneration(0);
-		return candidateSdp;
-	}
 }
