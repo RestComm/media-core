@@ -20,27 +20,31 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-
 package org.mobicents.media.core.naming;
 
 /**
- *
+ * 
  * @author yulian oifa
  */
 public class UnknownEndpointException extends Exception {
 
-    /**
-     * Creates a new instance of <code>UnknownEndpointException</code> without detail message.
-     */
-    public UnknownEndpointException() {
-    }
+	private static final long serialVersionUID = -6007137638867952062L;
 
+	/**
+	 * Creates a new instance of <code>UnknownEndpointException</code> without
+	 * detail message.
+	 */
+	public UnknownEndpointException() {
+	}
 
-    /**
-     * Constructs an instance of <code>UnknownEndpointException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public UnknownEndpointException(String msg) {
-        super(msg);
-    }
+	/**
+	 * Constructs an instance of <code>UnknownEndpointException</code> with the
+	 * specified detail message.
+	 * 
+	 * @param msg
+	 *            the detail message.
+	 */
+	public UnknownEndpointException(String msg) {
+		super(msg);
+	}
 }

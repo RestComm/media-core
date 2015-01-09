@@ -40,6 +40,7 @@ import static org.junit.Assert.*;
  *
  * @author kulikov
  */
+@Deprecated
 public class MediaDescriptorTest {
 
     private String m = "m=audio 39958 RTP/AVP 8 101\n" +

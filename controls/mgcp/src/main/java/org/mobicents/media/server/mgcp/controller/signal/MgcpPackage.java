@@ -43,7 +43,7 @@ public class MgcpPackage {
     private Text name;
     
     //The list of executors
-    private ArrayList<Signal> signals = new ArrayList();
+    private ArrayList<Signal> signals = new ArrayList<Signal>();
     
     //The interface for upper level
     protected Request request;

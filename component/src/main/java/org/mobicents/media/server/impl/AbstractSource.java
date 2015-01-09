@@ -39,7 +39,9 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public abstract class AbstractSource extends BaseComponent implements MediaSource {
 
-    //transmission statisctics
+	private static final long serialVersionUID = 3157479112733053482L;
+
+	//transmission statisctics
     private volatile long txPackets;
     private volatile long txBytes;
     

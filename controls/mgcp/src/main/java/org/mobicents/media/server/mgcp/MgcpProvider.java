@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.io.network.ProtocolHandler;
@@ -37,7 +38,6 @@ import org.mobicents.media.server.mgcp.message.MgcpMessage;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 
@@ -50,7 +50,7 @@ public class MgcpProvider {
     private String name;
     
     //event listeners
-    private Listeners<MgcpListener> listeners = new Listeners();
+    private Listeners<MgcpListener> listeners = new Listeners<MgcpListener>();
     
     //Underlying network interface\
     private UdpManager transport;
@@ -65,13 +65,13 @@ public class MgcpProvider {
     private Scheduler scheduler;
     
     //transmission buffer
-    private ConcurrentCyclicFIFO<ByteBuffer> txBuffer = new ConcurrentCyclicFIFO();
+    private ConcurrentCyclicFIFO<ByteBuffer> txBuffer = new ConcurrentCyclicFIFO<ByteBuffer>();
     
     //receiver buffer
     private ByteBuffer rxBuffer = ByteBuffer.allocate(8192);
     
     //pool of events
-    private ConcurrentCyclicFIFO<MgcpEventImpl> events = new ConcurrentCyclicFIFO();
+    private ConcurrentCyclicFIFO<MgcpEventImpl> events = new ConcurrentCyclicFIFO<MgcpEventImpl>();
         
     private final static Logger logger = Logger.getLogger(MgcpProvider.class);
     /**
@@ -262,34 +262,30 @@ public class MgcpProvider {
         //mgcp message receiver.
         private Receiver receiver = new Receiver();
         
-        /**
-         * (Non Java-doc.)
-         * 
-         * @see org.mobicents.media.server.io.network.ProtocolHandler#receive(java.nio.channels.DatagramChannel) 
-         */
+        @Override
         public void receive(DatagramChannel channel) {
         	receiver.perform();
         }
 
-        /**
-         * (Non Java-doc.)
-         * 
-         * @see org.mobicents.media.server.io.network.ProtocolHandler#send(java.nio.channels.DatagramChannel) 
-         */
+        @Override
         public void send(DatagramChannel channel) {
         }
 
+        @Override
         public boolean isReadable() {
             return false;
         }
 
+        @Override
         public boolean isWriteable() {
             return false;
         }
 
+        @Override
         public void setKey(SelectionKey key) {
         }
-        
+
+        @Override
         public void onClosed()
         {
         	//try to reopen mgcp port
@@ -310,7 +306,7 @@ public class MgcpProvider {
 
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
         
         public long perform() {
@@ -394,29 +390,17 @@ public class MgcpProvider {
             this.provider = provider;
         }
         
-        /**
-         * (Non Java-doc.)
-         * 
-         * @see org.mobicents.media.server.mgcp.MgcpEvent#getSource() 
-         */
+        @Override
         public MgcpProvider getSource() {
             return provider;
         }
 
-        /**
-         * (Non Java-doc.)
-         * 
-         * @see org.mobicents.media.server.mgcp.MgcpEvent#getMessage()   
-         */
+        @Override
         public MgcpMessage getMessage() {
             return eventID == MgcpEvent.REQUEST? request : response;
         }
 
-        /**
-         * (Non Java-doc.)
-         * 
-         * @see org.mobicents.media.server.mgcp.MgcpEvent#getEventID()  
-         */
+        @Override
         public int getEventID() {
             return eventID;
         }
@@ -430,20 +414,12 @@ public class MgcpProvider {
             this.eventID = eventID;
         }
         
-        /**
-         * (Non Java-doc.)
-         * 
-         * @see org.mobicents.media.server.mgcp.MgcpEvent#recycle() 
-         */
+        @Override
         public void recycle() {
         	recycleEvent(this);
         }
 
-        /**
-         * (Non Java-doc.)
-         * 
-         * @see org.mobicents.media.server.mgcp.MgcpEvent#getAddress() 
-         */
+        @Override
         public SocketAddress getAddress() {
             return address;
         }

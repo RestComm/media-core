@@ -23,12 +23,9 @@
 package org.mobicents.media.server.component.oob;
 
 import java.util.Iterator;
+
 import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  * Implements compound components used by mixer and splitter.
@@ -36,101 +33,89 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author Yulian Oifa
  */
 public class OOBComponent {
-	//the format of the output stream.
-	private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
 
-    private ConcurrentMap<OOBInput> inputs = new ConcurrentMap();
-	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap();
-    
+	private ConcurrentMap<OOBInput> inputs = new ConcurrentMap<OOBInput>();
+	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap<OOBOutput>();
+
 	Iterator<OOBInput> activeInputs;
 	Iterator<OOBOutput> activeOutputs;
-	
-	protected Boolean shouldRead=false;
-	protected Boolean shouldWrite=false;
-	
+
+	protected Boolean shouldRead = false;
+	protected Boolean shouldWrite = false;
+
 	private Frame frame;
-	
+
 	private int componentId;
-    /**
-     * Creates new instance with default name.
-     */
-    public OOBComponent(int componentId) {
-    	this.componentId=componentId;    	
-    }
 
-    public int getComponentId()
-    {
-    	return componentId;
-    }
-    
-    public void updateMode(Boolean shouldRead,Boolean shouldWrite)
-    {
-    	this.shouldRead=shouldRead;
-    	this.shouldWrite=shouldWrite;
-    }
-    
-    public void addInput(OOBInput input) {
-    	inputs.put(input.getInputId(),input);
-    }
+	/**
+	 * Creates new instance with default name.
+	 */
+	public OOBComponent(int componentId) {
+		this.componentId = componentId;
+	}
 
-    public void addOutput(OOBOutput output) {
-    	outputs.put(output.getOutputId(),output);
-    }
-    
-    public void remove(OOBInput input)
-    {
-    	inputs.remove(input.getInputId());
-    }
-    
-    public void remove(OOBOutput output)
-    {
-    	outputs.remove(output.getOutputId());
-    }
-    
-    public void perform()
-    {
-    	frame=null;    	
-    	activeInputs=inputs.valuesIterator();
-    	while(activeInputs.hasNext())
-        {
-        	OOBInput input=activeInputs.next();
-        	frame=input.poll();
-        	if(frame!=null)
-        		break;        	        	   	  
-        }
-    }
-    
-    public Frame getData()
-    {
-    	if(!this.shouldRead)
-    	{
-    		if(frame!=null)
-    			frame.recycle();
-    		
-    		return null;
-    	}
-    	
-    	return frame;
-    }
-    
-    public void offer(Frame frame)
-    {
-    	if(!this.shouldWrite)
-    	{
-    		frame.recycle();
-    		return;
-    	}
-    	
-    	activeOutputs=outputs.valuesIterator();
-    	while(activeOutputs.hasNext())
-        {
-    		OOBOutput output=activeOutputs.next();
-        	if(!activeOutputs.hasNext())
-        		output.offer(frame);
-        	else
-        		output.offer(frame.clone());        		        	
-        	
-        	output.wakeup();
-        }
-    }
+	public int getComponentId() {
+		return componentId;
+	}
+
+	public void updateMode(Boolean shouldRead, Boolean shouldWrite) {
+		this.shouldRead = shouldRead;
+		this.shouldWrite = shouldWrite;
+	}
+
+	public void addInput(OOBInput input) {
+		inputs.put(input.getInputId(), input);
+	}
+
+	public void addOutput(OOBOutput output) {
+		outputs.put(output.getOutputId(), output);
+	}
+
+	public void remove(OOBInput input) {
+		inputs.remove(input.getInputId());
+	}
+
+	public void remove(OOBOutput output) {
+		outputs.remove(output.getOutputId());
+	}
+
+	public void perform() {
+		frame = null;
+		activeInputs = inputs.valuesIterator();
+		while (activeInputs.hasNext()) {
+			OOBInput input = activeInputs.next();
+			frame = input.poll();
+			if (frame != null) {
+				break;
+			}
+		}
+	}
+
+	public Frame getData() {
+		if (!this.shouldRead) {
+			if (frame != null) {
+				frame.recycle();
+			}
+			return null;
+		}
+		return frame;
+	}
+
+	public void offer(Frame frame) {
+		if (!this.shouldWrite) {
+			frame.recycle();
+			return;
+		}
+
+		activeOutputs = outputs.valuesIterator();
+		while (activeOutputs.hasNext()) {
+			OOBOutput output = activeOutputs.next();
+			if (!activeOutputs.hasNext()) {
+				output.offer(frame);
+			} else {
+				output.offer(frame.clone());
+			}
+			output.wakeup();
+		}
+	}
 }

@@ -159,12 +159,15 @@ public class AbstractSourceTest {
 
     public class MyTestSource extends AbstractSource {
         
-        private long seq = 0;
+		private static final long serialVersionUID = -2796811517778445960L;
+
+		private long seq = 0;
         
         public MyTestSource(Scheduler scheduler) {
-            super("", scheduler,scheduler.OUTPUT_QUEUE);
+            super("", scheduler, Scheduler.OUTPUT_QUEUE);
         }
 
+        @Override
         public Frame evolve(long timestamp) {
             Frame frame = Memory.allocate(320);
             frame.setOffset(0);
@@ -185,7 +188,9 @@ public class AbstractSourceTest {
     
     private class MyTestSink extends AbstractSink {
         
-        public MyTestSink() {
+		private static final long serialVersionUID = 1877357275120410315L;
+
+		public MyTestSink() {
             super("");
         }
 
@@ -193,15 +198,15 @@ public class AbstractSourceTest {
         public void onMediaTransfer(Frame frame) throws IOException {
             timestamp[count++] = frame.getTimestamp();
         }
-        
-        public void deactivate()
-        {
-        	
+
+        @Override
+        public void deactivate() {
+        }
+
+        @Override
+        public void activate() {
         }
         
-        public void activate()
-        {
-        	
-        }
     }
+    
 }

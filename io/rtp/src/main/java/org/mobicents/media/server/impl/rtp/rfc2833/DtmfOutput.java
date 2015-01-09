@@ -24,28 +24,22 @@ package org.mobicents.media.server.impl.rtp.rfc2833;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.RtpTransmitter;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
-/**
- *
- * @author Yulian oifa
- */
+
 /**
  * Transmitter implementation.
- *
+ * 
+ * @author Yulian oifa
  */
 public class DtmfOutput extends AbstractSink {
-	private static final Logger LOGGER = Logger.getLogger(DtmfOutput.class);
 
-	private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
-	
+	private static final long serialVersionUID = 1333531209641759516L;
+
 	@Deprecated
     private RTPDataChannel channel;
 	private RtpTransmitter transmitter;

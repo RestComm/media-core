@@ -24,13 +24,11 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
-import org.mobicents.media.core.endpoints.MediaGroup;
 
 /**
  * Basic implementation of the endpoint.
@@ -39,55 +37,54 @@ import org.mobicents.media.core.endpoints.MediaGroup;
  * @author amit bhayani
  */
 public class IvrEndpoint extends BaseMixerEndpointImpl {
-    
-	public IvrEndpoint(String localName) {
-    	super(localName);              
-    }
 
-	public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
-    	Connection connection=super.createConnection(type,isLocal);
-    	
-    	if(getActiveConnectionsCount()==1)
-    		mediaGroup.getDtmfDetector().activate();
-    	
-    	return connection;
-    }
-	
-	public void start() throws ResourceUnavailableException {		
-    	super.start();
-    	audioMixer.addComponent(mediaGroup.getAudioComponent());
-    	oobMixer.addComponent(mediaGroup.getOOBComponent());
+	public IvrEndpoint(String localName) {
+		super(localName);
 	}
-	
+
+	@Override
+	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+		Connection connection = super.createConnection(type, isLocal);
+		if (getActiveConnectionsCount() == 1) {
+			mediaGroup.getDtmfDetector().activate();
+		}
+		return connection;
+	}
+
+	@Override
+	public void start() throws ResourceUnavailableException {
+		super.start();
+		audioMixer.addComponent(mediaGroup.getAudioComponent());
+		oobMixer.addComponent(mediaGroup.getOOBComponent());
+	}
+
+	@Override
 	public void stop() {
-    	audioMixer.release(mediaGroup.getAudioComponent());
-    	oobMixer.release(mediaGroup.getOOBComponent());
-    	super.stop();    	
-    }
-	/**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public Component getResource(MediaType mediaType, ComponentType componentType)
-    {
-    	switch(mediaType)
-    	{
-    		case AUDIO:
-    			switch(componentType)
-    			{
-    				case PLAYER:
-    					return mediaGroup.getPlayer();    					
-    				case RECORDER:
-    					return mediaGroup.getRecorder();    					
-    				case DTMF_DETECTOR:
-    					return mediaGroup.getDtmfDetector();    					
-    				case DTMF_GENERATOR:
-    					return mediaGroup.getDtmfGenerator();    									
-    			}    			
-    			break;
-    	}
-    	
-    	return null;
-    }        
+		audioMixer.release(mediaGroup.getAudioComponent());
+		oobMixer.release(mediaGroup.getOOBComponent());
+		super.stop();
+	}
+
+	@Override
+	public Component getResource(MediaType mediaType, ComponentType componentType) {
+		switch (mediaType) {
+		case AUDIO:
+			switch (componentType) {
+			case PLAYER:
+				return mediaGroup.getPlayer();
+			case RECORDER:
+				return mediaGroup.getRecorder();
+			case DTMF_DETECTOR:
+				return mediaGroup.getDtmfDetector();
+			case DTMF_GENERATOR:
+				return mediaGroup.getDtmfGenerator();
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		return null;
+	}
 }

@@ -21,7 +21,6 @@
  */
 package org.mobicents.media.server.spi.recorder;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.mobicents.media.MediaSink;
@@ -92,5 +91,9 @@ public interface Recorder extends MediaSink {
      * @param listener the listener to be unregistered
      */
     public void removeListener(RecorderListener listener);
+    
+    /**
+     * Removes all registered listeners
+     */
     public void clearAllListeners();
 }

@@ -23,10 +23,10 @@
 package org.mobicents.media.core.naming;
 
 import java.util.ArrayList;
+
 import org.mobicents.media.core.endpoints.BaseEndpointImpl;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
-import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
@@ -122,8 +122,8 @@ public class NamingService {
 class Node {
     private String name;
 
-    private ArrayList<Node> childs = new ArrayList();
-    protected ArrayList<Endpoint> queue = new ArrayList();
+    private ArrayList<Node> childs = new ArrayList<Node>();
+    protected ArrayList<Endpoint> queue = new ArrayList<Endpoint>();
 
     protected Node(String[] fqn, int k) {
         this.name = fqn[k];

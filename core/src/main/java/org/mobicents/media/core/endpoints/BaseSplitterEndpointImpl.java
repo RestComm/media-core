@@ -22,27 +22,15 @@
 
 package org.mobicents.media.core.endpoints;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBSplitter;
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointState;
-import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.TooManyConnectionsException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * Basic implementation of the endpoint.
@@ -51,131 +39,115 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author amit bhayani
  */
 public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
-	
+
 	protected AudioSplitter audioSplitter;
 	protected OOBSplitter oobSplitter;
-	
-	private AtomicInteger loopbackCount=new AtomicInteger(0);
-	private AtomicInteger readCount=new AtomicInteger(0);
-	private AtomicInteger writeCount=new AtomicInteger(0);
-	
-	public BaseSplitterEndpointImpl(String localName) {
-        super(localName);              
-    }        
-    
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.spi.Endpoint#start()
-     */
-    public void start() throws ResourceUnavailableException {
-    	super.start();
-    	
-    	audioSplitter=new AudioSplitter(getScheduler());    	       
-    	oobSplitter=new OOBSplitter(getScheduler());
-    }    
-    
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#createConnection(org.mobicents.media.server.spi.ConnectionMode);
-     */
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
-    	Connection connection=super.createConnection(type,isLocal);
-    	
-    	switch(type)
-    	{
-    		case RTP:
-    			audioSplitter.addOutsideComponent(((BaseConnection)connection).getAudioComponent());        
-    			oobSplitter.addOutsideComponent(((BaseConnection)connection).getOOBComponent());
-    			break;
-    		case LOCAL:
-    			audioSplitter.addInsideComponent(((BaseConnection)connection).getAudioComponent());        
-    			oobSplitter.addInsideComponent(((BaseConnection)connection).getOOBComponent());
-    	    	break;
-    	}
-    	
-    	return connection;
-    }
 
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.spi.Endpoint#deleteConnection(Connection)
-     */
-    public void deleteConnection(Connection connection,ConnectionType connectionType) {
-    	super.deleteConnection(connection,connectionType);
-    	
-    	switch(connectionType)
-    	{
-    		case RTP:
-    			audioSplitter.releaseOutsideComponent(((BaseConnection)connection).getAudioComponent());        
-    			oobSplitter.releaseOutsideComponent(((BaseConnection)connection).getOOBComponent());
-    			break;
-    		case LOCAL:
-    			audioSplitter.releaseInsideComponent(((BaseConnection)connection).getAudioComponent());        
-    			oobSplitter.releaseInsideComponent(((BaseConnection)connection).getOOBComponent());
-    	    	break;
-    	}    	
-    }
-    
-    //should be handled on higher layers
-    public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode)
-    {
-    	int readCount=0,loopbackCount=0,writeCount=0;
-    	switch(oldMode)
-    	{
-    		case RECV_ONLY:
-    			readCount-=1;
-    			break;
-    		case SEND_ONLY:
-    			writeCount-=1;
-    			break;
-    		case SEND_RECV:
-    		case CONFERENCE:
-    			readCount-=1;
-    			writeCount-=1;    			
-    			break;
-    		case NETWORK_LOOPBACK:
-    			loopbackCount-=1;
-    			break;
-    	}
-    	
-    	switch(newMode)
-    	{
-    		case RECV_ONLY:
-    			readCount+=1;
-    			break;
-    		case SEND_ONLY:
-    			writeCount+=1;
-    			break;
-    		case SEND_RECV:
-    		case CONFERENCE:
-    			readCount+=1;
-    			writeCount+=1;    			
-    			break;
-    		case NETWORK_LOOPBACK:
-    			loopbackCount+=1;
-    			break;
-    	}
-    	    	
-    	if(readCount!=0 || writeCount!=0 || loopbackCount!=0)
-    	{
-    		//something changed
-    		loopbackCount=this.loopbackCount.addAndGet(loopbackCount);
-    		readCount=this.readCount.addAndGet(readCount);
-    		writeCount=this.writeCount.addAndGet(writeCount);
-    		
-    		if(loopbackCount>0 || readCount==0 || writeCount==0)
-    		{
-    			audioSplitter.stop();
-    			oobSplitter.stop();
-    		}
-    		else
-    		{
-    			audioSplitter.start();
-    			oobSplitter.start();
-    		}
-    	}    		
-    }
+	private AtomicInteger loopbackCount = new AtomicInteger(0);
+	private AtomicInteger readCount = new AtomicInteger(0);
+	private AtomicInteger writeCount = new AtomicInteger(0);
+
+	public BaseSplitterEndpointImpl(String localName) {
+		super(localName);
+	}
+
+	@Override
+	public void start() throws ResourceUnavailableException {
+		super.start();
+		audioSplitter = new AudioSplitter(getScheduler());
+		oobSplitter = new OOBSplitter(getScheduler());
+	}
+
+	@Override
+	public Connection createConnection(ConnectionType type, Boolean isLocal)
+			throws ResourceUnavailableException {
+		Connection connection = super.createConnection(type, isLocal);
+
+		switch (type) {
+		case RTP:
+			audioSplitter.addOutsideComponent(((BaseConnection) connection).getAudioComponent());
+			oobSplitter.addOutsideComponent(((BaseConnection) connection).getOOBComponent());
+			break;
+		case LOCAL:
+			audioSplitter.addInsideComponent(((BaseConnection) connection).getAudioComponent());
+			oobSplitter.addInsideComponent(((BaseConnection) connection).getOOBComponent());
+			break;
+		}
+		return connection;
+	}
+
+	@Override
+	public void deleteConnection(Connection connection, ConnectionType connectionType) {
+		super.deleteConnection(connection, connectionType);
+
+		switch (connectionType) {
+		case RTP:
+			audioSplitter.releaseOutsideComponent(((BaseConnection) connection).getAudioComponent());
+			oobSplitter.releaseOutsideComponent(((BaseConnection) connection).getOOBComponent());
+			break;
+		case LOCAL:
+			audioSplitter.releaseInsideComponent(((BaseConnection) connection).getAudioComponent());
+			oobSplitter.releaseInsideComponent(((BaseConnection) connection).getOOBComponent());
+			break;
+		}
+	}
+
+	@Override
+	public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
+		int readCount = 0, loopbackCount = 0, writeCount = 0;
+		switch (oldMode) {
+		case RECV_ONLY:
+			readCount -= 1;
+			break;
+		case SEND_ONLY:
+			writeCount -= 1;
+			break;
+		case SEND_RECV:
+		case CONFERENCE:
+			readCount -= 1;
+			writeCount -= 1;
+			break;
+		case NETWORK_LOOPBACK:
+			loopbackCount -= 1;
+			break;
+		default:
+			// XXX handle default case
+			break;
+		}
+
+		switch (newMode) {
+		case RECV_ONLY:
+			readCount += 1;
+			break;
+		case SEND_ONLY:
+			writeCount += 1;
+			break;
+		case SEND_RECV:
+		case CONFERENCE:
+			readCount += 1;
+			writeCount += 1;
+			break;
+		case NETWORK_LOOPBACK:
+			loopbackCount += 1;
+			break;
+		default:
+			// XXX handle default case
+			break;
+		}
+
+		if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
+			// something changed
+			loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
+			readCount = this.readCount.addAndGet(readCount);
+			writeCount = this.writeCount.addAndGet(writeCount);
+
+			if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
+				audioSplitter.stop();
+				oobSplitter.stop();
+			} else {
+				audioSplitter.start();
+				oobSplitter.start();
+			}
+		}
+	}
 }

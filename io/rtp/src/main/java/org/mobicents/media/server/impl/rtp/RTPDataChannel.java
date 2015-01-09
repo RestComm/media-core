@@ -52,7 +52,10 @@ import org.mobicents.media.server.utils.Text;
  * 
  * @author Oifa Yulian
  * @author Henrique Rosa
+ * 
+ * @deprecated use {@link RtpChannel}
  */
+@Deprecated
 public class RTPDataChannel {
 	
 	private Logger logger = Logger.getLogger(RTPDataChannel.class);
@@ -502,10 +505,6 @@ public class RTPDataChannel {
 
 		public boolean isWriteable() {
 			return true;
-		}
-
-		protected void allowReading() {
-			this.isReading = false;
 		}
 
 		private void flush() {

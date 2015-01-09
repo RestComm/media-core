@@ -47,7 +47,7 @@ public class EventBuffer implements DtmfDetectorListener {
     private BufferListener listener;
     
     private volatile boolean isActive = false;
-    private ConcurrentCyclicFIFO<DtmfEvent> queue = new ConcurrentCyclicFIFO();
+    private ConcurrentCyclicFIFO<DtmfEvent> queue = new ConcurrentCyclicFIFO<DtmfEvent>();
     
     private Logger logger = Logger.getLogger(EventBuffer.class);
     

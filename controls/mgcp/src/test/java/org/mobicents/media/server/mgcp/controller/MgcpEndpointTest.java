@@ -4,14 +4,16 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.mobicents.media.server.utils.Text;
+import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 
 /**
  *
@@ -38,7 +40,7 @@ public class MgcpEndpointTest {
     public void setUp() {
         endpoint = new MyTestEndpoint("test");
         
-        mgcpEndpoint = new MgcpEndpoint(endpoint, null, "localhost", 2727, new ArrayList());        
+        mgcpEndpoint = new MgcpEndpoint(endpoint, null, "localhost", 2727, new ArrayList<MgcpPackage>());        
         callManager = new CallManager();
     }
     

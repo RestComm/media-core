@@ -24,31 +24,26 @@ package org.mobicents.media.server.mgcp.pkg.au;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Collection;
 import java.net.MalformedURLException;
+import java.util.Collection;
+import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionState;
-import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
 import org.mobicents.media.server.utils.Text;
-
-import java.util.concurrent.Semaphore;
 
 /**
  * Implements play announcement signal.
@@ -428,17 +423,14 @@ public class PlayRecord extends Signal {
     }
     
     private Player getPlayer() {
-    	Endpoint endpoint = getEndpoint();
         return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
     }
 
     private DtmfDetector getDetector() {
-    	Endpoint endpoint = getEndpoint();
         return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
     }  
 
     private Recorder getRecorder() {
-    	Endpoint endpoint = getEndpoint();
         return (Recorder) getEndpoint().getResource(MediaType.AUDIO, ComponentType.RECORDER);
     }    
     

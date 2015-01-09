@@ -22,9 +22,9 @@
 package org.mobicents.media.server.mgcp.tx.cmd;
 
 import java.io.IOException;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.MgcpEvent;
-import org.mobicents.media.server.mgcp.controller.MgcpCall;
-import org.mobicents.media.server.mgcp.controller.MgcpConnection;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.naming.UnknownEndpointException;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
@@ -36,7 +36,6 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.utils.Text;
-import org.apache.log4j.Logger;
 /**
  * Endpoint configuration command
  * 
@@ -65,15 +64,12 @@ public class EndpointConfigurationCmd extends Action {
 
     private TaskChain handler;
 
-    private Scheduler scheduler;
-    
     private int code;
     private Text message;
     
     private final static Logger logger = Logger.getLogger(EndpointConfigurationCmd.class);    
     
     public EndpointConfigurationCmd(Scheduler scheduler) {
-    	this.scheduler=scheduler;
         handler = new TaskChain(2,scheduler);
         
         Configurator configurator = new Configurator();
@@ -94,9 +90,10 @@ public class EndpointConfigurationCmd extends Action {
             super();
         }
 
+        @Override
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -145,9 +142,10 @@ public class EndpointConfigurationCmd extends Action {
             super();
         }
         
+        @Override
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -179,7 +177,7 @@ public class EndpointConfigurationCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override

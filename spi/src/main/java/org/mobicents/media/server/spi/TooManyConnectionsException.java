@@ -23,23 +23,29 @@
 package org.mobicents.media.server.spi;
 
 /**
- *
+ * 
  * @author Oleg Kulikov
  */
 public class TooManyConnectionsException extends java.lang.Exception {
-    
-    /**
-     * Creates a new instance of <code>TooManyConnectionsException</code> without detail message.
-     */
-    public TooManyConnectionsException() {
-    }
-    
-    
-    /**
-     * Constructs an instance of <code>TooManyConnectionsException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public TooManyConnectionsException(String msg) {
-        super(msg);
-    }
+
+	private static final long serialVersionUID = -7814746502352762934L;
+
+	/**
+	 * Creates a new instance of <code>TooManyConnectionsException</code>
+	 * without detail message.
+	 */
+	public TooManyConnectionsException() {
+	}
+
+	/**
+	 * Constructs an instance of <code>TooManyConnectionsException</code> with
+	 * the specified detail message.
+	 * 
+	 * @param msg
+	 *            the detail message.
+	 */
+	public TooManyConnectionsException(String msg) {
+		super(msg);
+	}
+	
 }

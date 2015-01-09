@@ -22,16 +22,13 @@
 
 package org.mobicents.media.server.mgcp.tx;
 
+import java.net.InetSocketAddress;
+
+import org.mobicents.media.server.concurrent.Lock;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.concurrent.Lock;
-
-import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import java.util.Enumeration;
 
 /**
  * Implements pool of transactions.

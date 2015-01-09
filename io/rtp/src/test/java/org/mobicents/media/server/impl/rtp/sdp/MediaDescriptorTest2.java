@@ -40,6 +40,7 @@ import static org.junit.Assert.*;
  *
  * @author kulikov
  */
+@Deprecated
 public class MediaDescriptorTest2 {
     
     //there is an extra white space at the end of line

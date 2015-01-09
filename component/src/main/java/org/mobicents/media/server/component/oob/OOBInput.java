@@ -24,10 +24,9 @@ package org.mobicents.media.server.component.oob;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  * Implements input for compound components
@@ -35,9 +34,12 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author Yulian Oifa
  */
 public class OOBInput extends AbstractSink {
-    private int inputId;
+	
+	private static final long serialVersionUID = -5568937038806140983L;
+
+	private int inputId;
     private int limit=10;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO();
+    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
     
     /**
      * Creates new stream
@@ -47,26 +49,23 @@ public class OOBInput extends AbstractSink {
         this.inputId=inputId;        
     }
     
-    public int getInputId()
-    {
+    public int getInputId() {
     	return inputId;
     }
     
-    public void activate()
-    {
-    	
+    @Override
+    public void activate() {
     }
     
-    public void deactivate()
-    {
-    	
+    @Override
+    public void deactivate() {
     }
     
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
-    	if (buffer.size() >= limit) 
+    	if (buffer.size() >= limit) {
     		buffer.poll().recycle();
-        
+    	} 
     	buffer.offer(frame);    	
     }
 
@@ -76,7 +75,7 @@ public class OOBInput extends AbstractSink {
      * @return true if input buffer has no frames.
      */
     public boolean isEmpty() {
-        return buffer.size()==0;
+        return buffer.size() == 0;
     }
 
     /**
@@ -92,13 +91,14 @@ public class OOBInput extends AbstractSink {
      * Recycles input stream
      */
     public void recycle() {
-    	while(buffer.size()>0)
+    	while(buffer.size()>0) {
     		buffer.poll().recycle();    	    			       
+    	}
     }
     
-    public void resetBuffer()
-    {
-    	while(buffer.size()>0)
+    public void resetBuffer() {
+    	while(buffer.size()>0) {
     		buffer.poll().recycle();
+    	}
     }
 }

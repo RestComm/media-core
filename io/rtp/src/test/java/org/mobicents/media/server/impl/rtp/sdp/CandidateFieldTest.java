@@ -34,6 +34,7 @@ import static org.junit.Assert.*;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Deprecated
 public class CandidateFieldTest {
 
 	private final Text CANDIDATE_HOST  = new Text("a=candidate:1995739850 1 udp 2113937151 192.168.1.65 54550 typ host generation 0");

@@ -22,17 +22,17 @@
 
 package org.mobicents.media.server.impl.rtp.rfc2833;
 
+import java.util.ArrayList;
+
 import org.mobicents.media.server.component.oob.OOBInput;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
-import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-import org.apache.log4j.Logger;
-import java.util.ArrayList;
 
 /**
  *
@@ -40,11 +40,13 @@ import java.util.ArrayList;
  */
 public class DtmfInput extends AbstractSource {
    
+	private static final long serialVersionUID = 1648858097848867435L;
+
 	private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
 	private long period = 20000000L;
     private int packetSize = 4;
     
-    private ArrayList<Frame> frameBuffer=new ArrayList(5);
+    private ArrayList<Frame> frameBuffer=new ArrayList<Frame>(5);
     private Frame currFrame;
     
     private byte currTone=(byte)0xFF;
@@ -64,11 +66,9 @@ public class DtmfInput extends AbstractSource {
     
     private OOBInput input;
 	
-    private static final Logger logger = Logger.getLogger(DtmfInput.class);
-    
     public DtmfInput(Scheduler scheduler,RtpClock clock)
     {
-    	super("dtmfconverter", scheduler,scheduler.INPUT_QUEUE);
+    	super("dtmfconverter", scheduler, Scheduler.INPUT_QUEUE);
     	
     	this.clock=clock;
     	this.clock.setClockRate(8000);
@@ -201,6 +201,7 @@ public class DtmfInput extends AbstractSource {
     	return frameBuffer.remove(0);    	
     }
     
+    @Override
     public void reset() 
     {
     	hasEndOfEvent=false;

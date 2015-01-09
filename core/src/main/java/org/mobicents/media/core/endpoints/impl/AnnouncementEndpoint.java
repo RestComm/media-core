@@ -24,55 +24,49 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
-import org.mobicents.media.core.endpoints.MediaGroup;
 
 /**
  * Announcement endpoint implementation
  * 
- * @author yulian oifa 
+ * @author yulian oifa
  */
 public class AnnouncementEndpoint extends BaseMixerEndpointImpl {
-    
-	public AnnouncementEndpoint(String localName) {
-    	super(localName);              
-    }	
 
-	public void start() throws ResourceUnavailableException {		
-    	super.start();
-    	audioMixer.addComponent(mediaGroup.getAudioComponent());
-    	oobMixer.addComponent(mediaGroup.getOOBComponent());
+	public AnnouncementEndpoint(String localName) {
+		super(localName);
 	}
-	
+
+	@Override
+	public void start() throws ResourceUnavailableException {
+		super.start();
+		audioMixer.addComponent(mediaGroup.getAudioComponent());
+		oobMixer.addComponent(mediaGroup.getOOBComponent());
+	}
+
+	@Override
 	public void stop() {
-    	audioMixer.release(mediaGroup.getAudioComponent());
-    	oobMixer.release(mediaGroup.getOOBComponent());
-    	super.stop();    	
-    }
-	
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public Component getResource(MediaType mediaType, ComponentType componentType)
-    {
-    	switch(mediaType)
-    	{
-    		case AUDIO:
-    			switch(componentType)
-    			{
-    				case PLAYER:
-    					return mediaGroup.getPlayer();    					    						
-    			}    			
-    			break;
-    	}
-    	
-    	return null;
-    }        
+		audioMixer.release(mediaGroup.getAudioComponent());
+		oobMixer.release(mediaGroup.getOOBComponent());
+		super.stop();
+	}
+
+	@Override
+	public Component getResource(MediaType mediaType, ComponentType componentType) {
+		switch (mediaType) {
+		case AUDIO:
+			switch (componentType) {
+			case PLAYER:
+				return mediaGroup.getPlayer();
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		return null;
+	}
 }

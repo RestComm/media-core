@@ -23,16 +23,17 @@
 package org.mobicents.media.server.mgcp.pkg.au;
 
 import java.util.Collection;
-import org.mobicents.media.server.utils.Text;
 
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.utils.Text;
 /**
  * Represents parameters supplied with command.
  * 
  * @author oifa yulian
  */
 public class Options {
-	public static ConcurrentCyclicFIFO<Options> cache = new ConcurrentCyclicFIFO();
+
+	public static ConcurrentCyclicFIFO<Options> cache = new ConcurrentCyclicFIFO<Options>();
     
     private final static Text ann = new Text("an");
     private final static Text du = new Text("du");
@@ -113,7 +114,7 @@ public class Options {
     private long postSpeechTimer = -1,preSpeechTimer = -1;
     
     private Text digitPattern = new Text(new byte[2048], 0, 2048);
-    private Collection digitPatterns;
+    private Collection<Text> digitPatterns;
     
     private Text name = new Text();
     private Text value = new Text();

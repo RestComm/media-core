@@ -22,6 +22,7 @@
 package org.mobicents.media.server.mgcp.tx.cmd;
 
 import java.io.IOException;
+
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -38,14 +39,9 @@ public class NotifyCmd extends Action {
     
     private final static Logger logger = Logger.getLogger(NotifyCmd.class);    
     
-    private Scheduler scheduler;
-    
     public NotifyCmd(Scheduler scheduler) {
-    	this.scheduler=scheduler;
-    	
         handler = new TaskChain(1,scheduler);
         handler.add(new Sender());
-        
         this.setActionHandler(handler);
     }
     
@@ -55,9 +51,9 @@ public class NotifyCmd extends Action {
             super();
         }
 
-        public int getQueueNumber()
-        {
-        	return scheduler.MANAGEMENT_QUEUE;
+        @Override
+        public int getQueueNumber() {
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override

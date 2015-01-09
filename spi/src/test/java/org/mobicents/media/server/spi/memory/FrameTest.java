@@ -27,15 +27,13 @@
 
 package org.mobicents.media.server.spi.memory;
 
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
 
 /**

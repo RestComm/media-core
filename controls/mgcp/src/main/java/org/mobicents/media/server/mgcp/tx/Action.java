@@ -23,6 +23,7 @@
 package org.mobicents.media.server.mgcp.tx;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.scheduler.TaskChainListener;
@@ -109,28 +110,20 @@ public class Action implements TaskChainListener {
     public void rollback() {
         if (rollbackHandler != null) {
             //rollbackHandler.setDeadLine(tx.getTime() + 1000000L);
-            tx.scheduler().submit(rollbackHandler,tx.scheduler().MANAGEMENT_QUEUE);        
+            tx.scheduler().submit(rollbackHandler, Scheduler.MANAGEMENT_QUEUE);        
         } else {
             tx.onRollback();
         }
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.scheduler.TaskChainListener#onTermination() 
-     */
+    @Override
     public void onTermination() {
         if (listener != null) {
             listener.onComplete();
         }
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.scheduler.TaskChainListener#onException() 
-     */
+    @Override
     public void onException(Exception e) {
         if (listener != null) {
             listener.onFailure(e);
@@ -143,10 +136,12 @@ public class Action implements TaskChainListener {
     
     private class RollbackListener implements TaskListener {
 
+    	@Override
         public void onTerminate() {
             tx.onRollback();
         }
 
+    	@Override
         public void handlerError(Exception e) {
         }
         

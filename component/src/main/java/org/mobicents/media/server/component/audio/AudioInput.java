@@ -35,9 +35,12 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author Yulian Oifa
  */
 public class AudioInput extends AbstractSink {
-    private int inputId;
+	
+	private static final long serialVersionUID = -6377790166652701617L;
+
+	private int inputId;
     private int limit=3;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO();
+    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
     private Frame activeFrame=null;
     private byte[] activeData;
     private byte[] oldData;

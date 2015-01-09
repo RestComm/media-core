@@ -22,28 +22,29 @@
 package org.mobicents.media.server.component.audio;
 
 import java.io.IOException;
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.Scheduler;
+
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+
+import org.apache.log4j.Logger;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
-
-import org.apache.log4j.Logger;
 /**
  *
  * @author yulian oifa
  */
 public class SoundCard extends AbstractSink {
     
-    private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("LINEAR", 8000, 8, 1);
+	private static final long serialVersionUID = 3163342541948279068L;
+
+	private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("LINEAR", 8000, 8, 1);
     private final static Formats formats = new Formats();
 
     private final static Encoding GSM_ENCODING = new Encoding("GSM0610");
@@ -98,7 +99,7 @@ public class SoundCard extends AbstractSink {
             int sampleSizeInBits = fmt.getSampleSize();
             int channels = fmt.getChannels();
             int frameSize = (fmt.getSampleSize() / 8);
-            float frameRate = 1;
+            //float frameRate = 1;
             boolean bigEndian = false;
             
             Encoding encoding = getEncoding(fmt.getName().toString());

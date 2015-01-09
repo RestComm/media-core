@@ -23,8 +23,9 @@ package org.mobicents.media.server.mgcp.tx.cmd;
 
 import java.io.IOException;
 import java.util.Collection;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.MgcpEvent;
-import org.mobicents.media.server.mgcp.controller.Request;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.UnknownEventException;
 import org.mobicents.media.server.mgcp.controller.UnknownPackageException;
@@ -39,7 +40,6 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.utils.Text;
-import org.apache.log4j.Logger;
 /**
  *
  * @author yulian oifa
@@ -56,8 +56,6 @@ public class NotificationRequestCmd extends Action {
     private TaskChain handler;
     private ErrorHandler errorHandler;
     
-    private Scheduler scheduler;
-    
     //error code and message
     private int code;
     private Text message;
@@ -65,7 +63,6 @@ public class NotificationRequestCmd extends Action {
     private final static Logger logger = Logger.getLogger(NotificationRequestCmd.class);    
           
     public NotificationRequestCmd(Scheduler scheduler) {
-    	this.scheduler=scheduler;
         handler = new TaskChain(3,scheduler);
         
         Request req = new Request();
@@ -88,9 +85,10 @@ public class NotificationRequestCmd extends Action {
             super();
         }
 
+        @Override
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -172,9 +170,10 @@ public class NotificationRequestCmd extends Action {
             super();
         }
         
+        @Override
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -203,9 +202,10 @@ public class NotificationRequestCmd extends Action {
             super();
         }
         
+        @Override
         public int getQueueNumber()
         {        	
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -222,9 +222,10 @@ public class NotificationRequestCmd extends Action {
             super();
         }
         
+        @Override
         public int getQueueNumber()
         {
-        	return scheduler.MANAGEMENT_QUEUE;
+        	return Scheduler.MANAGEMENT_QUEUE;
         }
 
         @Override

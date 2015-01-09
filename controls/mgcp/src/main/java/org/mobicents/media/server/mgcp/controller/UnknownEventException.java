@@ -22,22 +22,28 @@
 package org.mobicents.media.server.mgcp.controller;
 
 /**
- *
+ * 
  * @author kulikov
  */
 public class UnknownEventException extends Exception {
 
-    /**
-     * Creates a new instance of <code>UnknownEventException</code> without detail message.
-     */
-    public UnknownEventException() {
-    }
+	private static final long serialVersionUID = 4156538782249810362L;
 
-    /**
-     * Constructs an instance of <code>UnknownEventException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public UnknownEventException(String msg) {
-        super(msg);
-    }
+	/**
+	 * Creates a new instance of <code>UnknownEventException</code> without
+	 * detail message.
+	 */
+	public UnknownEventException() {
+	}
+
+	/**
+	 * Constructs an instance of <code>UnknownEventException</code> with the
+	 * specified detail message.
+	 * 
+	 * @param msg
+	 *            the detail message.
+	 */
+	public UnknownEventException(String msg) {
+		super(msg);
+	}
 }

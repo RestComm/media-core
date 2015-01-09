@@ -23,23 +23,28 @@
 package org.mobicents.media.server.spi.listener;
 
 /**
- *
+ * 
  * @author kulikov
  */
 public class TooManyListenersException extends Exception {
 
-    /**
-     * Creates a new instance of <code>TooManyListenersException</code> without detail message.
-     */
-    public TooManyListenersException() {
-    }
+	private static final long serialVersionUID = -4275521555834796836L;
 
+	/**
+	 * Creates a new instance of <code>TooManyListenersException</code> without
+	 * detail message.
+	 */
+	public TooManyListenersException() {
+	}
 
-    /**
-     * Constructs an instance of <code>TooManyListenersException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public TooManyListenersException(String msg) {
-        super(msg);
-    }
+	/**
+	 * Constructs an instance of <code>TooManyListenersException</code> with the
+	 * specified detail message.
+	 * 
+	 * @param msg
+	 *            the detail message.
+	 */
+	public TooManyListenersException(String msg) {
+		super(msg);
+	}
 }

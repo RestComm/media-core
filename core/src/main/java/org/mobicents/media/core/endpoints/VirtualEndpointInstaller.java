@@ -29,126 +29,128 @@ import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
- * Endpoint installer is used for automatic creation and instalation of endpoints.
- *
+ * Endpoint installer is used for automatic creation and instalation of
+ * endpoints.
+ * 
  * It uses three parameters: the name pattern, class name and configuration
+ * 
  * @author yulian oifa
  */
 public class VirtualEndpointInstaller implements EndpointInstaller {
 
-    private String namePattern;    
-    private String endpointClass;
-    protected Integer initialSize;
-    
-    protected EndpointNameGenerator nameParser;
-    protected Server server;
+	private String namePattern;
+	private String endpointClass;
+	protected Integer initialSize;
 
-    protected AtomicInteger lastEndpointID=new AtomicInteger(1);
-    
-    /**
-     * Creates new endpoint installer.
-     */
-    public VirtualEndpointInstaller() {
-        nameParser = new EndpointNameGenerator();
-    }
+	protected EndpointNameGenerator nameParser;
+	protected Server server;
 
-    /**
-     * Creates relation with server instance.
-     * 
-     * @param server the server instance.
-     */
-    public void setServer(Server server) {
-        this.server = server;
-    }
+	protected AtomicInteger lastEndpointID = new AtomicInteger(1);
 
-    /**
-     * Gets the pattern used for generating endpoint name.
-     *
-     * @return text pattern
-     */
-    public String getNamePattern() {
-        return namePattern;
-    }
+	/**
+	 * Creates new endpoint installer.
+	 */
+	public VirtualEndpointInstaller() {
+		nameParser = new EndpointNameGenerator();
+	}
 
-    /**
-     * Sets the pattern used for generating endpoint name.
-     *
-     * @param namePattern the pattern text.
-     */
-    public void setNamePattern(String namePattern) {
-        this.namePattern = namePattern;
-    }
+	/**
+	 * Creates relation with server instance.
+	 * 
+	 * @param server
+	 *            the server instance.
+	 */
+	public void setServer(Server server) {
+		this.server = server;
+	}
 
-    /**
-     * Gets the name of the class implementing endpoint.
-     * 
-     * @return the fully qualified class name.
-     */
-    public String getEndpointClass() {
-        return this.endpointClass;
-    }
+	/**
+	 * Gets the pattern used for generating endpoint name.
+	 * 
+	 * @return text pattern
+	 */
+	public String getNamePattern() {
+		return namePattern;
+	}
 
-    /**
-     * Sets the name of the class implementing endpoint.
-     *
-     * @param endpointClass the fully qualified class name.
-     */
-    public void setEndpointClass(String endpointClass) {
-        this.endpointClass = endpointClass;
-    }    
-    
-    /**
-     * Gets the initial size of endpoints pool
-     * 
-     * @return initial size
-     */
-    public Integer getInitialSize() {
-        return this.initialSize;
-    }
+	/**
+	 * Sets the pattern used for generating endpoint name.
+	 * 
+	 * @param namePattern
+	 *            the pattern text.
+	 */
+	public void setNamePattern(String namePattern) {
+		this.namePattern = namePattern;
+	}
 
-    /**
-     * Sets the initial size of endpoints pool
-     *
-     * @param initial size
-     */
-    public void setInitialSize(Integer initialSize) {
-        this.initialSize = initialSize;
-    }    
-    
-    /**
-     * (Non Java-doc.)
-     *
-     * @throws ResourceUnavailableException
-     */
-    public void install() {
-        ClassLoader loader = Server.class.getClassLoader();
-        for(int i=0;i<initialSize;i++)
-        	newEndpoint();                    
-    }
+	/**
+	 * Gets the name of the class implementing endpoint.
+	 * 
+	 * @return the fully qualified class name.
+	 */
+	public String getEndpointClass() {
+		return this.endpointClass;
+	}
 
-    public void newEndpoint()
-    {
-    	ClassLoader loader = Server.class.getClassLoader();
-        nameParser.setPattern(namePattern);
-        try {
-            Constructor constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
-            Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
-            server.install(endpoint,this);
-        } catch (Exception e) {
-            server.logger.error("Couldn't instantiate endpoint", e);
-        }                
-    }
-    
-    public boolean canExpand() 
-    {
-    	return true;
-    }
-    
-    public void uninstall() {
-    }
+	/**
+	 * Sets the name of the class implementing endpoint.
+	 * 
+	 * @param endpointClass
+	 *            the fully qualified class name.
+	 */
+	public void setEndpointClass(String endpointClass) {
+		this.endpointClass = endpointClass;
+	}
+
+	/**
+	 * Gets the initial size of endpoints pool
+	 * 
+	 * @return initial size
+	 */
+	public Integer getInitialSize() {
+		return this.initialSize;
+	}
+
+	/**
+	 * Sets the initial size of endpoints pool
+	 * 
+	 * @param initial
+	 *            size
+	 */
+	public void setInitialSize(Integer initialSize) {
+		this.initialSize = initialSize;
+	}
+
+	@Override
+	public void install() {
+		ClassLoader loader = Server.class.getClassLoader();
+		for (int i = 0; i < initialSize; i++) {
+			newEndpoint();
+		}
+	}
+
+	@Override
+	public void newEndpoint() {
+		ClassLoader loader = Server.class.getClassLoader();
+		nameParser.setPattern(namePattern);
+		try {
+			Constructor constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
+			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
+			server.install(endpoint, this);
+		} catch (Exception e) {
+			server.logger.error("Couldn't instantiate endpoint", e);
+		}
+	}
+
+	@Override
+	public boolean canExpand() {
+		return true;
+	}
+
+	@Override
+	public void uninstall() {
+	}
 
 }

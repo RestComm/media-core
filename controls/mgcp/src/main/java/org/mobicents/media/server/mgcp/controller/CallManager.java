@@ -22,7 +22,6 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.utils.Text;
 
 /**
  * Maintains MGCP calls.
@@ -30,32 +29,36 @@ import org.mobicents.media.server.utils.Text;
  * @author yulian oifa
  */
 public class CallManager {
-    //list of active calls
-	private ConcurrentMap<MgcpCall> calls=new ConcurrentMap();
-    
-    public MgcpCall getCall(int id, boolean allowNew) {
-    	MgcpCall result=calls.get(id);
-    	
-    	if(result!=null)
-    		return result;
-    	
-    	if (!allowNew) return null;
-        
-    	MgcpCall call = new MgcpCall(this, id);
-    	result=calls.putIfAbsent(id,call); 
-        if(result!=null)
-        	return result;
-        
-    	return call;
-    }
-    
-    /**
-     * Terminates specified call.
-     * 
-     * @param call the call to be terminated
-     */
-    protected void terminate(MgcpCall call) {
-    	calls.remove(call.id);    	
-    }    
-    
+	// list of active calls
+	private ConcurrentMap<MgcpCall> calls = new ConcurrentMap<MgcpCall>();
+
+	public MgcpCall getCall(int id, boolean allowNew) {
+		MgcpCall result = calls.get(id);
+
+		if (result != null) {
+			return result;
+		}
+
+		if (!allowNew) {
+			return null;
+		}
+
+		MgcpCall call = new MgcpCall(this, id);
+		result = calls.putIfAbsent(id, call);
+		if (result != null) {
+			return result;
+		}
+		return call;
+	}
+
+	/**
+	 * Terminates specified call.
+	 * 
+	 * @param call
+	 *            the call to be terminated
+	 */
+	protected void terminate(MgcpCall call) {
+		calls.remove(call.id);
+	}
+
 }

@@ -30,6 +30,7 @@ import org.mobicents.media.server.utils.Text;
  *
  * @author yulian oifa
  */
+@Deprecated
 public class WebRTCSdpTemplate extends SdpTemplate {
 
 	private Text localFingerprint;

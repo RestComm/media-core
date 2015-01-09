@@ -21,6 +21,7 @@
  */
 
 package org.mobicents.media.server.mgcp.pkg.au;
+
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 
 import org.mobicents.media.server.utils.Text;
@@ -31,31 +32,31 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class EventData {
-	private Event event;
-    private Text text;
-    
-    private boolean isComplete=false;
-    
-    
-    /**
-     * Creates event data.
-     *      
-     */
-    public EventData(Event event,Text text,Boolean isCompelete) {
-        this.event=event;
-        this.text=text;
-        this.isComplete=isComplete;
-    }
 
-    public boolean hasIsComplete() {
-        return this.isComplete;
-    }
-    
-    public Text getText() {
-        return text;
-    }
-    
-    public Event getEvent() {
-        return event;
-    }        
+	private Event event;
+	private Text text;
+
+	private boolean isComplete = false;
+
+	/**
+	 * Creates event data.
+	 * 
+	 */
+	public EventData(Event event, Text text, Boolean isComplete) {
+		this.event = event;
+		this.text = text;
+		this.isComplete = isComplete;
+	}
+
+	public boolean hasIsComplete() {
+		return this.isComplete;
+	}
+
+	public Text getText() {
+		return text;
+	}
+
+	public Event getEvent() {
+		return event;
+	}
 }

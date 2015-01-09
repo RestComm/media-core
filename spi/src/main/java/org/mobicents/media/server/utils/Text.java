@@ -271,7 +271,7 @@ public class Text implements CharSequence {
         int limit = pos + len;
         int mark = pointer;
 
-        ArrayList<Text> tokens = new ArrayList();
+        ArrayList<Text> tokens = new ArrayList<Text>();
         while (pointer < limit) {
             if (chars[pointer] == separator) {
                 tokens.add(new Text(chars, mark, pointer - mark));
@@ -291,7 +291,7 @@ public class Text implements CharSequence {
      * @return array of text strings.
      */
     public Collection<Text> split(Text separator) {
-    	ArrayList<Text> tokens = new ArrayList();
+    	ArrayList<Text> tokens = new ArrayList<Text>();
     	int pointer = pos;
         int limit = pos + len;
         int mark = pointer;

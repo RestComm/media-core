@@ -52,6 +52,7 @@ import static org.junit.Assert.*;
  *
  * @author oifa yulian
  */
+@Deprecated
 public class RTPDataChannelTest {
 
     //clock and scheduler
@@ -264,10 +265,10 @@ public class RTPDataChannelTest {
         assertEquals(0, fcount);
     }
 
-    private void print(int[] s) {
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
-    }
+//    private void print(int[] s) {
+//        for (int i = 0; i < s.length; i++) {
+//            System.out.print(s[i] + " ");
+//        }
+//        System.out.println();
+//    }
 }

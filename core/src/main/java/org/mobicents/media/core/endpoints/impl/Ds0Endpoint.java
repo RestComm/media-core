@@ -24,46 +24,38 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
-import org.mobicents.media.core.endpoints.MediaGroup;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.spi.MediaType;
 
 /**
  * Ds0 Endpoint Implementation
  * 
- * @author yulian oifa 
+ * @author yulian oifa
  */
 public class Ds0Endpoint extends BaseSS7EndpointImpl {
-    
-	public Ds0Endpoint(String localName,ChannelsManager channelsManager,int channelID,boolean isALaw) {
-    	super(localName,channelsManager,channelID,isALaw);              
-    }	
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public Component getResource(MediaType mediaType, ComponentType componentType)
-    {
-    	switch(mediaType)
-    	{
-    		case AUDIO:
-    			switch(componentType)
-    			{
-    				case SIGNAL_DETECTOR:
-    					return mediaGroup.getSignalDetector();    					
-    				case SIGNAL_GENERATOR:
-    					return mediaGroup.getSignalGenerator();    					
-    			}    			
-    			break;
-    	}
-    	
-    	return null;
-    }        
+	public Ds0Endpoint(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
+		super(localName, channelsManager, channelID, isALaw);
+	}
+
+	@Override
+	public Component getResource(MediaType mediaType,
+			ComponentType componentType) {
+		switch (mediaType) {
+		case AUDIO:
+			switch (componentType) {
+			case SIGNAL_DETECTOR:
+				return mediaGroup.getSignalDetector();
+			case SIGNAL_GENERATOR:
+				return mediaGroup.getSignalGenerator();
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		return null;
+	}
 }

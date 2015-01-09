@@ -40,6 +40,9 @@ import org.mobicents.media.server.spi.memory.Frame;
  * The Media source of RTP data.
  */
 public class RTPInput extends AbstractSource implements BufferListener {
+	
+	private static final long serialVersionUID = -737259897530641186L;
+
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);	
 	private long period = 20000000L;
     private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;

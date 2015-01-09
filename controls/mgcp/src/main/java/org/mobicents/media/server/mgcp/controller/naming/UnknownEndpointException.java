@@ -23,22 +23,28 @@
 package org.mobicents.media.server.mgcp.controller.naming;
 
 /**
- *
+ * 
  * @author kulikov
  */
 public class UnknownEndpointException extends Exception {
 
-    /**
-     * Creates a new instance of <code>UnknownEndpointException</code> without detail message.
-     */
-    public UnknownEndpointException() {
-    }
+	private static final long serialVersionUID = -6579529468743922037L;
 
-    /**
-     * Constructs an instance of <code>UnknownEndpointException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public UnknownEndpointException(String msg) {
-        super(msg);
-    }
+	/**
+	 * Creates a new instance of <code>UnknownEndpointException</code> without
+	 * detail message.
+	 */
+	public UnknownEndpointException() {
+	}
+
+	/**
+	 * Constructs an instance of <code>UnknownEndpointException</code> with the
+	 * specified detail message.
+	 * 
+	 * @param msg
+	 *            the detail message.
+	 */
+	public UnknownEndpointException(String msg) {
+		super(msg);
+	}
 }

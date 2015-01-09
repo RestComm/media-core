@@ -22,29 +22,23 @@
 
 package org.mobicents.media.server.impl;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.mobicents.media.server.spi.format.EncodingName;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.memory.Frame;
-
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.memory.Frame;
 /**
  *
  * @author yulian oifa
  */
 public class AbstractComponentTest {
-
-    private final static Format FORMAT = FormatFactory.createAudioFormat(new EncodingName("test"));
-    private final static Formats formats = new Formats();
 
     private TestSource src;
     private TestSink sink;
@@ -90,12 +84,10 @@ public class AbstractComponentTest {
 
     private class TestSource extends AbstractSource {
 
-        public TestSource(String name,Scheduler scheduler) {
-            super(name, scheduler,scheduler.OUTPUT_QUEUE);
-        }
+		private static final long serialVersionUID = 3317111509574993827L;
 
-        public Formats getNativeFormats() {
-            return formats;
+		public TestSource(String name,Scheduler scheduler) {
+            super(name, scheduler, Scheduler.OUTPUT_QUEUE);
         }
 
         @Override
@@ -105,28 +97,24 @@ public class AbstractComponentTest {
     }
 
     private class TestSink extends AbstractSink {
-    	public TestSink(String name) {
-            super(name);
-        }
+    	
+		private static final long serialVersionUID = 5713559743426595813L;
 
-        public Formats getNativeFormats() {
-            return formats;
+		public TestSink(String name) {
+            super(name);
         }
 
         @Override
         public void onMediaTransfer(Frame frame) {
         }
-        
-        public void deactivate()
-        {
-        	
+
+        @Override
+        public void deactivate() {        	
         }
-        
-        public void activate()
-        {
-        	
+
+        @Override
+        public void activate() {
         }
     }
-
 
 }

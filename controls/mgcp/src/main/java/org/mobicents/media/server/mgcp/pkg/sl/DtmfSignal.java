@@ -21,8 +21,6 @@
  */
 package org.mobicents.media.server.mgcp.pkg.sl;
 
-import org.mobicents.media.server.utils.Text;
-
 /**
  * @author quintana.thomas@gmail.com (Thomas Quintana)
  * @author Yulian Oifa

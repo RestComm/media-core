@@ -69,7 +69,6 @@ public class BaseConnectionFSM_FR_Test {
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
         
     private volatile int failureRate;
-    private String hint;
 
     private Random rnd = new Random();
 

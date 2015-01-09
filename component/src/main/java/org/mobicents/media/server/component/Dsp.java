@@ -25,7 +25,6 @@ package org.mobicents.media.server.component;
 import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -54,20 +53,12 @@ public class Dsp implements Processor {
         this.codecs = codecs;
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.dsp.Processor#getCodecs() 
-     */
+    @Override
     public Codec[] getCodecs() {
         return codecs;
     }    
 	    
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.dsp.Processor#process(org.mobicents.media.server.spi.memory.Frame,org.mobicents.media.server.spi.format.Format,org.mobicents.media.server.spi.format.Format)  
-     */
+    @Override
     public Frame process(Frame frame,Format source,Format destination) {
     	if (source==null || destination==null)
 			return frame;

@@ -24,32 +24,22 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
-import org.mobicents.media.core.endpoints.MediaGroup;
+import org.mobicents.media.server.spi.MediaType;
 
 /**
  * Conference endpoint implementation
  * 
- * @author yulian oifa 
+ * @author yulian oifa
  */
 public class ConferenceEndpoint extends BaseMixerEndpointImpl {
-    
+
 	public ConferenceEndpoint(String localName) {
-    	super(localName);              
-    }
-	
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public Component getResource(MediaType mediaType, ComponentType componentType)
-    {
-    	return null;
-    }        
+		super(localName);
+	}
+
+	@Override
+	public Component getResource(MediaType mediaType, ComponentType componentType) {
+		return null;
+	}
 }

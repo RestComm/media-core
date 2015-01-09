@@ -34,6 +34,7 @@ import org.mobicents.media.server.spi.format.AudioFormat;
  * @author yulian oifa
  * @author Henrique Rosa
  */
+@Deprecated
 public class SdpTemplate {
 	
 	private SdpComparator sdpComparator;

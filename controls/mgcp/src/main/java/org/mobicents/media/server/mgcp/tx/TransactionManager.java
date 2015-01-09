@@ -22,17 +22,16 @@
 
 package org.mobicents.media.server.mgcp.tx;
 
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.Enumeration;
-import java.util.Iterator;
+import org.mobicents.media.server.scheduler.Task;
 
 /**
  * Implements pool of transactions.
@@ -44,12 +43,12 @@ public class TransactionManager {
     private static java.util.concurrent.atomic.AtomicInteger ID = new AtomicInteger(1);
     
     //pool of transaction objects
-    private  ConcurrentCyclicFIFO<Transaction> pool=new ConcurrentCyclicFIFO();
+	private ConcurrentCyclicFIFO<Transaction> pool = new ConcurrentCyclicFIFO<Transaction>();
     
     //cache size in 100ms units    
-    private static final int cacheSize=5;
-    private ConcurrentCyclicFIFO<Transaction>[] cache=new ConcurrentCyclicFIFO[cacheSize];
-    private int cleanIndex=0;
+	private static final int cacheSize = 5;
+	private ConcurrentCyclicFIFO<Transaction>[] cache = new ConcurrentCyclicFIFO[cacheSize];
+	private int cleanIndex = 0;
     
     //currently active transactions.
     private ConcurrentMap<Transaction> active;
@@ -78,20 +77,19 @@ public class TransactionManager {
     public TransactionManager(Scheduler scheduler, int size) {
         this.scheduler = scheduler;
         
-        active = new ConcurrentMap();
+        active = new ConcurrentMap<Transaction>();
         
         for (int i = 0; i < size; i++) {
         	pool.offer(new Transaction(this));            
         }      
         
-        for(int i=0;i<cache.length;i++)
+        for(int i=0;i<cache.length;i++) {
         	cache[i]=new ConcurrentCyclicFIFO<Transaction>();
-        
+        }
         cacheHeartbeat = new Heartbeat();        
     }
     
-    public void start()
-    {
+    public void start() {
     	scheduler.submitHeatbeat(cacheHeartbeat);
     }
     
@@ -167,12 +165,11 @@ public class TransactionManager {
 		return null;
 	}
     
-    public Transaction allocateNew(int id)
-    {
+    public Transaction allocateNew(int id) {
     	Transaction t=begin(ID.getAndIncrement());
-    	if(t!=null)
+    	if(t!=null) {
     		t.id=id;
-    	
+    	}
     	return t;
     }
     
@@ -184,13 +181,11 @@ public class TransactionManager {
      */
     private Transaction begin(int id) {
         Transaction t = pool.poll();
-        
-        if (t == null)
+        if (t == null) {
         	t=new Transaction(this);
-        
+        }
         t.uniqueId = id;
         active.put(t.uniqueId,t);        
-        
         return t;
     }
 
@@ -247,9 +242,10 @@ public class TransactionManager {
             scheduler.submitHeatbeat(this);
             return 0;
         }
-    
+
+        @Override
         public int getQueueNumber() {
-            return scheduler.HEARTBEAT_QUEUE;
+            return Scheduler.HEARTBEAT_QUEUE;
         }
     }
 }

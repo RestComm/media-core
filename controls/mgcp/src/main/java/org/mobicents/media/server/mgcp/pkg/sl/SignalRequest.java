@@ -183,7 +183,7 @@ public class SignalRequest extends Signal implements DtmfGeneratorListener
             
             public int getQueueNumber()
             {
-                    return scheduler.HEARTBEAT_QUEUE;
+                    return Scheduler.HEARTBEAT_QUEUE;
             }     
             
             public void disable()
@@ -196,11 +196,6 @@ public class SignalRequest extends Signal implements DtmfGeneratorListener
                     this.active.set(true);          
             }
             
-            public boolean isActive()
-            {
-                    return this.active.get();
-            }
-
             @Override
             public long perform() 
             {      

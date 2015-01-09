@@ -24,14 +24,10 @@ package org.mobicents.media.server.component.oob;
 
 import java.util.Iterator;
 
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  * Implements compound oob splitter , one of core components of mms 3.0
@@ -39,168 +35,165 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author Yulian Oifa
  */
 public class OOBSplitter {
-    //scheduler for mixer job scheduling
-    private Scheduler scheduler;
-    
-    //The pools of components
-    private ConcurrentMap<OOBComponent> insideComponents = new ConcurrentMap();
-    private ConcurrentMap<OOBComponent> outsideComponents = new ConcurrentMap();
-        
-    private Iterator<OOBComponent> insideRIterator=insideComponents.valuesIterator();
-    private Iterator<OOBComponent> insideSIterator=insideComponents.valuesIterator();
-    
-    private Iterator<OOBComponent> outsideRIterator=outsideComponents.valuesIterator();
-    private Iterator<OOBComponent> outsideSIterator=outsideComponents.valuesIterator();
-    
-    private InsideMixTask insideMixer;
-    private OutsideMixTask outsideMixer;
-    private volatile boolean started = false;
+	// scheduler for mixer job scheduling
+	private Scheduler scheduler;
 
-    protected long mixCount = 0;
-    
-    public OOBSplitter(Scheduler scheduler) {
-        this.scheduler = scheduler;
-        
-        insideMixer = new InsideMixTask();        
-        outsideMixer = new OutsideMixTask();
-    }
+	// The pools of components
+	private ConcurrentMap<OOBComponent> insideComponents = new ConcurrentMap<OOBComponent>();
+	private ConcurrentMap<OOBComponent> outsideComponents = new ConcurrentMap<OOBComponent>();
 
-    public void addInsideComponent(OOBComponent component)
-    {
-    	insideComponents.put(component.getComponentId(),component);    	
-    }
-    
-    public void addOutsideComponent(OOBComponent component)
-    {
-    	outsideComponents.put(component.getComponentId(),component);    	
-    }
-    
-    /**
-     * Releases inside component
-     *
-     * @param component
-     */
-    public void releaseInsideComponent(OOBComponent component) {
-    	insideComponents.remove(component.getComponentId());    	
-    }
-    
-    /**
-     * Releases outside component
-     *
-     * @param component
-     */
-    public void releaseOutsideComponent(OOBComponent component) {
-    	outsideComponents.remove(component.getComponentId());    	
-    }
-    
-    public void start() {
-    	mixCount = 0;
-    	started = true;
-    	scheduler.submit(insideMixer,scheduler.MIXER_MIX_QUEUE);
-    	scheduler.submit(outsideMixer,scheduler.MIXER_MIX_QUEUE);
-    }    
-    
-    public void stop() {
-    	started = false;
-    	insideMixer.cancel();
-    	outsideMixer.cancel();
-    }
+	private Iterator<OOBComponent> insideRIterator = insideComponents.valuesIterator();
+	private Iterator<OOBComponent> insideSIterator = insideComponents.valuesIterator();
 
-    private class InsideMixTask extends Task {
-    	private Frame current;
-        
-        public InsideMixTask() {
-            super();
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MIXER_MIX_QUEUE;
-        }
-        
-        public long perform() {
-        	//summarize all
-        	current=null;
-        	insideRIterator=insideComponents.valuesIterator();
-            while(insideRIterator.hasNext())
-            {
-            	OOBComponent component=insideRIterator.next();
-            	component.perform();
-            	current=component.getData();
-            	if(current!=null)            	
-            		break;            	
-            }
+	private Iterator<OOBComponent> outsideRIterator = outsideComponents.valuesIterator();
+	private Iterator<OOBComponent> outsideSIterator = outsideComponents.valuesIterator();
 
-            if(current==null)
-            {
-            	scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
-                mixCount++;            
-                return 0;            
-            }
-            
-            //get data for each component
-            outsideSIterator=outsideComponents.valuesIterator();            
-            while(outsideSIterator.hasNext())
-            {
-            	OOBComponent component=outsideSIterator.next();
-            	if(!outsideSIterator.hasNext())
-            		component.offer(current);
-            	else
-            		component.offer(current.clone());
-            }
-            
-            scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
-            mixCount++;            
-        	return 0;            
-        }
-    }
-    
-    private class OutsideMixTask extends Task {
-    	private Frame current;
-        
-        public OutsideMixTask() {
-            super();
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MIXER_MIX_QUEUE;
-        }
-        
-        public long perform() {
-        	//summarize all
-            current=null;
-            outsideRIterator=outsideComponents.valuesIterator();
-            while(outsideRIterator.hasNext())
-            {
-            	OOBComponent component=outsideRIterator.next();
-            	component.perform();
-            	current=component.getData();
-            	if(current!=null)
-            		break;            	
-            }
+	private InsideMixTask insideMixer;
+	private OutsideMixTask outsideMixer;
+	private volatile boolean started = false;
 
-            if(current==null)
-            {
-            	scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
-                mixCount++;            
-                return 0;            
-            }
-            
-            //get data for each component
-            insideSIterator=insideComponents.valuesIterator();
-            while(insideSIterator.hasNext())
-            {
-            	OOBComponent component=insideSIterator.next();
-            	if(!insideSIterator.hasNext())
-            		component.offer(current);
-            	else
-            		component.offer(current.clone());            	
-            }
-            
-            scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
-            mixCount++;            
-        	return 0;
-        }
-    }
+	protected long mixCount = 0;
+
+	public OOBSplitter(Scheduler scheduler) {
+		this.scheduler = scheduler;
+		this.insideMixer = new InsideMixTask();
+		this.outsideMixer = new OutsideMixTask();
+	}
+
+	public void addInsideComponent(OOBComponent component) {
+		insideComponents.put(component.getComponentId(), component);
+	}
+
+	public void addOutsideComponent(OOBComponent component) {
+		outsideComponents.put(component.getComponentId(), component);
+	}
+
+	/**
+	 * Releases inside component
+	 * 
+	 * @param component
+	 */
+	public void releaseInsideComponent(OOBComponent component) {
+		insideComponents.remove(component.getComponentId());
+	}
+
+	/**
+	 * Releases outside component
+	 * 
+	 * @param component
+	 */
+	public void releaseOutsideComponent(OOBComponent component) {
+		outsideComponents.remove(component.getComponentId());
+	}
+
+	public void start() {
+		mixCount = 0;
+		started = true;
+		scheduler.submit(insideMixer, Scheduler.MIXER_MIX_QUEUE);
+		scheduler.submit(outsideMixer, Scheduler.MIXER_MIX_QUEUE);
+	}
+
+	public void stop() {
+		started = false;
+		insideMixer.cancel();
+		outsideMixer.cancel();
+	}
+
+	private class InsideMixTask extends Task {
+		private Frame current;
+
+		public InsideMixTask() {
+			super();
+		}
+
+		@Override
+		public int getQueueNumber() {
+			return Scheduler.MIXER_MIX_QUEUE;
+		}
+
+		@Override
+		public long perform() {
+			// summarize all
+			current = null;
+			insideRIterator = insideComponents.valuesIterator();
+			while (insideRIterator.hasNext()) {
+				OOBComponent component = insideRIterator.next();
+				component.perform();
+				current = component.getData();
+				if (current != null) {
+					break;
+				}
+			}
+
+			if (current == null) {
+				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				mixCount++;
+				return 0;
+			}
+
+			// get data for each component
+			outsideSIterator = outsideComponents.valuesIterator();
+			while (outsideSIterator.hasNext()) {
+				OOBComponent component = outsideSIterator.next();
+				if (!outsideSIterator.hasNext()) {
+					component.offer(current);
+				} else {
+					component.offer(current.clone());
+				}
+			}
+
+			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			mixCount++;
+			return 0;
+		}
+	}
+
+	private class OutsideMixTask extends Task {
+		private Frame current;
+
+		public OutsideMixTask() {
+			super();
+		}
+
+		@Override
+		public int getQueueNumber() {
+			return Scheduler.MIXER_MIX_QUEUE;
+		}
+
+		@Override
+		public long perform() {
+			// summarize all
+			current = null;
+			outsideRIterator = outsideComponents.valuesIterator();
+			while (outsideRIterator.hasNext()) {
+				OOBComponent component = outsideRIterator.next();
+				component.perform();
+				current = component.getData();
+				if (current != null) {
+					break;
+				}
+			}
+
+			if (current == null) {
+				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				mixCount++;
+				return 0;
+			}
+
+			// get data for each component
+			insideSIterator = insideComponents.valuesIterator();
+			while (insideSIterator.hasNext()) {
+				OOBComponent component = insideSIterator.next();
+				if (!insideSIterator.hasNext()) {
+					component.offer(current);
+				} else {
+					component.offer(current.clone());
+				}
+			}
+
+			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			mixCount++;
+			return 0;
+		}
+	}
 }

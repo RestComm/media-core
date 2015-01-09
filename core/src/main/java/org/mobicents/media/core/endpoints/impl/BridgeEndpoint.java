@@ -24,42 +24,33 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.core.endpoints.BaseSplitterEndpointImpl;
-import org.mobicents.media.core.endpoints.MediaGroup;
+import org.mobicents.media.server.spi.MediaType;
 
 /**
  * 
- * A bridge end point allows two kinds of connections:
- *   - RTP (for remote RTP media resources) and
- *   - Local (between the bridge end point and other MMS end points).
- *    
- * The bridge end point mixes and forwards media between remote and local connections.
- * Media and events arriving to the bridge end point from remote connections are mixed
- * and forwarded to local connections. Respectively, media and events arriving 
- * to the bridge end point from local connections are mixed and forwarded to remote connections. 
+ * A bridge end point allows two kinds of connections: - RTP (for remote RTP
+ * media resources) and - Local (between the bridge end point and other MMS end
+ * points).
+ * 
+ * The bridge end point mixes and forwards media between remote and local
+ * connections. Media and events arriving to the bridge end point from remote
+ * connections are mixed and forwarded to local connections. Respectively, media
+ * and events arriving to the bridge end point from local connections are mixed
+ * and forwarded to remote connections.
  * 
  * 
  * @author yulian oifa
  * @author Ivelin Ivanov
  */
 public class BridgeEndpoint extends BaseSplitterEndpointImpl {
-    
-	public BridgeEndpoint(String localName) {
-    	super(localName);              
-    }
 
-	/**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public Component getResource(MediaType mediaType, ComponentType componentType)
-    {
-    	return null;
-    }        
+	public BridgeEndpoint(String localName) {
+		super(localName);
+	}
+
+	@Override
+	public Component getResource(MediaType mediaType, ComponentType componentType) {
+		return null;
+	}
 }

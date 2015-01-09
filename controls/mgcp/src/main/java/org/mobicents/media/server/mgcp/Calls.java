@@ -22,7 +22,6 @@
 
 package org.mobicents.media.server.mgcp;
 
-import java.util.ArrayList;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -31,8 +30,7 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class Calls {
-   private ArrayList<CallActivity> calls = new ArrayList(100);
-   
+	
    public boolean contains(Text callID) {
        return false;
    }

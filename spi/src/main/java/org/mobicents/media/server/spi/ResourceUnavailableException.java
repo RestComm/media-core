@@ -23,16 +23,21 @@
 package org.mobicents.media.server.spi;
 
 /**
- *
+ * 
  * @author Oleg Kulikov
  */
 public class ResourceUnavailableException extends Exception {
-    
-    /** Creates a new instance of ResourceUnavailableException 
-     * @param e */
-    public ResourceUnavailableException(String message, InterruptedException e) {
-        super(message);
-    }
+
+	private static final long serialVersionUID = -7645219194855839093L;
+
+	/**
+	 * Creates a new instance of ResourceUnavailableException
+	 * 
+	 * @param e
+	 */
+	public ResourceUnavailableException(String message, InterruptedException e) {
+		super(message);
+	}
 
 	public ResourceUnavailableException() {
 		super();
@@ -53,5 +58,5 @@ public class ResourceUnavailableException extends Exception {
 		super(cause);
 
 	}
-    
+
 }

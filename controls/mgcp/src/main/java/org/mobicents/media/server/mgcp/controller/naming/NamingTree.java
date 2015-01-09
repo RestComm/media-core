@@ -34,11 +34,8 @@ import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
  */
 public class NamingTree {
     //the root of the tree
-    private NamingNode<EndpointQueue> root = new NamingNode(new Text("root"), null);
-    private ConcurrentCyclicFIFO<Text[]> patterns = new ConcurrentCyclicFIFO();
-    
-    //exceptions
-    private static UnknownEndpointException UNKNOWN_ENDPOINT_EXCEPTION;// = new UnknownEndpointException();
+    private NamingNode<EndpointQueue> root = new NamingNode<EndpointQueue>(new Text("root"), null);
+    private ConcurrentCyclicFIFO<Text[]> patterns = new ConcurrentCyclicFIFO<Text[]>();
     
     public NamingTree() {
     	//preloading text arrays
@@ -69,7 +66,7 @@ public class NamingTree {
     	}
         
     	//create tree of nodes starting from root
-    	NamingNode currentNode = root;
+    	NamingNode<EndpointQueue> currentNode = root;
     	for (int i = 0; i < path.length - 1; i++) {
     		//try to find node first
     		NamingNode foundNode = currentNode.find(new Text[]{path[i]}, 1);            

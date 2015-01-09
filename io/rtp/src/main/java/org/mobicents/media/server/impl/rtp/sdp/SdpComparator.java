@@ -33,6 +33,7 @@ import org.mobicents.media.server.utils.Text;
  * 
  * @deprecated use new /io/sdp library
  */
+@Deprecated
 public class SdpComparator {
     public final static Text AUDIO = new Text("audio");
     public final static Text VIDEO = new Text("video");

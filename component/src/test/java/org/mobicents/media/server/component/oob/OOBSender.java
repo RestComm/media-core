@@ -27,7 +27,6 @@ import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -36,6 +35,9 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author yulian oifa
  */
 public class OOBSender extends AbstractSource {
+	
+	private static final long serialVersionUID = 324088655270254479L;
+
 	private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
 	private long period = 20000000L;
     private int packetSize = 4;
@@ -44,7 +46,7 @@ public class OOBSender extends AbstractSource {
     private int currentIndex=0;
     
     public OOBSender(Scheduler scheduler) {
-        super("oob.generator", scheduler,scheduler.INPUT_QUEUE);
+        super("oob.generator", scheduler,Scheduler.INPUT_QUEUE);
         
         this.input=new OOBInput(ComponentType.SINE.getType());
         this.connect(this.input); 

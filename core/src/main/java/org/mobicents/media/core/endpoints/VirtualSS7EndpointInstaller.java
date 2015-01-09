@@ -25,13 +25,8 @@ package org.mobicents.media.core.endpoints;
 import java.lang.reflect.Constructor;
 
 import org.mobicents.media.core.Server;
-import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.core.naming.EndpointNameGenerator;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * Endpoint installer is used for automatic creation and instalation of endpoints.
@@ -114,8 +109,9 @@ public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
     public void install() {
         ClassLoader loader = Server.class.getClassLoader();
         int index=startChannelID;
-        for(int i=0;i<initialSize;i++)
+        for(int i=0;i<initialSize;i++) {
         	newEndpoint(index++);                    
+        }
     }
 
     @Override
@@ -141,6 +137,7 @@ public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
     	return false;
     }
     
+    @Override
     public void uninstall() {
     }
 

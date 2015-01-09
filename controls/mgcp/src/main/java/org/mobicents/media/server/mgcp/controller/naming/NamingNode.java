@@ -37,7 +37,7 @@ public class NamingNode<T> {
     private NamingNode parent;
     
     //child nodes
-    private ArrayList<NamingNode> childs = new ArrayList();
+    private ArrayList<NamingNode> childs = new ArrayList<NamingNode>();
     
     //any attachment to this node
     private T attchment;

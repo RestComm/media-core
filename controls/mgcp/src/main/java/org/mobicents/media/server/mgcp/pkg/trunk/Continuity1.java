@@ -22,29 +22,22 @@
 
 package org.mobicents.media.server.mgcp.pkg.trunk;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.MediaType;
-
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-
-import org.mobicents.media.server.spi.tone.ToneEvent;
-import org.mobicents.media.server.spi.tone.ToneDetectorListener;
-import org.mobicents.media.server.utils.Text;
-
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.tone.ToneDetectorListener;
+import org.mobicents.media.server.spi.tone.ToneEvent;
+import org.mobicents.media.server.utils.Text;
 /**
  * Implements continuity test with co1 generated and co2 received.
  * 
@@ -204,6 +197,7 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
     	}
     }
     
+    @Override
     public void process(ToneEvent event) {
     	endToneReceiving();
     	
@@ -236,9 +230,10 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
             this.signal=signal;
         }
         
+    	@Override
         public int getQueueNumber()
         {
-        	return scheduler.HEARTBEAT_QUEUE;
+        	return Scheduler.HEARTBEAT_QUEUE;
         }     
         
         public void setTtl(int value)
@@ -254,11 +249,6 @@ public class Continuity1 extends Signal implements ToneDetectorListener {
         public void activate()
         {
         	this.active.set(true);  	
-        }
-        
-        public boolean isActive()
-        {
-        	return this.active.get();
         }
         
         @Override

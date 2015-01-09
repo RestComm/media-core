@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
 import org.w3c.dom.NamedNodeMap;
@@ -38,7 +39,8 @@ import org.w3c.dom.NodeList;
  * @author kulikov
  */
 public class PackageFactory {
-    private HashMap<String, PackageDescriptor> packages = new HashMap();
+	
+    private HashMap<String, PackageDescriptor> packages = new HashMap<String, PackageDescriptor>();
     
     /**
      * Loads MGCP package definitions and constructs signal executors.
@@ -109,7 +111,7 @@ public class PackageFactory {
         //package name
         private String name;
         //descriptors of the signal/event executors
-        private ArrayList<ExecutorDescriptor> descriptors = new ArrayList();
+        private ArrayList<ExecutorDescriptor> descriptors = new ArrayList<ExecutorDescriptor>();
         
         public PackageDescriptor(String name) {
             this.name = name;
@@ -120,7 +122,7 @@ public class PackageFactory {
         }
         
         public MgcpPackage getPackage() throws Exception {
-            ArrayList<Signal> signals = new ArrayList();
+            ArrayList<Signal> signals = new ArrayList<Signal>();
             for (ExecutorDescriptor descriptor : descriptors) {
                 signals.add(descriptor.load());
             }

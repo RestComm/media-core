@@ -28,7 +28,9 @@ package org.mobicents.media.server.spi;
  */
 public class ModeNotSupportedException extends Exception {
 
-    private ConnectionMode mode;
+	private static final long serialVersionUID = -7812669275633259937L;
+
+	private ConnectionMode mode;
 
     /**
      * Creates a new instance of <code>ModeNotSupportedException</code> without detail message.
@@ -36,7 +38,6 @@ public class ModeNotSupportedException extends Exception {
     public ModeNotSupportedException(ConnectionMode mode) {
         this.mode = mode;
     }
-
 
     /**
      * Constructs an instance of <code>ModeNotSupportedException</code> with the specified detail message.

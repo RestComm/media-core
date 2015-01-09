@@ -24,14 +24,11 @@ package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
 
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  * Implements compound audio mixer , one of core components of mms 3.0
@@ -39,159 +36,162 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author Yulian Oifa
  */
 public class AudioMixer {
-    //scheduler for mixer job scheduling
-    private Scheduler scheduler;
-    
-    //the format of the output stream.
-    private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    
-    //The pool of components
-    private ConcurrentMap<AudioComponent> components = new ConcurrentMap();
-    
-    Iterator<AudioComponent> activeComponents;
-    
-    private long period = 20000000L;
-    private int packetSize = (int)(period / 1000000) * format.getSampleRate()/1000 * format.getSampleSize() / 8;    
+	// scheduler for mixer job scheduling
+	private Scheduler scheduler;
 
-    private MixTask mixer;
-    private volatile boolean started = false;
+	// the format of the output stream.
+	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
 
-    public long mixCount = 0;
-    
-    //gain value
-    private double gain = 1.0;
-    
-    public AudioMixer(Scheduler scheduler) {
-        this.scheduler = scheduler;
-        
-        mixer = new MixTask();        
-    }
+	// The pool of components
+	private ConcurrentMap<AudioComponent> components = new ConcurrentMap<AudioComponent>();
 
-    public void addComponent(AudioComponent component)
-    {
-    	components.put(component.getComponentId(),component);    	
-    }
-    
-    protected int getPacketSize() {
-        return this.packetSize;
-    }
-    
-    /**
-     * Releases unused input stream
-     *
-     * @param input the input stream previously created
-     */
-    public void release(AudioComponent component) {
-    	components.remove(component.getComponentId());    	
-    }
+	Iterator<AudioComponent> activeComponents;
 
-    /**
-     * Modify gain of the output stream.
-     * 
-     * @param gain the new value of the gain in dBm.
-     */
-    public void setGain(double gain) {
-        this.gain = gain > 0 ? gain * 1.26 : gain == 0 ? 1 : 1/(gain * 1.26);
-    }
-    
-    public void start() {
-    	mixCount = 0;
-    	started = true;
-    	scheduler.submit(mixer,scheduler.MIXER_MIX_QUEUE);
-    }    
-    
-    public void stop() {
-    	started = false;
-        mixer.cancel();        
-    }
+	private long period = 20000000L;
+	private int packetSize = (int) (period / 1000000) * format.getSampleRate() / 1000 * format.getSampleSize() / 8;
 
-    private class MixTask extends Task {
-    	int sourcesCount=0;
-    	private int i;
-    	private int minValue=0;
-    	private int maxValue=0;
-    	private double currGain=0;
-        private int[] total=new int[packetSize/2];
-        private int[] current;
-        
-        public MixTask() {
-            super();
-        }
-        
-        public int getQueueNumber()
-        {
-        	return scheduler.MIXER_MIX_QUEUE;
-        }
-        
-        public long perform() {
-        	//summarize all
-        	sourcesCount=0;
-        	activeComponents=components.valuesIterator();
-        	while(activeComponents.hasNext())
-            {
-            	AudioComponent component=activeComponents.next();
-            	component.perform();
-            	current=component.getData();
-            	if(current!=null)
-            	{
-            		if(sourcesCount==0)
-            			System.arraycopy(current, 0, total, 0, total.length);            			
-            		else
-            			for(i=0;i<total.length;i++)
-            				total[i]+=current[i];
+	private MixTask mixer;
+	private volatile boolean started = false;
 
-            		sourcesCount++;
-            	}
-            }
-            
-            if(sourcesCount==0)
-            {
-            	scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
-                mixCount++;            
-                return 0;            
-            }
-            
-            minValue=0;
-            maxValue=0;
-            for(i=0;i<total.length;i++)
-            	if(total[i]>maxValue)
-                    maxValue=total[i];
-            	else if(total[i]<minValue)
-                    minValue=total[i];
-            
-            if(minValue>0)
-            	minValue=0-minValue;
-            
-            if(minValue>maxValue)
-                    maxValue=minValue;
-            
-            currGain=gain;
-            if(maxValue>Short.MAX_VALUE)
-                    currGain=(currGain*(double)Short.MAX_VALUE)/(double)maxValue;
-            
-            for(i=0;i<total.length;i++)
-				total[i]=(short)((double) total[i] * currGain);
-            
-            //get data for each component
-            activeComponents=components.valuesIterator();
-        	while(activeComponents.hasNext())
-            {
-            	AudioComponent component=activeComponents.next();
-            	current=component.getData();
-                if(current!=null && sourcesCount>1)
-            	{
-            		for(i=0;i<total.length;i++)
-            			current[i]=total[i]-(short)((double)current[i]* currGain);
-            		
-                    component.offer(current);
-            	}
-            	else if(current==null)
-            		component.offer(total);            	
-            }
-            
-            scheduler.submit(this,scheduler.MIXER_MIX_QUEUE);
-            mixCount++;            
-            return 0;            
-        }
-    }
+	public long mixCount = 0;
+
+	// gain value
+	private double gain = 1.0;
+
+	public AudioMixer(Scheduler scheduler) {
+		this.scheduler = scheduler;
+		this.mixer = new MixTask();
+	}
+
+	public void addComponent(AudioComponent component) {
+		components.put(component.getComponentId(), component);
+	}
+
+	protected int getPacketSize() {
+		return this.packetSize;
+	}
+
+	/**
+	 * Releases unused input stream
+	 * 
+	 * @param input
+	 *            the input stream previously created
+	 */
+	public void release(AudioComponent component) {
+		components.remove(component.getComponentId());
+	}
+
+	/**
+	 * Modify gain of the output stream.
+	 * 
+	 * @param gain
+	 *            the new value of the gain in dBm.
+	 */
+	public void setGain(double gain) {
+		this.gain = gain > 0 ? gain * 1.26 : gain == 0 ? 1 : 1 / (gain * 1.26);
+	}
+
+	public void start() {
+		mixCount = 0;
+		started = true;
+		scheduler.submit(mixer, Scheduler.MIXER_MIX_QUEUE);
+	}
+
+	public void stop() {
+		started = false;
+		mixer.cancel();
+	}
+
+	private class MixTask extends Task {
+		int sourcesCount = 0;
+		private int i;
+		private int minValue = 0;
+		private int maxValue = 0;
+		private double currGain = 0;
+		private int[] total = new int[packetSize / 2];
+		private int[] current;
+
+		public MixTask() {
+			super();
+		}
+
+		@Override
+		public int getQueueNumber() {
+			return Scheduler.MIXER_MIX_QUEUE;
+		}
+
+		@Override
+		public long perform() {
+			// summarize all
+			sourcesCount = 0;
+			activeComponents = components.valuesIterator();
+			while (activeComponents.hasNext()) {
+				AudioComponent component = activeComponents.next();
+				component.perform();
+				current = component.getData();
+				if (current != null) {
+					if (sourcesCount == 0) {
+						System.arraycopy(current, 0, total, 0, total.length);
+					} else {
+						for (i = 0; i < total.length; i++) {
+							total[i] += current[i];
+						}
+					}
+					sourcesCount++;
+				}
+			}
+
+			if (sourcesCount == 0) {
+				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				mixCount++;
+				return 0;
+			}
+
+			minValue = 0;
+			maxValue = 0;
+			for (i = 0; i < total.length; i++) {
+				if (total[i] > maxValue) {
+					maxValue = total[i];
+				} else if (total[i] < minValue) {
+					minValue = total[i];
+				}
+			}
+
+			if (minValue > 0) {
+				minValue = 0 - minValue;
+			}
+
+			if (minValue > maxValue) {
+				maxValue = minValue;
+			}
+
+			currGain = gain;
+			if (maxValue > Short.MAX_VALUE) {
+				currGain = (currGain * (double) Short.MAX_VALUE) / (double) maxValue;
+			}
+
+			for (i = 0; i < total.length; i++) {
+				total[i] = (short) ((double) total[i] * currGain);
+			}
+
+			// get data for each component
+			activeComponents = components.valuesIterator();
+			while (activeComponents.hasNext()) {
+				AudioComponent component = activeComponents.next();
+				current = component.getData();
+				if (current != null && sourcesCount > 1) {
+					for (i = 0; i < total.length; i++) {
+						current[i] = total[i] - (short) ((double) current[i] * currGain);
+					}
+					component.offer(current);
+				} else if (current == null) {
+					component.offer(total);
+				}
+			}
+
+			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			mixCount++;
+			return 0;
+		}
+	}
 }

@@ -22,11 +22,8 @@
 
 package org.mobicents.media.server.spi;
 
-
-import java.util.Collection;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.scheduler.Scheduler;
 
 /**

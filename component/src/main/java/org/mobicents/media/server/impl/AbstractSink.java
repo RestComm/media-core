@@ -24,12 +24,9 @@ package org.mobicents.media.server.impl;
 
 import java.io.IOException;
 
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.memory.Frame;
-
 import org.apache.log4j.Logger;
+import org.mobicents.media.MediaSink;
+import org.mobicents.media.server.spi.memory.Frame;
 /**
  * The base implementation of the media sink.
  * 
@@ -41,7 +38,9 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
-    //shows if component is started or not.
+	private static final long serialVersionUID = -2119158462149998609L;
+
+	//shows if component is started or not.
     private volatile boolean started = false;
     
     //transmission statisctics
@@ -59,11 +58,7 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
         super(name);               
     }        
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSink#isStarted().
-     */
+    @Override
     public boolean isStarted() {
         return this.started;
     }
@@ -105,8 +100,10 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
 		stopped();    	
     }
 
+    @Override
     public abstract void activate();
     
+    @Override
     public abstract void deactivate();
     
     /**
@@ -118,20 +115,12 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
     protected void failed(Exception e) {
     }
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSink#getPacketsReceived().
-     */
+    @Override
     public long getPacketsReceived() {
         return rxPackets;
     }
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSink#getBytesReceived() 
-     */
+    @Override
     public long getBytesReceived() {
         return rxBytes;
     }
@@ -150,7 +139,6 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
     /**
      * Sends notification that detection is terminated.
-     * 
      */
     protected void stopped() {
     }    
@@ -159,12 +147,15 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
     	return "";
     }
     
+    @Override
     public void perform(Frame frame) {
-    	if(!started)
+    	if(!started) {
     		return;
+    	}
     	
-    	if(frame==null)
+    	if(frame==null) {
     		return;
+    	}
     	
     	rxPackets++;
     	rxBytes += frame.getLength();

@@ -22,18 +22,18 @@
 package org.mobicents.media.server.mgcp.controller;
 
 import java.util.Collection;
-import org.mobicents.media.ComponentType;
+
 import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  *
@@ -47,10 +47,12 @@ public class MyTestEndpoint implements Endpoint {
         this.localName = localName;
     }
     
+    @Override
     public String getLocalName() {
         return localName;
     }
     
+    @Override
     public int getActiveConnectionsCount()
     {
     	return 0;
@@ -64,14 +66,16 @@ public class MyTestEndpoint implements Endpoint {
     {        	
     }
     
+    @Override
     public void setScheduler(Scheduler scheduler) {
     	throw new UnsupportedOperationException("Not supported yet.");
     }
     
+    @Override
     public Scheduler getScheduler() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+    @Override
     public EndpointState getState() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -80,26 +84,32 @@ public class MyTestEndpoint implements Endpoint {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void start() throws ResourceUnavailableException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void stop() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void deleteConnection(Connection connection) {
         
     }
 
+    @Override
     public void deleteConnection(Connection connection,ConnectionType type) {
         
     }
 
+    @Override
     public void deleteAllConnections() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -112,21 +122,26 @@ public class MyTestEndpoint implements Endpoint {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void configure(boolean isALaw) {
     	throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode) {    
     }
     
+    @Override
     public Component getResource(MediaType mediaType, ComponentType componentType) {
         return null;
     }
     
+    @Override
     public boolean hasResource(MediaType mediaType, ComponentType componentType) {
     	return false;
     }
-    
+    @Override
     public void releaseResource(MediaType mediaType, ComponentType componentType) {    
     }
+    
 }

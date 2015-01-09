@@ -26,18 +26,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Iterator;
 
 /**
- *
+ * 
  * @author oifa yulian
  */
-public class ConcurrentMap<E> extends ConcurrentHashMap<Integer,E>
-{
-	public Iterator<Integer> keysIterator()
-	{
-		return (Iterator<Integer>)keys();
-	}
+public class ConcurrentMap<E> extends ConcurrentHashMap<Integer, E> {
 	
-	public Iterator<E> valuesIterator()
-	{
-		return (Iterator<E>)elements();
+	private static final long serialVersionUID = 8270100031373807057L;
+
+	@SuppressWarnings("unchecked")
+	public Iterator<Integer> keysIterator() {
+		return (Iterator<Integer>) keys();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Iterator<E> valuesIterator() {
+		return (Iterator<E>) elements();
 	}
 }

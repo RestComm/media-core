@@ -28,32 +28,34 @@ package org.mobicents.media.server.mgcp;
  */
 
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.mgcp.message.MgcpResponse;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Clock;
-import java.net.InetSocketAddress;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.utils.Text;
-import org.mobicents.media.server.mgcp.message.MgcpRequest;
-import java.io.IOException;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
+import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.mgcp.message.MgcpRequest;
+import org.mobicents.media.server.mgcp.message.MgcpResponse;
+import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import org.mobicents.media.server.utils.Text;
 
 /**
  *
  * @author yulian oifa
  */
 public class MgcpProviderLoadTest {
-    
+	
     private Clock clock = new DefaultClock();
     
     private Scheduler scheduler;
@@ -63,7 +65,7 @@ public class MgcpProviderLoadTest {
     
     private Server server;
     
-    private ConcurrentMap<Client> clients = new ConcurrentMap();
+    private ConcurrentMap<Client> clients = new ConcurrentMap<Client>();
     private ClientListener demux;
     
     private volatile int errorCount;
@@ -137,7 +139,8 @@ public class MgcpProviderLoadTest {
             } catch (Exception e) {
             }
         }
-        
+
+        @Override
         public void process(MgcpEvent event) {
             //CRCX request expected
             MgcpEvent evt = null;
@@ -173,7 +176,8 @@ public class MgcpProviderLoadTest {
         public Client(MgcpProvider mgcpProvider) {
             this.mgcpProvider = mgcpProvider;
         }
-        
+
+        @Override
         public void run() {
             MgcpEvent evt = null;
 
@@ -220,6 +224,7 @@ public class MgcpProviderLoadTest {
     
     private class ClientListener implements MgcpListener {
 
+    	@Override
         public void process(MgcpEvent event) {
             MgcpResponse response = (MgcpResponse) event.getMessage();
             try {
@@ -234,7 +239,7 @@ public class MgcpProviderLoadTest {
             } finally {
                 event.recycle();
             }
-        }
-    
+		}
+
     }
 }

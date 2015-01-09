@@ -21,14 +21,15 @@
  */
 package org.mobicents.media.server.mgcp.controller.naming;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.MyTestEndpoint;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
@@ -46,9 +47,9 @@ public class NamingTreeTest {
     private MyTestEndpoint endpoint2 = new MyTestEndpoint("mobicents/aap/2");
     private MyTestEndpoint endpoint3 = new MyTestEndpoint("mobicents/aap/3");
     
-    private MgcpEndpoint ac1=new MgcpEndpoint(endpoint1, null, "localhost", 2727, new ArrayList());
-    private MgcpEndpoint ac2=new MgcpEndpoint(endpoint2, null, "localhost", 2727, new ArrayList());
-    private MgcpEndpoint ac3=new MgcpEndpoint(endpoint3, null, "localhost", 2727, new ArrayList());
+    private MgcpEndpoint ac1=new MgcpEndpoint(endpoint1, null, "localhost", 2727, new ArrayList<MgcpPackage>());
+    private MgcpEndpoint ac2=new MgcpEndpoint(endpoint2, null, "localhost", 2727, new ArrayList<MgcpPackage>());
+    private MgcpEndpoint ac3=new MgcpEndpoint(endpoint3, null, "localhost", 2727, new ArrayList<MgcpPackage>());
    
     private MgcpEndpoint[] res = new MgcpEndpoint[10];
     

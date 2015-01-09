@@ -22,8 +22,8 @@
 
 package org.mobicents.media.server.spi.player;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
+
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
@@ -33,6 +33,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  * @author yulian oifa
  */
 public interface Player extends MediaSource {
+	
     /**
      * Assigns URL to play media from.
      * 
@@ -42,8 +43,10 @@ public interface Player extends MediaSource {
      */
     public void setURL(String url) throws MalformedURLException, ResourceUnavailableException;
     
-    
     public void addListener(PlayerListener listener) throws TooManyListenersException;
+
     public void removeListener(PlayerListener listener);
+    
     public void clearAllListeners();
+    
 }

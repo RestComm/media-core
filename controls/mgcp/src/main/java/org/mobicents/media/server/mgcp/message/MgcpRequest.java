@@ -42,7 +42,7 @@ public class MgcpRequest extends MgcpMessage {
     private int txID;    
     
     //buffer for parameters
-    private ArrayList<Parameter> parameters = new ArrayList(15);
+    private ArrayList<Parameter> parameters = new ArrayList<Parameter>(15);
     
     //the actual number of parameters in this message
     private int count;

@@ -22,20 +22,17 @@
 
 package org.mobicents.media.server.mgcp.pkg.ann;
 
-import java.util.ArrayList;
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -44,105 +41,102 @@ import org.mobicents.media.server.utils.Text;
  * @author yulian oifa
  */
 public class Play extends Signal implements PlayerListener {
-    
-    private Text oc = new Text("oc");
-    private Text of = new Text("of");
-    
-    private Player player;
-    private String uri;
-    
-    private final static Logger logger = Logger.getLogger(Play.class);
-    
-    public Play(String name) {
-        super(name);        
-    }
-    
-    @Override
-    public void execute() {
-    	logger.info("Executing...");
-        
-        player = this.getPlayer();
-        
-        try {
-            player.addListener(this);
-            
-          //get options of the request
-            this.uri =getTrigger().getParams().toString();
-        
-            player.setURL(uri);
-            logger.info("Assigned url " + player);
-        }
-        catch (TooManyListenersException e) {
-        	this.sendEvent(of);    
-            this.complete();                       
-            logger.error("OPERATION FAILURE", e);
-            return;
-        } 
-        catch (MalformedURLException e) {
-        	logger.info("Received URL in invalid format , firing of");
-        	this.sendEvent(of);    
-            this.complete();           
-            return;
-        } catch (ResourceUnavailableException e) {
-        	logger.info("Received URL can not be found , firing of");
-        	this.sendEvent(of);    
-            this.complete();
-            return;
-        } 
-        
-        player.activate();
-    }
 
-    @Override
-    public boolean doAccept(Text event) {
-        if (event.equals(oc)) {
-            return true;
-        }
-        
-        if (event.equals(of)) {
-            return true;
-        }
-        
-        return false;
-    }
+	private Text oc = new Text("oc");
+	private Text of = new Text("of");
 
-    @Override
-    public void cancel() {
-    	terminate();
-    }
+	private Player player;
+	private String uri;
 
-    private Player getPlayer() {
-    	Endpoint endpoint = getEndpoint();
-        return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
-    }
-    
-    private void terminate()
-    {
-    	if (player != null) {
-            player.removeListener(this);
-            player.deactivate();
-            player=null;
-        } 
-    }
-    
-    @Override
-    public void reset() {
-        super.reset();
-        terminate();
-    }
-    
-    public void process(PlayerEvent event) {
-        switch (event.getID()) {
-            case PlayerEvent.STOP :
-            	terminate();
-                this.sendEvent(oc);
-                this.complete();
-                break;
-            case PlayerEvent.FAILED :
-            	terminate();
-                this.sendEvent(of);
-                this.complete();
-                break;
-        }
-    }
+	private final static Logger logger = Logger.getLogger(Play.class);
+
+	public Play(String name) {
+		super(name);
+	}
+
+	@Override
+	public void execute() {
+		logger.info("Executing...");
+
+		player = this.getPlayer();
+
+		try {
+			player.addListener(this);
+
+			// get options of the request
+			this.uri = getTrigger().getParams().toString();
+
+			player.setURL(uri);
+			logger.info("Assigned url " + player);
+		} catch (TooManyListenersException e) {
+			this.sendEvent(of);
+			this.complete();
+			logger.error("OPERATION FAILURE", e);
+			return;
+		} catch (MalformedURLException e) {
+			logger.info("Received URL in invalid format , firing of");
+			this.sendEvent(of);
+			this.complete();
+			return;
+		} catch (ResourceUnavailableException e) {
+			logger.info("Received URL can not be found , firing of");
+			this.sendEvent(of);
+			this.complete();
+			return;
+		}
+
+		player.activate();
+	}
+
+	@Override
+	public boolean doAccept(Text event) {
+		if (event.equals(oc)) {
+			return true;
+		}
+
+		if (event.equals(of)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public void cancel() {
+		terminate();
+	}
+
+	private Player getPlayer() {
+		return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
+	}
+
+	private void terminate() {
+		if (player != null) {
+			player.removeListener(this);
+			player.deactivate();
+			player = null;
+		}
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		terminate();
+	}
+
+	@Override
+	public void process(PlayerEvent event) {
+		switch (event.getID()) {
+		case PlayerEvent.STOP:
+			terminate();
+			this.sendEvent(oc);
+			this.complete();
+			break;
+		case PlayerEvent.FAILED:
+			terminate();
+			this.sendEvent(of);
+			this.complete();
+			break;
+		}
+	}
 }

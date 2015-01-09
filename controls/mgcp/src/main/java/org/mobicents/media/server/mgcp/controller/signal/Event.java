@@ -33,6 +33,7 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class Event {
+
     //the name of this event
     private Text name;
     
@@ -45,7 +46,7 @@ public class Event {
     private boolean isActive;
 
     //supported actions
-    private ArrayList<EventAction> actions = new ArrayList();
+    private ArrayList<EventAction> actions = new ArrayList<EventAction>();
     
     //selected action
     private EventAction requestedAction;

@@ -22,31 +22,22 @@
 
 package org.mobicents.media.core.endpoints;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.core.connections.BaseConnection;
-import org.mobicents.media.core.connections.RtpConnectionImpl;
-import org.mobicents.media.core.connections.LocalConnectionImpl;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.core.connections.BaseConnection;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.TooManyConnectionsException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * Basic implementation of the endpoint.
@@ -55,302 +46,257 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author amit bhayani
  */
 public abstract class BaseEndpointImpl implements Endpoint {
-	
-	//local name of this endpoint
-    private String localName;
 
-    //current state of this endpoint
-    private EndpointState state = EndpointState.READY;
+	// local name of this endpoint
+	private String localName;
 
-    //media group
-    protected MediaGroup mediaGroup;
-    
-    //resources pool 
-    protected ResourcesPool resourcesPool;
-    
-    //job scheduler
-    private Scheduler scheduler;
+	// current state of this endpoint
+	private EndpointState state = EndpointState.READY;
 
-    //logger instance
-    private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
-    
-    private ConcurrentMap<Connection> connections=new ConcurrentMap();
-    private Iterator<Connection> connectionsIterator;
-    
-    public BaseEndpointImpl(String localName) {
-        this.localName = localName;              
-    }
+	// media group
+	protected MediaGroup mediaGroup;
 
+	// resources pool
+	protected ResourcesPool resourcesPool;
 
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.spi.Endpoint#getLocalName()
-     */
-    public String getLocalName() {
-        return localName;
-    }
+	// job scheduler
+	private Scheduler scheduler;
 
-    /**
-     * Assigns scheduler.
-     *
-     * @param scheduler the scheduler instance.
-     */
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
-    }
+	// logger instance
+	private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
 
-    /**
-     * Provides access to the scheduler.
-     *
-     * @return scheduler instance.
-     */
-    public Scheduler getScheduler() {
-        return scheduler;
-    }
+	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
+	private Iterator<Connection> connectionsIterator;
 
-    /**
-     * Assigns resources pool.
-     *
-     * @param resourcesPool the resources pool instance.
-     */
-    public void setResourcesPool(ResourcesPool resourcesPool) {
-        this.resourcesPool = resourcesPool;
-    }
+	public BaseEndpointImpl(String localName) {
+		this.localName = localName;
+	}
 
-    /**
-     * Provides access to the resources pool.
-     *
-     * @return scheduler instance.
-     */
-    public ResourcesPool getResourcesPool() {
-        return resourcesPool;
-    }
-    
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.spi.Endpoint#getState() 
-     */
-    public EndpointState getState() {
-        return state;
-    }
+	@Override
+	public String getLocalName() {
+		return localName;
+	}
 
-    /**
-     * Modifies state indicator.
-     *
-     * @param state the new value of the state indicator.
-     */
-    public void setState(EndpointState state) {
-        this.state = state;
-    }
-    
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.spi.Endpoint#start()
-     */
-    public void start() throws ResourceUnavailableException {
-    	//do checks before start
-        if (scheduler == null) {
-            throw new ResourceUnavailableException("Scheduler is not available");
-        }
+	@Override
+	public void setScheduler(Scheduler scheduler) {
+		this.scheduler = scheduler;
+	}
 
-        if (resourcesPool == null) {
-            throw new ResourceUnavailableException("Resources pool is not available");
-        }
-        
-        //create connections subsystem
-        mediaGroup=new MediaGroup(resourcesPool,this);    	
-    }
+	@Override
+	public Scheduler getScheduler() {
+		return scheduler;
+	}
 
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.spi.Endpoint#stop()
-     */
-    public void stop() {
-    	mediaGroup.releaseAll();
-    	deleteAllConnections();
-        //TODO: unregister at scheduler level
-        logger.info("Stopped " + localName);
-    }
+	/**
+	 * Assigns resources pool.
+	 * 
+	 * @param resourcesPool
+	 *            the resources pool instance.
+	 */
+	public void setResourcesPool(ResourcesPool resourcesPool) {
+		this.resourcesPool = resourcesPool;
+	}
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#createConnection(org.mobicents.media.server.spi.ConnectionMode);
-     */
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
-    	
-    	Connection connection=null;
-    	switch(type)
-    	{
-    		case RTP:
-    			connection=resourcesPool.newConnection(false);
-    			break;
-    		case LOCAL:
-    			connection=resourcesPool.newConnection(true);
-    			break;
-    	}
-    	
-    	connection.setIsLocal(isLocal);
-        
-        try {
-            ((BaseConnection)connection).bind();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ResourceUnavailableException(e.getMessage());
-        }
-        
-        connection.setEndpoint(this);
-        connections.put(connection.getId(),connection);
-        return connection;
-    }
+	/**
+	 * Provides access to the resources pool.
+	 * 
+	 * @return scheduler instance.
+	 */
+	public ResourcesPool getResourcesPool() {
+		return resourcesPool;
+	}
 
-    public void deleteConnection(Connection connection)
-    {
-    	((BaseConnection)connection).close();    	
-    }
-    
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.spi.Endpoint#deleteConnection(Connection)
-     */
-    public void deleteConnection(Connection connection,ConnectionType connectionType) {
-    	connections.remove(connection.getId());
-    	
-    	switch(connectionType)
-    	{
-    		case RTP:
-    			resourcesPool.releaseConnection(connection,false);
-    			break;
-    		case LOCAL:
-    			resourcesPool.releaseConnection(connection,true);
-    			break;
-    	}
-    	
-    	if(connections.size()==0)
-    		mediaGroup.releaseAll();    	
-    }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#deleteAllConnections();
-     */
-    public void deleteAllConnections() {
-    	connectionsIterator = connections.valuesIterator();
-    	while(connectionsIterator.hasNext())
-    		((BaseConnection)connectionsIterator.next()).close();    	
-    }
+	@Override
+	public EndpointState getState() {
+		return state;
+	}
 
+	/**
+	 * Modifies state indicator.
+	 * 
+	 * @param state
+	 *            the new value of the state indicator.
+	 */
+	public void setState(EndpointState state) {
+		this.state = state;
+	}
 
-    public Connection getConnection(int connectionID) {
-        return connections.get(connectionID);
-    }
-    
-    public int getActiveConnectionsCount()
-    {
-    	return connections.size();
-    }
+	@Override
+	public void start() throws ResourceUnavailableException {
+		// do checks before start
+		if (scheduler == null) {
+			throw new ResourceUnavailableException("Scheduler is not available");
+		}
 
-    public void configure(boolean isALaw)
-    {
-    }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public Component getResource(MediaType mediaType, ComponentType componentType)
-    {
-    	switch(mediaType)
-    	{
-    		case AUDIO:
-    			switch(componentType)
-    			{
-    				case PLAYER:
-    					return mediaGroup.getPlayer();    					
-    				case RECORDER:
-    					return mediaGroup.getRecorder();    					
-    				case DTMF_DETECTOR:
-    					return mediaGroup.getDtmfDetector();    					
-    				case DTMF_GENERATOR:
-    					return mediaGroup.getDtmfGenerator();    					
-    				case SIGNAL_DETECTOR:
-    					return mediaGroup.getSignalDetector();    					
-    				case SIGNAL_GENERATOR:
-    					return mediaGroup.getSignalGenerator();    					
-    			}    			
-    			break;
-    	}
-    	
-    	return null;
-    }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public boolean hasResource(MediaType mediaType, ComponentType componentType)
-    {
-    	switch(mediaType)
-    	{
-    		case AUDIO:
-    			switch(componentType)
-    			{
-    				case PLAYER:
-    					return mediaGroup.hasPlayer();    					
-    				case RECORDER:
-    					return mediaGroup.hasRecorder();    					
-    				case DTMF_DETECTOR:
-    					return mediaGroup.hasDtmfDetector();    					
-    				case DTMF_GENERATOR:
-    					return mediaGroup.hasDtmfGenerator();    					
-    				case SIGNAL_DETECTOR:
-    					return mediaGroup.hasSignalDetector();    					
-    				case SIGNAL_GENERATOR:
-    					return mediaGroup.hasSignalGenerator();    					
-    			}
-    			break;
-    	}
-    	
-    	return false;
-    }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.server.spi.Endpoint#getResource();
-     */
-    public void releaseResource(MediaType mediaType, ComponentType componentType)
-    {
-    	switch(mediaType)
-    	{
-    		case AUDIO:
-    			switch(componentType)
-    			{
-    				case PLAYER:
-    					mediaGroup.releasePlayer();    					
-    				case RECORDER:
-    					mediaGroup.releaseRecorder();    					
-    				case DTMF_DETECTOR:
-    					mediaGroup.releaseDtmfDetector();    					
-    				case DTMF_GENERATOR:
-    					mediaGroup.releaseDtmfGenerator();    					
-    				case SIGNAL_DETECTOR:
-    					mediaGroup.releaseSignalDetector();    					
-    				case SIGNAL_GENERATOR:
-    					mediaGroup.releaseSignalGenerator();    					
-    			}    			
-    			break;
-    	}    	
-    }
-    
-    //should be handled on higher layers
-    public abstract void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode);
+		if (resourcesPool == null) {
+			throw new ResourceUnavailableException("Resources pool is not available");
+		}
+
+		// create connections subsystem
+		mediaGroup = new MediaGroup(resourcesPool, this);
+	}
+
+	@Override
+	public void stop() {
+		mediaGroup.releaseAll();
+		deleteAllConnections();
+		// TODO: unregister at scheduler level
+		logger.info("Stopped " + localName);
+	}
+
+	@Override
+	public Connection createConnection(ConnectionType type, Boolean isLocal)
+			throws ResourceUnavailableException {
+
+		Connection connection = null;
+		switch (type) {
+		case RTP:
+			connection = resourcesPool.newConnection(false);
+			break;
+		case LOCAL:
+			connection = resourcesPool.newConnection(true);
+			break;
+		}
+
+		connection.setIsLocal(isLocal);
+
+		try {
+			((BaseConnection) connection).bind();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ResourceUnavailableException(e.getMessage());
+		}
+
+		connection.setEndpoint(this);
+		connections.put(connection.getId(), connection);
+		return connection;
+	}
+
+	@Override
+	public void deleteConnection(Connection connection) {
+		((BaseConnection) connection).close();
+	}
+
+	@Override
+	public void deleteConnection(Connection connection, ConnectionType connectionType) {
+		connections.remove(connection.getId());
+
+		switch (connectionType) {
+		case RTP:
+			resourcesPool.releaseConnection(connection, false);
+			break;
+		case LOCAL:
+			resourcesPool.releaseConnection(connection, true);
+			break;
+		}
+
+		if (connections.size() == 0) {
+			mediaGroup.releaseAll();
+		}
+	}
+
+	@Override
+	public void deleteAllConnections() {
+		connectionsIterator = connections.valuesIterator();
+		while (connectionsIterator.hasNext()) {
+			((BaseConnection) connectionsIterator.next()).close();
+		}
+	}
+
+	public Connection getConnection(int connectionID) {
+		return connections.get(connectionID);
+	}
+
+	@Override
+	public int getActiveConnectionsCount() {
+		return connections.size();
+	}
+
+	@Override
+	public void configure(boolean isALaw) {
+	}
+
+	@Override
+	public Component getResource(MediaType mediaType, ComponentType componentType) {
+		switch (mediaType) {
+		case AUDIO:
+			switch (componentType) {
+			case PLAYER:
+				return mediaGroup.getPlayer();
+			case RECORDER:
+				return mediaGroup.getRecorder();
+			case DTMF_DETECTOR:
+				return mediaGroup.getDtmfDetector();
+			case DTMF_GENERATOR:
+				return mediaGroup.getDtmfGenerator();
+			case SIGNAL_DETECTOR:
+				return mediaGroup.getSignalDetector();
+			case SIGNAL_GENERATOR:
+				return mediaGroup.getSignalGenerator();
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		return null;
+	}
+
+	@Override
+	public boolean hasResource(MediaType mediaType, ComponentType componentType) {
+		switch (mediaType) {
+		case AUDIO:
+			switch (componentType) {
+			case PLAYER:
+				return mediaGroup.hasPlayer();
+			case RECORDER:
+				return mediaGroup.hasRecorder();
+			case DTMF_DETECTOR:
+				return mediaGroup.hasDtmfDetector();
+			case DTMF_GENERATOR:
+				return mediaGroup.hasDtmfGenerator();
+			case SIGNAL_DETECTOR:
+				return mediaGroup.hasSignalDetector();
+			case SIGNAL_GENERATOR:
+				return mediaGroup.hasSignalGenerator();
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
+
+	@Override
+	public void releaseResource(MediaType mediaType, ComponentType componentType) {
+		switch (mediaType) {
+		case AUDIO:
+			switch (componentType) {
+			case PLAYER:
+				mediaGroup.releasePlayer();
+			case RECORDER:
+				mediaGroup.releaseRecorder();
+			case DTMF_DETECTOR:
+				mediaGroup.releaseDtmfDetector();
+			case DTMF_GENERATOR:
+				mediaGroup.releaseDtmfGenerator();
+			case SIGNAL_DETECTOR:
+				mediaGroup.releaseSignalDetector();
+			case SIGNAL_GENERATOR:
+				mediaGroup.releaseSignalGenerator();
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public abstract void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
+
 }

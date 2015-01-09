@@ -37,7 +37,9 @@ import org.mobicents.media.server.spi.memory.Memory;
  */
 public class Sine extends AbstractSource {
 
-    //the format of the output stream.
+	private static final long serialVersionUID = -886146896423710570L;
+
+	//the format of the output stream.
     private final static AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     private final static Formats formats = new Formats();
 
@@ -56,7 +58,7 @@ public class Sine extends AbstractSource {
     }
     
     public Sine(Scheduler scheduler) {
-        super("sine.generator", scheduler,scheduler.INPUT_QUEUE);
+        super("sine.generator", scheduler, Scheduler.INPUT_QUEUE);
         //number of seconds covered by one sample
         dt = 1. / LINEAR_AUDIO.getSampleRate();
         

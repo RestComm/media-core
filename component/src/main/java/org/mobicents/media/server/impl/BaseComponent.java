@@ -30,7 +30,9 @@ import org.mobicents.media.server.spi.Endpoint;
  */
 public abstract class BaseComponent implements Component {
 
-    //unique identifier of the component
+	private static final long serialVersionUID = 7891529327834578393L;
+
+	//unique identifier of the component
     private String id = null;
     
     //the name of the component. 

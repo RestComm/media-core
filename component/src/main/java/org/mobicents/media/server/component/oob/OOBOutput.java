@@ -22,49 +22,41 @@
 
 package org.mobicents.media.server.component.oob;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
-import org.apache.log4j.Logger;
 /**
  * Implements output for compound components.
  * 
  * @author Yulian Oifa
  */
 public class OOBOutput extends AbstractSource {
+	
+	private static final long serialVersionUID = -1350715959623627363L;
+
 	private int outputId;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO();
+    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
     
     /**
      * Creates new instance with default name.
      */
     public OOBOutput(Scheduler scheduler,int outputId) {
-        super("compound.output", scheduler,scheduler.OUTPUT_QUEUE);
+        super("compound.output", scheduler, Scheduler.OUTPUT_QUEUE);
         this.outputId=outputId;
     }
 
-    public int getOutputId()
-    {
+    public int getOutputId() {
     	return outputId;
     }
     
-    public void join(AbstractSink sink)
-    {
+    public void join(AbstractSink sink) {
     	connect(sink);
     }
     
-    public void unjoin()
-    {
+    public void unjoin() {
     	disconnect();
     }
     
@@ -75,23 +67,22 @@ public class OOBOutput extends AbstractSource {
 
     @Override
     public void stop() {
-    	while(buffer.size()>0)
+    	while(buffer.size()>0) {
     		buffer.poll().recycle();
-    	
+    	}
     	super.stop();            
     }
     
-    public void resetBuffer()
-    {
-    	while(buffer.size()>0)
+    public void resetBuffer() {
+    	while(buffer.size()>0) {
     		buffer.poll().recycle();
+    	}
     }
     
-    public void offer(Frame frame)
-    {
-    	if(buffer.size()>1)
+    public void offer(Frame frame) {
+    	if(buffer.size()>1) {
         	buffer.poll().recycle();
-    	
+    	}
     	buffer.offer(frame);
     }
 }

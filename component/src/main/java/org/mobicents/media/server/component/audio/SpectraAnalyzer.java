@@ -22,12 +22,12 @@
 
 package org.mobicents.media.server.component.audio;
 
-import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.Scheduler;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -41,7 +41,9 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class SpectraAnalyzer extends AbstractSink {
 
-    private final static int tolerance = 5;
+	private static final long serialVersionUID = 1646539542777368667L;
+
+	private final static int tolerance = 5;
     private final static AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     private final static Formats formats = new Formats();
 
@@ -108,7 +110,7 @@ public class SpectraAnalyzer extends AbstractSink {
     }
 
     private int[] findPeaks(double[] data) {
-        ArrayList<Integer> peaks = new ArrayList();
+        ArrayList<Integer> peaks = new ArrayList<Integer>();
         for (int i = 0; i < data.length; i++) {
             if (data[i] > 10000000) peaks.add(i);
         }
@@ -131,7 +133,7 @@ public class SpectraAnalyzer extends AbstractSink {
     }
 
     public int[] getSpectra() {
-        ArrayList<Integer> frequency = new ArrayList();
+        ArrayList<Integer> frequency = new ArrayList<Integer>();
         System.out.println("len=" + len);
         int count = len / 8000;
         for (int i = 0; i < count; i++) {

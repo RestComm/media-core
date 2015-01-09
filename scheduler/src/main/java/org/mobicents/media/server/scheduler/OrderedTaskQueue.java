@@ -22,8 +22,6 @@
 
 package org.mobicents.media.server.scheduler;
 
-import java.util.Iterator;
-
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 
 /**

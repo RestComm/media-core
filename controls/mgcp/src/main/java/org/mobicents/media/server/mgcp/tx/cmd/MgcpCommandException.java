@@ -29,7 +29,9 @@ import org.mobicents.media.server.utils.Text;
  */
 public class MgcpCommandException extends RuntimeException {
 
-    private int code;
+	private static final long serialVersionUID = 7963862061835647601L;
+
+	private int code;
     private Text message;
     
     /**

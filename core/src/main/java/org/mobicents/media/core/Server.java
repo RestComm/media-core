@@ -25,8 +25,8 @@ package org.mobicents.media.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.endpoints.BaseEndpointImpl;
 import org.mobicents.media.core.endpoints.VirtualEndpointInstaller;
 import org.mobicents.media.core.naming.NamingService;
@@ -61,13 +61,13 @@ public class Server implements MediaServer {
     private NamingService namingService;
     
     //endpoint installers
-    private ArrayList<EndpointInstaller> installers = new ArrayList();
+    private ArrayList<EndpointInstaller> installers = new ArrayList<EndpointInstaller>();
     
     //endpoints
-    private HashMap<String, Endpoint> endpoints = new HashMap();
+    private HashMap<String, Endpoint> endpoints = new HashMap<String, Endpoint>();
     
     //managers
-    private ArrayList<ServerManager> managers = new ArrayList();
+    private ArrayList<ServerManager> managers = new ArrayList<ServerManager>();
     
     private HeartBeat heartbeat;
     private int heartbeatTime=0;
@@ -247,36 +247,32 @@ public class Server implements MediaServer {
         logger.info("Stopped media server instance ");                
     }
 
+    @Override
     public Endpoint lookup(String name, boolean bussy) throws ResourceUnavailableException {
         return null;//return namingService.lookup(name, bussy);
     }
     
+    @Override
     public Endpoint[] lookupall(String endpointName) throws ResourceUnavailableException {
     	return null;//return namingService.lookupall(endpointName);
     }
 
+    @Override
     public int getEndpointCount() {
         return 0;//return namingService.getEndpointCount();
     }
     
+    @Override
     public Collection<Endpoint> getEndpoints() {
         return endpoints.values();
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.MediaServer#addManager(org.mobicents.media.server.spi.ServerManager) 
-     */
+    @Override
     public void addManager(ServerManager manager) {
         managers.add(manager);
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.spi.MediaServer#removeManager(org.mobicents.media.server.spi.ServerManager) 
-     */
+    @Override
     public void removeManager(ServerManager manager) {
         managers.remove(manager);
     }
@@ -287,9 +283,10 @@ public class Server implements MediaServer {
             super();
         }        
 
+        @Override
         public int getQueueNumber()
         {
-        	return scheduler.HEARTBEAT_QUEUE;
+        	return Scheduler.HEARTBEAT_QUEUE;
         }   
         
         public void restart()

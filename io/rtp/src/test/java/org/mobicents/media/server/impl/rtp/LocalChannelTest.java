@@ -27,27 +27,20 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.Dsp;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import java.net.InetSocketAddress;
-import org.mobicents.media.server.io.ss7.SS7Manager;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import static org.junit.Assert.*;
+import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  *
@@ -69,8 +62,6 @@ public class LocalChannelTest {
     
     private int fcount;
 
-    private DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
     private AudioMixer audioMixer1,audioMixer2;
     private AudioComponent component1,component2;
     

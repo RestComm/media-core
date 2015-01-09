@@ -22,17 +22,16 @@
 
 package org.mobicents.media.server.concurrent;
 
-import org.junit.After;
+import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.Semaphore;
 
 public class ConcurrentCyclicFIFOTest 
 {

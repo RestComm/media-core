@@ -27,17 +27,18 @@
 
 package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.Format;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.spi.memory.Frame;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.mobicents.media.server.spi.format.Format;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  *

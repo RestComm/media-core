@@ -22,14 +22,10 @@
 
 package org.mobicents.media.server.mgcp.pkg.trunk;
 
-import org.apache.log4j.Logger;
-import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.utils.Text;
 /**
  * Implements loopback signal.
@@ -41,8 +37,6 @@ public class Loopback extends Signal {
 	private Event of = new Event(new Text("of"));
 	
     private volatile Options options;
-    
-    private final static Logger logger = Logger.getLogger(Loopback.class);
     
     public Loopback(String name) {
         super(name);  

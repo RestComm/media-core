@@ -34,6 +34,7 @@ import static org.junit.Assert.*;
  *
  * @author kulikov
  */
+@Deprecated
 public class SessionDescriptionTest {
 
     private SessionDescription sd = new SessionDescription();

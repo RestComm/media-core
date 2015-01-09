@@ -31,7 +31,7 @@ import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 public class Partition {
 
     protected int size;
-    private ConcurrentCyclicFIFO<Frame> heap = new ConcurrentCyclicFIFO();
+    private ConcurrentCyclicFIFO<Frame> heap = new ConcurrentCyclicFIFO<Frame>();
 
     protected Partition(int size) {
         this.size = size;
@@ -41,18 +41,19 @@ public class Partition {
     	//if (true) return new Frame(this, new byte[size]);
     	Frame result=heap.poll();    	
     	
-        if (result==null)
+        if (result==null) {
             return new Frame(this, new byte[size]);
+        }
         
         result.inPartition.set(false);
         return result;
     }
 
     protected void recycle(Frame frame) {
-    	if(frame.inPartition.getAndSet(true))
+    	if(frame.inPartition.getAndSet(true)) {
     		//dont add duplicate,otherwise may be reused in different places
     		return;
-    	
+    	}
         frame.setHeader(null);
         frame.setDuration(Long.MAX_VALUE);
         frame.setEOM(false);        

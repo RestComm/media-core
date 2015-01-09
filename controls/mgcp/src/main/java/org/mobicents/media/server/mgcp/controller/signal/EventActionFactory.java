@@ -29,7 +29,8 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class EventActionFactory {
-    private final static Text NTFY = new Text("N");
+	
+    public final static Text NTFY = new Text("N");
     
     public EventAction getAction(Text description) {
         return null;

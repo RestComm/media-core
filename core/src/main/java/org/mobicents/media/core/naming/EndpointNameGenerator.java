@@ -45,7 +45,7 @@ import java.util.ArrayList;
 public class EndpointNameGenerator {
 
     //individual terms of the name
-    private ArrayList<Term> terms = new ArrayList();
+    private ArrayList<Term> terms = new ArrayList<Term>();
     
     /**
      * Modifies name pattern.
@@ -109,10 +109,6 @@ public class EndpointNameGenerator {
             return child != null ? child.hasMore() : hasMore;
         }
 
-        public String getTerm() {
-            return term;
-        }
-
         public String next() {
             if (child == null) hasMore = false;
             return child != null? term + "/" + child.next() : term;
@@ -162,11 +158,6 @@ public class EndpointNameGenerator {
             if (child == null) value++;
 
             return s;
-        }
-
-        @Override
-        public String getTerm() {
-            return Integer.toString(value);
         }
     }
 }

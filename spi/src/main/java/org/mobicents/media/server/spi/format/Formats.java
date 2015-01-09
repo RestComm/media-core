@@ -40,7 +40,7 @@ public class Formats {
      * Creates new collection with default size;
      */
     public Formats() {
-        list = new ArrayList(DEFAULT_SIZE);
+        list = new ArrayList<Format>(DEFAULT_SIZE);
     }
 
     /**
@@ -49,7 +49,7 @@ public class Formats {
      * @param size the size of the collection.
      */
     public Formats(int size) {
-        list = new ArrayList(size);
+        list = new ArrayList<Format>(size);
     }
 
     /**

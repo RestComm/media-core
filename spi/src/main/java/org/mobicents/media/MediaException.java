@@ -34,6 +34,8 @@ package org.mobicents.media;
  */
 public class MediaException extends Exception {
 
+	private static final long serialVersionUID = -1186245127611339648L;
+
 	public MediaException() {
 		super();
 	}
@@ -41,4 +43,5 @@ public class MediaException extends Exception {
 	public MediaException(String message) {
 		super(message);
 	}
+
 }

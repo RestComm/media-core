@@ -44,12 +44,10 @@ public abstract class Signal {
     private RequestedEvent trigger = new RequestedEvent();
     
     /** Requested events */
-    protected ArrayList<Text> events = new ArrayList(15);
+    protected ArrayList<Text> events = new ArrayList<Text>(15);
     
     /** Dispatches detected events and gets resources */
     private MgcpPackage mgcpPackage;
-    
-    private Connection connection;           
     
     public Signal(String name) {
         this.name = new Text(name);

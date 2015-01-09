@@ -39,6 +39,7 @@ import static org.junit.Assert.*;
  *
  * @author kulikov
  */
+@Deprecated
 public class SdpComparatorTest {
 
     private SessionDescription sd1 = new SessionDescription();

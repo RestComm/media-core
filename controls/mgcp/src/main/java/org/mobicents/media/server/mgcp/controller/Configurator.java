@@ -24,9 +24,11 @@ package org.mobicents.media.server.mgcp.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
 import org.mobicents.media.server.mgcp.pkg.PackageFactory;
@@ -46,7 +48,7 @@ public class Configurator {
     private Matcher matcher = new Matcher();
     
     private PackageFactory packageFactory;
-    private ArrayList<EndpointDescriptor> endpoints = new ArrayList();
+    private ArrayList<EndpointDescriptor> endpoints = new ArrayList<EndpointDescriptor>();
     
     public Configurator(InputStream stream) throws ParserConfigurationException, SAXException, IOException {
         //load parser
@@ -118,7 +120,7 @@ public class Configurator {
             }
         }
         
-        ArrayList<MgcpPackage> packages = new ArrayList();
+        ArrayList<MgcpPackage> packages = new ArrayList<MgcpPackage>();
         
         if (descriptor != null) {
         	for (int i = 0; i < descriptor.packages.length; i++) {
