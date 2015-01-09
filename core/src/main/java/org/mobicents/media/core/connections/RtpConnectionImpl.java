@@ -389,42 +389,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			this.audioChannel.resetFormats();
 			
 			// generate SDP offer based on audio channel
-			this.localSdp = generateSdpOffer();
+			String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
+			String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
+			this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioChannel);
 			this.remoteSdp = null;
 		}
-	}
-	
-	/**
-	 * Configures the audio channel and generates a suitable SDP offer.<br>
-	 * The resulting offer can then be sent to the remote peer while the
-	 * connection awaits to receive a proper answer.
-	 * 
-	 * <p>
-	 * <b>This method should be invoked beforehand when starting an outbound
-	 * call.</b>
-	 * </p>
-	 * 
-	 * @return The SDP offer
-	 */
-	private SessionDescription generateSdpOffer() {
-		String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
-		String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
-		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? bindAddress : externalAddress;
-		
-		// Session-level fields
-		SessionDescription offer = new SessionDescription();
-		offer.setVersion(new VersionField((short) 0));
-		offer.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originAddress));
-		offer.setSessionName(new SessionNameField("Mobicents Media Server"));
-		offer.setConnection(new ConnectionField("IN", "IP4", bindAddress));
-		offer.setTiming(new TimingField(0, 0));
-		
-		// Media Description - audio
-		MediaDescriptionField audio = this.audioChannel.getMediaDescriptor();
-		audio.setSession(offer);
-		offer.addMediaDescription(audio);
-		
-		return offer;
 	}
 	
 	/**

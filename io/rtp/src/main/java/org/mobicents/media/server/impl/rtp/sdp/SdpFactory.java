@@ -26,6 +26,7 @@ import org.mobicents.media.io.ice.LocalCandidateWrapper;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannel;
 import org.mobicents.media.server.io.sdp.MediaProfile;
+import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
 import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
 import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
@@ -35,6 +36,10 @@ import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.dtls.attributes.SetupAttribute;
 import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
+import org.mobicents.media.server.io.sdp.fields.OriginField;
+import org.mobicents.media.server.io.sdp.fields.SessionNameField;
+import org.mobicents.media.server.io.sdp.fields.TimingField;
+import org.mobicents.media.server.io.sdp.fields.VersionField;
 import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
@@ -49,6 +54,37 @@ import org.mobicents.media.server.spi.format.AudioFormat;
  *
  */
 public class SdpFactory {
+	
+	/**
+	 * Builds a Session Description object to be sent to a remote peer.
+	 * 
+	 * @param localAddress
+	 *            The local address of the media server.
+	 * @param externalAddress
+	 *            The public address of the media server.
+	 * @param channels
+	 *            The media channels to be included in the session description.
+	 * @return The Session Description object.
+	 */
+	public static SessionDescription buildSdp(String localAddress, String externalAddress, MediaChannel... channels) {
+		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? localAddress : externalAddress;
+		
+		// Session-level fields
+		SessionDescription sd = new SessionDescription();
+		sd.setVersion(new VersionField((short) 0));
+		sd.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originAddress));
+		sd.setSessionName(new SessionNameField("Mobicents Media Server"));
+		sd.setConnection(new ConnectionField("IN", "IP4", localAddress));
+		sd.setTiming(new TimingField(0, 0));
+		
+		// Media Descriptions
+		for (MediaChannel channel : channels) {
+			MediaDescriptionField md = buildMediaDescription(channel);
+			md.setSession(sd);
+			sd.addMediaDescription(md);
+		}
+		return sd;
+	}
 	
 	/**
 	 * Build an SDP description for a media channel.
