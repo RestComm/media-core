@@ -41,6 +41,7 @@ import org.mobicents.media.server.io.sdp.fields.SessionNameField;
 import org.mobicents.media.server.io.sdp.fields.TimingField;
 import org.mobicents.media.server.io.sdp.fields.VersionField;
 import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
+import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceUfragAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
@@ -67,23 +68,52 @@ public class SdpFactory {
 	 * @return The Session Description object.
 	 */
 	public static SessionDescription buildSdp(String localAddress, String externalAddress, MediaChannel... channels) {
-		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? localAddress : externalAddress;
-		
 		// Session-level fields
 		SessionDescription sd = new SessionDescription();
 		sd.setVersion(new VersionField((short) 0));
+		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? localAddress : externalAddress;
 		sd.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originAddress));
 		sd.setSessionName(new SessionNameField("Mobicents Media Server"));
 		sd.setConnection(new ConnectionField("IN", "IP4", localAddress));
 		sd.setTiming(new TimingField(0, 0));
 		
 		// Media Descriptions
+		boolean ice = false;
 		for (MediaChannel channel : channels) {
 			MediaDescriptionField md = buildMediaDescription(channel);
 			md.setSession(sd);
 			sd.addMediaDescription(md);
+			
+			if(md.containsIce()) {
+				// Fix session-level attribute
+				sd.getConnection().setAddress(md.getConnection().getAddress());
+				ice = true;
+			}
+		}
+		
+		// Session-level ICE
+		if(ice) {
+			sd.setIceLite(new IceLiteAttribute());
 		}
 		return sd;
+	}
+	
+	/**
+	 * Rejects a media description from an SDP offer.
+	 * 
+	 * @param answer
+	 *            The SDP answer to include the rejected media
+	 * @param media
+	 *            The offered media description to be rejected
+	 */
+	public static void rejectMediaField(SessionDescription answer, MediaDescriptionField media) {
+		MediaDescriptionField rejected = new MediaDescriptionField();
+		rejected.setMedia(media.getMedia());
+		rejected.setPort(0);
+		rejected.setProtocol(media.containsDtls() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
+		
+		rejected.setSession(answer);
+		answer.addMediaDescription(rejected);
 	}
 	
 	/**

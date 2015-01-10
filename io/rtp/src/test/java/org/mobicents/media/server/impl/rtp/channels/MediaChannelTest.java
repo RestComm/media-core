@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.scheduler.Clock;
@@ -97,7 +98,7 @@ public class MediaChannelTest {
 		String localAddress = localChannel.rtpChannel.getLocalHost();
 		int localRtpPort = localChannel.rtpChannel.getLocalPort();
 		int localRtcpPort = localChannel.rtcpChannel.getLocalPort(); 
-		MediaDescriptionField audioOffer = localChannel.getMediaDescriptor();
+		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel);
 		
 		// activate "remote" channel and bind it to local address
 		// there will be two underlying channels for RTP and RTCP
@@ -107,7 +108,7 @@ public class MediaChannelTest {
 		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
 		int remoteRtpPort = remoteChannel.rtpChannel.getLocalPort();
 		int remoteRtcpPort = remoteChannel.rtcpChannel.getLocalPort();
-		MediaDescriptionField audioAnswer = remoteChannel.getMediaDescriptor();
+		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel);
 		
 		// ... remote peer receives SDP offer from local peer
 		// negotiate codecs with local peer
@@ -156,7 +157,7 @@ public class MediaChannelTest {
 		
 		String localAddress = localChannel.rtpChannel.getLocalHost();
 		int localPort = localChannel.rtpChannel.getLocalPort();
-		MediaDescriptionField audioOffer = localChannel.getMediaDescriptor();
+		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel);
 		
 		// activate "remote" channel and bind it to local address
 		// there will be two underlying channels for RTP and RTCP
@@ -165,7 +166,7 @@ public class MediaChannelTest {
 		
 		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
 		int remotePort = remoteChannel.rtpChannel.getLocalPort();
-		MediaDescriptionField audioAnswer = remoteChannel.getMediaDescriptor();
+		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel);
 		
 		// ... remote peer receives SDP offer from local peer
 		// negotiate codecs with local peer

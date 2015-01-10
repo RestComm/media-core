@@ -34,17 +34,10 @@ import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
-import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.SessionDescriptionParser;
-import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
-import org.mobicents.media.server.io.sdp.fields.OriginField;
-import org.mobicents.media.server.io.sdp.fields.SessionNameField;
-import org.mobicents.media.server.io.sdp.fields.TimingField;
-import org.mobicents.media.server.io.sdp.fields.VersionField;
-import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
@@ -220,12 +213,21 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		// Generate SDP answer
-		try {
-			this.localSdp = generateSdpAnswer();
-		} catch (SdpException e) {
-			throw new IOException(e.getMessage(), e);
+		String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
+		String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
+		if(this.audioChannel.isOpen()) {
+			this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioChannel);
+		} else {
+			// In case remote peer did not offer audio channel
+			this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress);
 		}
-
+		
+		// Reject any channels other than audio
+		MediaDescriptionField remoteVideo = this.remoteSdp.getMediaDescription("video");
+		if(remoteVideo != null) {
+			SdpFactory.rejectMediaField(this.localSdp, remoteVideo);
+		}
+		
 		// Change the state of this RTP connection from HALF_OPEN to OPEN
 		try {
 			this.join();
@@ -394,58 +396,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioChannel);
 			this.remoteSdp = null;
 		}
-	}
-	
-	/**
-	 * Generates an SDP answer to be sent to the remote peer.
-	 * 
-	 * @return The template of the SDP answer
-	 * @throws SdpException
-	 *             In case the SDP is malformed
-	 */
-	private SessionDescription generateSdpAnswer() throws SdpException {
-		SessionDescription answer = new SessionDescription();
-
-		String bindAddress = local ? channelsManager.getLocalBindAddress() : channelsManager.getBindAddress();
-		String originatorAddress = this.channelsManager.getExternalAddress();
-		if(originatorAddress == null || originatorAddress.isEmpty()) {
-			originatorAddress = bindAddress;
-		}
-		
-		// Session Description
-		answer.setVersion(new VersionField((short) 0));
-		answer.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originatorAddress));
-		answer.setSessionName(new SessionNameField("Mobicents Media Server"));
-		answer.setConnection(new ConnectionField("IN", "IP4", bindAddress));
-		answer.setTiming(new TimingField(0, 0));
-
-		// Session-level ICE
-		if(this.audioChannel.isIceEnabled()) {
-			answer.setIceLite(new IceLiteAttribute());
-		}
-		
-		// Media Description - audio
-		if(this.remoteSdp.getMediaDescription("audio") != null) {
-			MediaDescriptionField audioDescription = SdpFactory.buildMediaDescription(this.audioChannel);
-			answer.addMediaDescription(audioDescription);
-			audioDescription.setSession(answer);
-			if(audioDescription.containsIce()) {
-				// Fix session-level attribute
-				String rtpAddress = audioDescription.getConnection().getAddress();
-				answer.getConnection().setAddress(rtpAddress);
-			}
-		}
-		
-		// Media Description - video
-		if(this.remoteSdp.getMediaDescription("video") != null) { 
-			MediaDescriptionField videoDescription = new MediaDescriptionField(answer);
-			videoDescription.setMedia("video");
-			// Video is unsupported - reject channel
-			videoDescription.setPort(0);
-			videoDescription.setProtocol(videoDescription.containsDtls() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
-			answer.addMediaDescription(videoDescription);
-		}
-		return answer;
 	}
 	
 	@Override

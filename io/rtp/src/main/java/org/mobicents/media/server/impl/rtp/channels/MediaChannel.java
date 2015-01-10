@@ -48,15 +48,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
-import org.mobicents.media.server.io.sdp.MediaProfile;
-import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
-import org.mobicents.media.server.io.sdp.attributes.FormatParameterAttribute;
-import org.mobicents.media.server.io.sdp.attributes.PacketTimeAttribute;
-import org.mobicents.media.server.io.sdp.attributes.RtpMapAttribute;
-import org.mobicents.media.server.io.sdp.attributes.SsrcAttribute;
-import org.mobicents.media.server.io.sdp.fields.ConnectionField;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
-import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
@@ -1075,44 +1067,6 @@ public abstract class MediaChannel {
 			return this.statistics.getMember(this.ssrc).getJitter();
 		}
 		return 0;
-	}
-
-	/*
-	 * SDP XXX Create an SDP factory
-	 */
-	public MediaDescriptionField getMediaDescriptor() {
-		MediaDescriptionField mediaField = new MediaDescriptionField();
-		mediaField.setMedia(this.mediaType);
-		mediaField.setPort(this.rtpChannel.getLocalPort());
-		mediaField.setProtocol(MediaProfile.RTP_AVP);
-		mediaField.setConnection(new ConnectionField("IN", "IP4", this.rtpChannel.getLocalHost()));
-		mediaField.setPtime(new PacketTimeAttribute(20));
-		mediaField.setRtcp(new RtcpAttribute(this.rtcpChannel.getLocalPort(), "IN", "IP4", this.rtcpChannel.getLocalHost()));
-
-		// Media formats
-		this.supportedFormats.rewind();
-		while (this.supportedFormats.hasMore()) {
-			RTPFormat f = this.supportedFormats.next();
-			AudioFormat audioFormat = (AudioFormat) f.getFormat();
-
-			RtpMapAttribute rtpMap = new RtpMapAttribute();
-			rtpMap.setPayloadType(f.getID());
-			rtpMap.setCodec(f.getFormat().getName().toString());
-			rtpMap.setClockRate(f.getClockRate());
-			if (audioFormat.getChannels() > 1) {
-				rtpMap.setCodecParams(audioFormat.getChannels());
-			}
-			if (audioFormat.getOptions() != null) {
-				rtpMap.setParameters(new FormatParameterAttribute(f.getID(), audioFormat.getOptions().toString()));
-			}
-			mediaField.addPayloadType(f.getID());
-			mediaField.addFormat(rtpMap);
-		}
-		mediaField.setConnectionMode(new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV));
-		SsrcAttribute ssrcAttribute = new SsrcAttribute(Long.toString(this.ssrc));
-		ssrcAttribute.addAttribute("cname", this.cname);
-		mediaField.setSsrc(ssrcAttribute);
-		return mediaField;
 	}
 
 }
