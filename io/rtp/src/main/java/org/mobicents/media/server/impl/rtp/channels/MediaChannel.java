@@ -86,6 +86,7 @@ public abstract class MediaChannel {
 	protected RTPFormats supportedFormats;
 	protected RTPFormats offeredFormats;
 	protected RTPFormats negotiatedFormats;
+	protected boolean negotiated;
 	
 	private RtpListener rtpListener;
 
@@ -126,6 +127,7 @@ public abstract class MediaChannel {
 		
 		this.offeredFormats = new RTPFormats();
 		this.negotiatedFormats = new RTPFormats();
+		this.negotiated = false;
 
 		this.rtcpMux = false;
 		this.ice = false;
@@ -292,6 +294,9 @@ public abstract class MediaChannel {
 	 * for different calls.
 	 */
 	private void reset() {
+		// Reset codecs
+		resetFormats();
+		
 		// Reset channels
 		if (this.rtcpMux) {
 			this.rtcpMux = false;
@@ -409,7 +414,7 @@ public abstract class MediaChannel {
 	 * @param formats
 	 *            The supported codecs resulting from SDP negotiation
 	 */
-	private void setFormats(RTPFormats formats) {
+	protected void setFormats(RTPFormats formats) {
 		try {
 			this.rtpChannel.setFormatMap(formats);
 			this.rtpChannel.setOutputFormats(formats.getFormats());
@@ -420,11 +425,25 @@ public abstract class MediaChannel {
 	}
 	
 	/**
+	 * Gets the list of codecs <b>currently</b> applied to the Media Session.
+	 * 
+	 * @return Returns the list of supported formats if no codec negotiation as
+	 *         happened over SDP so far.<br>
+	 *         Returns the list of negotiated codecs otherwise.
+	 */
+	public RTPFormats getFormats() {
+		if(this.negotiated) {
+			return this.negotiatedFormats;
+		}
+		return this.supportedFormats;
+	}
+	
+	/**
 	 * Gets the supported codecs of the RTP components.
 	 * 
 	 * @return The codecs currently supported by the RTP component
 	 */
-	public RTPFormats getFormats() {
+	public RTPFormats getFormatMap() {
 		return this.rtpChannel.getFormatMap();
 	}
 
@@ -606,10 +625,11 @@ public abstract class MediaChannel {
 	/**
 	 * Resets the list of supported codecs.
 	 */
-	public void resetFormats() {
+	private void resetFormats() {
 		this.offeredFormats.clean();
 		this.negotiatedFormats.clean();
 		setFormats(this.supportedFormats);
+		this.negotiated = false;
 	}
 	
 	/**
@@ -620,6 +640,17 @@ public abstract class MediaChannel {
 	 */
 	public RTPFormats getNegotiatedFormats() {
 		return this.negotiatedFormats;
+	}
+	
+	/**
+	 * Gets whether the channel has negotiated codecs with the remote peer over
+	 * SDP.
+	 * 
+	 * @return Returns false if the channel has not negotiated codecs yet.
+	 *         Returns true otherwise.
+	 */
+	public boolean hasNegotiatedFormats() {
+		return this.negotiated;
 	}
 	
 	/**
@@ -647,6 +678,7 @@ public abstract class MediaChannel {
 		
 		// Apply formats
 		setFormats(this.negotiatedFormats);
+		this.negotiated = true;
 	}
 	
 	/**
@@ -656,7 +688,7 @@ public abstract class MediaChannel {
 	 * @return Returns true if codecs have been negotiated. Returns false
 	 *         otherwise.
 	 */
-	public boolean hasNegotiatedFormats() {
+	public boolean containsNegotiatedFormats() {
 		return !negotiatedFormats.isEmpty() && negotiatedFormats.hasNonDTMF();
 	}
 
@@ -785,10 +817,24 @@ public abstract class MediaChannel {
 	 */
 	public List<LocalCandidateWrapper> getRtpCandidates() {
 		if(this.ice) {
-			IceMediaStream audioIce = this.iceAgent.getMediaStream(this.mediaType);
-			return audioIce.getRtpComponent().getLocalCandidates();
+			IceMediaStream iceStream = this.iceAgent.getMediaStream(this.mediaType);
+			return iceStream.getRtpComponent().getLocalCandidates();
 		}
 		return new ArrayList<LocalCandidateWrapper>();
+	}
+	
+	/**
+	 * Gets the default RTP candidate.
+	 * 
+	 * @return The RTP candidate with highest priority. Returns null if no
+	 *         candidates exist.
+	 */
+	public LocalCandidateWrapper getDefaultRtpCandidate() {
+		if(this.ice) {
+			IceMediaStream iceStream = this.iceAgent.getMediaStream(this.mediaType);
+			return iceStream.getRtpComponent().getDefaultLocalCandidate();
+		}
+		return null;
 	}
 
 	/**
@@ -803,6 +849,20 @@ public abstract class MediaChannel {
 			return audioIce.getRtcpComponent().getLocalCandidates();
 		}
 		return new ArrayList<LocalCandidateWrapper>();
+	}
+	
+	/**
+	 * Gets the default RTCP candidate.
+	 * 
+	 * @return The RTCP candidate with highest priority. Returns null if no
+	 *         candidates exist.
+	 */
+	public LocalCandidateWrapper getDefaultRtcpCandidate() {
+		if(this.ice) {
+			IceMediaStream iceStream = this.iceAgent.getMediaStream(this.mediaType);
+			return iceStream.getRtcpComponent().getDefaultLocalCandidate();
+		}
+		return null;
 	}
 
 	/**

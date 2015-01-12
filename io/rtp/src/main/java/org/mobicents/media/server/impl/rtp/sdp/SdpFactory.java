@@ -142,20 +142,43 @@ public class SdpFactory {
 			md.setIcePwd(new IcePwdAttribute(channel.getIcePwd()));
 
 			List<LocalCandidateWrapper> rtpCandidates = channel.getRtpCandidates();
-			for (LocalCandidateWrapper candidate : rtpCandidates) {
-				md.addCandidate(processCandidate(candidate.getCandidate()));
+			if(!rtpCandidates.isEmpty()) {
+				// Fix connection address based on default candidate
+				IceCandidate defaultCandidate = channel.getDefaultRtpCandidate().getCandidate();
+				md.getConnection().setAddress(defaultCandidate.getHostString());
+				md.setPort(defaultCandidate.getPort());
+				
+				// Fix RTCP if rtcp-mux is used
+				if(channel.isRtcpMux()) {
+					md.getRtcp().setAddress(defaultCandidate.getHostString());
+					md.getRtcp().setPort(defaultCandidate.getPort());
+				}
+				
+				// Add candidates list for ICE negotiation
+				for (LocalCandidateWrapper candidate : rtpCandidates) {
+					md.addCandidate(processCandidate(candidate.getCandidate()));
+				}
 			}
 			
 			if (!channel.isRtcpMux()) {
 				List<LocalCandidateWrapper> rtcpCandidates = channel.getRtcpCandidates();
-				for (LocalCandidateWrapper candidate : rtcpCandidates) {
-					md.addCandidate(processCandidate(candidate.getCandidate()));
+				
+				if(!rtcpCandidates.isEmpty()) {
+					// Fix RTCP based on default RTCP candidate
+					IceCandidate defaultCandidate = channel.getDefaultRtcpCandidate().getCandidate();
+					md.getRtcp().setAddress(defaultCandidate.getHostString());
+					md.getRtcp().setPort(defaultCandidate.getPort());
+					
+					// Add candidates list for ICE negotiation
+					for (LocalCandidateWrapper candidate : rtcpCandidates) {
+						md.addCandidate(processCandidate(candidate.getCandidate()));
+					}
 				}
 			}
 		}
 
 		// Media formats
-		RTPFormats negotiatedFormats = channel.getNegotiatedFormats();
+		RTPFormats negotiatedFormats = channel.getFormats();
 		negotiatedFormats.rewind();
 		while (negotiatedFormats.hasMore()) {
 			RTPFormat f = negotiatedFormats.next();

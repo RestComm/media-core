@@ -188,7 +188,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Audio formats: " + this.audioChannel.getFormats());
+			logger.debug("Audio formats: " + this.audioChannel.getFormatMap());
 		}
 	}
 	
@@ -287,7 +287,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private void setupAudioChannelInbound(MediaDescriptionField remoteAudio) throws IOException {
 		// Negotiate audio codecs
 		this.audioChannel.negotiateFormats(remoteAudio);
-		if (!this.audioChannel.hasNegotiatedFormats()) {
+		if (!this.audioChannel.containsNegotiatedFormats()) {
 			throw new IOException("Audio codecs were not supported");
 		}
 		
@@ -335,7 +335,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	private void setupAudioChannelOutbound(MediaDescriptionField remoteAudio) throws IOException {
 		// Negotiate audio codecs
 		this.audioChannel.negotiateFormats(remoteAudio);
-		if (!this.audioChannel.hasNegotiatedFormats()) {
+		if (!this.audioChannel.containsNegotiatedFormats()) {
 			throw new IOException("Audio codecs were not supported");
 		}
 
@@ -388,7 +388,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 			// setup audio channel
 			this.audioChannel.open();
 			this.audioChannel.bind(this.local, false);
-			this.audioChannel.resetFormats();
 			
 			// generate SDP offer based on audio channel
 			String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
