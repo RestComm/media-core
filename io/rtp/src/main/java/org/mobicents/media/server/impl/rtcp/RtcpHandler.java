@@ -118,7 +118,8 @@ public class RtcpHandler implements PacketHandler {
 	 * @return The interval of time between both time stamps, in milliseconds.
 	 */
 	private long resolveInterval(long timestamp) {
-		return timestamp - this.statistics.getCurrentTime();
+		long interval = timestamp - this.statistics.getCurrentTime();
+		return (interval < 0) ? 0 : interval;
 	}
 	
 	public void setChannel(DatagramChannel channel) {
