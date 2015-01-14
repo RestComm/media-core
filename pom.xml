@@ -10,7 +10,7 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>3.0.2.FINAL</version>
+    <version>3.0.3-SNAPSHOT</version>
 
     <name>Mobicents Media Server</name>
     <url>http://code.google.com/p/mediaserver/</url>
@@ -201,7 +201,7 @@
       <connection>scm:git:git@github.com:Mobicents/mediaserver.git</connection>
       <developerConnection>scm:git:git@github.com:Mobicents/mediaserver.git</developerConnection>
       <url>scm:git:git@github.com:Mobicents/mediaserver.git/</url>
-      <tag>3.0.2.FINAL</tag>
+      <tag>HEAD</tag>
   </scm>
 
 	<!--  -->
