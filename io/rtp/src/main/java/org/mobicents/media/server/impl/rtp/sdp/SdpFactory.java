@@ -111,6 +111,7 @@ public class SdpFactory {
 		rejected.setMedia(media.getMedia());
 		rejected.setPort(0);
 		rejected.setProtocol(media.containsDtls() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
+		rejected.setPayloadTypes(media.getPayloadTypes());
 		
 		rejected.setSession(answer);
 		answer.addMediaDescription(rejected);
