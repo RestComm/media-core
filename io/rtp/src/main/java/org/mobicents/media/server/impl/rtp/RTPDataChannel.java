@@ -832,7 +832,7 @@ public class RTPDataChannel {
 		if (this.webRtcHandler == null) {
 			this.webRtcHandler = new DtlsHandler();
 		}
-		this.webRtcHandler.setRemoteFingerprint(remotePeerFingerprint.toString());
+		this.webRtcHandler.setRemoteFingerprint("sha-256", remotePeerFingerprint.toString());
 	}
 	
 	public Text getWebRtcLocalFingerprint() {

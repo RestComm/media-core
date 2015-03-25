@@ -37,6 +37,7 @@ import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.SessionDescriptionParser;
+import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.Connection;
@@ -317,7 +318,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		
 		// Check whether SRTP should be active
 		if(remoteAudio.containsDtls()) {
-			this.audioChannel.enableDTLS(remoteAudio.getFingerprint().getValue());
+			FingerprintAttribute fingerprint = remoteAudio.getFingerprint();
+			this.audioChannel.enableDTLS(fingerprint.getHashFunction(), fingerprint.getFingerprint());
 		}
 	}
 	
