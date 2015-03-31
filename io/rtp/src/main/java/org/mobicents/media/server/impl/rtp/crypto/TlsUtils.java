@@ -95,7 +95,15 @@ public class TlsUtils {
 			fp.append(':');
 			fp.append(hex.substring(i, i + 2));
 		}
-		return "sha-256 " + fp.toString();
+		
+		switch (hashFunction) {
+			case SHA_1:
+				return SHA_1 + " " + fp.toString();
+			case SHA_512:
+				return SHA_512 + " " + fp.toString();
+			default:
+				return SHA_256 + " " + fp.toString();
+		}
 	}
 
 	static byte[] digestOf(String hashFunction, byte[] input) {
