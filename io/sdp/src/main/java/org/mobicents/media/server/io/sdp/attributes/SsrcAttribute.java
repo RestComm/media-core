@@ -70,44 +70,71 @@ public class SsrcAttribute extends AttributeField {
 	public static final String ATTRIBUTE_TYPE = "ssrc";
 	public static final String BEGIN = "a=ssrc:";
 	public static final String NEWLINE = "\n";
-	
+
 	private String ssrcId;
 	private final Map<String, String> attributes;
+
+	private String lastAttribute;
+	private String lastValue;
 
 	public SsrcAttribute(String ssrcId) {
 		super(ATTRIBUTE_TYPE);
 		this.ssrcId = ssrcId;
 		this.attributes = new HashMap<String, String>(3);
+		this.lastAttribute = "";
+		this.lastValue = "";
 	}
 
 	public void setSsrcId(String ssrcId) {
 		this.ssrcId = ssrcId;
 	}
-	
+
 	public String getSsrcId() {
 		return ssrcId;
 	}
-	
+
 	public String getAttributeValue(String attribute) {
 		return this.attributes.get(attribute);
 	}
-	
+
 	public void addAttribute(String attribute, String value) {
+		this.lastAttribute = attribute;
+		this.lastValue = value;
 		this.attributes.put(attribute, value);
 	}
-	
+
+	/**
+	 * Gets the name of the last inserted attribute.
+	 * 
+	 * @return the name of the attribute
+	 */
+	public String getLastAttribute() {
+		return lastAttribute;
+	}
+
+	/**
+	 * Gets the value of the last inserted attribute
+	 * 
+	 * @return the value of the attribute
+	 */
+	public String getLastValue() {
+		return lastValue;
+	}
+
 	public void reset() {
 		this.ssrcId = null;
 		this.attributes.clear();
 	}
-	
+
 	@Override
 	public String toString() {
-		super.builder.setLength(0);		
+		super.builder.setLength(0);
 		for (Entry<String, String> value : this.attributes.entrySet()) {
-			super.builder.append(BEGIN).append(this.ssrcId).append(" ").append(value.getKey());
-			if(value.getValue() != null && !value.getValue().isEmpty()) {
-				super.builder.append(ATTRIBUTE_SEPARATOR).append(value.getValue()).append(NEWLINE);
+			super.builder.append(BEGIN).append(this.ssrcId).append(" ")
+					.append(value.getKey());
+			if (value.getValue() != null && !value.getValue().isEmpty()) {
+				super.builder.append(ATTRIBUTE_SEPARATOR)
+						.append(value.getValue()).append(NEWLINE);
 			}
 		}
 		super.builder.deleteCharAt(builder.length() - 1);

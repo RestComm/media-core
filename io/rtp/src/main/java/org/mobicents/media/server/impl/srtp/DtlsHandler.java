@@ -41,7 +41,7 @@ import org.mobicents.media.server.utils.Text;
  * 
  */
 public class DtlsHandler {
-	
+
 	private static final Logger logger = Logger.getLogger(DtlsHandler.class);
 
 	private DtlsSrtpServer server;
@@ -50,8 +50,10 @@ public class DtlsHandler {
 	private volatile boolean handshakeFailed;
 	private volatile boolean handshaking;
 	private Thread worker;
+	private String hashFunction;
 	private String remoteFingerprint;
-	
+	private String localFingerprint;
+
 	private final List<DtlsListener> listeners;
 
 	/**
@@ -69,7 +71,7 @@ public class DtlsHandler {
 	 * @see http://tools.ietf.org/html/rfc5764#section-4.2
 	 */
 	private PacketTransformer srtpDecoder;
-	
+
 	/**
 	 * Handles encryption of outbound RTCP packets for a given RTP stream
 	 * identified by its SSRC
@@ -93,6 +95,9 @@ public class DtlsHandler {
 		this.handshakeComplete = false;
 		this.handshakeFailed = false;
 		this.handshaking = false;
+		this.hashFunction = "";
+		this.remoteFingerprint = "";
+		this.localFingerprint = "";
 	}
 
 	public DtlsHandler() {
@@ -106,9 +111,9 @@ public class DtlsHandler {
 	public void setChannel(DatagramChannel channel) {
 		this.channel = channel;
 	}
-	
+
 	public void addListener(DtlsListener listener) {
-		if(!this.listeners.contains(listener)) {
+		if (!this.listeners.contains(listener)) {
 			this.listeners.add(listener);
 		}
 	}
@@ -116,25 +121,41 @@ public class DtlsHandler {
 	public boolean isHandshakeComplete() {
 		return handshakeComplete;
 	}
-	
+
 	public boolean isHandshakeFailed() {
 		return handshakeFailed;
 	}
-	
+
 	public boolean isHandshaking() {
 		return handshaking;
 	}
 
 	public Text getLocalFingerprint() {
-		return new Text(this.server.getFingerprint());
+		if(this.localFingerprint == null || this.localFingerprint.isEmpty()) {
+			this.localFingerprint = this.server.generateFingerprint(this.hashFunction);
+		}
+		return new Text(this.localFingerprint);
+	}
+	
+	public void resetLocalFingerprint() {
+		this.localFingerprint = "";
 	}
 
-	public String getRemoteFingerprint() {
+	public String getHashFunction() {
+		return hashFunction;
+	}
+
+	public String getRemoteFingerprintValue() {
 		return remoteFingerprint;
 	}
 
-	public void setRemoteFingerprint(String remotePeerFingerprint) {
-		this.remoteFingerprint = remotePeerFingerprint;
+	public String getRemoteFingerprint() {
+		return hashFunction + " " + remoteFingerprint;
+	}
+
+	public void setRemoteFingerprint(String hashFunction, String fingerprint) {
+		this.hashFunction = hashFunction;
+		this.remoteFingerprint = fingerprint;
 	}
 
 	private byte[] getMasterServerKey() {
@@ -172,17 +193,19 @@ public class DtlsHandler {
 	public PacketTransformer getSrtcpDecoder() {
 		return srtcpDecoder;
 	}
-	
+
 	public PacketTransformer getSrtcpEncoder() {
 		return srtcpEncoder;
 	}
-	
+
 	/**
 	 * Generates an SRTP encoder for outgoing RTP packets using keying material
 	 * from the DTLS handshake.
 	 */
 	private PacketTransformer generateRtpEncoder() {
-		return new SRTPTransformEngine(getMasterServerKey(), getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTPTransformer();
+		return new SRTPTransformEngine(getMasterServerKey(),
+				getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy())
+				.getRTPTransformer();
 	}
 
 	/**
@@ -190,23 +213,29 @@ public class DtlsHandler {
 	 * from the DTLS handshake.
 	 */
 	private PacketTransformer generateRtpDecoder() {
-		return new SRTPTransformEngine(getMasterClientKey(), getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTPTransformer();
+		return new SRTPTransformEngine(getMasterClientKey(),
+				getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy())
+				.getRTPTransformer();
 	}
-	
+
 	/**
-	 * Generates an SRTCP encoder for outgoing RTCP packets using keying material
-	 * from the DTLS handshake.
+	 * Generates an SRTCP encoder for outgoing RTCP packets using keying
+	 * material from the DTLS handshake.
 	 */
 	private PacketTransformer generateRtcpEncoder() {
-		return new SRTPTransformEngine(getMasterServerKey(), getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTCPTransformer();
+		return new SRTPTransformEngine(getMasterServerKey(),
+				getMasterServerSalt(), getSrtpPolicy(), getSrtcpPolicy())
+				.getRTCPTransformer();
 	}
-	
+
 	/**
-	 * Generates an SRTCP decoder for incoming RTCP packets using keying material
-	 * from the DTLS handshake.
+	 * Generates an SRTCP decoder for incoming RTCP packets using keying
+	 * material from the DTLS handshake.
 	 */
 	private PacketTransformer generateRtcpDecoder() {
-		return new SRTPTransformEngine(getMasterClientKey(), getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy()).getRTCPTransformer();
+		return new SRTPTransformEngine(getMasterClientKey(),
+				getMasterClientSalt(), getSrtpPolicy(), getSrtcpPolicy())
+				.getRTCPTransformer();
 	}
 
 	/**
@@ -241,7 +270,7 @@ public class DtlsHandler {
 	public byte[] decodeRTCP(byte[] packet, int offset, int length) {
 		return this.srtcpDecoder.reverseTransform(packet, offset, length);
 	}
-	
+
 	/**
 	 * Encodes an RTCP packet
 	 * 
@@ -254,85 +283,88 @@ public class DtlsHandler {
 	}
 
 	public void handshake() {
-		if(!handshaking && !handshakeComplete) {
+		if (!handshaking && !handshakeComplete) {
 			this.handshaking = true;
 			this.worker = new Thread(new HandshakeWorker());
 			this.worker.start();
 		}
 	}
-	
+
 	private void fireHandshakeComplete() {
-		if(this.listeners.size() > 0) {
+		if (this.listeners.size() > 0) {
 			Iterator<DtlsListener> iterator = listeners.iterator();
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				iterator.next().onDtlsHandshakeComplete();
 			}
 		}
 	}
 
 	private void fireHandshakeFailed(Throwable e) {
-		if(this.listeners.size() > 0) {
+		if (this.listeners.size() > 0) {
 			Iterator<DtlsListener> iterator = listeners.iterator();
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				iterator.next().onDtlsHandshakeFailed(e);
 			}
 		}
 	}
-	
+
 	public void reset() {
-		// XXX try not to create the server every time! 
+		// XXX try not to create the server every time!
 		this.server = new DtlsSrtpServer();
 		this.channel = null;
 		this.srtcpDecoder = null;
 		this.srtcpEncoder = null;
 		this.srtpDecoder = null;
 		this.srtpEncoder = null;
-		this.remoteFingerprint = null;
+		this.hashFunction = "";
+		this.remoteFingerprint = "";
+		this.localFingerprint = "";
 		this.handshakeComplete = false;
 		this.handshakeFailed = false;
 		this.handshaking = false;
 	}
-	
+
 	private class HandshakeWorker implements Runnable {
 
 		public void run() {
 			SecureRandom secureRandom = new SecureRandom();
-			DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
+			DTLSServerProtocol serverProtocol = new DTLSServerProtocol(
+					secureRandom);
 			NioUdpTransport transport = new NioUdpTransport(getChannel());
-			
+
 			try {
 				// Perform the handshake in a non-blocking fashion
 				serverProtocol.accept(server, transport);
 
 				// Prepare the shared key to be used in RTP streaming
 				server.prepareSrtpSharedSecret();
-				
+
 				// Generate encoders for DTLS traffic
 				srtpDecoder = generateRtpDecoder();
 				srtpEncoder = generateRtpEncoder();
 				srtcpDecoder = generateRtcpDecoder();
 				srtcpEncoder = generateRtcpEncoder();
-				
+
 				// Declare handshake as complete
 				handshakeComplete = true;
 				handshakeFailed = false;
 				handshaking = false;
-				
+
 				// Warn listeners handshake completed
 				fireHandshakeComplete();
 			} catch (Exception e) {
-				logger.error("DTLS handshake failed: "+ e.getMessage(), e);
-				
+				logger.error("DTLS handshake failed: " + e.getMessage(), e);
+
 				// Declare handshake as failed
 				handshakeComplete = false;
 				handshakeFailed = true;
 				handshaking = false;
-				
+
 				// Warn listeners handshake completed
 				fireHandshakeFailed(e);
 			}
 		}
-		
+
 	}
 
 }

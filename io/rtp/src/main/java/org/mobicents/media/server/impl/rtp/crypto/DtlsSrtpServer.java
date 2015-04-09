@@ -61,6 +61,8 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     // Certificate resources
 	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem", "x509-ca.pem" };
 	private static final String KEY_RESOURCE = "x509-server-key.pem";
+	
+	private String hashFunction = "";
     
     // the server response to the client handshake request
     // http://tools.ietf.org/html/rfc5764#section-4.1.1
@@ -108,7 +110,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         
         for (int i = 0; i != chain.length; i++) {
             Certificate entry = chain[i];
-            LOGGER.info(String.format("WebRTC Client certificate fingerprint:%s (%s)", TlsUtils.fingerprint(entry), entry.getSubject()));
+            LOGGER.info(String.format("WebRTC Client certificate fingerprint:%s (%s)", TlsUtils.fingerprint(this.hashFunction, entry), entry.getSubject()));
         }
     }
 
@@ -278,11 +280,12 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	 * @return The fingerprint of the server certificate. Returns an empty
 	 *         String if the server does not contain a certificate.
 	 */
-	public String getFingerprint() {
+	public String generateFingerprint(String hashFunction) {
 		try {
+			this.hashFunction = hashFunction;
 			org.bouncycastle.crypto.tls.Certificate chain = TlsUtils.loadCertificateChain(CERT_RESOURCES);
 			Certificate certificate = chain.getCertificateAt(0);
-			return TlsUtils.fingerprint(certificate);
+			return TlsUtils.fingerprint(this.hashFunction, certificate);
 		} catch (IOException e) {
 			LOGGER.error("Could not get local fingerprint: "+ e.getMessage());
 			return "";

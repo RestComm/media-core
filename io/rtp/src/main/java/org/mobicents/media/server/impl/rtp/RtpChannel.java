@@ -397,14 +397,14 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		return text != null && !text.isEmpty();
 	}
 	
-	public void enableSRTP(String remotePeerFingerprint, IceAuthenticator authenticator) {
+	public void enableSRTP(String hashFunction, String remotePeerFingerprint, IceAuthenticator authenticator) {
 		this.secure = true;
 		
 		// setup the DTLS handler
 		if (this.dtlsHandler == null) {
 			this.dtlsHandler = new DtlsHandler();
 		}
-		this.dtlsHandler.setRemoteFingerprint(remotePeerFingerprint);
+		this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
 		
 		// setup the STUN handler
 		if (this.stunHandler == null) {
@@ -426,7 +426,8 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		
 		// setup the DTLS handler
 		if(this.dtlsHandler != null) {
-			this.dtlsHandler.setRemoteFingerprint("");
+			this.dtlsHandler.setRemoteFingerprint("", "");
+			this.dtlsHandler.resetLocalFingerprint();
 		}
 		
 		// setup the STUN handler
