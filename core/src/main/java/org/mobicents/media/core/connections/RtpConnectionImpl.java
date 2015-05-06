@@ -228,6 +228,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		if(remoteVideo != null) {
 			SdpFactory.rejectMediaField(this.localSdp, remoteVideo);
 		}
+
+		MediaDescriptionField remoteApplication = this.remoteSdp.getMediaDescription("application");
+		if(remoteApplication != null) {
+			SdpFactory.rejectMediaField(this.localSdp, remoteApplication);
+		}
 		
 		// Change the state of this RTP connection from HALF_OPEN to OPEN
 		try {

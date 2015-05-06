@@ -22,7 +22,6 @@ package org.mobicents.media.server.io.sdp.fields.parser;
 
 import java.util.regex.Pattern;
 
-import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SdpParser;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
@@ -50,10 +49,7 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 
 			String media = values[index++];
 			int port = Integer.parseInt(values[index++]);
-			MediaProfile protocol = MediaProfile.fromProfile(values[index++]);
-			if(protocol == null) {
-				throw new IllegalArgumentException("Unrecognized media profile");
-			}
+			String protocol = values[index++];
 
 			int[] formats = null;
 			if (maxIndex - index >= 0) {
@@ -86,10 +82,7 @@ public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionFi
 
 			String media = values[index++];
 			int port = Integer.parseInt(values[index++]);
-			MediaProfile protocol = MediaProfile.fromProfile(values[index++]);
-			if(protocol == null) {
-				throw new IllegalArgumentException("Unrecognized media profile");
-			}
+			String protocol = values[index++];
 
 			int[] payloadTypes = null;
 			if (maxIndex - index >= 0) {

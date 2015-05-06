@@ -110,7 +110,7 @@ public class SdpFactory {
 		MediaDescriptionField rejected = new MediaDescriptionField();
 		rejected.setMedia(media.getMedia());
 		rejected.setPort(0);
-		rejected.setProtocol(media.containsDtls() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
+		rejected.setProtocol(media.getProtocol());
 		rejected.setPayloadTypes(media.getPayloadTypes());
 		
 		rejected.setSession(answer);
@@ -129,7 +129,8 @@ public class SdpFactory {
 		
 		md.setMedia(channel.getMediaType());
 		md.setPort(channel.getRtpPort());
-		md.setProtocol(channel.isDtlsEnabled() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP);
+		MediaProfile profile = channel.isDtlsEnabled() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP;
+		md.setProtocol(profile.getProfile());
 		md.setConnection(new ConnectionField("IN", "IP4", channel.getRtpAddress()));
 		md.setPtime(new PacketTimeAttribute(20));
 		md.setRtcp(new RtcpAttribute(channel.getRtcpPort(), "IN", "IP4", channel.getRtcpAddress()));
