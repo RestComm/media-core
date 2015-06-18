@@ -388,10 +388,12 @@ public class ResourcesPool implements ComponentFactory {
 			if (result == null) {
 				result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
 				this.rtpConnectionsCount.incrementAndGet();
+			} else {
+				result.generateCname();
 			}
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new rtp connection,pool size:" + rtpConnectionsCount.get() + ",free:" + remoteConnections.size());
+				logger.debug("Allocated new rtp connection " + result.getCname() + ", pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.size());
 			}
 		}
 		return result;

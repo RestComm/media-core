@@ -27,6 +27,7 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
+
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -52,6 +53,16 @@ public class MyTestConnection extends BaseConnection {
         super(id, scheduler);
         audioComponent=new AudioComponent(-1);
         oobComponent=new OOBComponent(-1);
+    }
+    
+    @Override
+    public void generateCname() {
+    	throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public String getCname() {
+    	throw new UnsupportedOperationException("Not supported yet.");
     }
     
     public void generateOffer() throws IOException {

@@ -48,6 +48,16 @@ public class LocalConnectionImpl extends BaseConnection {
         this.localAudioChannel=channelsManager.getLocalChannel();
     }
     
+    @Override
+    public void generateCname() {
+    	throw new UnsupportedOperationException("Not supported!");
+    }
+    
+    @Override
+    public String getCname() {
+    	throw new UnsupportedOperationException("Not supported!");
+    }
+    
     public AudioComponent getAudioComponent()
     {
     	return this.localAudioChannel.getAudioComponent();
