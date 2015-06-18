@@ -204,14 +204,14 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		return secure;
 	}
 	
-	public void enableSRTCP(String remotePeerFingerprint, IceAuthenticator authenticator) {
+	public void enableSRTCP(String hashFunction, String remotePeerFingerprint, IceAuthenticator authenticator) {
 		this.secure = true;
 		
 		// setup the DTLS handler
 		if(this.dtlsHandler == null) {
 			this.dtlsHandler = new DtlsHandler(this.dataChannel);
 		}
-		this.dtlsHandler.setRemoteFingerprint(remotePeerFingerprint);
+		this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
 		
 		// setup the SRTCP handler
 		this.rtcpHandler.enableSRTCP(this.dtlsHandler);
@@ -230,7 +230,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		
 		// setup the DTLS handler
 		if(this.dtlsHandler != null) {
-			this.dtlsHandler.setRemoteFingerprint("");
+			this.dtlsHandler.setRemoteFingerprint("", "");
 		}
 		
 		// setup the SRTCP handler

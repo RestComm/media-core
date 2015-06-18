@@ -992,14 +992,14 @@ public abstract class MediaChannel {
 	 * @throws IllegalStateException
 	 *             Cannot be invoked when DTLS is already enabled
 	 */
-	public void enableDTLS(String remoteFingerprint) throws IllegalStateException {
+	public void enableDTLS(String hashFunction, String remoteFingerprint) throws IllegalStateException {
 		if (this.dtls) {
 			throw new IllegalStateException("DTLS is already enabled on this channel");
 		}
 
-		this.rtpChannel.enableSRTP(remoteFingerprint, this.iceAgent);
+		this.rtpChannel.enableSRTP(hashFunction, remoteFingerprint, this.iceAgent);
 		if (!this.rtcpMux) {
-			rtcpChannel.enableSRTCP(remoteFingerprint, this.iceAgent);
+			rtcpChannel.enableSRTCP(hashFunction, remoteFingerprint, this.iceAgent);
 		}
 		this.dtls = true;
 		

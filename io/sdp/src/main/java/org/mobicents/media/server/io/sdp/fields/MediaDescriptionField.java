@@ -65,7 +65,7 @@ public class MediaDescriptionField implements SdpField {
 	// SDP fields (media description specific)
 	private String media;
 	private int port;
-	private MediaProfile protocol;
+	private String protocol;
 	private final List<Integer> payloadTypes;
 	private final Map<Integer, RtpMapAttribute> formats;
 	
@@ -122,10 +122,10 @@ public class MediaDescriptionField implements SdpField {
 	}
 
 	public String getProtocol() {
-		return protocol.getProfile();
+		return protocol;
 	}
 
-	public void setProtocol(MediaProfile protocol) {
+	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
 	
@@ -375,7 +375,7 @@ public class MediaDescriptionField implements SdpField {
 		this.builder.append(BEGIN)
 		        .append(this.media).append(" ")
 				.append(this.port).append(" ")
-				.append(this.protocol.getProfile());
+				.append(this.protocol);
 		for (Integer payloadType : this.payloadTypes) {
 			this.builder.append(" ").append(payloadType);
 		}

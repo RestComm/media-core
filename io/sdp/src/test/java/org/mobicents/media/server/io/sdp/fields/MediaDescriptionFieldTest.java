@@ -48,7 +48,7 @@ public class MediaDescriptionFieldTest {
 		MediaDescriptionField md = new MediaDescriptionField();
 		md.setMedia(media);
 		md.setPort(port);
-		md.setProtocol(MediaProfile.RTP_AVP);
+		md.setProtocol(MediaProfile.RTP_AVP.getProfile());
 		md.setPayloadTypes(formats);
 		
 		// then
