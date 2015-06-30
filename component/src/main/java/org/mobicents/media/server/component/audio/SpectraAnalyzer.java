@@ -73,7 +73,7 @@ public class SpectraAnalyzer extends AbstractSink {
     public void activate()
     {
     	this.len = 0;
-        System.out.println("start, len=" + len);
+        //System.out.println("start, len=" + len);
         output.start();
     }
     
@@ -132,7 +132,7 @@ public class SpectraAnalyzer extends AbstractSink {
 
     public int[] getSpectra() {
         ArrayList<Integer> frequency = new ArrayList();
-        System.out.println("len=" + len);
+        //System.out.println("len=" + len);
         int count = len / 8000;
         for (int i = 0; i < count; i++) {
             double[] data = new double[8000];

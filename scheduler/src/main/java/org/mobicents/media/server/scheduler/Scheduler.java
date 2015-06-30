@@ -94,16 +94,16 @@ public class Scheduler  {
     	for(int i=0;i<heartBeatQueue.length;i++)
     		heartBeatQueue[i]=new OrderedTaskQueue();
     	
-    	coreThread = new CoreThread(String.format("Scheduler"));  
-    	criticalThread = new CriticalThread(String.format("Scheduler"));
+    	coreThread = new CoreThread(String.format("Scheduler-coreThread"));  
+    	criticalThread = new CriticalThread(String.format("Scheduler-criticalThread"));
     	
         workerThreads=new WorkerThread[Runtime.getRuntime().availableProcessors()*2];
         criticalWorkerThreads=new CriticalWorkerThread[Runtime.getRuntime().availableProcessors()*2];
         for(int i=0;i<workerThreads.length;i++)
-        	workerThreads[i]=new WorkerThread();
+        	workerThreads[i]=new WorkerThread("Scheduler-workerThread-" + i);
         
         for(int i=0;i<criticalWorkerThreads.length;i++)
-        	criticalWorkerThreads[i]=new CriticalWorkerThread();
+        	criticalWorkerThreads[i]=new CriticalWorkerThread("Scheduler-criticalWorkerThread-" + i);
     }    
 
     public int getPoolSize()
@@ -262,27 +262,39 @@ public class Scheduler  {
         	{
         		long taskStart=cycleStart;
         		currQueue=MANAGEMENT_QUEUE;
-        		while(currQueue<=OUTPUT_QUEUE)
+        		while(currQueue<=OUTPUT_QUEUE && active)
     			{    		
         			executeQueue(taskQueues[currQueue]);
-					while(activeTasksCount.get()!=0)
+					while(activeTasksCount.get()!=0 && active)
 						LockSupport.park();
 					
 					currQueue++;															
     			}				        		
         		
+        		if (!active)
+        			return;
+        		
         		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
-        		while(activeTasksCount.get()!=0)
+        		while(activeTasksCount.get()!=0 && active)
 					LockSupport.park();					
+        		
+        		if (!active)
+        			return;
         		
         		runIndex=(runIndex+1)%5;        		
     			executeQueue(heartBeatQueue[runIndex]);
-        		while(activeTasksCount.get()!=0)
+        		while(activeTasksCount.get()!=0 && active)
 					LockSupport.park();
         		
+        		if (!active)
+        			return;
+        		
         		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
-        		while(activeTasksCount.get()!=0)
+        		while(activeTasksCount.get()!=0 && active)
 					LockSupport.park();	
+        		
+        		if (!active)
+        			return;
         		
         		//sleep till next cycle
         		cycleDuration=clock.getTime() - cycleStart;
@@ -306,7 +318,7 @@ public class Scheduler  {
             t = currQueue.poll();
             
             //submit all tasks in current queue
-            while(t!=null)
+            while(t!=null && active)
             {
             	activeTasksCount.incrementAndGet();
             	waitingTasks.offer(t);
@@ -319,6 +331,7 @@ public class Scheduler  {
          */
         private void shutdown() {
             this.active = false;
+            interrupt();
         }
     }    
     
@@ -353,12 +366,18 @@ public class Scheduler  {
         	while(active)
         	{
         		executeQueue(taskQueues[RECEIVER_QUEUE]);
-        		while(activeTasksCount.get()!=0)
+        		while(activeTasksCount.get()!=0 && active)
 					LockSupport.park();	
         		
+        		if (!active)
+        			return;
+        		
         		executeQueue(taskQueues[SENDER_QUEUE]);
-        		while(activeTasksCount.get()!=0)
+        		while(activeTasksCount.get()!=0 && active)
 					LockSupport.park();
+        		
+        		if (!active)
+        			return;
         		
         		//sleep till next cycle
         		cycleDuration=clock.getTime() - cycleStart;
@@ -382,7 +401,7 @@ public class Scheduler  {
             t = currQueue.poll();
             
             //submit all tasks in current queue
-            while(t!=null)
+            while(t!=null && active)
             {
             	activeTasksCount.incrementAndGet();
             	criticalTasks.offer(t);
@@ -395,18 +414,23 @@ public class Scheduler  {
          */
         private void shutdown() {
             this.active = false;
+            interrupt();
         }
     }
     
     private class WorkerThread extends Thread {
     	private volatile boolean active;
     	private Task current;
+
+    	private WorkerThread(String name) {
+    		super(name);
+    	}
     	
     	public void run() {
     		while(active)
     		{
     			current=null;
-    			while(current==null)
+    			while(current==null && active)
     			{
     				try
     				{
@@ -417,7 +441,8 @@ public class Scheduler  {
     					
     				}    				
     			}
-    			current.run();
+    			if (current != null)
+    				current.run();
     			coreThread.notifyCompletion();    			
     		}
     	}
@@ -432,6 +457,7 @@ public class Scheduler  {
          */
         private void shutdown() {
             this.active = false;
+            interrupt();
         }
     }
     
@@ -439,11 +465,15 @@ public class Scheduler  {
     	private volatile boolean active;
         private Task current;
         
+    	private CriticalWorkerThread(String name) {
+    		super(name);
+    	}
+    	
     	public void run() {
     		while(active)
     		{
     			current=null;
-    			while(current==null)
+    			while(current==null && active)
     			{
     				try
     				{
@@ -454,7 +484,8 @@ public class Scheduler  {
     					
     				}    				
     			}
-    			current.run();
+    			if (current != null)
+    				current.run();
     			criticalThread.notifyCompletion();
     		}
     	}
@@ -469,6 +500,7 @@ public class Scheduler  {
          */
         private void shutdown() {
             this.active = false;
+            interrupt();
         }
     }
 }

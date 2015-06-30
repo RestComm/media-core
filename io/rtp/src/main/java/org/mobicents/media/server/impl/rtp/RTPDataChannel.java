@@ -797,5 +797,9 @@ public class RTPDataChannel {
             }
             return 0;
         }
-    }    
+    }
+
+	public JitterBuffer getRxBuffer() {
+		return rxBuffer;
+	}    
 }

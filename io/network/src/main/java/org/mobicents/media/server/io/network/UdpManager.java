@@ -348,12 +348,27 @@ public class UdpManager {
      */
     public void stop() {
     	synchronized(LOCK) {
-    		if (!this.isActive) return;
 
     		this.isActive = false;  
-    		for(int i=0;i<this.pollTasks.length;i++)
-    			this.pollTasks[i].cancel();
+
+    		// selectord are created in constructor so have to close regardless of whether started (active)
+    		for(int i=0;i<this.selectors.length;i++)
+            {        	
+            	try {
+					if (selectors[i] != null)
+						selectors[i].close();
+				} catch (IOException e) {
+					logger.error("Exception closing selector", e);
+				}
+            }
     		
+    		for(int i=0;i<pollTasks.length;i++) {
+    			if (pollTasks[i] != null)
+    				pollTasks[i].cancel();
+    		}
+    		
+    		if (!this.isActive) return;
+
     		logger.info("Stopped");
     	}
     }

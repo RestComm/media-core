@@ -37,7 +37,7 @@ public class PortManager {
     private int low = 1024, high=65534;
     private int step=(high-low)/2;
     //pointers
-    private AtomicInteger currPort = new AtomicInteger(0);
+    private static AtomicInteger currPort = new AtomicInteger(0);
 
     /**
      * Creates new instance.
