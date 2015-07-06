@@ -42,108 +42,99 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class RTPOutput extends AbstractSink {
 
-	private static final long serialVersionUID = 3227885808614338323L;
+    private static final long serialVersionUID = 3227885808614338323L;
 
-	private static final Logger logger = Logger.getLogger(RTPOutput.class);
+    private static final Logger logger = Logger.getLogger(RTPOutput.class);
 
-	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
 
-	@Deprecated
-	private RTPDataChannel channel;
+    @Deprecated
+    private RTPDataChannel channel;
+    private RtpTransmitter transmitter;
 
-	private RtpTransmitter transmitter;
+    // active formats
+    private Formats formats;
 
-	// active formats
-	private Formats formats;
+    // signaling processor
+    private Processor dsp;
 
-	// signaling processor
-	private Processor dsp;
+    private AudioOutput output;
 
-	private AudioOutput output;
+    /**
+     * Creates new transmitter
+     */
+    @Deprecated
+    protected RTPOutput(Scheduler scheduler, RTPDataChannel channel) {
+        super("Output");
+        this.channel = channel;
+        output = new AudioOutput(scheduler, 1);
+        output.join(this);
+    }
 
-	/**
-	 * Creates new transmitter
-	 */
-	@Deprecated
-	protected RTPOutput(Scheduler scheduler, RTPDataChannel channel) {
-		super("Output");
-		this.channel = channel;
-		output = new AudioOutput(scheduler, 1);
-		output.join(this);
-	}
+    protected RTPOutput(Scheduler scheduler, RtpTransmitter transmitter) {
+        super("Output");
+        this.transmitter = transmitter;
+        output = new AudioOutput(scheduler, 1);
+        output.join(this);
+    }
 
-	protected RTPOutput(Scheduler scheduler, RtpTransmitter transmitter) {
-		super("Output");
-		this.transmitter = transmitter;
-		output = new AudioOutput(scheduler, 1);
-		output.join(this);
-	}
+    public AudioOutput getAudioOutput() {
+        return this.output;
+    }
 
-	public AudioOutput getAudioOutput() {
-		return this.output;
-	}
+    @Override
+    public void activate() {
+        output.start();
+    }
 
-	@Override
-	public void activate() {
-		output.start();
-	}
+    @Override
+    public void deactivate() {
+        output.stop();
+    }
 
-	@Override
-	public void deactivate() {
-		output.stop();
-	}
+    /**
+     * Assigns the digital signaling processor of this component. The DSP allows to get more output formats.
+     * 
+     * @param dsp the dsp instance
+     */
+    public void setDsp(Processor dsp) {
+        this.dsp = dsp;
+    }
 
-	/**
-	 * Assigns the digital signaling processor of this component. The DSP allows
-	 * to get more output formats.
-	 * 
-	 * @param dsp
-	 *            the dsp instance
-	 */
-	public void setDsp(Processor dsp) {
-		this.dsp = dsp;
-	}
+    /**
+     * Gets the digital signaling processor associated with this media source
+     * 
+     * @return DSP instance.
+     */
+    public Processor getDsp() {
+        return this.dsp;
+    }
 
-	/**
-	 * Gets the digital signaling processor associated with this media source
-	 * 
-	 * @return DSP instance.
-	 */
-	public Processor getDsp() {
-		return this.dsp;
-	}
+    public void setFormats(Formats formats) throws FormatNotSupportedException {
+        this.formats = formats;
+    }
 
-	/**
-	 * (Non Java-doc.)
-	 * 
-	 * 
-	 * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
-	 */
-	public void setFormats(Formats formats) throws FormatNotSupportedException {
-		this.formats = formats;
-	}
+    @Override
+    public void onMediaTransfer(Frame frame) throws IOException {
+        // do transcoding
+        if (dsp != null && formats != null && !formats.isEmpty()) {
+            try {
+                frame = dsp.process(frame, format, formats.get(0));
+            } catch (Exception e) {
+                // transcoding error , print error and try to move to next frame
+                logger.error(e.getMessage(), e);
+                return;
+            }
+        }
 
-	@Override
-	public void onMediaTransfer(Frame frame) throws IOException {
-		// do transcoding
-		if (dsp != null && formats != null && !formats.isEmpty()) {
-			try {
-				frame = dsp.process(frame, format, formats.get(0));
-			} catch (Exception e) {
-				// transcoding error , print error and try to move to next frame
-				logger.error(e.getMessage(), e);
-				return;
-			}
-		}
+        if (this.transmitter != null) {
+            this.transmitter.send(frame);
+        }
 
-		if (this.transmitter != null) {
-			this.transmitter.send(frame);
-		}
+        // XXX deprecated code
+        if (this.channel != null) {
+            channel.send(frame);
+        }
 
-		// XXX deprecated code
-		if (this.channel != null) {
-			channel.send(frame);
-		}
-
-	}
+    }
 }

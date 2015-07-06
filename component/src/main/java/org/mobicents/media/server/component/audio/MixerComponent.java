@@ -31,16 +31,14 @@ import org.mobicents.media.server.component.oob.OOBOutput;
  * @author Henrique Rosa (henrique.rosa@gmail.com)
  *
  */
-public class MixerComponent {
+public abstract class MixerComponent {
     
     private final int connectionId;
-    private final AudioComponent audioComponent;
-    private final OOBComponent ooBComponent;
+    private AudioComponent audioComponent;
+    private OOBComponent ooBComponent;
 
     public MixerComponent(int connectionId) {
         this.connectionId = connectionId;
-        this.audioComponent = new AudioComponent(connectionId);
-        this.ooBComponent = new OOBComponent(connectionId);
     }
 
     public int getConnectionId() {

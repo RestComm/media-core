@@ -1,8 +1,7 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2015, Telestax Inc and individual contributors
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,15 +21,23 @@
 
 package org.mobicents.media.server.impl.rtp;
 
+import org.mobicents.media.server.spi.memory.Frame;
+
 /**
+ * Handles transport of RTP traffic
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
- * @author kulikov
  */
-public interface BufferListener {
+public interface RtpGateway {
 
-    /**
-     * Callback method of the jitter buffer, called when it is full and it is time to start transmission to the consumer.
-     */
-    public void onFill();
+    void receiveRtp(RtpPacket packet);
 
+    void sendRtp(RtpPacket packet);
+
+    void receiveDtmf(RtpPacket packet);
+
+    void sendDtmf(RtpPacket packet);
+
+    void sendFrame(Frame frame);
 }

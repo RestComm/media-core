@@ -147,6 +147,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 		this.heartBeat =  new HeartBeat();
 	}
 	
+	public int getChannelId() {
+        return channelId;
+    }
+	
 	public RtpTransmitter getTransmitter() {
 		return this.transmitter;
 	}
@@ -525,5 +529,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 			return 0;
 		}
 	}
+	
+	public void send(RtpPacket packet) {
+	    // TODO: unimplemented
+	}
+	
 
 }
