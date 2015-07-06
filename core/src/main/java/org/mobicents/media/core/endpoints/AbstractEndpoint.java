@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.core.connections.BaseConnection;
+import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -171,7 +171,7 @@ public abstract class AbstractEndpoint implements Endpoint {
         connection.setIsLocal(isLocal);
 
         try {
-            ((BaseConnection) connection).bind();
+            ((AbstractConnection) connection).bind();
         } catch (Exception e) {
             e.printStackTrace();
             throw new ResourceUnavailableException(e.getMessage());
@@ -184,7 +184,7 @@ public abstract class AbstractEndpoint implements Endpoint {
 
     @Override
     public void deleteConnection(Connection connection) {
-        ((BaseConnection) connection).close();
+        ((AbstractConnection) connection).close();
     }
 
     @Override
@@ -209,7 +209,7 @@ public abstract class AbstractEndpoint implements Endpoint {
     public void deleteAllConnections() {
         connectionsIterator = connections.valuesIterator();
         while (connectionsIterator.hasNext()) {
-            ((BaseConnection) connectionsIterator.next()).close();
+            ((AbstractConnection) connectionsIterator.next()).close();
         }
     }
 

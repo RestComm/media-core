@@ -31,7 +31,7 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.MediaSource;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
+import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
@@ -44,7 +44,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  *
  * @author yulian oifa
  */
-public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
+public class SoundSystem extends BaseMixerEndpoint implements Endpoint {
 
     private int f;
     private Sine sine;

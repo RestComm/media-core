@@ -30,6 +30,7 @@ import java.io.IOException;
 
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.MediaType;
@@ -40,7 +41,7 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
  *
  * @author yulian oifa
  */
-public class MyTestConnection extends BaseConnection {
+public class MyTestConnection extends AbstractConnection {
 
     private volatile boolean created;
     private volatile boolean opened;
@@ -172,4 +173,10 @@ public class MyTestConnection extends BaseConnection {
 	public boolean isAvailable() {
 		return true;
 	}
+
+    @Override
+    public MixerComponent generateMixerComponent() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

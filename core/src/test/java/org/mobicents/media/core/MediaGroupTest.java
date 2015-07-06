@@ -35,7 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
+import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
@@ -71,7 +71,7 @@ public class MediaGroupTest {
 	protected DspFactoryImpl dspFactory = new DspFactoryImpl();
 
 	// endpoint and connection
-	private BaseMixerEndpointImpl endpoint1, endpoint2;
+	private BaseMixerEndpoint endpoint1, endpoint2;
 	private ResourcesPool resourcesPool;
 	protected UdpManager udpManager;
 

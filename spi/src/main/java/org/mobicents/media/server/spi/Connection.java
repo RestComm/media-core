@@ -241,4 +241,5 @@ public interface Connection {
 	 * @return The unique CNAME that identifies the connection and its channels.
 	 */
 	public String getCname();
+	
 }

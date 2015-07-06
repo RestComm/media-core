@@ -24,7 +24,7 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
+import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
 import org.mobicents.media.server.spi.MediaType;
 
 /**
@@ -32,7 +32,7 @@ import org.mobicents.media.server.spi.MediaType;
  * 
  * @author yulian oifa
  */
-public class ConferenceEndpoint extends BaseMixerEndpointImpl {
+public class ConferenceEndpoint extends BaseMixerEndpoint {
 
 	public ConferenceEndpoint(String localName) {
 		super(localName);

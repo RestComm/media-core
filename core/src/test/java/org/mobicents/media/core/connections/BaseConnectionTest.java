@@ -60,7 +60,7 @@ public class BaseConnectionTest implements ConnectionListener {
     private Scheduler scheduler;
 
     //endpoint and connection
-    private BaseConnection connection;
+    private AbstractConnection connection;
     private MyTestEndpoint endpoint;
 
     private boolean halfOpenState;
@@ -104,7 +104,7 @@ public class BaseConnectionTest implements ConnectionListener {
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();
 
-        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
+        connection = (AbstractConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
         connection.addListener(this);
     }
 
@@ -204,7 +204,7 @@ public class BaseConnectionTest implements ConnectionListener {
 
     public void process(ConnectionEvent event) {
         if (event.getId() == ConnectionEvent.STATE_CHANGE) {
-            BaseConnection conn = (BaseConnection) event.getSource();
+            AbstractConnection conn = (AbstractConnection) event.getSource();
 
             if (conn.getState() == ConnectionState.HALF_OPEN) {
                 halfOpenState = true;

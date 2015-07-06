@@ -29,7 +29,7 @@ package org.mobicents.media.core;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
+import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -44,7 +44,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * 
  * @author yulian oifa
  */
-public class MyTestEndpoint extends BaseMixerEndpointImpl {
+public class MyTestEndpoint extends BaseMixerEndpoint {
 
 	private int f;
 	private Sine sine;

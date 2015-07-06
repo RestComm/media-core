@@ -58,7 +58,7 @@ public class BaseConnectionFSM_FR_Test {
     private Scheduler scheduler;
 
     //endpoint and connection
-    private BaseConnection connection;
+    private AbstractConnection connection;
     private MyTestEndpoint endpoint;
 
     //RTP
@@ -129,7 +129,7 @@ public class BaseConnectionFSM_FR_Test {
      */
     private void doTestCreate() throws Exception {
         //step #1: create connection;
-        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
+        connection = (AbstractConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
 
         //step #2: check state, expected state is NULL;
 //        if (connection.getState() != ConnectionState.NULL) {

@@ -24,7 +24,7 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.core.connections.BaseConnection;
+import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.spi.Connection;
@@ -65,12 +65,12 @@ public class BaseSplitterEndpointImpl extends AbstractEndpoint {
 
 		switch (type) {
 		case RTP:
-			audioSplitter.addOutsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.addOutsideComponent(((BaseConnection) connection).getOOBComponent());
+			audioSplitter.addOutsideComponent(((AbstractConnection) connection).getAudioComponent());
+			oobSplitter.addOutsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		case LOCAL:
-			audioSplitter.addInsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.addInsideComponent(((BaseConnection) connection).getOOBComponent());
+			audioSplitter.addInsideComponent(((AbstractConnection) connection).getAudioComponent());
+			oobSplitter.addInsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		}
 		return connection;
@@ -82,12 +82,12 @@ public class BaseSplitterEndpointImpl extends AbstractEndpoint {
 
 		switch (connectionType) {
 		case RTP:
-			audioSplitter.releaseOutsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.releaseOutsideComponent(((BaseConnection) connection).getOOBComponent());
+			audioSplitter.releaseOutsideComponent(((AbstractConnection) connection).getAudioComponent());
+			oobSplitter.releaseOutsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		case LOCAL:
-			audioSplitter.releaseInsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.releaseInsideComponent(((BaseConnection) connection).getOOBComponent());
+			audioSplitter.releaseInsideComponent(((AbstractConnection) connection).getAudioComponent());
+			oobSplitter.releaseInsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		}
 	}

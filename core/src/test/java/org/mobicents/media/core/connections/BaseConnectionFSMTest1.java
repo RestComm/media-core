@@ -35,7 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
 import static org.junit.Assert.*;
-import org.mobicents.media.core.connections.BaseConnection;
+import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -59,7 +59,7 @@ public class BaseConnectionFSMTest1 {
     private Scheduler scheduler;
 
     //endpoint and connection
-    private BaseConnection connection;
+    private AbstractConnection connection;
     private MyTestEndpoint endpoint;
     private ResourcesPool resourcesPool;
     
@@ -102,7 +102,7 @@ public class BaseConnectionFSMTest1 {
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();
 
-        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
+        connection = (AbstractConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
 
     }
 

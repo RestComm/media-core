@@ -25,6 +25,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
@@ -39,7 +40,7 @@ import org.mobicents.media.server.utils.Text;
  *
  * @author yulian oifa
  */
-public class LocalConnectionImpl extends BaseConnection {
+public class LocalConnectionImpl extends AbstractConnection {
 
     private LocalDataChannel localAudioChannel;
     
@@ -171,5 +172,11 @@ public class LocalConnectionImpl extends BaseConnection {
 		// TODO What is criteria for this type of channel to be available
 		return true;
 	}
+
+    @Override
+    public MixerComponent generateMixerComponent() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

@@ -24,12 +24,13 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.core.connections.BaseConnection;
+import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
@@ -38,7 +39,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author yulian oifa
  * @author amit bhayani
  */
-public class BaseMixerEndpointImpl extends AbstractEndpoint {
+public class BaseMixerEndpoint extends AbstractEndpoint {
 
 	protected AudioMixer audioMixer;
 	protected OOBMixer oobMixer;
@@ -47,8 +48,8 @@ public class BaseMixerEndpointImpl extends AbstractEndpoint {
 	private AtomicInteger readCount = new AtomicInteger(0);
 	private AtomicInteger writeCount = new AtomicInteger(0);
 
-	public BaseMixerEndpointImpl(String localName) {
-		super(localName);
+	public BaseMixerEndpoint(String localName) {
+		super(localName, RelayType.MIXER);
 	}
 
 	@Override
@@ -61,16 +62,16 @@ public class BaseMixerEndpointImpl extends AbstractEndpoint {
 	@Override
 	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
 		Connection connection = super.createConnection(type, isLocal);
-		audioMixer.addComponent(((BaseConnection) connection).getAudioComponent());
-		oobMixer.addComponent(((BaseConnection) connection).getOOBComponent());
+		audioMixer.addComponent(((AbstractConnection) connection).getAudioComponent());
+		oobMixer.addComponent(((AbstractConnection) connection).getOOBComponent());
 		return connection;
 	}
 
 	@Override
 	public void deleteConnection(Connection connection, ConnectionType connectionType) {
 		super.deleteConnection(connection, connectionType);
-		audioMixer.release(((BaseConnection) connection).getAudioComponent());
-		oobMixer.release(((BaseConnection) connection).getOOBComponent());
+		audioMixer.release(((AbstractConnection) connection).getAudioComponent());
+		oobMixer.release(((AbstractConnection) connection).getOOBComponent());
 	}
 
 	@Override
