@@ -40,7 +40,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author yulian oifa
  * @author amit bhayani
  */
-public class BaseSS7EndpointImpl extends BaseEndpointImpl {
+public class BaseSS7EndpointImpl extends AbstractEndpoint {
 
 	protected AudioSplitter audioSplitter;
 	protected OOBSplitter oobSplitter;

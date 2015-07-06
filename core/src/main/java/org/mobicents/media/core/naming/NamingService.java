@@ -24,7 +24,7 @@ package org.mobicents.media.core.naming;
 
 import java.util.ArrayList;
 
-import org.mobicents.media.core.endpoints.BaseEndpointImpl;
+import org.mobicents.media.core.endpoints.AbstractEndpoint;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -102,7 +102,7 @@ public class NamingService {
      */
     public void share(Endpoint endpoint) {
     	synchronized(LOCK) {
-    		((BaseEndpointImpl) endpoint).setState(EndpointState.READY);
+    		((AbstractEndpoint) endpoint).setState(EndpointState.READY);
     	}
     }
 

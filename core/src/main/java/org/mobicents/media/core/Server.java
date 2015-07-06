@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.endpoints.BaseEndpointImpl;
+import org.mobicents.media.core.endpoints.AbstractEndpoint;
 import org.mobicents.media.core.endpoints.VirtualEndpointInstaller;
 import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -144,9 +144,9 @@ public class Server implements MediaServer {
         }
 
         //The endpoint implementation must extend BaseEndpointImpl class
-        BaseEndpointImpl baseEndpoint = null;
+        AbstractEndpoint baseEndpoint = null;
         try {
-            baseEndpoint = (BaseEndpointImpl) endpoint;
+            baseEndpoint = (AbstractEndpoint) endpoint;
         } catch (ClassCastException e) {
             logger.error("Unsupported endpoint implementation " + endpoint.getLocalName());
             return;

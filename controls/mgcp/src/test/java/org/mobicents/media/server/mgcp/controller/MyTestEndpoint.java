@@ -32,6 +32,7 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
@@ -142,6 +143,11 @@ public class MyTestEndpoint implements Endpoint {
     }
     @Override
     public void releaseResource(MediaType mediaType, ComponentType componentType) {    
+    }
+
+    @Override
+    public RelayType getRelayType() {
+        return RelayType.MIXER;
     }
     
 }

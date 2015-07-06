@@ -29,19 +29,16 @@ import org.mobicents.media.server.scheduler.Scheduler;
 /**
  * The basic implementation of the endpoint.
  *
- * An Endpoint is a logical representation of a physical entity, such as an
- * analog phone or a channel in a trunk. Endpoints are sources or sinks of data
- * and can be physical or virtual. Physical endpoint creation requires hardware
- * installation while software is sufficient for creating a virtual Endpoint.
- * An interface on a gateway that terminates a trunk connected to a PSTN switch
- * is an example of a physical Endpoint. An audio source in an audio-content
- * server is an example of a virtual Endpoint.
+ * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk. Endpoints are
+ * sources or sinks of data and can be physical or virtual. Physical endpoint creation requires hardware installation while
+ * software is sufficient for creating a virtual Endpoint. An interface on a gateway that terminates a trunk connected to a PSTN
+ * switch is an example of a physical Endpoint. An audio source in an audio-content server is an example of a virtual Endpoint.
  *
  * @author Yulian Oifa
  * @author amit.bhayani
  */
 public interface Endpoint {
-    
+
     /**
      * Gets the local name attribute.
      *
@@ -55,24 +52,23 @@ public interface Endpoint {
      * @return the state of the endpoint.
      */
     public EndpointState getState();
-    
+
     /**
      * Starts endpoint.
      */
     public void start() throws ResourceUnavailableException;
-    
+
     /**
      * Terminates endpoint's execution.
      */
     public void stop();
-    
+
     /**
      * Creates new connection with specified mode.
      *
      * @param type transport type
      */
-    public Connection createConnection(ConnectionType type,Boolean isLocal)
-            throws ResourceUnavailableException;
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException;
 
     /**
      * Deletes specified connection.
@@ -86,40 +82,40 @@ public interface Endpoint {
      *
      * @param connection the connection to be deleted.
      */
-    public void deleteConnection(Connection connection,ConnectionType type);
-    
+    public void deleteConnection(Connection connection, ConnectionType type);
+
     /**
      * Notifies that mode has been update on one of connections
      *
      * @param connection the connection to be deleted.
      */
-    public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode);
-    
+    public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
+
     /**
      * Deletes all connection associated with this Endpoint.
      */
     public void deleteAllConnections();
-    
+
     /**
      * Gets number of active connections associated with this Endpoint.
      */
     public int getActiveConnectionsCount();
-    
+
     /**
      * Configure Endpoint.
      */
     public void configure(boolean isALaw);
-    
+
     /**
      * Gets the scheduler
      */
     public Scheduler getScheduler();
-    
+
     /**
      * Sets the scheduler
      */
     public void setScheduler(Scheduler scheduler);
-    
+
     /**
      * Provides access to the specific resource of the endpoint.
      * 
@@ -127,7 +123,7 @@ public interface Endpoint {
      * @return The component implementing resource.
      */
     public Component getResource(MediaType mediaType, ComponentType componentType);
-    
+
     /**
      * Provides access to the specific resource of the endpoint.
      * 
@@ -135,7 +131,7 @@ public interface Endpoint {
      * @return The component implementing resource.
      */
     public boolean hasResource(MediaType mediaType, ComponentType componentType);
-    
+
     /**
      * Allows to release resource when not needed anymore
      * 
@@ -143,4 +139,11 @@ public interface Endpoint {
      * @return The component implementing resource.
      */
     public void releaseResource(MediaType mediaType, ComponentType componentType);
+
+    /**
+     * Gets the relay type applied to the traffic circulating in the endpoint.
+     * 
+     * @return The relay type: mixer or translator.
+     */
+    public RelayType getRelayType();
 }
