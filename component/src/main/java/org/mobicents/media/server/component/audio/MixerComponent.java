@@ -39,6 +39,8 @@ public abstract class MixerComponent {
 
     public MixerComponent(int connectionId) {
         this.connectionId = connectionId;
+        this.audioComponent = new AudioComponent(connectionId);
+        this.ooBComponent = new OOBComponent(connectionId);
     }
 
     public int getConnectionId() {

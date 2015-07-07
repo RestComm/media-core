@@ -531,7 +531,15 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	}
 	
 	public void send(RtpPacket packet) {
-	    // TODO: unimplemented
+	    if(this.dataChannel.isConnected()) {
+	        // TODO send packet
+	    }
+	}
+
+	public void sendDtmf(RtpPacket packet) {
+	    if(this.dtmfSupported) {
+	        send(packet);
+	    }
 	}
 	
 

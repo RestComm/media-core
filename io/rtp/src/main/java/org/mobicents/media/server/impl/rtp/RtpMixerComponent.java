@@ -18,13 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.server.impl.rtp;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
+import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
+import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -34,35 +36,37 @@ import org.mobicents.media.server.scheduler.Scheduler;
  *
  */
 public class RtpMixerComponent extends MixerComponent {
-    
+
     private static final Logger logger = Logger.getLogger(RtpMixerComponent.class);
 
     private final static int DEFAULT_BUFFER_SIZER = 50;
 
     // RTP receiver
     private final RtpSource rtpSource;
-    private final DtmfInput dtmfInput;
-    
+    private final DtmfSource dtmfSource;
     private final JitterBuffer jitterBuffer;
 
     // RTP transmitter
     private final RtpSink rtpSink;
-    private final DtmfOutput dtmfOutput;
+    private final DtmfSink dtmfSink;
 
     // RTP statistics
-    private volatile int rxPackets = 0;
+    private volatile int rxPackets;
 
     public RtpMixerComponent(int connectionId, RtpClock rtpClock, RtpClock oobClock, Scheduler scheduler, RTPFormats formats) {
         super(connectionId);
-
+        
         // RTP receiver
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
         this.rtpSource = new RtpSource(scheduler, jitterBuffer, dsp);
-        this.dtmfInput = new DtmfInput(scheduler, oobClock);
-        
+        this.dtmfSource = new DtmfSource(scheduler, oobClock);
+
         // RTP transmitter
         this.rtpSink = new RtpSink(scheduler, dsp);
-        this.dtmfOutput = new DtmfOutput(scheduler, transmitter);
+        this.dtmfSink = new DtmfSink(scheduler, rtpChannel, oobClock);
+        
+        // RTP statistics
+        this.rxPackets = 0;
     }
 
     public void setRtpFormats(RTPFormats formats) {
@@ -74,6 +78,7 @@ public class RtpMixerComponent extends MixerComponent {
             logger.info("Restarting jitter buffer");
             this.jitterBuffer.restart();
         }
+        this.rxPackets++;
         this.jitterBuffer.write(packet, format);
     }
 
@@ -82,14 +87,25 @@ public class RtpMixerComponent extends MixerComponent {
     }
 
     public void activate() {
-        this.rtpInput.activate();
-        this.dtmfInput.activate();
+        // activate media sink
+        this.rtpSink.activate();
+        this.dtmfSink.activate();
+
+        // activate media source
+        this.rtpSource.activate();
+        this.dtmfSource.activate();
     }
 
     public void deactivate() {
-        this.rtpInput.deactivate();
-        this.dtmfInput.deactivate();
-        this.dtmfInput.reset();
+        // deactivate media sink
+        this.rtpSink.deactivate();
+        this.dtmfSink.deactivate();
+        this.dtmfSink.reset();
+
+        // deactivate media source
+        this.rtpSource.deactivate();
+        this.dtmfSource.deactivate();
+        this.dtmfSource.reset();
     }
 
 }
