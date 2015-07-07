@@ -67,7 +67,7 @@ public abstract class MixerComponent {
         this.ooBComponent.addInput(input);
     }
 
-    public void addAudioOutput(OOBOutput output) {
+    public void addOOBOutput(OOBOutput output) {
         this.ooBComponent.addOutput(output);
     }
 

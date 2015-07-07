@@ -53,7 +53,7 @@ public class RtpMixerComponent extends MixerComponent {
     // RTP statistics
     private volatile int rxPackets;
 
-    public RtpMixerComponent(int connectionId, RtpClock rtpClock, RtpClock oobClock, Scheduler scheduler, RTPFormats formats) {
+    public RtpMixerComponent(int connectionId, RtpClock rtpClock, RtpClock oobClock, Scheduler scheduler) {
         super(connectionId);
         
         // RTP receiver
@@ -64,6 +64,12 @@ public class RtpMixerComponent extends MixerComponent {
         // RTP transmitter
         this.rtpSink = new RtpSink(scheduler, dsp);
         this.dtmfSink = new DtmfSink(scheduler, rtpChannel, oobClock);
+        
+        // Register mixer components
+        super.addAudioInput(this.rtpSource.getAudioInput());
+        super.addAudioOutput(this.rtpSink.getAudioOutput());
+        super.addOOBInput(this.dtmfSource.getOoBinput());
+        super.addOOBOutput(this.dtmfSink.getOobOutput());
         
         // RTP statistics
         this.rxPackets = 0;

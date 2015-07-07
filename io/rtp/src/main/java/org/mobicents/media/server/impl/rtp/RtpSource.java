@@ -59,6 +59,7 @@ public class RtpSource extends AbstractSource implements BufferListener {
 
         // Media mixing components
         this.jitterBuffer = jitterBuffer;
+        this.jitterBuffer.setListener(this);
         this.dsp = dsp;
         this.audioInput = new AudioInput(1, PACKET_SIZE);
         super.connect(audioInput);

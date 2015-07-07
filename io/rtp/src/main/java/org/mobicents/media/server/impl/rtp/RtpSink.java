@@ -50,7 +50,7 @@ public class RtpSink extends AbstractSink {
 
     // Media Mixer components
     private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private final AudioOutput output;
+    private final AudioOutput audioOutput;
     private Processor dsp;
 
     // RTP processing components
@@ -67,12 +67,16 @@ public class RtpSink extends AbstractSink {
         super("output");
 
         // Media mixer components
-        this.output = new AudioOutput(scheduler, 1);
-        this.output.join(this);
+        this.audioOutput = new AudioOutput(scheduler, 1);
+        this.audioOutput.join(this);
         this.dsp = dsp;
 
         // RTP processing components
         this.rtpClock = rtpClock;
+    }
+
+    public AudioOutput getAudioOutput() {
+        return audioOutput;
     }
 
     public void setFormats(Formats formats) {
@@ -134,12 +138,12 @@ public class RtpSink extends AbstractSink {
 
     @Override
     public void activate() {
-        this.output.start();
+        this.audioOutput.start();
     }
 
     @Override
     public void deactivate() {
-        this.output.stop();
+        this.audioOutput.stop();
     }
 
 }
