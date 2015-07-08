@@ -21,7 +21,7 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 
 /**
  * Handles transport of RTP traffic
@@ -31,13 +31,8 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public interface RtpGateway {
 
-    void receiveRtp(RtpPacket packet);
+    void incomingRtp(RtpPacket packet, RTPFormat format);
 
-    void sendRtp(RtpPacket packet);
+    void incomingDtmf(RtpPacket packet);
 
-    void receiveDtmf(RtpPacket packet);
-
-    void sendDtmf(RtpPacket packet);
-
-    void sendFrame(Frame frame);
 }

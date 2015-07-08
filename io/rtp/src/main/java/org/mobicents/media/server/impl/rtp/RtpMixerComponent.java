@@ -37,7 +37,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpMixerComponent extends MixerComponent {
+public class RtpMixerComponent extends MixerComponent implements RtpGateway {
 
     private static final Logger logger = Logger.getLogger(RtpMixerComponent.class);
 
@@ -97,7 +97,7 @@ public class RtpMixerComponent extends MixerComponent {
     }
 
     public void processDtmfPacket(RtpPacket packet) {
-        this.dtmfSource.write(packet);
+
     }
 
     public void activate() {
@@ -120,6 +120,21 @@ public class RtpMixerComponent extends MixerComponent {
         this.rtpSource.deactivate();
         this.dtmfSource.deactivate();
         this.dtmfSource.reset();
+    }
+
+    public void reset() {
+        this.deactivate();
+        this.dtmfSource.reset();
+    }
+
+    @Override
+    public void incomingRtp(RtpPacket packet, RTPFormat format) {
+        this.jitterBuffer.write(packet, format);
+    }
+
+    @Override
+    public void incomingDtmf(RtpPacket packet) {
+        this.dtmfSource.write(packet);
     }
 
 }

@@ -71,7 +71,7 @@ public abstract class RtpChannel {
     // Registered formats
     private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
     private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    
+
     protected long ssrc;
     protected String cname;
     protected final String mediaType;
@@ -82,7 +82,7 @@ public abstract class RtpChannel {
     protected boolean rtcpMux;
     protected RtpStatistics statistics;
     protected boolean open;
-    
+
     // RTP format negotiation
     protected RTPFormats supportedFormats;
     protected RTPFormats offeredFormats;
@@ -355,42 +355,6 @@ public abstract class RtpChannel {
      */
     public void setRtpListener(RtpListener listener) {
         this.rtpListener = listener;
-    }
-
-    /**
-     * Sets the input Digital Signaling Processor (DSP) of the RTP component.
-     * 
-     * @param dsp The input DSP of the RTP component
-     */
-    public void setInputDsp(Processor dsp) {
-        this.rtpChannel.setInputDsp(dsp);
-    }
-
-    /**
-     * Gets the input Digital Signaling Processor (DSP) of the RTP component.
-     * 
-     * @return The input DSP of the RTP component
-     */
-    public Processor getInputDsp() {
-        return this.rtpChannel.getInputDsp();
-    }
-
-    /**
-     * Sets the output Digital Signaling Processor (DSP) of the RTP component.
-     * 
-     * @param dsp The input DSP of the RTP component
-     */
-    public void setOutputDsp(Processor dsp) {
-        this.rtpChannel.setOutputDsp(dsp);
-    }
-
-    /**
-     * Gets the output Digital Signaling Processor (DSP) of the RTP component.
-     * 
-     * @return The input DSP of the RTP component
-     */
-    public Processor getOutputDsp() {
-        return this.rtpChannel.getOutputDsp();
     }
 
     /**

@@ -79,9 +79,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 	// Remote peer
 	private SocketAddress remotePeer;
 	
-	// Transmitter
-	private RtpTransmitter transmitter;
-	
 	// Protocol handlers pipeline
 	private static final int RTP_PRIORITY = 3; // a packet each 20ms
 	private static final int STUN_PRIORITY = 2; // a packet each 400ms
@@ -91,10 +88,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 	private DtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
 	private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
-	
-	// Media components
-	private AudioComponent audioComponent;
-	private OOBComponent oobComponent;
 	
 	// Media formats
 	protected final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
@@ -127,17 +120,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 		this.bound = false;
 		
 		// Protocol Handlers
-		this.transmitter = new RtpTransmitter(scheduler, clock, statistics);
-		this.rtpHandler = new RtpHandler(scheduler, clock, oobClock, jitterBufferSize, statistics);
-
-		// Media Components
-		this.audioComponent = new AudioComponent(channelId);
-		audioComponent.addInput(this.rtpHandler.getRtpInput().getAudioInput());
-		audioComponent.addOutput(this.transmitter.getRtpOutput().getAudioOutput());
-
-		this.oobComponent = new OOBComponent(channelId);
-		oobComponent.addInput(this.rtpHandler.getDtmfInput().getOOBInput());
-		oobComponent.addOutput(this.transmitter.getDtmfOutput().getOOBOutput());
+		this.rtpHandler = new RtpHandler(clock, oobClock, statistics);
 		
 		// WebRTC
 		this.secure = false;
@@ -150,38 +133,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 	public int getChannelId() {
         return channelId;
     }
-	
-	public RtpTransmitter getTransmitter() {
-		return this.transmitter;
-	}
-	
-	public AudioComponent getAudioComponent() {
-		return this.audioComponent;
-	}
-	
-	public OOBComponent getOobComponent() {
-		return this.oobComponent;
-	}
-	
-	public Processor getInputDsp() {
-		return this.rtpHandler.getRtpInput().getDsp();
-	}
-
-	public void setInputDsp(Processor dsp) {
-		this.rtpHandler.getRtpInput().setDsp(dsp);
-	}
-
-	public Processor getOutputDsp() {
-		return this.transmitter.getRtpOutput().getDsp();
-	}
-	
-	public void setOutputDsp(Processor dsp) {
-		this.transmitter.getRtpOutput().setDsp(dsp);
-	}
-	
-	public void setOutputFormats(Formats fmts) throws FormatNotSupportedException {
-		this.transmitter.getRtpOutput().setFormats(fmts);
-	}
 	
 	public void setRtpListener(RtpListener listener) {
 		this.rtpListener = listener;
@@ -223,24 +174,18 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 		case SEND_ONLY:
 			this.rtpHandler.setReceivable(false);
 			this.rtpHandler.setLoopable(false);
-			audioComponent.updateMode(false, true);
-			oobComponent.updateMode(false, true);
 			this.rtpHandler.deactivate();
 			this.transmitter.activate();
 			break;
 		case RECV_ONLY:
 			this.rtpHandler.setReceivable(true);
 			this.rtpHandler.setLoopable(false);
-			audioComponent.updateMode(true, false);
-			oobComponent.updateMode(true, false);
 			this.rtpHandler.activate();
 			this.transmitter.deactivate();
 			break;
 		case INACTIVE:
 			this.rtpHandler.setReceivable(false);
 			this.rtpHandler.setLoopable(false);
-			audioComponent.updateMode(false, false);
-			oobComponent.updateMode(false, false);
 			this.rtpHandler.deactivate();
 			this.transmitter.deactivate();
 			break;
@@ -248,16 +193,12 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 		case CONFERENCE:
 			this.rtpHandler.setReceivable(true);
 			this.rtpHandler.setLoopable(false);
-			audioComponent.updateMode(true, true);
-			oobComponent.updateMode(true, true);
 			this.rtpHandler.activate();
 			this.transmitter.activate();
 			break;
 		case NETWORK_LOOPBACK:
 			this.rtpHandler.setReceivable(false);
 			this.rtpHandler.setLoopable(true);
-			audioComponent.updateMode(false, false);
-			oobComponent.updateMode(false, false);
 			this.rtpHandler.deactivate();
 			this.transmitter.deactivate();
 			break;

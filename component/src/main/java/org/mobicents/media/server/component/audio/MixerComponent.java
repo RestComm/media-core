@@ -24,6 +24,7 @@ package org.mobicents.media.server.component.audio;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
+import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  * Contains the media and out-of-band components of a connection.
@@ -32,7 +33,7 @@ import org.mobicents.media.server.component.oob.OOBOutput;
  *
  */
 public abstract class MixerComponent {
-    
+
     private final int connectionId;
     private AudioComponent audioComponent;
     private OOBComponent ooBComponent;
@@ -50,7 +51,7 @@ public abstract class MixerComponent {
     public AudioComponent getAudioComponent() {
         return audioComponent;
     }
-    
+
     public void addAudioInput(AudioInput input) {
         this.audioComponent.addInput(input);
     }
@@ -62,13 +63,41 @@ public abstract class MixerComponent {
     public OOBComponent getOOBComponent() {
         return ooBComponent;
     }
-    
+
     public void addOOBInput(OOBInput input) {
         this.ooBComponent.addInput(input);
     }
 
     public void addOOBOutput(OOBOutput output) {
         this.ooBComponent.addOutput(output);
+    }
+
+    public void updateMode(ConnectionMode connectionMode) {
+        switch (connectionMode) {
+            case SEND_ONLY:
+                audioComponent.updateMode(false, true);
+                ooBComponent.updateMode(false, true);
+                break;
+            case RECV_ONLY:
+                audioComponent.updateMode(true, false);
+                ooBComponent.updateMode(true, false);
+                break;
+            case INACTIVE:
+                audioComponent.updateMode(false, false);
+                ooBComponent.updateMode(false, false);
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                audioComponent.updateMode(true, true);
+                ooBComponent.updateMode(true, true);
+                break;
+            case NETWORK_LOOPBACK:
+                audioComponent.updateMode(false, false);
+                ooBComponent.updateMode(false, false);
+                break;
+            default:
+                break;
+        }
     }
 
 }

@@ -20,8 +20,6 @@
 
 package org.mobicents.media.server.impl.rtp.channels;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.scheduler.Clock;
@@ -34,20 +32,12 @@ import org.mobicents.media.server.scheduler.Clock;
  */
 public class AudioChannel extends RtpChannel {
 
-	public static final String MEDIA_TYPE = "audio";
+    public static final String MEDIA_TYPE = "audio";
 
-	public AudioChannel(Clock wallClock, ChannelsManager channelsManager) {
-		super(MEDIA_TYPE, wallClock, channelsManager);
-		super.supportedFormats = AVProfile.audio;
-		super.setFormats(this.supportedFormats);
-	}
-
-	public AudioComponent getAudioComponent() {
-		return this.rtpChannel.getAudioComponent();
-	}
-
-	public OOBComponent getAudioOobComponent() {
-		return this.rtpChannel.getOobComponent();
-	}
+    public AudioChannel(Clock wallClock, ChannelsManager channelsManager) {
+        super(MEDIA_TYPE, wallClock, channelsManager);
+        super.supportedFormats = AVProfile.audio;
+        super.setFormats(this.supportedFormats);
+    }
 
 }
