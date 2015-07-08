@@ -30,11 +30,10 @@ import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.impl.resource.mediaplayer.mpeg.RTPImmediateConstructor;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
-import org.mobicents.media.server.impl.rtp.RTPInput;
 import org.mobicents.media.server.impl.rtp.RtpListener;
+import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.sdp.SdpException;
@@ -538,16 +537,9 @@ public class RtpConnectionImpl extends AbstractConnection implements RtpListener
     }
 
     @Override
-    public MixerComponent generateMixerComponent() {
-        MixerComponent mixerComponent = new MixerComponent(super.getId());
-        if(this.audioChannel != null) {
-            int channelId = this.audioChannel.getChannelId();
-            
-            audioComponent.addInput(new RTPInput(scheduler, jitterBuffer));
-            audioComponent.addOutput(this.transmitter.getRtpOutput().getAudioOutput());
-
-            oobComponent.addInput(this.rtpHandler.getDtmfInput().getOOBInput());
-            oobComponent.addOutput(this.transmitter.getDtmfOutput().getOOBOutput());
+    public MixerComponent generateMixerComponent(DspFactory dspFactory) {
+        if (this.audioChannel != null) {
+            return new RtpMixerComponent(super.getId(), super.scheduler, dspFactory, this.audioChannel);
         }
         return null;
     }

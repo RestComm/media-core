@@ -39,6 +39,7 @@ import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
@@ -56,7 +57,7 @@ public abstract class AbstractConnection implements Connection {
     private String textualId;
 
     // scheduler instance
-    private Scheduler scheduler;
+    protected Scheduler scheduler;
 
     /** FSM current state */
     private volatile ConnectionState state = ConnectionState.NULL;
@@ -378,6 +379,6 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    public abstract MixerComponent generateMixerComponent();
+    public abstract MixerComponent generateMixerComponent(DspFactory dspFactory);
 
 }
