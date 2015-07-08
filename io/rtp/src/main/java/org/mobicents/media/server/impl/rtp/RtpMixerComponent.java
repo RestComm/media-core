@@ -23,7 +23,7 @@ package org.mobicents.media.server.impl.rtp;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.MixerComponent;
-import org.mobicents.media.server.impl.rtp.channels.MediaChannel;
+import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
@@ -53,12 +53,12 @@ public class RtpMixerComponent extends MixerComponent {
     private final DtmfSink dtmfSink;
 
     // RTP transport
-    private final MediaChannel channel;
+    private final RtpChannel channel;
 
     // RTP statistics
     private volatile int rxPackets;
 
-    public RtpMixerComponent(int connectionId, Scheduler scheduler, DspFactory dspFactory, MediaChannel channel) {
+    public RtpMixerComponent(int connectionId, Scheduler scheduler, DspFactory dspFactory, RtpChannel channel) {
         super(connectionId);
 
         // RTP source

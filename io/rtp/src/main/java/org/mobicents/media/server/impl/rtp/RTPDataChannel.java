@@ -53,7 +53,7 @@ import org.mobicents.media.server.utils.Text;
  * @author Oifa Yulian
  * @author Henrique Rosa
  * 
- * @deprecated use {@link RtpChannel}
+ * @deprecated use {@link RtpTransport}
  */
 @Deprecated
 public class RTPDataChannel {

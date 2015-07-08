@@ -295,7 +295,7 @@ public class RtpHandler implements PacketHandler {
 					int payloadType = rtpPacket.getPayloadType();
 					RTPFormat format = rtpFormats.find(payloadType);
 					if(format != null) {
-						if(RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
+						if(RtpTransport.DTMF_FORMAT.matches(format.getFormat())) {
 							dtmfInput.write(rtpPacket);
 						} else {
 							jitterBuffer.write(rtpPacket, format);

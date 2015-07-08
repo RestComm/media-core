@@ -50,7 +50,7 @@ import org.mobicents.media.server.spi.format.Formats;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannelTest {
+public class RtpTransportTest {
 	
     //clock and scheduler
 	private Scheduler scheduler;
@@ -62,7 +62,7 @@ public class RtpChannelTest {
     private SpectraAnalyzer analyzer1, analyzer2;
     private Sine source1, source2;
 
-    private RtpChannel channel1, channel2;
+    private RtpTransport channel1, channel2;
     private RtpClock rtpClock1, rtpClock2;
     private RtpClock oobClock1, oobClock2;
     private RtpStatistics statistics1, statistics2;

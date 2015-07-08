@@ -32,13 +32,12 @@ import org.mobicents.media.server.scheduler.Clock;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class AudioChannel extends MediaChannel {
+public class AudioChannel extends RtpChannel {
 
 	public static final String MEDIA_TYPE = "audio";
 
 	public AudioChannel(Clock wallClock, ChannelsManager channelsManager) {
 		super(MEDIA_TYPE, wallClock, channelsManager);
-//		super.supportedFormats = super.buildRTPMap(AVProfile.audio);
 		super.supportedFormats = AVProfile.audio;
 		super.setFormats(this.supportedFormats);
 	}

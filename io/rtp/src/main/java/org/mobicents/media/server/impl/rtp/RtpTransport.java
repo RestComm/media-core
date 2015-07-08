@@ -54,9 +54,9 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannel extends MultiplexedChannel implements DtlsListener {
+public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 	
-	private static final Logger logger = Logger.getLogger(RtpChannel.class);
+	private static final Logger logger = Logger.getLogger(RtpTransport.class);
 	
 	/** Tells UDP manager to choose port to bind this channel to */
 	private final static int PORT_ANY = -1;
@@ -110,7 +110,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 	// Listeners
 	private RtpListener rtpListener;
 	
-	protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock, Scheduler scheduler, UdpManager udpManager) {
+	protected RtpTransport(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock, Scheduler scheduler, UdpManager udpManager) {
 		// Initialize MultiplexedChannel elements
 		super();
 		

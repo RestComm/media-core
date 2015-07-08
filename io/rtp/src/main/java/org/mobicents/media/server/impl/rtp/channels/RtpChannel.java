@@ -39,10 +39,9 @@ import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.RtpChannel;
+import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -51,7 +50,6 @@ import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.dsp.Codec;
@@ -66,9 +64,9 @@ import org.mobicents.media.server.spi.format.Formats;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public abstract class MediaChannel {
+public abstract class RtpChannel {
 
-    private static final Logger logger = Logger.getLogger(MediaChannel.class);
+    private static final Logger logger = Logger.getLogger(RtpChannel.class);
 
     // Registered formats
     private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
@@ -79,14 +77,11 @@ public abstract class MediaChannel {
     protected final String mediaType;
     protected RtpClock clock;
     protected RtpClock oobClock;
-    protected RtpChannel rtpChannel;
+    protected RtpTransport rtpChannel;
     protected RtcpChannel rtcpChannel;
     protected boolean rtcpMux;
     protected RtpStatistics statistics;
     protected boolean open;
-    
-    // Media mixing components
-    protected RtpMixerComponent mixerComponent;
     
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -115,7 +110,7 @@ public abstract class MediaChannel {
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected MediaChannel(int connectionId, String mediaType, Clock wallClock, ChannelsManager channelsManager) {
+    protected RtpChannel(String mediaType, Clock wallClock, ChannelsManager channelsManager) {
         this.ssrc = 0L;
         this.mediaType = mediaType;
 
@@ -127,8 +122,6 @@ public abstract class MediaChannel {
         this.rtpChannel = channelsManager.getRtpChannel(this.statistics, this.clock, this.oobClock);
         this.rtcpChannel = channelsManager.getRtcpChannel(this.statistics);
 
-        // Media mixing components
-        
         // RTP format negotiation
         this.offeredFormats = new RTPFormats();
         this.negotiatedFormats = new RTPFormats();
