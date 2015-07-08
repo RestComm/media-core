@@ -43,9 +43,9 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
+public class RtcpTransport extends MultiplexedChannel implements DtlsListener {
 
-	private static final Logger logger = Logger.getLogger(RtcpChannel.class);
+	private static final Logger logger = Logger.getLogger(RtcpTransport.class);
 
 	// Core elements
 	private final UdpManager udpManager;
@@ -68,7 +68,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	// Listeners
 	private RtpListener rtpListener;
 
-	public RtcpChannel(int channelId, RtpStatistics statistics, UdpManager udpManager) {
+	public RtcpTransport(int channelId, RtpStatistics statistics, UdpManager udpManager) {
 		// Initialize MultiplexedChannel elements
 		super();
 

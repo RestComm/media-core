@@ -37,7 +37,7 @@ import org.mobicents.media.io.ice.LocalCandidateWrapper;
 import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
-import org.mobicents.media.server.impl.rtcp.RtcpChannel;
+import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
@@ -78,7 +78,7 @@ public abstract class RtpChannel {
     protected RtpClock clock;
     protected RtpClock oobClock;
     protected RtpTransport rtpChannel;
-    protected RtcpChannel rtcpChannel;
+    protected RtcpTransport rtcpChannel;
     protected boolean rtcpMux;
     protected RtpStatistics statistics;
     protected boolean open;

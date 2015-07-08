@@ -25,7 +25,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.impl.rtcp.RtcpChannel;
+import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
@@ -125,8 +125,8 @@ public class ChannelsManager {
     	return new RtpTransport(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager);
     }
 
-    public RtcpChannel getRtcpChannel(RtpStatistics statistics) {
-    	return new RtcpChannel(channelIndex.incrementAndGet(), statistics, udpManager);
+    public RtcpTransport getRtcpChannel(RtpStatistics statistics) {
+    	return new RtcpTransport(channelIndex.incrementAndGet(), statistics, udpManager);
     }
     
     public LocalDataChannel getLocalChannel() {
