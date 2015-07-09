@@ -86,7 +86,7 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
     public void setRtpFormats(RTPFormats formats) {
         this.jitterBuffer.setFormats(formats);
     }
-
+    
     public void processRtpPacket(RtpPacket packet, RTPFormat format) {
         if (this.rxPackets == 0) {
             logger.info("Restarting jitter buffer");

@@ -25,14 +25,12 @@ import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpHeader;
-import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
-import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  * Handles incoming RTP packets.
@@ -45,46 +43,43 @@ public class RtpHandler implements PacketHandler {
 
     private static final Logger logger = Logger.getLogger(RtpHandler.class);
 
+    // Packet handler properties
     private int pipelinePriority;
-
-    private RTPFormats rtpFormats;
-    private final RtpClock rtpClock;
-    private final RtpClock oobClock;
-
-    private boolean loopable;
-    private boolean receivable;
-
-    private final RtpStatistics statistics;
-    private final RtpPacket rtpPacket;
-
-    // Secure RTP
-    private boolean secure;
     private DtlsHandler dtlsHandler;
 
-    // RTP processing
-    private final RtpGateway rtpGateway;
+    // Channel properties
+    private boolean loopable;
+    private boolean receivable;
+    private boolean secure;
 
-    public RtpHandler(RtpClock clock, RtpClock oobClock, RtpStatistics statistics, RtpGateway rtpGateway) {
+    // RTP components
+    private RTPFormats rtpFormats;
+    private final RtpPacket rtpPacket;
+    private final RtpGateway rtpGateway;
+    private final RtpStatistics statistics;
+
+    public RtpHandler(RtpStatistics statistics, RtpGateway rtpGateway) {
+        // Packet handler properties
         this.pipelinePriority = 0;
 
-        this.rtpClock = clock;
-        this.oobClock = oobClock;
-
-        this.rtpFormats = new RTPFormats();
-        this.statistics = statistics;
-        this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
+        // Channel properties
         this.receivable = false;
         this.loopable = false;
-
         this.secure = false;
 
+        // RTP components
+        this.rtpFormats = new RTPFormats();
+        this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
         this.rtpGateway = rtpGateway;
+        this.statistics = statistics;
     }
 
+    @Override
     public int getPipelinePriority() {
         return pipelinePriority;
     }
 
+    @Override
     public void setPipelinePriority(int pipelinePriority) {
         this.pipelinePriority = pipelinePriority;
     }
@@ -112,7 +107,6 @@ public class RtpHandler implements PacketHandler {
      */
     public void setFormatMap(final RTPFormats rtpFormats) {
         this.rtpFormats = rtpFormats;
-        this.jitterBuffer.setFormats(rtpFormats);
     }
 
     public RTPFormats getFormatMap() {
@@ -135,10 +129,12 @@ public class RtpHandler implements PacketHandler {
         }
     }
 
+    @Override
     public boolean canHandle(byte[] packet) {
         return canHandle(packet, packet.length, 0);
     }
-	
+
+    @Override
 	public boolean canHandle(byte[] packet, int dataLength, int offset) {
 		/*
 		 * The RTP header has the following format:
@@ -155,10 +151,10 @@ public class RtpHandler implements PacketHandler {
 	     * |            contributing source (CSRC) identifiers             |
 	     * |                             ....                              |
 	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	     * 
+	     *
 	     * The first twelve octets are present in every RTP packet, while the
 	     * list of CSRC identifiers is present only when inserted by a mixer.
-	     * 
+	     *
 	     * The version defined by RFC3550 specification is two.
 		 */
         // Packet must be equal or greater than an RTP Packet Header
@@ -235,23 +231,22 @@ public class RtpHandler implements PacketHandler {
             buffer.flip();
         }
 
-        // For RTP keep-alive purposes
-        this.statistics.setLastHeartbeat(this.rtpClock.getWallClock().getTime());
-
         // RTP v0 packets are used in some applications. Discarded since we do not handle them.
         if (rtpPacket.getVersion() != 0 && (receivable || loopable)) {
-            // Queue packet into the jitter buffer
             if (rtpPacket.getBuffer().limit() > 0) {
                 if (loopable) {
                     // Update statistics for RTCP
                     this.statistics.onRtpReceive(rtpPacket);
                     this.statistics.onRtpSent(rtpPacket);
+
                     // Return same packet (looping) so it can be transmitted
                     return packet;
                 } else {
                     // Update statistics for RTCP
                     this.statistics.onRtpReceive(rtpPacket);
-                    // Write packet
+
+                    // Send packet to the RTP gateway to be mixed or forwarded
+                    // depending on the relay type defined for the channel
                     int payloadType = rtpPacket.getPayloadType();
                     RTPFormat format = rtpFormats.find(payloadType);
                     if (format != null) {
@@ -270,11 +265,12 @@ public class RtpHandler implements PacketHandler {
         }
         return null;
     }
-	
-	public int compareTo(PacketHandler o) {
+
+    @Override
+    public int compareTo(PacketHandler o) {
         if (o == null) {
             return 1;
         }
         return this.getPipelinePriority() - o.getPipelinePriority();
-	}
+    }
 }

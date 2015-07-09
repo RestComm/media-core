@@ -577,6 +577,9 @@ public class RtpStatistics {
 		this.rtpRxOctets += packet.getPayloadLength();
 		this.rtpReceivedOn = this.wallClock.getTime();
 		
+		// For RTP keep-alive mechanism
+		this.rtpLastHeartbeat = this.rtpReceivedOn; 
+		
 		// Note that there is no point in registering new members if RTCP handler has scheduled a BYE
 		if(RtcpPacketType.RTCP_REPORT.equals(this.rtcpNextPacketType)) {
 			long syncSource = packet.getSyncSource();
