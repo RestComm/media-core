@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
@@ -32,6 +33,7 @@ import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
@@ -63,9 +65,9 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     static {
         DTMF_FORMAT.setOptions(new Text("0-15"));
     }
-    
+
     private final static int PORT_ANY = -1;
-    
+
     // Core elements
     private final UdpManager udpManager;
     private final Scheduler scheduler;
@@ -77,12 +79,13 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private boolean bound;
     private boolean secure;
     private boolean rtcpMux;
+    private boolean dtmfSupported;
 
     // RTP elements
-    private final RtpClock clock;
-    private final RtpClock oobClock;
     private RtpListener rtpListener;
-    private RtpStatistics statistics;
+    private RtpStatistics rtpStatistics;
+    private RTPFormats rtpFormats;
+    private RtpGateway rtpGateway;
 
     // Protocol handlers pipeline
     private static final int RTP_PRIORITY = 3; // a packet each 20ms
@@ -94,26 +97,26 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private StunHandler stunHandler;
     private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
 
-    protected RtpTransport(int channelId, RtpStatistics statistics, RtpClock clock, RtpClock oobClock, Scheduler scheduler,
-            UdpManager udpManager) {
+    protected RtpTransport(int channelId, RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager,
+            RtpGateway rtpGateway) {
         super();
 
         // Core elements
         this.scheduler = scheduler;
         this.udpManager = udpManager;
         this.heartBeat = new HeartBeat();
-        
+
         // Channel attributes
         this.channelId = channelId;
         this.bound = false;
         this.secure = false;
         this.rtcpMux = false;
+        this.dtmfSupported = false;
 
         // RTP elements
-        this.clock = clock;
-        this.oobClock = oobClock;
-        this.statistics = statistics;
-        this.rtpHandler = new RtpHandler(clock, statistics);
+        this.rtpGateway = rtpGateway;
+        this.rtpStatistics = statistics;
+        this.rtpHandler = new RtpHandler(statistics, rtpGateway);
     }
 
     public int getChannelId() {
@@ -125,11 +128,11 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     }
 
     public long getPacketsReceived() {
-        return this.statistics.getRtpPacketsReceived();
+        return this.rtpStatistics.getRtpPacketsReceived();
     }
 
     public long getPacketsTransmitted() {
-        return this.statistics.getRtpPacketsSent();
+        return this.rtpStatistics.getRtpPacketsSent();
     }
 
     /**
@@ -139,8 +142,8 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
      */
     public void setFormatMap(RTPFormats rtpFormats) {
         flush();
+        this.dtmfSupported = rtpFormats.contains(AVProfile.telephoneEventsID);
         this.rtpHandler.setFormatMap(rtpFormats);
-        this.transmitter.setFormatMap(rtpFormats);
     }
 
     public RTPFormats getFormatMap() {
@@ -187,7 +190,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
         if (udpManager.getRtpTimeout() > 0 && this.remotePeer != null && !connectImmediately) {
             if (this.rtpHandler.isReceivable()) {
-                this.statistics.setLastHeartbeat(scheduler.getClock().getTime());
+                this.rtpStatistics.setLastHeartbeat(scheduler.getClock().getTime());
                 scheduler.submitHeatbeat(heartBeat);
             } else {
                 heartBeat.cancel();
@@ -295,7 +298,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
         if (udpManager.getRtpTimeout() > 0 && !connectImmediately) {
             if (this.rtpHandler.isReceivable()) {
-                this.statistics.setLastHeartbeat(scheduler.getClock().getTime());
+                this.rtpStatistics.setLastHeartbeat(scheduler.getClock().getTime());
                 scheduler.submitHeatbeat(heartBeat);
             } else {
                 heartBeat.cancel();
@@ -368,12 +371,12 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
      * 
      * @param enable decides whether rtcp-mux is to be enabled
      */
-    public void enableRtcpMux(boolean enable) {
+    public void setRtcpMux(boolean enable) {
         this.rtcpMux = enable;
 
         // initialize handler if necessary
         if (enable && this.rtcpHandler == null) {
-            this.rtcpHandler = new RtcpHandler(this.statistics);
+            this.rtcpHandler = new RtcpHandler(this.rtpStatistics);
         }
     }
 
@@ -400,17 +403,20 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         heartBeat.cancel();
 
         // RTP reset
+        this.dtmfSupported = false;
         this.rtpHandler.reset();
         this.transmitter.reset();
 
         // RTCP reset
         if (this.rtcpMux) {
             this.rtcpHandler.reset();
+            this.rtcpMux = false;
         }
 
         // DTLS reset
         if (this.secure) {
             this.dtlsHandler.reset();
+            this.secure = false;
         }
     }
 
@@ -436,7 +442,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
         @Override
         public long perform() {
-            long elapsedTime = scheduler.getClock().getTime() - statistics.getLastHeartbeat();
+            long elapsedTime = scheduler.getClock().getTime() - rtpStatistics.getLastHeartbeat();
             if (elapsedTime > udpManager.getRtpTimeout() * 1000000000L) {
                 if (rtpListener != null) {
                     rtpListener.onRtpFailure("RTP timeout! Elapsed time since last heartbeat: " + elapsedTime);
@@ -448,15 +454,47 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         }
     }
 
-    public void send(RtpPacket packet) {
+    public void send(RtpPacket packet)  throws IOException {
         if (this.dataChannel.isConnected()) {
-            // TODO send packet
+            // Do not send data while DTLS handshake is ongoing. WebRTC calls only.
+            if (this.secure && !this.dtlsHandler.isHandshakeComplete()) {
+                return;
+            }
+
+            // Get the contents of the packet
+            ByteBuffer buffer = packet.getBuffer();
+
+            // If the channel is using DTLS then the payload must be secured.
+            if (this.secure) {
+                // Secure the packet
+                byte[] rtpData = new byte[buffer.limit()];
+                buffer.get(rtpData, 0, rtpData.length);
+                byte[] srtpData = this.dtlsHandler.encodeRTP(rtpData, 0, rtpData.length);
+
+                // SRTP handler returns null if an error occurs
+                if (srtpData == null || srtpData.length == 0) {
+                    logger.warn("An RTP packet was dropped because it could not be secured.");
+                    return;
+                }
+
+                buffer.clear();
+                buffer.put(srtpData);
+                buffer.flip();
+            }
+
+            // send RTP packet to the network and update statistics for RTCP
+            this.dataChannel.send(buffer, this.remotePeer);
+            this.rtpStatistics.onRtpSent(packet);
+        } else {
+            logger.warn("Cannot send RTP packet because channel is not connected.");
         }
     }
 
-    public void sendDtmf(RtpPacket packet) {
+    public void sendDtmf(RtpPacket packet) throws IOException {
         if (this.dtmfSupported) {
             send(packet);
+        } else {
+            throw new IOException("DTMF format is not supported.");
         }
     }
 

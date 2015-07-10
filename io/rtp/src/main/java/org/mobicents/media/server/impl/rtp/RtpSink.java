@@ -51,19 +51,22 @@ public class RtpSink extends AbstractSink {
     // Media Mixer components
     private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     private final AudioOutput audioOutput;
-    private Processor dsp;
+    private final Processor dsp;
 
     // RTP processing components
-    private Formats formats;
-    private RtpClock rtpClock;
-    private RtpPacket rtpPacket;
+    private RTPFormats formats;
+    private final RtpClock rtpClock;
+    private final RtpPacket rtpPacket;
+    
+    // RTP transport
+    private final RtpGateway rtpGateway;
 
     // Details of last transmitted packet
-    private Format currentFormat;
+    private RTPFormat currentFormat;
     private long timestamp;
     private int sequenceNumber;
 
-    public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp) {
+    public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp, RtpGateway rtpGateway) {
         super("output");
 
         // Media mixer components
@@ -73,13 +76,17 @@ public class RtpSink extends AbstractSink {
 
         // RTP processing components
         this.rtpClock = rtpClock;
+        
+        // RTP transport
+        this.rtpGateway = rtpGateway;
+        this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
     }
 
     public AudioOutput getAudioOutput() {
         return audioOutput;
     }
 
-    public void setFormats(Formats formats) {
+    public void setFormats(RTPFormats formats) {
         this.formats = formats;
     }
 
@@ -88,9 +95,11 @@ public class RtpSink extends AbstractSink {
         if (dsp != null && formats != null && !formats.isEmpty()) {
             try {
                 // perform transcoding
-                frame = dsp.process(frame, LINEAR_FORMAT, formats.get(0));
+                frame = dsp.process(frame, LINEAR_FORMAT, this.formats.getFormats().get(0));
+                
+                // send the packet to remote peer if media frame is valid
                 if (evolveFrame(frame)) {
-                    // TODO send packet across the wire
+                    this.rtpGateway.outgoingRtp(this.rtpPacket);
                 }
             } catch (Exception e) {
                 logger.error("Transcoding error: " + e.getMessage(), e);

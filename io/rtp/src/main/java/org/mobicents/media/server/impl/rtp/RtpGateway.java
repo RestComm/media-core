@@ -32,7 +32,11 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 public interface RtpGateway {
 
     void incomingRtp(RtpPacket packet, RTPFormat format);
+    
+    void outgoingRtp(RtpPacket packet);
 
     void incomingDtmf(RtpPacket packet);
+    
+    void outgoingDtmf(RtpPacket packet);
 
 }

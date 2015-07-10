@@ -21,11 +21,10 @@
 
 package org.mobicents.media.server.impl.rtp;
 
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.MixerComponent;
-import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
-import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
-import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -53,22 +52,35 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
     private final DtmfSink dtmfSink;
 
     // RTP transport
-    private final RtpChannel channel;
+    private final RtpTransport rtpTransport;
 
     // RTP statistics
     private volatile int rxPackets;
 
-    public RtpMixerComponent(int connectionId, Scheduler scheduler, DspFactory dspFactory, RtpChannel channel) {
+    public RtpMixerComponent(int connectionId, Scheduler scheduler, DspFactory dspFactory, RtpTransport channel,
+            RtpClock rtpClock, RtpClock oobClock) {
         super(connectionId);
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
-        this.rtpSource = new RtpSource(scheduler, jitterBuffer, dspFactory.newProcessor());
+        try {
+            this.rtpSource = new RtpSource(scheduler, jitterBuffer, dspFactory.newProcessor());
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+            // exception may happen only if invalid classes have been set in
+            // the media server configuration.
+            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
+        }
         this.dtmfSource = new DtmfSource(scheduler, oobClock);
 
         // RTP sink
-        this.rtpSink = new RtpSink(scheduler, rtpClock, dspFactory.newProcessor());
-        this.dtmfSink = new DtmfSink(scheduler, channel, oobClock);
+        try {
+            this.rtpSink = new RtpSink(scheduler, rtpClock, dspFactory.newProcessor(), this);
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+            // exception may happen only if invalid classes have been set in
+            // the media server configuration.
+            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
+        }
+        this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
         super.addAudioInput(this.rtpSource.getAudioInput());
@@ -80,13 +92,13 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
         this.rxPackets = 0;
 
         // RTP transport
-        this.channel = channel;
+        this.rtpTransport = channel;
     }
 
     public void setRtpFormats(RTPFormats formats) {
         this.jitterBuffer.setFormats(formats);
     }
-    
+
     public void processRtpPacket(RtpPacket packet, RTPFormat format) {
         if (this.rxPackets == 0) {
             logger.info("Restarting jitter buffer");
@@ -133,8 +145,28 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
     }
 
     @Override
+    public void outgoingRtp(RtpPacket packet) {
+        try {
+            this.rtpTransport.send(packet);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void incomingDtmf(RtpPacket packet) {
         this.dtmfSource.write(packet);
+    }
+
+    @Override
+    public void outgoingDtmf(RtpPacket packet) {
+        try {
+            this.rtpTransport.sendDtmf(packet);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 }

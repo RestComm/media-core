@@ -299,7 +299,7 @@ public abstract class RtpChannel {
         // Reset channels
         if (this.rtcpMux) {
             this.rtcpMux = false;
-            this.rtpChannel.enableRtcpMux(false);
+            this.rtpChannel.setRtcpMux(false);
         }
 
         // Reset ICE
