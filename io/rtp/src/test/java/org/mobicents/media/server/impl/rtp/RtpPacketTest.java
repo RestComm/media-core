@@ -99,7 +99,9 @@ public class RtpPacketTest {
 
     @Test
     public void testSyncSource() {
-        assertEquals(3001189225l, rtpPacket.getSyncSource());
+        assertEquals(3001189225L, rtpPacket.getSyncSource());
+        rtpPacket.setSyncSource(3001189229L);
+        assertEquals(3001189229L, rtpPacket.getSyncSource());
     }
 
     @Test

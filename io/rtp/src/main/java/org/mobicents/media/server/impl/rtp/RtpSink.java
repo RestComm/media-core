@@ -31,9 +31,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -57,16 +55,16 @@ public class RtpSink extends AbstractSink {
     private RTPFormats formats;
     private final RtpClock rtpClock;
     private final RtpPacket rtpPacket;
-    
+
     // RTP transport
-    private final RtpGateway rtpGateway;
+    private final RtpRelay rtpGateway;
 
     // Details of last transmitted packet
     private RTPFormat currentFormat;
-    private long timestamp;
+    private long rtpTimestamp;
     private int sequenceNumber;
 
-    public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp, RtpGateway rtpGateway) {
+    public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp, RtpRelay rtpGateway) {
         super("output");
 
         // Media mixer components
@@ -76,10 +74,14 @@ public class RtpSink extends AbstractSink {
 
         // RTP processing components
         this.rtpClock = rtpClock;
-        
+
         // RTP transport
         this.rtpGateway = rtpGateway;
         this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
+        
+        // Details of last transmitted packet
+        this.rtpTimestamp = 0L;
+        this.sequenceNumber = 0;
     }
 
     public AudioOutput getAudioOutput() {
@@ -96,7 +98,7 @@ public class RtpSink extends AbstractSink {
             try {
                 // perform transcoding
                 frame = dsp.process(frame, LINEAR_FORMAT, this.formats.getFormats().get(0));
-                
+
                 // send the packet to remote peer if media frame is valid
                 if (evolveFrame(frame)) {
                     this.rtpGateway.outgoingRtp(this.rtpPacket);
@@ -128,19 +130,21 @@ public class RtpSink extends AbstractSink {
             rtpClock.setClockRate(currentFormat.getClockRate());
         }
 
+        // convert frame timestamp to milliseconds
+        long frameTimestamp = frame.getTimestamp() / 1000000L;
+
         // ignore frames with duplicate timestamp
-        if (frame.getTimestamp() / 1000000L == timestamp) {
+        if (frameTimestamp == this.rtpTimestamp) {
             frame.recycle();
             return false;
         }
 
-        // convert to milliseconds first, then to rtp time units
-        timestamp = frame.getTimestamp() / 1000000L;
-        timestamp = rtpClock.convertToRtpTime(timestamp);
+        this.rtpTimestamp = rtpClock.convertToRtpTime(frameTimestamp);
 
         // wrap the RTP packet and return it
-        rtpPacket.wrap(false, currentFormat.getID(), this.sequenceNumber++, timestamp, this.statistics.getSsrc(),
-                frame.getData(), frame.getOffset(), frame.getLength());
+        // NOTE: the SSRC field is unknown at this point, it must be overwritten by the RTP transport object!
+        rtpPacket.wrap(false, currentFormat.getID(), this.sequenceNumber++, this.rtpTimestamp, 0L, frame.getData(),
+                frame.getOffset(), frame.getLength());
         frame.recycle();
         return true;
     }

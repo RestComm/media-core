@@ -30,8 +30,6 @@ import java.nio.channels.DatagramChannel;
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.io.ice.network.stun.StunHandler;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
@@ -43,11 +41,8 @@ import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -84,8 +79,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     // RTP elements
     private RtpListener rtpListener;
     private RtpStatistics rtpStatistics;
-    private RTPFormats rtpFormats;
-    private RtpGateway rtpGateway;
 
     // Protocol handlers pipeline
     private static final int RTP_PRIORITY = 3; // a packet each 20ms
@@ -98,7 +91,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
 
     protected RtpTransport(int channelId, RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager,
-            RtpGateway rtpGateway) {
+            RtpRelay rtpGateway) {
         super();
 
         // Core elements
@@ -114,7 +107,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.dtmfSupported = false;
 
         // RTP elements
-        this.rtpGateway = rtpGateway;
         this.rtpStatistics = statistics;
         this.rtpHandler = new RtpHandler(statistics, rtpGateway);
     }
@@ -209,7 +201,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         }
 
         // Configure protocol handlers
-        this.transmitter.setChannel(this.dataChannel);
         this.handlers.addHandler(this.rtpHandler);
 
         if (this.rtcpMux) {
@@ -333,7 +324,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         }
 
         // Setup the RTP handler
-        this.transmitter.enableSrtp(this.dtlsHandler);
         this.rtpHandler.enableSrtp(this.dtlsHandler);
 
         // Setup the RTCP handler. RTCP-MUX channels only!
@@ -357,7 +347,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         }
 
         // Setup the RTP handler
-        this.transmitter.disableSrtp();
         this.rtpHandler.disableSrtp();
 
         // Setup the RTCP handler
@@ -405,7 +394,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         // RTP reset
         this.dtmfSupported = false;
         this.rtpHandler.reset();
-        this.transmitter.reset();
 
         // RTCP reset
         if (this.rtcpMux) {
@@ -460,6 +448,9 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
             if (this.secure && !this.dtlsHandler.isHandshakeComplete()) {
                 return;
             }
+            
+            // Set packet information related with this transporter
+            packet.setSyncSource(this.rtpStatistics.getSsrc());
 
             // Get the contents of the packet
             ByteBuffer buffer = packet.getBuffer();
@@ -486,7 +477,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
             this.dataChannel.send(buffer, this.remotePeer);
             this.rtpStatistics.onRtpSent(packet);
         } else {
-            logger.warn("Cannot send RTP packet because channel is not connected.");
+            throw new IOException("The RTP channel is not connected.");
         }
     }
 

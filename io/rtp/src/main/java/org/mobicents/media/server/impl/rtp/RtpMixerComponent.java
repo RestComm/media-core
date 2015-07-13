@@ -36,26 +36,24 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpMixerComponent extends MixerComponent implements RtpGateway {
+public class RtpMixerComponent extends MixerComponent implements RtpRelay {
 
     private static final Logger logger = Logger.getLogger(RtpMixerComponent.class);
 
     private final static int DEFAULT_BUFFER_SIZER = 50;
 
-    // Media source
+    // Media mixing
+    private final RtpSink rtpSink;
     private final RtpSource rtpSource;
+    private final DtmfSink dtmfSink;
     private final DtmfSource dtmfSource;
     private final JitterBuffer jitterBuffer;
-
-    // Media sink
-    private final RtpSink rtpSink;
-    private final DtmfSink dtmfSink;
 
     // RTP transport
     private final RtpTransport rtpTransport;
 
-    // RTP statistics
-    private volatile int rxPackets;
+    // Incoming packets
+    private volatile boolean firstPacket;
 
     public RtpMixerComponent(int connectionId, Scheduler scheduler, DspFactory dspFactory, RtpTransport channel,
             RtpClock rtpClock, RtpClock oobClock) {
@@ -89,7 +87,7 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
         super.addOOBOutput(this.dtmfSink.getOobOutput());
 
         // RTP statistics
-        this.rxPackets = 0;
+        this.firstPacket = true;
 
         // RTP transport
         this.rtpTransport = channel;
@@ -100,11 +98,11 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
     }
 
     public void processRtpPacket(RtpPacket packet, RTPFormat format) {
-        if (this.rxPackets == 0) {
+        if (this.firstPacket) {
             logger.info("Restarting jitter buffer");
             this.jitterBuffer.restart();
+            this.firstPacket = false;
         }
-        this.rxPackets++;
         this.jitterBuffer.write(packet, format);
     }
 

@@ -55,10 +55,10 @@ public class RtpHandler implements PacketHandler {
     // RTP components
     private RTPFormats rtpFormats;
     private final RtpPacket rtpPacket;
-    private final RtpGateway rtpGateway;
+    private final RtpRelay rtpGateway;
     private final RtpStatistics statistics;
 
-    public RtpHandler(RtpStatistics statistics, RtpGateway rtpGateway) {
+    public RtpHandler(RtpStatistics statistics, RtpRelay rtpGateway) {
         // Packet handler properties
         this.pipelinePriority = 0;
 

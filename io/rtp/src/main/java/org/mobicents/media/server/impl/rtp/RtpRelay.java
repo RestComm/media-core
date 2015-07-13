@@ -24,13 +24,13 @@ package org.mobicents.media.server.impl.rtp;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 
 /**
- * Handles transport of RTP traffic
+ * Handles transport of RTP traffic.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpGateway {
-
+public interface RtpRelay {
+    
     void incomingRtp(RtpPacket packet, RTPFormat format);
     
     void outgoingRtp(RtpPacket packet);
@@ -38,5 +38,5 @@ public interface RtpGateway {
     void incomingDtmf(RtpPacket packet);
     
     void outgoingDtmf(RtpPacket packet);
-
+    
 }

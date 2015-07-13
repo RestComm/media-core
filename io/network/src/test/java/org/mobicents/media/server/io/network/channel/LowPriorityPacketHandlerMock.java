@@ -20,7 +20,6 @@
 
 package org.mobicents.media.server.io.network.channel;
 
-
 /**
  * A mock of the Packet Handler
  * 
@@ -29,12 +28,16 @@ package org.mobicents.media.server.io.network.channel;
  */
 public class LowPriorityPacketHandlerMock extends PacketHandlerMock {
 
-	protected static final int PRIORITY = 1;
-	protected static final String DATA = "low";
-	
-	
-	public LowPriorityPacketHandlerMock() {
-		super(PRIORITY, DATA);
-	}
+    protected static final int PRIORITY = 1;
+    protected static final String DATA = "low";
+
+    public LowPriorityPacketHandlerMock() {
+        super(PRIORITY, DATA);
+    }
+
+    @Override
+    public void setPipelinePriority(int priority) {
+        throw new UnsupportedOperationException();
+    }
 
 }
