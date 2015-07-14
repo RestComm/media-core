@@ -55,6 +55,7 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.utils.Text;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.
@@ -67,8 +68,11 @@ public abstract class RtpChannel {
     protected static final Logger logger = Logger.getLogger(RtpChannel.class);
 
     // Registered audio formats
-    protected final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
     protected final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    protected final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
+    static {
+        DTMF_FORMAT.setOptions(new Text("0-15"));
+    }
 
     // RTP channel properties
     protected long ssrc;

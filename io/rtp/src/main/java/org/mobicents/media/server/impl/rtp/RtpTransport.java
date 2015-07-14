@@ -41,8 +41,6 @@ import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -54,12 +52,6 @@ import org.mobicents.media.server.utils.Text;
 public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
     private static final Logger logger = Logger.getLogger(RtpTransport.class);
-
-    protected final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    protected final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
-    static {
-        DTMF_FORMAT.setOptions(new Text("0-15"));
-    }
 
     private final static int PORT_ANY = -1;
 
@@ -114,7 +106,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     public int getChannelId() {
         return channelId;
     }
-    
+
     public long getSsrc() {
         return this.rtpStatistics.getSsrc();
     }
@@ -446,13 +438,13 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         }
     }
 
-    public void send(RtpPacket packet)  throws IOException {
+    public void send(RtpPacket packet) throws IOException {
         if (this.dataChannel.isConnected()) {
             // Do not send data while DTLS handshake is ongoing. WebRTC calls only.
             if (this.secure && !this.dtlsHandler.isHandshakeComplete()) {
                 return;
             }
-            
+
             // Set packet information related with this transporter
             packet.setSyncSource(this.rtpStatistics.getSsrc());
 
