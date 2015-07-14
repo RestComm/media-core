@@ -39,9 +39,10 @@ import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
+import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
+import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -51,12 +52,9 @@ import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-import org.mobicents.media.server.spi.dsp.Codec;
-import org.mobicents.media.server.spi.dsp.Processor;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.
@@ -66,22 +64,28 @@ import org.mobicents.media.server.spi.format.Formats;
  */
 public abstract class RtpChannel {
 
-    private static final Logger logger = Logger.getLogger(RtpChannel.class);
+    protected static final Logger logger = Logger.getLogger(RtpChannel.class);
 
-    // Registered formats
-    private final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
-    private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    // Registered audio formats
+    protected final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
+    protected final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
 
+    // RTP channel properties
     protected long ssrc;
     protected String cname;
     protected final String mediaType;
-    protected RtpClock clock;
-    protected RtpClock oobClock;
-    protected RtpTransport rtpChannel;
-    protected RtcpTransport rtcpChannel;
+    protected final RtpClock clock;
+    protected final RtpClock oobClock;
+    protected final RtpTransport rtpTransport;
+    protected final RtcpTransport rtcpTransport;
+    protected final RtpStatistics statistics;
     protected boolean rtcpMux;
-    protected RtpStatistics statistics;
+    protected boolean secure;
     protected boolean open;
+
+    // RTP relay
+    protected RelayType relayType;
+    protected RtpMixerComponent mixerComponent;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -89,15 +93,13 @@ public abstract class RtpChannel {
     protected RTPFormats negotiatedFormats;
     protected boolean negotiated;
 
-    private RtpListener rtpListener;
+    // Listeners
+    protected RtpListener rtpListener;
 
     // ICE
-    private boolean ice;
-    private IceAgent iceAgent;
-    private IceListener iceListener;
-
-    // DTLS
-    private boolean dtls;
+    protected boolean ice;
+    protected IceAgent iceAgent;
+    protected IceListener iceListener;
 
     /**
      * Constructs a new media channel containing both RTP and RTCP components.
@@ -106,31 +108,33 @@ public abstract class RtpChannel {
      * The channel supports SRTP and ICE, but these features are turned off by default.
      * </p>
      * 
+     * @param connectionId The identifier of the connection that owns the channel
      * @param mediaType The type of media flowing in the channel
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected RtpChannel(String mediaType, Clock wallClock, ChannelsManager channelsManager) {
+    protected RtpChannel(int connectionId, String mediaType, Clock wallClock, ChannelsManager channelsManager) {
+        // RTP channel properties
         this.ssrc = 0L;
         this.mediaType = mediaType;
-
         this.clock = new RtpClock(wallClock);
         this.oobClock = new RtpClock(wallClock);
-
         this.statistics = new RtpStatistics(clock, this.ssrc);
+        this.rtpTransport = channelsManager.getRtpTransport(this.statistics, this.clock, this.oobClock);
+        this.rtcpTransport = channelsManager.getRtcpTransport(this.statistics);
+        this.rtcpMux = false;
+        this.secure = false;
+        this.ice = false;
+        this.open = false;
 
-        this.rtpChannel = channelsManager.getRtpChannel(this.statistics, this.clock, this.oobClock);
-        this.rtcpChannel = channelsManager.getRtcpChannel(this.statistics);
+        // RTP relay
+        this.relayType = RelayType.MIXER;
+        // this.mixerComponent = new RtpMixerComponent(connectionId, scheduler, dspFactory, rtpChannel, clock, oobClock);
 
         // RTP format negotiation
         this.offeredFormats = new RTPFormats();
         this.negotiatedFormats = new RTPFormats();
         this.negotiated = false;
-
-        this.rtcpMux = false;
-        this.ice = false;
-        this.dtls = false;
-        this.open = false;
     }
 
     /**
@@ -139,7 +143,7 @@ public abstract class RtpChannel {
      * @return the numeric ID of the channel.
      */
     public int getChannelId() {
-        return this.rtpChannel.getChannelId();
+        return this.rtpTransport.getChannelId();
     }
 
     /**
@@ -199,8 +203,8 @@ public abstract class RtpChannel {
      * @return The address of the RTP channel. Returns empty String if RTP channel is not bound.
      */
     public String getRtpAddress() {
-        if (this.rtpChannel.isBound()) {
-            return this.rtpChannel.getLocalHost();
+        if (this.rtpTransport.isBound()) {
+            return this.rtpTransport.getLocalHost();
         }
         return "";
     }
@@ -211,8 +215,8 @@ public abstract class RtpChannel {
      * @return The port of the RTP channel. Returns zero if RTP channel is not bound.
      */
     public int getRtpPort() {
-        if (this.rtpChannel.isBound()) {
-            return this.rtpChannel.getLocalPort();
+        if (this.rtpTransport.isBound()) {
+            return this.rtpTransport.getLocalPort();
         }
         return 0;
     }
@@ -227,8 +231,8 @@ public abstract class RtpChannel {
             return getRtpAddress();
         }
 
-        if (this.rtcpChannel.isBound()) {
-            return this.rtcpChannel.getLocalHost();
+        if (this.rtcpTransport.isBound()) {
+            return this.rtcpTransport.getLocalHost();
         }
         return "";
     }
@@ -243,8 +247,8 @@ public abstract class RtpChannel {
             return getRtpPort();
         }
 
-        if (this.rtcpChannel.isBound()) {
-            return this.rtcpChannel.getLocalPort();
+        if (this.rtcpTransport.isBound()) {
+            return this.rtcpTransport.getLocalPort();
         }
         return 0;
     }
@@ -270,9 +274,9 @@ public abstract class RtpChannel {
     public void close() throws IllegalStateException {
         if (this.open) {
             // Close channels
-            this.rtpChannel.close();
+            this.rtpTransport.close();
             if (!this.rtcpMux) {
-                this.rtcpChannel.close();
+                this.rtcpTransport.close();
             }
 
             if (logger.isDebugEnabled()) {
@@ -299,7 +303,7 @@ public abstract class RtpChannel {
         // Reset channels
         if (this.rtcpMux) {
             this.rtcpMux = false;
-            this.rtpChannel.setRtcpMux(false);
+            this.rtpTransport.setRtcpMux(false);
         }
 
         // Reset ICE
@@ -308,7 +312,7 @@ public abstract class RtpChannel {
         }
 
         // Reset WebRTC
-        if (this.dtls) {
+        if (this.secure) {
             disableDTLS();
         }
 
@@ -336,9 +340,9 @@ public abstract class RtpChannel {
      * @return Returns true if the channel is available. Returns false otherwise.
      */
     public boolean isAvailable() {
-        boolean available = this.rtpChannel.isAvailable();
+        boolean available = this.rtpTransport.isAvailable();
         if (!this.rtcpMux) {
-            available = available && this.rtcpChannel.isAvailable();
+            available = available && this.rtcpTransport.isAvailable();
         }
         return available;
     }
@@ -364,7 +368,7 @@ public abstract class RtpChannel {
      * @param mode The new connection mode of the RTP component
      */
     public void setConnectionMode(ConnectionMode mode) {
-        this.rtpChannel.updateMode(mode);
+        this.rtpTransport.updateMode(mode);
     }
 
     /**
@@ -373,13 +377,8 @@ public abstract class RtpChannel {
      * @param formats The supported codecs resulting from SDP negotiation
      */
     protected void setFormats(RTPFormats formats) {
-        try {
-            this.rtpChannel.setFormatMap(formats);
-            this.rtpChannel.setOutputFormats(formats.getFormats());
-        } catch (FormatNotSupportedException e) {
-            // Never happens
-            logger.warn("Could not set output formats", e);
-        }
+        this.rtpTransport.setFormatMap(formats);
+        this.mixerComponent.setRtpFormats(formats);
     }
 
     /**
@@ -401,7 +400,7 @@ public abstract class RtpChannel {
      * @return The codecs currently supported by the RTP component
      */
     public RTPFormats getFormatMap() {
-        return this.rtpChannel.getFormatMap();
+        return this.rtpTransport.getFormatMap();
     }
 
     /**
@@ -418,20 +417,20 @@ public abstract class RtpChannel {
         if (this.ice) {
             throw new IllegalStateException("Cannot bind when ICE is enabled");
         }
-        this.rtpChannel.bind(isLocal);
+        this.rtpTransport.bind(isLocal);
         if (!rtcpMux) {
-            this.rtcpChannel.bind(isLocal, this.rtpChannel.getLocalPort() + 1);
+            this.rtcpTransport.bind(isLocal, this.rtpTransport.getLocalPort() + 1);
         }
         this.rtcpMux = rtcpMux;
 
         if (logger.isDebugEnabled()) {
-            logger.debug(this.mediaType + " RTP channel " + this.ssrc + " is bound to " + this.rtpChannel.getLocalHost() + ":"
-                    + this.rtpChannel.getLocalPort());
+            logger.debug(this.mediaType + " RTP channel " + this.ssrc + " is bound to " + this.rtpTransport.getLocalHost()
+                    + ":" + this.rtpTransport.getLocalPort());
             if (rtcpMux) {
                 logger.debug(this.mediaType + " is multiplexing RTCP");
             } else {
-                logger.debug(this.mediaType + " RTCP channel " + this.ssrc + " is bound to " + this.rtcpChannel.getLocalHost()
-                        + ":" + this.rtcpChannel.getLocalPort());
+                logger.debug(this.mediaType + " RTCP channel " + this.ssrc + " is bound to "
+                        + this.rtcpTransport.getLocalHost() + ":" + this.rtcpTransport.getLocalPort());
             }
         }
     }
@@ -455,7 +454,7 @@ public abstract class RtpChannel {
      * @param address The address of the remote peer
      */
     public void connectRtp(SocketAddress address) {
-        this.rtpChannel.setRemotePeer(address);
+        this.rtpTransport.setRemotePeer(address);
 
         if (logger.isDebugEnabled()) {
             logger.debug(this.mediaType + " RTP channel " + this.ssrc + " connected to remote peer " + address.toString());
@@ -488,8 +487,8 @@ public abstract class RtpChannel {
         if (this.ice) {
             throw new IllegalStateException("Cannot bind when ICE is enabled");
         }
-        this.rtcpChannel.bind(isLocal, port);
-        this.rtcpMux = (port == this.rtpChannel.getLocalPort());
+        this.rtcpTransport.bind(isLocal, port);
+        this.rtcpMux = (port == this.rtpTransport.getLocalPort());
     }
 
     /**
@@ -502,7 +501,7 @@ public abstract class RtpChannel {
      * @param address The address of the remote peer
      */
     public void connectRtcp(SocketAddress remoteAddress) {
-        this.rtcpChannel.setRemotePeer(remoteAddress);
+        this.rtcpTransport.setRemotePeer(remoteAddress);
 
         if (logger.isDebugEnabled()) {
             logger.debug(this.mediaType + " RTCP channel " + this.ssrc + " has connected to remote peer "
@@ -527,39 +526,39 @@ public abstract class RtpChannel {
     /*
      * CODECS
      */
-    /**
-     * Constructs RTP payloads for given channel.
-     * 
-     * @param channel the media channel
-     * @param profile AVProfile part for media type of given channel
-     * @return collection of RTP formats.
-     */
-    protected RTPFormats buildRTPMap(RTPFormats profile) {
-        RTPFormats list = new RTPFormats();
-        Formats fmts = new Formats();
-
-        if (this.rtpChannel.getOutputDsp() != null) {
-            Codec[] currCodecs = this.rtpChannel.getOutputDsp().getCodecs();
-            for (int i = 0; i < currCodecs.length; i++) {
-                if (currCodecs[i].getSupportedInputFormat().matches(LINEAR_FORMAT)) {
-                    fmts.add(currCodecs[i].getSupportedOutputFormat());
-                }
-            }
-        }
-
-        fmts.add(DTMF_FORMAT);
-
-        if (fmts != null) {
-            for (int i = 0; i < fmts.size(); i++) {
-                RTPFormat f = profile.find(fmts.get(i));
-                if (f != null) {
-                    list.add(f.clone());
-                }
-            }
-        }
-
-        return list;
-    }
+    // /**
+    // * Constructs RTP payloads for given channel.
+    // *
+    // * @param channel the media channel
+    // * @param profile AVProfile part for media type of given channel
+    // * @return collection of RTP formats.
+    // */
+    // protected RTPFormats buildRTPMap(RTPFormats profile) {
+    // RTPFormats list = new RTPFormats();
+    // Formats fmts = new Formats();
+    //
+    // if (this.rtpTransport.getOutputDsp() != null) {
+    // Codec[] currCodecs = this.rtpTransport.getOutputDsp().getCodecs();
+    // for (int i = 0; i < currCodecs.length; i++) {
+    // if (currCodecs[i].getSupportedInputFormat().matches(LINEAR_FORMAT)) {
+    // fmts.add(currCodecs[i].getSupportedOutputFormat());
+    // }
+    // }
+    // }
+    //
+    // fmts.add(DTMF_FORMAT);
+    //
+    // if (fmts != null) {
+    // for (int i = 0; i < fmts.size(); i++) {
+    // RTPFormat f = profile.find(fmts.get(i));
+    // if (f != null) {
+    // list.add(f.clone());
+    // }
+    // }
+    // }
+    //
+    // return list;
+    // }
 
     /**
      * Resets the list of supported codecs.
@@ -874,11 +873,11 @@ public abstract class RtpChannel {
                 IceAgent agent = event.getSource();
                 CandidatePair rtpCandidate = agent.getSelectedRtpCandidate(mediaType);
                 // Bind candidate to RTP audio channel
-                rtpChannel.bind(rtpCandidate.getChannel());
+                rtpTransport.bind(rtpCandidate.getChannel());
 
                 CandidatePair rtcpCandidate = agent.getSelectedRtcpCandidate(mediaType);
                 if (rtcpCandidate != null) {
-                    rtcpChannel.bind(rtcpCandidate.getChannel());
+                    rtcpTransport.bind(rtcpCandidate.getChannel());
                 }
             } catch (IOException e) {
                 // Warn RTP listener a failure happened and connection must be closed
@@ -897,15 +896,15 @@ public abstract class RtpChannel {
      * @throws IllegalStateException Cannot be invoked when DTLS is already enabled
      */
     public void enableDTLS(String hashFunction, String remoteFingerprint) throws IllegalStateException {
-        if (this.dtls) {
+        if (this.secure) {
             throw new IllegalStateException("DTLS is already enabled on this channel");
         }
 
-        this.rtpChannel.enableSRTP(hashFunction, remoteFingerprint, this.iceAgent);
+        this.rtpTransport.enableSRTP(hashFunction, remoteFingerprint, this.iceAgent);
         if (!this.rtcpMux) {
-            rtcpChannel.enableSRTCP(hashFunction, remoteFingerprint, this.iceAgent);
+            rtcpTransport.enableSRTCP(hashFunction, remoteFingerprint, this.iceAgent);
         }
-        this.dtls = true;
+        this.secure = true;
 
         if (logger.isDebugEnabled()) {
             logger.debug(this.mediaType + " channel " + this.ssrc + " enabled DTLS");
@@ -918,15 +917,15 @@ public abstract class RtpChannel {
      * @throws IllegalStateException Cannot be invoked when DTLS is already disabled
      */
     public void disableDTLS() throws IllegalStateException {
-        if (!this.dtls) {
+        if (!this.secure) {
             throw new IllegalStateException("DTLS is already disabled on this channel");
         }
 
-        this.rtpChannel.disableSRTP();
+        this.rtpTransport.disableSRTP();
         if (!this.rtcpMux) {
-            this.rtcpChannel.disableSRTCP();
+            this.rtcpTransport.disableSRTCP();
         }
-        this.dtls = false;
+        this.secure = false;
 
         if (logger.isDebugEnabled()) {
             logger.debug(this.mediaType + " channel " + this.ssrc + " disabled DTLS");
@@ -939,7 +938,7 @@ public abstract class RtpChannel {
      * @return Returns true if DTLS is enabled. Returns false otherwise.
      */
     public boolean isDtlsEnabled() {
-        return this.dtls;
+        return this.secure;
     }
 
     /**
@@ -948,8 +947,8 @@ public abstract class RtpChannel {
      * @return The DTLS finger print. Returns an empty String if DTLS is not enabled on the channel.
      */
     public String getDtlsFingerprint() {
-        if (this.dtls) {
-            return this.rtpChannel.getWebRtcLocalFingerprint().toString();
+        if (this.secure) {
+            return this.rtpTransport.getWebRtcLocalFingerprint().toString();
         }
         return "";
     }

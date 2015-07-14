@@ -51,6 +51,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.utils.Text;
 
 /**
+ * Connection to a remote peer where RTP traffic flows.
  * 
  * @author Oifa Yulian
  * @author Amit Bhayani
@@ -58,9 +59,9 @@ import org.mobicents.media.server.utils.Text;
  * 
  * @see AbstractConnection
  */
-public class RtpConnectionImpl extends AbstractConnection implements RtpListener {
+public class RtpConnection extends AbstractConnection implements RtpListener {
 
-    private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
+    private static final Logger logger = Logger.getLogger(RtpConnection.class);
 
     // Core elements
     private final ChannelsManager channelsManager;
@@ -87,7 +88,7 @@ public class RtpConnectionImpl extends AbstractConnection implements RtpListener
      * @param channelsManager The media channel provider
      * @param dspFactory The DSP provider
      */
-    public RtpConnectionImpl(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
+    public RtpConnection(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
         // Core elements
         super(id, channelsManager.getScheduler());
         this.channelsManager = channelsManager;
@@ -101,14 +102,6 @@ public class RtpConnectionImpl extends AbstractConnection implements RtpListener
         this.audioChannel = this.channelsManager.getAudioChannel();
         this.audioChannel.setCname(this.cname);
         this.audioChannel.setRtpListener(this);
-        try {
-            this.audioChannel.setInputDsp(dspFactory.newProcessor());
-            this.audioChannel.setOutputDsp(dspFactory.newProcessor());
-        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
-            // exception may happen only if invalid classes have been set in
-            // configuration
-            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
-        }
     }
 
     @Override
@@ -122,16 +115,6 @@ public class RtpConnectionImpl extends AbstractConnection implements RtpListener
     @Override
     public String getCname() {
         return this.cname;
-    }
-
-    @Override
-    public AudioComponent getAudioComponent() {
-        return this.audioChannel.getAudioComponent();
-    }
-
-    @Override
-    public OOBComponent getOOBComponent() {
-        return this.audioChannel.getAudioOobComponent();
     }
 
     @Override

@@ -34,8 +34,8 @@ public class AudioChannel extends RtpChannel {
 
     public static final String MEDIA_TYPE = "audio";
 
-    public AudioChannel(Clock wallClock, ChannelsManager channelsManager) {
-        super(MEDIA_TYPE, wallClock, channelsManager);
+    public AudioChannel(int connectionId, Clock wallClock, ChannelsManager channelsManager) {
+        super(connectionId, MEDIA_TYPE, wallClock, channelsManager);
         super.supportedFormats = AVProfile.audio;
         super.setFormats(this.supportedFormats);
     }

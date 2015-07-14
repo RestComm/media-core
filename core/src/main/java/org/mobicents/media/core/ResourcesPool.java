@@ -29,7 +29,7 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentFactory;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.connections.LocalConnectionImpl;
-import org.mobicents.media.core.connections.RtpConnectionImpl;
+import org.mobicents.media.core.connections.RtpConnection;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
@@ -217,7 +217,7 @@ public class ResourcesPool implements ComponentFactory {
 
 		// Setup remote connections
 		for (int i = 0; i < defaultRemoteConnections; i++) {
-			this.remoteConnections.offer(new RtpConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager, this.dspFactory));
+			this.remoteConnections.offer(new RtpConnection(this.connectionId.incrementAndGet(), this.channelsManager, this.dspFactory));
 		}
 		this.rtpConnectionsCount.set(this.defaultRemoteConnections);
 	}
@@ -386,7 +386,7 @@ public class ResourcesPool implements ComponentFactory {
 		} else {
 			result = this.remoteConnections.poll();
 			if (result == null) {
-				result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
+				result = new RtpConnection(connectionId.incrementAndGet(), channelsManager, dspFactory);
 				this.rtpConnectionsCount.incrementAndGet();
 			} else {
 				result.generateCname();

@@ -95,9 +95,9 @@ public class RtpChannelTest {
 		localChannel.open();
 		localChannel.bind(false, false);
 		
-		String localAddress = localChannel.rtpChannel.getLocalHost();
-		int localRtpPort = localChannel.rtpChannel.getLocalPort();
-		int localRtcpPort = localChannel.rtcpChannel.getLocalPort(); 
+		String localAddress = localChannel.rtpTransport.getLocalHost();
+		int localRtpPort = localChannel.rtpTransport.getLocalPort();
+		int localRtcpPort = localChannel.rtcpTransport.getLocalPort(); 
 		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel);
 		
 		// activate "remote" channel and bind it to local address
@@ -105,9 +105,9 @@ public class RtpChannelTest {
 		remoteChannel.open();
 		remoteChannel.bind(false, rtcpMux);
 		
-		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
-		int remoteRtpPort = remoteChannel.rtpChannel.getLocalPort();
-		int remoteRtcpPort = remoteChannel.rtcpChannel.getLocalPort();
+		String remoteAddress = remoteChannel.rtpTransport.getLocalHost();
+		int remoteRtpPort = remoteChannel.rtpTransport.getLocalPort();
+		int remoteRtcpPort = remoteChannel.rtcpTransport.getLocalPort();
 		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel);
 		
 		// ... remote peer receives SDP offer from local peer
@@ -130,18 +130,18 @@ public class RtpChannelTest {
 		assertTrue(localChannel.isOpen());
 		assertTrue(localChannel.isAvailable());
 		assertFalse(localChannel.isRtcpMux());
-		assertEquals(remoteAddress, localChannel.rtpChannel.getRemoteHost());
-		assertEquals(remoteRtpPort, localChannel.rtpChannel.getRemotePort());
-		assertEquals(remoteAddress, localChannel.rtcpChannel.getRemoteHost());
-		assertEquals(remoteRtcpPort, localChannel.rtcpChannel.getRemotePort());
+		assertEquals(remoteAddress, localChannel.rtpTransport.getRemoteHost());
+		assertEquals(remoteRtpPort, localChannel.rtpTransport.getRemotePort());
+		assertEquals(remoteAddress, localChannel.rtcpTransport.getRemoteHost());
+		assertEquals(remoteRtcpPort, localChannel.rtcpTransport.getRemotePort());
 
 		assertTrue(remoteChannel.isOpen());
 		assertTrue(remoteChannel.isAvailable());
 		assertFalse(remoteChannel.isRtcpMux());
-		assertEquals(localAddress, remoteChannel.rtpChannel.getRemoteHost());
-		assertEquals(localRtpPort, remoteChannel.rtpChannel.getRemotePort());
-		assertEquals(localAddress, remoteChannel.rtcpChannel.getRemoteHost());
-		assertEquals(localRtcpPort, remoteChannel.rtcpChannel.getRemotePort());
+		assertEquals(localAddress, remoteChannel.rtpTransport.getRemoteHost());
+		assertEquals(localRtpPort, remoteChannel.rtpTransport.getRemotePort());
+		assertEquals(localAddress, remoteChannel.rtcpTransport.getRemoteHost());
+		assertEquals(localRtcpPort, remoteChannel.rtcpTransport.getRemotePort());
 	}
 
 	@Test
@@ -155,8 +155,8 @@ public class RtpChannelTest {
 		localChannel.open();
 		localChannel.bind(false, rtcpMux);
 		
-		String localAddress = localChannel.rtpChannel.getLocalHost();
-		int localPort = localChannel.rtpChannel.getLocalPort();
+		String localAddress = localChannel.rtpTransport.getLocalHost();
+		int localPort = localChannel.rtpTransport.getLocalPort();
 		MediaDescriptionField audioOffer = SdpFactory.buildMediaDescription(localChannel);
 		
 		// activate "remote" channel and bind it to local address
@@ -164,8 +164,8 @@ public class RtpChannelTest {
 		remoteChannel.open();
 		remoteChannel.bind(false, rtcpMux);
 		
-		String remoteAddress = remoteChannel.rtpChannel.getLocalHost();
-		int remotePort = remoteChannel.rtpChannel.getLocalPort();
+		String remoteAddress = remoteChannel.rtpTransport.getLocalHost();
+		int remotePort = remoteChannel.rtpTransport.getLocalPort();
 		MediaDescriptionField audioAnswer = SdpFactory.buildMediaDescription(remoteChannel);
 		
 		// ... remote peer receives SDP offer from local peer
@@ -188,16 +188,16 @@ public class RtpChannelTest {
 		assertTrue(localChannel.isOpen());
 		assertTrue(localChannel.isAvailable());
 		assertTrue(localChannel.isRtcpMux());
-		assertEquals(remoteAddress, localChannel.rtpChannel.getRemoteHost());
-		assertEquals(remotePort, localChannel.rtpChannel.getRemotePort());
-		assertFalse(localChannel.rtcpChannel.isOpen());
+		assertEquals(remoteAddress, localChannel.rtpTransport.getRemoteHost());
+		assertEquals(remotePort, localChannel.rtpTransport.getRemotePort());
+		assertFalse(localChannel.rtcpTransport.isOpen());
 		
 		assertTrue(remoteChannel.isOpen());
 		assertTrue(remoteChannel.isAvailable());
 		assertTrue(remoteChannel.isRtcpMux());
-		assertEquals(localAddress, remoteChannel.rtpChannel.getRemoteHost());
-		assertEquals(localPort, remoteChannel.rtpChannel.getRemotePort());
-		assertFalse(remoteChannel.rtcpChannel.isOpen());
+		assertEquals(localAddress, remoteChannel.rtpTransport.getRemoteHost());
+		assertEquals(localPort, remoteChannel.rtpTransport.getRemotePort());
+		assertFalse(remoteChannel.rtcpTransport.isOpen());
 	}
 	
 	/**

@@ -86,6 +86,11 @@ public class RtpSink extends AbstractSink {
         return audioOutput;
     }
 
+    /**
+     * Sets the supported formats for audio output.
+     * 
+     * @param formats The supported audio formats.
+     */
     public void setFormats(RTPFormats formats) {
         this.formats = formats;
     }

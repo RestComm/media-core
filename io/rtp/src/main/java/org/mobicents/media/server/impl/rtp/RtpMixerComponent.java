@@ -97,6 +97,7 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
 
     public void setRtpFormats(RTPFormats formats) {
         this.jitterBuffer.setFormats(formats);
+        this.rtpSink.setFormats(formats);
     }
 
     public void activate() {

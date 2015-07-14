@@ -62,7 +62,7 @@ public class RtpConnectionImplTest {
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     //endpoint and connection
-    private RtpConnectionImpl connection;
+    private RtpConnection connection;
     private MyTestEndpoint endpoint;
     private ResourcesPool resourcesPool;
     
@@ -119,7 +119,7 @@ public class RtpConnectionImplTest {
     @Ignore
     @Test
     public void testDescription() throws Exception {    	
-        connection = (RtpConnectionImpl) endpoint.createConnection(ConnectionType.RTP,false);
+        connection = (RtpConnection) endpoint.createConnection(ConnectionType.RTP,false);
 //        connection.bind();
         Thread.sleep(1000);
 

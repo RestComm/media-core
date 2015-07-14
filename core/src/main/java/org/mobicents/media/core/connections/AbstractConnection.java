@@ -25,9 +25,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.MixerComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Connection;
@@ -95,10 +93,6 @@ public abstract class AbstractConnection implements Connection {
         // initialize event objects
         this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
     }
-
-    public abstract AudioComponent getAudioComponent();
-
-    public abstract OOBComponent getOOBComponent();
 
     @Override
     public int getId() {
