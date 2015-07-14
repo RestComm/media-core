@@ -114,6 +114,10 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     public int getChannelId() {
         return channelId;
     }
+    
+    public long getSsrc() {
+        return this.rtpStatistics.getSsrc();
+    }
 
     public void setRtpListener(RtpListener listener) {
         this.rtpListener = listener;

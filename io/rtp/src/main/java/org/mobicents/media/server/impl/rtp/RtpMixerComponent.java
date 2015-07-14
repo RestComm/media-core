@@ -52,8 +52,9 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
     // RTP transport
     private final RtpTransport rtpTransport;
 
-    // Incoming packets
-    private volatile boolean firstPacket;
+    // RTP statistics
+    private volatile int rxPackets;
+    private volatile int sequenceNumber;
 
     public RtpMixerComponent(int connectionId, Scheduler scheduler, DspFactory dspFactory, RtpTransport channel,
             RtpClock rtpClock, RtpClock oobClock) {
@@ -86,28 +87,16 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
         super.addOOBInput(this.dtmfSource.getOoBinput());
         super.addOOBOutput(this.dtmfSink.getOobOutput());
 
-        // RTP statistics
-        this.firstPacket = true;
-
         // RTP transport
         this.rtpTransport = channel;
+
+        // RTP statistics
+        this.rxPackets = 0;
+        this.sequenceNumber = 0;
     }
 
     public void setRtpFormats(RTPFormats formats) {
         this.jitterBuffer.setFormats(formats);
-    }
-
-    public void processRtpPacket(RtpPacket packet, RTPFormat format) {
-        if (this.firstPacket) {
-            logger.info("Restarting jitter buffer");
-            this.jitterBuffer.restart();
-            this.firstPacket = false;
-        }
-        this.jitterBuffer.write(packet, format);
-    }
-
-    public void processDtmfPacket(RtpPacket packet) {
-
     }
 
     public void activate() {
@@ -139,12 +128,25 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
 
     @Override
     public void incomingRtp(RtpPacket packet, RTPFormat format) {
+        if (this.rxPackets == 0) {
+            logger.info("Restarting jitter buffer");
+            this.jitterBuffer.restart();
+        }
+        this.rxPackets++;
         this.jitterBuffer.write(packet, format);
     }
 
     @Override
     public void outgoingRtp(RtpPacket packet) {
         try {
+            // Increment sequence number
+            int nextSequence = this.sequenceNumber++;
+            packet.setSequenceNumber(nextSequence);
+
+            // Adjust SSRC of the packet
+            packet.setSyncSource(this.rtpTransport.getSsrc());
+
+            // Send packet to remote peer
             this.rtpTransport.send(packet);
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -160,6 +162,14 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
     @Override
     public void outgoingDtmf(RtpPacket packet) {
         try {
+            // Increment sequence number
+            int nextSequence = this.sequenceNumber++;
+            packet.setSequenceNumber(nextSequence);
+
+            // Adjust SSRC of the packet
+            packet.setSyncSource(this.rtpTransport.getSsrc());
+
+            // Send packet to remote peer
             this.rtpTransport.sendDtmf(packet);
         } catch (IOException e) {
             // TODO Auto-generated catch block

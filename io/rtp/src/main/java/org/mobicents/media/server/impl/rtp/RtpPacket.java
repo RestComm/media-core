@@ -161,6 +161,11 @@ public class RtpPacket implements Serializable {
     public int getSeqNumber() {
         return buffer.getShort(2) & 0xFFFF;
     }
+    
+    public void setSequenceNumber(int sequenceNumber) {
+        buffer.put(2, (byte) ((sequenceNumber & 0x0000FF00) >> 8));
+        buffer.put(3, (byte) (sequenceNumber & 0x000000FF));
+    }
 
     /**
      * Timestamp field.
@@ -208,7 +213,7 @@ public class RtpPacket implements Serializable {
         buffer.put(8, (byte) ((ssrc & 0xFF000000) >> 24));
         buffer.put(9, (byte) ((ssrc & 0x00FF0000) >> 16));
         buffer.put(10, (byte) ((ssrc & 0x0000FF00) >> 8));
-        buffer.put(11, (byte) ((ssrc & 0x000000FF)));
+        buffer.put(11, (byte) (ssrc & 0x000000FF));
     }
 
     /**

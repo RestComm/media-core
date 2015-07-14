@@ -62,7 +62,6 @@ public class RtpSink extends AbstractSink {
     // Details of last transmitted packet
     private RTPFormat currentFormat;
     private long rtpTimestamp;
-    private int sequenceNumber;
 
     public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp, RtpRelay rtpGateway) {
         super("output");
@@ -78,10 +77,9 @@ public class RtpSink extends AbstractSink {
         // RTP transport
         this.rtpGateway = rtpGateway;
         this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
-        
+
         // Details of last transmitted packet
         this.rtpTimestamp = 0L;
-        this.sequenceNumber = 0;
     }
 
     public AudioOutput getAudioOutput() {
@@ -142,9 +140,10 @@ public class RtpSink extends AbstractSink {
         this.rtpTimestamp = rtpClock.convertToRtpTime(frameTimestamp);
 
         // wrap the RTP packet and return it
-        // NOTE: the SSRC field is unknown at this point, it must be overwritten by the RTP transport object!
-        rtpPacket.wrap(false, currentFormat.getID(), this.sequenceNumber++, this.rtpTimestamp, 0L, frame.getData(),
-                frame.getOffset(), frame.getLength());
+        // NOTE 1: the SSRC field is unknown at this point, it must be overwritten by the RTP transport object!
+        // NOTE 2: the sequence number field is unknown at this point, it must be overwritten by the RTP transport object!
+        rtpPacket.wrap(false, currentFormat.getID(), 0, this.rtpTimestamp, 0L, frame.getData(), frame.getOffset(),
+                frame.getLength());
         frame.recycle();
         return true;
     }

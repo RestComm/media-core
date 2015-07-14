@@ -88,8 +88,10 @@ public class RtpPacketTest {
     }
 
     @Test
-    public void testGetSequenceNumber() {
+    public void testSequenceNumber() {
         assertEquals(27244, rtpPacket.getSeqNumber());
+        rtpPacket.setSequenceNumber(33333);
+        assertEquals(33333, rtpPacket.getSeqNumber());
     }
 
     @Test

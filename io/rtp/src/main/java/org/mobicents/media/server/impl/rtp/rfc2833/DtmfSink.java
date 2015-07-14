@@ -80,7 +80,7 @@ public class DtmfSink extends AbstractSink {
 
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
-        if(evolve(frame)) {
+        if (evolve(frame)) {
             this.rtpGateway.outgoingDtmf(this.dtmfPacket);
         }
     }
@@ -95,10 +95,12 @@ public class DtmfSink extends AbstractSink {
         // convert to milliseconds first, then to rtp time units
         this.dtmfTimestamp = frame.getTimestamp() / 1000000L;
         this.dtmfTimestamp = this.oobClock.convertToRtpTime(dtmfTimestamp);
-        
+
         // wrap the DTMF packet
-        this.dtmfPacket.wrap(false, AVProfile.telephoneEventsID, this.sequenceNumber++, dtmfTimestamp, this.statistics.getSsrc(),
-                frame.getData(), frame.getOffset(), frame.getLength());
+        // NOTE: the SSRC field is unknown at this point, it must be overwritten by the RTP transport object!
+        // NOTE: the sequence number field is unknown at this point, it must be overwritten by the RTP transport object!
+        this.dtmfPacket.wrap(false, AVProfile.telephoneEventsID, 0, dtmfTimestamp, 0L, frame.getData(), frame.getOffset(),
+                frame.getLength());
         frame.recycle();
         return true;
     }
