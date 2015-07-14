@@ -50,7 +50,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  *
  * @author yulian oifa
  */
-public class RtpConnectionImplTest {
+public class RtpConnectionTest {
 
     //clock and scheduler
     private Clock clock;
@@ -66,7 +66,7 @@ public class RtpConnectionImplTest {
     private MyTestEndpoint endpoint;
     private ResourcesPool resourcesPool;
     
-    public RtpConnectionImplTest() {
+    public RtpConnectionTest() {
     }
 
     @BeforeClass
