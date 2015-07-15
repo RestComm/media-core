@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.MixerComponent;
+import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -36,7 +37,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpMixerComponent extends MixerComponent implements RtpGateway {
+public class RtpMixerComponent extends MixerComponent implements RtpRelay {
 
     private static final Logger logger = Logger.getLogger(RtpMixerComponent.class);
 
@@ -129,12 +130,18 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
 
     @Override
     public void incomingRtp(RtpPacket packet, RTPFormat format) {
-        if (this.rxPackets == 0) {
-            logger.info("Restarting jitter buffer");
-            this.jitterBuffer.restart();
+        // Determine whether the RTP packet is DTMF or not
+        // and send it to the according media source
+        if (RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
+            this.dtmfSource.write(packet);
+        } else {
+            if (this.rxPackets == 0) {
+                logger.info("Restarting jitter buffer");
+                this.jitterBuffer.restart();
+            }
+            this.rxPackets++;
+            this.jitterBuffer.write(packet, format);
         }
-        this.rxPackets++;
-        this.jitterBuffer.write(packet, format);
     }
 
     @Override
@@ -153,11 +160,6 @@ public class RtpMixerComponent extends MixerComponent implements RtpGateway {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void incomingDtmf(RtpPacket packet) {
-        this.dtmfSource.write(packet);
     }
 
     @Override

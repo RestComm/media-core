@@ -91,7 +91,7 @@ public abstract class RtpChannel {
 
     // RTP relay
     protected RelayType relayType;
-    protected RtpMixerComponent mixerComponent;
+    protected RtpMixerComponent rtpMixerComponent;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -138,13 +138,16 @@ public abstract class RtpChannel {
 
         // RTP relay
         this.relayType = RelayType.MIXER;
-        this.mixerComponent = new RtpMixerComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.rtpMixerComponent = new RtpMixerComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.rtpTransport.setRtpRelay(this.rtpMixerComponent);
 
         // RTP format negotiation
         this.offeredFormats = new RTPFormats();
         this.negotiatedFormats = new RTPFormats();
         this.negotiated = false;
     }
+    
+    
 
     /**
      * Gets the type of media handled by the channel.
@@ -254,7 +257,7 @@ public abstract class RtpChannel {
     }
 
     public RtpMixerComponent getMixerComponent() {
-        return mixerComponent;
+        return rtpMixerComponent;
     }
 
     /**
@@ -382,7 +385,7 @@ public abstract class RtpChannel {
      */
     protected void setFormats(RTPFormats formats) {
         this.rtpTransport.setFormatMap(formats);
-        this.mixerComponent.setRtpFormats(formats);
+        this.rtpMixerComponent.setRtpFormats(formats);
     }
 
     /**

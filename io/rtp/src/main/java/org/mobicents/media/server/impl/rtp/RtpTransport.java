@@ -32,6 +32,7 @@ import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
@@ -70,6 +71,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     // RTP elements
     private RtpListener rtpListener;
     private RtpStatistics rtpStatistics;
+    private RtpRelay rtpRelay;
 
     // Protocol handlers pipeline
     private static final int RTP_PRIORITY = 3; // a packet each 20ms
@@ -97,7 +99,15 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
         // RTP elements
         this.rtpStatistics = statistics;
-        this.rtpHandler = new RtpHandler(statistics, rtpGateway);
+        this.rtpHandler = new RtpHandler(statistics, this);
+    }
+    
+    public RtpRelay getRtpRelay() {
+        return rtpRelay;
+    }
+    
+    public void setRtpRelay(RtpRelay rtpRelay) {
+        this.rtpRelay = rtpRelay;
     }
 
     public long getSsrc() {
@@ -428,6 +438,16 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
                 scheduler.submitHeatbeat(this);
             }
             return 0;
+        }
+    }
+    
+    protected void incomingRtp(RtpPacket packet, RTPFormat format) {
+        if(this.rtpRelay != null) {
+            // delegate incoming packet to the RTP relay
+            this.rtpRelay.incomingRtp(packet, format);
+        } else {
+            // abort call because there is no way to process incoming media packets
+            this.rtpListener.onRtpFailure("No RTP relay was defined to process incoming packets.");
         }
     }
 

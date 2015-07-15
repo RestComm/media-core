@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpHeader;
-import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
@@ -54,12 +53,12 @@ public class RtpHandler implements PacketHandler {
     private boolean secure;
 
     // RTP components
+    private RtpReceiver rtpReceiver;
     private RTPFormats rtpFormats;
     private final RtpPacket rtpPacket;
-    private final RtpGateway rtpGateway;
     private final RtpStatistics statistics;
 
-    public RtpHandler(RtpStatistics statistics, RtpGateway rtpGateway) {
+    public RtpHandler(RtpStatistics statistics, RtpTransport rtpReceiver) {
         // Packet handler properties
         this.pipelinePriority = 0;
 
@@ -71,8 +70,15 @@ public class RtpHandler implements PacketHandler {
         // RTP components
         this.rtpFormats = new RTPFormats();
         this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
-        this.rtpGateway = rtpGateway;
         this.statistics = statistics;
+    }
+    
+    public RtpReceiver getRtpReceiver() {
+        return rtpReceiver;
+    }
+
+    public void setRtpReceiver(RtpReceiver rtpReceiver) {
+        this.rtpReceiver = rtpReceiver;
     }
 
     @Override
@@ -251,11 +257,7 @@ public class RtpHandler implements PacketHandler {
                     int payloadType = rtpPacket.getPayloadType();
                     RTPFormat format = rtpFormats.find(payloadType);
                     if (format != null) {
-                        if (RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
-                            this.rtpGateway.incomingDtmf(rtpPacket);
-                        } else {
-                            this.rtpGateway.incomingRtp(rtpPacket, format);
-                        }
+                        this.rtpReceiver.incomingRtp(rtpPacket, format);
                     } else {
                         logger.warn("Dropping packet because payload type (" + payloadType + ") is unknown.");
                     }

@@ -28,6 +28,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -45,6 +46,7 @@ public class RtpChannelTest {
 	
 	private final Scheduler scheduler;
 	private final UdpManager udpManager;
+	private final DspFactoryImpl dspFactory;
 	private final ChannelsManager channelsManager;
 	private final Clock wallClock;
 	
@@ -58,7 +60,8 @@ public class RtpChannelTest {
 		this.scheduler = new Scheduler();
 		this.scheduler.setClock(this.wallClock);
 		this.udpManager = new UdpManager(this.scheduler);
-		this.channelsManager = new ChannelsManager(udpManager);
+		this.dspFactory = new DspFactoryImpl();
+		this.channelsManager = new ChannelsManager(udpManager, dspFactory);
 		this.channelsManager.setScheduler(this.scheduler);
 		
 		this.factory = new ChannelFactory();

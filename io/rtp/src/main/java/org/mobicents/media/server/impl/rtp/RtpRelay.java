@@ -21,22 +21,12 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-
 /**
- * Handles transport of RTP traffic.
+ * Represents an entity that listens for incoming and outgoing RTP packets.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpGateway {
-    
-    void incomingRtp(RtpPacket packet, RTPFormat format);
-    
-    void outgoingRtp(RtpPacket packet);
+public interface RtpRelay extends RtpReceiver, RtpSender {
 
-    void incomingDtmf(RtpPacket packet);
-    
-    void outgoingDtmf(RtpPacket packet);
-    
 }

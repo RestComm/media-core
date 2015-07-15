@@ -57,13 +57,13 @@ public class RtpSink extends AbstractSink {
     private final RtpPacket rtpPacket;
 
     // RTP transport
-    private final RtpGateway rtpGateway;
+    private final RtpRelay rtpGateway;
 
     // Details of last transmitted packet
     private RTPFormat currentFormat;
     private long rtpTimestamp;
 
-    public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp, RtpGateway rtpGateway) {
+    public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp, RtpRelay rtpGateway) {
         super("output");
 
         // Media mixer components
