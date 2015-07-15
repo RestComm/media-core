@@ -25,9 +25,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
-import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
@@ -35,43 +33,47 @@ import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
- * Local and RTP channels storage
- * Use for local and remote connections
+ * Local and RTP channels storage Use for local and remote connections
  * 
  * @author yulian oifa
  */
 public class ChannelsManager {
-    //transport for RTP and RTCP
-	private UdpManager udpManager;
+    // transport for RTP and RTCP
+    private final UdpManager udpManager;
 
-	//ss7 manager
-	private SS7Manager ss7Manager;
-	
+    // Media transcoder provider
+    private final DspFactory dspFactory;
+
+    // ss7 manager
+    private SS7Manager ss7Manager;
+
     private Clock clock = new DefaultClock();
 
-    private boolean isControlEnabled=false;
+    private boolean isControlEnabled = false;
 
     private Scheduler scheduler;
-    
-    private int jitterBufferSize=50;
-    
-    //channel id generator
+
+    private int jitterBufferSize = 50;
+
+    // channel id generator
     private AtomicInteger channelIndex = new AtomicInteger(100);
-    
-    public ChannelsManager(UdpManager udpManager) {
-        this.udpManager = udpManager;         
+
+    public ChannelsManager(UdpManager udpManager, DspFactory dspFactory) {
+        this.udpManager = udpManager;
+        this.dspFactory = dspFactory;
     }
 
     public void setSS7Manager(SS7Manager ss7Manager) {
-    	this.ss7Manager=ss7Manager;
+        this.ss7Manager = ss7Manager;
     }
-    
+
     public SS7Manager getSS7Manager() {
-    	return this.ss7Manager;
+        return this.ss7Manager;
     }
-    
+
     public String getBindAddress() {
         return udpManager.getBindAddress();
     }
@@ -79,13 +81,13 @@ public class ChannelsManager {
     public String getLocalBindAddress() {
         return udpManager.getLocalBindAddress();
     }
-    
+
     public String getExternalAddress() {
-    	return udpManager.getExternalAddress();
+        return udpManager.getExternalAddress();
     }
-    
+
     public PortManager getPortManager() {
-    	return udpManager.getPortManager();
+        return udpManager.getPortManager();
     }
 
     public void setScheduler(Scheduler scheduler) {
@@ -95,7 +97,7 @@ public class ChannelsManager {
     public Scheduler getScheduler() {
         return this.scheduler;
     }
-    
+
     public Clock getClock() {
         return clock;
     }
@@ -103,45 +105,41 @@ public class ChannelsManager {
     public Boolean getIsControlEnabled() {
         return isControlEnabled;
     }
-    
+
     public int getJitterBufferSize() {
-    	return this.jitterBufferSize;
-    }
-    
-    public void setJitterBufferSize(int jitterBufferSize) {
-    	this.jitterBufferSize=jitterBufferSize;
-    }        
-    
-    public UdpManager getUdpManager() {
-    	return this.udpManager;
-    }    
-    
-    @Deprecated
-    public RTPDataChannel getChannel() {
-        return new RTPDataChannel(this,channelIndex.incrementAndGet());
-    }
-    
-    public RtpTransport getRtpTransport(RtpStatistics statistics, RtpClock clock, RtpClock oobClock) {
-    	return new RtpTransport(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager);
+        return this.jitterBufferSize;
     }
 
-    public RtcpTransport getRtcpTransport(RtpStatistics statistics) {
-    	return new RtcpTransport(channelIndex.incrementAndGet(), statistics, udpManager);
+    public void setJitterBufferSize(int jitterBufferSize) {
+        this.jitterBufferSize = jitterBufferSize;
+    }
+
+    public UdpManager getUdpManager() {
+        return this.udpManager;
     }
     
+    public DspFactory getDspFactory() {
+        return dspFactory;
+    }
+
+    @Deprecated
+    public RTPDataChannel getChannel() {
+        return new RTPDataChannel(this, channelIndex.incrementAndGet());
+    }
+
     public LocalDataChannel getLocalChannel() {
         return new LocalDataChannel(this, channelIndex.incrementAndGet());
     }
-    
-	public SS7DataChannel getSS7Channel(int dahdiChannelID, boolean isAlaw) throws IOException {
-		if (ss7Manager == null) {
-			throw new IOException("SS7 Not enabled");
-		}
-		return new SS7DataChannel(ss7Manager, dahdiChannelID, channelIndex.incrementAndGet(), isAlaw);
-	}
-    
-    public AudioChannel getAudioChannel() {
-    	return new AudioChannel(this.scheduler.getClock(), this);
+
+    public SS7DataChannel getSS7Channel(int dahdiChannelID, boolean isAlaw) throws IOException {
+        if (ss7Manager == null) {
+            throw new IOException("SS7 Not enabled");
+        }
+        return new SS7DataChannel(ss7Manager, dahdiChannelID, channelIndex.incrementAndGet(), isAlaw);
     }
-    
+
+    public AudioChannel getAudioChannel() {
+        return new AudioChannel(channelIndex.incrementAndGet(), scheduler, this.dspFactory, this.udpManager);
+    }
+
 }

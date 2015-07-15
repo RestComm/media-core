@@ -27,13 +27,10 @@ import java.net.SocketException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.harvest.HarvestException;
-import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.MixerComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.sdp.SdpException;
@@ -88,7 +85,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      * @param channelsManager The media channel provider
      * @param dspFactory The DSP provider
      */
-    public RtpConnection(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
+    public RtpConnection(int id, ChannelsManager channelsManager) {
         // Core elements
         super(id, channelsManager.getScheduler());
         this.channelsManager = channelsManager;
@@ -520,11 +517,14 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     @Override
-    public MixerComponent generateMixerComponent(DspFactory dspFactory) {
-        if (this.audioChannel != null) {
-            return new RtpMixerComponent(super.getId(), super.scheduler, dspFactory, this.audioChannel);
+    public MixerComponent generateMixerComponent(String mediaType, DspFactory dspFactory) {
+        switch (mediaType) {
+            case "audio":
+                return this.audioChannel.getMixerComponent();
+
+            default:
+                return null;
         }
-        return null;
     }
 
 }

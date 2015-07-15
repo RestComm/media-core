@@ -20,9 +20,10 @@
 
 package org.mobicents.media.server.impl.rtp.channels;
 
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * Media channel responsible for audio processing.
@@ -34,8 +35,8 @@ public class AudioChannel extends RtpChannel {
 
     public static final String MEDIA_TYPE = "audio";
 
-    public AudioChannel(int connectionId, Clock wallClock, ChannelsManager channelsManager) {
-        super(connectionId, MEDIA_TYPE, wallClock, channelsManager);
+    public AudioChannel(int channelId, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+        super(channelId, MEDIA_TYPE, scheduler, dspFactory, udpManager);
         super.supportedFormats = AVProfile.audio;
         super.setFormats(this.supportedFormats);
     }

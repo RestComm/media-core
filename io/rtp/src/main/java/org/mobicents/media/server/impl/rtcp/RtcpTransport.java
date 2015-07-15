@@ -45,242 +45,233 @@ import org.mobicents.media.server.utils.Text;
  */
 public class RtcpTransport extends MultiplexedChannel implements DtlsListener {
 
-	private static final Logger logger = Logger.getLogger(RtcpTransport.class);
+    private static final Logger logger = Logger.getLogger(RtcpTransport.class);
 
-	// Core elements
-	private final UdpManager udpManager;
+    // Core elements
+    private final UdpManager udpManager;
 
-	// Channel attribute
-	private int channelId;
-	private boolean bound;
+    // Channel attribute
+    private boolean bound;
 
-	// Protocol handler pipeline
-	private static final int STUN_PRIORITY = 2; // a packet each 400ms
-	private static final int RTCP_PRIORITY = 1; // a packet each 5s
-	
-	private RtcpHandler rtcpHandler;
-	private DtlsHandler dtlsHandler;
-	private StunHandler stunHandler;
-	
-	// WebRTC
-	private boolean secure;
-	
-	// Listeners
-	private RtpListener rtpListener;
+    // Protocol handler pipeline
+    private static final int STUN_PRIORITY = 2; // a packet each 400ms
+    private static final int RTCP_PRIORITY = 1; // a packet each 5s
 
-	public RtcpTransport(int channelId, RtpStatistics statistics, UdpManager udpManager) {
-		// Initialize MultiplexedChannel elements
-		super();
+    private RtcpHandler rtcpHandler;
+    private DtlsHandler dtlsHandler;
+    private StunHandler stunHandler;
 
-		// Core elements
-		this.udpManager = udpManager;
+    // WebRTC
+    private boolean secure;
 
-		// Channel attributes
-		this.channelId = channelId;
-		this.bound = false;
+    // Listeners
+    private RtpListener rtpListener;
 
-		// Protocol Handler pipeline
-		this.rtcpHandler = new RtcpHandler(statistics);
-		
-		// WebRTC
-		this.secure = false;
-	}
+    public RtcpTransport(RtpStatistics statistics, UdpManager udpManager) {
+        // Initialize MultiplexedChannel elements
+        super();
 
-	public void setRemotePeer(SocketAddress remotePeer) {
-		if (this.dataChannel != null) {
-			if (this.dataChannel.isConnected()) {
-				try {
-					this.dataChannel.disconnect();
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
+        // Core elements
+        this.udpManager = udpManager;
 
-			boolean connectNow = this.udpManager.connectImmediately((InetSocketAddress) remotePeer);
-			if (connectNow) {
-				try {
-					this.dataChannel.connect(remotePeer);
-				} catch (IOException e) {
-					logger.error("Can not connect to remote address. Check that you are not using local address (127.0.0.X)", e);
-				}
-			}
-		}
-	}
-	
-	public void setRtpListener(RtpListener rtpListener) {
-		this.rtpListener = rtpListener;
-	}
-	
-	public boolean isAvailable() {
-		// The channel is available is is connected
-		boolean available = this.dataChannel != null && this.dataChannel.isConnected();
-		// In case of WebRTC calls the DTLS handshake must be completed
-		if(this.secure) {
-			available = available && this.dtlsHandler.isHandshakeComplete();
-		}
-		return available;
-	}
+        // Channel attributes
+        this.bound = false;
 
-	public boolean isBound() {
-		return bound;
-	}
+        // Protocol Handler pipeline
+        this.rtcpHandler = new RtcpHandler(statistics);
 
-	private void onBinding() {
-		// Set protocol handler priorities
-		this.rtcpHandler.setPipelinePriority(RTCP_PRIORITY);
-		if(this.secure) {
-			this.stunHandler.setPipelinePriority(STUN_PRIORITY);
-		}
-		
-		// Protocol Handler pipeline
-		this.rtcpHandler.setChannel(this.dataChannel);
-		this.handlers.addHandler(this.rtcpHandler);
+        // WebRTC
+        this.secure = false;
+    }
 
-		if(this.secure) {
-			this.dtlsHandler.setChannel(this.dataChannel);
-			this.dtlsHandler.addListener(this);
-			this.handlers.addHandler(this.stunHandler);
-			
-			// Start DTLS handshake
-			this.dtlsHandler.handshake();
-		} else {
-			this.rtcpHandler.joinRtpSession();
-		}
-	}
+    public void setRemotePeer(SocketAddress remotePeer) {
+        if (this.dataChannel != null) {
+            if (this.dataChannel.isConnected()) {
+                try {
+                    this.dataChannel.disconnect();
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
 
-	/**
-	 * Binds the channel to an address and port
-	 * 
-	 * @param isLocal
-	 *            whether the connection is local or not
-	 * @param port
-	 *            The RTCP port. Usually the RTP channel gets the even port and
-	 *            RTCP channel get the next port.
-	 * @throws SocketException
-	 *             When the channel cannot be openend or bound
-	 */
-	public void bind(boolean isLocal, int port) throws SocketException {
-		try {
-			// Open this channel with UDP Manager on first available address
-			this.selectionKey = udpManager.open(this);
-			this.dataChannel = (DatagramChannel) this.selectionKey.channel();
-		} catch (IOException e) {
-			throw new SocketException(e.getMessage());
-		}
+            boolean connectNow = this.udpManager.connectImmediately((InetSocketAddress) remotePeer);
+            if (connectNow) {
+                try {
+                    this.dataChannel.connect(remotePeer);
+                } catch (IOException e) {
+                    logger.error("Can not connect to remote address. Check that you are not using local address (127.0.0.X)", e);
+                }
+            }
+        }
+    }
 
-		// activate media elements
-		onBinding();
+    public void setRtpListener(RtpListener rtpListener) {
+        this.rtpListener = rtpListener;
+    }
 
-		// bind data channel
-		this.udpManager.bind(this.dataChannel, port, isLocal);
-		this.bound = true;
-	}
+    public boolean isAvailable() {
+        // The channel is available is is connected
+        boolean available = this.dataChannel != null && this.dataChannel.isConnected();
+        // In case of WebRTC calls the DTLS handshake must be completed
+        if (this.secure) {
+            available = available && this.dtlsHandler.isHandshakeComplete();
+        }
+        return available;
+    }
 
-	public void bind(DatagramChannel channel) throws SocketException {
-		// External channel must be bound already
-		if (!channel.socket().isBound()) {
-			throw new SocketException("Datagram channel is not bound!");
-		}
+    public boolean isBound() {
+        return bound;
+    }
 
-		try {
-			// Register the channel on UDP Manager
-			this.selectionKey = udpManager.open(channel, this);
-			this.dataChannel = channel;
-		} catch (IOException e) {
-			throw new SocketException(e.getMessage());
-		}
+    private void onBinding() {
+        // Set protocol handler priorities
+        this.rtcpHandler.setPipelinePriority(RTCP_PRIORITY);
+        if (this.secure) {
+            this.stunHandler.setPipelinePriority(STUN_PRIORITY);
+        }
 
-		// activate media elements
-		onBinding();
-		this.bound = true;
-	}
-	
-	/**
-	 * Checks whether the channel is secure or not.
-	 * 
-	 * @return Whether the channel handles regular RTCP traffic or SRTCP (secure).
-	 */
-	public boolean isSecure() {
-		return secure;
-	}
-	
-	public void enableSRTCP(String hashFunction, String remotePeerFingerprint, IceAuthenticator authenticator) {
-		this.secure = true;
-		
-		// setup the DTLS handler
-		if(this.dtlsHandler == null) {
-			this.dtlsHandler = new DtlsHandler(this.dataChannel);
-		}
-		this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
-		
-		// setup the SRTCP handler
-		this.rtcpHandler.enableSRTCP(this.dtlsHandler);
+        // Protocol Handler pipeline
+        this.rtcpHandler.setChannel(this.dataChannel);
+        this.handlers.addHandler(this.rtcpHandler);
 
-		// setup the STUN handler
-		if (this.stunHandler == null) {
-			this.stunHandler = new StunHandler(authenticator);
-		} else {
-			this.stunHandler.setIceAuthenticator(authenticator);
-		}
-		this.handlers.addHandler(stunHandler);
-	}
+        if (this.secure) {
+            this.dtlsHandler.setChannel(this.dataChannel);
+            this.dtlsHandler.addListener(this);
+            this.handlers.addHandler(this.stunHandler);
 
-	public void disableSRTCP() {
-		this.secure = false;
-		
-		// setup the DTLS handler
-		if(this.dtlsHandler != null) {
-			this.dtlsHandler.setRemoteFingerprint("", "");
-		}
-		
-		// setup the SRTCP handler
-		this.rtcpHandler.disableSRTCP();
-		
-		// setup the STUN handler
-		if (this.stunHandler != null) {
-			this.handlers.removeHandler(this.stunHandler);
-		}
-	}
-	
-	public Text getDtlsLocalFingerprint() {
-		if(this.secure) {
-			return this.dtlsHandler.getLocalFingerprint();
-		}
-		return new Text("");
-	}
-	
-	@Override
-	public void close() {
-		/*
-		 * Instruct the RTCP handler to leave the RTP session.
-		 * 
-		 * This will result in scheduling an RTCP BYE to be sent. Since the BYE
-		 * is not sent right away, the datagram channel can only be closed once
-		 * the BYE has been sent. So, the handler is responsible for closing the
-		 * channel.
-		 */
-		this.rtcpHandler.leaveRtpSession();
-		this.bound = false;
-		super.close();
-	}
-	
-	public void reset() {
-		this.rtcpHandler.reset();
-		if(this.secure) {
-			this.dtlsHandler.reset();
-		}
-	}
+            // Start DTLS handshake
+            this.dtlsHandler.handshake();
+        } else {
+            this.rtcpHandler.joinRtpSession();
+        }
+    }
 
-	
-	public void onDtlsHandshakeComplete() {
-		logger.info("DTLS handshake completed for RTCP candidate.\nJoining RTP session.");
-		this.rtcpHandler.joinRtpSession();
-	}
+    /**
+     * Binds the channel to an address and port
+     * 
+     * @param isLocal whether the connection is local or not
+     * @param port The RTCP port. Usually the RTP channel gets the even port and RTCP channel get the next port.
+     * @throws SocketException When the channel cannot be openend or bound
+     */
+    public void bind(boolean isLocal, int port) throws SocketException {
+        try {
+            // Open this channel with UDP Manager on first available address
+            this.selectionKey = udpManager.open(this);
+            this.dataChannel = (DatagramChannel) this.selectionKey.channel();
+        } catch (IOException e) {
+            throw new SocketException(e.getMessage());
+        }
 
-	public void onDtlsHandshakeFailed(Throwable e) {
-		if(this.rtpListener != null) {
-			this.rtpListener.onRtcpFailure(e);
-		}
-	}
-	
+        // activate media elements
+        onBinding();
+
+        // bind data channel
+        this.udpManager.bind(this.dataChannel, port, isLocal);
+        this.bound = true;
+    }
+
+    public void bind(DatagramChannel channel) throws SocketException {
+        // External channel must be bound already
+        if (!channel.socket().isBound()) {
+            throw new SocketException("Datagram channel is not bound!");
+        }
+
+        try {
+            // Register the channel on UDP Manager
+            this.selectionKey = udpManager.open(channel, this);
+            this.dataChannel = channel;
+        } catch (IOException e) {
+            throw new SocketException(e.getMessage());
+        }
+
+        // activate media elements
+        onBinding();
+        this.bound = true;
+    }
+
+    /**
+     * Checks whether the channel is secure or not.
+     * 
+     * @return Whether the channel handles regular RTCP traffic or SRTCP (secure).
+     */
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void enableSRTCP(String hashFunction, String remotePeerFingerprint, IceAuthenticator authenticator) {
+        this.secure = true;
+
+        // setup the DTLS handler
+        if (this.dtlsHandler == null) {
+            this.dtlsHandler = new DtlsHandler(this.dataChannel);
+        }
+        this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
+
+        // setup the SRTCP handler
+        this.rtcpHandler.enableSRTCP(this.dtlsHandler);
+
+        // setup the STUN handler
+        if (this.stunHandler == null) {
+            this.stunHandler = new StunHandler(authenticator);
+        } else {
+            this.stunHandler.setIceAuthenticator(authenticator);
+        }
+        this.handlers.addHandler(stunHandler);
+    }
+
+    public void disableSRTCP() {
+        this.secure = false;
+
+        // setup the DTLS handler
+        if (this.dtlsHandler != null) {
+            this.dtlsHandler.setRemoteFingerprint("", "");
+        }
+
+        // setup the SRTCP handler
+        this.rtcpHandler.disableSRTCP();
+
+        // setup the STUN handler
+        if (this.stunHandler != null) {
+            this.handlers.removeHandler(this.stunHandler);
+        }
+    }
+
+    public Text getDtlsLocalFingerprint() {
+        if (this.secure) {
+            return this.dtlsHandler.getLocalFingerprint();
+        }
+        return new Text("");
+    }
+
+    @Override
+    public void close() {
+        /*
+         * Instruct the RTCP handler to leave the RTP session.
+         * 
+         * This will result in scheduling an RTCP BYE to be sent. Since the BYE is not sent right away, the datagram channel can
+         * only be closed once the BYE has been sent. So, the handler is responsible for closing the channel.
+         */
+        this.rtcpHandler.leaveRtpSession();
+        this.bound = false;
+        super.close();
+    }
+
+    public void reset() {
+        this.rtcpHandler.reset();
+        if (this.secure) {
+            this.dtlsHandler.reset();
+        }
+    }
+
+    public void onDtlsHandshakeComplete() {
+        logger.info("DTLS handshake completed for RTCP candidate.\nJoining RTP session.");
+        this.rtcpHandler.joinRtpSession();
+    }
+
+    public void onDtlsHandshakeFailed(Throwable e) {
+        if (this.rtpListener != null) {
+            this.rtpListener.onRtcpFailure(e);
+        }
+    }
+
 }

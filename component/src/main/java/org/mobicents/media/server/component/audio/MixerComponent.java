@@ -34,20 +34,20 @@ import org.mobicents.media.server.spi.ConnectionMode;
  */
 public abstract class MixerComponent {
 
-    private final int connectionId;
-    private AudioComponent audioComponent;
-    private OOBComponent ooBComponent;
+    private final int channelId;
+    private final AudioComponent audioComponent;
+    private final OOBComponent ooBComponent;
 
-    public MixerComponent(int connectionId) {
-        this.connectionId = connectionId;
-        this.audioComponent = new AudioComponent(connectionId);
-        this.ooBComponent = new OOBComponent(connectionId);
+    public MixerComponent(int channelId) {
+        this.channelId = channelId;
+        this.audioComponent = new AudioComponent(channelId);
+        this.ooBComponent = new OOBComponent(channelId);
     }
 
-    public int getConnectionId() {
-        return connectionId;
+    public int getChannelId() {
+        return channelId;
     }
-
+    
     public AudioComponent getAudioComponent() {
         return audioComponent;
     }

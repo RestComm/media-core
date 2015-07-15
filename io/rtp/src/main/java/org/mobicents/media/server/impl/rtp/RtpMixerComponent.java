@@ -36,7 +36,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpMixerComponent extends MixerComponent implements RtpRelay {
+public class RtpMixerComponent extends MixerComponent implements RtpGateway {
 
     private static final Logger logger = Logger.getLogger(RtpMixerComponent.class);
 
@@ -56,9 +56,9 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
     private volatile int rxPackets;
     private volatile int sequenceNumber;
 
-    public RtpMixerComponent(int connectionId, Scheduler scheduler, DspFactory dspFactory, RtpTransport channel,
+    public RtpMixerComponent(int channelId, Scheduler scheduler, DspFactory dspFactory, RtpTransport rtpTransport,
             RtpClock rtpClock, RtpClock oobClock) {
-        super(connectionId);
+        super(channelId);
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
@@ -88,7 +88,7 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
         super.addOOBOutput(this.dtmfSink.getOobOutput());
 
         // RTP transport
-        this.rtpTransport = channel;
+        this.rtpTransport = rtpTransport;
 
         // RTP statistics
         this.rxPackets = 0;

@@ -29,7 +29,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface RtpRelay {
+public interface RtpGateway {
     
     void incomingRtp(RtpPacket packet, RTPFormat format);
     

@@ -373,6 +373,6 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    public abstract MixerComponent generateMixerComponent(DspFactory dspFactory);
+    public abstract MixerComponent generateMixerComponent(String mediaType, DspFactory dspFactory);
 
 }

@@ -36,6 +36,7 @@
     <bean name="channelsManager" class="org.mobicents.media.server.impl.rtp.ChannelsManager">
         <constructor>
             <parameter><inject bean="localhost"/></parameter>
+            <parameter><inject bean="DSP"/></parameter>
         </constructor>
         <property name="scheduler"><inject bean="Scheduler" /></property>
         <property name="jitterBufferSize">50</property>

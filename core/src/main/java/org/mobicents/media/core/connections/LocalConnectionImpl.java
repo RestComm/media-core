@@ -34,6 +34,7 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -43,49 +44,47 @@ import org.mobicents.media.server.utils.Text;
 public class LocalConnectionImpl extends AbstractConnection {
 
     private LocalDataChannel localAudioChannel;
-    
-    public LocalConnectionImpl(int id,ChannelsManager channelsManager) {
-        super(id,channelsManager.getScheduler());
-        this.localAudioChannel=channelsManager.getLocalChannel();
+
+    public LocalConnectionImpl(int id, ChannelsManager channelsManager) {
+        super(id, channelsManager.getScheduler());
+        this.localAudioChannel = channelsManager.getLocalChannel();
     }
-    
+
     @Override
     public void generateCname() {
-    	throw new UnsupportedOperationException("Not supported!");
+        throw new UnsupportedOperationException("Not supported!");
     }
-    
+
     @Override
     public String getCname() {
-    	throw new UnsupportedOperationException("Not supported!");
+        throw new UnsupportedOperationException("Not supported!");
     }
-    
-    public AudioComponent getAudioComponent()
-    {
-    	return this.localAudioChannel.getAudioComponent();
+
+    public AudioComponent getAudioComponent() {
+        return this.localAudioChannel.getAudioComponent();
     }
-    
-    public OOBComponent getOOBComponent()
-    {
-    	return this.localAudioChannel.getOOBComponent();
+
+    public OOBComponent getOOBComponent() {
+        return this.localAudioChannel.getOOBComponent();
     }
-    
+
     public void generateOffer() throws IOException {
-    	throw new UnsupportedOperationException("Not supported yet!");
+        throw new UnsupportedOperationException("Not supported yet!");
     }
-    
+
     @Override
     public void setOtherParty(Connection other) throws IOException {
         if (!(other instanceof LocalConnectionImpl)) {
             throw new IOException("Not compatible");
         }
-        
-        this.localAudioChannel.join(((LocalConnectionImpl)other).localAudioChannel);
+
+        this.localAudioChannel.join(((LocalConnectionImpl) other).localAudioChannel);
 
         try {
-            join();           
-            ((LocalConnectionImpl)other).join();
+            join();
+            ((LocalConnectionImpl) other).join();
         } catch (Exception e) {
-        	throw new IOException(e);
+            throw new IOException(e);
         }
     }
 
@@ -96,8 +95,7 @@ public class LocalConnectionImpl extends AbstractConnection {
     public void setOtherParty(byte[] descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    
+
     public long getPacketsReceived() {
         return 0;
     }
@@ -105,7 +103,7 @@ public class LocalConnectionImpl extends AbstractConnection {
     public long getBytesReceived() {
         return 0;
     }
-    
+
     public long getPacketsTransmitted() {
         return 0;
     }
@@ -113,45 +111,43 @@ public class LocalConnectionImpl extends AbstractConnection {
     public long getBytesTransmitted() {
         return 0;
     }
-    
+
     public String toString() {
         return "Local Connection [" + getId() + "]";
     }
 
-    
     public double getJitter() {
         return 0;
     }
 
     @Override
-    public void setConnectionFailureListener(ConnectionFailureListener connectionListener)
-    {
-    	//currently used only in RTP Connection
+    public void setConnectionFailureListener(ConnectionFailureListener connectionListener) {
+        // currently used only in RTP Connection
     }
-    
+
     @Override
     protected void onCreated() throws Exception {
-        //descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
+        // descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
     }
 
     @Override
     protected void onFailed() {
-    	try {
+        try {
             setMode(ConnectionMode.INACTIVE);
         } catch (ModeNotSupportedException e) {
         }
-        
+
         this.localAudioChannel.unjoin();
-        //release connection
-        releaseConnection(ConnectionType.LOCAL);        
+        // release connection
+        releaseConnection(ConnectionType.LOCAL);
     }
 
     @Override
-    public void setMode(ConnectionMode mode) throws ModeNotSupportedException  {    	
-    	localAudioChannel.updateMode(mode);    	
-    	super.setMode(mode);
+    public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
+        localAudioChannel.updateMode(mode);
+        super.setMode(mode);
     }
-    
+
     @Override
     protected void onOpened() throws Exception {
     }
@@ -162,19 +158,19 @@ public class LocalConnectionImpl extends AbstractConnection {
             setMode(ConnectionMode.INACTIVE);
         } catch (ModeNotSupportedException e) {
         }
-        
+
         this.localAudioChannel.unjoin();
-        //release connection
-        releaseConnection(ConnectionType.LOCAL);        
+        // release connection
+        releaseConnection(ConnectionType.LOCAL);
     }
 
-	public boolean isAvailable() {
-		// TODO What is criteria for this type of channel to be available
-		return true;
-	}
+    public boolean isAvailable() {
+        // TODO What is criteria for this type of channel to be available
+        return true;
+    }
 
     @Override
-    public MixerComponent generateMixerComponent() {
+    public MixerComponent generateMixerComponent(String mediaType, DspFactory dspFactory) {
         // TODO Auto-generated method stub
         return null;
     }

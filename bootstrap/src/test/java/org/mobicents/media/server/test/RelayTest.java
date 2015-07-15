@@ -28,19 +28,16 @@
 package org.mobicents.media.server.test;
 
 import java.io.IOException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -61,25 +58,25 @@ import org.mobicents.media.server.utils.Text;
  */
 public class RelayTest {
 
-    //clock and scheduler
+    // clock and scheduler
     protected Clock clock;
     protected Scheduler scheduler;
 
     protected ChannelsManager channelsManager;
 
     private ResourcesPool resourcesPool;
-    
+
     protected UdpManager udpManager;
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
-    //ivr endpoint
-    private IvrEndpoint ivr;    
-    //analyzer
+
+    // ivr endpoint
+    private IvrEndpoint ivr;
+    // analyzer
     private SoundSystem soundcard;
-    
-    //packet relay bridge
+
+    // packet relay bridge
     private ConferenceEndpoint cnfBridge;
-    
+
     public RelayTest() {
     }
 
@@ -93,7 +90,7 @@ public class RelayTest {
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
-        //use default clock
+        // use default clock
         clock = new DefaultClock();
 
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
@@ -101,8 +98,8 @@ public class RelayTest {
 
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
-        
-        //create single thread scheduler
+
+        // create single thread scheduler
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
@@ -111,12 +108,12 @@ public class RelayTest {
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
-        
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
-        
-        //assign scheduler to the endpoint
+
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+
+        // assign scheduler to the endpoint
         ivr = new IvrEndpoint("test-1");
         ivr.setScheduler(scheduler);
         ivr.setResourcesPool(resourcesPool);
@@ -138,7 +135,7 @@ public class RelayTest {
     public void tearDown() {
         udpManager.stop();
         scheduler.stop();
-        
+
         if (ivr != null) {
             ivr.stop();
         }
@@ -156,68 +153,61 @@ public class RelayTest {
     /**
      * Test of setOtherParty method, of class LocalConnectionImpl.
      */
-//    @Test
+    // @Test
     public void testTransmission() throws Exception {
-        long s = System.nanoTime();
-        
-        //create client
-        Connection connection2 = soundcard.createConnection(ConnectionType.RTP,false);        
+        // create client
+        Connection connection2 = soundcard.createConnection(ConnectionType.RTP, false);
         Text sd2 = new Text(connection2.getDescriptor());
         connection2.setMode(ConnectionMode.SEND_RECV);
         Thread.sleep(50);
-        
-        //create server with known sdp in cnf mode
-        Connection connection02 = cnfBridge.createConnection(ConnectionType.RTP,false);        
+
+        // create server with known sdp in cnf mode
+        Connection connection02 = cnfBridge.createConnection(ConnectionType.RTP, false);
         Text sd1 = new Text(connection02.getDescriptor());
-        
+
         connection02.setOtherParty(sd2);
         connection02.setMode(ConnectionMode.CONFERENCE);
         Thread.sleep(50);
-        
-        //modify client
+
+        // modify client
         connection2.setOtherParty(sd1);
         connection2.setMode(ConnectionMode.SEND_RECV);
         Thread.sleep(50);
-        
-        //create local connection
-        Connection connection1 = ivr.createConnection(ConnectionType.LOCAL,false);        
-        Connection connection01 = cnfBridge.createConnection(ConnectionType.LOCAL,false);
+
+        // create local connection
+        Connection connection1 = ivr.createConnection(ConnectionType.LOCAL, false);
+        Connection connection01 = cnfBridge.createConnection(ConnectionType.LOCAL, false);
         Thread.sleep(50);
-        
-        //create in send_recv mode initially
+
+        // create in send_recv mode initially
         connection1.setOtherParty(connection01);
         connection1.setMode(ConnectionMode.INACTIVE);
         connection01.setMode(ConnectionMode.SEND_RECV);
 
         Thread.sleep(150);
 
-        //modify mode        
+        // modify mode
         connection01.setMode(ConnectionMode.CONFERENCE);
         connection1.setMode(ConnectionMode.SEND_RECV);
-        
+
         Thread.sleep(350);
-        
+
         Player player = (Player) ivr.getResource(MediaType.AUDIO, ComponentType.PLAYER);
         player.setURL("file:///home/kulikov/jsr-309-tck/media/dtmfs-1-9.wav");
         player.start();
-        
+
         Thread.sleep(10000);
         ivr.deleteConnection(connection1);
         soundcard.deleteConnection(connection2);
         cnfBridge.deleteAllConnections();
     }
 
-    @Test
-    public void testNothing() {
-        
-    }
-    
-    private void printSpectra(String title, int[]s) {
-        System.out.println(title);
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
-    }
-    
+    // private void printSpectra(String title, int[]s) {
+    // System.out.println(title);
+    // for (int i = 0; i < s.length; i++) {
+    // System.out.print(s[i] + " ");
+    // }
+    // System.out.println();
+    // }
+
 }

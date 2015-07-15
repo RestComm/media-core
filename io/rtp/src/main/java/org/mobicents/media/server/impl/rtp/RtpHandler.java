@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpHeader;
+import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
@@ -55,10 +56,10 @@ public class RtpHandler implements PacketHandler {
     // RTP components
     private RTPFormats rtpFormats;
     private final RtpPacket rtpPacket;
-    private final RtpRelay rtpGateway;
+    private final RtpGateway rtpGateway;
     private final RtpStatistics statistics;
 
-    public RtpHandler(RtpStatistics statistics, RtpRelay rtpGateway) {
+    public RtpHandler(RtpStatistics statistics, RtpGateway rtpGateway) {
         // Packet handler properties
         this.pipelinePriority = 0;
 
@@ -250,7 +251,7 @@ public class RtpHandler implements PacketHandler {
                     int payloadType = rtpPacket.getPayloadType();
                     RTPFormat format = rtpFormats.find(payloadType);
                     if (format != null) {
-                        if (RtpTransport.DTMF_FORMAT.matches(format.getFormat())) {
+                        if (RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
                             this.rtpGateway.incomingDtmf(rtpPacket);
                         } else {
                             this.rtpGateway.incomingRtp(rtpPacket, format);

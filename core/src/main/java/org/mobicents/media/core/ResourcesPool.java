@@ -217,7 +217,7 @@ public class ResourcesPool implements ComponentFactory {
 
 		// Setup remote connections
 		for (int i = 0; i < defaultRemoteConnections; i++) {
-			this.remoteConnections.offer(new RtpConnection(this.connectionId.incrementAndGet(), this.channelsManager, this.dspFactory));
+			this.remoteConnections.offer(new RtpConnection(this.connectionId.incrementAndGet(), this.channelsManager));
 		}
 		this.rtpConnectionsCount.set(this.defaultRemoteConnections);
 	}
@@ -386,7 +386,7 @@ public class ResourcesPool implements ComponentFactory {
 		} else {
 			result = this.remoteConnections.poll();
 			if (result == null) {
-				result = new RtpConnection(connectionId.incrementAndGet(), channelsManager, dspFactory);
+				result = new RtpConnection(connectionId.incrementAndGet(), channelsManager);
 				this.rtpConnectionsCount.incrementAndGet();
 			} else {
 				result.generateCname();

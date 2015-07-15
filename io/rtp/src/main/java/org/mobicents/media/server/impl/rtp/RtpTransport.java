@@ -61,7 +61,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private final HeartBeat heartBeat;
 
     // Channel attributes
-    private final int channelId;
     private SocketAddress remotePeer;
     private boolean bound;
     private boolean secure;
@@ -82,8 +81,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private StunHandler stunHandler;
     private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
 
-    protected RtpTransport(int channelId, RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager,
-            RtpRelay rtpGateway) {
+    public RtpTransport(RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager) {
         super();
 
         // Core elements
@@ -92,7 +90,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.heartBeat = new HeartBeat();
 
         // Channel attributes
-        this.channelId = channelId;
         this.bound = false;
         this.secure = false;
         this.rtcpMux = false;
@@ -101,10 +98,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         // RTP elements
         this.rtpStatistics = statistics;
         this.rtpHandler = new RtpHandler(statistics, rtpGateway);
-    }
-
-    public int getChannelId() {
-        return channelId;
     }
 
     public long getSsrc() {

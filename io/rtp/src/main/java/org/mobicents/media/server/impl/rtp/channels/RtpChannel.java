@@ -38,7 +38,6 @@ import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpTransport;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
@@ -49,10 +48,12 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
-import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.RelayType;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.utils.Text;
@@ -68,13 +69,14 @@ public abstract class RtpChannel {
     protected static final Logger logger = Logger.getLogger(RtpChannel.class);
 
     // Registered audio formats
-    protected final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    protected final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
+    public final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    public final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
     static {
         DTMF_FORMAT.setOptions(new Text("0-15"));
     }
 
     // RTP channel properties
+    protected final int channelId;
     protected long ssrc;
     protected String cname;
     protected final String mediaType;
@@ -117,37 +119,31 @@ public abstract class RtpChannel {
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected RtpChannel(int connectionId, String mediaType, Clock wallClock, ChannelsManager channelsManager) {
+    protected RtpChannel(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
         // RTP channel properties
+        this.channelId = channelId;
         this.ssrc = 0L;
         this.mediaType = mediaType;
-        this.clock = new RtpClock(wallClock);
-        this.oobClock = new RtpClock(wallClock);
+        this.clock = new RtpClock(scheduler.getClock());
+        this.oobClock = new RtpClock(scheduler.getClock());
         this.statistics = new RtpStatistics(clock, this.ssrc);
-        this.rtpTransport = channelsManager.getRtpTransport(this.statistics, this.clock, this.oobClock);
-        this.rtcpTransport = channelsManager.getRtcpTransport(this.statistics);
         this.rtcpMux = false;
         this.secure = false;
         this.ice = false;
         this.open = false;
 
+        // RTP transport
+        this.rtpTransport = new RtpTransport(statistics, scheduler, udpManager);
+        this.rtcpTransport = new RtcpTransport(statistics, udpManager);
+
         // RTP relay
         this.relayType = RelayType.MIXER;
-        // this.mixerComponent = new RtpMixerComponent(connectionId, scheduler, dspFactory, rtpChannel, clock, oobClock);
+        this.mixerComponent = new RtpMixerComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
 
         // RTP format negotiation
         this.offeredFormats = new RTPFormats();
         this.negotiatedFormats = new RTPFormats();
         this.negotiated = false;
-    }
-
-    /**
-     * Gets the ID of the channel.
-     * 
-     * @return the numeric ID of the channel.
-     */
-    public int getChannelId() {
-        return this.rtpTransport.getChannelId();
     }
 
     /**
@@ -255,6 +251,10 @@ public abstract class RtpChannel {
             return this.rtcpTransport.getLocalPort();
         }
         return 0;
+    }
+
+    public RtpMixerComponent getMixerComponent() {
+        return mixerComponent;
     }
 
     /**
