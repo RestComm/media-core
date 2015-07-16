@@ -31,6 +31,7 @@ import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
@@ -177,6 +178,36 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void setMode(ConnectionMode mode) {
+        switch (mode) {
+            case SEND_ONLY:
+                getAudioComponent().updateMode(false, true);
+                getOOBComponent().updateMode(false, true);
+                break;
+
+            case RECV_ONLY:
+                getAudioComponent().updateMode(true, false);
+                getOOBComponent().updateMode(true, false);
+                break;
+
+            case SEND_RECV:
+            case CONFERENCE:
+                getAudioComponent().updateMode(true, true);
+                getOOBComponent().updateMode(true, true);
+                break;
+
+            case NETWORK_LOOPBACK:
+            case INACTIVE:
+                getAudioComponent().updateMode(false, false);
+                getOOBComponent().updateMode(false, false);
+                break;
+
+            default:
+                break;
         }
     }
 

@@ -21,6 +21,8 @@
 
 package org.mobicents.media.server.impl.rtp;
 
+import org.mobicents.media.server.spi.ConnectionMode;
+
 /**
  * Represents an entity that listens for incoming and outgoing RTP packets.
  * 
@@ -28,5 +30,12 @@ package org.mobicents.media.server.impl.rtp;
  *
  */
 public interface RtpRelay extends RtpReceiver, RtpSender {
+
+    /**
+     * Defines whether the relay can perform read and/or write operations.
+     * 
+     * @param mode the connection mode that defines the relay capabilities.
+     */
+    void setMode(ConnectionMode mode);
 
 }
