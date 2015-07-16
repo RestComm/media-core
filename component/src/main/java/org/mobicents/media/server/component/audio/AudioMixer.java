@@ -92,15 +92,19 @@ public class AudioMixer {
 	}
 
 	public void start() {
-		mixCount = 0;
-		started = true;
-		scheduler.submit(mixer, Scheduler.MIXER_MIX_QUEUE);
+	    if(!started) {
+	        started = true;
+	        mixCount = 0;
+	        scheduler.submit(mixer, Scheduler.MIXER_MIX_QUEUE);
+	    }
 	}
 
-	public void stop() {
-		started = false;
-		mixer.cancel();
-	}
+    public void stop() {
+        if (started) {
+            started = false;
+            mixer.cancel();
+        }
+    }
 
 	private class MixTask extends Task {
 		int sourcesCount = 0;
