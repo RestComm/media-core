@@ -37,7 +37,6 @@ import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
@@ -373,6 +372,6 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    public abstract MixerComponent generateMixerComponent(String mediaType, DspFactory dspFactory);
+    public abstract MixerComponent getMixerComponent(String mediaType);
 
 }

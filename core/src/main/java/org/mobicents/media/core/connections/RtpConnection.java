@@ -44,7 +44,6 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -517,7 +516,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     @Override
-    public MixerComponent generateMixerComponent(String mediaType, DspFactory dspFactory) {
+    public MixerComponent getMixerComponent(String mediaType) {
         switch (mediaType) {
             case "audio":
                 return this.audioChannel.getMixerComponent();

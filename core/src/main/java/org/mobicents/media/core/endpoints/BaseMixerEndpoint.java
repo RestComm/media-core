@@ -26,7 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioMixer;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.component.oob.OOBMixer;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -41,37 +43,56 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  */
 public class BaseMixerEndpoint extends AbstractEndpoint {
 
+    // Media mixers
 	protected AudioMixer audioMixer;
 	protected OOBMixer oobMixer;
+	
+	// Media mixer components
+	private final ConcurrentMap<MixerComponent> mixerComponents;
 
+	// I/O flags
 	private AtomicInteger loopbackCount = new AtomicInteger(0);
 	private AtomicInteger readCount = new AtomicInteger(0);
 	private AtomicInteger writeCount = new AtomicInteger(0);
 
 	public BaseMixerEndpoint(String localName) {
 		super(localName, RelayType.MIXER);
+		this.mixerComponents = new ConcurrentMap<MixerComponent>(3);
 	}
 
 	@Override
 	public void start() throws ResourceUnavailableException {
 		super.start();
-		audioMixer = new AudioMixer(getScheduler());
-		oobMixer = new OOBMixer(getScheduler());
+		this.audioMixer = new AudioMixer(getScheduler());
+		this.oobMixer = new OOBMixer(getScheduler());
 	}
 
 	@Override
 	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
-		Connection connection = super.createConnection(type, isLocal);
-		audioMixer.addComponent(((AbstractConnection) connection).getAudioComponent());
-		oobMixer.addComponent(((AbstractConnection) connection).getOOBComponent());
+	    // Create the connection
+		AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
+		
+		// Retrieve and register the mixer component of the connection
+		MixerComponent mixerComponent = connection.getMixerComponent("audio");
+		this.mixerComponents.put(connection.getId(), mixerComponent);
+		
+		// Add mixing component to the media mixer
+		audioMixer.addComponent(mixerComponent.getAudioComponent());
+		oobMixer.addComponent(mixerComponent.getOOBComponent());
 		return connection;
 	}
 
 	@Override
 	public void deleteConnection(Connection connection, ConnectionType connectionType) {
+	    // Release the connection
 		super.deleteConnection(connection, connectionType);
-		audioMixer.release(((AbstractConnection) connection).getAudioComponent());
-		oobMixer.release(((AbstractConnection) connection).getOOBComponent());
+		
+		// Unregister the mixer component of the connection
+		MixerComponent mixerComponent = this.mixerComponents.remove(connection.getId());
+		
+		// Release the mixing component from the media mixer
+		audioMixer.release(mixerComponent.getAudioComponent());
+		oobMixer.release(mixerComponent.getOOBComponent());
 	}
 
 	@Override
