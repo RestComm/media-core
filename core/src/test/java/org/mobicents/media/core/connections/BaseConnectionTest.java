@@ -27,14 +27,17 @@
 
 package org.mobicents.media.core.connections;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
-import static org.junit.Assert.*;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -94,7 +97,7 @@ public class BaseConnectionTest implements ConnectionListener {
         scheduler.setClock(clock);
         scheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(scheduler));
+        channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
         channelsManager.setScheduler(scheduler);        
 
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);

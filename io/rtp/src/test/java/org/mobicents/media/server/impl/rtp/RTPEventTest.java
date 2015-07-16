@@ -122,7 +122,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         udpManager = new UdpManager(scheduler);
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
         
         detector = new DetectorImpl("dtmf", scheduler);

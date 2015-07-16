@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBSplitter;
@@ -45,6 +46,7 @@ import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -59,6 +61,7 @@ public class LocalEventTest implements DtmfDetectorListener {
     //clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
+    private DspFactory dspFactory;
 
     private UdpManager udpManager;
 
@@ -93,7 +96,9 @@ public class LocalEventTest implements DtmfDetectorListener {
         udpManager = new UdpManager(scheduler);
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        this.dspFactory = new DspFactoryImpl();
+        
+        channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
         
         detector = new DetectorImpl("dtmf", scheduler);

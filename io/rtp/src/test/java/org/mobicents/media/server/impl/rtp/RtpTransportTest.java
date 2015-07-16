@@ -64,15 +64,11 @@ public class RtpTransportTest {
 
     private RtpTransport channel1, channel2;
     private RtpClock rtpClock1, rtpClock2;
-    private RtpClock oobClock1, oobClock2;
     private RtpStatistics statistics1, statistics2;
     
     private int fcount;
 
     private DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
-    private Dsp dsp11, dsp12;
-    private Dsp dsp21, dsp22;
     
     private AudioMixer audioMixer1,audioMixer2;
     private AudioComponent component1,component2;
@@ -89,18 +85,10 @@ public class RtpTransportTest {
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
-        dsp11 = dspFactory.newProcessor();
-        dsp12 = dspFactory.newProcessor();
-
-        dsp21 = dspFactory.newProcessor();
-        dsp22 = dspFactory.newProcessor();
-        
         //use default clock
         clock = new DefaultClock();
         rtpClock1 = new RtpClock(clock);
         rtpClock2 = new RtpClock(clock);
-        oobClock1 = new RtpClock(clock);
-        oobClock2 = new RtpClock(clock);
 
         //create single thread scheduler
         scheduler = new Scheduler();
@@ -110,7 +98,7 @@ public class RtpTransportTest {
         udpManager = new UdpManager(scheduler);
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
 
         source1 = new Sine(scheduler);
@@ -125,17 +113,12 @@ public class RtpTransportTest {
         this.statistics1 = new RtpStatistics(rtpClock1);
         this.statistics2 = new RtpStatistics(rtpClock2);
         
-        channel1 = channelsManager.getRtpTransport(statistics1, rtpClock1, oobClock1);
-        channel1.updateMode(ConnectionMode.SEND_RECV);
-        channel1.setOutputDsp(dsp11);
-        channel1.setOutputFormats(fmts);        
-        channel1.setInputDsp(dsp12);
         
-        channel2 = channelsManager.getRtpTransport(statistics2, rtpClock2, oobClock2);
+        channel1 = new RtpTransport(statistics1, scheduler, udpManager);
+        channel1.updateMode(ConnectionMode.SEND_RECV);
+        
+        channel2 = new RtpTransport(statistics2, scheduler, udpManager);
         channel2.updateMode(ConnectionMode.SEND_RECV);
-        channel2.setOutputDsp(dsp21);
-        channel2.setOutputFormats(fmts);
-        channel2.setInputDsp(dsp22);        
         
         channel1.bind(false);
         channel2.bind(false);

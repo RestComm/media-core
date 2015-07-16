@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
@@ -41,6 +42,7 @@ import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  *
@@ -54,6 +56,7 @@ public class LocalChannelTest {
 
     private ChannelsManager channelsManager;
     private UdpManager udpManager;
+    private DspFactory dspFactory;
 
     private SpectraAnalyzer analyzer1,analyzer2;
     private Sine source1,source2;
@@ -81,7 +84,8 @@ public class LocalChannelTest {
         udpManager = new UdpManager(scheduler);
         udpManager.start();
 
-        channelsManager = new ChannelsManager(udpManager);
+        this.dspFactory = new DspFactoryImpl();
+        channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
 
         source1 = new Sine(scheduler);
@@ -160,8 +164,8 @@ public class LocalChannelTest {
         int s2[] = analyzer2.getSpectra();
         
         if (s1.length != 1 || s2.length != 1) {
-            System.out.println("Failure ,s1:" + s1.length + ",s2:" + s2.length);
             fcount++;
+            System.out.println("Failure ,s1:" + s1.length + ",s2:" + s2.length + ". Total failures: " + fcount);
         } else System.out.println("Passed");
 
         assertEquals(1, s1.length);    	

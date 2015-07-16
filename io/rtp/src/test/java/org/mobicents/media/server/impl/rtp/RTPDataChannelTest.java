@@ -109,7 +109,7 @@ public class RTPDataChannelTest {
         udpManager = new UdpManager(scheduler);
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
 
         source1 = new Sine(scheduler);

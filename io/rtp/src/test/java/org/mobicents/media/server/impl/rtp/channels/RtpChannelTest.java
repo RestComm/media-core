@@ -50,8 +50,6 @@ public class RtpChannelTest {
 	private final ChannelsManager channelsManager;
 	private final Clock wallClock;
 	
-	private final ChannelFactory factory;
-	
 	private final AudioChannel localChannel;
 	private final AudioChannel remoteChannel;
 	
@@ -64,9 +62,8 @@ public class RtpChannelTest {
 		this.channelsManager = new ChannelsManager(udpManager, dspFactory);
 		this.channelsManager.setScheduler(this.scheduler);
 		
-		this.factory = new ChannelFactory();
-		this.localChannel = factory.buildAudioChannel();
-		this.remoteChannel = factory.buildAudioChannel();
+		this.localChannel = this.channelsManager.getAudioChannel();
+		this.remoteChannel = this.channelsManager.getAudioChannel();
 	}
 	
 	@Before
@@ -201,20 +198,6 @@ public class RtpChannelTest {
 		assertEquals(localAddress, remoteChannel.rtpTransport.getRemoteHost());
 		assertEquals(localPort, remoteChannel.rtpTransport.getRemotePort());
 		assertFalse(remoteChannel.rtcpTransport.isOpen());
-	}
-	
-	/**
-	 * Produces Media Channels
-	 * 
-	 * @author Henrique Rosa
-	 * 
-	 */
-	private class ChannelFactory {
-		
-		public AudioChannel buildAudioChannel() {
-			return new AudioChannel(wallClock, channelsManager);
-		}
-		
 	}
 	
 }
