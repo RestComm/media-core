@@ -84,10 +84,10 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
-        super.addAudioInput(this.rtpSource.getAudioInput());
-        super.addAudioOutput(this.rtpSink.getAudioOutput());
-        super.addOOBInput(this.dtmfSource.getOoBinput());
-        super.addOOBOutput(this.dtmfSink.getOobOutput());
+        addAudioInput(this.rtpSource.getAudioInput());
+        addAudioOutput(this.rtpSink.getAudioOutput());
+        addOOBInput(this.dtmfSource.getOoBinput());
+        addOOBOutput(this.dtmfSink.getOobOutput());
 
         // RTP transport
         this.rtpTransport = rtpTransport;
@@ -98,35 +98,35 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
     }
 
     public void setRtpFormats(RTPFormats formats) {
-        this.jitterBuffer.setFormats(formats);
+//        this.jitterBuffer.setFormats(formats);
         this.rtpSink.setFormats(formats);
     }
-
-    public void activate() {
-        // activate media sink
-        this.rtpSink.activate();
-        this.dtmfSink.activate();
-
-        // activate media source
+    
+    private void activateSources() {
         this.rtpSource.activate();
         this.dtmfSource.activate();
     }
 
-    public void deactivate() {
-        // deactivate media sink
-        this.rtpSink.deactivate();
-        this.dtmfSink.deactivate();
-        this.dtmfSink.reset();
-
-        // deactivate media source
+    private void deactivateSources() {
         this.rtpSource.deactivate();
         this.dtmfSource.deactivate();
         this.dtmfSource.reset();
     }
+    
+    private void activateSinks() {
+        this.rtpSink.activate();
+        this.dtmfSink.activate();
+    }
+
+    private void deactivateSinks() {
+        this.rtpSink.deactivate();
+        this.dtmfSink.deactivate();
+        this.dtmfSink.reset();
+    }
 
     public void reset() {
-        this.deactivate();
-        this.dtmfSource.reset();
+        this.deactivateSinks();
+        this.deactivateSources();
     }
 
     @Override
@@ -187,23 +187,31 @@ public class RtpMixerComponent extends MixerComponent implements RtpRelay {
             case SEND_ONLY:
                 getAudioComponent().updateMode(false, true);
                 getOOBComponent().updateMode(false, true);
+                deactivateSources();
+                activateSinks();
                 break;
 
             case RECV_ONLY:
                 getAudioComponent().updateMode(true, false);
                 getOOBComponent().updateMode(true, false);
+                activateSources();
+                deactivateSinks();
                 break;
 
             case SEND_RECV:
             case CONFERENCE:
                 getAudioComponent().updateMode(true, true);
                 getOOBComponent().updateMode(true, true);
+                activateSinks();
+                activateSources();
                 break;
 
             case NETWORK_LOOPBACK:
             case INACTIVE:
                 getAudioComponent().updateMode(false, false);
                 getOOBComponent().updateMode(false, false);
+                deactivateSinks();
+                deactivateSources();
                 break;
 
             default:

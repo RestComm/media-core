@@ -65,12 +65,12 @@ public class BaseSplitterEndpointImpl extends AbstractEndpoint {
 
 		switch (type) {
 		case RTP:
-			audioSplitter.addOutsideComponent(((AbstractConnection) connection).getAudioComponent());
-			oobSplitter.addOutsideComponent(((AbstractConnection) connection).getOOBComponent());
+//			audioSplitter.addOutsideComponent(((AbstractConnection) connection).getAudioComponent());
+//			oobSplitter.addOutsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		case LOCAL:
-			audioSplitter.addInsideComponent(((AbstractConnection) connection).getAudioComponent());
-			oobSplitter.addInsideComponent(((AbstractConnection) connection).getOOBComponent());
+//			audioSplitter.addInsideComponent(((AbstractConnection) connection).getAudioComponent());
+//			oobSplitter.addInsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		}
 		return connection;
@@ -82,12 +82,12 @@ public class BaseSplitterEndpointImpl extends AbstractEndpoint {
 
 		switch (connectionType) {
 		case RTP:
-			audioSplitter.releaseOutsideComponent(((AbstractConnection) connection).getAudioComponent());
-			oobSplitter.releaseOutsideComponent(((AbstractConnection) connection).getOOBComponent());
+//			audioSplitter.releaseOutsideComponent(((AbstractConnection) connection).getAudioComponent());
+//			oobSplitter.releaseOutsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		case LOCAL:
-			audioSplitter.releaseInsideComponent(((AbstractConnection) connection).getAudioComponent());
-			oobSplitter.releaseInsideComponent(((AbstractConnection) connection).getOOBComponent());
+//			audioSplitter.releaseInsideComponent(((AbstractConnection) connection).getAudioComponent());
+//			oobSplitter.releaseInsideComponent(((AbstractConnection) connection).getOOBComponent());
 			break;
 		}
 	}

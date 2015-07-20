@@ -170,7 +170,7 @@ public class LocalConnectionImpl extends AbstractConnection {
     }
 
     @Override
-    public MixerComponent getMixerComponent(String mediaType, DspFactory dspFactory) {
+    public MixerComponent getMixerComponent(String mediaType) {
         // TODO Auto-generated method stub
         return null;
     }

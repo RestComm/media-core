@@ -91,7 +91,7 @@ public class MediaGroupTest {
 		udpManager.setBindAddress("127.0.0.1");
 		udpManager.start();
 
-		channelsManager = new ChannelsManager(udpManager);
+		channelsManager = new ChannelsManager(udpManager, dspFactory);
 		channelsManager.setScheduler(scheduler);
 
 		dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");

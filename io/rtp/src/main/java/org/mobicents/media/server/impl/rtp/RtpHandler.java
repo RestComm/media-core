@@ -53,7 +53,7 @@ public class RtpHandler implements PacketHandler {
     private boolean secure;
 
     // RTP components
-    private RtpReceiver rtpReceiver;
+    private RtpTransport rtpReceiver;
     private RTPFormats rtpFormats;
     private final RtpPacket rtpPacket;
     private final RtpStatistics statistics;
@@ -71,13 +71,6 @@ public class RtpHandler implements PacketHandler {
         this.rtpFormats = new RTPFormats();
         this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
         this.statistics = statistics;
-    }
-    
-    public RtpReceiver getRtpReceiver() {
-        return rtpReceiver;
-    }
-
-    public void setRtpReceiver(RtpReceiver rtpReceiver) {
         this.rtpReceiver = rtpReceiver;
     }
 

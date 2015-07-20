@@ -85,7 +85,7 @@ public class ReclaimingTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(scheduler));
+        channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
         channelsManager.setScheduler(scheduler);        
 
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);

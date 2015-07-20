@@ -27,7 +27,6 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -97,9 +96,6 @@ public class JitterBuffer implements Serializable {
      */
     private long currentJitter = 0;
     
-    //transmission formats
-    private RTPFormats rtpFormats = new RTPFormats();
-    
     //currently used format
     private RTPFormat format;
     
@@ -149,10 +145,6 @@ public class JitterBuffer implements Serializable {
             long jitterEstimate = currentJitter >> 4; 
             // logger.info(String.format("Jitter estimated at %d. Current transit time is %d.", jitterEstimate, currentTransit));
             return jitterEstimate;
-    }
-    
-    public void setFormats(RTPFormats rtpFormats) {
-        this.rtpFormats = rtpFormats;
     }
     
     /**

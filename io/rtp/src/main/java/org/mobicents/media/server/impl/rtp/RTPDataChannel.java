@@ -446,7 +446,7 @@ public class RTPDataChannel {
 
 		this.rtpHandler.flush();
 		this.rtpFormats = rtpFormats;
-		this.rxBuffer.setFormats(rtpFormats);
+//		this.rxBuffer.setFormats(rtpFormats);
 	}
 
 	protected void send(Frame frame) {

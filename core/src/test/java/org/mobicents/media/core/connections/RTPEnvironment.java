@@ -60,7 +60,7 @@ public class RTPEnvironment {
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
     }
     

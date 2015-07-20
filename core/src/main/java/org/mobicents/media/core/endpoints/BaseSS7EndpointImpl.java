@@ -100,8 +100,8 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
 	@Override
 	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
 		Connection connection = super.createConnection(type, isLocal);
-		audioSplitter.addOutsideComponent(((AbstractConnection) connection).getAudioComponent());
-		oobSplitter.addOutsideComponent(((AbstractConnection) connection).getOOBComponent());
+//		audioSplitter.addOutsideComponent(((AbstractConnection) connection).getAudioComponent());
+//		oobSplitter.addOutsideComponent(((AbstractConnection) connection).getOOBComponent());
 
 		if (getActiveConnectionsCount() == 1) {
 			ss7DataChannel.bind();
@@ -115,8 +115,8 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
 	@Override
 	public void deleteConnection(Connection connection, ConnectionType connectionType) {
 		super.deleteConnection(connection, connectionType);
-		audioSplitter.releaseOutsideComponent(((AbstractConnection) connection).getAudioComponent());
-		oobSplitter.releaseOutsideComponent(((AbstractConnection) connection).getOOBComponent());
+//		audioSplitter.releaseOutsideComponent(((AbstractConnection) connection).getAudioComponent());
+//		oobSplitter.releaseOutsideComponent(((AbstractConnection) connection).getOOBComponent());
 
 		if (getActiveConnectionsCount() == 0) {
 			ss7DataChannel.close();

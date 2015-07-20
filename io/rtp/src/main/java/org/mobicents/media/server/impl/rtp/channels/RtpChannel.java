@@ -146,8 +146,10 @@ public abstract class RtpChannel {
         this.negotiatedFormats = new RTPFormats();
         this.negotiated = false;
     }
-    
-    
+
+    public int getChannelId() {
+        return channelId;
+    }
 
     /**
      * Gets the type of media handled by the channel.

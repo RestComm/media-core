@@ -21,28 +21,28 @@
 package org.mobicents.media.server.impl.rtp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
 
 /**
  * 
@@ -51,138 +51,159 @@ import org.mobicents.media.server.spi.format.Formats;
  *
  */
 public class RtpTransportTest {
-	
-    //clock and scheduler
-	private Scheduler scheduler;
-    private Clock clock;
 
-    private ChannelsManager channelsManager;
+    private static final int CHANNEL1_ID = 99998;
+    private static final int CHANNEL2_ID = 99999;
+
+    private Scheduler scheduler;
     private UdpManager udpManager;
+    private final DspFactoryImpl dspFactory;
+    private ChannelsManager channelsManager;
 
     private SpectraAnalyzer analyzer1, analyzer2;
     private Sine source1, source2;
 
     private RtpTransport channel1, channel2;
     private RtpClock rtpClock1, rtpClock2;
+    private RtpClock oobClock1, oobClock2;
+    private final RTPFormats rtpFormats;
     private RtpStatistics statistics1, statistics2;
-    
-    private int fcount;
 
-    private DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
-    private AudioMixer audioMixer1,audioMixer2;
-    private AudioComponent component1,component2;
-    
-    @Before
-    public void setUp() throws Exception {
-    	AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
-        Formats fmts = new Formats();
-        fmts.add(pcma);
-        
-        Formats dstFormats = new Formats();
-        dstFormats.add(FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1));
-        
+    private final AudioFormat pcma;
+
+    private AudioMixer audioMixer1, audioMixer2;
+    private RtpMixerComponent mixerComponent1, mixerComponent2;
+
+    public RtpTransportTest() throws IOException {
+        // Scheduler
+        this.scheduler = new Scheduler();
+        scheduler.setClock(new DefaultClock());
+
+        // UDP manager
+        this.udpManager = new UdpManager(scheduler);
+
+        // Digital Signaling Processor
+        this.dspFactory = new DspFactoryImpl();
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
-        //use default clock
-        clock = new DefaultClock();
-        rtpClock1 = new RtpClock(clock);
-        rtpClock2 = new RtpClock(clock);
+        // Channels manager
+        this.channelsManager = new ChannelsManager(udpManager, dspFactory);
+        this.channelsManager.setScheduler(scheduler);
 
-        //create single thread scheduler
-        scheduler = new Scheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+        // Audio codecs
+        this.pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
+        this.rtpFormats = new RTPFormats(1);
+        this.rtpFormats.add(new RTPFormat(8, pcma, 8000));
+    }
 
-        udpManager = new UdpManager(scheduler);
-        udpManager.start();
-        
-        channelsManager = new ChannelsManager(udpManager, dspFactory);
-        channelsManager.setScheduler(scheduler);
+    @Before
+    public void setUp() throws Exception {
+        // Activate the core elements
+        this.scheduler.start();
+        this.udpManager.start();
 
-        source1 = new Sine(scheduler);
-        source1.setFrequency(100);        
-        
-        source2 = new Sine(scheduler);
-        source2.setFrequency(50);
-        
-        analyzer1 = new SpectraAnalyzer("analyzer",scheduler);        
-        analyzer2 = new SpectraAnalyzer("analyzer",scheduler);
-        
+        // Create media sources
+        this.source1 = new Sine(scheduler);
+        this.source1.setFrequency(100);
+        this.source2 = new Sine(scheduler);
+        this.source2.setFrequency(50);
+
+        // Create media sinks
+        this.analyzer1 = new SpectraAnalyzer("analyzer", scheduler);
+        this.analyzer2 = new SpectraAnalyzer("analyzer", scheduler);
+
+        // Create media mixers
+        this.audioMixer1 = new AudioMixer(scheduler);
+        this.audioMixer2 = new AudioMixer(scheduler);
+
+        // Create media channel 1
+        this.rtpClock1 = new RtpClock(scheduler.getClock());
+        this.oobClock1 = new RtpClock(scheduler.getClock());
         this.statistics1 = new RtpStatistics(rtpClock1);
-        this.statistics2 = new RtpStatistics(rtpClock2);
-        
-        
-        channel1 = new RtpTransport(statistics1, scheduler, udpManager);
-        channel1.updateMode(ConnectionMode.SEND_RECV);
-        
-        channel2 = new RtpTransport(statistics2, scheduler, udpManager);
-        channel2.updateMode(ConnectionMode.SEND_RECV);
-        
-        channel1.bind(false);
-        channel2.bind(false);
+        this.channel1 = new RtpTransport(statistics1, scheduler, udpManager);
+        this.channel1.setFormatMap(rtpFormats);
+        this.channel1.bind(false);
 
+        // Create mixer component for channel 1
+        this.mixerComponent1 = new RtpMixerComponent(CHANNEL1_ID, scheduler, dspFactory, channel1, rtpClock1, oobClock1);
+        this.mixerComponent1.setRtpFormats(rtpFormats);
+        this.channel1.setRtpRelay(mixerComponent1);
+
+        // this.mixerComponent1.addAudioInput(source1.getAudioInput());
+        // this.mixerComponent1.addAudioOutput(analyzer1.getAudioOutput());
+        this.audioMixer1.addComponent(mixerComponent1.getAudioComponent());
+
+        AudioComponent sineComponent1 = new AudioComponent(1);
+        sineComponent1.addInput(source1.getAudioInput());
+        sineComponent1.addOutput(analyzer1.getAudioOutput());
+        sineComponent1.updateMode(true, true);
+        this.audioMixer1.addComponent(sineComponent1);
+
+        // Create media channel 2
+        this.rtpClock2 = new RtpClock(scheduler.getClock());
+        this.oobClock2 = new RtpClock(scheduler.getClock());
+        this.statistics2 = new RtpStatistics(rtpClock2);
+        this.channel2 = new RtpTransport(statistics2, scheduler, udpManager);
+        this.channel2.setFormatMap(rtpFormats);
+        this.channel2.bind(false);
+
+        // Create mixer component for channel 2
+        this.mixerComponent2 = new RtpMixerComponent(CHANNEL2_ID, scheduler, dspFactory, channel2, rtpClock2, oobClock2);
+        this.mixerComponent2.setRtpFormats(rtpFormats);
+        this.channel2.setRtpRelay(mixerComponent2);
+
+        // this.mixerComponent2.addAudioInput(source2.getAudioInput());
+        // this.mixerComponent2.addAudioOutput(analyzer2.getAudioOutput());
+        this.audioMixer2.addComponent(mixerComponent2.getAudioComponent());
+
+        AudioComponent sineComponent2 = new AudioComponent(2);
+        sineComponent2.addInput(source2.getAudioInput());
+        sineComponent2.addOutput(analyzer2.getAudioOutput());
+        sineComponent2.updateMode(true, true);
+        this.audioMixer2.addComponent(sineComponent2);
+        
+        // Connect both media channels
+        this.channel1.updateMode(ConnectionMode.SEND_RECV);
+        this.channel2.updateMode(ConnectionMode.SEND_RECV);
         channel1.setRemotePeer(new InetSocketAddress("127.0.0.1", channel2.getLocalPort()));
         channel2.setRemotePeer(new InetSocketAddress("127.0.0.1", channel1.getLocalPort()));
-
-        channel1.setFormatMap(AVProfile.audio);
-        channel2.setFormatMap(AVProfile.audio);
-
-        audioMixer1=new AudioMixer(scheduler);
-        audioMixer2=new AudioMixer(scheduler);
-        
-        component1=new AudioComponent(1);
-        component1.addInput(source1.getAudioInput());
-        component1.addOutput(analyzer1.getAudioOutput());
-        component1.updateMode(true,true);
-        
-        audioMixer1.addComponent(component1);
-        audioMixer1.addComponent(channel1.getAudioComponent());
-        
-        component2=new AudioComponent(2);
-        component2.addInput(source2.getAudioInput());
-        component2.addOutput(analyzer2.getAudioOutput());
-        component2.updateMode(true,true);
-        
-        audioMixer2.addComponent(component2);
-        audioMixer2.addComponent(channel2.getAudioComponent());           
     }
 
     @After
     public void tearDown() {
-    	source1.deactivate();
-		channel1.close();
-    	
-		source2.deactivate();
-		channel2.close();
+        source1.deactivate();
+        channel1.close();
 
-		audioMixer1.stop();
-    	audioMixer2.stop();
-    	
+        source2.deactivate();
+        channel2.close();
+
+        audioMixer1.stop();
+        audioMixer2.stop();
+
         udpManager.stop();
         scheduler.stop();
     }
 
     @Test
     public void testTransmission() throws Exception {
-    	source1.activate();
-    	analyzer1.activate();
-    	audioMixer1.start();
+        source1.activate();
+        analyzer1.activate();
+        audioMixer1.start();
 
-    	source2.start();
-    	analyzer2.activate();
-    	audioMixer2.start();
-        
+        source2.start();
+        analyzer2.activate();
+        audioMixer2.start();
+
         Thread.sleep(5000);
-        
+
         analyzer1.deactivate();
         analyzer2.deactivate();
         source1.deactivate();
         source2.deactivate();
-        audioMixer1.stop();        
+        audioMixer1.stop();
         audioMixer2.stop();
-        
+
         int s1[] = analyzer1.getSpectra();
         int s2[] = analyzer2.getSpectra();
 
@@ -192,13 +213,6 @@ public class RtpTransportTest {
         System.out.println("rx-channel2: " + channel2.getPacketsReceived());
         System.out.println("tx-channel2: " + channel2.getPacketsTransmitted());
 
-        if (s1.length != 1 || s2.length != 1) {
-            System.out.println("Failure ,s1:" + s1.length + ",s2:" + s2.length);
-            fcount++;
-        } else {
-        	System.out.println("Passed");
-        }
-        
         assertEquals(1, s1.length);
         assertEquals(1, s2.length);
         assertEquals(50, s1[0], 5);
@@ -207,22 +221,22 @@ public class RtpTransportTest {
 
     @Test
     public void testHalfDuplex() throws Exception {
-    	channel1.updateMode(ConnectionMode.RECV_ONLY);    	
-    	channel2.updateMode(ConnectionMode.SEND_ONLY);
-    	source1.activate();
-    	source2.activate();
-    	analyzer1.activate();
-    	audioMixer1.start();
-    	audioMixer2.start();
-        
+        channel1.updateMode(ConnectionMode.RECV_ONLY);
+        channel2.updateMode(ConnectionMode.SEND_ONLY);
+        source1.activate();
+        source2.activate();
+        analyzer1.activate();
+        audioMixer1.start();
+        audioMixer2.start();
+
         Thread.sleep(5000);
-        
+
         source1.deactivate();
         source2.deactivate();
         analyzer1.deactivate();
         audioMixer1.stop();
         audioMixer2.stop();
-        
+
         int s1[] = analyzer1.getSpectra();
         int s2[] = analyzer2.getSpectra();
 
@@ -232,23 +246,17 @@ public class RtpTransportTest {
         System.out.println("rx-channel2: " + channel2.getPacketsReceived());
         System.out.println("tx-channel2: " + channel2.getPacketsTransmitted());
 
-        if (s2.length != 0 || s1.length != 1) {
-        	fcount++;
-        } else {
-        	System.out.println("Passed");
-        }
-        
-        assertEquals(0, fcount);
+        assertTrue(s1.length == 1);
+        assertTrue(s2.length == 0);
         assertEquals(50, s1[0], 5);
     }
-    
+
     @Test
     public void testFailureRate() throws Exception {
         for (int i = 0; i < 1; i++) {
             System.out.println("Test# " + i);
             this.testTransmission();
         }
-        assertEquals(0, fcount);
     }
 
 }

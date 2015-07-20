@@ -175,7 +175,7 @@ public class MyTestConnection extends AbstractConnection {
 	}
 
     @Override
-    public MixerComponent generateMixerComponent() {
+    public MixerComponent getMixerComponent(String mediaType) {
         // TODO Auto-generated method stub
         return null;
     }
