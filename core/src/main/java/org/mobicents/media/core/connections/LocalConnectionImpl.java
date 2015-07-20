@@ -25,7 +25,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.audio.MixerComponent;
+import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
@@ -170,7 +170,7 @@ public class LocalConnectionImpl extends AbstractConnection {
     }
 
     @Override
-    public MixerComponent getMixerComponent(String mediaType) {
+    public MediaComponent getMediaComponent(String mediaType) {
         // TODO Auto-generated method stub
         return null;
     }

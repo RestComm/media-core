@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.audio.MixerComponent;
+import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
@@ -48,7 +48,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
 	protected OOBMixer oobMixer;
 	
 	// Media mixer components
-	private final ConcurrentMap<MixerComponent> mixerComponents;
+	protected final ConcurrentMap<MediaComponent> mediaComponents;
 
 	// I/O flags
 	private AtomicInteger loopbackCount = new AtomicInteger(0);
@@ -57,7 +57,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
 
 	public BaseMixerEndpoint(String localName) {
 		super(localName, RelayType.MIXER);
-		this.mixerComponents = new ConcurrentMap<MixerComponent>(3);
+		this.mediaComponents = new ConcurrentMap<MediaComponent>(3);
 	}
 
 	@Override
@@ -73,12 +73,12 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
 		AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
 		
 		// Retrieve and register the mixer component of the connection
-		MixerComponent mixerComponent = connection.getMixerComponent("audio");
-		this.mixerComponents.put(connection.getId(), mixerComponent);
+		MediaComponent mediaComponent = connection.getMediaComponent("audio");
+		this.mediaComponents.put(connection.getId(), mediaComponent);
 		
 		// Add mixing component to the media mixer
-		audioMixer.addComponent(mixerComponent.getAudioComponent());
-		oobMixer.addComponent(mixerComponent.getOOBComponent());
+		audioMixer.addComponent(mediaComponent.getAudioComponent());
+		oobMixer.addComponent(mediaComponent.getOOBComponent());
 		return connection;
 	}
 
@@ -88,7 +88,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
 		super.deleteConnection(connection, connectionType);
 		
 		// Unregister the mixer component of the connection
-		MixerComponent mixerComponent = this.mixerComponents.remove(connection.getId());
+		MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
 		
 		// Release the mixing component from the media mixer
 		audioMixer.release(mixerComponent.getAudioComponent());

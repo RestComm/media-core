@@ -25,7 +25,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.MixerComponent;
+import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Connection;
@@ -372,6 +372,6 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    public abstract MixerComponent getMixerComponent(String mediaType);
+    public abstract MediaComponent getMediaComponent(String mediaType);
 
 }

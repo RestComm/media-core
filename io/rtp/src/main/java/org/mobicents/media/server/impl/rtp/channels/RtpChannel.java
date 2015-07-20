@@ -40,7 +40,7 @@ import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
+import org.mobicents.media.server.impl.rtp.RtpComponent;
 import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -91,7 +91,7 @@ public abstract class RtpChannel {
 
     // RTP relay
     protected RelayType relayType;
-    protected RtpMixerComponent rtpMixerComponent;
+    protected RtpComponent rtpMixerComponent;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -138,7 +138,7 @@ public abstract class RtpChannel {
 
         // RTP relay
         this.relayType = RelayType.MIXER;
-        this.rtpMixerComponent = new RtpMixerComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.rtpMixerComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
         this.rtpTransport.setRtpRelay(this.rtpMixerComponent);
 
         // RTP format negotiation
@@ -258,7 +258,7 @@ public abstract class RtpChannel {
         return 0;
     }
 
-    public RtpMixerComponent getMixerComponent() {
+    public RtpComponent getMixerComponent() {
         return rtpMixerComponent;
     }
 

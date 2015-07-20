@@ -24,7 +24,7 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseSplitterEndpointImpl;
+import org.mobicents.media.core.endpoints.BaseSplitterEndpoint;
 import org.mobicents.media.server.spi.MediaType;
 
 /**
@@ -43,7 +43,7 @@ import org.mobicents.media.server.spi.MediaType;
  * @author yulian oifa
  * @author Ivelin Ivanov
  */
-public class BridgeEndpoint extends BaseSplitterEndpointImpl {
+public class BridgeEndpoint extends BaseSplitterEndpoint {
 
 	public BridgeEndpoint(String localName) {
 		super(localName);
