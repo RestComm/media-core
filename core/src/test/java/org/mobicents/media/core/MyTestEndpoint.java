@@ -27,14 +27,13 @@
 
 package org.mobicents.media.core;
 
-import java.util.Random;
-
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -46,19 +45,20 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author yulian oifa
  */
 public class MyTestEndpoint extends BaseMixerEndpoint {
-    
-    private static final Random RANDOM = new Random();
 
     private int f;
     private Sine sine;
     private SpectraAnalyzer analyzer;
     private Component dtmfDetector;
     private Component dtmfGenerator;
-    private MediaComponent mediaComponent;
+
+    private AudioComponent audioComponent;
+    private OOBComponent oobComponent;
 
     public MyTestEndpoint(String localName) {
         super(localName);
-        this.mediaComponent = new MockMediaComponent(999);
+        audioComponent = new AudioComponent(1);
+        oobComponent = new OOBComponent(-1);
     }
 
     public void setFreq(int f) {
@@ -74,25 +74,25 @@ public class MyTestEndpoint extends BaseMixerEndpoint {
         sine.setAmplitude((short) (Short.MAX_VALUE / 3));
         analyzer = new SpectraAnalyzer("analyzer", this.getScheduler());
 
-        mediaComponent.addAudioInput(sine.getAudioInput());
-        mediaComponent.addAudioOutput(analyzer.getAudioOutput());
-
+        audioComponent.addInput(sine.getAudioInput());
+        audioComponent.addOutput(analyzer.getAudioOutput());
         this.dtmfDetector = resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
         this.dtmfDetector.setEndpoint(this);
 
-        mediaComponent.addAudioOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
-        mediaComponent.addOOBOutput(((DetectorImpl) this.dtmfDetector).getOOBOutput());
+        audioComponent.addOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
+        oobComponent.addOutput(((DetectorImpl) this.dtmfDetector).getOOBOutput());
 
         this.dtmfGenerator = resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
         this.dtmfGenerator.setEndpoint(this);
 
-        mediaComponent.addAudioInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
-        mediaComponent.addOOBInput(((GeneratorImpl) this.dtmfGenerator).getOOBInput());
-        mediaComponents.put(RANDOM.nextInt(), mediaComponent);
+        audioComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
+        oobComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getOOBInput());
 
-        audioMixer.addComponent(mediaComponent.getAudioComponent());
-        oobMixer.addComponent(mediaComponent.getOOBComponent());
-        mediaComponent.updateMode(ConnectionMode.SEND_RECV);
+        audioMixer.addComponent(audioComponent);
+        oobMixer.addComponent(oobComponent);
+
+        audioComponent.updateMode(true, true);
+        oobComponent.updateMode(true, true);
         modeUpdated(ConnectionMode.INACTIVE, ConnectionMode.SEND_RECV);
     }
 
@@ -120,13 +120,5 @@ public class MyTestEndpoint extends BaseMixerEndpoint {
     @Override
     public void releaseResource(MediaType mediaType, ComponentType componentType) {
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    private class MockMediaComponent extends MediaComponent {
-
-        public MockMediaComponent(int channelId) {
-            super(channelId);
-        }
-
     }
 }

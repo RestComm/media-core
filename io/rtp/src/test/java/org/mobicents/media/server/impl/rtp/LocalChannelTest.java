@@ -110,7 +110,7 @@ public class LocalChannelTest {
         component1.updateMode(true,true);
         
         audioMixer1.addComponent(component1);
-        audioMixer1.addComponent(channel1.getAudioComponent());
+        audioMixer1.addComponent(channel1.getMediaComponent().getAudioComponent());
         
         component2=new AudioComponent(2);
         component2.addInput(source2.getAudioInput());
@@ -118,7 +118,7 @@ public class LocalChannelTest {
         component2.updateMode(true,true);
         
         audioMixer2.addComponent(component2);
-        audioMixer2.addComponent(channel2.getAudioComponent());        
+        audioMixer2.addComponent(channel2.getMediaComponent().getAudioComponent());        
     }
 
     @After

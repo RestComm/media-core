@@ -115,8 +115,8 @@ public class LocalEventTest implements DtmfDetectorListener {
         
         sender = new Sender();                
 
-        oobSplitter1.addOutsideComponent(channel1.getOOBComponent());        
-        oobSplitter2.addInsideComponent(channel2.getOOBComponent());  
+        oobSplitter1.addOutsideComponent(channel1.getMediaComponent().getOOBComponent());        
+        oobSplitter2.addInsideComponent(channel2.getMediaComponent().getOOBComponent());  
         
         outputComponent=new OOBComponent(1);
         outputComponent.addOutput(detector.getOOBOutput());

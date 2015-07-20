@@ -32,7 +32,7 @@ import org.mobicents.media.server.spi.ConnectionMode;
  * @author Henrique Rosa (henrique.rosa@gmail.com)
  *
  */
-public abstract class MediaComponent {
+public class MediaComponent {
 
     private final int channelId;
     private final AudioComponent audioComponent;

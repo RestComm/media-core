@@ -24,9 +24,7 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.MediaComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.Connection;
@@ -34,7 +32,6 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -58,14 +55,6 @@ public class LocalConnectionImpl extends AbstractConnection {
     @Override
     public String getCname() {
         throw new UnsupportedOperationException("Not supported!");
-    }
-
-    public AudioComponent getAudioComponent() {
-        return this.localAudioChannel.getAudioComponent();
-    }
-
-    public OOBComponent getOOBComponent() {
-        return this.localAudioChannel.getOOBComponent();
     }
 
     public void generateOffer() throws IOException {
@@ -171,8 +160,7 @@ public class LocalConnectionImpl extends AbstractConnection {
 
     @Override
     public MediaComponent getMediaComponent(String mediaType) {
-        // TODO Auto-generated method stub
-        return null;
+        return this.localAudioChannel.getMediaComponent();
     }
 
 }

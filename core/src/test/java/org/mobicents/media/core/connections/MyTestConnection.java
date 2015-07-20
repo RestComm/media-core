@@ -28,14 +28,12 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
+import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.audio.MixerComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.utils.Text;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
 
 /**
  *
@@ -48,38 +46,27 @@ public class MyTestConnection extends AbstractConnection {
     private volatile boolean closed;
     private volatile boolean failed;
 
-    private AudioComponent audioComponent;
-    private OOBComponent oobComponent;
-    public MyTestConnection(int id,Scheduler scheduler) throws Exception {
+    private final MediaComponent mediaComponent;
+
+    public MyTestConnection(int id, Scheduler scheduler) throws Exception {
         super(id, scheduler);
-        audioComponent=new AudioComponent(-1);
-        oobComponent=new OOBComponent(-1);
-    }
-    
-    @Override
-    public void generateCname() {
-    	throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
-    public String getCname() {
-    	throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    public void generateOffer() throws IOException {
-    	throw new UnsupportedOperationException("Not supported yet.");
+        this.mediaComponent = new MediaComponent(id);
     }
 
-    public AudioComponent getAudioComponent()
-    {
-    	return audioComponent;
+    @Override
+    public void generateCname() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    public OOBComponent getOOBComponent()
-    {
-    	return oobComponent;
+
+    @Override
+    public String getCname() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
+    public void generateOffer() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public void setOtherParty(Connection other) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -95,7 +82,7 @@ public class MyTestConnection extends AbstractConnection {
     public long getPacketsReceived() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     public long getBytesReceived(MediaType media) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -111,7 +98,7 @@ public class MyTestConnection extends AbstractConnection {
     public long getPacketsTransmitted() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     public long getBytesTransmitted(MediaType media) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -127,11 +114,10 @@ public class MyTestConnection extends AbstractConnection {
     public double getJitter() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
-    public void setConnectionFailureListener(ConnectionFailureListener connectionListener)
-    {
-    	//currently used only in RTP Connection
+    public void setConnectionFailureListener(ConnectionFailureListener connectionListener) {
+        // currently used only in RTP Connection
     }
 
     @Override
@@ -145,8 +131,8 @@ public class MyTestConnection extends AbstractConnection {
 
     @Override
     protected void onFailed() {
+        this.failed = true;
     }
-
 
     @Override
     protected void onOpened() throws Exception {
@@ -170,13 +156,12 @@ public class MyTestConnection extends AbstractConnection {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-	public boolean isAvailable() {
-		return true;
-	}
+    public boolean isAvailable() {
+        return true;
+    }
 
     @Override
-    public MixerComponent getMixerComponent(String mediaType) {
-        // TODO Auto-generated method stub
-        return null;
+    public MediaComponent getMediaComponent(String mediaType) {
+        return this.mediaComponent;
     }
 }

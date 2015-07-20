@@ -24,10 +24,9 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.component.audio.AudioOutput;
-import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -35,131 +34,104 @@ import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 
-
 /**
- * Local Channel implementation.
- * Bridge between 2 endpoints.
+ * Local Channel implementation. Bridge between 2 endpoints.
  * 
  * @author Oifa Yulian
  */
 public class LocalDataChannel {
-	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-	private long period = 20000000L;
-	private int packetSize = (int) (period / 1000000) * format.getSampleRate() / 1000 * format.getSampleSize() / 8;
 
-	private AudioComponent audioComponent;
-	private AudioInput input;
-	private AudioOutput output;
+    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    private static final long PERIOD = 20000000L;
+    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
+            * LINEAR_FORMAT.getSampleSize() / 8;
 
-	private OOBComponent oobComponent;
-	private OOBInput oobInput;
-	private OOBOutput oobOutput;
+    private final AudioInput audioInput;
+    private final AudioOutput audioOutput;
 
-	private LocalDataChannel otherChannel = null;
+    private final OOBInput oobInput;
+    private final OOBOutput oobOutput;
 
-	/**
-	 * Creates new local channel.
-	 */
-	protected LocalDataChannel(ChannelsManager channelsManager, int channelId) {
-		audioComponent = new AudioComponent(channelId);
-		input = new AudioInput(1, packetSize);
-		output = new AudioOutput(channelsManager.getScheduler(), 2);
-		audioComponent.addInput(input);
-		audioComponent.addOutput(output);
+    private final MediaComponent mediaComponent;
 
-		oobComponent = new OOBComponent(channelId);
-		oobInput = new OOBInput(1);
-		oobOutput = new OOBOutput(channelsManager.getScheduler(), 2);
-		oobComponent.addInput(oobInput);
-		oobComponent.addOutput(oobOutput);
-	}
+    private LocalDataChannel otherChannel = null;
 
-	public AudioInput getAudioInput() {
-		return this.input;
-	}
+    protected LocalDataChannel(ChannelsManager channelsManager, int channelId) {
+        this.mediaComponent = new MediaComponent(channelId);
+        this.audioInput = new AudioInput(1, PACKET_SIZE);
+        this.audioOutput = new AudioOutput(channelsManager.getScheduler(), 2);
+        this.oobInput = new OOBInput(1);
+        this.oobOutput = new OOBOutput(channelsManager.getScheduler(), 2);
 
-	public AudioOutput getAudioOutput() {
-		return this.output;
-	}
+        this.mediaComponent.addAudioInput(audioInput);
+        this.mediaComponent.addAudioOutput(audioOutput);
+        this.mediaComponent.addOOBInput(oobInput);
+        this.mediaComponent.addOOBOutput(oobOutput);
+    }
 
-	public AudioComponent getAudioComponent() {
-		return this.audioComponent;
-	}
+    public MediaComponent getMediaComponent() {
+        return mediaComponent;
+    }
 
-	public OOBInput getOOBInput() {
-		return this.oobInput;
-	}
+    public void join(LocalDataChannel otherChannel) throws IOException {
+        if (this.otherChannel != null) {
+            throw new IOException("Channel already joined");
+        }
 
-	public OOBOutput getOOBOutput() {
-		return this.oobOutput;
-	}
+        this.otherChannel = otherChannel;
+        otherChannel.otherChannel = this;
 
-	public OOBComponent getOOBComponent() {
-		return this.oobComponent;
-	}
+        this.otherChannel.audioOutput.join(audioInput);
+        this.otherChannel.oobOutput.join(oobInput);
+        this.audioOutput.join(this.otherChannel.audioInput);
+        this.oobOutput.join(this.otherChannel.oobInput);
+    }
 
-	public void join(LocalDataChannel otherChannel) throws IOException {
-		if (this.otherChannel != null) {
-			throw new IOException("Channel already joined");
-		}
+    public void unjoin() {
+        if (this.otherChannel == null) {
+            return;
+        }
 
-		this.otherChannel = otherChannel;
-		otherChannel.otherChannel = this;
-		this.otherChannel.getAudioOutput().join(input);
-		this.otherChannel.getOOBOutput().join(oobInput);
-		output.join(this.otherChannel.getAudioInput());
-		oobOutput.join(this.otherChannel.getOOBInput());
-	}
+        this.audioOutput.deactivate();
+        this.oobOutput.deactivate();
+        this.audioOutput.unjoin();
+        oobOutput.unjoin();
 
-	public void unjoin() {
-		if (this.otherChannel == null) {
-			return;
-		}
+        this.otherChannel = null;
+    }
 
-		this.output.deactivate();
-		this.oobOutput.deactivate();
-		output.unjoin();
-		oobOutput.unjoin();
+    public void updateMode(ConnectionMode connectionMode) throws ModeNotSupportedException {
+        if (this.otherChannel == null) {
+            throw new ModeNotSupportedException("You should join channel first");
+        }
 
-		this.otherChannel = null;
-	}
+        // Update audio and OOB components
+        mediaComponent.updateMode(connectionMode);
 
-	public void updateMode(ConnectionMode connectionMode) throws ModeNotSupportedException {
-		if (this.otherChannel == null) {
-			throw new ModeNotSupportedException("You should join channel first");
-		}
+        switch (connectionMode) {
+            case SEND_ONLY:
+                audioOutput.activate();
+                oobOutput.activate();
+                break;
+            case RECV_ONLY:
+                audioOutput.deactivate();
+                oobOutput.deactivate();
+                break;
+            case INACTIVE:
+                audioOutput.deactivate();
+                oobOutput.deactivate();
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                audioOutput.activate();
+                oobOutput.activate();
+                break;
+            case NETWORK_LOOPBACK:
+                throw new ModeNotSupportedException("Loopback not supported on local channel");
+            default:
+                // XXX handle default case
+                break;
+        }
+    }
 
-		switch (connectionMode) {
-		case SEND_ONLY:
-			audioComponent.updateMode(false, true);
-			oobComponent.updateMode(false, true);
-			output.activate();
-			oobOutput.activate();
-			break;
-		case RECV_ONLY:
-			audioComponent.updateMode(true, false);
-			oobComponent.updateMode(true, false);
-			output.deactivate();
-			oobOutput.deactivate();
-			break;
-		case INACTIVE:
-			audioComponent.updateMode(false, false);
-			oobComponent.updateMode(false, false);
-			output.deactivate();
-			oobOutput.deactivate();
-			break;
-		case SEND_RECV:
-		case CONFERENCE:
-			audioComponent.updateMode(true, true);
-			oobComponent.updateMode(true, true);
-			output.activate();
-			oobOutput.activate();
-			break;
-		case NETWORK_LOOPBACK:
-			throw new ModeNotSupportedException("Loopback not supported on local channel");
-		default:
-			// XXX handle default case
-			break;
-		}
-	}
 }
