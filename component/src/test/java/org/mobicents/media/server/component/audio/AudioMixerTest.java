@@ -147,7 +147,7 @@ public class AudioMixerTest {
         sine3.deactivate();
         analyzer.deactivate();
         
-        System.out.println("mix execution count: " + mixer.mixCount);
+        System.out.println("mix execution count: " + mixer.getMixCount());
 //        System.out.println("IO count: " + network.getCount());
 //        System.out.println("Mixer input: " + ((AbstractSink)input1).getCount());
         
