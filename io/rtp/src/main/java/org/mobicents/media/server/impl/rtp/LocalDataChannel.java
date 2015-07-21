@@ -38,6 +38,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  * Local Channel implementation. Bridge between 2 endpoints.
  * 
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class LocalDataChannel {
 
