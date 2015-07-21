@@ -104,6 +104,10 @@ public class RtcpTransport extends MultiplexedChannel implements DtlsListener {
             }
         }
     }
+    
+    public void setRemotePeer(String address, int port) {
+        setRemotePeer(new InetSocketAddress(address, port));
+    }
 
     public void setRtpListener(RtpListener rtpListener) {
         this.rtpListener = rtpListener;

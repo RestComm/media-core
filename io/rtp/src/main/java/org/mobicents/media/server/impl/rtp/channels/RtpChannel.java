@@ -91,7 +91,7 @@ public abstract class RtpChannel {
 
     // RTP relay
     protected RelayType relayType;
-    protected RtpComponent rtpMixerComponent;
+    protected RtpComponent mixerComponent;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -138,8 +138,8 @@ public abstract class RtpChannel {
 
         // RTP relay
         this.relayType = RelayType.MIXER;
-        this.rtpMixerComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
-        this.rtpTransport.setRtpRelay(this.rtpMixerComponent);
+        this.mixerComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.rtpTransport.setRtpRelay(this.mixerComponent);
 
         // RTP format negotiation
         this.offeredFormats = new RTPFormats();
@@ -259,7 +259,7 @@ public abstract class RtpChannel {
     }
 
     public RtpComponent getMixerComponent() {
-        return rtpMixerComponent;
+        return mixerComponent;
     }
 
     /**
@@ -308,6 +308,9 @@ public abstract class RtpChannel {
     private void reset() {
         // Reset codecs
         resetFormats();
+        
+        // Reset relay components
+        this.mixerComponent.reset();
 
         // Reset channels
         if (this.rtcpMux) {
@@ -387,7 +390,7 @@ public abstract class RtpChannel {
      */
     protected void setFormats(RTPFormats formats) {
         this.rtpTransport.setFormatMap(formats);
-        this.rtpMixerComponent.setRtpFormats(formats);
+        this.mixerComponent.setRtpFormats(formats);
     }
 
     /**
@@ -881,12 +884,15 @@ public abstract class RtpChannel {
                 // Get selected RTP candidate for audio channel
                 IceAgent agent = event.getSource();
                 CandidatePair rtpCandidate = agent.getSelectedRtpCandidate(mediaType);
+                
                 // Bind candidate to RTP audio channel
                 rtpTransport.bind(rtpCandidate.getChannel());
+                rtpTransport.setRemotePeer(rtpCandidate.getRemoteAddress(), rtpCandidate.getRemotePort());
 
                 CandidatePair rtcpCandidate = agent.getSelectedRtcpCandidate(mediaType);
                 if (rtcpCandidate != null) {
                     rtcpTransport.bind(rtcpCandidate.getChannel());
+                    rtcpTransport.setRemotePeer(rtcpCandidate.getRemoteAddress(), rtcpCandidate.getRemotePort());
                 }
             } catch (IOException e) {
                 // Warn RTP listener a failure happened and connection must be closed

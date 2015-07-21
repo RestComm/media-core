@@ -296,6 +296,10 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
             }
         }
     }
+    
+    public void setRemotePeer(String address, int port) {
+        setRemotePeer(new InetSocketAddress(address, port));
+    }
 
     public String getExternalAddress() {
         return this.udpManager.getExternalAddress();
@@ -394,6 +398,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         // RTP reset
         this.dtmfSupported = false;
         this.rtpHandler.reset();
+        this.remotePeer = null;
 
         // RTCP reset
         if (this.rtcpMux) {
