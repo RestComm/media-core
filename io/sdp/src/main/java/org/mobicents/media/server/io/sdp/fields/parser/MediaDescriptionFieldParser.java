@@ -28,79 +28,96 @@ import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 
 public class MediaDescriptionFieldParser implements SdpParser<MediaDescriptionField> {
 
-	private static final String REGEX = "^m=[a-zA-Z]+\\s\\d+\\s[a-zA-Z/]+(\\s\\d+)*$";
-	private static final Pattern PATTERN = Pattern.compile(REGEX);
-	
-	@Override
-	public boolean canParse(String sdp) {
-		if(sdp == null || sdp.isEmpty()) {
-			return false;
-		}
-		return PATTERN.matcher(sdp.trim()).matches();
-	}
+    private static final String REGEX = "^m=[a-zA-Z]+\\s\\d+\\s[a-zA-Z/]+(\\s\\d+)*$";
+    private static final Pattern PATTERN = Pattern.compile(REGEX);
 
-	@Override
-	public MediaDescriptionField parse(String sdp) throws SdpException {
-		try {
-			// Extract data from SDP
-			String[] values = sdp.trim().substring(2).split(" ");
-			int index = 0;
-			int maxIndex = values.length - 1;
+    public static final String PROTO_UDP_REGEX = "udp";
+    public static final String PROTO_RTP_REGEX = "RTP/";
+    public static final String PROTO_DTLS_REGEX = "DTLS/";
 
-			String media = values[index++];
-			int port = Integer.parseInt(values[index++]);
-			String protocol = values[index++];
+    @Override
+    public boolean canParse(String sdp) {
+        if (sdp == null || sdp.isEmpty()) {
+            return false;
+        }
+        return PATTERN.matcher(sdp.trim()).matches();
+    }
 
-			int[] formats = null;
-			if (maxIndex - index >= 0) {
-				int numFormats = maxIndex - index + 1;
-				formats = new int[numFormats];
-				for (int i = 0; i < numFormats; i++) {
-					formats[i] = Integer.parseInt(values[i + index]);
-				}
-			}
+    private boolean isProtocolValid(String protocol) {
+        if (protocol == null || protocol.isEmpty()) {
+            return false;
+        }
+        return protocol.startsWith(PROTO_RTP_REGEX) || 
+                protocol.startsWith(PROTO_DTLS_REGEX) || 
+                protocol.equalsIgnoreCase(PROTO_UDP_REGEX);
+    }
 
-			// Build object
-			MediaDescriptionField md = new MediaDescriptionField();
-			md.setMedia(media);
-			md.setPort(port);
-			md.setProtocol(protocol);
-			md.setPayloadTypes(formats);
-			return md;
-		} catch (Exception e) {
-			throw new SdpException(PARSE_ERROR + sdp, e);
-		}
-	}
+    @Override
+    public MediaDescriptionField parse(String sdp) throws SdpException {
+        try {
+            // Extract data from SDP
+            String[] values = sdp.trim().substring(2).split(" ");
+            int index = 0;
+            int maxIndex = values.length - 1;
 
-	@Override
-	public void parse(MediaDescriptionField field, String sdp) throws SdpException {
-		try {
-			// Extract data from SDP
-			String[] values = sdp.trim().substring(2).split(" ");
-			int index = 0;
-			int maxIndex = values.length - 1;
+            String media = values[index++];
+            int port = Integer.parseInt(values[index++]);
+            String protocol = values[index++];
 
-			String media = values[index++];
-			int port = Integer.parseInt(values[index++]);
-			String protocol = values[index++];
+            if (!isProtocolValid(protocol)) {
+                throw new IllegalArgumentException("Invalid transport protocol: " + protocol);
+            }
 
-			int[] payloadTypes = null;
-			if (maxIndex - index >= 0) {
-				int numFormats = maxIndex - index + 1;
-				payloadTypes = new int[numFormats];
-				for (int i = 0; i < numFormats; i++) {
-					payloadTypes[i] = Integer.parseInt(values[i + index]);
-				}
-			}
+            int[] formats = null;
+            if (maxIndex - index >= 0) {
+                int numFormats = maxIndex - index + 1;
+                formats = new int[numFormats];
+                for (int i = 0; i < numFormats; i++) {
+                    formats[i] = Integer.parseInt(values[i + index]);
+                }
+            }
 
-			// Build object
-			field.setMedia(media);
-			field.setPort(port);
-			field.setProtocol(protocol);
-			field.setPayloadTypes(payloadTypes);
-		} catch (Exception e) {
-			throw new SdpException(PARSE_ERROR + sdp, e);
-		}
-	}
+            // Build object
+            MediaDescriptionField md = new MediaDescriptionField();
+            md.setMedia(media);
+            md.setPort(port);
+            md.setProtocol(protocol);
+            md.setPayloadTypes(formats);
+            return md;
+        } catch (Exception e) {
+            throw new SdpException(PARSE_ERROR + sdp, e);
+        }
+    }
+
+    @Override
+    public void parse(MediaDescriptionField field, String sdp) throws SdpException {
+        try {
+            // Extract data from SDP
+            String[] values = sdp.trim().substring(2).split(" ");
+            int index = 0;
+            int maxIndex = values.length - 1;
+
+            String media = values[index++];
+            int port = Integer.parseInt(values[index++]);
+            String protocol = values[index++];
+
+            int[] payloadTypes = null;
+            if (maxIndex - index >= 0) {
+                int numFormats = maxIndex - index + 1;
+                payloadTypes = new int[numFormats];
+                for (int i = 0; i < numFormats; i++) {
+                    payloadTypes[i] = Integer.parseInt(values[i + index]);
+                }
+            }
+
+            // Build object
+            field.setMedia(media);
+            field.setPort(port);
+            field.setProtocol(protocol);
+            field.setPayloadTypes(payloadTypes);
+        } catch (Exception e) {
+            throw new SdpException(PARSE_ERROR + sdp, e);
+        }
+    }
 
 }
