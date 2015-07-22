@@ -26,7 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBSplitter;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.spi.Connection;
@@ -42,167 +44,183 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  */
 public class BaseSS7EndpointImpl extends AbstractEndpoint {
 
-	protected AudioSplitter audioSplitter;
-	protected OOBSplitter oobSplitter;
+    protected AudioSplitter audioSplitter;
+    protected OOBSplitter oobSplitter;
 
-	private AtomicInteger loopbackCount = new AtomicInteger(0);
-	private AtomicInteger readCount = new AtomicInteger(0);
-	private AtomicInteger writeCount = new AtomicInteger(0);
+    // Media splitter components
+    private final ConcurrentMap<MediaComponent> mediaComponents;
 
-	private SS7DataChannel ss7DataChannel;
-	private int channelID;
-	private boolean isALaw;
+    private AtomicInteger loopbackCount = new AtomicInteger(0);
+    private AtomicInteger readCount = new AtomicInteger(0);
+    private AtomicInteger writeCount = new AtomicInteger(0);
 
-	private ChannelsManager channelsManager;
+    private SS7DataChannel ss7DataChannel;
+    private int channelID;
+    private boolean isALaw;
 
-	public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
-		super(localName);
-		this.isALaw = isALaw;
-		this.channelID = channelID;
-		this.channelsManager = channelsManager;
-	}
+    private ChannelsManager channelsManager;
 
-	@Override
-	public void start() throws ResourceUnavailableException {
-		super.start();
+    public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
+        super(localName);
+        this.isALaw = isALaw;
+        this.channelID = channelID;
+        this.channelsManager = channelsManager;
+        this.mediaComponents = new ConcurrentMap<MediaComponent>(2);
+    }
 
-		audioSplitter = new AudioSplitter(getScheduler());
-		oobSplitter = new OOBSplitter(getScheduler());
-		audioSplitter.addOutsideComponent(mediaGroup.getAudioComponent());
-		oobSplitter.addOutsideComponent(mediaGroup.getOOBComponent());
+    @Override
+    public void start() throws ResourceUnavailableException {
+        super.start();
 
-		try {
-			ss7DataChannel = channelsManager.getSS7Channel(channelID, isALaw);
-		} catch (Exception ex) {
-			throw new ResourceUnavailableException("Can not open dahdi channel");
-		}
+        audioSplitter = new AudioSplitter(getScheduler());
+        oobSplitter = new OOBSplitter(getScheduler());
+        audioSplitter.addOutsideComponent(mediaGroup.getAudioComponent());
+        oobSplitter.addOutsideComponent(mediaGroup.getOOBComponent());
 
-		try {
-			ss7DataChannel.setInputDsp(resourcesPool.getDspFactory().newProcessor());
-			ss7DataChannel.setOutputDsp(resourcesPool.getDspFactory().newProcessor());
-		} catch (Exception e) {
-			// exception may happen only if invalid classes have been set in config
-		}
+        try {
+            ss7DataChannel = channelsManager.getSS7Channel(channelID, isALaw);
+        } catch (Exception ex) {
+            throw new ResourceUnavailableException("Can not open dahdi channel");
+        }
 
-		audioSplitter.addInsideComponent(ss7DataChannel.getAudioComponent());
-		oobSplitter.addInsideComponent(ss7DataChannel.getOOBComponent());
-	}
+        try {
+            ss7DataChannel.setInputDsp(resourcesPool.getDspFactory().newProcessor());
+            ss7DataChannel.setOutputDsp(resourcesPool.getDspFactory().newProcessor());
+        } catch (Exception e) {
+            // exception may happen only if invalid classes have been set in config
+        }
 
-	@Override
-	public void stop() {
-		audioSplitter.releaseInsideComponent(ss7DataChannel.getAudioComponent());
-		oobSplitter.releaseInsideComponent(ss7DataChannel.getOOBComponent());
-		audioSplitter.releaseOutsideComponent(mediaGroup.getAudioComponent());
-		oobSplitter.releaseOutsideComponent(mediaGroup.getOOBComponent());
-		super.stop();
-	}
+        audioSplitter.addInsideComponent(ss7DataChannel.getAudioComponent());
+        oobSplitter.addInsideComponent(ss7DataChannel.getOOBComponent());
+    }
 
-	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
-		Connection connection = super.createConnection(type, isLocal);
-//		audioSplitter.addOutsideComponent(((AbstractConnection) connection).getAudioComponent());
-//		oobSplitter.addOutsideComponent(((AbstractConnection) connection).getOOBComponent());
+    @Override
+    public void stop() {
+        audioSplitter.releaseInsideComponent(ss7DataChannel.getAudioComponent());
+        oobSplitter.releaseInsideComponent(ss7DataChannel.getOOBComponent());
+        audioSplitter.releaseOutsideComponent(mediaGroup.getAudioComponent());
+        oobSplitter.releaseOutsideComponent(mediaGroup.getOOBComponent());
+        super.stop();
+    }
 
-		if (getActiveConnectionsCount() == 1) {
-			ss7DataChannel.bind();
-			this.readCount.set(1);
-			this.writeCount.set(1);
-		}
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
 
-		return connection;
-	}
+        // Retrieve and register the mixer component of the connection
+        MediaComponent mediaComponent = connection.getMediaComponent("audio");
+        this.mediaComponents.put(connection.getId(), mediaComponent);
 
-	@Override
-	public void deleteConnection(Connection connection, ConnectionType connectionType) {
-		super.deleteConnection(connection, connectionType);
-//		audioSplitter.releaseOutsideComponent(((AbstractConnection) connection).getAudioComponent());
-//		oobSplitter.releaseOutsideComponent(((AbstractConnection) connection).getOOBComponent());
+        // Add media component to the media splitter
+        audioSplitter.addOutsideComponent(mediaComponent.getAudioComponent());
+        oobSplitter.addOutsideComponent(mediaComponent.getOOBComponent());
 
-		if (getActiveConnectionsCount() == 0) {
-			ss7DataChannel.close();
-			this.readCount.set(0);
-			this.writeCount.set(0);
-		}
-	}
+        if (getActiveConnectionsCount() == 1) {
+            ss7DataChannel.bind();
+            this.readCount.set(1);
+            this.writeCount.set(1);
+        }
 
-	@Override
-	public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
-		int readCount = 0, loopbackCount = 0, writeCount = 0;
-		switch (oldMode) {
-		case RECV_ONLY:
-			readCount = -1;
-			break;
-		case SEND_ONLY:
-			writeCount = -1;
-			break;
-		case SEND_RECV:
-		case CONFERENCE:
-			readCount = -1;
-			writeCount = -1;
-			break;
-		case NETWORK_LOOPBACK:
-			loopbackCount = -1;
-			break;
-		default:
-			// XXX handle default case
-			break;
-		}
+        return connection;
+    }
 
-		switch (newMode) {
-		case RECV_ONLY:
-			readCount = +1;
-			break;
-		case SEND_ONLY:
-			writeCount = +1;
-			break;
-		case SEND_RECV:
-		case CONFERENCE:
-			readCount = +1;
-			writeCount = +1;
-			break;
-		case NETWORK_LOOPBACK:
-			loopbackCount = +1;
-			break;
-		default:
-			// XXX handle default case
-			break;
-		}
+    @Override
+    public void deleteConnection(Connection connection, ConnectionType connectionType) {
+        // Release the connection
+        super.deleteConnection(connection, connectionType);
 
-		if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
-			// something changed
-			loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
-			readCount = this.readCount.addAndGet(readCount);
-			writeCount = this.writeCount.addAndGet(writeCount);
+        // Unregister the media component of the connection
+        MediaComponent mediaComponent = this.mediaComponents.remove(connection.getId());
 
-			if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
-				audioSplitter.stop();
-				oobSplitter.stop();
-			} else {
-				audioSplitter.start();
-				oobSplitter.start();
-			}
-		}
-	}
+        // Release the media component from the media splitter
+        audioSplitter.releaseOutsideComponent(mediaComponent.getAudioComponent());
+        oobSplitter.releaseOutsideComponent(mediaComponent.getOOBComponent());
 
-	public void setLoop(boolean toSet) {
-		Boolean oldState = ss7DataChannel.inLoop();
-		if (toSet && !oldState) {
-			ss7DataChannel.activateLoop();
-			loopbackCount.addAndGet(1);
-			audioSplitter.stop();
-			oobSplitter.stop();
-		} else if (!toSet && oldState) {
-			ss7DataChannel.deactivateLoop();
-			loopbackCount.addAndGet(-1);
-			if (loopbackCount.get() == 0 && readCount.get() > 0 && writeCount.get() > 0) {
-				audioSplitter.start();
-				oobSplitter.start();
-			}
-		}
-	}
+        if (getActiveConnectionsCount() == 0) {
+            ss7DataChannel.close();
+            this.readCount.set(0);
+            this.writeCount.set(0);
+        }
+    }
 
-	@Override
-	public void configure(boolean isALaw) {
-		ss7DataChannel.setCodec(isALaw);
-	}
+    @Override
+    public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
+        int readCount = 0, loopbackCount = 0, writeCount = 0;
+        switch (oldMode) {
+            case RECV_ONLY:
+                readCount = -1;
+                break;
+            case SEND_ONLY:
+                writeCount = -1;
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                readCount = -1;
+                writeCount = -1;
+                break;
+            case NETWORK_LOOPBACK:
+                loopbackCount = -1;
+                break;
+            default:
+                // XXX handle default case
+                break;
+        }
+
+        switch (newMode) {
+            case RECV_ONLY:
+                readCount = +1;
+                break;
+            case SEND_ONLY:
+                writeCount = +1;
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                readCount = +1;
+                writeCount = +1;
+                break;
+            case NETWORK_LOOPBACK:
+                loopbackCount = +1;
+                break;
+            default:
+                // XXX handle default case
+                break;
+        }
+
+        if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
+            // something changed
+            loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
+            readCount = this.readCount.addAndGet(readCount);
+            writeCount = this.writeCount.addAndGet(writeCount);
+
+            if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
+                audioSplitter.stop();
+                oobSplitter.stop();
+            } else {
+                audioSplitter.start();
+                oobSplitter.start();
+            }
+        }
+    }
+
+    public void setLoop(boolean toSet) {
+        Boolean oldState = ss7DataChannel.inLoop();
+        if (toSet && !oldState) {
+            ss7DataChannel.activateLoop();
+            loopbackCount.addAndGet(1);
+            audioSplitter.stop();
+            oobSplitter.stop();
+        } else if (!toSet && oldState) {
+            ss7DataChannel.deactivateLoop();
+            loopbackCount.addAndGet(-1);
+            if (loopbackCount.get() == 0 && readCount.get() > 0 && writeCount.get() > 0) {
+                audioSplitter.start();
+                oobSplitter.start();
+            }
+        }
+    }
+
+    @Override
+    public void configure(boolean isALaw) {
+        ss7DataChannel.setCodec(isALaw);
+    }
 }
