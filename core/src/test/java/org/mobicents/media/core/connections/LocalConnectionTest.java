@@ -48,13 +48,13 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  *
  * @author yulian oifa
  */
-public class LocalConnectionImplTest {
+public class LocalConnectionTest {
 
     //clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
     //endpoint and connection
-    private LocalConnectionImpl connection;
+    private LocalConnection connection;
     private MyTestEndpoint endpoint;
     private ResourcesPool resourcesPool;
 
@@ -62,7 +62,7 @@ public class LocalConnectionImplTest {
 
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
-    public LocalConnectionImplTest() {
+    public LocalConnectionTest() {
     }
 
     @BeforeClass
@@ -93,7 +93,7 @@ public class LocalConnectionImplTest {
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();
 
-        connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL,false);    	
+        connection = (LocalConnection) endpoint.createConnection(ConnectionType.LOCAL,false);    	
     }
 
     @After
@@ -118,7 +118,7 @@ public class LocalConnectionImplTest {
     public void testDuration() throws Exception {
         long s = System.nanoTime();
         for (int i = 0; i < 9; i++) {
-            connection = (LocalConnectionImpl) endpoint.createConnection(ConnectionType.LOCAL,false);
+            connection = (LocalConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
 //            connection.bind();
         }
         System.out.println("Duration=" + (System.nanoTime() - s));

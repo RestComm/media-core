@@ -28,29 +28,34 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.apache.log4j.Logger;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.utils.Text;
 
 /**
  *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class MyTestConnection extends AbstractConnection {
+
+    private static final Logger logger = Logger.getLogger(MyTestConnection.class);
 
     private volatile boolean created;
     private volatile boolean opened;
     private volatile boolean closed;
     private volatile boolean failed;
 
-    private final MediaComponent mediaComponent;
+    private final MixerComponent mediaComponent;
 
     public MyTestConnection(int id, Scheduler scheduler) throws Exception {
-        super(id, scheduler);
-        this.mediaComponent = new MediaComponent(id);
+        super(id, scheduler, RelayType.MIXER);
+        this.mediaComponent = new MixerComponent(id);
     }
 
     @Override
@@ -68,10 +73,6 @@ public class MyTestConnection extends AbstractConnection {
     }
 
     public void setOtherParty(Connection other) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setOtherParty(byte[] descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -161,7 +162,12 @@ public class MyTestConnection extends AbstractConnection {
     }
 
     @Override
-    public MediaComponent getMediaComponent(String mediaType) {
+    public MixerComponent getMediaComponent(String mediaType) {
         return this.mediaComponent;
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
     }
 }

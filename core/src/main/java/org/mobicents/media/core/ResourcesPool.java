@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentFactory;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.connections.LocalConnectionImpl;
+import org.mobicents.media.core.connections.LocalConnection;
 import org.mobicents.media.core.connections.RtpConnection;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
@@ -211,7 +211,7 @@ public class ResourcesPool implements ComponentFactory {
 
 		// Setup local connections
 		for (int i = 0; i < this.defaultLocalConnections; i++) {
-			this.localConnections.offer(new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager));
+			this.localConnections.offer(new LocalConnection(this.connectionId.incrementAndGet(), this.channelsManager));
 		}
 		this.localConnectionsCount.set(this.defaultLocalConnections);
 
@@ -376,7 +376,7 @@ public class ResourcesPool implements ComponentFactory {
 		if (isLocal) {
 			result = this.localConnections.poll();
 			if (result == null) {
-				result = new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager);
+				result = new LocalConnection(this.connectionId.incrementAndGet(), this.channelsManager);
 				this.localConnectionsCount.incrementAndGet();
 			}
 

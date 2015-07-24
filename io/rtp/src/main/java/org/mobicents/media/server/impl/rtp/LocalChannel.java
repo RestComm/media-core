@@ -26,11 +26,12 @@ import java.io.IOException;
 
 import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.component.audio.AudioOutput;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 
@@ -40,7 +41,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  * @author Oifa Yulian
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class LocalDataChannel {
+public class LocalChannel {
 
     private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     private static final long PERIOD = 20000000L;
@@ -53,28 +54,54 @@ public class LocalDataChannel {
     private final OOBInput oobInput;
     private final OOBOutput oobOutput;
 
-    private final MediaComponent mediaComponent;
+    // Media relay
+    private RelayType relayType;
+    private final MixerComponent mediaComponent;
 
-    private LocalDataChannel otherChannel = null;
+    private LocalChannel otherChannel = null;
 
-    protected LocalDataChannel(ChannelsManager channelsManager, int channelId) {
-        this.mediaComponent = new MediaComponent(channelId);
+    protected LocalChannel(ChannelsManager channelsManager, int channelId, RelayType relayType) {
         this.audioInput = new AudioInput(1, PACKET_SIZE);
         this.audioOutput = new AudioOutput(channelsManager.getScheduler(), 2);
         this.oobInput = new OOBInput(1);
         this.oobOutput = new OOBOutput(channelsManager.getScheduler(), 2);
 
+        // Media relay
+        this.relayType = relayType;
+        this.mediaComponent = new MixerComponent(channelId);
         this.mediaComponent.addAudioInput(audioInput);
         this.mediaComponent.addAudioOutput(audioOutput);
         this.mediaComponent.addOOBInput(oobInput);
         this.mediaComponent.addOOBOutput(oobOutput);
     }
 
-    public MediaComponent getMediaComponent() {
+    protected LocalChannel(ChannelsManager channelsManager, int channelId) {
+        this(channelsManager, channelId, RelayType.MIXER);
+    }
+
+    public void setRelayType(RelayType relayType) {
+        this.relayType = relayType;
+        if (!this.relayType.equals(relayType)) {
+            switch (relayType) {
+                case MIXER:
+
+                    break;
+
+                case TRANSLATOR:
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    public MixerComponent getMediaComponent() {
         return mediaComponent;
     }
 
-    public void join(LocalDataChannel otherChannel) throws IOException {
+    public void join(LocalChannel otherChannel) throws IOException {
         if (this.otherChannel != null) {
             throw new IOException("Channel already joined");
         }

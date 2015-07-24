@@ -69,7 +69,7 @@ public class LocalEventTest implements DtmfDetectorListener {
     
     private DetectorImpl detector;
     
-    private LocalDataChannel channel1,channel2;
+    private LocalChannel channel1,channel2;
     
     private Sender sender;
     

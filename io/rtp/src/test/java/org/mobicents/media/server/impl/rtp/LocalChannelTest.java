@@ -61,7 +61,7 @@ public class LocalChannelTest {
     private SpectraAnalyzer analyzer1,analyzer2;
     private Sine source1,source2;
 
-    private LocalDataChannel channel1,channel2;
+    private LocalChannel channel1,channel2;
     
     private int fcount;
 

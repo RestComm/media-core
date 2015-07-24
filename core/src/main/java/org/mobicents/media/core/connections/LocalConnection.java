@@ -24,27 +24,42 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.apache.log4j.Logger;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.LocalDataChannel;
+import org.mobicents.media.server.impl.rtp.LocalChannel;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.utils.Text;
 
 /**
  *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class LocalConnectionImpl extends AbstractConnection {
+public class LocalConnection extends AbstractConnection {
+    
+    private static final Logger logger = Logger.getLogger(LocalConnection.class);
 
-    private LocalDataChannel localAudioChannel;
+    private LocalChannel localAudioChannel;
 
-    public LocalConnectionImpl(int id, ChannelsManager channelsManager) {
-        super(id, channelsManager.getScheduler());
+    public LocalConnection(int id, ChannelsManager channelsManager, RelayType relayType) {
+        super(id, channelsManager.getScheduler(), relayType);
         this.localAudioChannel = channelsManager.getLocalChannel();
+        this.localAudioChannel.setRelayType(relayType);
+    }
+    
+    public LocalConnection(int id, ChannelsManager channelsManager) {
+        this(id, channelsManager, RelayType.MIXER);
+    }
+    
+    @Override
+    protected Logger getLogger() {
+        return logger;
     }
 
     @Override
@@ -63,25 +78,21 @@ public class LocalConnectionImpl extends AbstractConnection {
 
     @Override
     public void setOtherParty(Connection other) throws IOException {
-        if (!(other instanceof LocalConnectionImpl)) {
+        if (!(other instanceof LocalConnection)) {
             throw new IOException("Not compatible");
         }
 
-        this.localAudioChannel.join(((LocalConnectionImpl) other).localAudioChannel);
+        this.localAudioChannel.join(((LocalConnection) other).localAudioChannel);
 
         try {
             join();
-            ((LocalConnectionImpl) other).join();
+            ((LocalConnection) other).join();
         } catch (Exception e) {
             throw new IOException(e);
         }
     }
 
     public void setOtherParty(Text descriptor) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void setOtherParty(byte[] descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -159,7 +170,7 @@ public class LocalConnectionImpl extends AbstractConnection {
     }
 
     @Override
-    public MediaComponent getMediaComponent(String mediaType) {
+    public MixerComponent getMediaComponent(String mediaType) {
         return this.localAudioChannel.getMediaComponent();
     }
 

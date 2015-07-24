@@ -127,8 +127,8 @@ public class ChannelsManager {
         return new RTPDataChannel(this, channelIndex.incrementAndGet());
     }
 
-    public LocalDataChannel getLocalChannel() {
-        return new LocalDataChannel(this, channelIndex.incrementAndGet());
+    public LocalChannel getLocalChannel() {
+        return new LocalChannel(this, channelIndex.incrementAndGet());
     }
 
     public SS7DataChannel getSS7Channel(int dahdiChannelID, boolean isAlaw) throws IOException {

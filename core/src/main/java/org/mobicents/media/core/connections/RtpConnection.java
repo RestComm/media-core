@@ -27,7 +27,7 @@ import java.net.SocketException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.harvest.HarvestException;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpListener;
@@ -44,6 +44,7 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -82,11 +83,11 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      * 
      * @param id The unique ID of the connection
      * @param channelsManager The media channel provider
-     * @param dspFactory The DSP provider
+     * @param relayType The default relay type to be used by the connection.
      */
-    public RtpConnection(int id, ChannelsManager channelsManager) {
+    public RtpConnection(int id, ChannelsManager channelsManager, RelayType relayType) {
         // Core elements
-        super(id, channelsManager.getScheduler());
+        super(id, channelsManager.getScheduler(), relayType);
         this.channelsManager = channelsManager;
 
         // Connection state
@@ -98,6 +99,25 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         this.audioChannel = this.channelsManager.getAudioChannel();
         this.audioChannel.setCname(this.cname);
         this.audioChannel.setRtpListener(this);
+        this.audioChannel.setRelayType(relayType);
+    }
+
+    /**
+     * Constructs a new RTP connection with one audio channel.
+     * <p>
+     * The connection will perform media mixing by default. To change settings, set the relay type.
+     * </p>
+     * 
+     * @param id The unique ID of the connection
+     * @param channelsManager The media channel provider
+     */
+    public RtpConnection(int id, ChannelsManager channelsManager) {
+        this(id, channelsManager, RelayType.MIXER);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
     }
 
     @Override
@@ -124,23 +144,24 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     @Override
+    public void setRelayType(RelayType relayType) {
+        super.setRelayType(relayType);
+        this.audioChannel.setRelayType(relayType);
+    }
+
+    @Override
     public void setOtherParty(Connection other) throws IOException {
         throw new IOException("Applicable only for a local connection");
     }
 
     @Override
-    public void setOtherParty(byte[] descriptor) throws IOException {
+    public void setOtherParty(Text descriptor) throws IOException {
         try {
-            this.remoteSdp = SessionDescriptionParser.parse(new String(descriptor));
+            this.remoteSdp = SessionDescriptionParser.parse(descriptor.toString());
             setOtherParty();
         } catch (SdpException e) {
-            throw new IOException(e);
+            throw new IOException("Could not parse SDP offer: " + e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void setOtherParty(Text descriptor) throws IOException {
-        setOtherParty(descriptor.toString().getBytes());
     }
 
     /**
@@ -516,7 +537,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     @Override
-    public MediaComponent getMediaComponent(String mediaType) {
+    public MixerComponent getMediaComponent(String mediaType) {
         switch (mediaType) {
             case "audio":
                 return this.audioChannel.getMixerComponent();

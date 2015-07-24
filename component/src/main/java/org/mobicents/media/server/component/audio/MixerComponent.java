@@ -32,13 +32,13 @@ import org.mobicents.media.server.spi.ConnectionMode;
  * @author Henrique Rosa (henrique.rosa@gmail.com)
  *
  */
-public class MediaComponent {
+public class MixerComponent {
 
     private final int channelId;
     private final AudioComponent audioComponent;
     private final OOBComponent ooBComponent;
 
-    public MediaComponent(int channelId) {
+    public MixerComponent(int channelId) {
         this.channelId = channelId;
         this.audioComponent = new AudioComponent(channelId);
         this.ooBComponent = new OOBComponent(channelId);

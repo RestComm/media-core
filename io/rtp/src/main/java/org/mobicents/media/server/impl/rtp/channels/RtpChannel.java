@@ -40,7 +40,7 @@ import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.RtpComponent;
+import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
 import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -91,7 +91,7 @@ public abstract class RtpChannel {
 
     // RTP relay
     protected RelayType relayType;
-    protected RtpComponent mixerComponent;
+    protected RtpMixerComponent mixerComponent;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -138,7 +138,7 @@ public abstract class RtpChannel {
 
         // RTP relay
         this.relayType = RelayType.MIXER;
-        this.mixerComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.mixerComponent = new RtpMixerComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
         this.rtpTransport.setRtpRelay(this.mixerComponent);
 
         // RTP format negotiation
@@ -202,6 +202,25 @@ public abstract class RtpChannel {
         this.statistics.setCname(cname);
     }
 
+    public void setRelayType(RelayType relayType) {
+        if (this.relayType.equals(relayType)) {
+            this.relayType = relayType;
+            switch (relayType) {
+                case MIXER:
+                    // TODO close and reset translator
+                    // this.mixerComponent.deactivate();
+                    break;
+
+                case TRANSLATOR:
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
     /**
      * Gets the address the RTP channel is bound to.
      * 
@@ -258,7 +277,7 @@ public abstract class RtpChannel {
         return 0;
     }
 
-    public RtpComponent getMixerComponent() {
+    public RtpMixerComponent getMixerComponent() {
         return mixerComponent;
     }
 
@@ -308,9 +327,9 @@ public abstract class RtpChannel {
     private void reset() {
         // Reset codecs
         resetFormats();
-        
+
         // Reset relay components
-        this.mixerComponent.reset();
+        this.mixerComponent.setMode(ConnectionMode.INACTIVE);
 
         // Reset channels
         if (this.rtcpMux) {
@@ -884,7 +903,7 @@ public abstract class RtpChannel {
                 // Get selected RTP candidate for audio channel
                 IceAgent agent = event.getSource();
                 CandidatePair rtpCandidate = agent.getSelectedRtpCandidate(mediaType);
-                
+
                 // Bind candidate to RTP audio channel
                 rtpTransport.bind(rtpCandidate.getChannel());
                 rtpTransport.setRemotePeer(rtpCandidate.getRemoteAddress(), rtpCandidate.getRemotePort());

@@ -22,10 +22,8 @@
 
 package org.mobicents.media.core.connections;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Connection;
@@ -37,43 +35,37 @@ import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.utils.Text;
 
 /**
  * Implements connection's FSM.
  * 
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public abstract class AbstractConnection implements Connection {
 
+    // Connection properties
     private int id;
-
-    // Identifier of this connection
     private String textualId;
+    private RelayType relayType;
+    private ConnectionMode connectionMode = ConnectionMode.INACTIVE;
+    private Endpoint activeEndpoint;
 
-    // scheduler instance
-    protected Scheduler scheduler;
-
-    /** FSM current state */
-    private volatile ConnectionState state = ConnectionState.NULL;
+    // Finite state machine
+    private volatile ConnectionState currentState = ConnectionState.NULL;
     private final Object stateMonitor = new Integer(0);
 
     // connection event listeners
-    private Listeners<ConnectionListener> listeners = new Listeners<ConnectionListener>();
-
-    // events
+    private final Listeners<ConnectionListener> listeners;
     private ConnectionEvent stateEvent;
 
-    /** Remaining time to live in current state */
-    private volatile long ttl;
+    // Keep alive mechanism
+    protected Scheduler scheduler;
+    private volatile long timeToLive;
     private HeartBeat heartBeat;
-
-    private Endpoint activeEndpoint;
-
-    private ConnectionMode connectionMode = ConnectionMode.INACTIVE;
-    private static final Logger logger = Logger.getLogger(AbstractConnection.class);
 
     /**
      * Creates basic connection implementation.
@@ -81,17 +73,22 @@ public abstract class AbstractConnection implements Connection {
      * @param id the unique identifier of this connection within endpoint.
      * @param endpoint the endpoint owner of this connection.
      */
-    public AbstractConnection(int id, Scheduler scheduler) {
+    protected AbstractConnection(int id, Scheduler scheduler, RelayType relayType) {
+        // Connection properties
         this.id = id;
         this.textualId = Integer.toHexString(id);
+        this.relayType = relayType;
 
+        // Keep alive mechanism
         this.scheduler = scheduler;
-
         heartBeat = new HeartBeat();
 
         // initialize event objects
+        this.listeners = new Listeners<ConnectionListener>();
         this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
     }
+    
+    protected abstract Logger getLogger();
 
     @Override
     public int getId() {
@@ -102,11 +99,21 @@ public abstract class AbstractConnection implements Connection {
     public String getTextualId() {
         return textualId;
     }
+    
+    @Override
+    public RelayType getRelayType() {
+        return relayType;
+    }
+    
+    @Override
+    public void setRelayType(RelayType relayType) {
+        this.relayType = relayType;
+    }
 
     @Override
     public ConnectionState getState() {
         synchronized (stateMonitor) {
-            return state;
+            return currentState;
         }
     }
 
@@ -117,8 +124,8 @@ public abstract class AbstractConnection implements Connection {
      */
     private void setState(ConnectionState state) {
         // change state
-        this.state = state;
-        this.ttl = state.getTimeout() * 10 + 1;
+        this.currentState = state;
+        this.timeToLive = state.getTimeout() * 10 + 1;
 
         switch (state) {
             case HALF_OPEN:
@@ -135,7 +142,7 @@ public abstract class AbstractConnection implements Connection {
         try {
             listeners.dispatch(stateEvent);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            getLogger().error(e.getMessage(), e);
         }
     }
 
@@ -169,7 +176,7 @@ public abstract class AbstractConnection implements Connection {
         try {
             listeners.add(listener);
         } catch (TooManyListenersException e) {
-            logger.error(e.getMessage(), e);
+            getLogger().error(e.getMessage(), e);
         }
     }
 
@@ -184,7 +191,7 @@ public abstract class AbstractConnection implements Connection {
     public void bind() throws Exception {
         synchronized (stateMonitor) {
             // check current state
-            if (this.state != ConnectionState.NULL) {
+            if (this.currentState != ConnectionState.NULL) {
                 throw new IllegalStateException("Connection already bound");
             }
 
@@ -201,11 +208,11 @@ public abstract class AbstractConnection implements Connection {
      */
     public void join() throws Exception {
         synchronized (stateMonitor) {
-            if (this.state == ConnectionState.NULL) {
+            if (this.currentState == ConnectionState.NULL) {
                 throw new IllegalStateException("Connection not bound yet");
             }
 
-            if (this.state == ConnectionState.OPEN) {
+            if (this.currentState == ConnectionState.OPEN) {
                 throw new IllegalStateException("Connection opened already");
             }
 
@@ -222,7 +229,7 @@ public abstract class AbstractConnection implements Connection {
      */
     public void close() {
         synchronized (stateMonitor) {
-            if (this.state != ConnectionState.NULL) {
+            if (this.currentState != ConnectionState.NULL) {
                 this.onClosed();
                 setState(ConnectionState.NULL);
             }
@@ -231,7 +238,7 @@ public abstract class AbstractConnection implements Connection {
 
     private void fail() {
         synchronized (stateMonitor) {
-            if (this.state != ConnectionState.NULL) {
+            if (this.currentState != ConnectionState.NULL) {
                 this.onFailed();
                 setState(ConnectionState.NULL);
             }
@@ -290,33 +297,6 @@ public abstract class AbstractConnection implements Connection {
     protected abstract void onFailed();
 
     /**
-     * Joins endpoint wich executes this connection with other party.
-     * 
-     * @param other the connection executed by other party endpoint.
-     * @throws IOException
-     */
-    @Override
-    public abstract void setOtherParty(Connection other) throws IOException;
-
-    /**
-     * Joins endpoint which executes this connection with other party.
-     * 
-     * @param descriptor the SDP descriptor of the other party.
-     * @throws IOException
-     */
-    @Override
-    public abstract void setOtherParty(byte[] descriptor) throws IOException;
-
-    /**
-     * Joins endpoint which executes this connection with other party.
-     * 
-     * @param descriptor the SDP descriptor of the other party.
-     * @throws IOException
-     */
-    @Override
-    public abstract void setOtherParty(Text descriptor) throws IOException;
-
-    /**
      * Gets whether connection should be bound to local or remote interface.
      * <p>
      * <b>Supported only for RTP connections.</b>
@@ -361,8 +341,8 @@ public abstract class AbstractConnection implements Connection {
         @Override
         public long perform() {
             synchronized (stateMonitor) {
-                ttl--;
-                if (ttl == 0) {
+                timeToLive--;
+                if (timeToLive == 0) {
                     fail();
                 } else {
                     scheduler.submitHeatbeat(this);
@@ -372,6 +352,6 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    public abstract MediaComponent getMediaComponent(String mediaType);
+    public abstract MixerComponent getMediaComponent(String mediaType);
 
 }

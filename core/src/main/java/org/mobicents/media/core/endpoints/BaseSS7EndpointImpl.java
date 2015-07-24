@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -48,7 +48,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
     protected OOBSplitter oobSplitter;
 
     // Media splitter components
-    private final ConcurrentMap<MediaComponent> mediaComponents;
+    private final ConcurrentMap<MixerComponent> mediaComponents;
 
     private AtomicInteger loopbackCount = new AtomicInteger(0);
     private AtomicInteger readCount = new AtomicInteger(0);
@@ -65,7 +65,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
         this.isALaw = isALaw;
         this.channelID = channelID;
         this.channelsManager = channelsManager;
-        this.mediaComponents = new ConcurrentMap<MediaComponent>(2);
+        this.mediaComponents = new ConcurrentMap<MixerComponent>(2);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
         AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
 
         // Retrieve and register the mixer component of the connection
-        MediaComponent mediaComponent = connection.getMediaComponent("audio");
+        MixerComponent mediaComponent = connection.getMediaComponent("audio");
         this.mediaComponents.put(connection.getId(), mediaComponent);
 
         // Add media component to the media splitter
@@ -130,7 +130,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
         super.deleteConnection(connection, connectionType);
 
         // Unregister the media component of the connection
-        MediaComponent mediaComponent = this.mediaComponents.remove(connection.getId());
+        MixerComponent mediaComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the media component from the media splitter
         audioSplitter.releaseOutsideComponent(mediaComponent.getAudioComponent());
