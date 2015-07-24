@@ -122,7 +122,7 @@ public class MyTestConnection extends AbstractConnection {
     }
 
     @Override
-    protected void onCreated() throws Exception {
+    protected void onCreated() {
         this.created = true;
     }
 
@@ -136,7 +136,7 @@ public class MyTestConnection extends AbstractConnection {
     }
 
     @Override
-    protected void onOpened() throws Exception {
+    protected void onOpened() {
         this.opened = true;
     }
 

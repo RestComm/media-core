@@ -506,7 +506,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     @Override
-    protected void onCreated() throws Exception {
+    protected void onCreated() {
         // Reset components so they can be re-used in new calls
         reset();
     }
