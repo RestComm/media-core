@@ -32,6 +32,7 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface Connection {
+
     /**
      * Gets the identifier of this connection.
      *
@@ -47,14 +48,14 @@ public interface Connection {
     public String getTextualId();
 
     /**
-     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     * Gets whether connection should be bound to local or remote interface (supported only for rtp connections).
      *
      * @return boolean value
      */
     public boolean getIsLocal();
 
     /**
-     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     * Sets whether connection should be bound to local or remote interface (supported only for rtp connections).
      *
      * @return boolean value
      */

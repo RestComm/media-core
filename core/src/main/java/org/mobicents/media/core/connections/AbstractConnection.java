@@ -28,7 +28,6 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionEvent;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionState;
@@ -87,8 +86,6 @@ public abstract class AbstractConnection implements Connection {
         this.listeners = new Listeners<ConnectionListener>();
         this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
     }
-    
-    protected abstract Logger getLogger();
 
     @Override
     public int getId() {
@@ -99,12 +96,12 @@ public abstract class AbstractConnection implements Connection {
     public String getTextualId() {
         return textualId;
     }
-    
+
     @Override
     public RelayType getRelayType() {
         return relayType;
     }
-    
+
     @Override
     public void setRelayType(RelayType relayType) {
         this.relayType = relayType;
@@ -185,9 +182,7 @@ public abstract class AbstractConnection implements Connection {
         listeners.remove(listener);
     }
 
-    /**
-     * Initiates transition from NULL to HALF_OPEN state.
-     */
+    @Override
     public void halfOpen() throws IllegalStateException {
         synchronized (stateMonitor) {
             // check current state
@@ -241,21 +236,11 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    /**
-     * Gets the current mode of this connection.
-     * 
-     * @return integer constant indicating mode.
-     */
     @Override
     public ConnectionMode getMode() {
         return connectionMode;
     }
 
-    /**
-     * Modify mode of this connection for all known media types.
-     * 
-     * @param mode the new mode of the connection.
-     */
     @Override
     public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
         if (this.activeEndpoint != null) {
@@ -264,11 +249,26 @@ public abstract class AbstractConnection implements Connection {
         this.connectionMode = mode;
     }
 
-    /**
-     * Sets connection failure listener.
-     */
     @Override
-    public abstract void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener);
+    public boolean getIsLocal() {
+        return false;
+    }
+
+    @Override
+    public void setIsLocal(boolean isLocal) {
+        // do nothing
+    }
+
+    protected void releaseConnection(ConnectionType connectionType) {
+        if (this.activeEndpoint != null) {
+            this.activeEndpoint.deleteConnection(this, connectionType);
+        }
+        this.activeEndpoint = null;
+    }
+
+    protected abstract Logger getLogger();
+
+    public abstract MixerComponent getMediaComponent(String mediaType);
 
     /**
      * Called when connection created.
@@ -277,8 +277,6 @@ public abstract class AbstractConnection implements Connection {
 
     /**
      * Called when connected moved to OPEN state.
-     * 
-     * @throws Exception
      */
     protected abstract void onOpened();
 
@@ -291,37 +289,6 @@ public abstract class AbstractConnection implements Connection {
      * Called if failure has bean detected during transition.
      */
     protected abstract void onFailed();
-
-    /**
-     * Gets whether connection should be bound to local or remote interface.
-     * <p>
-     * <b>Supported only for RTP connections.</b>
-     * </p>
-     * 
-     * @return boolean value
-     */
-    @Override
-    public boolean getIsLocal() {
-        return false;
-    }
-
-    /**
-     * Sets whether connection should be bound to local or remote interface.
-     * <p>
-     * <b>Supported only for RTP connections.</b>
-     * </p>
-     */
-    @Override
-    public void setIsLocal(boolean isLocal) {
-        // do nothing
-    }
-
-    protected void releaseConnection(ConnectionType connectionType) {
-        if (this.activeEndpoint != null) {
-            this.activeEndpoint.deleteConnection(this, connectionType);
-        }
-        this.activeEndpoint = null;
-    }
 
     private class HeartBeat extends Task {
 
@@ -347,7 +314,5 @@ public abstract class AbstractConnection implements Connection {
             return 0;
         }
     }
-
-    public abstract MixerComponent getMediaComponent(String mediaType);
 
 }
