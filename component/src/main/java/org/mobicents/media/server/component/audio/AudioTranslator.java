@@ -21,14 +21,9 @@
 
 package org.mobicents.media.server.component.audio;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 
 /**
  * Implementation of a translator that forwards packets to all registered receivers.
@@ -39,27 +34,18 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  */
 public class AudioTranslator {
 
-    // The format of the output stream.
-    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private static final long PERIOD = 20000000L;
-    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
-            * LINEAR_FORMAT.getSampleSize() / 8;
-
     // Pool of components
     private final ConcurrentMap<AudioComponent> components;
 
     // Schedulers for translator job scheduling
     private final Scheduler scheduler;
-    // private final TranslateTask task;
+    private final TranslateTask task;
     private volatile boolean started = false;
 
     public AudioTranslator(Scheduler scheduler) {
         this.scheduler = scheduler;
+        this.task = new TranslateTask();
         this.components = new ConcurrentMap<AudioComponent>();
-    }
-
-    protected int getPacketSize() {
-        return PACKET_SIZE;
     }
 
     /**
@@ -80,8 +66,21 @@ public class AudioTranslator {
         components.remove(component.getComponentId());
     }
 
+    public void start() {
+        if (!this.started) {
+            this.started = true;
+            this.scheduler.submit(this.task, Scheduler.MIXER_MIX_QUEUE);
+        }
+    }
+
+    public void stop() {
+        if (this.started) {
+            this.started = false;
+            this.task.cancel();
+        }
+    }
+
     private class TranslateTask extends Task {
-        private int sourcesCount = 0;
         private int currentData[];
 
         @Override
