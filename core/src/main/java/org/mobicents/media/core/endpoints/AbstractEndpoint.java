@@ -171,7 +171,7 @@ public abstract class AbstractEndpoint implements Endpoint {
         connection.setIsLocal(isLocal);
 
         try {
-            ((AbstractConnection) connection).bind();
+            ((AbstractConnection) connection).halfOpen();
         } catch (Exception e) {
             e.printStackTrace();
             throw new ResourceUnavailableException(e.getMessage());

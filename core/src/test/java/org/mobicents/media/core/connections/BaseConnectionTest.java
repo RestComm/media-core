@@ -174,10 +174,10 @@ public class BaseConnectionTest implements ConnectionListener {
 //    @Test
     public void testJoin() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
-        connection.bind();
+        connection.halfOpen();
         Thread.sleep(500);
         
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());
@@ -191,10 +191,10 @@ public class BaseConnectionTest implements ConnectionListener {
     public void testClose() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
 
-        connection.bind();
+        connection.halfOpen();
         Thread.sleep(500);
 
-        connection.join();
+        connection.open();
         Thread.sleep(500);
         
         connection.close();

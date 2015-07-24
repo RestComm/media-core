@@ -85,8 +85,8 @@ public class LocalConnection extends AbstractConnection {
         this.localAudioChannel.join(((LocalConnection) other).localAudioChannel);
 
         try {
-            join();
-            ((LocalConnection) other).join();
+            open();
+            ((LocalConnection) other).open();
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -126,7 +126,7 @@ public class LocalConnection extends AbstractConnection {
     }
 
     @Override
-    protected void onCreated() throws Exception {
+    protected void onCreated() {
         // descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
     }
 
@@ -149,7 +149,7 @@ public class LocalConnection extends AbstractConnection {
     }
 
     @Override
-    protected void onOpened() throws Exception {
+    protected void onOpened() {
     }
 
     @Override

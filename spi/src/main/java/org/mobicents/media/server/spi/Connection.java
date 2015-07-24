@@ -231,4 +231,21 @@ public interface Connection {
      */
     public void setRelayType(RelayType relayType);
 
+    /**
+     * Moves the connection to an half-open state.
+     */
+    public void halfOpen();
+
+    /**
+     * Opens the connection
+     * 
+     * @throws IllegalStateException when moving to an OPEN state is illegal.
+     */
+    public void open() throws IllegalStateException;
+
+    /**
+     * Closes the connection
+     */
+    public void close();
+
 }

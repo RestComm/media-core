@@ -188,7 +188,7 @@ public abstract class AbstractConnection implements Connection {
     /**
      * Initiates transition from NULL to HALF_OPEN state.
      */
-    public void bind() throws Exception {
+    public void halfOpen() throws IllegalStateException {
         synchronized (stateMonitor) {
             // check current state
             if (this.currentState != ConnectionState.NULL) {
@@ -203,10 +203,8 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    /**
-     * Initiates transition from HALF_OPEN to OPEN state.
-     */
-    public void join() throws Exception {
+    @Override
+    public void open() throws IllegalStateException {
         synchronized (stateMonitor) {
             if (this.currentState == ConnectionState.NULL) {
                 throw new IllegalStateException("Connection not bound yet");
@@ -224,9 +222,7 @@ public abstract class AbstractConnection implements Connection {
         }
     }
 
-    /**
-     * Initiates transition from any state to state NULL.
-     */
+    @Override
     public void close() {
         synchronized (stateMonitor) {
             if (this.currentState != ConnectionState.NULL) {
@@ -277,14 +273,14 @@ public abstract class AbstractConnection implements Connection {
     /**
      * Called when connection created.
      */
-    protected abstract void onCreated() throws Exception;
+    protected abstract void onCreated();
 
     /**
      * Called when connected moved to OPEN state.
      * 
      * @throws Exception
      */
-    protected abstract void onOpened() throws Exception;
+    protected abstract void onOpened();
 
     /**
      * Called when connection is moving from OPEN state to NULL state.

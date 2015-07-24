@@ -115,7 +115,7 @@ public class BaseConnectionFSMTest1 {
     @Test
     public void testCreateTransition() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
-        connection.bind();
+        connection.halfOpen();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
@@ -124,7 +124,7 @@ public class BaseConnectionFSMTest1 {
     @Test
     public void test_HALF_OPEN_Timeout() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
-        connection.bind();
+        connection.halfOpen();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
@@ -136,12 +136,12 @@ public class BaseConnectionFSMTest1 {
     @Test
     public void testOpenTransition() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
-        connection.bind();
+        connection.halfOpen();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
 
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());
@@ -150,12 +150,12 @@ public class BaseConnectionFSMTest1 {
     @Test
     public void test_OPEN_timeout() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
-        connection.bind();
+        connection.halfOpen();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
 
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());
@@ -167,7 +167,7 @@ public class BaseConnectionFSMTest1 {
     @Test
     public void test_HALF_OPEN_Close() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
-        connection.bind();
+        connection.halfOpen();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
@@ -181,12 +181,12 @@ public class BaseConnectionFSMTest1 {
     @Test
     public void test_OPEN_Close() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
-        connection.bind();
+        connection.halfOpen();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
 
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());

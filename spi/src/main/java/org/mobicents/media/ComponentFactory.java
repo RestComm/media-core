@@ -23,11 +23,13 @@
 package org.mobicents.media;
 
 import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionType;
 
 /**
  * Acts as a factory of any media components.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface ComponentFactory {
     /**
@@ -37,7 +39,7 @@ public interface ComponentFactory {
      * @return new instance of the component.
      */
     public Component newAudioComponent(ComponentType componentType);
-    
+
     /**
      * Frees previously allocated component component.
      * 
@@ -45,21 +47,32 @@ public interface ComponentFactory {
      * @param componentType - type of component to be created
      * 
      */
-    public void releaseAudioComponent(Component component,ComponentType componentType);
-    
+    public void releaseAudioComponent(Component component, ComponentType componentType);
+
     /**
      * Constructs new connection.
      * 
      * @param isLocal - created connection should be local or remote
      * @return new instance of the connection.
+     * @deprecated use {@link #newConnection(ConnectionType, boolean)}
      */
+    @Deprecated
     public Connection newConnection(boolean isLocal);
-    
+
+    /**
+     * Creates a new connection.
+     * 
+     * @param type the type of connection to be created.
+     * @param local whether the connection should be bound to a local or remote interface
+     * @return the newly constructed connection.
+     */
+    public Connection newConnection(ConnectionType type, boolean local);
+
     /**
      * Releases new connection.
      * 
      * @param connection - connection to release
-     * @param isLocal - created connection should be local or remote 
+     * @param isLocal - created connection should be local or remote
      */
-    public void releaseConnection(Connection connection,boolean isLocal);
+    public void releaseConnection(Connection connection, boolean isLocal);
 }

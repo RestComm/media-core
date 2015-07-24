@@ -242,7 +242,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
 
         // Change the state of this RTP connection from HALF_OPEN to OPEN
         try {
-            this.join();
+            this.open();
         } catch (Exception e) {
             // exception is possible here when already joined
             logger.warn("Could not set connection state to OPEN", e);
@@ -268,7 +268,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
 
         // Change the state of this RTP connection from HALF_OPEN to OPEN
         try {
-            this.join();
+            this.open();
         } catch (Exception e) {
             // exception is possible here when already joined
             logger.warn("Could not set connection state to OPEN", e);
@@ -520,7 +520,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     @Override
-    protected void onOpened() throws Exception {
+    protected void onOpened() {
         // TODO not implemented
     }
 
