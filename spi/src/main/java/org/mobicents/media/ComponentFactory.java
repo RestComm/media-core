@@ -73,6 +73,15 @@ public interface ComponentFactory {
      * 
      * @param connection - connection to release
      * @param isLocal - created connection should be local or remote
+     * @deprecated use {@link #releaseConnection(Connection)}
      */
+    @Deprecated
     public void releaseConnection(Connection connection, boolean isLocal);
+
+    /**
+     * Releases a connection and places it back into the pool.
+     * 
+     * @param connection the connection to be released
+     */
+    public void releaseConnection(Connection connection);
 }

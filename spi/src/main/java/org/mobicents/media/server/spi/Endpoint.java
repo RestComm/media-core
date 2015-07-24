@@ -78,13 +78,6 @@ public interface Endpoint {
     public void deleteConnection(Connection connection);
 
     /**
-     * Deletes specified connection.
-     *
-     * @param connection the connection to be deleted.
-     */
-    public void deleteConnection(Connection connection, ConnectionType type);
-
-    /**
      * Notifies that mode has been update on one of connections
      *
      * @param connection the connection to be deleted.

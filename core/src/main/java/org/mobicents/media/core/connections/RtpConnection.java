@@ -55,6 +55,7 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  * @see AbstractConnection
+ * @see RtpListener
  */
 public class RtpConnection extends AbstractConnection implements RtpListener {
 
@@ -66,7 +67,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     // RTP session elements
     private String cname;
     private boolean outbound;
-    private boolean local;
+    private boolean localInterface;
 
     // Media Channels
     private AudioChannel audioChannel;
@@ -87,12 +88,12 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      */
     public RtpConnection(int id, ChannelsManager channelsManager, RelayType relayType) {
         // Core elements
-        super(id, channelsManager.getScheduler(), relayType);
+        super(id, channelsManager.getScheduler(), relayType, ConnectionType.RTP);
         this.channelsManager = channelsManager;
 
         // Connection state
         this.outbound = false;
-        this.local = false;
+        this.localInterface = false;
         this.cname = CnameGenerator.generateCname();
 
         // Audio Channel
@@ -135,12 +136,12 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
 
     @Override
     public boolean getIsLocal() {
-        return this.local;
+        return this.localInterface;
     }
 
     @Override
     public void setIsLocal(boolean isLocal) {
-        this.local = isLocal;
+        this.localInterface = isLocal;
     }
 
     @Override
@@ -220,7 +221,8 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         }
 
         // Generate SDP answer
-        String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
+        String bindAddress = this.localInterface ? this.channelsManager.getLocalBindAddress() : this.channelsManager
+                .getBindAddress();
         String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
         if (this.audioChannel.isOpen()) {
             this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioChannel);
@@ -314,7 +316,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         } else {
             // ICE is not active. Bind RTP and RTCP channels right now.
             String remoteAddr = remoteAudio.getConnection().getAddress();
-            this.audioChannel.bind(this.local, rtcpMux);
+            this.audioChannel.bind(this.localInterface, rtcpMux);
             this.audioChannel.connectRtp(remoteAddr, remoteAudio.getPort());
             this.audioChannel.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
         }
@@ -389,10 +391,10 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
 
             // setup audio channel
             this.audioChannel.open();
-            this.audioChannel.bind(this.local, false);
+            this.audioChannel.bind(this.localInterface, false);
 
             // generate SDP offer based on audio channel
-            String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager
+            String bindAddress = this.localInterface ? this.channelsManager.getLocalBindAddress() : this.channelsManager
                     .getBindAddress();
             String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
             this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioChannel);
@@ -532,7 +534,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         } catch (ModeNotSupportedException e) {
             logger.warn("Could not set connection mode to INACTIVE.", e);
         }
-        releaseConnection(ConnectionType.RTP);
+        releaseConnection();
         this.connectionFailureListener = null;
     }
 

@@ -48,6 +48,13 @@ public interface Connection {
     public String getTextualId();
 
     /**
+     * Gets the type of the connection.
+     * 
+     * @return the type of the connection
+     */
+    public ConnectionType getConnectionType();
+
+    /**
      * Gets whether connection should be bound to local or remote interface (supported only for rtp connections).
      *
      * @return boolean value
@@ -248,5 +255,12 @@ public interface Connection {
      * Closes the connection
      */
     public void close();
+
+    /**
+     * Gets whether the connection is currently closed.
+     * 
+     * @return Returns true if connections is closed; otherwise returns false.
+     */
+    public boolean isClosed();
 
 }

@@ -22,17 +22,13 @@
 
 package org.mobicents.media.core.endpoints;
 
-import java.util.Iterator;
-
 import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
@@ -48,32 +44,22 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  */
 public abstract class AbstractEndpoint implements Endpoint {
 
-    // local name of this endpoint
-    private String localName;
-
-    // current state of this endpoint
-    private EndpointState state = EndpointState.READY;
-
-    // media group
-    protected MediaGroup mediaGroup;
-
-    // resources pool
+    // Core elements
     protected ResourcesPool resourcesPool;
-
-    // job scheduler
     private Scheduler scheduler;
 
-    // logger instance
-    private final Logger logger = Logger.getLogger(AbstractEndpoint.class);
-
-    private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
-    private Iterator<Connection> connectionsIterator;
-
+    // Endpoint properties
+    private final String localName;
     private final RelayType relayType;
+    private final ConcurrentMap<Connection> connections;
+    private EndpointState state;
+    protected MediaGroup mediaGroup;
 
     public AbstractEndpoint(String localName, RelayType relayType) {
         this.localName = localName;
         this.relayType = relayType;
+        this.connections = new ConcurrentMap<Connection>();
+        this.state = EndpointState.READY;
     }
 
     public AbstractEndpoint(String localName) {
@@ -82,12 +68,26 @@ public abstract class AbstractEndpoint implements Endpoint {
 
     @Override
     public String getLocalName() {
-        return localName;
+        return this.localName;
     }
-    
+
+    @Override
+    public EndpointState getState() {
+        return this.state;
+    }
+
+    public void setState(EndpointState state) {
+        this.state = state;
+    }
+
     @Override
     public RelayType getRelayType() {
-        return relayType;
+        return this.relayType;
+    }
+
+    @Override
+    public Scheduler getScheduler() {
+        return this.scheduler;
     }
 
     @Override
@@ -95,46 +95,12 @@ public abstract class AbstractEndpoint implements Endpoint {
         this.scheduler = scheduler;
     }
 
-    @Override
-    public Scheduler getScheduler() {
-        return scheduler;
-    }
-
-    /**
-     * Assigns resources pool.
-     * 
-     * @param resourcesPool the resources pool instance.
-     */
     public void setResourcesPool(ResourcesPool resourcesPool) {
         this.resourcesPool = resourcesPool;
     }
 
-    /**
-     * Provides access to the resources pool.
-     * 
-     * @return scheduler instance.
-     */
-    public ResourcesPool getResourcesPool() {
-        return resourcesPool;
-    }
-
-    @Override
-    public EndpointState getState() {
-        return state;
-    }
-
-    /**
-     * Modifies state indicator.
-     * 
-     * @param state the new value of the state indicator.
-     */
-    public void setState(EndpointState state) {
-        this.state = state;
-    }
-
     @Override
     public void start() throws ResourceUnavailableException {
-        // do checks before start
         if (scheduler == null) {
             throw new ResourceUnavailableException("Scheduler is not available");
         }
@@ -144,7 +110,7 @@ public abstract class AbstractEndpoint implements Endpoint {
         }
 
         // create connections subsystem
-        mediaGroup = new MediaGroup(resourcesPool, this);
+        this.mediaGroup = new MediaGroup(resourcesPool, this);
     }
 
     @Override
@@ -152,78 +118,59 @@ public abstract class AbstractEndpoint implements Endpoint {
         mediaGroup.releaseAll();
         deleteAllConnections();
         // TODO: unregister at scheduler level
-        logger.info("Stopped " + localName);
+        getLogger().info("Endpoint " + localName + "has stopped.");
+    }
+
+    public Connection getConnection(int connectionId) {
+        return this.connections.get(connectionId);
+    }
+
+    @Override
+    public int getActiveConnectionsCount() {
+        return this.connections.size();
     }
 
     @Override
     public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
-
-        Connection connection = null;
-        switch (type) {
-            case RTP:
-                connection = resourcesPool.newConnection(false);
-                break;
-            case LOCAL:
-                connection = resourcesPool.newConnection(true);
-                break;
-        }
-
-        connection.setIsLocal(isLocal);
-
         try {
-            ((AbstractConnection) connection).halfOpen();
+            Connection connection = resourcesPool.newConnection(type, isLocal);
+            connection.setEndpoint(this);
+            connection.halfOpen();
+            connections.put(connection.getId(), connection);
+            return connection;
         } catch (Exception e) {
-            e.printStackTrace();
+            getLogger().error("Could not create a new connection: " + e.getMessage(), e);
             throw new ResourceUnavailableException(e.getMessage());
         }
-
-        connection.setEndpoint(this);
-        connections.put(connection.getId(), connection);
-        return connection;
     }
 
     @Override
     public void deleteConnection(Connection connection) {
-        ((AbstractConnection) connection).close();
-    }
-
-    @Override
-    public void deleteConnection(Connection connection, ConnectionType connectionType) {
-        connections.remove(connection.getId());
-
-        switch (connectionType) {
-            case RTP:
-                resourcesPool.releaseConnection(connection, false);
-                break;
-            case LOCAL:
-                resourcesPool.releaseConnection(connection, true);
-                break;
+        // Close the connection if necessary
+        if (!connection.isClosed()) {
+            connection.close();
         }
 
-        if (connections.size() == 0) {
-            mediaGroup.releaseAll();
+        // Release the connection back to the resources pool
+        this.connections.remove(connection.getId());
+        this.resourcesPool.releaseConnection(connection);
+
+        // Release the media group is no more connections are active
+        if (this.connections.isEmpty()) {
+            this.mediaGroup.releaseAll();
         }
     }
 
     @Override
     public void deleteAllConnections() {
-        connectionsIterator = connections.valuesIterator();
-        while (connectionsIterator.hasNext()) {
-            ((AbstractConnection) connectionsIterator.next()).close();
+        for (Connection connection : connections.values()) {
+            deleteConnection(connection);
         }
-    }
-
-    public Connection getConnection(int connectionID) {
-        return connections.get(connectionID);
-    }
-
-    @Override
-    public int getActiveConnectionsCount() {
-        return connections.size();
     }
 
     @Override
     public void configure(boolean isALaw) {
+        // Does nothing
     }
 
     @Override
@@ -244,13 +191,11 @@ public abstract class AbstractEndpoint implements Endpoint {
                     case SIGNAL_GENERATOR:
                         return mediaGroup.getSignalGenerator();
                     default:
-                        break;
+                        return null;
                 }
-                break;
             default:
-                break;
+                return null;
         }
-        return null;
     }
 
     @Override
@@ -271,13 +216,11 @@ public abstract class AbstractEndpoint implements Endpoint {
                     case SIGNAL_GENERATOR:
                         return mediaGroup.hasSignalGenerator();
                     default:
-                        break;
+                        return false;
                 }
-                break;
             default:
-                break;
+                return false;
         }
-        return false;
     }
 
     @Override
@@ -301,12 +244,12 @@ public abstract class AbstractEndpoint implements Endpoint {
                         break;
                 }
                 break;
+
             default:
                 break;
         }
     }
 
-    @Override
-    public abstract void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
+    protected abstract Logger getLogger();
 
 }

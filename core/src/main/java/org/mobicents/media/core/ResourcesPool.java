@@ -468,4 +468,29 @@ public class ResourcesPool implements ComponentFactory {
             }
         }
     }
+
+    @Override
+    public void releaseConnection(Connection connection) {
+        switch (connection.getConnectionType()) {
+            case RTP:
+                this.remoteConnections.offer(connection);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Released rtp connection,pool size:" + rtpConnectionsCount.get() + ",free:"
+                            + remoteConnections.size());
+                }
+                break;
+
+            case LOCAL:
+                this.localConnections.offer(connection);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Released local connection,pool size:" + localConnectionsCount.get() + ",free:"
+                            + localConnections.size());
+                }
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown connection type " + connection.getConnectionType());
+        }
+
+    }
 }

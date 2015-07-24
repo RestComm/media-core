@@ -33,6 +33,7 @@ import org.mobicents.media.server.component.audio.MixerComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.utils.Text;
@@ -54,7 +55,7 @@ public class MyTestConnection extends AbstractConnection {
     private final MixerComponent mediaComponent;
 
     public MyTestConnection(int id, Scheduler scheduler) throws Exception {
-        super(id, scheduler, RelayType.MIXER);
+        super(id, scheduler, RelayType.MIXER, ConnectionType.LOCAL);
         this.mediaComponent = new MixerComponent(id);
     }
 

@@ -30,12 +30,12 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author yulian oifa
  */
 public class ConfiguratorTest {
-    
+
     private Configurator configurator;
     private Scheduler scheduler;
     private Clock clock;
     MyEndpoint endpoint;
-    
+
     @BeforeClass
     public static void setUpClass() throws Exception {
     }
@@ -43,19 +43,19 @@ public class ConfiguratorTest {
     @AfterClass
     public static void tearDownClass() throws Exception {
     }
-    
+
     @Before
     public void setUp() throws Exception {
-    	clock = new DefaultClock();
-    	
-    	scheduler = new Scheduler();
+        clock = new DefaultClock();
+
+        scheduler = new Scheduler();
         scheduler.setClock(clock);
-        scheduler.start();  
-        
+        scheduler.start();
+
         configurator = new Configurator(getClass().getResourceAsStream("/mgcp-conf.xml"));
-        endpoint = new MyEndpoint("mobicents/ivr/1",scheduler);
+        endpoint = new MyEndpoint("mobicents/ivr/1", scheduler);
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -64,21 +64,21 @@ public class ConfiguratorTest {
      * Test of activate method, of class Configurator.
      */
     @Test
-    public void testActivate() throws Exception {      
-    	MgcpEndpoint activity = configurator.activate(endpoint, null, "127.0.0.1", 9201);
-        assertTrue(activity != null);    	    	
+    public void testActivate() throws Exception {
+        MgcpEndpoint activity = configurator.activate(endpoint, null, "127.0.0.1", 9201);
+        assertTrue(activity != null);
     }
-    
+
     private class MyEndpoint implements Endpoint {
 
         private String name;
         private Scheduler scheduler;
-        
-        public MyEndpoint(String name,Scheduler scheduler) {
+
+        public MyEndpoint(String name, Scheduler scheduler) {
             this.name = name;
-            this.scheduler=scheduler;
+            this.scheduler = scheduler;
         }
-        
+
         @Override
         public String getLocalName() {
             return name;
@@ -86,20 +86,19 @@ public class ConfiguratorTest {
 
         @Override
         public void setScheduler(Scheduler scheduler) {
-        	throw new UnsupportedOperationException("Not supported yet.");
+            throw new UnsupportedOperationException("Not supported yet.");
         }
-        
+
         @Override
         public Scheduler getScheduler() {
             return scheduler;
         }
-        
+
         @Override
-        public int getActiveConnectionsCount()
-        {
-        	return 0;
+        public int getActiveConnectionsCount() {
+            return 0;
         }
-        
+
         @Override
         public EndpointState getState() {
             throw new UnsupportedOperationException("Not supported yet.");
@@ -116,17 +115,13 @@ public class ConfiguratorTest {
         }
 
         @Override
-        public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
+        public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
         public void deleteConnection(Connection connection) {
             throw new UnsupportedOperationException("Not supported yet.");
-        }
-        
-        @Override
-        public void deleteConnection(Connection connection,ConnectionType type) {
         }
 
         @Override
@@ -136,33 +131,32 @@ public class ConfiguratorTest {
 
         @Override
         public void configure(boolean isALaw) {
-        	throw new UnsupportedOperationException("Not supported yet.");
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
-        public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode) {    
+        public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
         }
-        
+
         @Override
         public Component getResource(MediaType mediaType, ComponentType componentType) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-    
+
         @Override
         public boolean hasResource(MediaType mediaType, ComponentType componentType) {
-        	return false;
+            return false;
         }
-        
+
         @Override
-        public void releaseResource(MediaType mediaType, ComponentType componentType) {    
+        public void releaseResource(MediaType mediaType, ComponentType componentType) {
         }
 
         @Override
         public RelayType getRelayType() {
             return RelayType.MIXER;
         }
-        
-    }
-    
-}
 
+    }
+
+}

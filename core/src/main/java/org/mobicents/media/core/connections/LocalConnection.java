@@ -48,7 +48,7 @@ public class LocalConnection extends AbstractConnection {
     private LocalChannel localAudioChannel;
 
     public LocalConnection(int id, ChannelsManager channelsManager, RelayType relayType) {
-        super(id, channelsManager.getScheduler(), relayType);
+        super(id, channelsManager.getScheduler(), relayType, ConnectionType.LOCAL);
         this.localAudioChannel = channelsManager.getLocalChannel();
         this.localAudioChannel.setRelayType(relayType);
     }
@@ -139,7 +139,7 @@ public class LocalConnection extends AbstractConnection {
 
         this.localAudioChannel.unjoin();
         // release connection
-        releaseConnection(ConnectionType.LOCAL);
+        releaseConnection();
     }
 
     @Override
@@ -161,7 +161,7 @@ public class LocalConnection extends AbstractConnection {
 
         this.localAudioChannel.unjoin();
         // release connection
-        releaseConnection(ConnectionType.LOCAL);
+        releaseConnection();
     }
 
     public boolean isAvailable() {

@@ -41,41 +41,39 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author yulian oifa
  */
 public class MyTestEndpoint implements Endpoint {
-    
+
     private String localName;
-    
+
     public MyTestEndpoint(String localName) {
         this.localName = localName;
     }
-    
+
     @Override
     public String getLocalName() {
         return localName;
     }
-    
+
     @Override
-    public int getActiveConnectionsCount()
-    {
-    	return 0;
+    public int getActiveConnectionsCount() {
+        return 0;
     }
 
-    public void setRtpConnections(int rtpConnections)
-    {        	
+    public void setRtpConnections(int rtpConnections) {
     }
-    
-    public void setLocalConnections(int localConnections)
-    {        	
+
+    public void setLocalConnections(int localConnections) {
     }
-    
+
     @Override
     public void setScheduler(Scheduler scheduler) {
-    	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
     public Scheduler getScheduler() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
     @Override
     public EndpointState getState() {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -96,18 +94,13 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     @Override
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void deleteConnection(Connection connection) {
-        
-    }
 
-    @Override
-    public void deleteConnection(Connection connection,ConnectionType type) {
-        
     }
 
     @Override
@@ -125,29 +118,30 @@ public class MyTestEndpoint implements Endpoint {
 
     @Override
     public void configure(boolean isALaw) {
-    	throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode) {    
+    public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
     }
-    
+
     @Override
     public Component getResource(MediaType mediaType, ComponentType componentType) {
         return null;
     }
-    
+
     @Override
     public boolean hasResource(MediaType mediaType, ComponentType componentType) {
-    	return false;
+        return false;
     }
+
     @Override
-    public void releaseResource(MediaType mediaType, ComponentType componentType) {    
+    public void releaseResource(MediaType mediaType, ComponentType componentType) {
     }
 
     @Override
     public RelayType getRelayType() {
         return RelayType.MIXER;
     }
-    
+
 }

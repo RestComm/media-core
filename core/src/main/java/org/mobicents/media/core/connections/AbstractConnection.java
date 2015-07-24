@@ -50,6 +50,7 @@ public abstract class AbstractConnection implements Connection {
     private int id;
     private String textualId;
     private RelayType relayType;
+    private final ConnectionType connectionType;
     private ConnectionMode connectionMode = ConnectionMode.INACTIVE;
     private Endpoint activeEndpoint;
 
@@ -72,11 +73,12 @@ public abstract class AbstractConnection implements Connection {
      * @param id the unique identifier of this connection within endpoint.
      * @param endpoint the endpoint owner of this connection.
      */
-    protected AbstractConnection(int id, Scheduler scheduler, RelayType relayType) {
+    protected AbstractConnection(int id, Scheduler scheduler, RelayType relayType, ConnectionType connectionType) {
         // Connection properties
         this.id = id;
         this.textualId = Integer.toHexString(id);
         this.relayType = relayType;
+        this.connectionType = connectionType;
 
         // Keep alive mechanism
         this.scheduler = scheduler;
@@ -105,6 +107,11 @@ public abstract class AbstractConnection implements Connection {
     @Override
     public void setRelayType(RelayType relayType) {
         this.relayType = relayType;
+    }
+    
+    @Override
+    public ConnectionType getConnectionType() {
+        return this.connectionType;
     }
 
     @Override
@@ -226,6 +233,11 @@ public abstract class AbstractConnection implements Connection {
             }
         }
     }
+    
+    @Override
+    public boolean isClosed() {
+        return this.currentState.equals(ConnectionState.NULL);
+    }
 
     private void fail() {
         synchronized (stateMonitor) {
@@ -259,9 +271,9 @@ public abstract class AbstractConnection implements Connection {
         // do nothing
     }
 
-    protected void releaseConnection(ConnectionType connectionType) {
+    protected void releaseConnection() {
         if (this.activeEndpoint != null) {
-            this.activeEndpoint.deleteConnection(this, connectionType);
+            this.activeEndpoint.deleteConnection(this);
         }
         this.activeEndpoint = null;
     }
