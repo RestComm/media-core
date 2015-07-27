@@ -24,6 +24,7 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.MixerComponent;
@@ -42,115 +43,123 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author amit bhayani
  */
 public class BaseMixerEndpoint extends AbstractEndpoint {
+    
+    private static final Logger logger = Logger.getLogger(BaseMixerEndpoint.class);
 
     // Media mixers
-	protected AudioMixer audioMixer;
-	protected OOBMixer oobMixer;
-	
-	// Media mixer components
-	protected final ConcurrentMap<MixerComponent> mediaComponents;
+    protected AudioMixer audioMixer;
+    protected OOBMixer oobMixer;
 
-	// I/O flags
-	private AtomicInteger loopbackCount = new AtomicInteger(0);
-	private AtomicInteger readCount = new AtomicInteger(0);
-	private AtomicInteger writeCount = new AtomicInteger(0);
+    // Media mixer components
+    protected final ConcurrentMap<MixerComponent> mediaComponents;
 
-	public BaseMixerEndpoint(String localName) {
-		super(localName, RelayType.MIXER);
-		this.mediaComponents = new ConcurrentMap<MixerComponent>(3);
-	}
+    // I/O flags
+    private AtomicInteger loopbackCount = new AtomicInteger(0);
+    private AtomicInteger readCount = new AtomicInteger(0);
+    private AtomicInteger writeCount = new AtomicInteger(0);
 
-	@Override
-	public void start() throws ResourceUnavailableException {
-		super.start();
-		this.audioMixer = new AudioMixer(getScheduler());
-		this.oobMixer = new OOBMixer(getScheduler());
-	}
+    public BaseMixerEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
+        this.mediaComponents = new ConcurrentMap<MixerComponent>(3);
+    }
+    
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
 
-	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
-	    // Create the connection
-		AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
-		
-		// Retrieve and register the mixer component of the connection
-		MixerComponent mediaComponent = connection.getMediaComponent("audio");
-		this.mediaComponents.put(connection.getId(), mediaComponent);
-		
-		// Add mixing component to the media mixer
-		audioMixer.addComponent(mediaComponent.getAudioComponent());
-		oobMixer.addComponent(mediaComponent.getOOBComponent());
-		return connection;
-	}
+    @Override
+    public void start() throws ResourceUnavailableException {
+        super.start();
+        this.audioMixer = new AudioMixer(getScheduler());
+        this.oobMixer = new OOBMixer(getScheduler());
+    }
 
-	@Override
-	public void deleteConnection(Connection connection, ConnectionType connectionType) {
-	    // Release the connection
-		super.deleteConnection(connection, connectionType);
-		
-		// Unregister the mixer component of the connection
-		MixerComponent mixerComponent = this.mediaComponents.remove(connection.getId());
-		
-		// Release the mixing component from the media mixer
-		audioMixer.release(mixerComponent.getAudioComponent());
-		oobMixer.release(mixerComponent.getOOBComponent());
-	}
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        // Create the connection
+        AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
 
-	@Override
-	public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
-		int readCount = 0, loopbackCount = 0, writeCount = 0;
-		switch (oldMode) {
-		case RECV_ONLY:
-			readCount -= 1;
-			break;
-		case SEND_ONLY:
-			writeCount -= 1;
-			break;
-		case SEND_RECV:
-		case CONFERENCE:
-			readCount -= 1;
-			writeCount -= 1;
-			break;
-		case NETWORK_LOOPBACK:
-			loopbackCount -= 1;
-			break;
-		default:
-			// XXX handle default case
-			break;
-		}
+        // Retrieve and register the mixer component of the connection
+        MixerComponent mediaComponent = connection.getMediaComponent("audio");
+        this.mediaComponents.put(connection.getId(), mediaComponent);
 
-		switch (newMode) {
-		case RECV_ONLY:
-			readCount += 1;
-			break;
-		case SEND_ONLY:
-			writeCount += 1;
-			break;
-		case SEND_RECV:
-		case CONFERENCE:
-			readCount += 1;
-			writeCount += 1;
-			break;
-		case NETWORK_LOOPBACK:
-			loopbackCount += 1;
-			break;
-		default:
-			// XXX handle default case
-			break;
-		}
+        // Add mixing component to the media mixer
+        audioMixer.addComponent(mediaComponent.getAudioComponent());
+        oobMixer.addComponent(mediaComponent.getOOBComponent());
+        return connection;
+    }
 
-		if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
-			// something changed
-			loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
-			readCount = this.readCount.addAndGet(readCount);
-			writeCount = this.writeCount.addAndGet(writeCount);
+    @Override
+    public void deleteConnection(Connection connection) {
+        // Release the connection
+        super.deleteConnection(connection);
 
-			if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
-				audioMixer.stop();
-				oobMixer.stop();
-			} else {
-				audioMixer.start();
-				oobMixer.start();
-			}
-		}
-	}
+        // Unregister the mixer component of the connection
+        MixerComponent mixerComponent = this.mediaComponents.remove(connection.getId());
+
+        // Release the mixing component from the media mixer
+        audioMixer.release(mixerComponent.getAudioComponent());
+        oobMixer.release(mixerComponent.getOOBComponent());
+    }
+
+    @Override
+    public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
+        int readCount = 0, loopbackCount = 0, writeCount = 0;
+        switch (oldMode) {
+            case RECV_ONLY:
+                readCount -= 1;
+                break;
+            case SEND_ONLY:
+                writeCount -= 1;
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                readCount -= 1;
+                writeCount -= 1;
+                break;
+            case NETWORK_LOOPBACK:
+                loopbackCount -= 1;
+                break;
+            default:
+                // XXX handle default case
+                break;
+        }
+
+        switch (newMode) {
+            case RECV_ONLY:
+                readCount += 1;
+                break;
+            case SEND_ONLY:
+                writeCount += 1;
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                readCount += 1;
+                writeCount += 1;
+                break;
+            case NETWORK_LOOPBACK:
+                loopbackCount += 1;
+                break;
+            default:
+                // XXX handle default case
+                break;
+        }
+
+        if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
+            // something changed
+            loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
+            readCount = this.readCount.addAndGet(readCount);
+            writeCount = this.writeCount.addAndGet(writeCount);
+
+            if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
+                audioMixer.stop();
+                oobMixer.stop();
+            } else {
+                audioMixer.start();
+                oobMixer.start();
+            }
+        }
+    }
+
 }

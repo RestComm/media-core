@@ -24,6 +24,7 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.audio.MixerComponent;
@@ -34,6 +35,7 @@ import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
@@ -43,6 +45,8 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author amit bhayani
  */
 public class BaseSS7EndpointImpl extends AbstractEndpoint {
+
+    private static final Logger logger = Logger.getLogger(BaseSS7EndpointImpl.class);
 
     protected AudioSplitter audioSplitter;
     protected OOBSplitter oobSplitter;
@@ -61,11 +65,16 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
     private ChannelsManager channelsManager;
 
     public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
-        super(localName);
+        super(localName, RelayType.MIXER);
         this.isALaw = isALaw;
         this.channelID = channelID;
         this.channelsManager = channelsManager;
         this.mediaComponents = new ConcurrentMap<MixerComponent>(2);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
     }
 
     @Override
@@ -125,9 +134,9 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
     }
 
     @Override
-    public void deleteConnection(Connection connection, ConnectionType connectionType) {
+    public void deleteConnection(Connection connection) {
         // Release the connection
-        super.deleteConnection(connection, connectionType);
+        super.deleteConnection(connection);
 
         // Unregister the media component of the connection
         MixerComponent mediaComponent = this.mediaComponents.remove(connection.getId());

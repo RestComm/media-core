@@ -138,8 +138,6 @@ public class LocalConnection extends AbstractConnection {
         }
 
         this.localAudioChannel.unjoin();
-        // release connection
-        releaseConnection();
     }
 
     @Override
@@ -160,8 +158,6 @@ public class LocalConnection extends AbstractConnection {
         }
 
         this.localAudioChannel.unjoin();
-        // release connection
-        releaseConnection();
     }
 
     public boolean isAvailable() {

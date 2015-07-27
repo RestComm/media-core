@@ -24,6 +24,7 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.audio.MixerComponent;
@@ -32,6 +33,7 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
@@ -41,6 +43,8 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author amit bhayani
  */
 public class BaseSplitterEndpoint extends AbstractEndpoint {
+
+    private static final Logger logger = Logger.getLogger(BaseSplitterEndpoint.class);
 
     // Media splitters
     protected AudioSplitter audioSplitter;
@@ -54,8 +58,13 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
     private AtomicInteger writeCount = new AtomicInteger(0);
 
     public BaseSplitterEndpoint(String localName) {
-        super(localName);
+        super(localName, RelayType.MIXER);
         this.mediaComponents = new ConcurrentMap<MixerComponent>(2);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
     }
 
     @Override
@@ -89,15 +98,15 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
     }
 
     @Override
-    public void deleteConnection(Connection connection, ConnectionType connectionType) {
+    public void deleteConnection(Connection connection) {
         // Release the connection
-        super.deleteConnection(connection, connectionType);
+        super.deleteConnection(connection);
 
         // Unregister the media component of the connection
         MixerComponent mediaComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the media component from the media splitter
-        switch (connectionType) {
+        switch (connection.getConnectionType()) {
             case RTP:
                 audioSplitter.releaseOutsideComponent(mediaComponent.getAudioComponent());
                 oobSplitter.releaseOutsideComponent(mediaComponent.getOOBComponent());

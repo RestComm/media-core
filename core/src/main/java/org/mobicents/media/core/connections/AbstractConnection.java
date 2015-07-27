@@ -230,6 +230,7 @@ public abstract class AbstractConnection implements Connection {
             if (this.currentState != ConnectionState.NULL) {
                 this.onClosed();
                 setState(ConnectionState.NULL);
+                this.activeEndpoint = null;
             }
         }
     }
@@ -244,6 +245,7 @@ public abstract class AbstractConnection implements Connection {
             if (this.currentState != ConnectionState.NULL) {
                 this.onFailed();
                 setState(ConnectionState.NULL);
+                this.activeEndpoint = null;
             }
         }
     }
@@ -269,13 +271,6 @@ public abstract class AbstractConnection implements Connection {
     @Override
     public void setIsLocal(boolean isLocal) {
         // do nothing
-    }
-
-    protected void releaseConnection() {
-        if (this.activeEndpoint != null) {
-            this.activeEndpoint.deleteConnection(this);
-        }
-        this.activeEndpoint = null;
     }
 
     protected abstract Logger getLogger();

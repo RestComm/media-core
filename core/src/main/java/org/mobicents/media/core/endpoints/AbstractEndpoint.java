@@ -146,18 +146,20 @@ public abstract class AbstractEndpoint implements Endpoint {
 
     @Override
     public void deleteConnection(Connection connection) {
-        // Close the connection if necessary
-        if (!connection.isClosed()) {
-            connection.close();
-        }
+        if(this.connections.containsKey(connection.getId())) {
+            // Release the connection back to the resources pool
+            this.connections.remove(connection.getId());
 
-        // Release the connection back to the resources pool
-        this.connections.remove(connection.getId());
-        this.resourcesPool.releaseConnection(connection);
-
-        // Release the media group is no more connections are active
-        if (this.connections.isEmpty()) {
-            this.mediaGroup.releaseAll();
+            // Close the connection if necessary
+            if (!connection.isClosed()) {
+                connection.close();
+            }
+            this.resourcesPool.releaseConnection(connection);
+            
+            // Release the media group is no more connections are active
+            if (this.connections.isEmpty()) {
+                this.mediaGroup.releaseAll();
+            }
         }
     }
 

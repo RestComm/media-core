@@ -534,7 +534,6 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         } catch (ModeNotSupportedException e) {
             logger.warn("Could not set connection mode to INACTIVE.", e);
         }
-        releaseConnection();
         this.connectionFailureListener = null;
     }
 
