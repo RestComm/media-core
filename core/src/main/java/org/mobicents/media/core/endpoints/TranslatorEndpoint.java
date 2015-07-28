@@ -1,8 +1,7 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2015, Telestax Inc and individual contributors
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,9 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
-import org.mobicents.media.server.component.audio.AudioMixer;
+import org.mobicents.media.server.component.audio.AudioTranslator;
 import org.mobicents.media.server.component.audio.MediaComponent;
-import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -37,20 +35,18 @@ import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
- * Basic implementation of the endpoint.
+ * Generic endpoint that relies on a translator to forward all traffic.
  * 
- * @author yulian oifa
- * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
  */
-public class BaseMixerEndpoint extends AbstractEndpoint {
-    
-    private static final Logger logger = Logger.getLogger(BaseMixerEndpoint.class);
+public class TranslatorEndpoint extends AbstractEndpoint {
 
-    // Media mixers
-    protected AudioMixer audioMixer;
-    protected OOBMixer oobMixer;
+    private static final Logger logger = Logger.getLogger(TranslatorEndpoint.class);
 
-    // Media mixer components
+    // Media processing
+    private AudioTranslator audioTranslator;
+    // XXX missing an OOB translator
     protected final ConcurrentMap<MediaComponent> mediaComponents;
 
     // IO flags
@@ -58,49 +54,14 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
     private AtomicInteger readCount = new AtomicInteger(0);
     private AtomicInteger writeCount = new AtomicInteger(0);
 
-    public BaseMixerEndpoint(String localName) {
-        super(localName, RelayType.MIXER);
+    public TranslatorEndpoint(String localName) {
+        super(localName, RelayType.TRANSLATOR);
         this.mediaComponents = new ConcurrentMap<MediaComponent>(5);
     }
-    
+
     @Override
     protected Logger getLogger() {
         return logger;
-    }
-
-    @Override
-    public void start() throws ResourceUnavailableException {
-        super.start();
-        this.audioMixer = new AudioMixer(getScheduler());
-        this.oobMixer = new OOBMixer(getScheduler());
-    }
-
-    @Override
-    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
-        // Create the connection
-        AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
-
-        // Retrieve and register the mixer component of the connection
-        MediaComponent mediaComponent = connection.getMediaComponent("audio");
-        this.mediaComponents.put(connection.getId(), mediaComponent);
-
-        // Add mixing component to the media mixer
-        audioMixer.addComponent(mediaComponent.getAudioComponent());
-        oobMixer.addComponent(mediaComponent.getOOBComponent());
-        return connection;
-    }
-
-    @Override
-    public void deleteConnection(Connection connection) {
-        // Release the connection
-        super.deleteConnection(connection);
-
-        // Unregister the mixer component of the connection
-        MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
-
-        // Release the mixing component from the media mixer
-        audioMixer.release(mixerComponent.getAudioComponent());
-        oobMixer.release(mixerComponent.getOOBComponent());
     }
 
     @Override
@@ -108,18 +69,18 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
         int readCount = 0, loopbackCount = 0, writeCount = 0;
         switch (oldMode) {
             case RECV_ONLY:
-                readCount -= 1;
+                readCount--;
                 break;
             case SEND_ONLY:
-                writeCount -= 1;
+                writeCount--;
                 break;
             case SEND_RECV:
             case CONFERENCE:
-                readCount -= 1;
-                writeCount -= 1;
+                readCount--;
+                writeCount--;
                 break;
             case NETWORK_LOOPBACK:
-                loopbackCount -= 1;
+                loopbackCount--;
                 break;
             default:
                 // XXX handle default case
@@ -128,18 +89,18 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
 
         switch (newMode) {
             case RECV_ONLY:
-                readCount += 1;
+                readCount++;
                 break;
             case SEND_ONLY:
-                writeCount += 1;
+                writeCount++;
                 break;
             case SEND_RECV:
             case CONFERENCE:
-                readCount += 1;
-                writeCount += 1;
+                readCount++;
+                writeCount++;
                 break;
             case NETWORK_LOOPBACK:
-                loopbackCount += 1;
+                loopbackCount++;
                 break;
             default:
                 // XXX handle default case
@@ -153,13 +114,48 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
             writeCount = this.writeCount.addAndGet(writeCount);
 
             if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
-                audioMixer.stop();
-                oobMixer.stop();
+                this.audioTranslator.stop();
+                // XXX oobTranslator.stop();
             } else {
-                audioMixer.start();
-                oobMixer.start();
+                this.audioTranslator.start();
+                // XXX oobTranslator.start();
             }
         }
+    }
+
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        // Create the connection
+        AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
+
+        // Retrieve and register the mixer component of the connection
+        MediaComponent mediaComponent = connection.getMediaComponent("audio");
+        this.mediaComponents.put(connection.getId(), mediaComponent);
+
+        // Add mixing component to the media mixer
+        this.audioTranslator.addComponent(mediaComponent.getAudioComponent());
+        // XXX oobTranslator.addComponent(mediaComponent.getOOBComponent());
+        return connection;
+    }
+
+    @Override
+    public void deleteConnection(Connection connection) {
+        // Release the connection
+        super.deleteConnection(connection);
+
+        // Unregister the mixer component of the connection
+        MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
+
+        // Release the mixing component from the media mixer
+        this.audioTranslator.release(mixerComponent.getAudioComponent());
+        // oobMixer.release(mixerComponent.getOOBComponent());
+    }
+
+    @Override
+    public void start() throws ResourceUnavailableException {
+        super.start();
+        this.audioTranslator = new AudioTranslator(getScheduler());
+        // XXX start oob translator
     }
 
 }

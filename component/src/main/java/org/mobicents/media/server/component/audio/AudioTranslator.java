@@ -40,12 +40,19 @@ public class AudioTranslator {
     // Schedulers for translator job scheduling
     private final Scheduler scheduler;
     private final TranslateTask task;
-    private volatile boolean started = false;
+    private volatile boolean started;
+    private volatile int executionCount;
 
     public AudioTranslator(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.task = new TranslateTask();
         this.components = new ConcurrentMap<AudioComponent>();
+        this.started = false;
+        this.executionCount = 0;
+    }
+
+    public int getExecutionCount() {
+        return executionCount;
     }
 
     /**
@@ -90,20 +97,25 @@ public class AudioTranslator {
 
         @Override
         public long perform() {
-            // Execute each component and get its data
+            // Execute each readable component and get its data
             for (AudioComponent component : components.values()) {
-                component.perform();
-                this.currentData = component.getData();
+                if (component.shouldRead) {
+                    component.perform();
+                    this.currentData = component.getData();
 
-                // Offer the data of the current component to all the other active components
-                if (this.currentData != null && this.currentData.length > 0) {
-                    for (AudioComponent otherComponent : components.values()) {
-                        if (!component.equals(otherComponent)) {
-                            otherComponent.offer(currentData);
+                    // Offer the data of the current component to all the other writable components
+                    if (this.currentData != null && this.currentData.length > 0) {
+                        for (AudioComponent otherComponent : components.values()) {
+                            if (!component.equals(otherComponent)) {
+                                if (otherComponent.shouldWrite) {
+                                    otherComponent.offer(currentData);
+                                }
+                            }
                         }
                     }
                 }
             }
+            executionCount++;
 
             // Re-submit the task to the scheduler to be continuously executed
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);

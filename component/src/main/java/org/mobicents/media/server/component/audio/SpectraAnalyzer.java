@@ -95,9 +95,9 @@ public class SpectraAnalyzer extends AbstractSink {
     public void onMediaTransfer(Frame frame) throws IOException {
         byte[] data = frame.getData();
         int j = 0;
+        
         for (int i = 0; i < (frame.getLength() / 2) && len < buffer.length; i++) {
             buffer[len++] = (data[j++] & 0xff) | (data[j++] << 8);
-//            System.out.println(buffer[len-1]);
         }
     }
 
@@ -112,7 +112,10 @@ public class SpectraAnalyzer extends AbstractSink {
     private int[] findPeaks(double[] data) {
         ArrayList<Integer> peaks = new ArrayList<Integer>();
         for (int i = 0; i < data.length; i++) {
-            if (data[i] > 10000000) peaks.add(i);
+            if (data[i] > 10000000) {
+                System.out.println("New peak of "+data[i]+" detected at index " + i);
+                peaks.add(i);
+            }
         }
         int[] res = new int[peaks.size()];
         for (int i = 0; i < res.length; i++) {
@@ -151,6 +154,7 @@ public class SpectraAnalyzer extends AbstractSink {
             pow = mod(sp);
 
             double[] dif = this.derivative(pow);
+            System.out.println(print(dif));
             int[] freqs = this.findPeaks(dif);
 
             for (int k = 0; k < freqs.length; k++) {
@@ -164,6 +168,15 @@ public class SpectraAnalyzer extends AbstractSink {
         }
         
         return res;
+    }
+    
+    private String print(double[] data) {
+        StringBuilder builder = new StringBuilder("[");
+        for (double b : data) {
+            builder.append(b).append(",");
+        }
+        builder.deleteCharAt(builder.length() - 1).append("]");
+        return builder.toString();
     }
 
     public void print(String fileName) throws FileNotFoundException, IOException {

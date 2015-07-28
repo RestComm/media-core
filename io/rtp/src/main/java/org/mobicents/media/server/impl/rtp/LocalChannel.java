@@ -26,7 +26,7 @@ import java.io.IOException;
 
 import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.component.audio.AudioOutput;
-import org.mobicents.media.server.component.audio.MixerComponent;
+import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -56,7 +56,7 @@ public class LocalChannel {
 
     // Media relay
     private RelayType relayType;
-    private final MixerComponent mediaComponent;
+    private final MediaComponent mediaComponent;
 
     private LocalChannel otherChannel = null;
 
@@ -68,7 +68,7 @@ public class LocalChannel {
 
         // Media relay
         this.relayType = relayType;
-        this.mediaComponent = new MixerComponent(channelId);
+        this.mediaComponent = new MediaComponent(channelId);
         this.mediaComponent.addAudioInput(audioInput);
         this.mediaComponent.addAudioOutput(audioOutput);
         this.mediaComponent.addOOBInput(oobInput);
@@ -97,7 +97,7 @@ public class LocalChannel {
         }
     }
 
-    public MixerComponent getMediaComponent() {
+    public MediaComponent getMediaComponent() {
         return mediaComponent;
     }
 
