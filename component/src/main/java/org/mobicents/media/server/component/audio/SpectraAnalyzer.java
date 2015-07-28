@@ -41,13 +41,13 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class SpectraAnalyzer extends AbstractSink {
 
-	private static final long serialVersionUID = 1646539542777368667L;
+    private static final long serialVersionUID = 1646539542777368667L;
 
-	private final static int tolerance = 5;
+    private final static int TOLERANCE = 5;
     private final static AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private final static Formats formats = new Formats();
+    private final static Formats FORMATS = new Formats(LINEAR_AUDIO);
 
-    //more then 10 seconds
+    // more then 10 seconds
     private double[] buffer = new double[81920];
     private volatile int len;
 
@@ -55,35 +55,31 @@ public class SpectraAnalyzer extends AbstractSink {
 
     private FFT fft = new FFT();
     private Resampler resampler = new Resampler(8000, 8192);
-    static {
-        formats.add(LINEAR_AUDIO);
-    }
 
     private AudioOutput output;
-    
-    public SpectraAnalyzer(String name,Scheduler scheduler) {
+
+    public SpectraAnalyzer(String name, Scheduler scheduler) {
         super(name);
-        output=new AudioOutput(scheduler,ComponentType.SPECTRA_ANALYZER.getType());
+        output = new AudioOutput(scheduler, ComponentType.SPECTRA_ANALYZER.getType());
         output.join(this);
     }
 
-    public AudioOutput getAudioOutput()
-    {
-    	return this.output;
+    public AudioOutput getAudioOutput() {
+        return this.output;
     }
-    
-    public void activate()
-    {
-    	this.len = 0;
+
+    @Override
+    public void activate() {
+        this.len = 0;
         System.out.println("start, len=" + len);
         output.start();
     }
-    
-    public void deactivate()
-    {
-    	output.stop();
-    }        
-    
+
+    @Override
+    public void deactivate() {
+        output.stop();
+    }
+
     private double[] mod(Complex[] x) {
         double[] res = new double[x.length];
         for (int i = 0; i < res.length; i++) {
@@ -92,10 +88,11 @@ public class SpectraAnalyzer extends AbstractSink {
         return res;
     }
 
+    @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         byte[] data = frame.getData();
         int j = 0;
-        
+
         for (int i = 0; i < (frame.getLength() / 2) && len < buffer.length; i++) {
             buffer[len++] = (data[j++] & 0xff) | (data[j++] << 8);
         }
@@ -113,7 +110,7 @@ public class SpectraAnalyzer extends AbstractSink {
         ArrayList<Integer> peaks = new ArrayList<Integer>();
         for (int i = 0; i < data.length; i++) {
             if (data[i] > 10000000) {
-                System.out.println("New peak of "+data[i]+" detected at index " + i);
+                System.out.println("New peak of " + data[i] + " detected at index " + i);
                 peaks.add(i);
             }
         }
@@ -127,12 +124,13 @@ public class SpectraAnalyzer extends AbstractSink {
     private void append(ArrayList<Integer> list, int v) {
         boolean found = false;
         for (int i : list) {
-            if (Math.abs(i - v) <= tolerance) {
+            if (Math.abs(i - v) <= TOLERANCE) {
                 found = true;
                 break;
             }
         }
-        if (!found) list.add(v);
+        if (!found)
+            list.add(v);
     }
 
     public int[] getSpectra() {
@@ -154,7 +152,7 @@ public class SpectraAnalyzer extends AbstractSink {
             pow = mod(sp);
 
             double[] dif = this.derivative(pow);
-            System.out.println(print(dif));
+            System.out.println("Reading spectra portion: " + print(dif));
             int[] freqs = this.findPeaks(dif);
 
             for (int k = 0; k < freqs.length; k++) {
@@ -166,10 +164,10 @@ public class SpectraAnalyzer extends AbstractSink {
         for (int i = 0; i < res.length; i++) {
             res[i] = frequency.get(i);
         }
-        
+
         return res;
     }
-    
+
     private String print(double[] data) {
         StringBuilder builder = new StringBuilder("[");
         for (double b : data) {
@@ -189,8 +187,7 @@ public class SpectraAnalyzer extends AbstractSink {
     }
 
     public Formats getNativeFormats() {
-        return formats;
+        return FORMATS;
     }
 
 }
-
