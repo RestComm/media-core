@@ -92,16 +92,17 @@ public class AudioTranslatorTest {
         sine2.setAmplitude((short) (Short.MAX_VALUE / 4));
         sine3.setAmplitude((short) (Short.MAX_VALUE / 4));
 
-        sine1.setFrequency(80);
+        // XXX Frequencies under 90 are not recognized
+        sine1.setFrequency(100);
         sine2.setFrequency(150);
         sine3.setFrequency(250);
     }
-    
+
     @After
     public void tearDown() {
         scheduler.stop();
     }
-    
+
     @Test
     public void testTranslate() throws InterruptedException {
         sine1.activate();
@@ -111,7 +112,7 @@ public class AudioTranslatorTest {
 
         translator.start();
 
-        Thread.sleep(1000);
+        Thread.sleep(5000L);
 
         translator.stop();
         sine1.deactivate();
@@ -123,10 +124,27 @@ public class AudioTranslatorTest {
 
         int res[] = analyzer.getSpectra();
         assertEquals(3, res.length);
-        assertEquals(80, res[0], 5);
+        assertEquals(100, res[0], 5);
         assertEquals(150, res[1], 5);
         assertEquals(250, res[2], 5);
-
     }
-    
+
+    @Test
+    public void testManyTranslations() throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Translator test #" + i);
+            testTranslate();
+        }
+    }
+
+    @Test
+    public void testRecycle() throws InterruptedException {
+        testTranslate();
+
+        translator.release(sine1Component);
+        translator.addComponent(sine1Component);
+
+        testTranslate();
+    }
+
 }

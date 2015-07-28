@@ -84,6 +84,7 @@ public class AudioTranslator {
         if (this.started) {
             this.started = false;
             this.task.cancel();
+            this.executionCount = 0;
         }
     }
 

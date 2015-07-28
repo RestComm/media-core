@@ -35,54 +35,54 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class AudioOutput extends AbstractSource {
 
-	private static final long serialVersionUID = -5988244809612104056L;
+    private static final long serialVersionUID = -5988244809612104056L;
 
-	private int outputId;
-	private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
+    private int outputId;
+    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
 
-	/**
-	 * Creates new instance with default name.
-	 */
-	public AudioOutput(Scheduler scheduler, int outputId) {
-		super("compound.output", scheduler, Scheduler.OUTPUT_QUEUE);
-		this.outputId = outputId;
-	}
+    /**
+     * Creates new instance with default name.
+     */
+    public AudioOutput(Scheduler scheduler, int outputId) {
+        super("compound.output", scheduler, Scheduler.OUTPUT_QUEUE);
+        this.outputId = outputId;
+    }
 
-	public int getOutputId() {
-		return outputId;
-	}
+    public int getOutputId() {
+        return outputId;
+    }
 
-	public void join(AbstractSink sink) {
-		connect(sink);
-	}
+    public void join(AbstractSink sink) {
+        connect(sink);
+    }
 
-	public void unjoin() {
-		disconnect();
-	}
+    public void unjoin() {
+        disconnect();
+    }
 
-	@Override
-	public Frame evolve(long timestamp) {
-		return buffer.poll();
-	}
+    @Override
+    public Frame evolve(long timestamp) {
+        return buffer.poll();
+    }
 
-	@Override
-	public void stop() {
-		while (buffer.size() > 0) {
-			buffer.poll().recycle();
-		}
-		super.stop();
-	}
+    @Override
+    public void stop() {
+        super.stop();
+        resetBuffer();
+    }
 
-	public void resetBuffer() {
-		while (buffer.size() > 0) {
-			buffer.poll().recycle();
-		}
-	}
+    private void resetBuffer() {
+        while (buffer.size() > 0) {
+            buffer.poll().recycle();
+        }
+    }
 
-	public void offer(Frame frame) {
-		if (buffer.size() > 1) {
-			buffer.poll().recycle();
-		}
-		buffer.offer(frame);
-	}
+    public void offer(Frame frame) {
+        if (isStarted()) {
+            // if (buffer.size() > 1) {
+            // buffer.poll().recycle();
+            // }
+            buffer.offer(frame);
+        }
+    }
 }
