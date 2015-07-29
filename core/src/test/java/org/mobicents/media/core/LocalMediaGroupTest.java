@@ -112,7 +112,7 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.start();
 
-        endpoint3 = new BridgeEndpoint("test 3");
+        endpoint3 = new BridgeEndpoint("test 3", RelayType.MIXER);
         endpoint3.setScheduler(scheduler);
         endpoint3.setResourcesPool(resourcesPool);
         endpoint3.start();

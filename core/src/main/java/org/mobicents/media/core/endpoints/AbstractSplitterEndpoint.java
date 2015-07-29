@@ -21,7 +21,20 @@
 
 package org.mobicents.media.core.endpoints;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.mobicents.media.core.connections.AbstractConnection;
+import org.mobicents.media.server.component.MediaSplitter;
+import org.mobicents.media.server.component.audio.AudioForwardingSplitter;
+import org.mobicents.media.server.component.audio.AudioMixingSplitter;
+import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.oob.OOBSplitter;
+import org.mobicents.media.server.concurrent.ConcurrentMap;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.RelayType;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -29,8 +42,151 @@ import org.mobicents.media.server.spi.RelayType;
  */
 public abstract class AbstractSplitterEndpoint extends AbstractEndpoint {
 
+    // Media splitting
+    private MediaSplitter audioSplitter;
+    private OOBSplitter oobSplitter;
+    private final ConcurrentMap<MediaComponent> mediaComponents;
+
+    // IO flags
+    private AtomicInteger loopbackCount = new AtomicInteger(0);
+    private AtomicInteger readCount = new AtomicInteger(0);
+    private AtomicInteger writeCount = new AtomicInteger(0);
+
     public AbstractSplitterEndpoint(String localName, RelayType relayType) {
         super(localName, relayType);
+        this.mediaComponents = new ConcurrentMap<MediaComponent>();
+    }
+
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        // Create the connection
+        AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
+
+        // Retrieve and register the mixer component of the connection
+        MediaComponent mediaComponent = connection.getMediaComponent("audio");
+        this.mediaComponents.put(connection.getId(), mediaComponent);
+
+        // Add media component to the media splitter
+        switch (type) {
+            case RTP:
+                this.audioSplitter.addOutsideComponent(mediaComponent.getAudioComponent());
+                this.oobSplitter.addOutsideComponent(mediaComponent.getOOBComponent());
+                break;
+
+            case LOCAL:
+                this.audioSplitter.addInsideComponent(mediaComponent.getAudioComponent());
+                this.oobSplitter.addInsideComponent(mediaComponent.getOOBComponent());
+                break;
+        }
+        return connection;
+    }
+
+    @Override
+    public void deleteConnection(Connection connection) {
+        // Release the connection
+        super.deleteConnection(connection);
+
+        // Unregister the media component of the connection
+        MediaComponent mediaComponent = this.mediaComponents.remove(connection.getId());
+
+        // Release the media component from the media splitter
+        switch (connection.getConnectionType()) {
+            case RTP:
+                this.audioSplitter.removeOutsideComponent(mediaComponent.getAudioComponent());
+                this.oobSplitter.releaseOutsideComponent(mediaComponent.getOOBComponent());
+                break;
+
+            case LOCAL:
+                this.audioSplitter.removeInsideComponent(mediaComponent.getAudioComponent());
+                this.oobSplitter.releaseInsideComponent(mediaComponent.getOOBComponent());
+                break;
+        }
+    }
+
+    @Override
+    public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
+        int readCount = 0, loopbackCount = 0, writeCount = 0;
+        switch (oldMode) {
+            case RECV_ONLY:
+                readCount -= 1;
+                break;
+            case SEND_ONLY:
+                writeCount -= 1;
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                readCount -= 1;
+                writeCount -= 1;
+                break;
+            case NETWORK_LOOPBACK:
+                loopbackCount -= 1;
+                break;
+            default:
+                // XXX handle default case
+                break;
+        }
+
+        switch (newMode) {
+            case RECV_ONLY:
+                readCount += 1;
+                break;
+            case SEND_ONLY:
+                writeCount += 1;
+                break;
+            case SEND_RECV:
+            case CONFERENCE:
+                readCount += 1;
+                writeCount += 1;
+                break;
+            case NETWORK_LOOPBACK:
+                loopbackCount += 1;
+                break;
+            default:
+                // XXX handle default case
+                break;
+        }
+
+        if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
+            // something changed
+            loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
+            readCount = this.readCount.addAndGet(readCount);
+            writeCount = this.writeCount.addAndGet(writeCount);
+
+            if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
+                this.audioSplitter.stop();
+                this.oobSplitter.stop();
+            } else {
+                this.audioSplitter.start();
+                this.oobSplitter.start();
+            }
+        }
+    }
+
+    @Override
+    public void start() throws ResourceUnavailableException {
+        switch (getRelayType()) {
+            case MIXER:
+                this.audioSplitter = new AudioMixingSplitter(getScheduler());
+                break;
+            case TRANSLATOR:
+                this.audioSplitter = new AudioForwardingSplitter(getScheduler());
+                break;
+            default:
+                throw new ResourceUnavailableException("The media splitter is not available for the given relay type: "
+                        + getRelayType());
+        }
+        this.oobSplitter = new OOBSplitter(getScheduler());
+        super.start();
+    }
+
+    @Override
+    public void stop() {
+        // stop the endpoint
+        super.stop();
+
+        // stop the media splitter
+        this.audioSplitter.stop();
+        this.oobSplitter.stop();
     }
 
 }

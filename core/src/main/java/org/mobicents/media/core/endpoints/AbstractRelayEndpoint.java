@@ -153,18 +153,15 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
         switch (getRelayType()) {
             case MIXER:
                 this.audioRelay = new AudioMixer(getScheduler());
-                this.oobRelay = new OOBMixer(getScheduler());
                 break;
-
             case TRANSLATOR:
                 this.audioRelay = new AudioTranslator(getScheduler());
-                this.oobRelay = new OOBMixer(getScheduler());
                 break;
-
             default:
                 throw new ResourceUnavailableException("The media relay is not available for the given relay type: "
                         + getRelayType());
         }
+        this.oobRelay = new OOBMixer(getScheduler());
 
         // Start the endpoint
         super.start();

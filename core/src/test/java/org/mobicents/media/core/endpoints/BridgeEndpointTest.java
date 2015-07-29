@@ -41,6 +41,7 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
@@ -127,7 +128,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
         endpointLocal2.setFreq(250);
         endpointLocal2.start();
 
-        bridgeEndpoint = new BridgeEndpoint("test-ep-bridge");
+        bridgeEndpoint = new BridgeEndpoint("test-ep-bridge", RelayType.MIXER);
         bridgeEndpoint.setResourcesPool(resourcesPool);
         bridgeEndpoint.setScheduler(scheduler);
         bridgeEndpoint.start();

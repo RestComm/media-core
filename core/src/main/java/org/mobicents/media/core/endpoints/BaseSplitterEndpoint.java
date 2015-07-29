@@ -41,7 +41,9 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * 
  * @author yulian oifa
  * @author amit bhayani
+ * @deprecated use {@link AbstractSplitterEndpoint}
  */
+@Deprecated
 public class BaseSplitterEndpoint extends AbstractEndpoint {
 
     private static final Logger logger = Logger.getLogger(BaseSplitterEndpoint.class);

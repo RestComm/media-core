@@ -22,35 +22,42 @@
 
 package org.mobicents.media.core.endpoints.impl;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseSplitterEndpoint;
+import org.mobicents.media.core.endpoints.AbstractSplitterEndpoint;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 
 /**
  * 
- * A bridge end point allows two kinds of connections: - RTP (for remote RTP
- * media resources) and - Local (between the bridge end point and other MMS end
- * points).
+ * A bridge end point allows two kinds of connections: - RTP (for remote RTP media resources) and - Local (between the bridge
+ * end point and other MMS end points).
  * 
- * The bridge end point mixes and forwards media between remote and local
- * connections. Media and events arriving to the bridge end point from remote
- * connections are mixed and forwarded to local connections. Respectively, media
- * and events arriving to the bridge end point from local connections are mixed
- * and forwarded to remote connections.
+ * The bridge end point mixes and forwards media between remote and local connections. Media and events arriving to the bridge
+ * end point from remote connections are mixed and forwarded to local connections. Respectively, media and events arriving to
+ * the bridge end point from local connections are mixed and forwarded to remote connections.
  * 
  * 
  * @author yulian oifa
  * @author Ivelin Ivanov
  */
-public class BridgeEndpoint extends BaseSplitterEndpoint {
+public class BridgeEndpoint extends AbstractSplitterEndpoint {
 
-	public BridgeEndpoint(String localName) {
-		super(localName);
-	}
+    private static final Logger LOGGER = Logger.getLogger(BridgeEndpoint.class);
 
-	@Override
-	public Component getResource(MediaType mediaType, ComponentType componentType) {
-		return null;
-	}
+    public BridgeEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
+    }
+
+    @Override
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
+        return null;
+    }
+
 }
