@@ -32,9 +32,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -44,7 +42,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
  *
  * @author yulian oifa
  */
-public class AudioSplitterTest {
+public class AudioForwardingSplitterTest {
 
     private Clock clock;
     private Scheduler scheduler;
@@ -59,57 +57,46 @@ public class AudioSplitterTest {
     private AudioComponent analyzer1Component;
     private AudioComponent analyzer2Component;
     private AudioComponent analyzer3Component;
-    
-    private AudioSplitter splitter;
 
-    public AudioSplitterTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
+    private AudioForwardingSplitter splitter;
 
     @Before
     public void setUp() throws IOException {
-    	clock = new DefaultClock();
+        clock = new DefaultClock();
 
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
         sine = new Sine(scheduler);
-        
-        analyzer1 = new SpectraAnalyzer("analyzer-1",scheduler);
-        analyzer2 = new SpectraAnalyzer("analyzer-1",scheduler);
-        analyzer3 = new SpectraAnalyzer("analyzer-1",scheduler);
 
-        sineComponent=new AudioComponent(1);
+        analyzer1 = new SpectraAnalyzer("analyzer-1", scheduler);
+        analyzer2 = new SpectraAnalyzer("analyzer-2", scheduler);
+        analyzer3 = new SpectraAnalyzer("analyzer-3", scheduler);
+
+        sineComponent = new AudioComponent(1);
         sineComponent.addInput(sine.getAudioInput());
-        sineComponent.updateMode(true,false);
-        
-        analyzer1Component=new AudioComponent(2);
+        sineComponent.updateMode(true, false);
+
+        analyzer1Component = new AudioComponent(2);
         analyzer1Component.addOutput(analyzer1.getAudioOutput());
-        analyzer1Component.updateMode(false,true);
-        
-        analyzer2Component=new AudioComponent(3);
+        analyzer1Component.updateMode(false, true);
+
+        analyzer2Component = new AudioComponent(3);
         analyzer2Component.addOutput(analyzer2.getAudioOutput());
-        analyzer2Component.updateMode(false,true);
-        
-        analyzer3Component=new AudioComponent(4);
+        analyzer2Component.updateMode(false, true);
+
+        analyzer3Component = new AudioComponent(4);
         analyzer3Component.addOutput(analyzer3.getAudioOutput());
-        analyzer3Component.updateMode(false,true);
-        
-        splitter = new AudioSplitter(scheduler);
+        analyzer3Component.updateMode(false, true);
+
+        splitter = new AudioForwardingSplitter(scheduler);
         splitter.addInsideComponent(sineComponent);
         splitter.addOutsideComponent(analyzer1Component);
         splitter.addOutsideComponent(analyzer2Component);
-        splitter.addOutsideComponent(analyzer3Component); 
-        
-        sine.setFrequency(50);    	
+        splitter.addOutsideComponent(analyzer3Component);
+
+        sine.setFrequency(50);
     }
 
     @After
@@ -119,12 +106,12 @@ public class AudioSplitterTest {
 
     @Test
     public void testTransfer() throws InterruptedException {
-    	sine.activate();
+        sine.activate();
         splitter.start();
         analyzer1.activate();
         analyzer2.activate();
         analyzer3.activate();
-        
+
         Thread.sleep(5000);
 
         sine.deactivate();
@@ -143,6 +130,6 @@ public class AudioSplitterTest {
 
         res = analyzer3.getSpectra();
         assertEquals(1, res.length);
-        assertEquals(50, res[0], 5);       
+        assertEquals(50, res[0], 5);
     }
 }

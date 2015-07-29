@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
-import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.audio.AudioMixingSplitter;
 import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
@@ -47,7 +47,7 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
     private static final Logger logger = Logger.getLogger(BaseSplitterEndpoint.class);
 
     // Media splitters
-    protected AudioSplitter audioSplitter;
+    protected AudioMixingSplitter audioSplitter;
     protected OOBSplitter oobSplitter;
 
     // Media splitter components
@@ -70,7 +70,7 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
     @Override
     public void start() throws ResourceUnavailableException {
         super.start();
-        audioSplitter = new AudioSplitter(getScheduler());
+        audioSplitter = new AudioMixingSplitter(getScheduler());
         oobSplitter = new OOBSplitter(getScheduler());
     }
 
@@ -108,12 +108,12 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
         // Release the media component from the media splitter
         switch (connection.getConnectionType()) {
             case RTP:
-                audioSplitter.releaseOutsideComponent(mediaComponent.getAudioComponent());
+                audioSplitter.removeOutsideComponent(mediaComponent.getAudioComponent());
                 oobSplitter.releaseOutsideComponent(mediaComponent.getOOBComponent());
                 break;
 
             case LOCAL:
-                audioSplitter.releaseInsideComponent(mediaComponent.getAudioComponent());
+                audioSplitter.removeInsideComponent(mediaComponent.getAudioComponent());
                 oobSplitter.releaseInsideComponent(mediaComponent.getOOBComponent());
                 break;
         }

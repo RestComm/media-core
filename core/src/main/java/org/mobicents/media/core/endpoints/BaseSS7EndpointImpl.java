@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
-import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.audio.AudioMixingSplitter;
 import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
@@ -48,7 +48,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
 
     private static final Logger logger = Logger.getLogger(BaseSS7EndpointImpl.class);
 
-    protected AudioSplitter audioSplitter;
+    protected AudioMixingSplitter audioSplitter;
     protected OOBSplitter oobSplitter;
 
     // Media splitter components
@@ -81,7 +81,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
     public void start() throws ResourceUnavailableException {
         super.start();
 
-        audioSplitter = new AudioSplitter(getScheduler());
+        audioSplitter = new AudioMixingSplitter(getScheduler());
         oobSplitter = new OOBSplitter(getScheduler());
         audioSplitter.addOutsideComponent(mediaGroup.getAudioComponent());
         oobSplitter.addOutsideComponent(mediaGroup.getOOBComponent());
@@ -105,9 +105,9 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
 
     @Override
     public void stop() {
-        audioSplitter.releaseInsideComponent(ss7DataChannel.getAudioComponent());
+        audioSplitter.removeInsideComponent(ss7DataChannel.getAudioComponent());
         oobSplitter.releaseInsideComponent(ss7DataChannel.getOOBComponent());
-        audioSplitter.releaseOutsideComponent(mediaGroup.getAudioComponent());
+        audioSplitter.removeOutsideComponent(mediaGroup.getAudioComponent());
         oobSplitter.releaseOutsideComponent(mediaGroup.getOOBComponent());
         super.stop();
     }
@@ -142,7 +142,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
         MediaComponent mediaComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the media component from the media splitter
-        audioSplitter.releaseOutsideComponent(mediaComponent.getAudioComponent());
+        audioSplitter.removeOutsideComponent(mediaComponent.getAudioComponent());
         oobSplitter.releaseOutsideComponent(mediaComponent.getOOBComponent());
 
         if (getActiveConnectionsCount() == 0) {
