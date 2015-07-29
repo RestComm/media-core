@@ -47,6 +47,10 @@ public class IvrEndpoint extends AbstractRelayEndpoint {
         super(localName, relayType);
     }
 
+    public IvrEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
+    }
+
     @Override
     protected Logger getLogger() {
         return logger;

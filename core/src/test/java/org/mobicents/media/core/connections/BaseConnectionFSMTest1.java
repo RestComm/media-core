@@ -28,13 +28,16 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
+
 import static org.junit.Assert.*;
+
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -45,6 +48,7 @@ import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 
@@ -97,7 +101,7 @@ public class BaseConnectionFSMTest1 {
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         
         //assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test");
+        endpoint = new MyTestEndpoint("test", RelayType.MIXER);
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();

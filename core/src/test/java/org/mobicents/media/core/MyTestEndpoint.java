@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
-import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -60,8 +59,8 @@ public class MyTestEndpoint extends AbstractRelayEndpoint {
     private AudioComponent audioComponent;
     private OOBComponent oobComponent;
 
-    public MyTestEndpoint(String localName) {
-        super(localName, RelayType.MIXER);
+    public MyTestEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
         audioComponent = new AudioComponent(1);
         oobComponent = new OOBComponent(-1);
     }

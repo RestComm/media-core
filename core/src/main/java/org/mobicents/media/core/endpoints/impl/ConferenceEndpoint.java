@@ -43,6 +43,10 @@ public class ConferenceEndpoint extends AbstractRelayEndpoint {
         super(localName, relayType);
     }
 
+    public ConferenceEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
+    }
+
     @Override
     public Component getResource(MediaType mediaType, ComponentType componentType) {
         return null;

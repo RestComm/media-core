@@ -50,7 +50,7 @@ public abstract class AbstractEndpoint implements Endpoint {
 
     // Endpoint properties
     private final String localName;
-    private final RelayType relayType;
+    private RelayType relayType;
     private final ConcurrentMap<Connection> connections;
     private EndpointState state;
     protected MediaGroup mediaGroup;
@@ -83,6 +83,11 @@ public abstract class AbstractEndpoint implements Endpoint {
     @Override
     public RelayType getRelayType() {
         return this.relayType;
+    }
+    
+    @Override
+    public void setRelayType(RelayType relayType) {
+        this.relayType = relayType;
     }
 
     @Override

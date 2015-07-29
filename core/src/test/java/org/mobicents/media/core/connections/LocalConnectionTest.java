@@ -27,6 +27,7 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,6 +42,7 @@ import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 
@@ -88,7 +90,7 @@ public class LocalConnectionTest {
 
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         //assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test");
+        endpoint = new MyTestEndpoint("test", RelayType.MIXER);
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();

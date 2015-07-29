@@ -43,6 +43,10 @@ public class AnnouncementEndpoint extends AbstractRelayEndpoint {
         super(localName, relayType);
     }
 
+    public AnnouncementEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
+    }
+
     @Override
     public Component getResource(MediaType mediaType, ComponentType componentType) {
         switch (mediaType) {

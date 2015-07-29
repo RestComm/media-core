@@ -144,4 +144,10 @@ public class MyTestEndpoint implements Endpoint {
         return RelayType.MIXER;
     }
 
+    @Override
+    public void setRelayType(RelayType relayType) {
+        // TODO Auto-generated method stub
+
+    }
+
 }

@@ -49,6 +49,7 @@ import org.mobicents.media.server.spi.ConnectionEvent;
 import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 
@@ -102,7 +103,7 @@ public class BaseConnectionTest implements ConnectionListener {
 
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         //assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test");
+        endpoint = new MyTestEndpoint("test", RelayType.MIXER);
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();

@@ -43,6 +43,7 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.utils.Text;
@@ -69,19 +70,19 @@ public class RTPJoiningTest extends RTPEnvironment {
     	resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         
     	//assign scheduler to the endpoint
-        endpoint1 = new MyTestEndpoint("test-1");
+        endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER);
         endpoint1.setScheduler(scheduler);
         endpoint1.setResourcesPool(resourcesPool);
         endpoint1.setFreq(400);
         endpoint1.start();
 
-        endpoint2 = new MyTestEndpoint("test-2");
+        endpoint2 = new MyTestEndpoint("test-2", RelayType.MIXER);
         endpoint2.setScheduler(scheduler);
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.setFreq(200);
         endpoint2.start();
 
-        endpoint3 = new MyTestEndpoint("test-3");
+        endpoint3 = new MyTestEndpoint("test-3", RelayType.MIXER);
         endpoint3.setScheduler(scheduler);
         endpoint3.setResourcesPool(resourcesPool);
         endpoint3.setFreq(600);

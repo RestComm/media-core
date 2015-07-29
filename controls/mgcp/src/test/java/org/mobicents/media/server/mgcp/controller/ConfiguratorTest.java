@@ -156,6 +156,11 @@ public class ConfiguratorTest {
         public RelayType getRelayType() {
             return RelayType.MIXER;
         }
+        
+        @Override
+        public void setRelayType(RelayType relayType) {
+            // TODO Auto-generated method stub
+        }
 
     }
 

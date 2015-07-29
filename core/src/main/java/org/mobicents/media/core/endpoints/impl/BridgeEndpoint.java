@@ -50,6 +50,10 @@ public class BridgeEndpoint extends AbstractSplitterEndpoint {
         super(localName, relayType);
     }
 
+    public BridgeEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
+    }
+
     @Override
     protected Logger getLogger() {
         return LOGGER;

@@ -46,6 +46,10 @@ public class PacketRelayEndpoint extends AbstractRelayEndpoint {
         super(localName, relayType);
     }
 
+    public PacketRelayEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
+    }
+
     @Override
     protected Logger getLogger() {
         return LOGGER;

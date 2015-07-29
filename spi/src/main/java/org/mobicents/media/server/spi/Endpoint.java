@@ -139,4 +139,11 @@ public interface Endpoint {
      * @return The relay type: mixer or translator.
      */
     public RelayType getRelayType();
+
+    /**
+     * Sets the relay type applied to the traffic circulating in the endpoint.
+     * 
+     * @param relayType the new relay type of the endpoint.
+     */
+    public void setRelayType(RelayType relayType);
 }
