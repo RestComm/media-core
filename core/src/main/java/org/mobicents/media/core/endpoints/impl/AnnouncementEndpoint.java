@@ -48,7 +48,7 @@ public class AnnouncementEndpoint extends BaseMixerEndpoint {
 
 	@Override
 	public void stop() {
-		audioMixer.release(mediaGroup.getAudioComponent());
+		audioMixer.removeComponent(mediaGroup.getAudioComponent());
 		oobMixer.release(mediaGroup.getOOBComponent());
 		super.stop();
 	}

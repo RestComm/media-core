@@ -96,8 +96,8 @@ public class SineTest {
     public void tearDown() {
     	sine.stop();
     	audioMixer.stop();
-    	audioMixer.release(sineComponent);
-    	audioMixer.release(analyzerComponent);
+    	audioMixer.removeComponent(sineComponent);
+    	audioMixer.removeComponent(analyzerComponent);
     	
         scheduler.stop();
     }

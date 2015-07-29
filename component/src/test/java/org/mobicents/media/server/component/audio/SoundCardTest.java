@@ -71,8 +71,8 @@ public class SoundCardTest {
     public void tearDown() {
     	sine.stop();
     	audioMixer.stop();
-    	audioMixer.release(sineComponent);
-    	audioMixer.release(soundCardComponent);
+    	audioMixer.removeComponent(sineComponent);
+    	audioMixer.removeComponent(soundCardComponent);
     	
         scheduler.stop();
     }

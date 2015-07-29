@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.component.audio;
 
+import org.mobicents.media.server.component.MediaRelay;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -32,7 +33,7 @@ import org.mobicents.media.server.scheduler.Task;
  * @see <a href="http://tools.ietf.org/html/rfc3550#section-2.3">RFC3550 - Section 2.3 - Mixers and Translators</a>
  * @see <a href="http://tools.ietf.org/html/rfc3550#section-7">RFC3550 - Section 7 - RTP Translators and Mixers</a>
  */
-public class AudioTranslator {
+public class AudioTranslator implements MediaRelay {
 
     // Pool of components
     private final ConcurrentMap<AudioComponent> components;
@@ -55,24 +56,17 @@ public class AudioTranslator {
         return executionCount;
     }
 
-    /**
-     * Register a new input stream
-     * 
-     * @param component the input stream
-     */
+    @Override
     public void addComponent(AudioComponent component) {
         components.put(component.getComponentId(), component);
     }
 
-    /**
-     * Releases unused input stream
-     * 
-     * @param input the input stream previously created
-     */
-    public void release(AudioComponent component) {
+    @Override
+    public void removeComponent(AudioComponent component) {
         components.remove(component.getComponentId());
     }
 
+    @Override
     public void start() {
         if (!this.started) {
             this.started = true;
@@ -80,6 +74,7 @@ public class AudioTranslator {
         }
     }
 
+    @Override
     public void stop() {
         if (this.started) {
             this.started = false;

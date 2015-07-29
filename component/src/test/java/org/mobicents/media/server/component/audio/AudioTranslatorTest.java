@@ -141,7 +141,7 @@ public class AudioTranslatorTest {
     public void testRecycle() throws InterruptedException {
         testTranslate();
 
-        translator.release(sine1Component);
+        translator.removeComponent(sine1Component);
         translator.addComponent(sine1Component);
 
         testTranslate();

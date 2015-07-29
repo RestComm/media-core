@@ -193,7 +193,7 @@ public class AudioMixerTest {
     public void testRecycle() throws InterruptedException {
         testMixing();
 
-        mixer.release(sine1Component);
+        mixer.removeComponent(sine1Component);
         mixer.addComponent(sine1Component);
 
         testMixing();

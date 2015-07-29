@@ -24,6 +24,7 @@ package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
 
+import org.mobicents.media.server.component.MediaRelay;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -36,7 +37,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  * @author Yulian Oifa
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AudioMixer {
+public class AudioMixer implements MediaRelay {
 
     // The format of the output stream.
     private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
@@ -62,8 +63,14 @@ public class AudioMixer {
         this.mixer = new MixTask();
     }
 
+    @Override
     public void addComponent(AudioComponent component) {
         components.put(component.getComponentId(), component);
+    }
+
+    @Override
+    public void removeComponent(AudioComponent component) {
+        components.remove(component.getComponentId());
     }
 
     protected int getPacketSize() {
@@ -75,15 +82,6 @@ public class AudioMixer {
     }
 
     /**
-     * Releases unused input stream
-     * 
-     * @param input the input stream previously created
-     */
-    public void release(AudioComponent component) {
-        components.remove(component.getComponentId());
-    }
-
-    /**
      * Modify gain of the output stream.
      * 
      * @param gain the new value of the gain in dBm.
@@ -92,6 +90,7 @@ public class AudioMixer {
         this.gain = gain > 0 ? gain * 1.26 : gain == 0 ? 1 : 1 / (gain * 1.26);
     }
 
+    @Override
     public void start() {
         if (!started) {
             started = true;
@@ -100,6 +99,7 @@ public class AudioMixer {
         }
     }
 
+    @Override
     public void stop() {
         if (started) {
             started = false;
