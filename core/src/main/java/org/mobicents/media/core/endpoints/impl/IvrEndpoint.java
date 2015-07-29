@@ -61,7 +61,7 @@ public class IvrEndpoint extends BaseMixerEndpoint {
 	@Override
 	public void stop() {
 		audioMixer.removeComponent(mediaGroup.getAudioComponent());
-		oobMixer.release(mediaGroup.getOOBComponent());
+		oobMixer.removeComponent(mediaGroup.getOOBComponent());
 		super.stop();
 	}
 

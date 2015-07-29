@@ -21,30 +21,30 @@
 
 package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 
 /**
- * Represent an element responsible for relaying media streams.<br>
+ * Represent an element responsible for relaying out-of-band traffic.<br>
  * Depending on the implementation, the traffic will either be mixed or forwarded.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MediaRelay {
+public interface OobRelay {
 
     /**
      * Register a new input stream
      * 
      * @param component the input stream
      */
-    void addComponent(AudioComponent component);
+    void addComponent(OOBComponent component);
 
     /**
      * Releases unused input stream.
      * 
      * @param component the input stream previously created
      */
-    void removeComponent(AudioComponent component);
+    void removeComponent(OOBComponent component);
 
     void start();
 

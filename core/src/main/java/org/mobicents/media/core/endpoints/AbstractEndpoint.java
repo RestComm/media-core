@@ -30,7 +30,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.AudioTranslator;
-import org.mobicents.media.server.component.oob.OOBMixer;
+import org.mobicents.media.server.component.oob.OOBTranslator;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -62,7 +62,7 @@ public abstract class AbstractEndpoint implements Endpoint {
     
     // Media processor
     private AudioMixer audioMixer;
-    private OOBMixer oobMixer;
+    private OOBTranslator oobMixer;
     private AudioTranslator audioTranslator;
     
     // IO flags

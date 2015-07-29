@@ -44,7 +44,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
  *
  * @author yulian oifa
  */
-public class OOBMixerTest {
+public class OOBTranslatorTest {
 
     private Clock clock;
     private Scheduler scheduler;
@@ -54,14 +54,14 @@ public class OOBMixerTest {
     private OOBSender sender3;
 
     private OOBReceiver receiver;
-    private OOBMixer mixer;
+    private OOBTranslator translator;
 
     private OOBComponent sender1Component;
     private OOBComponent sender2Component;
     private OOBComponent sender3Component;
     private OOBComponent receiverComponent;
-    
-    public OOBMixerTest() {
+
+    public OOBTranslatorTest() {
     }
 
     @BeforeClass
@@ -83,29 +83,29 @@ public class OOBMixerTest {
         sender1 = new OOBSender(scheduler);
         sender2 = new OOBSender(scheduler);
         sender3 = new OOBSender(scheduler);
-        receiver = new OOBReceiver("receiver",scheduler);
-        
-        sender1Component=new OOBComponent(1);
+        receiver = new OOBReceiver("receiver", scheduler);
+
+        sender1Component = new OOBComponent(1);
         sender1Component.addInput(sender1.getOOBInput());
-        sender1Component.updateMode(true,false);
-        
-        sender2Component=new OOBComponent(2);
+        sender1Component.updateMode(true, false);
+
+        sender2Component = new OOBComponent(2);
         sender2Component.addInput(sender2.getOOBInput());
-        sender2Component.updateMode(true,false);
-        
-        sender3Component=new OOBComponent(3);
+        sender2Component.updateMode(true, false);
+
+        sender3Component = new OOBComponent(3);
         sender3Component.addInput(sender3.getOOBInput());
-        sender3Component.updateMode(true,false);
-        
-        receiverComponent=new OOBComponent(4);
+        sender3Component.updateMode(true, false);
+
+        receiverComponent = new OOBComponent(4);
         receiverComponent.addOutput(receiver.getOOBOutput());
-        receiverComponent.updateMode(false,true);
-        
-        mixer = new OOBMixer(scheduler);
-        mixer.addComponent(sender1Component);
-        mixer.addComponent(sender2Component);
-        mixer.addComponent(sender3Component);
-        mixer.addComponent(receiverComponent);                 
+        receiverComponent.updateMode(false, true);
+
+        translator = new OOBTranslator(scheduler);
+        translator.addComponent(sender1Component);
+        translator.addComponent(sender2Component);
+        translator.addComponent(sender3Component);
+        translator.addComponent(receiverComponent);
     }
 
     @After
@@ -113,49 +113,48 @@ public class OOBMixerTest {
         scheduler.stop();
     }
 
-    
-//    @Test
-    public void testMixing() throws InterruptedException {
-    	sender1.activate();
-    	mixer.start();    	
-    	receiver.activate();
-    	Thread.sleep(1200);
-    	
-    	sender2.activate();
-    	Thread.sleep(1200);
-    	
-    	sender3.activate();
-    	Thread.sleep(1200);    	    	
+    @Test
+    public void testTranslate() throws InterruptedException {
+        sender1.activate();
+        translator.start();
+        receiver.activate();
+        Thread.sleep(1200);
 
-        mixer.stop();
+        sender2.activate();
+        Thread.sleep(1200);
+
+        sender3.activate();
+        Thread.sleep(1200);
+
+        translator.stop();
         sender1.deactivate();
         sender2.deactivate();
         sender3.deactivate();
         receiver.deactivate();
-        
-        System.out.println("mix execution count: " + mixer.mixCount);
-        
+
+        System.out.println("mix execution count: " + translator.getExecutionCount());
+
         int res = receiver.getPacketsCount();
         System.out.println("Received packets count:" + res);
         assertEquals(150, res, 5);
     }
 
     @Test
-    public void testMixingFailure() throws InterruptedException {
-        int N = 5;//100;
+    public void testTranslateFailure() throws InterruptedException {
+        int N = 5;// 100;
         for (int i = 0; i < N; i++) {
             System.out.println("Test # " + i);
-            testMixing();
+            testTranslate();
         }
     }
-    
+
     @Test
     public void testRecycle() throws InterruptedException {
-    	testMixing();
-        
-    	mixer.release(sender1Component);        
-    	mixer.addComponent(sender1Component);
-                
-        testMixing();    	
+        testTranslate();
+
+        translator.removeComponent(sender1Component);
+        translator.addComponent(sender1Component);
+
+        testTranslate();
     }
 }

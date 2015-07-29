@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.MediaComponent;
-import org.mobicents.media.server.component.oob.OOBMixer;
+import org.mobicents.media.server.component.oob.OOBTranslator;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -48,7 +48,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
 
     // Media mixers
     protected AudioMixer audioMixer;
-    protected OOBMixer oobMixer;
+    protected OOBTranslator oobMixer;
 
     // Media mixer components
     protected final ConcurrentMap<MediaComponent> mediaComponents;
@@ -72,7 +72,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
     public void start() throws ResourceUnavailableException {
         super.start();
         this.audioMixer = new AudioMixer(getScheduler());
-        this.oobMixer = new OOBMixer(getScheduler());
+        this.oobMixer = new OOBTranslator(getScheduler());
     }
 
     @Override
@@ -100,7 +100,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
 
         // Release the mixing component from the media mixer
         audioMixer.removeComponent(mixerComponent.getAudioComponent());
-        oobMixer.release(mixerComponent.getOOBComponent());
+        oobMixer.removeComponent(mixerComponent.getOOBComponent());
     }
 
     @Override
