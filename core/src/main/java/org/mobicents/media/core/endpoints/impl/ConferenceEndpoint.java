@@ -22,24 +22,34 @@
 
 package org.mobicents.media.core.endpoints.impl;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
+import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 
 /**
  * Conference endpoint implementation
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class ConferenceEndpoint extends BaseMixerEndpoint {
+public class ConferenceEndpoint extends AbstractRelayEndpoint {
 
-	public ConferenceEndpoint(String localName) {
-		super(localName);
-	}
+    private static final Logger logger = Logger.getLogger(ConferenceEndpoint.class);
 
-	@Override
-	public Component getResource(MediaType mediaType, ComponentType componentType) {
-		return null;
-	}
+    public ConferenceEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
+    }
+
+    @Override
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
+        return null;
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
 }

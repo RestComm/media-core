@@ -35,7 +35,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  * 
  * @author Yulian Oifa
  */
-public class OOBTranslator implements OobRelay {
+public class OOBMixer implements OobRelay {
 
     // The pool of components
     private ConcurrentMap<OOBComponent> components = new ConcurrentMap<OOBComponent>();
@@ -47,7 +47,7 @@ public class OOBTranslator implements OobRelay {
     private volatile boolean started = false;
     private long executionCount = 0;
 
-    public OOBTranslator(Scheduler scheduler) {
+    public OOBMixer(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.translator = new TranslateTask();
     }

@@ -47,6 +47,7 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.spi.player.Player;
@@ -114,7 +115,7 @@ public class RelayTest {
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
 
         // assign scheduler to the endpoint
-        ivr = new IvrEndpoint("test-1");
+        ivr = new IvrEndpoint("test-1", RelayType.MIXER);
         ivr.setScheduler(scheduler);
         ivr.setResourcesPool(resourcesPool);
         ivr.start();
@@ -124,11 +125,10 @@ public class RelayTest {
         soundcard.setResourcesPool(resourcesPool);
         soundcard.start();
 
-        cnfBridge = new ConferenceEndpoint("test-3");
+        cnfBridge = new ConferenceEndpoint("test-3", RelayType.MIXER);
         cnfBridge.setScheduler(scheduler);
         cnfBridge.setResourcesPool(resourcesPool);
         cnfBridge.start();
-
     }
 
     @After
@@ -201,13 +201,5 @@ public class RelayTest {
         soundcard.deleteConnection(connection2);
         cnfBridge.deleteAllConnections();
     }
-
-    // private void printSpectra(String title, int[]s) {
-    // System.out.println(title);
-    // for (int i = 0; i < s.length; i++) {
-    // System.out.print(s[i] + " ");
-    // }
-    // System.out.println();
-    // }
 
 }

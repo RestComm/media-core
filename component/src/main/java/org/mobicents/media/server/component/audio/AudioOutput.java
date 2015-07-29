@@ -79,9 +79,9 @@ public class AudioOutput extends AbstractSource {
 
     public void offer(Frame frame) {
         if (isStarted()) {
-            if (buffer.size() > 1) {
-                buffer.poll().recycle();
-            }
+//            if (buffer.size() > 1) {
+//                buffer.poll().recycle();
+//            }
             buffer.offer(frame);
         }
     }

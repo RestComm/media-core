@@ -54,7 +54,7 @@ public class OOBTranslatorTest {
     private OOBSender sender3;
 
     private OOBReceiver receiver;
-    private OOBTranslator translator;
+    private OOBMixer translator;
 
     private OOBComponent sender1Component;
     private OOBComponent sender2Component;
@@ -101,7 +101,7 @@ public class OOBTranslatorTest {
         receiverComponent.addOutput(receiver.getOOBOutput());
         receiverComponent.updateMode(false, true);
 
-        translator = new OOBTranslator(scheduler);
+        translator = new OOBMixer(scheduler);
         translator.addComponent(sender1Component);
         translator.addComponent(sender2Component);
         translator.addComponent(sender3Component);

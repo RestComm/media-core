@@ -22,12 +22,14 @@
 
 package org.mobicents.media.core.endpoints.impl;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
+import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
@@ -35,56 +37,64 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * 
  * @author yulian oifa
  * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class IvrEndpoint extends BaseMixerEndpoint {
+public class IvrEndpoint extends AbstractRelayEndpoint {
 
-	public IvrEndpoint(String localName) {
-		super(localName);
-	}
+    private static final Logger logger = Logger.getLogger(IvrEndpoint.class);
 
-	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
-		Connection connection = super.createConnection(type, isLocal);
-		if (getActiveConnectionsCount() == 1) {
-			mediaGroup.getDtmfDetector().activate();
-		}
-		return connection;
-	}
+    public IvrEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
+    }
 
-	@Override
-	public void start() throws ResourceUnavailableException {
-		super.start();
-		audioMixer.addComponent(mediaGroup.getAudioComponent());
-		oobMixer.addComponent(mediaGroup.getOOBComponent());
-	}
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
 
-	@Override
-	public void stop() {
-		audioMixer.removeComponent(mediaGroup.getAudioComponent());
-		oobMixer.removeComponent(mediaGroup.getOOBComponent());
-		super.stop();
-	}
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        Connection connection = super.createConnection(type, isLocal);
+        if (getActiveConnectionsCount() == 1) {
+            mediaGroup.getDtmfDetector().activate();
+        }
+        return connection;
+    }
 
-	@Override
-	public Component getResource(MediaType mediaType, ComponentType componentType) {
-		switch (mediaType) {
-		case AUDIO:
-			switch (componentType) {
-			case PLAYER:
-				return mediaGroup.getPlayer();
-			case RECORDER:
-				return mediaGroup.getRecorder();
-			case DTMF_DETECTOR:
-				return mediaGroup.getDtmfDetector();
-			case DTMF_GENERATOR:
-				return mediaGroup.getDtmfGenerator();
-			default:
-				break;
-			}
-			break;
-		default:
-			break;
-		}
-		return null;
-	}
+    @Override
+    public void start() throws ResourceUnavailableException {
+        super.start();
+        this.audioRelay.addComponent(mediaGroup.getAudioComponent());
+        this.oobRelay.addComponent(mediaGroup.getOOBComponent());
+    }
+
+    @Override
+    public void stop() {
+        this.audioRelay.removeComponent(mediaGroup.getAudioComponent());
+        this.oobRelay.removeComponent(mediaGroup.getOOBComponent());
+        super.stop();
+    }
+
+    @Override
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case PLAYER:
+                        return mediaGroup.getPlayer();
+                    case RECORDER:
+                        return mediaGroup.getRecorder();
+                    case DTMF_DETECTOR:
+                        return mediaGroup.getDtmfDetector();
+                    case DTMF_GENERATOR:
+                        return mediaGroup.getDtmfGenerator();
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        return null;
+    }
 }

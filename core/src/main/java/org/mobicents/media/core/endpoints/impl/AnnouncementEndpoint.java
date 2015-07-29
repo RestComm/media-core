@@ -22,51 +22,46 @@
 
 package org.mobicents.media.core.endpoints.impl;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
+import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
 import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.RelayType;
 
 /**
  * Announcement endpoint implementation
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AnnouncementEndpoint extends BaseMixerEndpoint {
+public class AnnouncementEndpoint extends AbstractRelayEndpoint {
 
-	public AnnouncementEndpoint(String localName) {
-		super(localName);
-	}
+    private static final Logger logger = Logger.getLogger(AnnouncementEndpoint.class);
 
-	@Override
-	public void start() throws ResourceUnavailableException {
-		super.start();
-		audioMixer.addComponent(mediaGroup.getAudioComponent());
-		oobMixer.addComponent(mediaGroup.getOOBComponent());
-	}
+    public AnnouncementEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
+    }
 
-	@Override
-	public void stop() {
-		audioMixer.removeComponent(mediaGroup.getAudioComponent());
-		oobMixer.removeComponent(mediaGroup.getOOBComponent());
-		super.stop();
-	}
+    @Override
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case PLAYER:
+                        return mediaGroup.getPlayer();
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        return null;
+    }
 
-	@Override
-	public Component getResource(MediaType mediaType, ComponentType componentType) {
-		switch (mediaType) {
-		case AUDIO:
-			switch (componentType) {
-			case PLAYER:
-				return mediaGroup.getPlayer();
-			default:
-				break;
-			}
-			break;
-		default:
-			break;
-		}
-		return null;
-	}
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
 }

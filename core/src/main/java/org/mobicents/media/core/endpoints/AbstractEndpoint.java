@@ -22,15 +22,10 @@
 
 package org.mobicents.media.core.endpoints;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.audio.AudioTranslator;
-import org.mobicents.media.server.component.oob.OOBTranslator;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -59,16 +54,6 @@ public abstract class AbstractEndpoint implements Endpoint {
     private final ConcurrentMap<Connection> connections;
     private EndpointState state;
     protected MediaGroup mediaGroup;
-    
-    // Media processor
-    private AudioMixer audioMixer;
-    private OOBTranslator oobMixer;
-    private AudioTranslator audioTranslator;
-    
-    // IO flags
-    private AtomicInteger loopbackCount = new AtomicInteger(0);
-    private AtomicInteger readCount = new AtomicInteger(0);
-    private AtomicInteger writeCount = new AtomicInteger(0);
 
     public AbstractEndpoint(String localName, RelayType relayType) {
         this.localName = localName;

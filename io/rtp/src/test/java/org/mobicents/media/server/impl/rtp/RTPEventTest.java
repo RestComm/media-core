@@ -43,7 +43,7 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.component.oob.OOBTranslator;
+import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -83,7 +83,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     private Sender sender;
     
     private AudioMixer audioMixer;
-    private OOBTranslator oobMixer;
+    private OOBMixer oobMixer;
     
     private AudioComponent detectorComponent;
     private OOBComponent oobComponent;
@@ -147,7 +147,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         detectorComponent.updateMode(true,true);
         audioMixer.addComponent(detectorComponent);               
         
-        oobMixer=new OOBTranslator(scheduler);
+        oobMixer=new OOBMixer(scheduler);
         oobMixer.addComponent(channel.getOOBComponent());
         
         oobComponent=new OOBComponent(1);

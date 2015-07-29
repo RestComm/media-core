@@ -28,9 +28,7 @@
 package org.mobicents.media.server.test;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.Server;
@@ -46,6 +44,7 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.utils.Text;
@@ -72,17 +71,6 @@ public class RecordingTest {
     private IvrEndpoint user, ivr;
 
     private Server server;
-
-    public RecordingTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -124,8 +112,8 @@ public class RecordingTest {
 
         controller.start();
 
-        user = new IvrEndpoint("/mobicents/ivr/1");
-        ivr = new IvrEndpoint("/mobicents/ivr/2");
+        user = new IvrEndpoint("/mobicents/ivr/1", RelayType.MIXER);
+        ivr = new IvrEndpoint("/mobicents/ivr/2", RelayType.MIXER);
 
         server.install(user, null);
         server.install(ivr, null);
@@ -185,13 +173,5 @@ public class RecordingTest {
         user.deleteConnection(userConnection);
         ivr.deleteConnection(ivrConnection);
     }
-
-    // private void printSpectra(String title, int[] s) {
-    // System.out.println(title);
-    // for (int i = 0; i < s.length; i++) {
-    // System.out.print(s[i] + " ");
-    // }
-    // System.out.println();
-    // }
 
 }

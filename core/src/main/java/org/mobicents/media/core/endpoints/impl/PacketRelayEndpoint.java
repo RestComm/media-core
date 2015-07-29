@@ -22,39 +22,49 @@
 
 package org.mobicents.media.core.endpoints.impl;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
+import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
  * Packet Relay Endpoint Implementation
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class PacketRelayEndpoint extends BaseMixerEndpoint {
-    
-	public PacketRelayEndpoint(String localName) {
-    	super(localName);              
+public class PacketRelayEndpoint extends AbstractRelayEndpoint {
+
+    private static final Logger LOGGER = Logger.getLogger(PacketRelayEndpoint.class);
+
+    public PacketRelayEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
     }
 
-	@Override
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
-    	switch(type) {
-    		case RTP:
-    			return super.createConnection(type,isLocal);    			
-    		case LOCAL:
-    			throw new ResourceUnavailableException("Local connection is not available on packet relay");    			
-    	}
-    	return null;
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
-	@Override
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        switch (type) {
+            case RTP:
+                return super.createConnection(type, isLocal);
+            case LOCAL:
+                throw new ResourceUnavailableException("Local connection is not available on packet relay");
+        }
+        return null;
+    }
+
+    @Override
     public Component getResource(MediaType mediaType, ComponentType componentType) {
-    	return null;
+        return null;
     }
-	
+
 }

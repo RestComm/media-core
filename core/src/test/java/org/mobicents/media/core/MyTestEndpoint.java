@@ -27,8 +27,10 @@
 
 package org.mobicents.media.core;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
 import org.mobicents.media.core.endpoints.BaseMixerEndpoint;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
@@ -38,13 +40,16 @@ import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
  * 
  * @author yulian oifa
  */
-public class MyTestEndpoint extends BaseMixerEndpoint {
+public class MyTestEndpoint extends AbstractRelayEndpoint {
+
+    private static final Logger LOGGER = Logger.getLogger(MyTestEndpoint.class);
 
     private int f;
     private Sine sine;
@@ -56,9 +61,14 @@ public class MyTestEndpoint extends BaseMixerEndpoint {
     private OOBComponent oobComponent;
 
     public MyTestEndpoint(String localName) {
-        super(localName);
+        super(localName, RelayType.MIXER);
         audioComponent = new AudioComponent(1);
         oobComponent = new OOBComponent(-1);
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
     public void setFreq(int f) {
@@ -88,8 +98,8 @@ public class MyTestEndpoint extends BaseMixerEndpoint {
         audioComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
         oobComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getOOBInput());
 
-        audioMixer.addComponent(audioComponent);
-        oobMixer.addComponent(oobComponent);
+        audioRelay.addComponent(audioComponent);
+        oobRelay.addComponent(oobComponent);
 
         audioComponent.updateMode(true, true);
         oobComponent.updateMode(true, true);
