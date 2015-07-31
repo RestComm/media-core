@@ -29,6 +29,7 @@ import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
+import org.mobicents.media.server.spi.RelayType;
 
 /**
  * Endpoint installer is used for automatic creation and instalation of

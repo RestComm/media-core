@@ -39,7 +39,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  */
 public class AudioMixer implements MediaRelay {
 
-    // The format of the output stream.
+    // The format of the output stream
     private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     private static final long PERIOD = 20000000L;
     private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000

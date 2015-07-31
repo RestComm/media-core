@@ -124,15 +124,17 @@ public class AudioComponent {
     }
 
     public int[] getData() {
-        if (!this.shouldRead) {
+        if (!this.shouldRead || first) {
             return null;
         }
-
-        if (first) {
-            return null;
-        }
-
         return data;
+    }
+
+    public boolean hasData() {
+        if (!this.shouldRead || first) {
+            return false;
+        }
+        return this.data != null && this.data.length > 0;
     }
 
     public void offer(int[] data) {
