@@ -48,7 +48,7 @@ public class IvrEndpoint extends AbstractRelayEndpoint {
     }
 
     public IvrEndpoint(String localName) {
-        super(localName, RelayType.TRANSLATOR);
+        super(localName, RelayType.MIXER);
     }
 
     @Override

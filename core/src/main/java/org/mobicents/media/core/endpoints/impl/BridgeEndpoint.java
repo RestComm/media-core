@@ -51,7 +51,7 @@ public class BridgeEndpoint extends AbstractSplitterEndpoint {
     }
 
     public BridgeEndpoint(String localName) {
-        super(localName, RelayType.TRANSLATOR);
+        super(localName, RelayType.MIXER);
     }
 
     @Override
