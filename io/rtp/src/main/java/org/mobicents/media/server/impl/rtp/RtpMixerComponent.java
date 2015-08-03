@@ -152,8 +152,7 @@ public class RtpMixerComponent extends MediaComponent implements RtpRelay {
             // Send packet to remote peer
             this.rtpTransport.send(packet);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("RTP packet dropped: " + e.getMessage(), e);
         }
     }
 
@@ -170,8 +169,7 @@ public class RtpMixerComponent extends MediaComponent implements RtpRelay {
             // Send packet to remote peer
             this.rtpTransport.sendDtmf(packet);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("DTMF packet dropped: " + e.getMessage(), e);
         }
     }
 
