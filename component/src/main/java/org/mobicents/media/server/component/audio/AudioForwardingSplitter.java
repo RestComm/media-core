@@ -25,6 +25,8 @@ import org.mobicents.media.server.component.MediaSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
 
 /**
  * Audio splitter that forwards traffic between components.
@@ -33,6 +35,12 @@ import org.mobicents.media.server.scheduler.Task;
  *
  */
 public class AudioForwardingSplitter implements MediaSplitter {
+
+    // Format of the output stream.
+    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    private static final long PERIOD = 20000000L;
+    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
+            * LINEAR_FORMAT.getSampleSize() / 8;
 
     // Pools of components
     private final ConcurrentMap<AudioComponent> insideComponents;
@@ -96,6 +104,8 @@ public class AudioForwardingSplitter implements MediaSplitter {
 
     private final class InsideForwardingTask extends Task {
 
+        private final int[] data = new int[PACKET_SIZE / 2];
+
         @Override
         public int getQueueNumber() {
             return Scheduler.MIXER_MIX_QUEUE;
@@ -107,18 +117,20 @@ public class AudioForwardingSplitter implements MediaSplitter {
             for (AudioComponent insideComponent : insideComponents.values()) {
                 if (insideComponent.shouldRead) {
                     insideComponent.perform();
-                    int[] data = insideComponent.getData();
-
-                    if (data != null && data.length > 0) {
-                        // Pass the data to all outside components with write permission
-                        for (AudioComponent outsideComponent : outsideComponents.values()) {
-                            if (outsideComponent.shouldWrite) {
-                                outsideComponent.offer(data);
+                    if (insideComponent.hasData()) {
+                        System.arraycopy(insideComponent.getData(), 0, data, 0, data.length);
+                        if (data != null && data.length > 0) {
+                            // Pass the data to all outside components with write permission
+                            for (AudioComponent outsideComponent : outsideComponents.values()) {
+                                if (outsideComponent.shouldWrite) {
+                                    outsideComponent.offer(data);
+                                }
                             }
                         }
                     }
                 }
             }
+
             // Submit task to schedule for continuous execution
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
             return 0;
@@ -127,6 +139,8 @@ public class AudioForwardingSplitter implements MediaSplitter {
     }
 
     private final class OutsideForwardingTask extends Task {
+
+        private final int[] data = new int[PACKET_SIZE / 2];
 
         @Override
         public int getQueueNumber() {
@@ -139,18 +153,20 @@ public class AudioForwardingSplitter implements MediaSplitter {
             for (AudioComponent outsideComponent : outsideComponents.values()) {
                 if (outsideComponent.shouldRead) {
                     outsideComponent.perform();
-                    int[] data = outsideComponent.getData();
-
-                    if (data != null && data.length > 0) {
-                        // Pass the data to all outside components with write permission
-                        for (AudioComponent insideComponent : insideComponents.values()) {
-                            if (insideComponent.shouldWrite) {
-                                insideComponent.offer(data);
+                    if (outsideComponent.hasData()) {
+                        System.arraycopy(outsideComponent.getData(), 0, data, 0, data.length);
+                        if (data != null && data.length > 0) {
+                            // Pass the data to all outside components with write permission
+                            for (AudioComponent insideComponent : insideComponents.values()) {
+                                if (insideComponent.shouldWrite) {
+                                    insideComponent.offer(data);
+                                }
                             }
                         }
                     }
                 }
             }
+
             // Submit task to schedule for continuous execution
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
             return 0;
