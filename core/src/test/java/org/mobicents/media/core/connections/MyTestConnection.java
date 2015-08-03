@@ -29,7 +29,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.CompoundComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
@@ -52,11 +52,11 @@ public class MyTestConnection extends AbstractConnection {
     private volatile boolean closed;
     private volatile boolean failed;
 
-    private final MediaComponent mediaComponent;
+    private final CompoundComponent mediaComponent;
 
     public MyTestConnection(int id, Scheduler scheduler) throws Exception {
         super(id, scheduler, RelayType.MIXER, ConnectionType.LOCAL);
-        this.mediaComponent = new MediaComponent(id);
+        this.mediaComponent = new CompoundComponent(id);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class MyTestConnection extends AbstractConnection {
     }
 
     @Override
-    public MediaComponent getMediaComponent(String mediaType) {
+    public CompoundComponent getMediaComponent(String mediaType) {
         return this.mediaComponent;
     }
 

@@ -23,6 +23,7 @@ package org.mobicents.media.server.component.video;
 
 import java.io.IOException;
 
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -34,27 +35,67 @@ public class VideoInput extends AbstractSink {
 
     private static final long serialVersionUID = -5368081767032694922L;
 
-    public VideoInput(String name) {
-        super(name);
-        // TODO Auto-generated constructor stub
+    private int inputId;
+    private int limit = 3;
+    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
+    private Frame activeFrame = null;
+    private byte[] activeData;
+    private byte[] oldData;
+    private int byteIndex = 0;
+    private int count = 0;
+    private int packetSize = 0;
+
+    public VideoInput(int inputId, int packetSize) {
+        super("compound.video.input." + inputId);
+        this.inputId = inputId;
+        this.packetSize = packetSize;
+    }
+
+    public int getInputId() {
+        return inputId;
     }
 
     @Override
     public void activate() {
-        // TODO Auto-generated method stub
-        
+        // Does nothing
     }
 
     @Override
     public void deactivate() {
-        // TODO Auto-generated method stub
-        
+        // Does nothing
     }
 
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         // TODO Auto-generated method stub
-        
+
+    }
+
+    public boolean isEmpty() {
+        return this.buffer.size() == 0;
+    }
+
+    public Frame poll() {
+        return this.buffer.poll();
+    }
+
+    public void recycle() {
+        while (this.buffer.size() > 0) {
+            this.buffer.poll().recycle();
+        }
+
+        if (this.activeFrame != null) {
+            this.activeFrame.recycle();
+        }
+
+        this.activeFrame = null;
+        this.activeData = null;
+        this.byteIndex = 0;
+    }
+
+    public void resetBuffer() {
+        while (buffer.size() > 0)
+            buffer.poll().recycle();
     }
 
 }

@@ -24,10 +24,10 @@ package org.mobicents.media.core.endpoints;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.core.connections.AbstractConnection;
+import org.mobicents.media.server.component.CompoundComponent;
 import org.mobicents.media.server.component.MediaSplitter;
 import org.mobicents.media.server.component.audio.AudioForwardingSplitter;
 import org.mobicents.media.server.component.audio.AudioMixingSplitter;
-import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
@@ -45,7 +45,7 @@ public abstract class AbstractSplitterEndpoint extends AbstractEndpoint {
     // Media splitting
     private MediaSplitter audioSplitter;
     private OOBSplitter oobSplitter;
-    private final ConcurrentMap<MediaComponent> mediaComponents;
+    private final ConcurrentMap<CompoundComponent> mediaComponents;
 
     // IO flags
     private AtomicInteger loopbackCount = new AtomicInteger(0);
@@ -54,7 +54,7 @@ public abstract class AbstractSplitterEndpoint extends AbstractEndpoint {
 
     public AbstractSplitterEndpoint(String localName, RelayType relayType) {
         super(localName, relayType);
-        this.mediaComponents = new ConcurrentMap<MediaComponent>();
+        this.mediaComponents = new ConcurrentMap<CompoundComponent>();
     }
 
     @Override
@@ -63,7 +63,7 @@ public abstract class AbstractSplitterEndpoint extends AbstractEndpoint {
         AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
 
         // Retrieve and register the mixer component of the connection
-        MediaComponent mediaComponent = connection.getMediaComponent("audio");
+        CompoundComponent mediaComponent = connection.getMediaComponent("audio");
         this.mediaComponents.put(connection.getId(), mediaComponent);
 
         // Add media component to the media splitter
@@ -87,7 +87,7 @@ public abstract class AbstractSplitterEndpoint extends AbstractEndpoint {
         super.deleteConnection(connection);
 
         // Unregister the media component of the connection
-        MediaComponent mediaComponent = this.mediaComponents.remove(connection.getId());
+        CompoundComponent mediaComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the media component from the media splitter
         switch (connection.getConnectionType()) {

@@ -24,11 +24,11 @@ package org.mobicents.media.core.endpoints;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.core.connections.AbstractConnection;
+import org.mobicents.media.server.component.CompoundComponent;
 import org.mobicents.media.server.component.MediaRelay;
 import org.mobicents.media.server.component.OobRelay;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.AudioTranslator;
-import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
@@ -48,7 +48,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
     // Media relay
     protected MediaRelay audioRelay;
     protected OobRelay oobRelay;
-    private final ConcurrentMap<MediaComponent> audioComponents;
+    private final ConcurrentMap<CompoundComponent> audioComponents;
 
     // IO flags
     private AtomicInteger loopbackCount = new AtomicInteger(0);
@@ -57,7 +57,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
 
     public AbstractRelayEndpoint(String localName, RelayType relayType) {
         super(localName, relayType);
-        this.audioComponents = new ConcurrentMap<MediaComponent>();
+        this.audioComponents = new ConcurrentMap<CompoundComponent>();
     }
 
     @Override
@@ -66,7 +66,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
         AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
 
         // Retrieve and register the mixer component of the connection
-        MediaComponent mediaComponent = connection.getMediaComponent("audio");
+        CompoundComponent mediaComponent = connection.getMediaComponent("audio");
         this.audioComponents.put(connection.getId(), mediaComponent);
 
         // Add mixing component to the media mixer
@@ -81,7 +81,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
         super.deleteConnection(connection);
 
         // Unregister the mixer component of the connection
-        MediaComponent mixerComponent = this.audioComponents.remove(connection.getId());
+        CompoundComponent mixerComponent = this.audioComponents.remove(connection.getId());
 
         // Release the mixing component from the media mixer
         this.audioRelay.removeComponent(mixerComponent.getAudioComponent());

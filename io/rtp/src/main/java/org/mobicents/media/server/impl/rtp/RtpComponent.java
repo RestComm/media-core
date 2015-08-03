@@ -24,7 +24,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.CompoundComponent;
 import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
@@ -38,7 +38,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpComponent extends MediaComponent implements RtpRelay {
+public class RtpComponent extends CompoundComponent implements RtpRelay {
 
     private static final Logger logger = Logger.getLogger(RtpComponent.class);
 

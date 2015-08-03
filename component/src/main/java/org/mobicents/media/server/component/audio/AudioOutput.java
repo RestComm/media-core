@@ -44,7 +44,7 @@ public class AudioOutput extends AbstractSource {
      * Creates new instance with default name.
      */
     public AudioOutput(Scheduler scheduler, int outputId) {
-        super("compound.output", scheduler, Scheduler.OUTPUT_QUEUE);
+        super("compound.output.audio." + outputId, scheduler, Scheduler.OUTPUT_QUEUE);
         this.outputId = outputId;
     }
 

@@ -72,17 +72,19 @@ public class VideoComponent {
     }
 
     public void addOutput(VideoOutput output) {
-        this.outputs.put(output.getInputId(), output);
+        this.outputs.put(output.getOutputId(), output);
     }
     
     public void removeOutput(VideoOutput output) {
-        this.outputs.remove(output.getInputId());
+        this.outputs.remove(output.getOutputId());
     }
     
     public int[] retrieveData() {
+        int[] data = null;
         // TODO iterate over active inputs and retrieve a frame from each
         // TODO get the data from the frame and store it locally
         // TODO return the data
+        return data;
     }
     
     public void offerData(int[] data) {

@@ -19,8 +19,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.component.audio;
+package org.mobicents.media.server.component;
 
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.audio.AudioInput;
+import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
@@ -32,13 +35,13 @@ import org.mobicents.media.server.spi.ConnectionMode;
  * @author Henrique Rosa (henrique.rosa@gmail.com)
  *
  */
-public class MediaComponent {
+public class CompoundComponent {
 
     private final int channelId;
     private final AudioComponent audioComponent;
     private final OOBComponent ooBComponent;
 
-    public MediaComponent(int channelId) {
+    public CompoundComponent(int channelId) {
         this.channelId = channelId;
         this.audioComponent = new AudioComponent(channelId);
         this.ooBComponent = new OOBComponent(channelId);

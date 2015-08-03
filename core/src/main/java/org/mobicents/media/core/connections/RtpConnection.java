@@ -27,7 +27,7 @@ import java.net.SocketException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.harvest.HarvestException;
-import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.component.CompoundComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpListener;
@@ -566,7 +566,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     @Override
-    public MediaComponent getMediaComponent(String mediaType) {
+    public CompoundComponent getMediaComponent(String mediaType) {
         switch (mediaType) {
             case AVProfile.AUDIO:
                 return this.audioSession.getMediaComponent();

@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.connections.AbstractConnection;
+import org.mobicents.media.server.component.CompoundComponent;
 import org.mobicents.media.server.component.audio.AudioTranslator;
-import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -47,7 +47,7 @@ public class TranslatorEndpoint extends AbstractEndpoint {
     // Media processing
     private AudioTranslator audioTranslator;
     // XXX missing an OOB translator
-    protected final ConcurrentMap<MediaComponent> mediaComponents;
+    protected final ConcurrentMap<CompoundComponent> mediaComponents;
 
     // IO flags
     private AtomicInteger loopbackCount = new AtomicInteger(0);
@@ -56,7 +56,7 @@ public class TranslatorEndpoint extends AbstractEndpoint {
 
     public TranslatorEndpoint(String localName) {
         super(localName, RelayType.TRANSLATOR);
-        this.mediaComponents = new ConcurrentMap<MediaComponent>(5);
+        this.mediaComponents = new ConcurrentMap<CompoundComponent>(5);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class TranslatorEndpoint extends AbstractEndpoint {
         AbstractConnection connection = (AbstractConnection) super.createConnection(type, isLocal);
 
         // Retrieve and register the mixer component of the connection
-        MediaComponent mediaComponent = connection.getMediaComponent("audio");
+        CompoundComponent mediaComponent = connection.getMediaComponent("audio");
         this.mediaComponents.put(connection.getId(), mediaComponent);
 
         // Add mixing component to the media mixer
@@ -144,7 +144,7 @@ public class TranslatorEndpoint extends AbstractEndpoint {
         super.deleteConnection(connection);
 
         // Unregister the mixer component of the connection
-        MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
+        CompoundComponent mixerComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the mixing component from the media mixer
         this.audioTranslator.removeComponent(mixerComponent.getAudioComponent());

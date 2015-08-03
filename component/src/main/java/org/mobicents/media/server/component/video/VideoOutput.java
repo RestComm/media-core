@@ -21,6 +21,8 @@
 
 package org.mobicents.media.server.component.video;
 
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -33,15 +35,48 @@ public class VideoOutput extends AbstractSource {
 
     private static final long serialVersionUID = -5375983454592154619L;
 
-    public VideoOutput(String name, Scheduler scheduler, int queueNumber) {
-        super(name, scheduler, queueNumber);
-        // TODO Auto-generated constructor stub
+    private final int outputId;
+    private final ConcurrentCyclicFIFO<Frame> buffer;
+
+    public VideoOutput(Scheduler scheduler, int outputId) {
+        super("compound.output.video." + outputId, scheduler, Scheduler.OUTPUT_QUEUE);
+        this.outputId = outputId;
+        this.buffer = new ConcurrentCyclicFIFO<Frame>();
+    }
+
+    public int getOutputId() {
+        return outputId;
+    }
+
+    public void join(AbstractSink sink) {
+        connect(sink);
+    }
+
+    public void unjoin() {
+        disconnect();
     }
 
     @Override
     public Frame evolve(long timestamp) {
-        // TODO Auto-generated method stub
-        return null;
+        return buffer.poll();
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        resetBuffer();
+    }
+
+    private void resetBuffer() {
+        while (this.buffer.size() > 0) {
+            this.buffer.poll().recycle();
+        }
+    }
+
+    public void offerFrame(Frame frame) {
+        if (isStarted()) {
+            buffer.offer(frame);
+        }
     }
 
 }
