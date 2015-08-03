@@ -31,12 +31,10 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class AudioChannel extends RtpChannel {
+public class AudioSession extends RtpSession {
 
-    public static final String MEDIA_TYPE = "audio";
-
-    public AudioChannel(int channelId, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
-        super(channelId, MEDIA_TYPE, scheduler, dspFactory, udpManager);
+    public AudioSession(int channelId, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+        super(channelId, AVProfile.AUDIO, scheduler, dspFactory, udpManager);
         super.supportedFormats = AVProfile.audio;
         super.setFormats(this.supportedFormats);
     }

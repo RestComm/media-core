@@ -48,7 +48,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
     // Media relay
     protected MediaRelay audioRelay;
     protected OobRelay oobRelay;
-    private final ConcurrentMap<MediaComponent> mediaComponents;
+    private final ConcurrentMap<MediaComponent> audioComponents;
 
     // IO flags
     private AtomicInteger loopbackCount = new AtomicInteger(0);
@@ -57,7 +57,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
 
     public AbstractRelayEndpoint(String localName, RelayType relayType) {
         super(localName, relayType);
-        this.mediaComponents = new ConcurrentMap<MediaComponent>();
+        this.audioComponents = new ConcurrentMap<MediaComponent>();
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
 
         // Retrieve and register the mixer component of the connection
         MediaComponent mediaComponent = connection.getMediaComponent("audio");
-        this.mediaComponents.put(connection.getId(), mediaComponent);
+        this.audioComponents.put(connection.getId(), mediaComponent);
 
         // Add mixing component to the media mixer
         this.audioRelay.addComponent(mediaComponent.getAudioComponent());
@@ -81,7 +81,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
         super.deleteConnection(connection);
 
         // Unregister the mixer component of the connection
-        MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
+        MediaComponent mixerComponent = this.audioComponents.remove(connection.getId());
 
         // Release the mixing component from the media mixer
         this.audioRelay.removeComponent(mixerComponent.getAudioComponent());

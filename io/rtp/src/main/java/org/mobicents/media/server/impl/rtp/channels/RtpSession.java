@@ -64,9 +64,9 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public abstract class RtpChannel {
+public abstract class RtpSession {
 
-    protected static final Logger logger = Logger.getLogger(RtpChannel.class);
+    protected static final Logger logger = Logger.getLogger(RtpSession.class);
 
     // Registered audio formats
     public final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
@@ -119,7 +119,7 @@ public abstract class RtpChannel {
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected RtpChannel(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+    protected RtpSession(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
         // RTP channel properties
         this.channelId = channelId;
         this.ssrc = 0L;
@@ -277,7 +277,7 @@ public abstract class RtpChannel {
         return 0;
     }
 
-    public RtpMixerComponent getMixerComponent() {
+    public RtpMixerComponent getMediaComponent() {
         return mixerComponent;
     }
 

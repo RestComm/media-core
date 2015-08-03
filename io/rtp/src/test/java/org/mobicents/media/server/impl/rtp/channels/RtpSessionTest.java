@@ -42,7 +42,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpChannelTest {
+public class RtpSessionTest {
 	
 	private final Scheduler scheduler;
 	private final UdpManager udpManager;
@@ -50,10 +50,10 @@ public class RtpChannelTest {
 	private final ChannelsManager channelsManager;
 	private final Clock wallClock;
 	
-	private final AudioChannel localChannel;
-	private final AudioChannel remoteChannel;
+	private final AudioSession localChannel;
+	private final AudioSession remoteChannel;
 	
-	public RtpChannelTest() throws IOException {
+	public RtpSessionTest() throws IOException {
 		this.wallClock = new DefaultClock();
 		this.scheduler = new Scheduler();
 		this.scheduler.setClock(this.wallClock);

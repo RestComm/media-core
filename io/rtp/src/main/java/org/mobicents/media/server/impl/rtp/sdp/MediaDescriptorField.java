@@ -106,7 +106,7 @@ public class MediaDescriptorField {
                 t = it.next();
                 t.trim();
 
-                RTPFormat fmt = AVProfile.getFormat(t.toInteger(),mediaType);
+                RTPFormat fmt = AVProfile.getFormat(t.toInteger(),mediaType.toString());
                 if (fmt != null && !formats.contains(fmt.getFormat())) {
                     formats.add(fmt.clone());
                 }

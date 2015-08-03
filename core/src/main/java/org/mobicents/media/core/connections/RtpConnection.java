@@ -31,7 +31,10 @@ import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.CnameGenerator;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
+import org.mobicents.media.server.impl.rtp.channels.AudioSession;
+import org.mobicents.media.server.impl.rtp.channels.RtpSession;
+import org.mobicents.media.server.impl.rtp.channels.VideoSession;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.sdp.SdpException;
 import org.mobicents.media.server.io.sdp.SessionDescription;
@@ -69,8 +72,9 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     private boolean outbound;
     private boolean localInterface;
 
-    // Media Channels
-    private AudioChannel audioChannel;
+    // Media Sessions
+    private AudioSession audioSession;
+    private VideoSession videoSession;
 
     // Session Description
     private SessionDescription localSdp;
@@ -97,10 +101,16 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         this.cname = CnameGenerator.generateCname();
 
         // Audio Channel
-        this.audioChannel = this.channelsManager.getAudioChannel();
-        this.audioChannel.setCname(this.cname);
-        this.audioChannel.setRtpListener(this);
-        this.audioChannel.setRelayType(relayType);
+        this.audioSession = this.channelsManager.getAudioChannel();
+        this.audioSession.setCname(this.cname);
+        this.audioSession.setRtpListener(this);
+        this.audioSession.setRelayType(relayType);
+
+        // Video Channel
+        this.videoSession = this.channelsManager.getVideoChannel();
+        this.videoSession.setCname(this.cname);
+        this.videoSession.setRtpListener(this);
+        this.videoSession.setRelayType(relayType);
     }
 
     /**
@@ -124,9 +134,8 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     @Override
     public void generateCname() {
         this.cname = CnameGenerator.generateCname();
-        if (this.audioChannel != null) {
-            this.audioChannel.setCname(this.cname);
-        }
+        this.audioSession.setCname(this.cname);
+        this.videoSession.setCname(this.cname);
     }
 
     @Override
@@ -147,7 +156,8 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     @Override
     public void setRelayType(RelayType relayType) {
         super.setRelayType(relayType);
-        this.audioChannel.setRelayType(relayType);
+        this.audioSession.setRelayType(relayType);
+        this.videoSession.setRelayType(relayType);
     }
 
     @Override
@@ -197,7 +207,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Audio formats: " + this.audioChannel.getFormatMap());
+            logger.debug("Audio formats: " + this.audioSession.getFormatMap());
         }
     }
 
@@ -214,29 +224,26 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      */
     private void setOtherPartyInboundCall() throws IOException {
         // Setup the audio channel based on remote offer
-        MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
+        MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription(AVProfile.AUDIO);
         if (remoteAudio != null) {
-            this.audioChannel.open();
-            setupAudioChannelInbound(remoteAudio);
+            this.audioSession.open();
+            setupInboundSession(remoteAudio, this.audioSession);
+        }
+
+        // Setup the audio channel based on remote offer
+        MediaDescriptionField remoteVideo = this.remoteSdp.getMediaDescription(AVProfile.VIDEO);
+        if (remoteVideo != null) {
+            this.videoSession.open();
+            setupInboundSession(remoteVideo, this.videoSession);
         }
 
         // Generate SDP answer
         String bindAddress = this.localInterface ? this.channelsManager.getLocalBindAddress() : this.channelsManager
                 .getBindAddress();
         String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
-        if (this.audioChannel.isOpen()) {
-            this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioChannel);
-        } else {
-            // In case remote peer did not offer audio channel
-            this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress);
-        }
+        this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioSession, this.videoSession);
 
-        // Reject any channels other than audio
-        MediaDescriptionField remoteVideo = this.remoteSdp.getMediaDescription("video");
-        if (remoteVideo != null) {
-            SdpFactory.rejectMediaField(this.localSdp, remoteVideo);
-        }
-
+        // Reject channels besides audio and video
         MediaDescriptionField remoteApplication = this.remoteSdp.getMediaDescription("application");
         if (remoteApplication != null) {
             SdpFactory.rejectMediaField(this.localSdp, remoteApplication);
@@ -263,9 +270,15 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      */
     private void setOtherPartyOutboundCall() throws IOException {
         // Setup audio channel
-        MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
+        MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription(AVProfile.AUDIO);
         if (remoteAudio != null) {
-            setupAudioChannelOutbound(remoteAudio);
+            setupOutboundSession(remoteAudio, this.audioSession);
+        }
+
+        // Setup video channel
+        MediaDescriptionField remoteVideo = this.remoteSdp.getMediaDescription(AVProfile.VIDEO);
+        if (remoteVideo != null) {
+            setupOutboundSession(remoteVideo, this.videoSession);
         }
 
         // Change the state of this RTP connection from HALF_OPEN to OPEN
@@ -286,20 +299,21 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      * Also, a WebRTC handler will be enabled on the corresponding audio channel.
      * </p>
      * 
-     * @param remoteAudio The description of the remote audio channel.
+     * @param remoteSession The description of the remote media session.
+     * @param localSession The local media session
      * 
      * @throws IOException When binding the audio data channel. Non-WebRTC calls only.
      * @throws SocketException When binding the audio data channel. Non-WebRTC calls only.
      */
-    private void setupAudioChannelInbound(MediaDescriptionField remoteAudio) throws IOException {
-        // Negotiate audio codecs
-        this.audioChannel.negotiateFormats(remoteAudio);
-        if (!this.audioChannel.containsNegotiatedFormats()) {
-            throw new IOException("Audio codecs were not supported");
+    private void setupInboundSession(MediaDescriptionField remoteSession, RtpSession localSession) throws IOException {
+        // Negotiate codecs
+        localSession.negotiateFormats(remoteSession);
+        if (!localSession.containsNegotiatedFormats()) {
+            throw new IOException(localSession.getMediaType() + " codecs were not supported.");
         }
 
-        boolean rtcpMux = remoteAudio.isRtcpMux();
-        if (remoteAudio.containsIce()) {
+        boolean rtcpMux = remoteSession.isRtcpMux();
+        if (remoteSession.containsIce()) {
             /*
              * Operate media channel in ICE mode.
              * 
@@ -307,56 +321,57 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
              * candidate will be set directly in the MediaChannel.
              */
             try {
-                this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), rtcpMux);
-                this.audioChannel.gatherIceCandidates(this.channelsManager.getPortManager());
-                this.audioChannel.startIceAgent();
+                localSession.enableICE(this.channelsManager.getExternalAddress(), rtcpMux);
+                localSession.gatherIceCandidates(this.channelsManager.getPortManager());
+                localSession.startIceAgent();
             } catch (HarvestException | IllegalStateException e) {
                 throw new IOException("Cannot harvest ICE candidates", e);
             }
         } else {
             // ICE is not active. Bind RTP and RTCP channels right now.
-            String remoteAddr = remoteAudio.getConnection().getAddress();
-            this.audioChannel.bind(this.localInterface, rtcpMux);
-            this.audioChannel.connectRtp(remoteAddr, remoteAudio.getPort());
-            this.audioChannel.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
+            String remoteAddr = remoteSession.getConnection().getAddress();
+            localSession.bind(this.localInterface, rtcpMux);
+            localSession.connectRtp(remoteAddr, remoteSession.getPort());
+            localSession.connectRtcp(remoteAddr, remoteSession.getRtcpPort());
         }
 
         // Check whether SRTP should be active
-        if (remoteAudio.containsDtls()) {
-            FingerprintAttribute fingerprint = remoteAudio.getFingerprint();
-            this.audioChannel.enableDTLS(fingerprint.getHashFunction(), fingerprint.getFingerprint());
+        if (remoteSession.containsDtls()) {
+            FingerprintAttribute fingerprint = remoteSession.getFingerprint();
+            localSession.enableDTLS(fingerprint.getHashFunction(), fingerprint.getFingerprint());
         }
     }
 
     /**
      * Reads the remote SDP answer and sets up the proper media channels.
      * 
-     * @param remoteAudio The description of the remote audio channel.
+     * @param remoteSession The description of the remote media session.
+     * @param localSession The local media session.
      * 
      * @throws IOException When binding the audio data channel. Non-WebRTC calls only.
      * @throws SocketException When binding the audio data channel. Non-WebRTC calls only.
      */
-    private void setupAudioChannelOutbound(MediaDescriptionField remoteAudio) throws IOException {
+    private void setupOutboundSession(MediaDescriptionField remoteSession, RtpSession localSession) throws IOException {
         // Negotiate audio codecs
-        this.audioChannel.negotiateFormats(remoteAudio);
-        if (!this.audioChannel.containsNegotiatedFormats()) {
-            throw new IOException("Audio codecs were not supported");
+        localSession.negotiateFormats(remoteSession);
+        if (!localSession.containsNegotiatedFormats()) {
+            throw new IOException(localSession.getMediaType() + "codecs were not supported.");
         }
 
         // connect to remote peer - RTP
-        String remoteRtpAddress = remoteAudio.getConnection().getAddress();
-        int remoteRtpPort = remoteAudio.getPort();
-        this.audioChannel.connectRtp(remoteRtpAddress, remoteRtpPort);
+        String remoteRtpAddress = remoteSession.getConnection().getAddress();
+        int remoteRtpPort = remoteSession.getPort();
+        localSession.connectRtp(remoteRtpAddress, remoteRtpPort);
 
         // connect to remote peer - RTCP
-        boolean remoteRtcpMux = remoteAudio.isRtcpMux();
+        boolean remoteRtcpMux = remoteSession.isRtcpMux();
         if (remoteRtcpMux) {
-            this.audioChannel.connectRtcp(remoteRtpAddress, remoteRtpPort);
+            localSession.connectRtcp(remoteRtpAddress, remoteRtpPort);
         } else {
-            RtcpAttribute remoteRtcp = remoteAudio.getRtcp();
+            RtcpAttribute remoteRtcp = remoteSession.getRtcp();
             if (remoteRtcp == null) {
                 // No specific RTCP port, so default is RTP port + 1
-                this.audioChannel.connectRtcp(remoteRtpAddress, remoteRtpPort + 1);
+                localSession.connectRtcp(remoteRtpAddress, remoteRtpPort + 1);
             } else {
                 // Specific RTCP address and port contained in SDP
                 String remoteRtcpAddress = remoteRtcp.getAddress();
@@ -366,14 +381,15 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
                     remoteRtcpAddress = remoteRtpAddress;
                 }
                 int remoteRtcpPort = remoteRtcp.getPort();
-                this.audioChannel.connectRtcp(remoteRtcpAddress, remoteRtcpPort);
+                localSession.connectRtcp(remoteRtcpAddress, remoteRtcpPort);
             }
         }
     }
 
     @Override
     public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
-        this.audioChannel.setConnectionMode(mode);
+        this.audioSession.setConnectionMode(mode);
+        this.videoSession.setConnectionMode(mode);
         super.setMode(mode);
     }
 
@@ -385,19 +401,23 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     @Override
     public void generateOffer() throws IOException {
         // Only open and bind a new channel if not currently configured
-        if (!this.audioChannel.isOpen()) {
+        if (!this.audioSession.isOpen()) {
             // call is outbound since the connection is generating the offer
             this.outbound = true;
 
             // setup audio channel
-            this.audioChannel.open();
-            this.audioChannel.bind(this.localInterface, false);
+            this.audioSession.open();
+            this.audioSession.bind(this.localInterface, false);
 
-            // generate SDP offer based on audio channel
+            // setup video channel
+            this.videoSession.open();
+            this.videoSession.bind(this.localInterface, false);
+
+            // generate SDP offer
             String bindAddress = this.localInterface ? this.channelsManager.getLocalBindAddress() : this.channelsManager
                     .getBindAddress();
             String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
-            this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioChannel);
+            this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress, this.audioSession, this.videoSession);
             this.remoteSdp = null;
         }
     }
@@ -413,32 +433,41 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     }
 
     public long getPacketsReceived() {
-        return this.audioChannel.getPacketsReceived();
+        return this.audioSession.getPacketsReceived();
     }
 
     @Override
     public long getBytesReceived() {
-        return this.audioChannel.getOctetsReceived();
+        return this.audioSession.getOctetsReceived();
     }
 
     @Override
     public long getPacketsTransmitted() {
-        return this.audioChannel.getPacketsSent();
+        return this.audioSession.getPacketsSent();
     }
 
     @Override
     public long getBytesTransmitted() {
-        return this.audioChannel.getOctetsSent();
+        return this.audioSession.getOctetsSent();
     }
 
     @Override
     public double getJitter() {
-        return this.audioChannel.getJitter();
+        return this.audioSession.getJitter();
     }
 
     @Override
     public boolean isAvailable() {
-        return this.audioChannel.isAvailable();
+        boolean available = true;
+
+        if (audioSession.isAvailable()) {
+            available &= audioSession.isAvailable();
+        }
+
+        if (videoSession.isAvailable()) {
+            available &= videoSession.isAvailable();
+        }
+        return available;
     }
 
     @Override
@@ -450,8 +479,12 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      * Closes any active resources (like media channels) associated with the connection.
      */
     private void closeResources() {
-        if (this.audioChannel.isOpen()) {
-            this.audioChannel.close();
+        if (this.audioSession.isOpen()) {
+            this.audioSession.close();
+        }
+
+        if (this.videoSession.isOpen()) {
+            this.videoSession.close();
         }
     }
 
@@ -467,11 +500,9 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
 
     @Override
     public void onRtpFailure(String message) {
-        if (this.audioChannel.isOpen()) {
-            logger.warn(message);
-            // RTP is mandatory, if it fails close everything
-            onFailed();
-        }
+        // RTP is mandatory, if it fails close everything
+        logger.warn(message);
+        onFailed();
     }
 
     @Override
@@ -485,12 +516,9 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
 
     @Override
     public void onRtcpFailure(String e) {
-        if (this.audioChannel.isOpen()) {
-            logger.warn(e);
-            // Close the RTCP channel only
-            // Keep the RTP channel open because RTCP is not mandatory
-            onFailed();
-        }
+        logger.warn(e);
+        // Close the RTCP channel only
+        // Keep the RTP channel open because RTCP is not mandatory
     }
 
     @Override
@@ -540,8 +568,11 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     @Override
     public MediaComponent getMediaComponent(String mediaType) {
         switch (mediaType) {
-            case "audio":
-                return this.audioChannel.getMixerComponent();
+            case AVProfile.AUDIO:
+                return this.audioSession.getMediaComponent();
+
+            case AVProfile.VIDEO:
+                return this.videoSession.getMediaComponent();
 
             default:
                 return null;

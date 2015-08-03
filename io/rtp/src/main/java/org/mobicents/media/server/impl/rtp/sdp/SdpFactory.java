@@ -23,8 +23,7 @@ import java.util.List;
 
 import org.mobicents.media.io.ice.IceCandidate;
 import org.mobicents.media.io.ice.LocalCandidateWrapper;
-import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
-import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
+import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
@@ -55,195 +54,191 @@ import org.mobicents.media.server.spi.format.AudioFormat;
  *
  */
 public class SdpFactory {
-	
-	/**
-	 * Builds a Session Description object to be sent to a remote peer.
-	 * 
-	 * @param localAddress
-	 *            The local address of the media server.
-	 * @param externalAddress
-	 *            The public address of the media server.
-	 * @param channels
-	 *            The media channels to be included in the session description.
-	 * @return The Session Description object.
-	 */
-	public static SessionDescription buildSdp(String localAddress, String externalAddress, RtpChannel... channels) {
-		// Session-level fields
-		SessionDescription sd = new SessionDescription();
-		sd.setVersion(new VersionField((short) 0));
-		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? localAddress : externalAddress;
-		sd.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originAddress));
-		sd.setSessionName(new SessionNameField("Mobicents Media Server"));
-		sd.setConnection(new ConnectionField("IN", "IP4", localAddress));
-		sd.setTiming(new TimingField(0, 0));
-		
-		// Media Descriptions
-		boolean ice = false;
-		for (RtpChannel channel : channels) {
-			MediaDescriptionField md = buildMediaDescription(channel);
-			md.setSession(sd);
-			sd.addMediaDescription(md);
-			
-			if(md.containsIce()) {
-				// Fix session-level attribute
-				sd.getConnection().setAddress(md.getConnection().getAddress());
-				ice = true;
-			}
-		}
-		
-		// Session-level ICE
-		if(ice) {
-			sd.setIceLite(new IceLiteAttribute());
-		}
-		return sd;
-	}
-	
-	/**
-	 * Rejects a media description from an SDP offer.
-	 * 
-	 * @param answer
-	 *            The SDP answer to include the rejected media
-	 * @param media
-	 *            The offered media description to be rejected
-	 */
-	public static void rejectMediaField(SessionDescription answer, MediaDescriptionField media) {
-		MediaDescriptionField rejected = new MediaDescriptionField();
-		rejected.setMedia(media.getMedia());
-		rejected.setPort(0);
-		rejected.setProtocol(media.getProtocol());
-		rejected.setPayloadTypes(media.getPayloadTypes());
-		
-		rejected.setSession(answer);
-		answer.addMediaDescription(rejected);
-	}
-	
-	/**
-	 * Build an SDP description for a media channel.
-	 * 
-	 * @param channel
-	 *            The channel to read information from
-	 * @return The SDP media description
-	 */
-	public static MediaDescriptionField buildMediaDescription(RtpChannel channel) {
-		MediaDescriptionField md = new MediaDescriptionField();
-		
-		md.setMedia(channel.getMediaType());
-		md.setPort(channel.getRtpPort());
-		MediaProfile profile = channel.isDtlsEnabled() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP;
-		md.setProtocol(profile.getProfile());
-		md.setConnection(new ConnectionField("IN", "IP4", channel.getRtpAddress()));
-		md.setPtime(new PacketTimeAttribute(20));
-		md.setRtcp(new RtcpAttribute(channel.getRtcpPort(), "IN", "IP4", channel.getRtcpAddress()));
-		if (channel.isRtcpMux()) {
-			md.setRtcpMux(new RtcpMuxAttribute());
-		}
-		
-		// ICE attributes
-		if (channel.isIceEnabled()) {
-			md.setIceUfrag(new IceUfragAttribute(channel.getIceUfrag()));
-			md.setIcePwd(new IcePwdAttribute(channel.getIcePwd()));
 
-			List<LocalCandidateWrapper> rtpCandidates = channel.getRtpCandidates();
-			if(!rtpCandidates.isEmpty()) {
-				// Fix connection address based on default candidate
-				IceCandidate defaultCandidate = channel.getDefaultRtpCandidate().getCandidate();
-				md.getConnection().setAddress(defaultCandidate.getHostString());
-				md.setPort(defaultCandidate.getPort());
-				
-				// Fix RTCP if rtcp-mux is used
-				if(channel.isRtcpMux()) {
-					md.getRtcp().setAddress(defaultCandidate.getHostString());
-					md.getRtcp().setPort(defaultCandidate.getPort());
-				}
-				
-				// Add candidates list for ICE negotiation
-				for (LocalCandidateWrapper candidate : rtpCandidates) {
-					md.addCandidate(processCandidate(candidate.getCandidate()));
-				}
-			}
-			
-			if (!channel.isRtcpMux()) {
-				List<LocalCandidateWrapper> rtcpCandidates = channel.getRtcpCandidates();
-				
-				if(!rtcpCandidates.isEmpty()) {
-					// Fix RTCP based on default RTCP candidate
-					IceCandidate defaultCandidate = channel.getDefaultRtcpCandidate().getCandidate();
-					md.getRtcp().setAddress(defaultCandidate.getHostString());
-					md.getRtcp().setPort(defaultCandidate.getPort());
-					
-					// Add candidates list for ICE negotiation
-					for (LocalCandidateWrapper candidate : rtcpCandidates) {
-						md.addCandidate(processCandidate(candidate.getCandidate()));
-					}
-				}
-			}
-		}
+    /**
+     * Builds a Session Description object to be sent to a remote peer.
+     * 
+     * @param localAddress The local address of the media server.
+     * @param externalAddress The public address of the media server.
+     * @param sessions The media channels to be included in the session description.
+     * @return The Session Description object.
+     */
+    public static SessionDescription buildSdp(String localAddress, String externalAddress, RtpSession... sessions) {
+        // Session-level fields
+        SessionDescription sd = new SessionDescription();
+        sd.setVersion(new VersionField((short) 0));
+        String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? localAddress : externalAddress;
+        sd.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originAddress));
+        sd.setSessionName(new SessionNameField("Mobicents Media Server"));
+        sd.setConnection(new ConnectionField("IN", "IP4", localAddress));
+        sd.setTiming(new TimingField(0, 0));
 
-		// Media formats
-		RTPFormats negotiatedFormats = channel.getFormats();
-		negotiatedFormats.rewind();
-		while (negotiatedFormats.hasMore()) {
-			RTPFormat f = negotiatedFormats.next();
-			RtpMapAttribute rtpMap = new RtpMapAttribute();
-			rtpMap.setPayloadType(f.getID());
-			rtpMap.setCodec(f.getFormat().getName().toString());
-			rtpMap.setClockRate(f.getClockRate());
-			
-			switch (channel.getMediaType()) {
-			case AudioChannel.MEDIA_TYPE:
-				AudioFormat audioFormat = (AudioFormat) f.getFormat();
+        // Media Descriptions
+        boolean ice = false;
+        for (RtpSession session : sessions) {
+            if (session.isOpen()) {
+                MediaDescriptionField md = buildMediaDescription(session);
+                md.setSession(sd);
+                sd.addMediaDescription(md);
 
-				if (audioFormat.getChannels() > 1) {
-					rtpMap.setCodecParams(audioFormat.getChannels());
-				}
-				
-				if (audioFormat.getOptions() != null) {
-					rtpMap.setParameters(new FormatParameterAttribute(f.getID(), audioFormat.getOptions().toString()));
-				}
-				break;
+                if (md.containsIce()) {
+                    // Fix session-level attribute
+                    sd.getConnection().setAddress(md.getConnection().getAddress());
+                    ice = true;
+                }
+            }
+        }
 
-			default:
-				throw new IllegalArgumentException("Media type " + channel.getMediaType() + " not supported.");
-			}
-			
-			md.addPayloadType(f.getID());
-			md.addFormat(rtpMap);
-		}
+        // Session-level ICE
+        if (ice) {
+            sd.setIceLite(new IceLiteAttribute());
+        }
+        return sd;
+    }
 
-		// DTLS attributes
-		if (channel.isDtlsEnabled()) {
-			md.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
-			String fingerprint = channel.getDtlsFingerprint();
-			int whitespace = fingerprint.indexOf(" ");
-			String fingerprintHash = fingerprint.substring(0, whitespace);
-			String fingerprintValue = fingerprint.substring(whitespace + 1);
-			md.setFingerprint(new FingerprintAttribute(fingerprintHash, fingerprintValue));
-		}
-		
-		md.setConnectionMode(new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV));
-		SsrcAttribute ssrcAttribute = new SsrcAttribute(Long.toString(channel.getSsrc()));
-		ssrcAttribute.addAttribute("cname", channel.getCname());
-		md.setSsrc(ssrcAttribute);
-		
-		return md;
-	}
-	
-	private static CandidateAttribute processCandidate(IceCandidate candidate) {
-		CandidateAttribute candidateSdp = new CandidateAttribute();
-		candidateSdp.setFoundation(candidate.getFoundation());
-		candidateSdp.setComponentId(candidate.getComponentId());
-		candidateSdp.setProtocol(candidate.getProtocol().getDescription());
-		candidateSdp.setPriority(candidate.getPriority());
-		candidateSdp.setAddress(candidate.getHostString());
-		candidateSdp.setPort(candidate.getPort());
-		String candidateType = candidate.getType().getDescription();
-		candidateSdp.setCandidateType(candidateType);
-		if (CandidateAttribute.TYP_HOST != candidateType) {
-			candidateSdp.setRelatedAddress(candidate.getBase().getHostString());
-			candidateSdp.setRelatedPort(candidate.getBase().getPort());
-		}
-		candidateSdp.setGeneration(0);
-		return candidateSdp;
-	}
+    /**
+     * Rejects a media description from an SDP offer.
+     * 
+     * @param answer The SDP answer to include the rejected media
+     * @param media The offered media description to be rejected
+     */
+    public static void rejectMediaField(SessionDescription answer, MediaDescriptionField media) {
+        MediaDescriptionField rejected = new MediaDescriptionField();
+        rejected.setMedia(media.getMedia());
+        rejected.setPort(0);
+        rejected.setProtocol(media.getProtocol());
+        rejected.setPayloadTypes(media.getPayloadTypes());
+
+        rejected.setSession(answer);
+        answer.addMediaDescription(rejected);
+    }
+
+    /**
+     * Build an SDP description for a media channel.
+     * 
+     * @param channel The channel to read information from
+     * @return The SDP media description
+     */
+    public static MediaDescriptionField buildMediaDescription(RtpSession channel) {
+        MediaDescriptionField md = new MediaDescriptionField();
+
+        md.setMedia(channel.getMediaType());
+        md.setPort(channel.getRtpPort());
+        MediaProfile profile = channel.isDtlsEnabled() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP;
+        md.setProtocol(profile.getProfile());
+        md.setConnection(new ConnectionField("IN", "IP4", channel.getRtpAddress()));
+        md.setPtime(new PacketTimeAttribute(20));
+        md.setRtcp(new RtcpAttribute(channel.getRtcpPort(), "IN", "IP4", channel.getRtcpAddress()));
+        if (channel.isRtcpMux()) {
+            md.setRtcpMux(new RtcpMuxAttribute());
+        }
+
+        // ICE attributes
+        if (channel.isIceEnabled()) {
+            md.setIceUfrag(new IceUfragAttribute(channel.getIceUfrag()));
+            md.setIcePwd(new IcePwdAttribute(channel.getIcePwd()));
+
+            List<LocalCandidateWrapper> rtpCandidates = channel.getRtpCandidates();
+            if (!rtpCandidates.isEmpty()) {
+                // Fix connection address based on default candidate
+                IceCandidate defaultCandidate = channel.getDefaultRtpCandidate().getCandidate();
+                md.getConnection().setAddress(defaultCandidate.getHostString());
+                md.setPort(defaultCandidate.getPort());
+
+                // Fix RTCP if rtcp-mux is used
+                if (channel.isRtcpMux()) {
+                    md.getRtcp().setAddress(defaultCandidate.getHostString());
+                    md.getRtcp().setPort(defaultCandidate.getPort());
+                }
+
+                // Add candidates list for ICE negotiation
+                for (LocalCandidateWrapper candidate : rtpCandidates) {
+                    md.addCandidate(processCandidate(candidate.getCandidate()));
+                }
+            }
+
+            if (!channel.isRtcpMux()) {
+                List<LocalCandidateWrapper> rtcpCandidates = channel.getRtcpCandidates();
+
+                if (!rtcpCandidates.isEmpty()) {
+                    // Fix RTCP based on default RTCP candidate
+                    IceCandidate defaultCandidate = channel.getDefaultRtcpCandidate().getCandidate();
+                    md.getRtcp().setAddress(defaultCandidate.getHostString());
+                    md.getRtcp().setPort(defaultCandidate.getPort());
+
+                    // Add candidates list for ICE negotiation
+                    for (LocalCandidateWrapper candidate : rtcpCandidates) {
+                        md.addCandidate(processCandidate(candidate.getCandidate()));
+                    }
+                }
+            }
+        }
+
+        // Media formats
+        RTPFormats negotiatedFormats = channel.getFormats();
+        negotiatedFormats.rewind();
+        while (negotiatedFormats.hasMore()) {
+            RTPFormat f = negotiatedFormats.next();
+            RtpMapAttribute rtpMap = new RtpMapAttribute();
+            rtpMap.setPayloadType(f.getID());
+            rtpMap.setCodec(f.getFormat().getName().toString());
+            rtpMap.setClockRate(f.getClockRate());
+
+            switch (channel.getMediaType()) {
+                case AVProfile.AUDIO:
+                    AudioFormat audioFormat = (AudioFormat) f.getFormat();
+
+                    if (audioFormat.getChannels() > 1) {
+                        rtpMap.setCodecParams(audioFormat.getChannels());
+                    }
+
+                    if (audioFormat.getOptions() != null) {
+                        rtpMap.setParameters(new FormatParameterAttribute(f.getID(), audioFormat.getOptions().toString()));
+                    }
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Media type " + channel.getMediaType() + " not supported.");
+            }
+
+            md.addPayloadType(f.getID());
+            md.addFormat(rtpMap);
+        }
+
+        // DTLS attributes
+        if (channel.isDtlsEnabled()) {
+            md.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
+            String fingerprint = channel.getDtlsFingerprint();
+            int whitespace = fingerprint.indexOf(" ");
+            String fingerprintHash = fingerprint.substring(0, whitespace);
+            String fingerprintValue = fingerprint.substring(whitespace + 1);
+            md.setFingerprint(new FingerprintAttribute(fingerprintHash, fingerprintValue));
+        }
+
+        md.setConnectionMode(new ConnectionModeAttribute(ConnectionModeAttribute.SENDRECV));
+        SsrcAttribute ssrcAttribute = new SsrcAttribute(Long.toString(channel.getSsrc()));
+        ssrcAttribute.addAttribute("cname", channel.getCname());
+        md.setSsrc(ssrcAttribute);
+
+        return md;
+    }
+
+    private static CandidateAttribute processCandidate(IceCandidate candidate) {
+        CandidateAttribute candidateSdp = new CandidateAttribute();
+        candidateSdp.setFoundation(candidate.getFoundation());
+        candidateSdp.setComponentId(candidate.getComponentId());
+        candidateSdp.setProtocol(candidate.getProtocol().getDescription());
+        candidateSdp.setPriority(candidate.getPriority());
+        candidateSdp.setAddress(candidate.getHostString());
+        candidateSdp.setPort(candidate.getPort());
+        String candidateType = candidate.getType().getDescription();
+        candidateSdp.setCandidateType(candidateType);
+        if (CandidateAttribute.TYP_HOST != candidateType) {
+            candidateSdp.setRelatedAddress(candidate.getBase().getHostString());
+            candidateSdp.setRelatedPort(candidate.getBase().getPort());
+        }
+        candidateSdp.setGeneration(0);
+        return candidateSdp;
+    }
 
 }

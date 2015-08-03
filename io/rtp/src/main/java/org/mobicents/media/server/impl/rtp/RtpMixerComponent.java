@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.MediaComponent;
-import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
+import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -127,7 +127,7 @@ public class RtpMixerComponent extends MediaComponent implements RtpRelay {
     public void incomingRtp(RtpPacket packet, RTPFormat format) {
         // Determine whether the RTP packet is DTMF or not
         // and send it to the according media source
-        if (RtpChannel.DTMF_FORMAT.matches(format.getFormat())) {
+        if (RtpSession.DTMF_FORMAT.matches(format.getFormat())) {
             this.dtmfSource.write(packet);
         } else {
             if (this.rxPackets == 0) {

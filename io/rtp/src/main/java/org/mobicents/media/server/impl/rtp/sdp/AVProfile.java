@@ -31,11 +31,12 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class AVProfile {
-	public final static Text AUDIO = new Text("audio");
-	public final static Text VIDEO = new Text("video");
-	
-	public final static int telephoneEventsID=101;
-	public final static int telephoneEvent126=126;
+
+    public final static String AUDIO = "audio";
+    public final static String VIDEO = "video";
+
+    public final static int telephoneEventsID = 101;
+    public final static int telephoneEvent126 = 126;
     public final static AudioFormat telephoneEvent = FormatFactory.createAudioFormat("telephone-event", 8000);
     static {
         telephoneEvent.setOptions(new Text("0-15"));
@@ -43,12 +44,12 @@ public class AVProfile {
     public final static RTPFormats audio = new RTPFormats();
     public final static RTPFormats video = new RTPFormats();
     public final static RTPFormats application = new RTPFormats();
-    
+
     private final static RTPFormat pcmu = new RTPFormat(0, FormatFactory.createAudioFormat("pcmu", 8000, 8, 1), 8000);
     private final static RTPFormat pcma = new RTPFormat(8, FormatFactory.createAudioFormat("pcma", 8000, 8, 1), 8000);
     private final static RTPFormat gsm = new RTPFormat(3, FormatFactory.createAudioFormat("gsm", 8000), 8000);
     private final static RTPFormat g729 = new RTPFormat(18, FormatFactory.createAudioFormat("g729", 8000), 8000);
-    private final static RTPFormat l16 = new RTPFormat(97, FormatFactory.createAudioFormat("l16", 8000, 16, 1), 8000);    
+    private final static RTPFormat l16 = new RTPFormat(97, FormatFactory.createAudioFormat("l16", 8000, 16, 1), 8000);
     private final static RTPFormat dtmf = new RTPFormat(telephoneEventsID, telephoneEvent, 8000);
     private final static RTPFormat dtmf126 = new RTPFormat(telephoneEvent126, telephoneEvent, 8000);
     private final static RTPFormat ilbc = new RTPFormat(102, FormatFactory.createAudioFormat("ilbc", 8000, 16, 1), 8000);
@@ -74,19 +75,20 @@ public class AVProfile {
         video.add(H263);
         video.add(MP4V_ES);
     }
-    
-    public static RTPFormat getFormat(int p) {    	
+
+    public static RTPFormat getFormat(int p) {
         RTPFormat res = audio.find(p);
         return res == null ? video.find(p) : res;
-    }    
-    
-    public static RTPFormat getFormat(int p,Text mediaType) {
-    	RTPFormat res=null;
-    	if(mediaType.equals(AUDIO)) {
-    		res = audio.find(p);    		
-    	} else if(mediaType.equals(VIDEO)) {
-    		res = video.find(p);    		
-    	}
-    	return res;
+    }
+
+    public static RTPFormat getFormat(int p, String mediaType) {
+        switch (mediaType) {
+            case AUDIO:
+                return audio.find(p);
+            case VIDEO:
+                return video.find(p);
+            default:
+                return null;
+        }
     }
 }
