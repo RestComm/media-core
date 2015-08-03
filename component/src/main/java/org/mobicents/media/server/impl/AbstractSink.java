@@ -27,36 +27,36 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSink;
 import org.mobicents.media.server.spi.memory.Frame;
+
 /**
  * The base implementation of the media sink.
  * 
- * <code>AbstractSource</code> and <code>AbstractSink</code> are implement 
- * general wiring construct. 
- * All media components have to extend one of these classes.
+ * <code>AbstractSource</code> and <code>AbstractSink</code> are implement general wiring construct. All media components have
+ * to extend one of these classes.
  * 
  * @author Oifa Yulian
  */
 public abstract class AbstractSink extends BaseComponent implements MediaSink {
 
-	private static final long serialVersionUID = -2119158462149998609L;
+    private static final long serialVersionUID = -2119158462149998609L;
 
-	//shows if component is started or not.
+    // shows if component is started or not.
     private volatile boolean started = false;
-    
-    //transmission statisctics
+
+    // transmission statisctics
     private volatile long rxPackets;
-    private volatile long rxBytes;    
-    
+    private volatile long rxBytes;
+
     private static final Logger logger = Logger.getLogger(AbstractSink.class);
-    
+
     /**
      * Creates new instance of sink with specified name.
      * 
      * @param name the name of the sink to be created.
      */
     public AbstractSink(String name) {
-        super(name);               
-    }        
+        super(name);
+    }
 
     @Override
     public boolean isStarted() {
@@ -70,42 +70,22 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
      */
     public abstract void onMediaTransfer(Frame frame) throws IOException;
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSink#start().
-     */
     protected void start() {
-    	if (started) {
-			return;
-		}
+        if (started) {
+            return;
+        }
 
-		//change state flag
-		started = true;
-		
-		this.rxBytes = 0;
-		this.rxPackets = 0;
+        // change state flag
+        started = true;
 
-		//send notification to component's listener
-		started();		    	
-    }    
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSink#stop().
-     */
-    protected void stop() {
-    	started = false;
-		stopped();    	
+        this.rxBytes = 0;
+        this.rxPackets = 0;
     }
 
-    @Override
-    public abstract void activate();
-    
-    @Override
-    public abstract void deactivate();
-    
+    protected void stop() {
+        started = false;
+    }
+
     /**
      * Sends failure notification.
      * 
@@ -128,45 +108,33 @@ public abstract class AbstractSink extends BaseComponent implements MediaSink {
     @Override
     public void reset() {
         this.rxPackets = 0;
-        this.rxBytes = 0;        
+        this.rxBytes = 0;
     }
-
-    /**
-     * Sends notification that media processing has been started.
-     */
-    protected void started() {
-    }
-
-    /**
-     * Sends notification that detection is terminated.
-     */
-    protected void stopped() {
-    }    
 
     public String report() {
-    	return "";
+        return "";
     }
-    
+
     @Override
     public void perform(Frame frame) {
-    	if(!started) {
-    		return;
-    	}
-    	
-    	if(frame==null) {
-    		return;
-    	}
-    	
-    	rxPackets++;
-    	rxBytes += frame.getLength();
+        if (!started) {
+            return;
+        }
 
-    	//frame is not null, let's handle it
-    	try {
-    		onMediaTransfer(frame);
-    	} catch (IOException e) {  
-    		logger.error(e);
-    		started = false;
-        	failed(e);
-    	}
-    }    
+        if (frame == null) {
+            return;
+        }
+
+        rxPackets++;
+        rxBytes += frame.getLength();
+
+        // frame is not null, let's handle it
+        try {
+            onMediaTransfer(frame);
+        } catch (IOException e) {
+            logger.error(e);
+            started = false;
+            failed(e);
+        }
+    }
 }

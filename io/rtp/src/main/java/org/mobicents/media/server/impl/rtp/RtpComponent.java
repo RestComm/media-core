@@ -38,9 +38,9 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpAudioComponent extends MediaComponent implements RtpRelay {
+public class RtpComponent extends MediaComponent implements RtpRelay {
 
-    private static final Logger logger = Logger.getLogger(RtpAudioComponent.class);
+    private static final Logger logger = Logger.getLogger(RtpComponent.class);
 
     private final static int DEFAULT_BUFFER_SIZER = 50;
 
@@ -58,7 +58,7 @@ public class RtpAudioComponent extends MediaComponent implements RtpRelay {
     private volatile int rxPackets;
     private volatile int sequenceNumber;
 
-    public RtpAudioComponent(int channelId, Scheduler scheduler, DspFactory dspFactory, RtpTransport rtpTransport,
+    public RtpComponent(int channelId, Scheduler scheduler, DspFactory dspFactory, RtpTransport rtpTransport,
             RtpClock rtpClock, RtpClock oobClock) {
         super(channelId);
 
