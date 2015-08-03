@@ -72,7 +72,7 @@ public class RtpTransportTest {
     private final AudioFormat pcma;
 
     private AudioMixer audioMixer1, audioMixer2;
-    private RtpMixerComponent mixerComponent1, mixerComponent2;
+    private RtpAudioComponent mixerComponent1, mixerComponent2;
 
     public RtpTransportTest() throws IOException {
         // Scheduler
@@ -126,7 +126,7 @@ public class RtpTransportTest {
         this.channel1.bind(false);
 
         // Create mixer component for channel 1
-        this.mixerComponent1 = new RtpMixerComponent(CHANNEL1_ID, scheduler, dspFactory, channel1, rtpClock1, oobClock1);
+        this.mixerComponent1 = new RtpAudioComponent(CHANNEL1_ID, scheduler, dspFactory, channel1, rtpClock1, oobClock1);
         this.mixerComponent1.setRtpFormats(rtpFormats);
         this.channel1.setRtpRelay(mixerComponent1);
 
@@ -149,7 +149,7 @@ public class RtpTransportTest {
         this.channel2.bind(false);
 
         // Create mixer component for channel 2
-        this.mixerComponent2 = new RtpMixerComponent(CHANNEL2_ID, scheduler, dspFactory, channel2, rtpClock2, oobClock2);
+        this.mixerComponent2 = new RtpAudioComponent(CHANNEL2_ID, scheduler, dspFactory, channel2, rtpClock2, oobClock2);
         this.mixerComponent2.setRtpFormats(rtpFormats);
         this.channel2.setRtpRelay(mixerComponent2);
 
