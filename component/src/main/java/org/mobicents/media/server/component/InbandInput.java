@@ -19,39 +19,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.component.video;
+package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.component.MediaComponent;
+import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class VideoComponent extends MediaComponent {
+public abstract class InbandInput extends AbstractSink {
 
-    public VideoComponent(int componentId) {
-        super(componentId);
+    private static final long serialVersionUID = -4843330203940358541L;
+    
+    private final int inputId;
+
+    public InbandInput(String name) {
+        super(name);
+        // TODO Auto-generated constructor stub
     }
-
-    @Override
-    public int[] retrieveData() {
-        if (isReadable()) {
-            int[] data = null;
-            // TODO iterate over active inputs and retrieve a frame from each
-            // TODO get the data from the frame and store it locally
-            // TODO return the data
-            return data;
-        } else {
-            return EMPTY_DATA;
-        }
+    
+    public int getInputId() {
+        return inputId;
     }
-
-    public void offerData(int[] data) {
-        if (isWritable()) {
-            // TODO allocate a new frame
-            // TODO place the offered data into the frame
-            // TODO offer the frame to all active outputs
-        }
+    
+    public Frame poll() {
+        
     }
 
 }

@@ -24,7 +24,9 @@ package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
 
-import org.mobicents.media.server.concurrent.ConcurrentMap;
+import org.mobicents.media.server.component.InbandInput;
+import org.mobicents.media.server.component.InbandOutput;
+import org.mobicents.media.server.component.MediaComponent;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -34,8 +36,9 @@ import org.mobicents.media.server.spi.memory.Memory;
  * Implements compound components used by mixer and splitter.
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AudioComponent {
+public class AudioComponent extends MediaComponent {
 
     // the format of the output stream.
     private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
@@ -43,14 +46,8 @@ public class AudioComponent {
     private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
             * LINEAR_FORMAT.getSampleSize() / 8;
 
-    private ConcurrentMap<AudioInput> inputs = new ConcurrentMap<AudioInput>();
-    private ConcurrentMap<AudioOutput> outputs = new ConcurrentMap<AudioOutput>();
-
-    private Iterator<AudioInput> activeInputs;
-    private Iterator<AudioOutput> activeOutputs;
-
-    protected Boolean shouldRead = false;
-    protected Boolean shouldWrite = false;
+    private Iterator<InbandInput> activeInputs;
+    private Iterator<InbandOutput> activeOutputs;
 
     // samples storage
     private int[] data;
@@ -62,109 +59,78 @@ public class AudioComponent {
     int inputCount, outputCount, inputIndex, outputIndex;
     boolean first;
 
-    private int componentId;
-
     /**
      * Creates new instance with default name.
      */
     public AudioComponent(int componentId) {
-        this.componentId = componentId;
-        data = new int[PACKET_SIZE / 2];
+        super(componentId);
+        this.data = new int[PACKET_SIZE / 2];
     }
 
-    public int getComponentId() {
-        return componentId;
+    public void updateMode(boolean shouldRead, boolean shouldWrite) {
+        this.readable = shouldRead;
+        this.writable = shouldWrite;
     }
 
-    public void updateMode(Boolean shouldRead, Boolean shouldWrite) {
-        this.shouldRead = shouldRead;
-        this.shouldWrite = shouldWrite;
-    }
+    @Override
+    public int[] retrieveData() {
+        if (this.readable) {
+            this.first = true;
+            this.activeInputs = inputs.valuesIterator();
 
-    public void addInput(AudioInput input) {
-        inputs.put(input.getInputId(), input);
-    }
-
-    public void addOutput(AudioOutput output) {
-        outputs.put(output.getOutputId(), output);
-    }
-
-    public void remove(AudioInput input) {
-        inputs.remove(input.getInputId());
-    }
-
-    public void remove(AudioOutput output) {
-        outputs.remove(output.getOutputId());
-    }
-
-    public void perform() {
-        first = true;
-        activeInputs = inputs.valuesIterator();
-
-        while (activeInputs.hasNext()) {
-            AudioInput input = activeInputs.next();
-            inputFrame = input.poll();
-            if (inputFrame != null) {
-                dataArray = inputFrame.getData();
-                if (first) {
-                    inputIndex = 0;
-                    for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
-                        data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+            while (activeInputs.hasNext()) {
+                InbandInput input = this.activeInputs.next();
+                this.inputFrame = input.poll();
+                if (this.inputFrame != null) {
+                    this.dataArray = this.inputFrame.getData();
+                    if (first) {
+                        inputIndex = 0;
+                        for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                            data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                        }
+                        first = false;
+                    } else {
+                        inputIndex = 0;
+                        for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                            data[inputIndex++] += (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                        }
                     }
-                    first = false;
-                } else {
-                    inputIndex = 0;
-                    for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
-                        data[inputIndex++] += (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
-                    }
+                    inputFrame.recycle();
                 }
-                inputFrame.recycle();
+            }
+            return data;
+        }
+        return EMPTY_DATA;
+    }
+
+    @Override
+    public void offerData(int[] data) {
+        if (this.writable) {
+            this.outputFrame = Memory.allocate(PACKET_SIZE);
+            this.dataArray = outputFrame.getData();
+
+            this.outputIndex = 0;
+            for (outputCount = 0; outputCount < data.length;) {
+                this.dataArray[outputIndex++] = (byte) (data[outputCount]);
+                this.dataArray[outputIndex++] = (byte) (data[outputCount++] >> 8);
+            }
+
+            this.outputFrame.setOffset(0);
+            this.outputFrame.setLength(PACKET_SIZE);
+            this.outputFrame.setDuration(PERIOD);
+            this.outputFrame.setFormat(LINEAR_FORMAT);
+
+            this.activeOutputs = outputs.valuesIterator();
+            while (this.activeOutputs.hasNext()) {
+                InbandOutput output = activeOutputs.next();
+                if (!activeOutputs.hasNext()) {
+                    output.offer(outputFrame);
+                } else {
+                    output.offer(outputFrame.clone());
+                }
+                output.wakeup();
             }
         }
     }
 
-    public int[] getData() {
-        if (!this.shouldRead || first) {
-            return null;
-        }
-        return data;
-    }
-
-    public boolean hasData() {
-        if (!this.shouldRead || first) {
-            return false;
-        }
-        return this.data != null && this.data.length > 0;
-    }
-
-    public void offer(int[] data) {
-        if (!this.shouldWrite) {
-            return;
-        }
-
-        outputFrame = Memory.allocate(PACKET_SIZE);
-        dataArray = outputFrame.getData();
-
-        outputIndex = 0;
-        for (outputCount = 0; outputCount < data.length;) {
-            dataArray[outputIndex++] = (byte) (data[outputCount]);
-            dataArray[outputIndex++] = (byte) (data[outputCount++] >> 8);
-        }
-
-        outputFrame.setOffset(0);
-        outputFrame.setLength(PACKET_SIZE);
-        outputFrame.setDuration(PERIOD);
-        outputFrame.setFormat(LINEAR_FORMAT);
-
-        activeOutputs = outputs.valuesIterator();
-        while (activeOutputs.hasNext()) {
-            AudioOutput output = activeOutputs.next();
-            if (!activeOutputs.hasNext()) {
-                output.offer(outputFrame);
-            } else {
-                output.offer(outputFrame.clone());
-            }
-            output.wakeup();
-        }
-    }
 }

@@ -154,9 +154,8 @@ public class AudioMixingSplitter implements MediaSplitter {
 
             while (insideRIterator.hasNext()) {
                 AudioComponent component = insideRIterator.next();
-                component.perform();
-                current = component.getData();
-                if (current != null) {
+                current = component.retrieveData();
+                if (current != null && current.length > 0) {
                     if (first) {
                         System.arraycopy(current, 0, total, 0, total.length);
                         first = false;
@@ -205,7 +204,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             outsideSIterator = outsideComponents.valuesIterator();
             while (outsideSIterator.hasNext()) {
                 AudioComponent component = outsideSIterator.next();
-                component.offer(total);
+                component.offerData(total);
             }
 
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
@@ -240,9 +239,8 @@ public class AudioMixingSplitter implements MediaSplitter {
 
             while (outsideRIterator.hasNext()) {
                 AudioComponent component = outsideRIterator.next();
-                component.perform();
-                current = component.getData();
-                if (current != null) {
+                current = component.retrieveData();
+                if (current != null && current.length > 0) {
                     if (first) {
                         System.arraycopy(current, 0, total, 0, total.length);
                         first = false;
@@ -288,7 +286,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             insideSIterator = insideComponents.valuesIterator();
             while (insideSIterator.hasNext()) {
                 AudioComponent component = insideSIterator.next();
-                component.offer(total);
+                component.offerData(total);
             }
 
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);

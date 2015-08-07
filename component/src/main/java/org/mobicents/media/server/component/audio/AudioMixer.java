@@ -132,9 +132,8 @@ public class AudioMixer implements MediaRelay {
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
                 AudioComponent component = activeComponents.next();
-                component.perform();
-                current = component.getData();
-                if (current != null) {
+                current = component.retrieveData();
+                if (current != null && current.length > 0) {
                     if (sourcesCount == 0) {
                         System.arraycopy(current, 0, total, 0, total.length);
                     } else {
@@ -183,14 +182,14 @@ public class AudioMixer implements MediaRelay {
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
                 AudioComponent component = activeComponents.next();
-                current = component.getData();
-                if (current != null && sourcesCount > 1) {
+                current = component.retrieveData();
+                if (current != null && current.length > 0 && sourcesCount > 1) {
                     for (i = 0; i < total.length; i++) {
                         current[i] = total[i] - (short) ((double) current[i] * currGain);
                     }
-                    component.offer(current);
+                    component.offerData(current);
                 } else if (current == null) {
-                    component.offer(total);
+                    component.offerData(total);
                 }
             }
 

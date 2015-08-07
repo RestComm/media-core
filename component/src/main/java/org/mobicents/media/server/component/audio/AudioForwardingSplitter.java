@@ -115,15 +115,15 @@ public class AudioForwardingSplitter implements MediaSplitter {
         public long perform() {
             // Retrieve data from each readable component
             for (AudioComponent insideComponent : insideComponents.values()) {
-                if (insideComponent.shouldRead) {
-                    insideComponent.perform();
-                    if (insideComponent.hasData()) {
-                        System.arraycopy(insideComponent.getData(), 0, data, 0, data.length);
+                if (insideComponent.isReadable()) {
+                    int[] currentData = insideComponent.retrieveData();
+                    if (currentData.length > 0) {
+                        System.arraycopy(currentData, 0, data, 0, data.length);
                         if (data != null && data.length > 0) {
                             // Pass the data to all outside components with write permission
                             for (AudioComponent outsideComponent : outsideComponents.values()) {
-                                if (outsideComponent.shouldWrite) {
-                                    outsideComponent.offer(data);
+                                if (outsideComponent.isWritable()) {
+                                    outsideComponent.offerData(data);
                                 }
                             }
                         }
@@ -151,15 +151,15 @@ public class AudioForwardingSplitter implements MediaSplitter {
         public long perform() {
             // Retrieve data from each readable component
             for (AudioComponent outsideComponent : outsideComponents.values()) {
-                if (outsideComponent.shouldRead) {
-                    outsideComponent.perform();
-                    if (outsideComponent.hasData()) {
-                        System.arraycopy(outsideComponent.getData(), 0, data, 0, data.length);
+                if (outsideComponent.isReadable()) {
+                    int[] currentData = outsideComponent.retrieveData();
+                    if (currentData.length > 0) {
+                        System.arraycopy(currentData, 0, data, 0, data.length);
                         if (data != null && data.length > 0) {
                             // Pass the data to all outside components with write permission
                             for (AudioComponent insideComponent : insideComponents.values()) {
-                                if (insideComponent.shouldWrite) {
-                                    insideComponent.offer(data);
+                                if (insideComponent.isWritable()) {
+                                    insideComponent.offerData(data);
                                 }
                             }
                         }

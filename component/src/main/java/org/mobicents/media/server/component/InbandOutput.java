@@ -19,39 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.component.video;
+package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.component.MediaComponent;
+import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class VideoComponent extends MediaComponent {
+public abstract class InbandOutput extends AbstractSource {
 
-    public VideoComponent(int componentId) {
-        super(componentId);
+    private static final long serialVersionUID = -7102577231067212160L;
+
+    private final int outputId;
+
+    public InbandOutput(String name, Scheduler scheduler, int queueNumber) {
+        super(name, scheduler, queueNumber);
+        // TODO Auto-generated constructor stub
     }
 
-    @Override
-    public int[] retrieveData() {
-        if (isReadable()) {
-            int[] data = null;
-            // TODO iterate over active inputs and retrieve a frame from each
-            // TODO get the data from the frame and store it locally
-            // TODO return the data
-            return data;
-        } else {
-            return EMPTY_DATA;
-        }
+    public int getOutputId() {
+        return outputId;
     }
 
-    public void offerData(int[] data) {
-        if (isWritable()) {
-            // TODO allocate a new frame
-            // TODO place the offered data into the frame
-            // TODO offer the frame to all active outputs
-        }
+    public void offer(Frame frame) {
+
     }
 
 }

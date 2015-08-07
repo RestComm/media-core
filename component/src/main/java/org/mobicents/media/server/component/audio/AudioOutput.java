@@ -22,9 +22,9 @@
 
 package org.mobicents.media.server.component.audio;
 
+import org.mobicents.media.server.component.InbandOutput;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -33,7 +33,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  * 
  * @author Yulian Oifa
  */
-public class AudioOutput extends AbstractSource {
+public class AudioOutput extends InbandOutput {
 
     private static final long serialVersionUID = -5988244809612104056L;
 
@@ -79,9 +79,9 @@ public class AudioOutput extends AbstractSource {
 
     public void offer(Frame frame) {
         if (isStarted()) {
-//            if (buffer.size() > 1) {
-//                buffer.poll().recycle();
-//            }
+            // if (buffer.size() > 1) {
+            // buffer.poll().recycle();
+            // }
             buffer.offer(frame);
         }
     }

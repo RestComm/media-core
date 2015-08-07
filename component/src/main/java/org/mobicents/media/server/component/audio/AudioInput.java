@@ -24,7 +24,7 @@ package org.mobicents.media.server.component.audio;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.component.InbandInput;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
@@ -34,7 +34,7 @@ import org.mobicents.media.server.spi.memory.Memory;
  * 
  * @author Yulian Oifa
  */
-public class AudioInput extends AbstractSink {
+public class AudioInput extends InbandInput {
 
     private static final long serialVersionUID = -6377790166652701617L;
 

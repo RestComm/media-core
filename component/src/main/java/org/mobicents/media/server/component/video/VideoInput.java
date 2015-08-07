@@ -23,6 +23,7 @@ package org.mobicents.media.server.component.video;
 
 import java.io.IOException;
 
+import org.mobicents.media.server.component.InbandInput;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -31,7 +32,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class VideoInput extends AbstractSink {
+public class VideoInput extends InbandInput {
 
     private static final long serialVersionUID = -5368081767032694922L;
 

@@ -104,16 +104,16 @@ public class AudioTranslator implements MediaRelay {
         public long perform() {
             // Execute each readable component and get its data
             for (AudioComponent component : components.values()) {
-                if (component.shouldRead) {
-                    component.perform();
-                    if (component.hasData()) {
-                        System.arraycopy(component.getData(), 0, currentData, 0, currentData.length);
+                if (component.isReadable()) {
+                    int[] data = component.retrieveData();
+                    if (data.length > 0) {
+                        System.arraycopy(data, 0, currentData, 0, currentData.length);
 
                         // Offer the data of the current component to all the other writable components
                         for (AudioComponent otherComponent : components.values()) {
                             if (!component.equals(otherComponent)) {
-                                if (otherComponent.shouldWrite) {
-                                    otherComponent.offer(currentData);
+                                if (otherComponent.isWritable()) {
+                                    otherComponent.offerData(currentData);
                                 }
                             }
                         }
