@@ -35,11 +35,9 @@ public interface DspFactory {
      * 
      * @return DSP instance.
      * 
-     * @throws InstantiationException
-     * @throws ClassNotFoundException
-     * @throws IllegalAccessException 
+     * @throws RuntimeException When invalid classes have been set in the media server configuration.
      */
-    public Processor newProcessor() throws InstantiationException, ClassNotFoundException, IllegalAccessException;
+    public Processor newProcessor() throws RuntimeException;
 
     /**
      * Configures supported codecs.

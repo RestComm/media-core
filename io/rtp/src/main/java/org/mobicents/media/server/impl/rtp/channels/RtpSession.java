@@ -39,8 +39,8 @@ import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
-import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.RtpComponent;
+import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -52,11 +52,7 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.utils.Text;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.
@@ -68,20 +64,11 @@ public abstract class RtpSession {
 
     protected static final Logger logger = Logger.getLogger(RtpSession.class);
 
-    // Registered audio formats
-    public final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    public final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
-    static {
-        DTMF_FORMAT.setOptions(new Text("0-15"));
-    }
-
     // RTP channel properties
     protected final int channelId;
     protected long ssrc;
     protected String cname;
     protected final String mediaType;
-    protected final RtpClock clock;
-    protected final RtpClock oobClock;
     protected final RtpTransport rtpTransport;
     protected final RtcpTransport rtcpTransport;
     protected final RtpStatistics statistics;
@@ -90,8 +77,7 @@ public abstract class RtpSession {
     protected boolean open;
 
     // RTP relay
-    protected RelayType relayType;
-    protected RtpComponent mixerComponent;
+    protected RtpComponent mediaComponent;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -120,12 +106,13 @@ public abstract class RtpSession {
      * @param channelsManager The RTP and RTCP channel provider
      */
     protected RtpSession(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+        RtpClock clock = new RtpClock(scheduler.getClock());
+        RtpClock oobClock = new RtpClock(scheduler.getClock());
+
         // RTP channel properties
         this.channelId = channelId;
         this.ssrc = 0L;
         this.mediaType = mediaType;
-        this.clock = new RtpClock(scheduler.getClock());
-        this.oobClock = new RtpClock(scheduler.getClock());
         this.statistics = new RtpStatistics(clock, this.ssrc);
         this.rtcpMux = false;
         this.secure = false;
@@ -137,9 +124,8 @@ public abstract class RtpSession {
         this.rtcpTransport = new RtcpTransport(statistics, udpManager);
 
         // RTP relay
-        this.relayType = RelayType.MIXER;
-        this.mixerComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
-        this.rtpTransport.setRtpRelay(this.mixerComponent);
+        this.mediaComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.rtpTransport.setRtpRelay(this.mediaComponent);
 
         // RTP format negotiation
         this.offeredFormats = new RTPFormats();
@@ -202,25 +188,6 @@ public abstract class RtpSession {
         this.statistics.setCname(cname);
     }
 
-    public void setRelayType(RelayType relayType) {
-        if (this.relayType.equals(relayType)) {
-            this.relayType = relayType;
-            switch (relayType) {
-                case MIXER:
-                    // TODO close and reset translator
-                    // this.mixerComponent.deactivate();
-                    break;
-
-                case TRANSLATOR:
-
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    }
-
     /**
      * Gets the address the RTP channel is bound to.
      * 
@@ -278,7 +245,7 @@ public abstract class RtpSession {
     }
 
     public RtpComponent getMediaComponent() {
-        return mixerComponent;
+        return mediaComponent;
     }
 
     /**
@@ -329,7 +296,7 @@ public abstract class RtpSession {
         resetFormats();
 
         // Reset relay components
-        this.mixerComponent.setMode(ConnectionMode.INACTIVE);
+        this.mediaComponent.setMode(ConnectionMode.INACTIVE);
 
         // Reset channels
         if (this.rtcpMux) {
@@ -409,7 +376,7 @@ public abstract class RtpSession {
      */
     protected void setFormats(RTPFormats formats) {
         this.rtpTransport.setFormatMap(formats);
-        this.mixerComponent.setRtpFormats(formats);
+        this.mediaComponent.setRtpFormats(formats);
     }
 
     /**

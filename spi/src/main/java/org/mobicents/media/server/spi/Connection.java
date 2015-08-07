@@ -226,20 +226,6 @@ public interface Connection {
     public String getCname();
 
     /**
-     * Gets the relay type currently used: mixer or translator.
-     * 
-     * @return The relay type currently used.
-     */
-    public RelayType getRelayType();
-
-    /**
-     * Sets the relay type to be used: mixer or translator.
-     * 
-     * @param relayType The relay type to be used
-     */
-    public void setRelayType(RelayType relayType);
-
-    /**
      * Moves the connection to an half-open state.
      */
     public void halfOpen();

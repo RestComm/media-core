@@ -49,7 +49,6 @@ public abstract class AbstractConnection implements Connection {
     // Connection properties
     private int id;
     private String textualId;
-    private RelayType relayType;
     private final ConnectionType connectionType;
     private ConnectionMode connectionMode = ConnectionMode.INACTIVE;
     private Endpoint activeEndpoint;
@@ -77,7 +76,6 @@ public abstract class AbstractConnection implements Connection {
         // Connection properties
         this.id = id;
         this.textualId = Integer.toHexString(id);
-        this.relayType = relayType;
         this.connectionType = connectionType;
 
         // Keep alive mechanism
@@ -97,16 +95,6 @@ public abstract class AbstractConnection implements Connection {
     @Override
     public String getTextualId() {
         return textualId;
-    }
-
-    @Override
-    public RelayType getRelayType() {
-        return relayType;
-    }
-
-    @Override
-    public void setRelayType(RelayType relayType) {
-        this.relayType = relayType;
     }
     
     @Override

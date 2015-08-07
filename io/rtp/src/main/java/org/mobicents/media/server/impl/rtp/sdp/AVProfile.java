@@ -57,6 +57,7 @@ public class AVProfile {
 
     private final static RTPFormat H261 = new RTPFormat(45, FormatFactory.createVideoFormat("h261"));
     private final static RTPFormat H263 = new RTPFormat(34, FormatFactory.createVideoFormat("h263"));
+    private final static RTPFormat H264 = new RTPFormat(100, FormatFactory.createVideoFormat("h264", 90000), 90000);
     private final static RTPFormat MP4V_ES = new RTPFormat(96, FormatFactory.createVideoFormat("mp4v-es"));
 
     static {
@@ -71,9 +72,10 @@ public class AVProfile {
     }
 
     static {
-        video.add(H261);
-        video.add(H263);
-        video.add(MP4V_ES);
+        // video.add(H261);
+        // video.add(H263);
+        video.add(H264);
+        // video.add(MP4V_ES);
     }
 
     public static RTPFormat getFormat(int p) {

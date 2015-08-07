@@ -25,7 +25,6 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.CompoundComponent;
-import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -33,6 +32,9 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.utils.Text;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -41,6 +43,11 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
 public class RtpComponent extends CompoundComponent implements RtpRelay {
 
     private static final Logger logger = Logger.getLogger(RtpComponent.class);
+
+    public final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
+    static {
+        DTMF_FORMAT.setOptions(new Text("0-15"));
+    }
 
     private final static int DEFAULT_BUFFER_SIZER = 50;
 
@@ -64,23 +71,11 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
-        try {
-            this.rtpSource = new RtpSource(scheduler, jitterBuffer, dspFactory.newProcessor());
-        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
-            // exception may happen only if invalid classes have been set in
-            // the media server configuration.
-            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
-        }
+        this.rtpSource = new RtpSource(scheduler, jitterBuffer, dspFactory.newProcessor());
         this.dtmfSource = new DtmfSource(scheduler, oobClock);
 
         // RTP sink
-        try {
-            this.rtpSink = new RtpSink(scheduler, rtpClock, dspFactory.newProcessor(), this);
-        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
-            // exception may happen only if invalid classes have been set in
-            // the media server configuration.
-            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
-        }
+        this.rtpSink = new RtpSink(scheduler, rtpClock, dspFactory.newProcessor(), this);
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
@@ -100,7 +95,7 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
     public void setRtpFormats(RTPFormats formats) {
         this.rtpSink.setFormats(formats);
     }
-    
+
     private void activateSources() {
         this.rtpSource.activate();
         this.dtmfSource.activate();
@@ -111,7 +106,7 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
         this.dtmfSource.deactivate();
         this.dtmfSource.reset();
     }
-    
+
     private void activateSinks() {
         this.rtpSink.activate();
         this.dtmfSink.activate();
@@ -127,7 +122,7 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
     public void incomingRtp(RtpPacket packet, RTPFormat format) {
         // Determine whether the RTP packet is DTMF or not
         // and send it to the according media source
-        if (RtpSession.DTMF_FORMAT.matches(format.getFormat())) {
+        if (DTMF_FORMAT.matches(format.getFormat())) {
             this.dtmfSource.write(packet);
         } else {
             if (this.rxPackets == 0) {

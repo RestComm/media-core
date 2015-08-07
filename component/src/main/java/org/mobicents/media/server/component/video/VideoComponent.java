@@ -28,6 +28,8 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
  *
  */
 public class VideoComponent {
+    
+    private static final int[] EMPTY_DATA = new int[0];
 
     private final int componentId;
     private final ConcurrentMap<VideoInput> inputs;
@@ -80,11 +82,15 @@ public class VideoComponent {
     }
     
     public int[] retrieveData() {
-        int[] data = null;
-        // TODO iterate over active inputs and retrieve a frame from each
-        // TODO get the data from the frame and store it locally
-        // TODO return the data
-        return data;
+        if(this.readable) {
+            int[] data = null;
+            // TODO iterate over active inputs and retrieve a frame from each
+            // TODO get the data from the frame and store it locally
+            // TODO return the data
+            return data;
+        } else {
+            return EMPTY_DATA;
+        }
     }
     
     public void offerData(int[] data) {

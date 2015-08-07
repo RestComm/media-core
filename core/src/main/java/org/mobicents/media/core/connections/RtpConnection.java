@@ -104,13 +104,11 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         this.audioSession = this.channelsManager.getAudioChannel();
         this.audioSession.setCname(this.cname);
         this.audioSession.setRtpListener(this);
-        this.audioSession.setRelayType(relayType);
 
         // Video Channel
         this.videoSession = this.channelsManager.getVideoChannel();
         this.videoSession.setCname(this.cname);
         this.videoSession.setRtpListener(this);
-        this.videoSession.setRelayType(relayType);
     }
 
     /**
@@ -151,13 +149,6 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     @Override
     public void setIsLocal(boolean isLocal) {
         this.localInterface = isLocal;
-    }
-
-    @Override
-    public void setRelayType(RelayType relayType) {
-        super.setRelayType(relayType);
-        this.audioSession.setRelayType(relayType);
-        this.videoSession.setRelayType(relayType);
     }
 
     @Override
