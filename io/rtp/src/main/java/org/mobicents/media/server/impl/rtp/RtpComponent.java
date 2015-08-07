@@ -115,7 +115,7 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
     private void deactivateSinks() {
         this.rtpSink.deactivate();
         this.dtmfSink.deactivate();
-        this.dtmfSink.reset();
+        this.dtmfSink.resetBuffer();
     }
 
     @Override

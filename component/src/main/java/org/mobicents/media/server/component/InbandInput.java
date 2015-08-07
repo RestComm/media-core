@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.component;
 
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -31,20 +32,44 @@ import org.mobicents.media.server.spi.memory.Frame;
 public abstract class InbandInput extends AbstractSink {
 
     private static final long serialVersionUID = -4843330203940358541L;
-    
-    private final int inputId;
 
-    public InbandInput(String name) {
+    private final int inputId;
+    protected final ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
+
+    public InbandInput(String name, int inputId) {
         super(name);
-        // TODO Auto-generated constructor stub
+        this.inputId = inputId;
     }
-    
+
     public int getInputId() {
         return inputId;
     }
-    
+
+    /**
+     * Retrieves frame from the input buffer.
+     *
+     * @return the media frame.
+     */
     public Frame poll() {
-        
+        return this.buffer.poll();
+    }
+
+    /**
+     * Indicates the state of the input buffer.
+     *
+     * @return true if input buffer has no frames.
+     */
+    public boolean isEmpty() {
+        return this.buffer.size() == 0;
+    }
+
+    /**
+     * Recycles input stream
+     */
+    public void resetBuffer() {
+        while (buffer.size() > 0) {
+            buffer.poll().recycle();
+        }
     }
 
 }

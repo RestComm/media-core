@@ -21,6 +21,8 @@
 
 package org.mobicents.media.server.component;
 
+import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -34,18 +36,50 @@ public abstract class InbandOutput extends AbstractSource {
     private static final long serialVersionUID = -7102577231067212160L;
 
     private final int outputId;
+    protected final ConcurrentCyclicFIFO<Frame> buffer;
 
-    public InbandOutput(String name, Scheduler scheduler, int queueNumber) {
+    public InbandOutput(String name, int outputId, Scheduler scheduler, int queueNumber) {
         super(name, scheduler, queueNumber);
-        // TODO Auto-generated constructor stub
+        this.outputId = outputId;
+        this.buffer = new ConcurrentCyclicFIFO<Frame>();
     }
 
     public int getOutputId() {
         return outputId;
     }
 
-    public void offer(Frame frame) {
+    public void join(AbstractSink sink) {
+        connect(sink);
+    }
 
+    public void unjoin() {
+        disconnect();
+    }
+
+    @Override
+    public Frame evolve(long timestamp) {
+        return buffer.poll();
+    }
+
+    private void resetBuffer() {
+        while (buffer.size() > 0) {
+            buffer.poll().recycle();
+        }
+    }
+
+    public void offer(Frame frame) {
+        if (isStarted()) {
+            // if (buffer.size() > 1) {
+            // buffer.poll().recycle();
+            // }
+            buffer.offer(frame);
+        }
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        resetBuffer();
     }
 
 }

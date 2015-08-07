@@ -21,62 +21,21 @@
 
 package org.mobicents.media.server.component.video;
 
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.component.InbandOutput;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class VideoOutput extends AbstractSource {
+public class VideoOutput extends InbandOutput {
 
     private static final long serialVersionUID = -5375983454592154619L;
 
-    private final int outputId;
-    private final ConcurrentCyclicFIFO<Frame> buffer;
+    private static final String NAME_PREFIX = "compound.output.video.";
 
     public VideoOutput(Scheduler scheduler, int outputId) {
-        super("compound.output.video." + outputId, scheduler, Scheduler.OUTPUT_QUEUE);
-        this.outputId = outputId;
-        this.buffer = new ConcurrentCyclicFIFO<Frame>();
-    }
-
-    public int getOutputId() {
-        return outputId;
-    }
-
-    public void join(AbstractSink sink) {
-        connect(sink);
-    }
-
-    public void unjoin() {
-        disconnect();
-    }
-
-    @Override
-    public Frame evolve(long timestamp) {
-        return buffer.poll();
-    }
-
-    @Override
-    public void stop() {
-        super.stop();
-        resetBuffer();
-    }
-
-    private void resetBuffer() {
-        while (this.buffer.size() > 0) {
-            this.buffer.poll().recycle();
-        }
-    }
-
-    public void offerFrame(Frame frame) {
-        if (isStarted()) {
-            buffer.offer(frame);
-        }
+        super(NAME_PREFIX + outputId, outputId, scheduler, Scheduler.OUTPUT_QUEUE);
     }
 
 }

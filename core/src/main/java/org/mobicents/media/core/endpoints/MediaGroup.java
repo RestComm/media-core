@@ -132,7 +132,7 @@ public class MediaGroup {
 		{
 			if(this.player!=null)		
 			{
-				audioComponent.remove(((AudioPlayerImpl)this.player).getAudioInput());
+				audioComponent.removeInput(((AudioPlayerImpl)this.player).getAudioInput());
 				readComponents--;
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
 				updateEndpoint(-1,0);
@@ -203,7 +203,7 @@ public class MediaGroup {
 		{
 			if(this.recorder!=null)
 			{
-				audioComponent.remove(((AudioRecorderImpl)this.recorder).getAudioOutput());
+				audioComponent.removeOutput(((AudioRecorderImpl)this.recorder).getAudioOutput());
 				oobComponent.remove(((AudioRecorderImpl)this.recorder).getOOBOutput());
 				writeComponents--;
 				writeDtmfComponents--;
@@ -277,7 +277,7 @@ public class MediaGroup {
 		{
 			if(this.dtmfDetector!=null)		
 			{
-				audioComponent.remove(((DetectorImpl)this.dtmfDetector).getAudioOutput());
+				audioComponent.removeOutput(((DetectorImpl)this.dtmfDetector).getAudioOutput());
 				oobComponent.remove(((DetectorImpl)this.dtmfDetector).getOOBOutput());
 				writeComponents--;
 				writeDtmfComponents--;
@@ -352,7 +352,7 @@ public class MediaGroup {
 		{
 			if(this.dtmfGenerator!=null)
 			{
-				audioComponent.remove(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
+				audioComponent.removeInput(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
 				oobComponent.remove(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
 				readComponents--;
 				readDtmfComponents--;
@@ -422,7 +422,7 @@ public class MediaGroup {
 		{
 			if(this.signalDetector!=null)
 			{
-				audioComponent.remove(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
+				audioComponent.removeOutput(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
 				writeComponents--;
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
 				updateEndpoint(0,-1);
@@ -491,7 +491,7 @@ public class MediaGroup {
 		{
 			if(this.signalGenerator!=null)
 			{
-				audioComponent.remove(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
+				audioComponent.removeInput(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
 				readComponents--;
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);
 				updateEndpoint(-1,0);

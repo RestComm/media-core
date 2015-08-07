@@ -76,7 +76,7 @@ public class RTPInput extends AbstractSource implements BufferListener {
     
     @Override
     public void reset() {
-        super.reset();        
+        super.resetBuffer();        
     }
     
     /**

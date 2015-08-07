@@ -25,7 +25,6 @@ package org.mobicents.media.server.component.audio;
 import java.io.IOException;
 
 import org.mobicents.media.server.component.InbandInput;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -33,14 +32,15 @@ import org.mobicents.media.server.spi.memory.Memory;
  * Implements input for compound components
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class AudioInput extends InbandInput {
 
     private static final long serialVersionUID = -6377790166652701617L;
 
-    private int inputId;
+    private static final String NAME_PREFIX = "compound.audio.input.";
+
     private int limit = 3;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
     private Frame activeFrame = null;
     private byte[] activeData;
     private byte[] oldData;
@@ -48,17 +48,9 @@ public class AudioInput extends InbandInput {
     private int count = 0;
     private int packetSize = 0;
 
-    /**
-     * Creates new stream
-     */
     public AudioInput(int inputId, int packetSize) {
-        super("compound.audio.input." + inputId);
-        this.inputId = inputId;
+        super(NAME_PREFIX + inputId, inputId);
         this.packetSize = packetSize;
-    }
-
-    public int getInputId() {
-        return inputId;
     }
 
     @Override
@@ -94,9 +86,9 @@ public class AudioInput extends InbandInput {
                 System.arraycopy(oldData, count, activeData, byteIndex, activeData.length - byteIndex);
                 count += activeData.length - byteIndex;
 
-                if (buffer.size() >= limit)
+                if (buffer.size() >= limit) {
                     buffer.poll().recycle();
-
+                }
                 buffer.offer(activeFrame);
 
                 activeFrame = null;
@@ -107,41 +99,16 @@ public class AudioInput extends InbandInput {
         frame.recycle();
     }
 
-    /**
-     * Indicates the state of the input buffer.
-     *
-     * @return true if input buffer has no frames.
-     */
-    public boolean isEmpty() {
-        return buffer.size() == 0;
-    }
-
-    /**
-     * Retrieves frame from the input buffer.
-     *
-     * @return the media frame.
-     */
-    public Frame poll() {
-        return buffer.poll();
-    }
-
-    /**
-     * Recycles input stream
-     */
     public void recycle() {
-        while (buffer.size() > 0)
-            buffer.poll().recycle();
+        super.resetBuffer();
 
-        if (activeFrame != null)
+        if (activeFrame != null) {
             activeFrame.recycle();
+        }
 
         activeFrame = null;
         activeData = null;
         byteIndex = 0;
     }
 
-    public void resetBuffer() {
-        while (buffer.size() > 0)
-            buffer.poll().recycle();
-    }
 }

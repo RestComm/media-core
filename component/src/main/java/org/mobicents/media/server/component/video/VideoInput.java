@@ -24,8 +24,6 @@ package org.mobicents.media.server.component.video;
 import java.io.IOException;
 
 import org.mobicents.media.server.component.InbandInput;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -36,9 +34,9 @@ public class VideoInput extends InbandInput {
 
     private static final long serialVersionUID = -5368081767032694922L;
 
-    private int inputId;
+    private static final String NAME_PREFIX = "compound.audio.input.";
+
     private int limit = 3;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
     private Frame activeFrame = null;
     private byte[] activeData;
     private byte[] oldData;
@@ -47,13 +45,8 @@ public class VideoInput extends InbandInput {
     private int packetSize = 0;
 
     public VideoInput(int inputId, int packetSize) {
-        super("compound.video.input." + inputId);
-        this.inputId = inputId;
+        super(NAME_PREFIX + inputId, inputId);
         this.packetSize = packetSize;
-    }
-
-    public int getInputId() {
-        return inputId;
     }
 
     @Override
@@ -72,18 +65,8 @@ public class VideoInput extends InbandInput {
 
     }
 
-    public boolean isEmpty() {
-        return this.buffer.size() == 0;
-    }
-
-    public Frame poll() {
-        return this.buffer.poll();
-    }
-
     public void recycle() {
-        while (this.buffer.size() > 0) {
-            this.buffer.poll().recycle();
-        }
+        super.resetBuffer();
 
         if (this.activeFrame != null) {
             this.activeFrame.recycle();
@@ -92,11 +75,6 @@ public class VideoInput extends InbandInput {
         this.activeFrame = null;
         this.activeData = null;
         this.byteIndex = 0;
-    }
-
-    public void resetBuffer() {
-        while (buffer.size() > 0)
-            buffer.poll().recycle();
     }
 
 }

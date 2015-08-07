@@ -23,10 +23,7 @@
 package org.mobicents.media.server.component.audio;
 
 import org.mobicents.media.server.component.InbandOutput;
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * Implements output for compound components.
@@ -37,52 +34,10 @@ public class AudioOutput extends InbandOutput {
 
     private static final long serialVersionUID = -5988244809612104056L;
 
-    private int outputId;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
+    private static final String NAME_PREFIX = "compound.output.audio.";
 
-    /**
-     * Creates new instance with default name.
-     */
     public AudioOutput(Scheduler scheduler, int outputId) {
-        super("compound.output.audio." + outputId, scheduler, Scheduler.OUTPUT_QUEUE);
-        this.outputId = outputId;
+        super(NAME_PREFIX + outputId, outputId, scheduler, Scheduler.OUTPUT_QUEUE);
     }
 
-    public int getOutputId() {
-        return outputId;
-    }
-
-    public void join(AbstractSink sink) {
-        connect(sink);
-    }
-
-    public void unjoin() {
-        disconnect();
-    }
-
-    @Override
-    public Frame evolve(long timestamp) {
-        return buffer.poll();
-    }
-
-    @Override
-    public void stop() {
-        super.stop();
-        resetBuffer();
-    }
-
-    private void resetBuffer() {
-        while (buffer.size() > 0) {
-            buffer.poll().recycle();
-        }
-    }
-
-    public void offer(Frame frame) {
-        if (isStarted()) {
-            // if (buffer.size() > 1) {
-            // buffer.poll().recycle();
-            // }
-            buffer.offer(frame);
-        }
-    }
 }
