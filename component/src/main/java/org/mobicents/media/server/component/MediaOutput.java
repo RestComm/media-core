@@ -1,8 +1,7 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2015, Telestax Inc and individual contributors
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -20,9 +19,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.component.audio;
+package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
@@ -33,26 +31,40 @@ import org.mobicents.media.server.spi.memory.Frame;
  * Implements output for compound components.
  * 
  * @author Yulian Oifa
- * @deprecated use {@link MediaOutput}
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-@Deprecated
-public class AudioOutput extends AbstractSource {
+public class MediaOutput extends AbstractSource {
 
-    private static final long serialVersionUID = -5988244809612104056L;
+    private static final long serialVersionUID = 841004045995318464L;
 
-    private int outputId;
-    private ConcurrentCyclicFIFO<Frame> buffer = new ConcurrentCyclicFIFO<Frame>();
+    private static final String PREFIX_NAME = "compound.output.";
 
-    /**
-     * Creates new instance with default name.
-     */
-    public AudioOutput(Scheduler scheduler, int outputId) {
-        super("compound.output", scheduler, Scheduler.OUTPUT_QUEUE);
+    // Media output properties
+    private final int outputId;
+    private final ConcurrentCyclicFIFO<Frame> buffer;
+
+    public MediaOutput(int outputId, Scheduler scheduler) {
+        super(PREFIX_NAME + outputId, scheduler, Scheduler.OUTPUT_QUEUE);
+
+        // Media output properties
         this.outputId = outputId;
+        this.buffer = new ConcurrentCyclicFIFO<Frame>();
     }
 
     public int getOutputId() {
         return outputId;
+    }
+
+    private void resetBuffer() {
+        while (buffer.size() > 0) {
+            buffer.poll().recycle();
+        }
+    }
+
+    public void offer(Frame frame) {
+        if (isStarted()) {
+            buffer.offer(frame);
+        }
     }
 
     public void join(AbstractSink sink) {
@@ -74,18 +86,4 @@ public class AudioOutput extends AbstractSource {
         resetBuffer();
     }
 
-    private void resetBuffer() {
-        while (buffer.size() > 0) {
-            buffer.poll().recycle();
-        }
-    }
-
-    public void offer(Frame frame) {
-        if (isStarted()) {
-//            if (buffer.size() > 1) {
-//                buffer.poll().recycle();
-//            }
-            buffer.offer(frame);
-        }
-    }
 }

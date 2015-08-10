@@ -21,10 +21,20 @@
 
 package org.mobicents.media.server.component;
 
+import org.mobicents.media.server.concurrent.ConcurrentMap;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public abstract class InbandComponent {
+
+    private final ConcurrentMap<MediaInput> inputs;
+    private final ConcurrentMap<MediaOutput> outputs;
+
+    public InbandComponent() {
+        this.inputs = new ConcurrentMap<MediaInput>();
+        this.outputs = new ConcurrentMap<MediaOutput>();
+    }
 
 }
