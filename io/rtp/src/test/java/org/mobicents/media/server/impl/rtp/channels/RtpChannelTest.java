@@ -50,8 +50,8 @@ public class RtpChannelTest {
 	private final ChannelsManager channelsManager;
 	private final Clock wallClock;
 	
-	private final AudioChannel localChannel;
-	private final AudioChannel remoteChannel;
+	private final AudioSession localChannel;
+	private final AudioSession remoteChannel;
 	
 	public RtpChannelTest() throws IOException {
 		this.wallClock = new DefaultClock();

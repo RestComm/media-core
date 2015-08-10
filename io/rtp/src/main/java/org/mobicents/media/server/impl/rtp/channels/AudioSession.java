@@ -24,6 +24,8 @@ import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
 
 /**
  * Media channel responsible for audio processing.
@@ -31,9 +33,12 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class AudioChannel extends RtpChannel {
+public class AudioSession extends RtpSession {
 
-    public AudioChannel(int channelId, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+    // Registered audio formats
+    public final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+
+    public AudioSession(int channelId, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
         super(channelId, AVProfile.AUDIO, scheduler, dspFactory, udpManager);
         super.supportedFormats = AVProfile.audio;
         super.setFormats(this.supportedFormats);

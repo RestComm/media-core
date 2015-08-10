@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.mobicents.media.io.ice.IceCandidate;
 import org.mobicents.media.io.ice.LocalCandidateWrapper;
-import org.mobicents.media.server.impl.rtp.channels.RtpChannel;
+import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.io.sdp.MediaProfile;
 import org.mobicents.media.server.io.sdp.SessionDescription;
 import org.mobicents.media.server.io.sdp.attributes.ConnectionModeAttribute;
@@ -63,7 +63,7 @@ public class SdpFactory {
      * @param channels The media channels to be included in the session description.
      * @return The Session Description object.
      */
-    public static SessionDescription buildSdp(String localAddress, String externalAddress, RtpChannel... channels) {
+    public static SessionDescription buildSdp(String localAddress, String externalAddress, RtpSession... channels) {
         // Session-level fields
         SessionDescription sd = new SessionDescription();
         sd.setVersion(new VersionField((short) 0));
@@ -75,7 +75,7 @@ public class SdpFactory {
 
         // Media Descriptions
         boolean ice = false;
-        for (RtpChannel channel : channels) {
+        for (RtpSession channel : channels) {
             MediaDescriptionField md = buildMediaDescription(channel);
             md.setSession(sd);
             sd.addMediaDescription(md);
@@ -117,7 +117,7 @@ public class SdpFactory {
      * @param channel The channel to read information from
      * @return The SDP media description
      */
-    public static MediaDescriptionField buildMediaDescription(RtpChannel channel) {
+    public static MediaDescriptionField buildMediaDescription(RtpSession channel) {
         MediaDescriptionField md = new MediaDescriptionField();
 
         md.setMedia(channel.getMediaType());

@@ -25,7 +25,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
+import org.mobicents.media.server.impl.rtp.channels.AudioSession;
 import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
@@ -138,8 +138,8 @@ public class ChannelsManager {
         return new SS7DataChannel(ss7Manager, dahdiChannelID, channelIndex.incrementAndGet(), isAlaw);
     }
 
-    public AudioChannel getAudioChannel() {
-        return new AudioChannel(channelIndex.incrementAndGet(), scheduler, this.dspFactory, this.udpManager);
+    public AudioSession getAudioChannel() {
+        return new AudioSession(channelIndex.incrementAndGet(), scheduler, this.dspFactory, this.udpManager);
     }
 
 }

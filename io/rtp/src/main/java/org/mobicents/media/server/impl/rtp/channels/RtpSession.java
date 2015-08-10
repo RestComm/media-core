@@ -40,7 +40,7 @@ import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpListener;
-import org.mobicents.media.server.impl.rtp.RtpMixerComponent;
+import org.mobicents.media.server.impl.rtp.RtpComponent;
 import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -64,12 +64,10 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public abstract class RtpChannel {
+public abstract class RtpSession {
 
-    protected static final Logger logger = Logger.getLogger(RtpChannel.class);
+    protected static final Logger logger = Logger.getLogger(RtpSession.class);
 
-    // Registered audio formats
-    public final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     public final static AudioFormat DTMF_FORMAT = FormatFactory.createAudioFormat("telephone-event", 8000);
     static {
         DTMF_FORMAT.setOptions(new Text("0-15"));
@@ -91,7 +89,7 @@ public abstract class RtpChannel {
 
     // RTP relay
     protected RelayType relayType;
-    protected RtpMixerComponent mixerComponent;
+    protected RtpComponent mixerComponent;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
@@ -119,7 +117,7 @@ public abstract class RtpChannel {
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected RtpChannel(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+    protected RtpSession(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
         // RTP channel properties
         this.channelId = channelId;
         this.ssrc = 0L;
@@ -138,7 +136,7 @@ public abstract class RtpChannel {
 
         // RTP relay
         this.relayType = RelayType.MIXER;
-        this.mixerComponent = new RtpMixerComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.mixerComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
         this.rtpTransport.setRtpRelay(this.mixerComponent);
 
         // RTP format negotiation
@@ -277,7 +275,7 @@ public abstract class RtpChannel {
         return 0;
     }
 
-    public RtpMixerComponent getMixerComponent() {
+    public RtpComponent getMixerComponent() {
         return mixerComponent;
     }
 
