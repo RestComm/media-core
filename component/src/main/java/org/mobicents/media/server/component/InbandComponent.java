@@ -27,7 +27,7 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class MediaComponent {
+public abstract class InbandComponent {
 
     protected static final int[] EMPTY_DATA = new int[0];
 
@@ -38,7 +38,7 @@ public abstract class MediaComponent {
     protected boolean readable;
     protected boolean writable;
 
-    public MediaComponent(int componentId) {
+    public InbandComponent(int componentId) {
         this.componentId = componentId;
         this.inputs = new ConcurrentMap<InbandInput>();
         this.outputs = new ConcurrentMap<InbandOutput>();
@@ -63,6 +63,11 @@ public abstract class MediaComponent {
     }
 
     public void setWritable(boolean writable) {
+        this.writable = writable;
+    }
+
+    public void updateMode(boolean readable, boolean writable) {
+        this.readable = readable;
         this.writable = writable;
     }
 

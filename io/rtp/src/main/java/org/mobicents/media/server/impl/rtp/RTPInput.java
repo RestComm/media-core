@@ -74,11 +74,6 @@ public class RTPInput extends AbstractSource implements BufferListener {
     	return this.input;
     }
     
-    @Override
-    public void reset() {
-        super.resetBuffer();        
-    }
-    
     /**
      * Assigns the digital signaling processor of this component.
      * The DSP allows to get more output formats.

@@ -140,7 +140,7 @@ public class ChannelsManager {
     }
 
     public AudioSession getAudioChannel() {
-        return new AudioSession(channelIndex.incrementAndGet(), scheduler, this.dspFactory, this.udpManager);
+        return new AudioSession(scheduler, this.dspFactory, this.udpManager);
     }
 
     public VideoSession getVideoChannel() {

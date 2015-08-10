@@ -21,9 +21,6 @@
 
 package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.audio.AudioInput;
-import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
@@ -37,30 +34,37 @@ import org.mobicents.media.server.spi.ConnectionMode;
  */
 public class CompoundComponent {
 
-    private final int channelId;
-    private final AudioComponent audioComponent;
+    private final int componentId;
+    private final InbandComponent inbandComponent;
     private final OOBComponent ooBComponent;
 
-    public CompoundComponent(int channelId) {
-        this.channelId = channelId;
-        this.audioComponent = new AudioComponent(channelId);
-        this.ooBComponent = new OOBComponent(channelId);
+    /**
+     * Create a compound component with both inband and out-of-band components
+     * 
+     * @param componentId The identifier of the component. Must be unique in the session (like the SSRC, for example)
+     * @param inbandComponent The inband component
+     * @param ooBComponent The out-of-band component
+     */
+    public CompoundComponent(int componentId, InbandComponent inbandComponent, OOBComponent ooBComponent) {
+        this.componentId = componentId;
+        this.inbandComponent = inbandComponent;
+        this.ooBComponent = ooBComponent;
     }
 
-    public int getChannelId() {
-        return channelId;
-    }
-    
-    public AudioComponent getAudioComponent() {
-        return audioComponent;
+    public int getComponentId() {
+        return componentId;
     }
 
-    public void addAudioInput(AudioInput input) {
-        this.audioComponent.addInput(input);
+    public InbandComponent getInbandComponent() {
+        return inbandComponent;
     }
 
-    public void addAudioOutput(AudioOutput output) {
-        this.audioComponent.addOutput(output);
+    public void addInbandInput(InbandInput input) {
+        this.inbandComponent.addInput(input);
+    }
+
+    public void addInbandOutput(InbandOutput output) {
+        this.inbandComponent.addOutput(output);
     }
 
     public OOBComponent getOOBComponent() {
@@ -78,24 +82,24 @@ public class CompoundComponent {
     public void updateMode(ConnectionMode connectionMode) {
         switch (connectionMode) {
             case SEND_ONLY:
-                audioComponent.updateMode(false, true);
+                inbandComponent.updateMode(false, true);
                 ooBComponent.updateMode(false, true);
                 break;
             case RECV_ONLY:
-                audioComponent.updateMode(true, false);
+                inbandComponent.updateMode(true, false);
                 ooBComponent.updateMode(true, false);
                 break;
             case INACTIVE:
-                audioComponent.updateMode(false, false);
+                inbandComponent.updateMode(false, false);
                 ooBComponent.updateMode(false, false);
                 break;
             case SEND_RECV:
             case CONFERENCE:
-                audioComponent.updateMode(true, true);
+                inbandComponent.updateMode(true, true);
                 ooBComponent.updateMode(true, true);
                 break;
             case NETWORK_LOOPBACK:
-                audioComponent.updateMode(false, false);
+                inbandComponent.updateMode(false, false);
                 ooBComponent.updateMode(false, false);
                 break;
             default:

@@ -20,6 +20,12 @@
 
 package org.mobicents.media.server.impl.rtp.channels;
 
+import org.mobicents.media.server.component.InbandComponent;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.RtpComponent;
+import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -33,10 +39,20 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  */
 public class AudioSession extends RtpSession {
 
-    public AudioSession(int channelId, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
-        super(channelId, AVProfile.AUDIO, scheduler, dspFactory, udpManager);
+    public AudioSession(Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+        super(AVProfile.AUDIO, scheduler, udpManager);
         super.supportedFormats = AVProfile.audio;
         super.setFormats(this.supportedFormats);
+    }
+
+    private class RtpAudioComponent extends RtpComponent {
+
+        public RtpAudioComponent(int componentId, Scheduler scheduler, DspFactory dspFactory, RtpTransport rtpTransport,
+                RtpClock rtpClock, RtpClock oobClock, InbandComponent inbandComponent, OOBComponent ooBComponent) {
+            super(componentId, scheduler, dspFactory, rtpTransport, rtpClock, oobClock, new AudioComponent(componentId),
+                    new OOBComponent(componentId));
+        }
+
     }
 
 }

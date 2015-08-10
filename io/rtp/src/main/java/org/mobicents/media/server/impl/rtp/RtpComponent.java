@@ -25,6 +25,8 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.CompoundComponent;
+import org.mobicents.media.server.component.InbandComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -51,12 +53,14 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
 
     private final static int DEFAULT_BUFFER_SIZER = 50;
 
-    // Media processing
-    private final RtpSink rtpSink;
+    // RTP sources
     private final RtpSource rtpSource;
-    private final DtmfSink dtmfSink;
     private final DtmfSource dtmfSource;
     private final JitterBuffer jitterBuffer;
+
+    // RTP sinks
+    private final RtpSink rtpSink;
+    private final DtmfSink dtmfSink;
 
     // RTP transport
     private final RtpTransport rtpTransport;
@@ -65,9 +69,9 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
     private volatile int rxPackets;
     private volatile int sequenceNumber;
 
-    public RtpComponent(int channelId, Scheduler scheduler, DspFactory dspFactory, RtpTransport rtpTransport,
-            RtpClock rtpClock, RtpClock oobClock) {
-        super(channelId);
+    public RtpComponent(int componentId, Scheduler scheduler, DspFactory dspFactory, RtpTransport rtpTransport,
+            RtpClock rtpClock, RtpClock oobClock, InbandComponent inbandComponent, OOBComponent ooBComponent) {
+        super(componentId, inbandComponent, ooBComponent);
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
@@ -79,8 +83,8 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
-        addAudioInput(this.rtpSource.getAudioInput());
-        addAudioOutput(this.rtpSink.getAudioOutput());
+        addInbandInput(this.rtpSource.getAudioInput());
+        addInbandOutput(this.rtpSink.getAudioOutput());
         addOOBInput(this.dtmfSource.getOoBinput());
         addOOBOutput(this.dtmfSink.getOobOutput());
 
@@ -94,6 +98,10 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
 
     public void setRtpFormats(RTPFormats formats) {
         this.rtpSink.setFormats(formats);
+    }
+
+    public void useJitterBuffer(boolean useBuffer) {
+        this.jitterBuffer.setBufferInUse(useBuffer);
     }
 
     private void activateSources() {
@@ -115,7 +123,7 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
     private void deactivateSinks() {
         this.rtpSink.deactivate();
         this.dtmfSink.deactivate();
-        this.dtmfSink.resetBuffer();
+        this.dtmfSink.reset();
     }
 
     @Override
@@ -174,14 +182,14 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
     public void setMode(ConnectionMode mode) {
         switch (mode) {
             case SEND_ONLY:
-                getAudioComponent().updateMode(false, true);
+                getInbandComponent().updateMode(false, true);
                 getOOBComponent().updateMode(false, true);
                 deactivateSources();
                 activateSinks();
                 break;
 
             case RECV_ONLY:
-                getAudioComponent().updateMode(true, false);
+                getInbandComponent().updateMode(true, false);
                 getOOBComponent().updateMode(true, false);
                 activateSources();
                 deactivateSinks();
@@ -189,7 +197,7 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
 
             case SEND_RECV:
             case CONFERENCE:
-                getAudioComponent().updateMode(true, true);
+                getInbandComponent().updateMode(true, true);
                 getOOBComponent().updateMode(true, true);
                 activateSinks();
                 activateSources();
@@ -197,7 +205,7 @@ public class RtpComponent extends CompoundComponent implements RtpRelay {
 
             case NETWORK_LOOPBACK:
             case INACTIVE:
-                getAudioComponent().updateMode(false, false);
+                getInbandComponent().updateMode(false, false);
                 getOOBComponent().updateMode(false, false);
                 deactivateSinks();
                 deactivateSources();

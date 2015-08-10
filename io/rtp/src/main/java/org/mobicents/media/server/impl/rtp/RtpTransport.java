@@ -83,7 +83,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private StunHandler stunHandler;
     private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
 
-    public RtpTransport(RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager) {
+    public RtpTransport(RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager, RtpRelay mediaComponent) {
         super();
 
         // Core elements
@@ -100,14 +100,11 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         // RTP elements
         this.rtpStatistics = statistics;
         this.rtpHandler = new RtpHandler(statistics, this);
+        this.rtpRelay = mediaComponent;
     }
     
     public RtpRelay getRtpRelay() {
         return rtpRelay;
-    }
-    
-    public void setRtpRelay(RtpRelay rtpRelay) {
-        this.rtpRelay = rtpRelay;
     }
 
     public long getSsrc() {

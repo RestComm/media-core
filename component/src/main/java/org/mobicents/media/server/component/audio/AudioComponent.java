@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 import org.mobicents.media.server.component.InbandInput;
 import org.mobicents.media.server.component.InbandOutput;
-import org.mobicents.media.server.component.MediaComponent;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -38,7 +38,7 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author Yulian Oifa
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AudioComponent extends MediaComponent {
+public class AudioComponent extends InbandComponent {
 
     // the format of the output stream.
     private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);

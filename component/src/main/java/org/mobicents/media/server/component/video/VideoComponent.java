@@ -21,13 +21,13 @@
 
 package org.mobicents.media.server.component.video;
 
-import org.mobicents.media.server.component.MediaComponent;
+import org.mobicents.media.server.component.InbandComponent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class VideoComponent extends MediaComponent {
+public class VideoComponent extends InbandComponent {
 
     public VideoComponent(int componentId) {
         super(componentId);

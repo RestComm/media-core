@@ -52,7 +52,6 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.
@@ -64,11 +63,11 @@ public abstract class RtpSession {
 
     protected static final Logger logger = Logger.getLogger(RtpSession.class);
 
-    // RTP channel properties
-    protected final int channelId;
+    // RTP session properties
     protected long ssrc;
     protected String cname;
     protected final String mediaType;
+    protected final RtpClock rtpClock;
     protected final RtpTransport rtpTransport;
     protected final RtcpTransport rtcpTransport;
     protected final RtpStatistics statistics;
@@ -105,15 +104,12 @@ public abstract class RtpSession {
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected RtpSession(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
-        RtpClock clock = new RtpClock(scheduler.getClock());
-        RtpClock oobClock = new RtpClock(scheduler.getClock());
-
+    protected RtpSession(String mediaType, Scheduler scheduler, UdpManager udpManager) {
         // RTP channel properties
-        this.channelId = channelId;
         this.ssrc = 0L;
         this.mediaType = mediaType;
-        this.statistics = new RtpStatistics(clock, this.ssrc);
+        this.rtpClock = new RtpClock(scheduler.getClock());
+        this.statistics = new RtpStatistics(rtpClock, this.ssrc);
         this.rtcpMux = false;
         this.secure = false;
         this.ice = false;
@@ -124,17 +120,12 @@ public abstract class RtpSession {
         this.rtcpTransport = new RtcpTransport(statistics, udpManager);
 
         // RTP relay
-        this.mediaComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
         this.rtpTransport.setRtpRelay(this.mediaComponent);
 
         // RTP format negotiation
         this.offeredFormats = new RTPFormats();
         this.negotiatedFormats = new RTPFormats();
         this.negotiated = false;
-    }
-
-    public int getChannelId() {
-        return channelId;
     }
 
     /**
