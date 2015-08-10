@@ -25,6 +25,7 @@ package org.mobicents.media.server.component.audio;
 import java.io.IOException;
 
 import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.component.MediaInput;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
@@ -33,7 +34,9 @@ import org.mobicents.media.server.spi.memory.Memory;
  * Implements input for compound components
  * 
  * @author Yulian Oifa
+ * @deprecated use {@link MediaInput}
  */
+@Deprecated
 public class AudioInput extends AbstractSink {
 	
 	private static final long serialVersionUID = -6377790166652701617L;
