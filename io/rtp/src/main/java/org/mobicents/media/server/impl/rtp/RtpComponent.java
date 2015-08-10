@@ -64,23 +64,11 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
-        try {
-            this.rtpSource = new RtpSource(scheduler, jitterBuffer, dspFactory.newProcessor());
-        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
-            // exception may happen only if invalid classes have been set in
-            // the media server configuration.
-            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
-        }
+        this.rtpSource = new RtpSource(scheduler, jitterBuffer, dspFactory.newProcessor());
         this.dtmfSource = new DtmfSource(scheduler, oobClock);
 
         // RTP sink
-        try {
-            this.rtpSink = new RtpSink(scheduler, rtpClock, dspFactory.newProcessor(), this);
-        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
-            // exception may happen only if invalid classes have been set in
-            // the media server configuration.
-            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
-        }
+        this.rtpSink = new RtpSink(scheduler, rtpClock, dspFactory.newProcessor(), this);
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
@@ -100,7 +88,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
     public void setRtpFormats(RTPFormats formats) {
         this.rtpSink.setFormats(formats);
     }
-    
+
     private void activateSources() {
         this.rtpSource.activate();
         this.dtmfSource.activate();
@@ -111,7 +99,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         this.dtmfSource.deactivate();
         this.dtmfSource.reset();
     }
-    
+
     private void activateSinks() {
         this.rtpSink.activate();
         this.dtmfSink.activate();

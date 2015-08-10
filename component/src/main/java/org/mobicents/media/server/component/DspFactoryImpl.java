@@ -34,13 +34,13 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author kulikov
  */
 public class DspFactoryImpl implements DspFactory {
-	
-    //list of registered codecs where codec is represented by its fully qualified class name
+
+    // list of registered codecs where codec is represented by its fully qualified class name
     private final ArrayList<String> classes;
-    
+
     public DspFactoryImpl() {
-    	this.classes = new ArrayList<String>();
-    } 
+        this.classes = new ArrayList<String>();
+    }
 
     /**
      * Registers codec.
@@ -48,7 +48,7 @@ public class DspFactoryImpl implements DspFactory {
      * @param fqn the fully qualified name of codec class.
      */
     public void addCodec(String fqn) {
-    	this.classes.add(fqn);
+        this.classes.add(fqn);
     }
 
     /**
@@ -57,30 +57,27 @@ public class DspFactoryImpl implements DspFactory {
      * @param fqn the fully qualified name of the codec class.
      */
     public void remove(String fqn) {
-    	this.classes.remove(fqn);
+        this.classes.remove(fqn);
     }
 
-    /**
-     * Creates new DSP.
-     *
-     * @return DSP instance.
-     * @throws InstantiationException
-     * @throws ClassNotFoundException
-     * @throws IllegalAccessException
-     */
     @Override
-    public Dsp newProcessor() throws InstantiationException, ClassNotFoundException, IllegalAccessException {
+    public Dsp newProcessor() throws RuntimeException {
         int numClasses = this.classes.size();
-    	Codec[] codecs = new Codec[numClasses];
-        
-        for(int i = 0; i < numClasses; i++) {
-        	String fqn = this.classes.get(i);
-        	Class<?> codecClass = DspFactoryImpl.class.getClassLoader().loadClass(fqn);
-        	codecs[i] = (Codec) codecClass.newInstance();
+        Codec[] codecs = new Codec[numClasses];
+
+        for (int i = 0; i < numClasses; i++) {
+            String fqn = this.classes.get(i);
+            Class<?> codecClass;
+            try {
+                codecClass = DspFactoryImpl.class.getClassLoader().loadClass(fqn);
+                codecs[i] = (Codec) codecClass.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("There are invalid classes specified in the configuration.", e);
+            }
         }
         return new Dsp(codecs);
     }
-    
+
     @Override
     public void setCodecs(List<String> list) {
         this.classes.addAll(list);
