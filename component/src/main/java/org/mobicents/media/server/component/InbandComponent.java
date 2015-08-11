@@ -21,19 +21,20 @@
 
 package org.mobicents.media.server.component;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class InbandComponent {
+public class InbandComponent {
+
+    private static final Frame[] EMPTY_DATA = new Frame[0];
 
     private final int componentId;
     private final ConcurrentMap<MediaInput> inputs;
@@ -85,38 +86,62 @@ public abstract class InbandComponent {
         this.outputs.remove(output.getOutputId());
     }
 
-    public int[] retrieveData() {
+    /**
+     * Retrieves data from each input registered in the component.<br>
+     * The media relay (mixer or translator) that receives the data will decide whether to mix the frames from each
+     * synchronization source or to simply forward them.
+     * 
+     * @return An array containing the most recent frame of each input. Return an empty array if no data is available or the
+     *         component is not readable.
+     */
+    public Frame[] retrieveData() {
+        Frame[] data = EMPTY_DATA;
 
+        if (this.readable && !this.inputs.isEmpty()) {
+            List<Frame> frames = new ArrayList<Frame>(this.inputs.size());
+            Iterator<MediaInput> activeInputs = this.inputs.valuesIterator();
+
+            while (activeInputs.hasNext()) {
+                MediaInput input = activeInputs.next();
+                Frame inputFrame = input.poll();
+
+                if (inputFrame != null) {
+                    frames.add(inputFrame);
+                }
+            }
+            data = frames.toArray(new Frame[frames.size()]);
+            frames.clear();
+        }
+        return data;
     }
 
-    public void submitData(int[] data, Format format) {
-        if (this.writable) {
-            // Allocate a new frame
-            Frame frame = Memory.allocate(data.length);
-            frame.setOffset(0);
-            frame.setLength(PACKET_SIZE);
-            frame.setDuration(PERIOD);
-            frame.setFormat(LINEAR_FORMAT);
-
-            int index = 0;
-            int count = 0;
-            byte[] payload = frame.getData();
-
-            while (count < data.length) {
-                payload[index++] = (byte) (data[count]);
-                payload[index++] = (byte) (data[count++] >> 8);
+    /**
+     * Submits data to be broadcast amongst all registered outputs.<br>
+     * If the source of the data is a mixer, then a single frame will be submitted.<br>
+     * Otherwise, if the source is a translator, multiple frames may be offered since they are forwarded from the
+     * synchronization source.
+     * 
+     * @param frames The array of frames to be offered to the outputs.
+     */
+    public void submitData(Frame... frames) {
+        if (this.writable && !this.outputs.isEmpty() && frames.length > 0) {
+            for (Frame frame : frames) {
+                // Send frame to all registered outputs
+                Iterator<MediaOutput> activeOutputs = this.outputs.valuesIterator();
+                while (activeOutputs.hasNext()) {
+                    MediaOutput output = activeOutputs.next();
+                    if (activeOutputs.hasNext()) {
+                        output.offer(frame.clone());
+                    } else {
+                        output.offer(frame);
+                    }
+                }
             }
 
-            // Send frame to all registered outputs
+            // wake up outputs to restore synchronization
             Iterator<MediaOutput> activeOutputs = this.outputs.valuesIterator();
             while (activeOutputs.hasNext()) {
-                MediaOutput output = activeOutputs.next();
-                if (activeOutputs.hasNext()) {
-                    output.offer(frame.clone());
-                } else {
-                    output.offer(frame);
-                }
-                output.wakeup();
+                activeOutputs.next().wakeup();
             }
         }
     }
