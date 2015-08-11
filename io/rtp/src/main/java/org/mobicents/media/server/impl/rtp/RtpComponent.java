@@ -32,7 +32,6 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -58,8 +57,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
     private volatile int rxPackets;
     private volatile int sequenceNumber;
 
-    public RtpComponent(int channelId, Scheduler scheduler, DspFactory dspFactory, RtpTransport rtpTransport,
-            RtpClock rtpClock, RtpClock oobClock) {
+    public RtpComponent(int channelId, Scheduler scheduler, RtpTransport rtpTransport, RtpClock rtpClock, RtpClock oobClock) {
         super(channelId);
 
         // RTP source
@@ -68,12 +66,12 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         this.dtmfSource = new DtmfSource(scheduler, oobClock);
 
         // RTP sink
-        this.rtpSink = new RtpSink(scheduler, rtpClock, dspFactory.newProcessor(), this);
+        this.rtpSink = new RtpSink(scheduler, rtpClock, this);
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
         addInput(this.rtpSource.getMediaInput());
-        addOutput(this.rtpSink.getAudioOutput());
+        addOutput(this.rtpSink.getMediaOutput());
         addOOBInput(this.dtmfSource.getOoBinput());
         addOOBOutput(this.dtmfSink.getOobOutput());
 

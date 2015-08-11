@@ -23,15 +23,11 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -44,12 +40,8 @@ public class RtpSink extends AbstractSink {
 
     private static final long serialVersionUID = -3660168309653874674L;
 
-    private static final Logger logger = Logger.getLogger(RtpSink.class);
-
-    // Media Mixer components
-    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private final AudioOutput audioOutput;
-    private final Processor dsp;
+    // Media processing components
+    private final MediaOutput audioOutput;
 
     // RTP processing components
     private RTPFormats formats;
@@ -63,13 +55,12 @@ public class RtpSink extends AbstractSink {
     private RTPFormat currentFormat;
     private long rtpTimestamp;
 
-    public RtpSink(Scheduler scheduler, RtpClock rtpClock, Processor dsp, RtpRelay rtpGateway) {
+    public RtpSink(Scheduler scheduler, RtpClock rtpClock, RtpRelay rtpGateway) {
         super("output");
 
-        // Media mixer components
-        this.audioOutput = new AudioOutput(scheduler, 1);
+        // Media processing components
+        this.audioOutput = new MediaOutput(1, scheduler);
         this.audioOutput.join(this);
-        this.dsp = dsp;
 
         // RTP processing components
         this.rtpClock = rtpClock;
@@ -82,7 +73,7 @@ public class RtpSink extends AbstractSink {
         this.rtpTimestamp = 0L;
     }
 
-    public AudioOutput getAudioOutput() {
+    public MediaOutput getMediaOutput() {
         return audioOutput;
     }
 
@@ -97,18 +88,9 @@ public class RtpSink extends AbstractSink {
 
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
-        if (dsp != null && formats != null && !formats.isEmpty()) {
-            try {
-                // perform transcoding
-                frame = dsp.process(frame, LINEAR_FORMAT, this.formats.getFormats().get(0));
-
-                // send the packet to remote peer if media frame is valid
-                if (evolveFrame(frame)) {
-                    this.rtpGateway.outgoingRtp(this.rtpPacket);
-                }
-            } catch (Exception e) {
-                logger.error("Transcoding error: " + e.getMessage(), e);
-            }
+        // send the packet to remote peer if media frame is valid
+        if (evolveFrame(frame)) {
+            this.rtpGateway.outgoingRtp(this.rtpPacket);
         }
     }
 
