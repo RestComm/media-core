@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
-import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SoundCard;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -52,11 +52,11 @@ public class SoundSystem extends AbstractRelayEndpoint implements Endpoint {
     private Sine sine;
     private SoundCard soundcard;
 
-    private AudioComponent audioComponent;
+    private InbandComponent inbandComponent;
 
     public SoundSystem(String localName) {
         super(localName, RelayType.MIXER);
-        audioComponent = new AudioComponent(-1);
+        inbandComponent = new InbandComponent(-1);
     }
 
     @Override
@@ -77,10 +77,11 @@ public class SoundSystem extends AbstractRelayEndpoint implements Endpoint {
         sine.setAmplitude((short) (Short.MAX_VALUE / 3));
         soundcard = new SoundCard(this.getScheduler());
 
-        audioComponent.addInput(sine.getAudioInput());
-        audioComponent.addOutput(soundcard.getAudioOutput());
-        audioComponent.updateMode(true, true);
-        audioRelay.addComponent(audioComponent);
+        inbandComponent.addInput(sine.getMediaInput());
+        inbandComponent.addOutput(soundcard.getAudioOutput());
+        inbandComponent.setReadable(true);
+        inbandComponent.setWritable(true);
+        audioRelay.addComponent(inbandComponent);
         modeUpdated(ConnectionMode.INACTIVE, ConnectionMode.SEND_RECV);
     }
 

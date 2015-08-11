@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.InbandComponent;
-import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -106,8 +105,8 @@ public class LocalChannelTest {
         audioMixer2 = new AudioMixer(scheduler);
 
         component1 = new InbandComponent(1);
-        component1.addInput(source1.getAudioInput());
-        component1.addOutput(analyzer1.getAudioOutput());
+        component1.addInput(source1.getMediaInput());
+        component1.addOutput(analyzer1.getMediaOutput());
         component1.setReadable(true);
         component1.setWritable(true);
 
@@ -115,8 +114,8 @@ public class LocalChannelTest {
         audioMixer1.addComponent(channel1.getMediaComponent().getInbandComponent());
 
         component2 = new InbandComponent(2);
-        component2.addInput(source2.getAudioInput());
-        component2.addOutput(analyzer2.getAudioOutput());
+        component2.addInput(source2.getMediaInput());
+        component2.addOutput(analyzer2.getMediaOutput());
         component2.setReadable(true);
         component2.setWritable(true);
 

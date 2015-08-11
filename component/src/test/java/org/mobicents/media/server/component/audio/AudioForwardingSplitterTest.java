@@ -34,6 +34,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -53,10 +54,10 @@ public class AudioForwardingSplitterTest {
     private SpectraAnalyzer analyzer2;
     private SpectraAnalyzer analyzer3;
 
-    private AudioComponent sineComponent;
-    private AudioComponent analyzer1Component;
-    private AudioComponent analyzer2Component;
-    private AudioComponent analyzer3Component;
+    private InbandComponent sineComponent;
+    private InbandComponent analyzer1Component;
+    private InbandComponent analyzer2Component;
+    private InbandComponent analyzer3Component;
 
     private AudioForwardingSplitter splitter;
 
@@ -74,21 +75,25 @@ public class AudioForwardingSplitterTest {
         analyzer2 = new SpectraAnalyzer("analyzer-2", scheduler);
         analyzer3 = new SpectraAnalyzer("analyzer-3", scheduler);
 
-        sineComponent = new AudioComponent(1);
-        sineComponent.addInput(sine.getAudioInput());
-        sineComponent.updateMode(true, false);
+        sineComponent = new InbandComponent(1);
+        sineComponent.addInput(sine.getMediaInput());
+        sineComponent.setReadable(true);
+        sineComponent.setWritable(false);
 
-        analyzer1Component = new AudioComponent(2);
-        analyzer1Component.addOutput(analyzer1.getAudioOutput());
-        analyzer1Component.updateMode(false, true);
+        analyzer1Component = new InbandComponent(2);
+        analyzer1Component.addOutput(analyzer1.getMediaOutput());
+        analyzer1Component.setReadable(false);
+        analyzer1Component.setWritable(true);
 
-        analyzer2Component = new AudioComponent(3);
-        analyzer2Component.addOutput(analyzer2.getAudioOutput());
-        analyzer2Component.updateMode(false, true);
+        analyzer2Component = new InbandComponent(3);
+        analyzer2Component.addOutput(analyzer2.getMediaOutput());
+        analyzer2Component.setReadable(false);
+        analyzer2Component.setWritable(true);
 
-        analyzer3Component = new AudioComponent(4);
-        analyzer3Component.addOutput(analyzer3.getAudioOutput());
-        analyzer3Component.updateMode(false, true);
+        analyzer3Component = new InbandComponent(4);
+        analyzer3Component.addOutput(analyzer3.getMediaOutput());
+        analyzer3Component.setReadable(false);
+        analyzer3Component.setWritable(true);
 
         splitter = new AudioForwardingSplitter(scheduler);
         splitter.addInsideComponent(sineComponent);

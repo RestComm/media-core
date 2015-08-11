@@ -36,6 +36,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -43,6 +44,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 /**
  *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class AudioMixerTest {
 
@@ -56,21 +58,10 @@ public class AudioMixerTest {
     private SpectraAnalyzer analyzer;
     private AudioMixer mixer;
 
-    private AudioComponent sine1Component;
-    private AudioComponent sine2Component;
-    private AudioComponent sine3Component;
-    private AudioComponent analyzerComponent;
-
-    public AudioMixerTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
+    private InbandComponent sine1Component;
+    private InbandComponent sine2Component;
+    private InbandComponent sine3Component;
+    private InbandComponent analyzerComponent;
 
     @Before
     public void setUp() throws IOException {
@@ -85,21 +76,25 @@ public class AudioMixerTest {
         sine3 = new Sine(scheduler);
         analyzer = new SpectraAnalyzer("analyzer", scheduler);
 
-        sine1Component = new AudioComponent(1);
-        sine1Component.addInput(sine1.getAudioInput());
-        sine1Component.updateMode(true, false);
+        sine1Component = new InbandComponent(1);
+        sine1Component.addInput(sine1.getMediaInput());
+        sine1Component.setReadable(true);
+        sine1Component.setWritable(false);
 
-        sine2Component = new AudioComponent(2);
-        sine2Component.addInput(sine2.getAudioInput());
-        sine2Component.updateMode(true, false);
+        sine2Component = new InbandComponent(2);
+        sine2Component.addInput(sine2.getMediaInput());
+        sine1Component.setReadable(true);
+        sine1Component.setWritable(false);
 
-        sine3Component = new AudioComponent(3);
-        sine3Component.addInput(sine3.getAudioInput());
-        sine3Component.updateMode(true, false);
+        sine3Component = new InbandComponent(3);
+        sine3Component.addInput(sine3.getMediaInput());
+        sine1Component.setReadable(true);
+        sine1Component.setWritable(false);
 
-        analyzerComponent = new AudioComponent(4);
-        analyzerComponent.addOutput(analyzer.getAudioOutput());
-        analyzerComponent.updateMode(false, true);
+        analyzerComponent = new InbandComponent(4);
+        analyzerComponent.addOutput(analyzer.getMediaOutput());
+        analyzerComponent.setReadable(false);
+        analyzerComponent.setWritable(true);
 
         mixer = new AudioMixer(scheduler);
         mixer.addComponent(sine1Component);

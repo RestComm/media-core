@@ -28,6 +28,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -48,10 +49,10 @@ public class AudioTranslatorTest {
     private SpectraAnalyzer analyzer;
     private AudioTranslator translator;
 
-    private AudioComponent sine1Component;
-    private AudioComponent sine2Component;
-    private AudioComponent sine3Component;
-    private AudioComponent analyzerComponent;
+    private InbandComponent sine1Component;
+    private InbandComponent sine2Component;
+    private InbandComponent sine3Component;
+    private InbandComponent analyzerComponent;
 
     @Before
     public void setUp() throws IOException {
@@ -66,21 +67,25 @@ public class AudioTranslatorTest {
         sine3 = new Sine(scheduler);
         analyzer = new SpectraAnalyzer("analyzer", scheduler);
 
-        sine1Component = new AudioComponent(1);
-        sine1Component.addInput(sine1.getAudioInput());
-        sine1Component.updateMode(true, false);
+        sine1Component = new InbandComponent(1);
+        sine1Component.addInput(sine1.getMediaInput());
+        sine1Component.setReadable(true);
+        sine1Component.setWritable(false);
 
-        sine2Component = new AudioComponent(2);
-        sine2Component.addInput(sine2.getAudioInput());
-        sine2Component.updateMode(true, false);
+        sine2Component = new InbandComponent(2);
+        sine2Component.addInput(sine2.getMediaInput());
+        sine2Component.setReadable(true);
+        sine2Component.setWritable(false);
 
-        sine3Component = new AudioComponent(3);
-        sine3Component.addInput(sine3.getAudioInput());
-        sine3Component.updateMode(true, false);
+        sine3Component = new InbandComponent(3);
+        sine3Component.addInput(sine3.getMediaInput());
+        sine3Component.setReadable(true);
+        sine3Component.setWritable(false);
 
-        analyzerComponent = new AudioComponent(4);
-        analyzerComponent.addOutput(analyzer.getAudioOutput());
-        analyzerComponent.updateMode(false, true);
+        analyzerComponent = new InbandComponent(4);
+        analyzerComponent.addOutput(analyzer.getMediaOutput());
+        analyzerComponent.setReadable(false);
+        analyzerComponent.setWritable(true);
 
         translator = new AudioTranslator(scheduler);
         translator.addComponent(sine1Component);

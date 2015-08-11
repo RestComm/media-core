@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -38,6 +39,7 @@ import org.mobicents.media.server.spi.memory.Frame;
 /**
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class SpectraAnalyzer extends AbstractSink {
 
@@ -56,15 +58,15 @@ public class SpectraAnalyzer extends AbstractSink {
     private FFT fft = new FFT();
     private Resampler resampler = new Resampler(8000, 8192);
 
-    private AudioOutput output;
+    private MediaOutput output;
 
     public SpectraAnalyzer(String name, Scheduler scheduler) {
         super(name);
-        output = new AudioOutput(scheduler, ComponentType.SPECTRA_ANALYZER.getType());
+        output = new MediaOutput(ComponentType.SPECTRA_ANALYZER.getType(), scheduler);
         output.join(this);
     }
 
-    public AudioOutput getAudioOutput() {
+    public MediaOutput getMediaOutput() {
         return this.output;
     }
 

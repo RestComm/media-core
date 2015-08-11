@@ -135,8 +135,8 @@ public class RtpTransportTest {
         this.audioMixer1.addComponent(mixerComponent1.getInbandComponent());
 
         InbandComponent sineComponent1 = new InbandComponent(1);
-        sineComponent1.addInput(source1.getAudioInput());
-        sineComponent1.addOutput(analyzer1.getAudioOutput());
+        sineComponent1.addInput(source1.getMediaInput());
+        sineComponent1.addOutput(analyzer1.getMediaOutput());
         sineComponent1.setReadable(true);
         sineComponent1.setWritable(true);
         this.audioMixer1.addComponent(sineComponent1);
@@ -159,8 +159,8 @@ public class RtpTransportTest {
         this.audioMixer2.addComponent(mixerComponent2.getInbandComponent());
 
         InbandComponent sineComponent2 = new InbandComponent(2);
-        sineComponent2.addInput(source2.getAudioInput());
-        sineComponent2.addOutput(analyzer2.getAudioOutput());
+        sineComponent2.addInput(source2.getMediaInput());
+        sineComponent2.addOutput(analyzer2.getMediaOutput());
         sineComponent2.setReadable(true);
         sineComponent2.setWritable(true);
         this.audioMixer2.addComponent(sineComponent2);

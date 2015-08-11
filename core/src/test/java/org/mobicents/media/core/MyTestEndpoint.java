@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
-import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -56,12 +56,12 @@ public class MyTestEndpoint extends AbstractRelayEndpoint {
     private Component dtmfDetector;
     private Component dtmfGenerator;
 
-    private AudioComponent audioComponent;
+    private InbandComponent inbandComponent;
     private OOBComponent oobComponent;
 
     public MyTestEndpoint(String localName, RelayType relayType) {
         super(localName, relayType);
-        audioComponent = new AudioComponent(1);
+        inbandComponent = new InbandComponent(1);
         oobComponent = new OOBComponent(-1);
     }
 
@@ -83,25 +83,27 @@ public class MyTestEndpoint extends AbstractRelayEndpoint {
         sine.setAmplitude((short) (Short.MAX_VALUE / 3));
         analyzer = new SpectraAnalyzer("analyzer", this.getScheduler());
 
-        audioComponent.addInput(sine.getAudioInput());
-        audioComponent.addOutput(analyzer.getAudioOutput());
+        inbandComponent.addInput(sine.getMediaInput());
+        inbandComponent.addOutput(analyzer.getMediaOutput());
         this.dtmfDetector = resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
         this.dtmfDetector.setEndpoint(this);
 
-        audioComponent.addOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
+        inbandComponent.addOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
         oobComponent.addOutput(((DetectorImpl) this.dtmfDetector).getOOBOutput());
 
         this.dtmfGenerator = resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
         this.dtmfGenerator.setEndpoint(this);
 
-        audioComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
+        inbandComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
         oobComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getOOBInput());
 
-        audioRelay.addComponent(audioComponent);
+        audioRelay.addComponent(inbandComponent);
         oobRelay.addComponent(oobComponent);
 
-        audioComponent.updateMode(true, true);
-        oobComponent.updateMode(true, true);
+        inbandComponent.setReadable(true);
+        inbandComponent.setWritable(true);
+        oobComponent.setReadable(true);
+        oobComponent.setWritable(true);
         modeUpdated(ConnectionMode.INACTIVE, ConnectionMode.SEND_RECV);
     }
 

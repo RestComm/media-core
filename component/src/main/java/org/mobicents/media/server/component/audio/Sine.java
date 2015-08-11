@@ -23,6 +23,7 @@
 package org.mobicents.media.server.component.audio;
 
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.MediaInput;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -34,43 +35,43 @@ import org.mobicents.media.server.spi.memory.Memory;
 /**
  *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class Sine extends AbstractSource {
 
-	private static final long serialVersionUID = -886146896423710570L;
+    private static final long serialVersionUID = -886146896423710570L;
 
-	//the format of the output stream.
+    // the format of the output stream.
     private final static AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private final static Formats formats = new Formats();
+    private static final long PERIOD = 20000000L;
+    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_AUDIO.getSampleRate() / 1000
+            * LINEAR_AUDIO.getSampleSize() / 8;
 
-    private volatile long period = 20000000L;
-    private int packetSize = (int)(period / 1000000) * LINEAR_AUDIO.getSampleRate()/1000 * LINEAR_AUDIO.getSampleSize() / 8;
+    private final static Formats formats = new Formats();
+    static {
+        formats.add(LINEAR_AUDIO);
+    }
 
     private int f;
     private short A = Short.MAX_VALUE;
     private double dt;
     private double time;
 
-    private AudioInput input;
-    
-    static {
-        formats.add(LINEAR_AUDIO);
-    }
-    
+    private MediaInput input;
+
     public Sine(Scheduler scheduler) {
         super("sine.generator", scheduler, Scheduler.INPUT_QUEUE);
-        //number of seconds covered by one sample
+        // number of seconds covered by one sample
         dt = 1. / LINEAR_AUDIO.getSampleRate();
-        
-        this.input=new AudioInput(ComponentType.SINE.getType(),packetSize);
-        this.connect(this.input); 
+
+        this.input = new MediaInput(ComponentType.SINE.getType(), PACKET_SIZE);
+        this.connect(this.input);
     }
 
-    public AudioInput getAudioInput()
-    {
-    	return this.input;
+    public MediaInput getMediaInput() {
+        return this.input;
     }
-    
+
     public void setAmplitude(short A) {
         this.A = A;
     }
@@ -93,10 +94,10 @@ public class Sine extends AbstractSource {
 
     @Override
     public Frame evolve(long timestamp) {
-        Frame frame = Memory.allocate(packetSize);
+        Frame frame = Memory.allocate(PACKET_SIZE);
         int k = 0;
 
-        int frameSize = packetSize / 2;
+        int frameSize = PACKET_SIZE / 2;
 
         byte[] data = frame.getData();
         for (int i = 0; i < frameSize; i++) {
@@ -106,11 +107,11 @@ public class Sine extends AbstractSource {
         }
 
         frame.setOffset(0);
-        frame.setLength(packetSize);
-        frame.setDuration(period);
+        frame.setLength(PACKET_SIZE);
+        frame.setDuration(PERIOD);
         frame.setFormat(LINEAR_AUDIO);
-        
-        time += ((double) period) / 1000000000.0;
+
+        time += ((double) PERIOD) / 1000000000.0;
         return frame;
     }
 }

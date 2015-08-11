@@ -28,12 +28,16 @@
 package org.mobicents.media.server.component.audio;
 
 import java.io.IOException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -49,22 +53,11 @@ public class SineTest {
 
     private Sine sine;
     private SpectraAnalyzer analyzer;
-    
-    private AudioComponent sineComponent;
-    private AudioComponent analyzerComponent;
-    
+
+    private InbandComponent sineComponent;
+    private InbandComponent analyzerComponent;
+
     private AudioMixer audioMixer;
-    
-    public SineTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws IOException {
@@ -75,30 +68,32 @@ public class SineTest {
         scheduler.start();
 
         sine = new Sine(scheduler);
-        analyzer = new SpectraAnalyzer("analyzer",scheduler);
+        analyzer = new SpectraAnalyzer("analyzer", scheduler);
 
-        sineComponent=new AudioComponent(1);
-        sineComponent.addInput(sine.getAudioInput());
-        sineComponent.updateMode(true,false);
-        
-        analyzerComponent=new AudioComponent(2);
-        analyzerComponent.addOutput(analyzer.getAudioOutput());
-        analyzerComponent.updateMode(false,true);
-        
-        audioMixer=new AudioMixer(scheduler);
+        sineComponent = new InbandComponent(1);
+        sineComponent.addInput(sine.getMediaInput());
+        sineComponent.setReadable(true);
+        sineComponent.setWritable(false);
+
+        analyzerComponent = new InbandComponent(2);
+        analyzerComponent.addOutput(analyzer.getMediaOutput());
+        analyzerComponent.setReadable(false);
+        analyzerComponent.setWritable(true);
+
+        audioMixer = new AudioMixer(scheduler);
         audioMixer.addComponent(sineComponent);
-        audioMixer.addComponent(analyzerComponent); 
-        
+        audioMixer.addComponent(analyzerComponent);
+
         sine.setFrequency(50);
     }
 
     @After
     public void tearDown() {
-    	sine.stop();
-    	audioMixer.stop();
-    	audioMixer.removeComponent(sineComponent);
-    	audioMixer.removeComponent(analyzerComponent);
-    	
+        sine.stop();
+        audioMixer.stop();
+        audioMixer.removeComponent(sineComponent);
+        audioMixer.removeComponent(analyzerComponent);
+
         scheduler.stop();
     }
 
@@ -110,37 +105,37 @@ public class SineTest {
         sine.activate();
         analyzer.activate();
         audioMixer.start();
-        
+
         Thread.sleep(2000);
 
         sine.deactivate();
         analyzer.deactivate();
         audioMixer.stop();
-        
+
         Thread.sleep(1000);
 
         int[] spectra = analyzer.getSpectra();
 
         assertEquals(1, spectra.length);
-        assertEquals((double)50, (double)spectra[0], 5);
-        
-        sine.setAmplitude((short)0);        
+        assertEquals((double) 50, (double) spectra[0], 5);
+
+        sine.setAmplitude((short) 0);
         sine.activate();
         analyzer.activate();
         audioMixer.start();
-        
+
         Thread.sleep(1000);
         sine.deactivate();
         analyzer.deactivate();
         audioMixer.stop();
-        
+
         spectra = analyzer.getSpectra();
         assertEquals(0, spectra.length);
     }
 
-//    @Test
+    // @Test
     public void testSignalFailure() throws Exception {
-        int N = 5; //500;
+        int N = 5; // 500;
         for (int i = 0; i < N; i++) {
             testSignal();
             System.out.println("Test pass # " + i);
