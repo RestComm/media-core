@@ -99,13 +99,13 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
             // exception may happen only if invalid classes have been set in config
         }
 
-        audioSplitter.addInsideComponent(ss7DataChannel.getAudioComponent());
+        audioSplitter.addInsideComponent(ss7DataChannel.getInbandComponent());
         oobSplitter.addInsideComponent(ss7DataChannel.getOOBComponent());
     }
 
     @Override
     public void stop() {
-        audioSplitter.removeInsideComponent(ss7DataChannel.getAudioComponent());
+        audioSplitter.removeInsideComponent(ss7DataChannel.getInbandComponent());
         oobSplitter.releaseInsideComponent(ss7DataChannel.getOOBComponent());
         audioSplitter.removeOutsideComponent(mediaGroup.getInbandComponent());
         oobSplitter.releaseOutsideComponent(mediaGroup.getOOBComponent());
