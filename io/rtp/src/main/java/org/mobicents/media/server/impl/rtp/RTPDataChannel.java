@@ -308,10 +308,10 @@ public class RTPDataChannel {
 
         // bind data channel
         if (!isLocal) {
-            this.rxBuffer.setBufferInUse(true);
+            this.rxBuffer.setBuffering(true);
             udpManager.bind(rtpChannel, PORT_ANY);
         } else {
-            this.rxBuffer.setBufferInUse(false);
+            this.rxBuffer.setBuffering(false);
             udpManager.bindLocal(rtpChannel, PORT_ANY);
         }
         this.rtpChannelBound = true;
@@ -326,7 +326,7 @@ public class RTPDataChannel {
     }
 
     public void bind(DatagramChannel channel) throws IOException {
-        this.rxBuffer.setBufferInUse(true);
+        this.rxBuffer.setBuffering(true);
         this.rtpChannel = channel;
         if (this.isWebRtc) {
             this.webRtcHandler.setChannel(this.rtpChannel);
