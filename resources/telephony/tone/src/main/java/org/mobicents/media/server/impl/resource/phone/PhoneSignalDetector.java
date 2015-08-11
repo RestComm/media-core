@@ -18,30 +18,18 @@
 package org.mobicents.media.server.impl.resource.phone;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import org.mobicents.media.MediaSource;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.MediaOutput;
+import org.mobicents.media.server.component.audio.GoertzelFilter;
+import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
-
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.FormatNotSupportedException;
-
 import org.mobicents.media.server.spi.listener.Event;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-
-import org.mobicents.media.server.spi.tone.ToneEvent;
+import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.tone.ToneDetector;
 import org.mobicents.media.server.spi.tone.ToneDetectorListener;
-
-import org.mobicents.media.server.component.audio.GoertzelFilter;
-import org.mobicents.media.server.impl.AbstractSink;
 
 /**
  *
@@ -49,9 +37,10 @@ import org.mobicents.media.server.impl.AbstractSink;
  */
 public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
 
+    private static final long serialVersionUID = -3631042626327972595L;
+
     private double POWER = 100000;
     private final static int PACKET_DURATION = 50;
-    private AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);    
     private int[] f;
     private int offset;
     private int toneDuration = PACKET_DURATION;
@@ -63,26 +52,24 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
     private double threshold;
     private int level;
     private double p[];
-    private long startTime;
-    private int count;    
 
-    private AudioOutput output;
-        
-    private Listeners<ToneDetectorListener> listeners = new Listeners<ToneDetectorListener>();    
-    
-    public PhoneSignalDetector(String name,Scheduler scheduler) {
+    private MediaOutput output;
+
+    private Listeners<ToneDetectorListener> listeners = new Listeners<ToneDetectorListener>();
+
+    public PhoneSignalDetector(String name, Scheduler scheduler) {
         super(name);
-        signal = new double[N];  
+        signal = new double[N];
 
-        output=new AudioOutput(scheduler,ComponentType.SIGNAL_DETECTOR.getType());
-        output.join(this);    
+        output = new MediaOutput(ComponentType.SIGNAL_DETECTOR.getType(), scheduler);
+        output.join(this);
     }
 
-    public AudioOutput getAudioOutput()
-    {
-    	return this.output;
+    public MediaOutput getMediaOutput() {
+        return this.output;
     }
-    
+
+    @Override
     public void setFrequency(int[] f) {
         this.f = f;
         freqFilters = new GoertzelFilter[f.length];
@@ -93,30 +80,35 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
         }
     }
 
+    @Override
     public int[] getFrequency() {
         return f;
     }
 
+    @Override
     public void setVolume(int level) {
         this.level = level;
         threshold = Math.pow(Math.pow(10, level), 0.1) * Short.MAX_VALUE;
     }
 
+    @Override
     public int getVolume() {
         return level;
     }
 
+    @Override
     public void activate() {
-    	output.start();
+        output.start();
     }
-    
+
+    @Override
     public void deactivate() {
-    	output.stop();
+        output.stop();
     }
-    
+
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
-    	byte[] data = frame.getData();
+        byte[] data = frame.getData();
 
         int M = data.length;
         int k = 0;
@@ -130,24 +122,24 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
                 signal[offset++] = s;
             }
 
-            //if dtmf buffer full check signal
+            // if dtmf buffer full check signal
             if (offset == N) {
                 offset = 0;
-                //and if max amplitude of signal is greater theshold
-                //try to detect tone.
-                if (maxAmpl >= threshold) {                	
+                // and if max amplitude of signal is greater theshold
+                // try to detect tone.
+                if (maxAmpl >= threshold) {
                     maxAmpl = 0;
                     getPower(freqFilters, signal, 0, p);
-                    int detectedValue=isDetected();
-                    if (detectedValue>=0)
-                    	sendEvent(new ToneEventImpl(this,getFrequency()[detectedValue]));
-                }                
+                    int detectedValue = isDetected();
+                    if (detectedValue >= 0)
+                        sendEvent(new ToneEventImpl(this, getFrequency()[detectedValue]));
+                }
             }
         }
-    }    
+    }
 
     private int isDetected() {
-    	for (int i = 0; i < p.length; i++) {
+        for (int i = 0; i < p.length; i++) {
             if (p[i] >= POWER) {
                 return i;
             }
@@ -157,36 +149,26 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
 
     private void getPower(GoertzelFilter[] filters, double[] data, int offset, double[] power) {
         for (int i = 0; i < filters.length; i++) {
-            power[i] = filters[i].getPower(data, offset);            
+            power[i] = filters[i].getPower(data, offset);
         }
     }
 
-    /**
-     * (Non Java-doc.)
-     *
-     *
-     * @see org.mobicents.media.MediaSink#setFormats(org.mobicents.media.server.spi.format.Formats)
-     */
-    public void setFormats(Formats formats) throws FormatNotSupportedException {
-    		
+    @Override
+    public void addListener(ToneDetectorListener listener) throws TooManyListenersException {
+        listeners.add(listener);
     }
-    
-    public void addListener(ToneDetectorListener listener) throws TooManyListenersException
-    {
-    	listeners.add(listener);
+
+    @Override
+    public void removeListener(ToneDetectorListener listener) {
+        listeners.remove(listener);
     }
-    
-    public void removeListener(ToneDetectorListener listener)
-    {    	
-    	listeners.remove(listener);
-    }
-    
+
+    @Override
     public void clearAllListeners() {
-    	listeners.clear();
+        listeners.clear();
     }
-    
-    private void sendEvent(Event event)
-    {
-    	listeners.dispatch(event);    	
-    }    
+
+    private void sendEvent(Event<?> event) {
+        listeners.dispatch(event);
+    }
 }

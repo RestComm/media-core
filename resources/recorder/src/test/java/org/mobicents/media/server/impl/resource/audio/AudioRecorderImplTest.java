@@ -5,14 +5,10 @@
 package org.mobicents.media.server.impl.resource.audio;
 
 import java.io.IOException;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.component.audio.AudioInput;
-import org.mobicents.media.server.component.audio.AudioOutput;
-import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.scheduler.Clock;
@@ -24,29 +20,18 @@ import org.mobicents.media.server.scheduler.Scheduler;
  * @author yulian oifa
  */
 public class AudioRecorderImplTest {
-    
+
     private Clock clock;
     private Scheduler scheduler;
 
     private Sine sine;
     private AudioRecorderImpl recorder;
-    
-    private AudioComponent sineComponent;
-    private AudioComponent recorderComponent;
-    
+
+    private InbandComponent sineComponent;
+    private InbandComponent recorderComponent;
+
     private AudioMixer mixer;
-    
-    public AudioRecorderImplTest() {
-    }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
     @Before
     public void setUp() throws IOException {
         clock = new DefaultClock();
@@ -55,27 +40,25 @@ public class AudioRecorderImplTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        sine = new Sine(scheduler); 
+        sine = new Sine(scheduler);
         sine.setFrequency(250);
-        
+
         recorder = new AudioRecorderImpl(scheduler);
-        
-        sineComponent=new AudioComponent(1);
-        recorderComponent=new AudioComponent(2);
-        
-        sineComponent.updateMode(true,true);
-        recorderComponent.updateMode(true,true);
-        
-        sineComponent.addInput(sine.getAudioInput());
-        recorderComponent.addOutput(recorder.getAudioOutput());
-        
-        mixer=new AudioMixer(scheduler);
+
+        sineComponent = new InbandComponent(1);
+        recorderComponent = new InbandComponent(2);
+
+        sineComponent.setReadable(true);
+        sineComponent.setWritable(true);
+        recorderComponent.setReadable(true);
+        recorderComponent.setWritable(true);
+
+        sineComponent.addInput(sine.getMediaInput());
+        recorderComponent.addOutput(recorder.getMediaOutput());
+
+        mixer = new AudioMixer(scheduler);
         mixer.addComponent(sineComponent);
-        mixer.addComponent(recorderComponent);               
-    }
-    
-    @After
-    public void tearDown() {
+        mixer.addComponent(recorderComponent);
     }
 
     /**
@@ -87,20 +70,19 @@ public class AudioRecorderImplTest {
     }
 
     /**
-     * Test of stop method, of class AudioRecorderImpl.
-     * Check it manually
+     * Test of stop method, of class AudioRecorderImpl. Check it manually
      */
-//    @Test
+    // @Test
     public void testRecording() throws InterruptedException, IOException {
         recorder.setRecordFile("file:///home/kulikov/record-test.wav", false);
         recorder.setPostSpeechTimer(5000000000L);
-        
-        sine.start();  
+
+        sine.start();
         mixer.start();
-        
-        Thread.sleep(5000);        
-        sine.setAmplitude((short)0);
-        
+
+        Thread.sleep(5000);
+        sine.setAmplitude((short) 0);
+
         Thread.sleep(7000);
         sine.stop();
         mixer.stop();

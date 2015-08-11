@@ -18,15 +18,13 @@
 package org.mobicents.media.server.impl.resource.phone;
 
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.component.audio.AudioInput;
+import org.mobicents.media.server.component.MediaInput;
+import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.impl.AbstractSource;
-
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
 
 /**
  * Generates sine wave signal with specified Amplitude and frequence.
@@ -35,69 +33,71 @@ import org.mobicents.media.server.scheduler.Task;
  * 
  * @author Oifa Yulian
  */
-public class PhoneSignalGenerator extends AbstractSource  {
-	private AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);    
-	int frameSize = (int)(20.0f*LINEAR_AUDIO.getSampleRate()/1000.0);
-	
+public class PhoneSignalGenerator extends AbstractSource {
+
+    private static final long serialVersionUID = -1218606317555481109L;
+
+    private static final AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    static final int FRAME_SIZE = (int) (20.0f * LINEAR_AUDIO.getSampleRate() / 1000.0);
+
     private int[] f;
     private short A = Short.MAX_VALUE;
-    
+
     private double dt;
     private int pSize;
-    
+
     private double time;
     private double elapsed;
     private double duration;
     private double value = 1;
-    private int seqNumber=1;
-    
-    private int[] T=new int[] {1,1};
-    
-    private AudioInput input;
-    
-    public PhoneSignalGenerator(String name,Scheduler scheduler) {
-        super(name,scheduler,scheduler.INPUT_QUEUE);
+    private int seqNumber = 1;
+
+    private int[] T = new int[] { 1, 1 };
+
+    private MediaInput input;
+
+    public PhoneSignalGenerator(String name, Scheduler scheduler) {
+        super(name, scheduler, Scheduler.INPUT_QUEUE);
         init();
-        
-        this.input=new AudioInput(ComponentType.SIGNAL_GENERATOR.getType(),frameSize);
-        this.connect(this.input);   
+
+        this.input = new MediaInput(ComponentType.SIGNAL_GENERATOR.getType(), FRAME_SIZE);
+        this.connect(this.input);
     }
-    
-    public AudioInput getAudioInput()
-    {
-    	return this.input;
+
+    public MediaInput getMediaInput() {
+        return this.input;
     }
-    
+
     private void init() {
-        //number of seconds covered by one sample
-        dt = 1.0f/(float)LINEAR_AUDIO.getSampleRate();
+        // number of seconds covered by one sample
+        dt = 1.0f / (float) LINEAR_AUDIO.getSampleRate();
     }
-    
+
     public void setAmplitude(short A) {
         this.A = A;
     }
-    
+
     public short getAmplitude() {
         return A;
     }
-    
+
     public void setFrequency(int[] f) {
         this.f = f;
     }
-    
+
     public int[] getFrequency() {
         return f;
     }
-    
+
     public void setPeriods(int[] T) {
         this.T = T;
         duration = T[0];
     }
-    
+
     public int[] getPeriods() {
         return T;
     }
-    
+
     private short getValue(double t) {
         elapsed += dt;
         if (elapsed > duration) {
@@ -113,42 +113,42 @@ public class PhoneSignalGenerator extends AbstractSource  {
         if (value == 0) {
             return 0;
         }
-        
+
         double v = 0;
         for (int i = 0; i < f.length; i++) {
-            v += Math.sin(2.0f * Math.PI * ((double)f[i]) * t);
+            v += Math.sin(2.0f * Math.PI * ((double) f[i]) * t);
         }
-        return (short)(v * A);
+        return (short) (v * A);
     }
 
+    @Override
     public Frame evolve(long timestamp) {
-    		Frame currFrame=Memory.allocate(frameSize*2);
-            byte[] data = currFrame.getData();
-        
-            int k = 0;            
-            
-            //packet size in samples
-            pSize = (int)((double)20/1000.0/dt);
-            for (int i = 0; i < frameSize; i++) {
-                short v = getValue(time + dt * i);
-                data[k++] = (byte) v;
-                data[k++] = (byte) (v >> 8);
-            }
-                        
-            
-            //put packet into buffer irrespective of its sequence number
-    		currFrame.setHeader(null);
-    		currFrame.setSequenceNumber(seqNumber++);
-    		//here time is in milliseconds
-    		currFrame.setTimestamp(System.currentTimeMillis());
-    		currFrame.setOffset(0);
-    		currFrame.setLength(data.length);
-    		currFrame.setDuration(20000000L);
-    		
-    		//set format
-    		currFrame.setFormat(this.LINEAR_AUDIO);    		                    
-    		time += ((double)20)/1000.0;
-    		
-    		return currFrame;
-    }    
+        Frame currFrame = Memory.allocate(FRAME_SIZE * 2);
+        byte[] data = currFrame.getData();
+
+        int k = 0;
+
+        // packet size in samples
+        pSize = (int) ((double) 20 / 1000.0 / dt);
+        for (int i = 0; i < FRAME_SIZE; i++) {
+            short v = getValue(time + dt * i);
+            data[k++] = (byte) v;
+            data[k++] = (byte) (v >> 8);
+        }
+
+        // put packet into buffer irrespective of its sequence number
+        currFrame.setHeader(null);
+        currFrame.setSequenceNumber(seqNumber++);
+        // here time is in milliseconds
+        currFrame.setTimestamp(System.currentTimeMillis());
+        currFrame.setOffset(0);
+        currFrame.setLength(data.length);
+        currFrame.setDuration(20000000L);
+
+        // set format
+        currFrame.setFormat(LINEAR_AUDIO);
+        time += ((double) 20) / 1000.0;
+
+        return currFrame;
+    }
 }

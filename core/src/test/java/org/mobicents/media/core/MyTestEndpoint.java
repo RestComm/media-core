@@ -88,13 +88,13 @@ public class MyTestEndpoint extends AbstractRelayEndpoint {
         this.dtmfDetector = resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
         this.dtmfDetector.setEndpoint(this);
 
-        inbandComponent.addOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
+        inbandComponent.addOutput(((DetectorImpl) this.dtmfDetector).getMediaOutput());
         oobComponent.addOutput(((DetectorImpl) this.dtmfDetector).getOOBOutput());
 
         this.dtmfGenerator = resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
         this.dtmfGenerator.setEndpoint(this);
 
-        inbandComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
+        inbandComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getMediaInput());
         oobComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getOOBInput());
 
         audioRelay.addComponent(inbandComponent);
