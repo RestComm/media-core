@@ -83,7 +83,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
 
         audioSplitter = new AudioMixingSplitter(getScheduler());
         oobSplitter = new OOBSplitter(getScheduler());
-        audioSplitter.addOutsideComponent(mediaGroup.getAudioComponent());
+        audioSplitter.addOutsideComponent(mediaGroup.getInbandComponent());
         oobSplitter.addOutsideComponent(mediaGroup.getOOBComponent());
 
         try {
@@ -107,7 +107,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
     public void stop() {
         audioSplitter.removeInsideComponent(ss7DataChannel.getAudioComponent());
         oobSplitter.releaseInsideComponent(ss7DataChannel.getOOBComponent());
-        audioSplitter.removeOutsideComponent(mediaGroup.getAudioComponent());
+        audioSplitter.removeOutsideComponent(mediaGroup.getInbandComponent());
         oobSplitter.releaseOutsideComponent(mediaGroup.getOOBComponent());
         super.stop();
     }
@@ -121,7 +121,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
         this.mediaComponents.put(connection.getId(), mediaComponent);
 
         // Add media component to the media splitter
-        audioSplitter.addOutsideComponent(mediaComponent.getAudioComponent());
+        audioSplitter.addOutsideComponent(mediaComponent.getInbandComponent());
         oobSplitter.addOutsideComponent(mediaComponent.getOOBComponent());
 
         if (getActiveConnectionsCount() == 1) {
@@ -142,7 +142,7 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
         MediaComponent mediaComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the media component from the media splitter
-        audioSplitter.removeOutsideComponent(mediaComponent.getAudioComponent());
+        audioSplitter.removeOutsideComponent(mediaComponent.getInbandComponent());
         oobSplitter.releaseOutsideComponent(mediaComponent.getOOBComponent());
 
         if (getActiveConnectionsCount() == 0) {

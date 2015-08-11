@@ -87,12 +87,12 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
         // Add media component to the media splitter
         switch (type) {
             case RTP:
-                audioSplitter.addOutsideComponent(mediaComponent.getAudioComponent());
+                audioSplitter.addOutsideComponent(mediaComponent.getInbandComponent());
                 oobSplitter.addOutsideComponent(mediaComponent.getOOBComponent());
                 break;
 
             case LOCAL:
-                audioSplitter.addInsideComponent(mediaComponent.getAudioComponent());
+                audioSplitter.addInsideComponent(mediaComponent.getInbandComponent());
                 oobSplitter.addInsideComponent(mediaComponent.getOOBComponent());
                 break;
         }
@@ -110,12 +110,12 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
         // Release the media component from the media splitter
         switch (connection.getConnectionType()) {
             case RTP:
-                audioSplitter.removeOutsideComponent(mediaComponent.getAudioComponent());
+                audioSplitter.removeOutsideComponent(mediaComponent.getInbandComponent());
                 oobSplitter.releaseOutsideComponent(mediaComponent.getOOBComponent());
                 break;
 
             case LOCAL:
-                audioSplitter.removeInsideComponent(mediaComponent.getAudioComponent());
+                audioSplitter.removeInsideComponent(mediaComponent.getInbandComponent());
                 oobSplitter.releaseInsideComponent(mediaComponent.getOOBComponent());
                 break;
         }

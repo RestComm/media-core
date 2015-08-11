@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.component.audio;
 
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.MediaRelay;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -44,7 +45,7 @@ public class AudioTranslator implements MediaRelay {
             * LINEAR_FORMAT.getSampleSize() / 8;
 
     // Pool of components
-    private final ConcurrentMap<AudioComponent> components;
+    private final ConcurrentMap<InbandComponent> components;
 
     // Schedulers for translator job scheduling
     private final Scheduler scheduler;
@@ -55,7 +56,7 @@ public class AudioTranslator implements MediaRelay {
     public AudioTranslator(Scheduler scheduler) {
         this.scheduler = scheduler;
         this.task = new TranslateTask();
-        this.components = new ConcurrentMap<AudioComponent>();
+        this.components = new ConcurrentMap<InbandComponent>();
         this.started = false;
         this.executionCount = 0;
     }
@@ -65,12 +66,12 @@ public class AudioTranslator implements MediaRelay {
     }
 
     @Override
-    public void addComponent(AudioComponent component) {
+    public void addComponent(InbandComponent component) {
         components.put(component.getComponentId(), component);
     }
 
     @Override
-    public void removeComponent(AudioComponent component) {
+    public void removeComponent(InbandComponent component) {
         components.remove(component.getComponentId());
     }
 
@@ -103,16 +104,16 @@ public class AudioTranslator implements MediaRelay {
         @Override
         public long perform() {
             // Execute each readable component and get its data
-            for (AudioComponent component : components.values()) {
-                if (component.shouldRead) {
+            for (InbandComponent component : components.values()) {
+                if (component.isReadable()) {
                     component.perform();
                     if (component.hasData()) {
                         System.arraycopy(component.getData(), 0, currentData, 0, currentData.length);
 
                         // Offer the data of the current component to all the other writable components
-                        for (AudioComponent otherComponent : components.values()) {
+                        for (InbandComponent otherComponent : components.values()) {
                             if (!component.equals(otherComponent)) {
-                                if (otherComponent.shouldWrite) {
+                                if (otherComponent.isWritable()) {
                                     otherComponent.offer(currentData);
                                 }
                             }

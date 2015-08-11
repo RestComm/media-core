@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.component.audio;
 
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.MediaSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -43,8 +44,8 @@ public class AudioForwardingSplitter implements MediaSplitter {
             * LINEAR_FORMAT.getSampleSize() / 8;
 
     // Pools of components
-    private final ConcurrentMap<AudioComponent> insideComponents;
-    private final ConcurrentMap<AudioComponent> outsideComponents;
+    private final ConcurrentMap<InbandComponent> insideComponents;
+    private final ConcurrentMap<InbandComponent> outsideComponents;
 
     // Media splitting jobs
     private final Scheduler scheduler;
@@ -54,8 +55,8 @@ public class AudioForwardingSplitter implements MediaSplitter {
 
     public AudioForwardingSplitter(Scheduler scheduler) {
         // Pools of components
-        this.insideComponents = new ConcurrentMap<AudioComponent>();
-        this.outsideComponents = new ConcurrentMap<AudioComponent>();
+        this.insideComponents = new ConcurrentMap<InbandComponent>();
+        this.outsideComponents = new ConcurrentMap<InbandComponent>();
 
         // Media splitting jobs
         this.scheduler = scheduler;
@@ -65,22 +66,22 @@ public class AudioForwardingSplitter implements MediaSplitter {
     }
 
     @Override
-    public void addInsideComponent(AudioComponent component) {
+    public void addInsideComponent(InbandComponent component) {
         this.insideComponents.put(component.getComponentId(), component);
     }
 
     @Override
-    public void removeInsideComponent(AudioComponent component) {
+    public void removeInsideComponent(InbandComponent component) {
         this.insideComponents.remove(component.getComponentId());
     }
 
     @Override
-    public void addOutsideComponent(AudioComponent component) {
+    public void addOutsideComponent(InbandComponent component) {
         this.outsideComponents.put(component.getComponentId(), component);
     }
 
     @Override
-    public void removeOutsideComponent(AudioComponent component) {
+    public void removeOutsideComponent(InbandComponent component) {
         this.outsideComponents.remove(component.getComponentId());
     }
 
@@ -114,14 +115,14 @@ public class AudioForwardingSplitter implements MediaSplitter {
         @Override
         public long perform() {
             // Retrieve data from each readable component
-            for (AudioComponent insideComponent : insideComponents.values()) {
+            for (InbandComponent insideComponent : insideComponents.values()) {
                 if (insideComponent.shouldRead) {
                     insideComponent.perform();
                     if (insideComponent.hasData()) {
                         System.arraycopy(insideComponent.getData(), 0, data, 0, data.length);
                         if (data != null && data.length > 0) {
                             // Pass the data to all outside components with write permission
-                            for (AudioComponent outsideComponent : outsideComponents.values()) {
+                            for (InbandComponent outsideComponent : outsideComponents.values()) {
                                 if (outsideComponent.shouldWrite) {
                                     outsideComponent.offer(data);
                                 }
@@ -150,14 +151,14 @@ public class AudioForwardingSplitter implements MediaSplitter {
         @Override
         public long perform() {
             // Retrieve data from each readable component
-            for (AudioComponent outsideComponent : outsideComponents.values()) {
+            for (InbandComponent outsideComponent : outsideComponents.values()) {
                 if (outsideComponent.shouldRead) {
                     outsideComponent.perform();
                     if (outsideComponent.hasData()) {
                         System.arraycopy(outsideComponent.getData(), 0, data, 0, data.length);
                         if (data != null && data.length > 0) {
                             // Pass the data to all outside components with write permission
-                            for (AudioComponent insideComponent : insideComponents.values()) {
+                            for (InbandComponent insideComponent : insideComponents.values()) {
                                 if (insideComponent.shouldWrite) {
                                     insideComponent.offer(data);
                                 }

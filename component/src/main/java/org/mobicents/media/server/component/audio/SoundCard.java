@@ -30,59 +30,57 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
+
 /**
  *
  * @author yulian oifa
  */
 public class SoundCard extends AbstractSink {
-    
-	private static final long serialVersionUID = 3163342541948279068L;
 
-	private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("LINEAR", 8000, 8, 1);
-    private final static Formats formats = new Formats();
+    private static final long serialVersionUID = 3163342541948279068L;
 
     private final static Encoding GSM_ENCODING = new Encoding("GSM0610");
-    
-    private AudioOutput output;
-    
-    static{
+
+    private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("LINEAR", 8000, 8, 1);
+    private final static Formats formats = new Formats();
+    static {
         formats.add(LINEAR);
     }
+
+    private MediaOutput output;
 
     private boolean first;
     private SourceDataLine sourceDataLine = null;
     private javax.sound.sampled.AudioFormat audioFormat = null;
-    
+
     private static final Logger logger = Logger.getLogger(SoundCard.class);
-    
+
     public SoundCard(Scheduler scheduler) {
         super("soundcard");
-        output=new AudioOutput(scheduler,ComponentType.SOUND_CARD.getType());
+        output = new MediaOutput(ComponentType.SOUND_CARD.getType(), scheduler);
         output.join(this);
     }
 
-    public AudioOutput getAudioOutput()
-    {
-    	return this.output;
+    public MediaOutput getMediaOutput() {
+        return this.output;
     }
-    
-    public void activate()
-    {
-    	first = true;
-    	output.start();
+
+    public void activate() {
+        first = true;
+        output.start();
     }
-    
-    public void deactivate()
-    {
-    	output.stop();
+
+    public void deactivate() {
+        output.stop();
     }
-        
+
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         System.out.println("Receive " + frame.getFormat() + ", len=" + frame.getLength() + ", header=" + frame.getHeader());
@@ -90,25 +88,25 @@ public class SoundCard extends AbstractSink {
             first = false;
 
             AudioFormat fmt = (AudioFormat) frame.getFormat();
-            
+
             if (fmt == null) {
                 return;
             }
-            
+
             float sampleRate = (float) fmt.getSampleRate();
             int sampleSizeInBits = fmt.getSampleSize();
             int channels = fmt.getChannels();
             int frameSize = (fmt.getSampleSize() / 8);
-            //float frameRate = 1;
+            // float frameRate = 1;
             boolean bigEndian = false;
-            
+
             Encoding encoding = getEncoding(fmt.getName().toString());
 
             frameSize = (channels == AudioSystem.NOT_SPECIFIED || sampleSizeInBits == AudioSystem.NOT_SPECIFIED) ? AudioSystem.NOT_SPECIFIED
                     : ((sampleSizeInBits + 7) / 8) * channels;
 
-            audioFormat = new javax.sound.sampled.AudioFormat(encoding, sampleRate, sampleSizeInBits, channels,
-                    frameSize, sampleRate, bigEndian);
+            audioFormat = new javax.sound.sampled.AudioFormat(encoding, sampleRate, sampleSizeInBits, channels, frameSize,
+                    sampleRate, bigEndian);
 
             // FIXME : Need a configuration to select the specific hardware
             DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class, audioFormat);
@@ -131,10 +129,10 @@ public class SoundCard extends AbstractSink {
         try {
             sourceDataLine.write(data, frame.getOffset(), frame.getLength());
         } catch (RuntimeException e) {
-        	logger.error(e);
-        }           
-    }    
-    
+            logger.error(e);
+        }
+    }
+
     private javax.sound.sampled.AudioFormat.Encoding getEncoding(String encodingName) {
         if (encodingName.equalsIgnoreCase("pcma")) {
             return javax.sound.sampled.AudioFormat.Encoding.ALAW;
@@ -147,5 +145,4 @@ public class SoundCard extends AbstractSink {
         }
     }
 
-    
 }

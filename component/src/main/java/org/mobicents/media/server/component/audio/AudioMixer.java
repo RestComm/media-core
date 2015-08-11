@@ -24,6 +24,7 @@ package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
 
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.MediaRelay;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -46,8 +47,8 @@ public class AudioMixer implements MediaRelay {
             * LINEAR_FORMAT.getSampleSize() / 8;
 
     // The pool of components
-    private final ConcurrentMap<AudioComponent> components = new ConcurrentMap<AudioComponent>();
-    private Iterator<AudioComponent> activeComponents;
+    private final ConcurrentMap<InbandComponent> components = new ConcurrentMap<InbandComponent>();
+    private Iterator<InbandComponent> activeComponents;
 
     // scheduler for mixer job scheduling
     private final Scheduler scheduler;
@@ -64,12 +65,12 @@ public class AudioMixer implements MediaRelay {
     }
 
     @Override
-    public void addComponent(AudioComponent component) {
+    public void addComponent(InbandComponent component) {
         components.put(component.getComponentId(), component);
     }
 
     @Override
-    public void removeComponent(AudioComponent component) {
+    public void removeComponent(InbandComponent component) {
         components.remove(component.getComponentId());
     }
 
@@ -131,7 +132,7 @@ public class AudioMixer implements MediaRelay {
             sourcesCount = 0;
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
-                AudioComponent component = activeComponents.next();
+                InbandComponent component = activeComponents.next();
                 component.perform();
                 current = component.getData();
                 if (current != null) {
@@ -182,7 +183,7 @@ public class AudioMixer implements MediaRelay {
             // get data for each component
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
-                AudioComponent component = activeComponents.next();
+                InbandComponent component = activeComponents.next();
                 current = component.getData();
                 if (current != null && sourcesCount > 1) {
                     for (i = 0; i < total.length; i++) {

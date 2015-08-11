@@ -21,8 +21,6 @@
 
 package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
-
 /**
  * Represent an element responsible for splitting a media stream.
  * 
@@ -36,28 +34,28 @@ public interface MediaSplitter {
      * 
      * @param component the component to be registered.
      */
-    void addInsideComponent(AudioComponent component);
+    void addInsideComponent(InbandComponent component);
 
     /**
      * Releases inside component.
      * 
      * @param component the component to be released.
      */
-    void removeInsideComponent(AudioComponent component);
+    void removeInsideComponent(InbandComponent component);
 
     /**
      * Register an outside component.
      * 
      * @param component the component to be registered.
      */
-    void addOutsideComponent(AudioComponent component);
+    void addOutsideComponent(InbandComponent component);
 
     /**
      * Releases outside component.
      * 
      * @param component the component to be released.
      */
-    void removeOutsideComponent(AudioComponent component);
+    void removeOutsideComponent(InbandComponent component);
 
     /**
      * Initializes the media splitter's execution.

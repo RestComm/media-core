@@ -27,6 +27,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
@@ -123,7 +124,7 @@ public class RTPDataChannel {
     private Scheduler scheduler;
     private UdpManager udpManager;
 
-    private AudioComponent audioComponent;
+    private InbandComponent audioComponent;
     private OOBComponent oobComponent;
 
     private boolean sendDtmf = false;
@@ -167,7 +168,7 @@ public class RTPDataChannel {
 
         formats.add(LINEAR_FORMAT);
 
-        audioComponent = new AudioComponent(channelId);
+        audioComponent = new InbandComponent(channelId);
         audioComponent.addInput(input.getAudioInput());
         audioComponent.addOutput(output.getAudioOutput());
 

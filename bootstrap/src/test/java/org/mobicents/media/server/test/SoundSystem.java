@@ -78,7 +78,7 @@ public class SoundSystem extends AbstractRelayEndpoint implements Endpoint {
         soundcard = new SoundCard(this.getScheduler());
 
         inbandComponent.addInput(sine.getMediaInput());
-        inbandComponent.addOutput(soundcard.getAudioOutput());
+        inbandComponent.addOutput(soundcard.getMediaOutput());
         inbandComponent.setReadable(true);
         inbandComponent.setWritable(true);
         audioRelay.addComponent(inbandComponent);

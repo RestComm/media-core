@@ -50,7 +50,7 @@ public class SoundCardTest {
         sineComponent.setWritable(false);
 
         soundCardComponent = new InbandComponent(2);
-        soundCardComponent.addOutput(soundCard.getAudioOutput());
+        soundCardComponent.addOutput(soundCard.getMediaOutput());
         soundCardComponent.setReadable(false);
         soundCardComponent.setWritable(true);
 

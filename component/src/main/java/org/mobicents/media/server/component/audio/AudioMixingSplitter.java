@@ -24,6 +24,7 @@ package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
 
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.MediaSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -46,14 +47,14 @@ public class AudioMixingSplitter implements MediaSplitter {
             * LINEAR_FORMAT.getSampleSize() / 8;
 
     // Pools of components
-    private final ConcurrentMap<AudioComponent> insideComponents;
-    private final ConcurrentMap<AudioComponent> outsideComponents;
+    private final ConcurrentMap<InbandComponent> insideComponents;
+    private final ConcurrentMap<InbandComponent> outsideComponents;
 
-    private Iterator<AudioComponent> insideRIterator;
-    private Iterator<AudioComponent> insideSIterator;
+    private Iterator<InbandComponent> insideRIterator;
+    private Iterator<InbandComponent> insideSIterator;
 
-    private Iterator<AudioComponent> outsideRIterator;
-    private Iterator<AudioComponent> outsideSIterator;
+    private Iterator<InbandComponent> outsideRIterator;
+    private Iterator<InbandComponent> outsideSIterator;
 
     // Media splitting jobs
     private final Scheduler scheduler;
@@ -67,8 +68,8 @@ public class AudioMixingSplitter implements MediaSplitter {
 
     public AudioMixingSplitter(Scheduler scheduler) {
         // Pools of components
-        this.insideComponents = new ConcurrentMap<AudioComponent>();
-        this.outsideComponents = new ConcurrentMap<AudioComponent>();
+        this.insideComponents = new ConcurrentMap<InbandComponent>();
+        this.outsideComponents = new ConcurrentMap<InbandComponent>();
 
         // Media splitting jobs
         this.scheduler = scheduler;
@@ -77,22 +78,22 @@ public class AudioMixingSplitter implements MediaSplitter {
     }
 
     @Override
-    public void addInsideComponent(AudioComponent component) {
+    public void addInsideComponent(InbandComponent component) {
         this.insideComponents.put(component.getComponentId(), component);
     }
 
     @Override
-    public void removeInsideComponent(AudioComponent component) {
+    public void removeInsideComponent(InbandComponent component) {
         this.insideComponents.remove(component.getComponentId());
     }
 
     @Override
-    public void addOutsideComponent(AudioComponent component) {
+    public void addOutsideComponent(InbandComponent component) {
         this.outsideComponents.put(component.getComponentId(), component);
     }
 
     @Override
-    public void removeOutsideComponent(AudioComponent component) {
+    public void removeOutsideComponent(InbandComponent component) {
         this.outsideComponents.remove(component.getComponentId());
     }
 
@@ -153,7 +154,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             insideRIterator = insideComponents.valuesIterator();
 
             while (insideRIterator.hasNext()) {
-                AudioComponent component = insideRIterator.next();
+                InbandComponent component = insideRIterator.next();
                 component.perform();
                 current = component.getData();
                 if (current != null) {
@@ -204,7 +205,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             // get data for each component
             outsideSIterator = outsideComponents.valuesIterator();
             while (outsideSIterator.hasNext()) {
-                AudioComponent component = outsideSIterator.next();
+                InbandComponent component = outsideSIterator.next();
                 component.offer(total);
             }
 
@@ -239,7 +240,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             outsideRIterator = outsideComponents.valuesIterator();
 
             while (outsideRIterator.hasNext()) {
-                AudioComponent component = outsideRIterator.next();
+                InbandComponent component = outsideRIterator.next();
                 component.perform();
                 current = component.getData();
                 if (current != null) {
@@ -287,7 +288,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             // get data for each component
             insideSIterator = insideComponents.valuesIterator();
             while (insideSIterator.hasNext()) {
-                AudioComponent component = insideSIterator.next();
+                InbandComponent component = insideSIterator.next();
                 component.offer(total);
             }
 

@@ -87,7 +87,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
         this.mediaComponents.put(connection.getId(), mediaComponent);
 
         // Add mixing component to the media mixer
-        audioMixer.addComponent(mediaComponent.getAudioComponent());
+        audioMixer.addComponent(mediaComponent.getInbandComponent());
         oobMixer.addComponent(mediaComponent.getOOBComponent());
         return connection;
     }
@@ -101,7 +101,7 @@ public class BaseMixerEndpoint extends AbstractEndpoint {
         MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the mixing component from the media mixer
-        audioMixer.removeComponent(mixerComponent.getAudioComponent());
+        audioMixer.removeComponent(mixerComponent.getInbandComponent());
         oobMixer.removeComponent(mixerComponent.getOOBComponent());
     }
 

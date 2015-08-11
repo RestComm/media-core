@@ -21,8 +21,6 @@
 
 package org.mobicents.media.server.component;
 
-import org.mobicents.media.server.component.audio.AudioComponent;
-
 /**
  * Represent an element responsible for relaying media streams.<br>
  * Depending on the implementation, the traffic will either be mixed or forwarded.
@@ -37,14 +35,14 @@ public interface MediaRelay {
      * 
      * @param component the input stream
      */
-    void addComponent(AudioComponent component);
+    void addComponent(InbandComponent component);
 
     /**
      * Releases unused input stream.
      * 
      * @param component the input stream previously created
      */
-    void removeComponent(AudioComponent component);
+    void removeComponent(InbandComponent component);
 
     void start();
 

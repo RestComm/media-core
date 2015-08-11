@@ -68,13 +68,13 @@ public class IvrEndpoint extends AbstractRelayEndpoint {
     @Override
     public void start() throws ResourceUnavailableException {
         super.start();
-        this.audioRelay.addComponent(mediaGroup.getAudioComponent());
+        this.audioRelay.addComponent(mediaGroup.getInbandComponent());
         this.oobRelay.addComponent(mediaGroup.getOOBComponent());
     }
 
     @Override
     public void stop() {
-        this.audioRelay.removeComponent(mediaGroup.getAudioComponent());
+        this.audioRelay.removeComponent(mediaGroup.getInbandComponent());
         this.oobRelay.removeComponent(mediaGroup.getOOBComponent());
         super.stop();
     }

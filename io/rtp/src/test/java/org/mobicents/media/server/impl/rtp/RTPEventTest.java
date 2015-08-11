@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.DspFactoryImpl;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -85,7 +86,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     private AudioMixer audioMixer;
     private OOBMixer oobMixer;
 
-    private AudioComponent detectorComponent;
+    private InbandComponent detectorComponent;
     private OOBComponent oobComponent;
 
     private int count = 0;
@@ -142,9 +143,10 @@ public class RTPEventTest implements DtmfDetectorListener {
         audioMixer = new AudioMixer(scheduler);
         audioMixer.addComponent(channel.getAudioComponent());
 
-        detectorComponent = new AudioComponent(1);
+        detectorComponent = new InbandComponent(1);
         detectorComponent.addOutput(detector.getAudioOutput());
-        detectorComponent.updateMode(true, true);
+        detectorComponent.setReadable(true);
+        detectorComponent.setWritable(true);
         audioMixer.addComponent(detectorComponent);
 
         oobMixer = new OOBMixer(scheduler);

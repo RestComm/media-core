@@ -133,7 +133,7 @@ public class TranslatorEndpoint extends AbstractEndpoint {
         this.mediaComponents.put(connection.getId(), mediaComponent);
 
         // Add mixing component to the media mixer
-        this.audioTranslator.addComponent(mediaComponent.getAudioComponent());
+        this.audioTranslator.addComponent(mediaComponent.getInbandComponent());
         // XXX oobTranslator.addComponent(mediaComponent.getOOBComponent());
         return connection;
     }
@@ -147,7 +147,7 @@ public class TranslatorEndpoint extends AbstractEndpoint {
         MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the mixing component from the media mixer
-        this.audioTranslator.removeComponent(mixerComponent.getAudioComponent());
+        this.audioTranslator.removeComponent(mixerComponent.getInbandComponent());
         // oobMixer.release(mixerComponent.getOOBComponent());
     }
 

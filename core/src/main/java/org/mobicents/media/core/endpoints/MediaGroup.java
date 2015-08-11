@@ -55,7 +55,7 @@ public class MediaGroup {
 
     private ResourcesPool resourcesPool;
 
-    private InbandComponent audioComponent;
+    private InbandComponent inbandComponent;
     private OOBComponent oobComponent;
 
     private Endpoint endpoint;
@@ -67,13 +67,13 @@ public class MediaGroup {
 
     public MediaGroup(ResourcesPool resourcesPool, Endpoint endpoint) {
         this.resourcesPool = resourcesPool;
-        this.audioComponent = new InbandComponent(0);
+        this.inbandComponent = new InbandComponent(0);
         this.oobComponent = new OOBComponent(0);
         this.endpoint = endpoint;
     }
 
-    public InbandComponent getAudioComponent() {
-        return this.audioComponent;
+    public InbandComponent getInbandComponent() {
+        return this.inbandComponent;
     }
 
     public OOBComponent getOOBComponent() {
@@ -91,10 +91,10 @@ public class MediaGroup {
             if (this.player == null) {
                 this.player = resourcesPool.newAudioComponent(ComponentType.PLAYER);
                 this.player.setEndpoint(endpoint);
-                audioComponent.addInput(((AudioPlayerImpl) this.player).getAudioInput());
+                inbandComponent.addInput(((AudioPlayerImpl) this.player).getAudioInput());
                 readComponents++;
-                audioComponent.setReadable(true);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(true);
+                inbandComponent.setWritable(writeComponents != 0);
                 updateEndpoint(1, 0);
             }
         } finally {
@@ -113,10 +113,10 @@ public class MediaGroup {
 
         try {
             if (this.player != null) {
-                audioComponent.remove(((AudioPlayerImpl) this.player).getAudioInput());
+                inbandComponent.remove(((AudioPlayerImpl) this.player).getAudioInput());
                 readComponents--;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(writeComponents != 0);
                 updateEndpoint(-1, 0);
                 this.player.clearEndpoint();
                 ((AudioPlayerImpl) this.player).clearAllListeners();
@@ -144,12 +144,12 @@ public class MediaGroup {
             if (this.recorder == null) {
                 this.recorder = resourcesPool.newAudioComponent(ComponentType.RECORDER);
                 this.recorder.setEndpoint(endpoint);
-                audioComponent.addOutput(((AudioRecorderImpl) this.recorder).getAudioOutput());
+                inbandComponent.addOutput(((AudioRecorderImpl) this.recorder).getAudioOutput());
                 oobComponent.addOutput(((AudioRecorderImpl) this.recorder).getOOBOutput());
                 writeComponents++;
                 writeDtmfComponents++;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(true);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(true);
                 oobComponent.setReadable(readDtmfComponents != 0);
                 oobComponent.setWritable(true);
                 updateEndpoint(0, 1);
@@ -170,12 +170,12 @@ public class MediaGroup {
 
         try {
             if (this.recorder != null) {
-                audioComponent.remove(((AudioRecorderImpl) this.recorder).getAudioOutput());
+                inbandComponent.remove(((AudioRecorderImpl) this.recorder).getAudioOutput());
                 oobComponent.remove(((AudioRecorderImpl) this.recorder).getOOBOutput());
                 writeComponents--;
                 writeDtmfComponents--;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(writeComponents != 0);
                 oobComponent.setReadable(readDtmfComponents != 0);
                 oobComponent.setWritable(writeDtmfComponents != 0);
                 updateEndpoint(0, -1);
@@ -205,12 +205,12 @@ public class MediaGroup {
             if (this.dtmfDetector == null) {
                 this.dtmfDetector = resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
                 this.dtmfDetector.setEndpoint(endpoint);
-                audioComponent.addOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
+                inbandComponent.addOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
                 oobComponent.addOutput(((DetectorImpl) this.dtmfDetector).getOOBOutput());
                 writeComponents++;
                 writeDtmfComponents++;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(true);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(true);
                 oobComponent.setReadable(readDtmfComponents != 0);
                 oobComponent.setWritable(true);
                 updateEndpoint(0, 1);
@@ -231,12 +231,12 @@ public class MediaGroup {
 
         try {
             if (this.dtmfDetector != null) {
-                audioComponent.remove(((DetectorImpl) this.dtmfDetector).getAudioOutput());
+                inbandComponent.remove(((DetectorImpl) this.dtmfDetector).getAudioOutput());
                 oobComponent.remove(((DetectorImpl) this.dtmfDetector).getOOBOutput());
                 writeComponents--;
                 writeDtmfComponents--;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(writeComponents != 0);
                 oobComponent.setReadable(readDtmfComponents != 0);
                 oobComponent.setWritable(writeDtmfComponents != 0);
                 updateEndpoint(0, -1);
@@ -267,12 +267,12 @@ public class MediaGroup {
             if (this.dtmfGenerator == null) {
                 this.dtmfGenerator = resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
                 this.dtmfGenerator.setEndpoint(endpoint);
-                audioComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
+                inbandComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
                 oobComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getOOBInput());
                 readComponents++;
                 readDtmfComponents++;
-                audioComponent.setReadable(true);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(true);
+                inbandComponent.setWritable(writeComponents != 0);
                 oobComponent.setReadable(true);
                 oobComponent.setWritable(writeDtmfComponents != 0);
                 updateEndpoint(1, 0);
@@ -293,12 +293,12 @@ public class MediaGroup {
 
         try {
             if (this.dtmfGenerator != null) {
-                audioComponent.remove(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
+                inbandComponent.remove(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
                 oobComponent.remove(((GeneratorImpl) this.dtmfGenerator).getOOBInput());
                 readComponents--;
                 readDtmfComponents--;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(writeComponents != 0);
                 oobComponent.setReadable(readDtmfComponents != 0);
                 oobComponent.setWritable(writeDtmfComponents != 0);
                 updateEndpoint(-1, 0);
@@ -327,10 +327,10 @@ public class MediaGroup {
             if (this.signalDetector == null) {
                 this.signalDetector = resourcesPool.newAudioComponent(ComponentType.SIGNAL_DETECTOR);
                 this.signalDetector.setEndpoint(endpoint);
-                audioComponent.addOutput(((PhoneSignalDetector) this.signalDetector).getAudioOutput());
+                inbandComponent.addOutput(((PhoneSignalDetector) this.signalDetector).getAudioOutput());
                 writeComponents++;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(true);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(true);
                 updateEndpoint(0, 1);
             }
         } finally {
@@ -349,10 +349,10 @@ public class MediaGroup {
 
         try {
             if (this.signalDetector != null) {
-                audioComponent.remove(((PhoneSignalDetector) this.signalDetector).getAudioOutput());
+                inbandComponent.remove(((PhoneSignalDetector) this.signalDetector).getAudioOutput());
                 writeComponents--;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(writeComponents != 0);
                 updateEndpoint(0, -1);
                 this.signalDetector.clearEndpoint();
                 ((PhoneSignalDetector) this.signalDetector).clearAllListeners();
@@ -381,10 +381,10 @@ public class MediaGroup {
             if (this.signalGenerator == null) {
                 this.signalGenerator = resourcesPool.newAudioComponent(ComponentType.SIGNAL_GENERATOR);
                 this.signalGenerator.setEndpoint(endpoint);
-                audioComponent.addInput(((PhoneSignalGenerator) this.signalGenerator).getAudioInput());
+                inbandComponent.addInput(((PhoneSignalGenerator) this.signalGenerator).getAudioInput());
                 readComponents++;
-                audioComponent.setReadable(true);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(true);
+                inbandComponent.setWritable(writeComponents != 0);
                 updateEndpoint(1, 0);
             }
         } finally {
@@ -403,10 +403,10 @@ public class MediaGroup {
 
         try {
             if (this.signalGenerator != null) {
-                audioComponent.remove(((PhoneSignalGenerator) this.signalGenerator).getAudioInput());
+                inbandComponent.remove(((PhoneSignalGenerator) this.signalGenerator).getAudioInput());
                 readComponents--;
-                audioComponent.setReadable(readComponents != 0);
-                audioComponent.setWritable(writeComponents != 0);
+                inbandComponent.setReadable(readComponents != 0);
+                inbandComponent.setWritable(writeComponents != 0);
                 updateEndpoint(-1, 0);
                 this.signalGenerator.clearEndpoint();
                 this.signalGenerator.deactivate();
