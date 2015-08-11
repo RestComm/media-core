@@ -64,7 +64,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
-        this.rtpSource = new RtpSource(scheduler, jitterBuffer, dspFactory.newProcessor());
+        this.rtpSource = new RtpSource(scheduler, jitterBuffer);
         this.dtmfSource = new DtmfSource(scheduler, oobClock);
 
         // RTP sink
@@ -72,7 +72,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
-        addInput(this.rtpSource.getAudioInput());
+        addInput(this.rtpSource.getMediaInput());
         addOutput(this.rtpSink.getAudioOutput());
         addOOBInput(this.dtmfSource.getOoBinput());
         addOOBOutput(this.dtmfSink.getOobOutput());
@@ -160,7 +160,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
             logger.warn("DTMF packet dropped: " + e.getMessage(), e);
         }
     }
-    
+
     @Override
     public void updateMode(ConnectionMode connectionMode) {
         super.updateMode(connectionMode);

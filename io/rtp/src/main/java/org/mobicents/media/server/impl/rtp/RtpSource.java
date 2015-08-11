@@ -21,13 +21,9 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.AudioInput;
+import org.mobicents.media.server.component.MediaInput;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -41,46 +37,28 @@ public class RtpSource extends AbstractSource implements BufferListener {
 
     private static final long serialVersionUID = -434214678421348922L;
 
-    private static final Logger logger = Logger.getLogger(RtpSource.class);
-
-    // Output format
-    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private static final long PERIOD = 20000000L;
-    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
-            * LINEAR_FORMAT.getSampleSize() / 8;
-
     // Media mixing components
-    private final Processor dsp;
     private final JitterBuffer jitterBuffer;
-    private final AudioInput audioInput;
+    private final MediaInput mediaInput;
 
-    public RtpSource(Scheduler scheduler, JitterBuffer jitterBuffer, Processor dsp) {
+    public RtpSource(Scheduler scheduler, JitterBuffer jitterBuffer) {
         super("input", scheduler, Scheduler.INPUT_QUEUE);
 
         // Media mixing components
         this.jitterBuffer = jitterBuffer;
         this.jitterBuffer.setListener(this);
-        this.dsp = dsp;
-        this.audioInput = new AudioInput(1, PACKET_SIZE);
-        super.connect(audioInput);
+        // this.audioInput = new MediaInput(1, PACKET_SIZE);
+        this.mediaInput = new MediaInput(1);
+        connect(mediaInput);
     }
 
-    public AudioInput getAudioInput() {
-        return audioInput;
+    public MediaInput getMediaInput() {
+        return mediaInput;
     }
 
     @Override
     public Frame evolve(long timestamp) {
-        Frame currFrame = this.jitterBuffer.read(timestamp);
-        if (currFrame != null && dsp != null) {
-            try {
-                currFrame = dsp.process(currFrame, currFrame.getFormat(), LINEAR_FORMAT);
-            } catch (Exception e) {
-                currFrame = null;
-                logger.error("Transcoding error: " + e.getMessage(), e);
-            }
-        }
-        return currFrame;
+        return this.jitterBuffer.read(timestamp);
     }
 
     @Override
