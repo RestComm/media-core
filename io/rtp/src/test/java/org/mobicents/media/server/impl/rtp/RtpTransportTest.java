@@ -126,7 +126,7 @@ public class RtpTransportTest {
         this.channel1.bind(false);
 
         // Create mixer component for channel 1
-        this.mixerComponent1 = new RtpComponent(CHANNEL1_ID, scheduler, dspFactory, channel1, rtpClock1, oobClock1);
+        this.mixerComponent1 = new RtpComponent(CHANNEL1_ID, scheduler, channel1, rtpClock1, oobClock1);
         this.mixerComponent1.setRtpFormats(rtpFormats);
         this.channel1.setRtpRelay(mixerComponent1);
 
@@ -150,7 +150,7 @@ public class RtpTransportTest {
         this.channel2.bind(false);
 
         // Create mixer component for channel 2
-        this.mixerComponent2 = new RtpComponent(CHANNEL2_ID, scheduler, dspFactory, channel2, rtpClock2, oobClock2);
+        this.mixerComponent2 = new RtpComponent(CHANNEL2_ID, scheduler, channel2, rtpClock2, oobClock2);
         this.mixerComponent2.setRtpFormats(rtpFormats);
         this.channel2.setRtpRelay(mixerComponent2);
 

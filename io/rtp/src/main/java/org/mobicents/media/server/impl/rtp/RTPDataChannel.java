@@ -28,7 +28,6 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.InbandComponent;
-import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
@@ -177,7 +176,7 @@ public class RTPDataChannel {
         oobComponent.addOutput(dtmfOutput.getOOBOutput());
     }
 
-    public AudioComponent getAudioComponent() {
+    public InbandComponent getAudioComponent() {
         return this.audioComponent;
     }
 
@@ -214,7 +213,8 @@ public class RTPDataChannel {
             case SEND_ONLY:
                 shouldReceive = false;
                 shouldLoop = false;
-                audioComponent.updateMode(false, true);
+                audioComponent.setReadable(false);
+                audioComponent.setWritable(true);
                 oobComponent.setReadable(false);
                 oobComponent.setWritable(true);
                 dtmfInput.deactivate();
@@ -225,7 +225,8 @@ public class RTPDataChannel {
             case RECV_ONLY:
                 shouldReceive = true;
                 shouldLoop = false;
-                audioComponent.updateMode(true, false);
+                audioComponent.setReadable(true);
+                audioComponent.setWritable(false);
                 oobComponent.setReadable(true);
                 oobComponent.setWritable(false);
                 dtmfInput.activate();
@@ -236,7 +237,8 @@ public class RTPDataChannel {
             case INACTIVE:
                 shouldReceive = false;
                 shouldLoop = false;
-                audioComponent.updateMode(false, false);
+                audioComponent.setReadable(false);
+                audioComponent.setWritable(false);
                 oobComponent.setReadable(false);
                 oobComponent.setWritable(false);
                 dtmfInput.deactivate();
@@ -248,7 +250,8 @@ public class RTPDataChannel {
             case CONFERENCE:
                 shouldReceive = true;
                 shouldLoop = false;
-                audioComponent.updateMode(true, true);
+                audioComponent.setReadable(true);
+                audioComponent.setWritable(true);
                 oobComponent.setReadable(true);
                 oobComponent.setWritable(true);
                 dtmfInput.activate();
@@ -259,7 +262,8 @@ public class RTPDataChannel {
             case NETWORK_LOOPBACK:
                 shouldReceive = false;
                 shouldLoop = true;
-                audioComponent.updateMode(false, false);
+                audioComponent.setReadable(false);
+                audioComponent.setWritable(false);
                 oobComponent.setReadable(false);
                 oobComponent.setWritable(false);
                 dtmfInput.deactivate();

@@ -39,8 +39,8 @@ import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
-import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.RtpComponent;
+import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -136,7 +136,7 @@ public abstract class RtpSession {
 
         // RTP relay
         this.relayType = RelayType.MIXER;
-        this.mixerComponent = new RtpComponent(channelId, scheduler, dspFactory, rtpTransport, clock, oobClock);
+        this.mixerComponent = new RtpComponent(channelId, scheduler, rtpTransport, clock, oobClock);
         this.rtpTransport.setRtpRelay(this.mixerComponent);
 
         // RTP format negotiation

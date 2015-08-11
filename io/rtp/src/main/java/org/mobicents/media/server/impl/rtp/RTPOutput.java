@@ -25,7 +25,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
@@ -58,7 +58,7 @@ public class RTPOutput extends AbstractSink {
     // signaling processor
     private Processor dsp;
 
-    private AudioOutput output;
+    private MediaOutput output;
 
     /**
      * Creates new transmitter
@@ -67,18 +67,18 @@ public class RTPOutput extends AbstractSink {
     protected RTPOutput(Scheduler scheduler, RTPDataChannel channel) {
         super("Output");
         this.channel = channel;
-        output = new AudioOutput(scheduler, 1);
+        output = new MediaOutput(1, scheduler);
         output.join(this);
     }
 
     protected RTPOutput(Scheduler scheduler, RtpTransmitter transmitter) {
         super("Output");
         this.transmitter = transmitter;
-        output = new AudioOutput(scheduler, 1);
+        output = new MediaOutput(1, scheduler);
         output.join(this);
     }
 
-    public AudioOutput getAudioOutput() {
+    public MediaOutput getAudioOutput() {
         return this.output;
     }
 
