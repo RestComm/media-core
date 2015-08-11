@@ -47,14 +47,9 @@ public class LocalConnection extends AbstractConnection {
 
     private LocalChannel localAudioChannel;
 
-    public LocalConnection(int id, ChannelsManager channelsManager, RelayType relayType) {
-        super(id, channelsManager.getScheduler(), relayType, ConnectionType.LOCAL);
-        this.localAudioChannel = channelsManager.getLocalChannel();
-        this.localAudioChannel.setRelayType(relayType);
-    }
-    
     public LocalConnection(int id, ChannelsManager channelsManager) {
-        this(id, channelsManager, RelayType.MIXER);
+        super(id, channelsManager.getScheduler(), RelayType.MIXER, ConnectionType.LOCAL);
+        this.localAudioChannel = channelsManager.getLocalChannel();
     }
     
     @Override

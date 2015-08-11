@@ -160,41 +160,32 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
             logger.warn("DTMF packet dropped: " + e.getMessage(), e);
         }
     }
-
+    
     @Override
-    public void setMode(ConnectionMode mode) {
-        switch (mode) {
+    public void updateMode(ConnectionMode connectionMode) {
+        super.updateMode(connectionMode);
+        switch (connectionMode) {
             case SEND_ONLY:
-                getAudioComponent().updateMode(false, true);
-                getOOBComponent().updateMode(false, true);
                 deactivateSources();
                 activateSinks();
                 break;
 
             case RECV_ONLY:
-                getAudioComponent().updateMode(true, false);
-                getOOBComponent().updateMode(true, false);
                 activateSources();
                 deactivateSinks();
                 break;
 
             case SEND_RECV:
             case CONFERENCE:
-                getAudioComponent().updateMode(true, true);
-                getOOBComponent().updateMode(true, true);
                 activateSinks();
                 activateSources();
                 break;
 
             case NETWORK_LOOPBACK:
             case INACTIVE:
-                getAudioComponent().updateMode(false, false);
-                getOOBComponent().updateMode(false, false);
+            default:
                 deactivateSinks();
                 deactivateSources();
-                break;
-
-            default:
                 break;
         }
     }

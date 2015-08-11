@@ -30,7 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
@@ -132,12 +132,13 @@ public class RtpTransportTest {
 
         // this.mixerComponent1.addAudioInput(source1.getAudioInput());
         // this.mixerComponent1.addAudioOutput(analyzer1.getAudioOutput());
-        this.audioMixer1.addComponent(mixerComponent1.getAudioComponent());
+        this.audioMixer1.addComponent(mixerComponent1.getInbandComponent());
 
-        AudioComponent sineComponent1 = new AudioComponent(1);
+        InbandComponent sineComponent1 = new InbandComponent(1);
         sineComponent1.addInput(source1.getAudioInput());
         sineComponent1.addOutput(analyzer1.getAudioOutput());
-        sineComponent1.updateMode(true, true);
+        sineComponent1.setReadable(true);
+        sineComponent1.setWritable(true);
         this.audioMixer1.addComponent(sineComponent1);
 
         // Create media channel 2
@@ -155,14 +156,15 @@ public class RtpTransportTest {
 
         // this.mixerComponent2.addAudioInput(source2.getAudioInput());
         // this.mixerComponent2.addAudioOutput(analyzer2.getAudioOutput());
-        this.audioMixer2.addComponent(mixerComponent2.getAudioComponent());
+        this.audioMixer2.addComponent(mixerComponent2.getInbandComponent());
 
-        AudioComponent sineComponent2 = new AudioComponent(2);
+        InbandComponent sineComponent2 = new InbandComponent(2);
         sineComponent2.addInput(source2.getAudioInput());
         sineComponent2.addOutput(analyzer2.getAudioOutput());
-        sineComponent2.updateMode(true, true);
+        sineComponent2.setReadable(true);
+        sineComponent2.setWritable(true);
         this.audioMixer2.addComponent(sineComponent2);
-        
+
         // Connect both media channels
         this.channel1.updateMode(ConnectionMode.SEND_RECV);
         this.channel2.updateMode(ConnectionMode.SEND_RECV);

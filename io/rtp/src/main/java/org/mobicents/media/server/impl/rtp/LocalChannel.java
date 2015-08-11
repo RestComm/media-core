@@ -24,14 +24,13 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.component.audio.AudioInput;
-import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.MediaInput;
+import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
-import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 
@@ -48,53 +47,29 @@ public class LocalChannel {
     private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
             * LINEAR_FORMAT.getSampleSize() / 8;
 
-    private final AudioInput audioInput;
-    private final AudioOutput audioOutput;
+    private final MediaInput inbandInput;
+    private final MediaOutput inbandOutput;
 
     private final OOBInput oobInput;
     private final OOBOutput oobOutput;
 
     // Media relay
-    private RelayType relayType;
     private final MediaComponent mediaComponent;
 
     private LocalChannel otherChannel = null;
 
-    protected LocalChannel(ChannelsManager channelsManager, int channelId, RelayType relayType) {
-        this.audioInput = new AudioInput(1, PACKET_SIZE);
-        this.audioOutput = new AudioOutput(channelsManager.getScheduler(), 2);
+    protected LocalChannel(ChannelsManager channelsManager, int channelId) {
+        this.inbandInput = new MediaInput(1, PACKET_SIZE);
+        this.inbandOutput = new MediaOutput(2, channelsManager.getScheduler());
         this.oobInput = new OOBInput(1);
         this.oobOutput = new OOBOutput(channelsManager.getScheduler(), 2);
 
         // Media relay
-        this.relayType = relayType;
         this.mediaComponent = new MediaComponent(channelId);
-        this.mediaComponent.addAudioInput(audioInput);
-        this.mediaComponent.addAudioOutput(audioOutput);
+        this.mediaComponent.addInput(inbandInput);
+        this.mediaComponent.addOutput(inbandOutput);
         this.mediaComponent.addOOBInput(oobInput);
         this.mediaComponent.addOOBOutput(oobOutput);
-    }
-
-    protected LocalChannel(ChannelsManager channelsManager, int channelId) {
-        this(channelsManager, channelId, RelayType.MIXER);
-    }
-
-    public void setRelayType(RelayType relayType) {
-        this.relayType = relayType;
-        if (!this.relayType.equals(relayType)) {
-            switch (relayType) {
-                case MIXER:
-
-                    break;
-
-                case TRANSLATOR:
-
-                    break;
-
-                default:
-                    break;
-            }
-        }
     }
 
     public MediaComponent getMediaComponent() {
@@ -109,9 +84,9 @@ public class LocalChannel {
         this.otherChannel = otherChannel;
         otherChannel.otherChannel = this;
 
-        this.otherChannel.audioOutput.join(audioInput);
+        this.otherChannel.inbandOutput.join(inbandInput);
         this.otherChannel.oobOutput.join(oobInput);
-        this.audioOutput.join(this.otherChannel.audioInput);
+        this.inbandOutput.join(this.otherChannel.inbandInput);
         this.oobOutput.join(this.otherChannel.oobInput);
     }
 
@@ -120,9 +95,9 @@ public class LocalChannel {
             return;
         }
 
-        this.audioOutput.deactivate();
+        this.inbandOutput.deactivate();
         this.oobOutput.deactivate();
-        this.audioOutput.unjoin();
+        this.inbandOutput.unjoin();
         oobOutput.unjoin();
 
         this.otherChannel = null;
@@ -138,20 +113,20 @@ public class LocalChannel {
 
         switch (connectionMode) {
             case SEND_ONLY:
-                audioOutput.activate();
+                inbandOutput.activate();
                 oobOutput.activate();
                 break;
             case RECV_ONLY:
-                audioOutput.deactivate();
+                inbandOutput.deactivate();
                 oobOutput.deactivate();
                 break;
             case INACTIVE:
-                audioOutput.deactivate();
+                inbandOutput.deactivate();
                 oobOutput.deactivate();
                 break;
             case SEND_RECV:
             case CONFERENCE:
-                audioOutput.activate();
+                inbandOutput.activate();
                 oobOutput.activate();
                 break;
             case NETWORK_LOOPBACK:

@@ -87,19 +87,23 @@ public class OOBTranslatorTest {
 
         sender1Component = new OOBComponent(1);
         sender1Component.addInput(sender1.getOOBInput());
-        sender1Component.updateMode(true, false);
+        sender1Component.setReadable(true);
+        sender1Component.setWritable(false);
 
         sender2Component = new OOBComponent(2);
         sender2Component.addInput(sender2.getOOBInput());
-        sender2Component.updateMode(true, false);
+        sender2Component.setReadable(true);
+        sender2Component.setWritable(false);
 
         sender3Component = new OOBComponent(3);
         sender3Component.addInput(sender3.getOOBInput());
-        sender3Component.updateMode(true, false);
+        sender3Component.setReadable(true);
+        sender3Component.setWritable(false);
 
         receiverComponent = new OOBComponent(4);
         receiverComponent.addOutput(receiver.getOOBOutput());
-        receiverComponent.updateMode(false, true);
+        receiverComponent.setReadable(false);
+        receiverComponent.setWritable(true);
 
         translator = new OOBMixer(scheduler);
         translator.addComponent(sender1Component);

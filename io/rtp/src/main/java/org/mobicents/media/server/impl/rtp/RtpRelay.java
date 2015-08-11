@@ -36,6 +36,6 @@ public interface RtpRelay extends RtpReceiver, RtpSender {
      * 
      * @param mode the connection mode that defines the relay capabilities.
      */
-    void setMode(ConnectionMode mode);
+    void updateMode(ConnectionMode mode);
 
 }

@@ -58,7 +58,7 @@ import org.mobicents.media.server.spi.memory.Memory;
  */
 public class LocalEventTest implements DtmfDetectorListener {
 
-    //clock and scheduler
+    // clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
     private DspFactory dspFactory;
@@ -66,178 +66,169 @@ public class LocalEventTest implements DtmfDetectorListener {
     private UdpManager udpManager;
 
     private ChannelsManager channelsManager;
-    
+
     private DetectorImpl detector;
-    
-    private LocalChannel channel1,channel2;
-    
+
+    private LocalChannel channel1, channel2;
+
     private Sender sender;
-    
-    private OOBSplitter oobSplitter1,oobSplitter2;
-    
+
+    private OOBSplitter oobSplitter1, oobSplitter2;
+
     private OOBComponent inputComponent;
     private OOBComponent outputComponent;
-    
-    private int count=0;
-    
+
+    private int count = 0;
+
     public LocalEventTest() {
     }
 
     @Before
     public void setUp() throws Exception {
-    	//use default clock
+        // use default clock
         clock = new DefaultClock();
 
-        //create single thread scheduler
+        // create single thread scheduler
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
         udpManager = new UdpManager(scheduler);
         udpManager.start();
-        
+
         this.dspFactory = new DspFactoryImpl();
-        
+
         channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
-        
+
         detector = new DetectorImpl("dtmf", scheduler);
         detector.setVolume(-35);
         detector.setDuration(40);
         detector.addListener(this);
-        
+
         channel1 = channelsManager.getLocalChannel();
         channel2 = channelsManager.getLocalChannel();
         channel1.join(channel2);
-        
-        oobSplitter1=new OOBSplitter(scheduler);
-        oobSplitter2=new OOBSplitter(scheduler);
-        
-        sender = new Sender();                
 
-        oobSplitter1.addOutsideComponent(channel1.getMediaComponent().getOOBComponent());        
-        oobSplitter2.addInsideComponent(channel2.getMediaComponent().getOOBComponent());  
-        
-        outputComponent=new OOBComponent(1);
+        oobSplitter1 = new OOBSplitter(scheduler);
+        oobSplitter2 = new OOBSplitter(scheduler);
+
+        sender = new Sender();
+
+        oobSplitter1.addOutsideComponent(channel1.getMediaComponent().getOOBComponent());
+        oobSplitter2.addInsideComponent(channel2.getMediaComponent().getOOBComponent());
+
+        outputComponent = new OOBComponent(1);
         outputComponent.addOutput(detector.getOOBOutput());
-        outputComponent.updateMode(true,true);
-        oobSplitter1.addInsideComponent(outputComponent);               
-        
-        inputComponent=new OOBComponent(2);
+        outputComponent.setReadable(true);
+        outputComponent.setWritable(true);
+        oobSplitter1.addInsideComponent(outputComponent);
+
+        inputComponent = new OOBComponent(2);
         inputComponent.addInput(sender.getOOBInput());
-        inputComponent.updateMode(true,true);
-        oobSplitter2.addOutsideComponent(inputComponent);    	
+        inputComponent.setReadable(true);
+        inputComponent.setWritable(true);
+        oobSplitter2.addOutsideComponent(inputComponent);
     }
 
     @After
     public void tearDown() {
-    	channel1.unjoin();
-    	oobSplitter1.stop();
-    	oobSplitter2.stop();
-    	sender.deactivate();
+        channel1.unjoin();
+        oobSplitter1.stop();
+        oobSplitter2.stop();
+        sender.deactivate();
         udpManager.stop();
-        scheduler.stop();        
+        scheduler.stop();
     }
 
     @Test
     public void testTransmission() throws Exception {
-    	channel1.updateMode(ConnectionMode.SEND_RECV);
-    	channel2.updateMode(ConnectionMode.SEND_RECV);
-    	oobSplitter1.start();
-    	oobSplitter2.start();
-    	detector.activate();
-    	sender.activate();
-    	
+        channel1.updateMode(ConnectionMode.SEND_RECV);
+        channel2.updateMode(ConnectionMode.SEND_RECV);
+        oobSplitter1.start();
+        oobSplitter2.start();
+        detector.activate();
+        sender.activate();
+
         Thread.sleep(5000);
-        
+
         channel1.updateMode(ConnectionMode.INACTIVE);
         channel2.updateMode(ConnectionMode.INACTIVE);
         oobSplitter1.stop();
         oobSplitter2.stop();
-    	detector.deactivate();
-    	sender.deactivate();
-    	
-    	assertEquals(4,count);
+        detector.deactivate();
+        sender.deactivate();
+
+        assertEquals(4, count);
     }
 
     @Override
     public void process(DtmfEvent event) {
-    	count++;
+        count++;
         System.out.println("TONE=" + event.getTone());
     }
-    
-    private class Sender extends AbstractSource {
-        
-		private static final long serialVersionUID = 4468618469974148422L;
 
-//		private Frame currFrame;        
-        private OOBInput oobInput;        
-        int index=0;
-        
-        private byte[][] evt1 = new byte[][]{
-            new byte[] {0x0b, 0x0a, 0x00, (byte)0xa0},
-            new byte[] {0x0b, 0x0a, 0x01, (byte)0x40},
-            new byte[] {0x0b, 0x0a, 0x01, (byte)0xe0},
-            new byte[] {0x0b, 0x0a, 0x02, (byte)0x80},
-            new byte[] {0x0b, 0x0a, 0x03, (byte)0x20},
-            new byte[] {0x0b, 0x0a, 0x03, (byte)0xc0},
-            new byte[] {0x0b, 0x0a, 0x04, (byte)0x60},
-            new byte[] {0x0b, 0x0a, 0x05, (byte)0x00},
-            new byte[] {0x0b, (byte)0x8a, 0x05, (byte)0xa0},
-            new byte[] {0x0b, (byte)0x8a, 0x05, (byte)0xa0},
-            new byte[] {0x0b, (byte)0x8a, 0x05, (byte)0xa0}
-        };
-        
+    private class Sender extends AbstractSource {
+
+        private static final long serialVersionUID = 4468618469974148422L;
+
+        // private Frame currFrame;
+        private OOBInput oobInput;
+        int index = 0;
+
+        private byte[][] evt1 = new byte[][] { new byte[] { 0x0b, 0x0a, 0x00, (byte) 0xa0 },
+                new byte[] { 0x0b, 0x0a, 0x01, (byte) 0x40 }, new byte[] { 0x0b, 0x0a, 0x01, (byte) 0xe0 },
+                new byte[] { 0x0b, 0x0a, 0x02, (byte) 0x80 }, new byte[] { 0x0b, 0x0a, 0x03, (byte) 0x20 },
+                new byte[] { 0x0b, 0x0a, 0x03, (byte) 0xc0 }, new byte[] { 0x0b, 0x0a, 0x04, (byte) 0x60 },
+                new byte[] { 0x0b, 0x0a, 0x05, (byte) 0x00 }, new byte[] { 0x0b, (byte) 0x8a, 0x05, (byte) 0xa0 },
+                new byte[] { 0x0b, (byte) 0x8a, 0x05, (byte) 0xa0 }, new byte[] { 0x0b, (byte) 0x8a, 0x05, (byte) 0xa0 } };
+
         public Sender() throws SocketException {
-        	super("oob generator", scheduler, Scheduler.INPUT_QUEUE);            
-        	
-        	index=0;
-        	this.oobInput=new OOBInput(ComponentType.DTMF_GENERATOR.getType());
-        	this.connect(oobInput);
+            super("oob generator", scheduler, Scheduler.INPUT_QUEUE);
+
+            index = 0;
+            this.oobInput = new OOBInput(ComponentType.DTMF_GENERATOR.getType());
+            this.connect(oobInput);
         }
-        
-        public OOBInput getOOBInput()
-        {
-        	return this.oobInput;
-        } 
-        
+
+        public OOBInput getOOBInput() {
+            return this.oobInput;
+        }
+
         @Override
         public Frame evolve(long timestamp) {
-    		if(index >= 200)
-        		return null;    		    		
-    	
-    		Frame frame ;
-    		if(index%50>=7)
-    		{
-    			frame = Memory.allocate(3);
-    			frame.setOffset(0);
+            if (index >= 200)
+                return null;
+
+            Frame frame;
+            if (index % 50 >= 7) {
+                frame = Memory.allocate(3);
+                frame.setOffset(0);
                 frame.setLength(3);
                 frame.setTimestamp(getMediaTime());
                 frame.setDuration(20000000L);
-    		}
-    		else
-    		{
-    			frame = Memory.allocate(4);
-    			byte[] data=frame.getData();
-    			System.arraycopy(evt1[index%50], 0, data, 0, 4);
-    			frame.setOffset(0);
+            } else {
+                frame = Memory.allocate(4);
+                byte[] data = frame.getData();
+                System.arraycopy(evt1[index % 50], 0, data, 0, 4);
+                frame.setOffset(0);
                 frame.setLength(4);
                 frame.setTimestamp(getMediaTime());
                 frame.setDuration(20000000L);
-    		}
-    		
+            }
+
             index++;
             return frame;
-    	}
-    	
-    	@Override
+        }
+
+        @Override
         public void activate() {
             start();
         }
-    	
-    	@Override
+
+        @Override
         public void deactivate() {
             stop();
-        } 
+        }
     }
 }

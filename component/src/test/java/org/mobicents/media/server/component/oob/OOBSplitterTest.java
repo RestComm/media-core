@@ -59,7 +59,7 @@ public class OOBSplitterTest {
     private OOBComponent receiver1Component;
     private OOBComponent receiver2Component;
     private OOBComponent receiver3Component;
-    
+
     private OOBSplitter splitter;
 
     public OOBSplitterTest() {
@@ -75,39 +75,43 @@ public class OOBSplitterTest {
 
     @Before
     public void setUp() throws IOException {
-    	clock = new DefaultClock();
+        clock = new DefaultClock();
 
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
         sender = new OOBSender(scheduler);
-        
-        receiver1 = new OOBReceiver("receiver-1",scheduler);
-        receiver2 = new OOBReceiver("receiver-2",scheduler);
-        receiver3 = new OOBReceiver("receiver-3",scheduler);
 
-        senderComponent=new OOBComponent(1);
+        receiver1 = new OOBReceiver("receiver-1", scheduler);
+        receiver2 = new OOBReceiver("receiver-2", scheduler);
+        receiver3 = new OOBReceiver("receiver-3", scheduler);
+
+        senderComponent = new OOBComponent(1);
         senderComponent.addInput(sender.getOOBInput());
-        senderComponent.updateMode(true,false);
-        
-        receiver1Component=new OOBComponent(2);
+        senderComponent.setReadable(true);
+        senderComponent.setWritable(false);
+
+        receiver1Component = new OOBComponent(2);
         receiver1Component.addOutput(receiver1.getOOBOutput());
-        receiver1Component.updateMode(false,true);
-        
-        receiver2Component=new OOBComponent(3);
+        receiver1Component.setReadable(false);
+        receiver1Component.setWritable(true);
+
+        receiver2Component = new OOBComponent(3);
         receiver2Component.addOutput(receiver2.getOOBOutput());
-        receiver2Component.updateMode(false,true);
-        
-        receiver3Component=new OOBComponent(4);
+        receiver2Component.setReadable(false);
+        receiver2Component.setWritable(true);
+
+        receiver3Component = new OOBComponent(4);
         receiver3Component.addOutput(receiver3.getOOBOutput());
-        receiver3Component.updateMode(false,true);
-        
+        receiver3Component.setReadable(false);
+        receiver3Component.setWritable(true);
+
         splitter = new OOBSplitter(scheduler);
         splitter.addInsideComponent(senderComponent);
         splitter.addOutsideComponent(receiver1Component);
         splitter.addOutsideComponent(receiver2Component);
-        splitter.addOutsideComponent(receiver3Component);             
+        splitter.addOutsideComponent(receiver3Component);
     }
 
     @After
@@ -117,12 +121,12 @@ public class OOBSplitterTest {
 
     @Test
     public void testTransfer() throws InterruptedException {
-    	sender.activate();
-    	splitter.start();
+        sender.activate();
+        splitter.start();
         receiver1.activate();
         receiver2.activate();
         receiver3.activate();
-        
+
         Thread.sleep(5000);
 
         sender.deactivate();
@@ -138,6 +142,6 @@ public class OOBSplitterTest {
         assertEquals(50, res, 5);
 
         res = receiver3.getPacketsCount();
-        assertEquals(50, res, 5);       
+        assertEquals(50, res, 5);
     }
 }

@@ -327,7 +327,7 @@ public abstract class RtpSession {
         resetFormats();
 
         // Reset relay components
-        this.mixerComponent.setMode(ConnectionMode.INACTIVE);
+        this.mixerComponent.updateMode(ConnectionMode.INACTIVE);
 
         // Reset channels
         if (this.rtcpMux) {

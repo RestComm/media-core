@@ -70,7 +70,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
         this.mediaComponents.put(connection.getId(), mediaComponent);
 
         // Add mixing component to the media mixer
-        this.audioRelay.addComponent(mediaComponent.getAudioComponent());
+        this.audioRelay.addComponent(mediaComponent.getInbandComponent());
         this.oobRelay.addComponent(mediaComponent.getOOBComponent());
         return connection;
     }
@@ -84,7 +84,7 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
         MediaComponent mixerComponent = this.mediaComponents.remove(connection.getId());
 
         // Release the mixing component from the media mixer
-        this.audioRelay.removeComponent(mixerComponent.getAudioComponent());
+        this.audioRelay.removeComponent(mixerComponent.getInbandComponent());
         this.oobRelay.removeComponent(mixerComponent.getOOBComponent());
     }
 

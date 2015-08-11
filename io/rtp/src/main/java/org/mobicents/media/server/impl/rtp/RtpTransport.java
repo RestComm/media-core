@@ -173,7 +173,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
             default:
                 break;
         }
-        this.rtpRelay.setMode(connectionMode);
+        this.rtpRelay.updateMode(connectionMode);
 
         boolean connectImmediately = false;
         if (this.remotePeer != null) {
