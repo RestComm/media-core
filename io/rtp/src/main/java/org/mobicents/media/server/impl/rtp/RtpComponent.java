@@ -72,8 +72,8 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
-        addAudioInput(this.rtpSource.getAudioInput());
-        addAudioOutput(this.rtpSink.getAudioOutput());
+        addInput(this.rtpSource.getAudioInput());
+        addOutput(this.rtpSink.getAudioOutput());
         addOOBInput(this.dtmfSource.getOoBinput());
         addOOBOutput(this.dtmfSink.getOobOutput());
 

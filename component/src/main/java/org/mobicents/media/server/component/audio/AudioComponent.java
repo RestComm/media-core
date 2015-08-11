@@ -24,6 +24,7 @@ package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
 
+import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -34,7 +35,9 @@ import org.mobicents.media.server.spi.memory.Memory;
  * Implements compound components used by mixer and splitter.
  * 
  * @author Yulian Oifa
+ * @deprecated use {@link InbandComponent}
  */
+@Deprecated
 public class AudioComponent {
 
     // the format of the output stream.

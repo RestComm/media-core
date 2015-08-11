@@ -21,6 +21,9 @@
 
 package org.mobicents.media.server.component.audio;
 
+import org.mobicents.media.server.component.InbandComponent;
+import org.mobicents.media.server.component.MediaInput;
+import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
@@ -35,69 +38,73 @@ import org.mobicents.media.server.spi.ConnectionMode;
 public class MediaComponent {
 
     private final int channelId;
-    private final AudioComponent audioComponent;
-    private final OOBComponent ooBComponent;
+    private final InbandComponent inbandComponent;
+    private final OOBComponent oobComponent;
 
     public MediaComponent(int channelId) {
         this.channelId = channelId;
-        this.audioComponent = new AudioComponent(channelId);
-        this.ooBComponent = new OOBComponent(channelId);
+        this.inbandComponent = new InbandComponent(channelId);
+        this.oobComponent = new OOBComponent(channelId);
     }
 
     public int getChannelId() {
         return channelId;
     }
-    
-    public AudioComponent getAudioComponent() {
-        return audioComponent;
+
+    public InbandComponent getInbandComponent() {
+        return inbandComponent;
     }
 
-    public void addAudioInput(AudioInput input) {
-        this.audioComponent.addInput(input);
+    public void addInput(MediaInput input) {
+        this.inbandComponent.addInput(input);
     }
 
-    public void addAudioOutput(AudioOutput output) {
-        this.audioComponent.addOutput(output);
+    public void addOutput(MediaOutput output) {
+        this.inbandComponent.addOutput(output);
     }
 
     public OOBComponent getOOBComponent() {
-        return ooBComponent;
+        return oobComponent;
     }
 
     public void addOOBInput(OOBInput input) {
-        this.ooBComponent.addInput(input);
+        this.oobComponent.addInput(input);
     }
 
     public void addOOBOutput(OOBOutput output) {
-        this.ooBComponent.addOutput(output);
+        this.oobComponent.addOutput(output);
     }
 
     public void updateMode(ConnectionMode connectionMode) {
+        boolean readable;
+        boolean writable;
+
         switch (connectionMode) {
             case SEND_ONLY:
-                audioComponent.updateMode(false, true);
-                ooBComponent.updateMode(false, true);
+                readable = false;
+                writable = true;
                 break;
             case RECV_ONLY:
-                audioComponent.updateMode(true, false);
-                ooBComponent.updateMode(true, false);
-                break;
-            case INACTIVE:
-                audioComponent.updateMode(false, false);
-                ooBComponent.updateMode(false, false);
+                readable = true;
+                writable = false;
                 break;
             case SEND_RECV:
             case CONFERENCE:
-                audioComponent.updateMode(true, true);
-                ooBComponent.updateMode(true, true);
+                readable = true;
+                writable = true;
                 break;
+            case INACTIVE:
             case NETWORK_LOOPBACK:
-                audioComponent.updateMode(false, false);
-                ooBComponent.updateMode(false, false);
-                break;
             default:
+                readable = false;
+                writable = false;
                 break;
         }
+
+        this.inbandComponent.setReadable(readable);
+        this.inbandComponent.setWritable(writable);
+        this.oobComponent.setReadable(readable);
+        this.oobComponent.setWritable(writable);
     }
 
 }

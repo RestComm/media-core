@@ -34,88 +34,99 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class OOBComponent {
 
-	private ConcurrentMap<OOBInput> inputs = new ConcurrentMap<OOBInput>();
-	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap<OOBOutput>();
+    private ConcurrentMap<OOBInput> inputs = new ConcurrentMap<OOBInput>();
+    private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap<OOBOutput>();
 
-	Iterator<OOBInput> activeInputs;
-	Iterator<OOBOutput> activeOutputs;
+    Iterator<OOBInput> activeInputs;
+    Iterator<OOBOutput> activeOutputs;
 
-	protected Boolean shouldRead = false;
-	protected Boolean shouldWrite = false;
+    protected boolean readable = false;
+    protected boolean writable = false;
 
-	private Frame frame;
+    private Frame frame;
 
-	private int componentId;
+    private int componentId;
 
-	/**
-	 * Creates new instance with default name.
-	 */
-	public OOBComponent(int componentId) {
-		this.componentId = componentId;
-	}
+    /**
+     * Creates new instance with default name.
+     */
+    public OOBComponent(int componentId) {
+        this.componentId = componentId;
+    }
 
-	public int getComponentId() {
-		return componentId;
-	}
+    public int getComponentId() {
+        return componentId;
+    }
 
-	public void updateMode(Boolean shouldRead, Boolean shouldWrite) {
-		this.shouldRead = shouldRead;
-		this.shouldWrite = shouldWrite;
-	}
+    public boolean isReadable() {
+        return readable;
+    }
 
-	public void addInput(OOBInput input) {
-		inputs.put(input.getInputId(), input);
-	}
+    public void setReadable(boolean readable) {
+        this.readable = readable;
+    }
 
-	public void addOutput(OOBOutput output) {
-		outputs.put(output.getOutputId(), output);
-	}
+    public boolean isWritable() {
+        return writable;
+    }
 
-	public void remove(OOBInput input) {
-		inputs.remove(input.getInputId());
-	}
+    public void setWritable(boolean writable) {
+        this.writable = writable;
+    }
 
-	public void remove(OOBOutput output) {
-		outputs.remove(output.getOutputId());
-	}
+    public void addInput(OOBInput input) {
+        inputs.put(input.getInputId(), input);
+    }
 
-	public void perform() {
-		frame = null;
-		activeInputs = inputs.valuesIterator();
-		while (activeInputs.hasNext()) {
-			OOBInput input = activeInputs.next();
-			frame = input.poll();
-			if (frame != null) {
-				break;
-			}
-		}
-	}
+    public void addOutput(OOBOutput output) {
+        outputs.put(output.getOutputId(), output);
+    }
 
-	public Frame getData() {
-		if (!this.shouldRead) {
-			if (frame != null) {
-				frame.recycle();
-			}
-			return null;
-		}
-		return frame;
-	}
+    public void remove(OOBInput input) {
+        inputs.remove(input.getInputId());
+    }
 
-	public void offer(Frame frame) {
-		if (!this.shouldWrite) {
-			frame.recycle();
-			return;
-		}
+    public void remove(OOBOutput output) {
+        outputs.remove(output.getOutputId());
+    }
 
-		activeOutputs = outputs.valuesIterator();
-		while (activeOutputs.hasNext()) {
-			OOBOutput output = activeOutputs.next();
-			if (!activeOutputs.hasNext()) {
-				output.offer(frame);
-			} else {
-				output.offer(frame.clone());
-			}
-			output.wakeup();
-		}
-	}
+    public void perform() {
+        frame = null;
+        activeInputs = inputs.valuesIterator();
+        while (activeInputs.hasNext()) {
+            OOBInput input = activeInputs.next();
+            frame = input.poll();
+            if (frame != null) {
+                break;
+            }
+        }
+    }
+
+    public Frame getData() {
+        if (!this.readable) {
+            if (frame != null) {
+                frame.recycle();
+            }
+            return null;
+        }
+        return frame;
+    }
+
+    public void offer(Frame frame) {
+        if (!this.writable) {
+            frame.recycle();
+            return;
+        }
+
+        activeOutputs = outputs.valuesIterator();
+        while (activeOutputs.hasNext()) {
+            OOBOutput output = activeOutputs.next();
+            if (!activeOutputs.hasNext()) {
+                output.offer(frame);
+            } else {
+                output.offer(frame.clone());
+            }
+            output.wakeup();
+        }
+    }
 }
