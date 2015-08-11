@@ -26,8 +26,7 @@ import org.mobicents.media.server.component.MediaSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * Audio splitter that forwards traffic between components.
@@ -36,12 +35,6 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  *
  */
 public class AudioForwardingSplitter implements MediaSplitter {
-
-    // Format of the output stream.
-    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private static final long PERIOD = 20000000L;
-    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
-            * LINEAR_FORMAT.getSampleSize() / 8;
 
     // Pools of components
     private final ConcurrentMap<InbandComponent> insideComponents;
@@ -105,8 +98,6 @@ public class AudioForwardingSplitter implements MediaSplitter {
 
     private final class InsideForwardingTask extends Task {
 
-        private final int[] data = new int[PACKET_SIZE / 2];
-
         @Override
         public int getQueueNumber() {
             return Scheduler.MIXER_MIX_QUEUE;
@@ -116,18 +107,11 @@ public class AudioForwardingSplitter implements MediaSplitter {
         public long perform() {
             // Retrieve data from each readable component
             for (InbandComponent insideComponent : insideComponents.values()) {
-                if (insideComponent.shouldRead) {
-                    insideComponent.perform();
-                    if (insideComponent.hasData()) {
-                        System.arraycopy(insideComponent.getData(), 0, data, 0, data.length);
-                        if (data != null && data.length > 0) {
-                            // Pass the data to all outside components with write permission
-                            for (InbandComponent outsideComponent : outsideComponents.values()) {
-                                if (outsideComponent.shouldWrite) {
-                                    outsideComponent.offer(data);
-                                }
-                            }
-                        }
+                Frame[] frames = insideComponent.retrieveData();
+                if (frames.length > 0) {
+                    // Pass the data to all outside components with write permission
+                    for (InbandComponent outsideComponent : outsideComponents.values()) {
+                        outsideComponent.submitData(frames);
                     }
                 }
             }
@@ -141,8 +125,6 @@ public class AudioForwardingSplitter implements MediaSplitter {
 
     private final class OutsideForwardingTask extends Task {
 
-        private final int[] data = new int[PACKET_SIZE / 2];
-
         @Override
         public int getQueueNumber() {
             return Scheduler.MIXER_MIX_QUEUE;
@@ -152,18 +134,11 @@ public class AudioForwardingSplitter implements MediaSplitter {
         public long perform() {
             // Retrieve data from each readable component
             for (InbandComponent outsideComponent : outsideComponents.values()) {
-                if (outsideComponent.shouldRead) {
-                    outsideComponent.perform();
-                    if (outsideComponent.hasData()) {
-                        System.arraycopy(outsideComponent.getData(), 0, data, 0, data.length);
-                        if (data != null && data.length > 0) {
-                            // Pass the data to all outside components with write permission
-                            for (InbandComponent insideComponent : insideComponents.values()) {
-                                if (insideComponent.shouldWrite) {
-                                    insideComponent.offer(data);
-                                }
-                            }
-                        }
+                Frame[] frames = outsideComponent.retrieveData();
+                if (frames.length > 0) {
+                    // Pass the data to all outside components with write permission
+                    for (InbandComponent insideComponent : insideComponents.values()) {
+                        insideComponent.submitData(frames);
                     }
                 }
             }

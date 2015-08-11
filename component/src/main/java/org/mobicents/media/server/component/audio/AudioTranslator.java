@@ -26,8 +26,7 @@ import org.mobicents.media.server.component.MediaRelay;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.memory.Frame;
 
 /**
  * Implementation of a translator that forwards packets to all registered receivers.
@@ -37,12 +36,6 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  * @see <a href="http://tools.ietf.org/html/rfc3550#section-7">RFC3550 - Section 7 - RTP Translators and Mixers</a>
  */
 public class AudioTranslator implements MediaRelay {
-
-    // The format of the output stream
-    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private static final long PERIOD = 20000000L;
-    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
-            * LINEAR_FORMAT.getSampleSize() / 8;
 
     // Pool of components
     private final ConcurrentMap<InbandComponent> components;
@@ -94,8 +87,6 @@ public class AudioTranslator implements MediaRelay {
 
     private class TranslateTask extends Task {
 
-        private final int currentData[] = new int[PACKET_SIZE / 2];
-
         @Override
         public int getQueueNumber() {
             return Scheduler.MIXER_MIX_QUEUE;
@@ -105,18 +96,12 @@ public class AudioTranslator implements MediaRelay {
         public long perform() {
             // Execute each readable component and get its data
             for (InbandComponent component : components.values()) {
-                if (component.isReadable()) {
-                    component.perform();
-                    if (component.hasData()) {
-                        System.arraycopy(component.getData(), 0, currentData, 0, currentData.length);
-
-                        // Offer the data of the current component to all the other writable components
-                        for (InbandComponent otherComponent : components.values()) {
-                            if (!component.equals(otherComponent)) {
-                                if (otherComponent.isWritable()) {
-                                    otherComponent.offer(currentData);
-                                }
-                            }
+                Frame[] frames = component.retrieveData();
+                if (frames.length > 0) {
+                    // Offer the data of the current component to all the other writable components
+                    for (InbandComponent otherComponent : components.values()) {
+                        if (!component.equals(otherComponent)) {
+                            otherComponent.submitData(frames);
                         }
                     }
                 }
