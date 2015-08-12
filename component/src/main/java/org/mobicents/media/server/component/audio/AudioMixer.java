@@ -224,23 +224,11 @@ public class AudioMixer implements MediaRelay {
                 total[i] = (short) ((double) total[i] * currGain);
             }
 
-            // get data for each component
+            // Submit mixed stream to all registered components
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
                 InbandComponent component = activeComponents.next();
-//                Frame[] frames = component.retrieveData(LINEAR_FORMAT);
-                
-                if (sourcesCount > 1) {
-//                if (frames.length > 0 && sourcesCount > 1) {
-//                    current = depacketize(frames);
-                    for (i = 0; i < total.length; i++) {
-                        current[i] = total[i] - (short) ((double) current[i] * currGain);
-                    }
-                    component.submitData(packetize(current));
-//                } else if (current == null) {
-                } else {
-                    component.submitData(packetize(total));
-                }
+                component.submitData(packetize(total));
             }
 
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
