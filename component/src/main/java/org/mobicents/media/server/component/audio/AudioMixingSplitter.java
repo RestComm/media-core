@@ -31,6 +31,8 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  * Implements compound audio splitter , one of core components of mms 3.0
@@ -129,6 +131,47 @@ public class AudioMixingSplitter implements MediaSplitter {
         }
     }
 
+    private int[] depacketize(Frame... frames) {
+        int[] data = new int[PACKET_SIZE / 2];
+        boolean first = true;
+
+        for (Frame frame : frames) {
+            byte[] dataArray = frame.getData();
+            int inputIndex = 0;
+
+            if (first) {
+                for (int inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                    data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                }
+                first = false;
+            } else {
+                for (int inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                    data[inputIndex++] += (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                }
+            }
+            frame.recycle();
+        }
+        return data;
+    }
+
+    private Frame packetize(int[] data) {
+        // Allocate new media frame
+        Frame frame = Memory.allocate(PACKET_SIZE);
+        frame.setOffset(0);
+        frame.setLength(PACKET_SIZE);
+        frame.setDuration(PERIOD);
+        frame.setFormat(LINEAR_FORMAT);
+
+        // Fill payload with mixed data
+        int index = 0;
+        byte[] payload = frame.getData();
+        for (int count = 0; count < data.length;) {
+            payload[index++] = (byte) (data[count]);
+            payload[index++] = (byte) (data[count++] >> 8);
+        }
+        return frame;
+    }
+
     private class InsideMixTask extends Task {
         Boolean first = false;
         private int i;
@@ -155,9 +198,10 @@ public class AudioMixingSplitter implements MediaSplitter {
 
             while (insideRIterator.hasNext()) {
                 InbandComponent component = insideRIterator.next();
-                component.perform();
-                current = component.getData();
-                if (current != null) {
+                Frame[] frames = component.retrieveData(LINEAR_FORMAT);
+
+                if (frames.length > 0) {
+                    current = depacketize(frames);
                     if (first) {
                         System.arraycopy(current, 0, total, 0, total.length);
                         first = false;
@@ -206,7 +250,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             outsideSIterator = outsideComponents.valuesIterator();
             while (outsideSIterator.hasNext()) {
                 InbandComponent component = outsideSIterator.next();
-                component.offer(total);
+                component.submitData(packetize(total));
             }
 
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
@@ -241,9 +285,10 @@ public class AudioMixingSplitter implements MediaSplitter {
 
             while (outsideRIterator.hasNext()) {
                 InbandComponent component = outsideRIterator.next();
-                component.perform();
-                current = component.getData();
-                if (current != null) {
+                Frame[] frames = component.retrieveData(LINEAR_FORMAT);
+
+                if (frames.length > 0) {
+                    current = depacketize(frames);
                     if (first) {
                         System.arraycopy(current, 0, total, 0, total.length);
                         first = false;
@@ -289,7 +334,7 @@ public class AudioMixingSplitter implements MediaSplitter {
             insideSIterator = insideComponents.valuesIterator();
             while (insideSIterator.hasNext()) {
                 InbandComponent component = insideSIterator.next();
-                component.offer(total);
+                component.submitData(packetize(total));
             }
 
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);

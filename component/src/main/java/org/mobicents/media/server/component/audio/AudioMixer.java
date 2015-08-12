@@ -31,6 +31,8 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.memory.Memory;
 
 /**
  * Implements compound audio mixer , one of core components of mms 3.0
@@ -121,6 +123,47 @@ public class AudioMixer implements MediaRelay {
             super();
         }
 
+        private int[] depacketize(Frame... frames) {
+            int[] data = new int[PACKET_SIZE / 2];
+            boolean first = true;
+
+            for (Frame frame : frames) {
+                byte[] dataArray = frame.getData();
+                int inputIndex = 0;
+
+                if (first) {
+                    for (int inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                        data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                    }
+                    first = false;
+                } else {
+                    for (int inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                        data[inputIndex++] += (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                    }
+                }
+                frame.recycle();
+            }
+            return data;
+        }
+
+        private Frame packetize(int[] data) {
+            // Allocate new media frame
+            Frame frame = Memory.allocate(PACKET_SIZE);
+            frame.setOffset(0);
+            frame.setLength(PACKET_SIZE);
+            frame.setDuration(PERIOD);
+            frame.setFormat(LINEAR_FORMAT);
+
+            // Fill payload with mixed data
+            int index = 0;
+            byte[] payload = frame.getData();
+            for (int count = 0; count < data.length;) {
+                payload[index++] = (byte) (data[count]);
+                payload[index++] = (byte) (data[count++] >> 8);
+            }
+            return frame;
+        }
+
         @Override
         public int getQueueNumber() {
             return Scheduler.MIXER_MIX_QUEUE;
@@ -133,9 +176,10 @@ public class AudioMixer implements MediaRelay {
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
                 InbandComponent component = activeComponents.next();
-                component.perform();
-                current = component.getData();
-                if (current != null) {
+
+                Frame[] frames = component.retrieveData(LINEAR_FORMAT);
+                if (frames.length > 0) {
+                    current = depacketize(frames);
                     if (sourcesCount == 0) {
                         System.arraycopy(current, 0, total, 0, total.length);
                     } else {
@@ -184,14 +228,16 @@ public class AudioMixer implements MediaRelay {
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
                 InbandComponent component = activeComponents.next();
-                current = component.getData();
-                if (current != null && sourcesCount > 1) {
+                Frame[] frames = component.retrieveData(LINEAR_FORMAT);
+
+                if (frames.length > 0 && sourcesCount > 1) {
+                    current = depacketize(frames);
                     for (i = 0; i < total.length; i++) {
                         current[i] = total[i] - (short) ((double) current[i] * currGain);
                     }
-                    component.offer(current);
+                    component.submitData(packetize(current));
                 } else if (current == null) {
-                    component.offer(total);
+                    component.submitData(packetize(total));
                 }
             }
 
