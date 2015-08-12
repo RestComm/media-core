@@ -30,9 +30,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
@@ -54,11 +52,11 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  */
 public class ReclaimingTest {
 
-    //clock and scheduler
+    // clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
 
-    //endpoint and connection
+    // endpoint and connection
     private MyTestEndpoint endpoint1;
     private MyTestEndpoint endpoint2;
 
@@ -66,38 +64,38 @@ public class ReclaimingTest {
 
     private ChannelsManager channelsManager;
 
-    protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
+    protected DspFactoryImpl dspFactory;
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+    public ReclaimingTest() {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
     }
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
-        //use default clock
+        // use default clock
         clock = new DefaultClock();
 
-        //create single thread scheduler
+        // create single thread scheduler
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
         channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
-        channelsManager.setScheduler(scheduler);        
+        channelsManager.setScheduler(scheduler);
 
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
-        //assign scheduler to the endpoint
-        endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER);
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+        // assign scheduler to the endpoint
+        endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER, dspFactory.newProcessor());
         endpoint1.setScheduler(scheduler);
         endpoint1.setResourcesPool(resourcesPool);
         endpoint1.setFreq(200);
         endpoint1.start();
 
-        endpoint2 = new MyTestEndpoint("test-2", RelayType.MIXER);
+        endpoint2 = new MyTestEndpoint("test-2", RelayType.MIXER, dspFactory.newProcessor());
         endpoint2.setScheduler(scheduler);
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.setFreq(200);
@@ -122,19 +120,19 @@ public class ReclaimingTest {
      * Test of setOtherParty method, of class LocalConnectionImpl.
      */
     public void testForLocalConnections() throws Exception {
-        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL, false);
         endpoint1.deleteConnection(connection1);
     }
 
     public void testForRTPConnections() throws Exception {
-        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP, false);
         endpoint1.deleteConnection(connection1);
     }
-    
-//    @Test
+
+    // @Test
     public void testLocalConnections() throws Exception {
         for (int i = 0; i < 500; i++) {
-            //System.out.println("Test #" + i);
+            // System.out.println("Test #" + i);
             this.testForLocalConnections();
         }
     }
@@ -147,6 +145,5 @@ public class ReclaimingTest {
             this.testForRTPConnections();
         }
     }
-    
 
 }

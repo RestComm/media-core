@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
+import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SoundCard;
@@ -54,9 +55,9 @@ public class SoundSystem extends AbstractRelayEndpoint implements Endpoint {
 
     private InbandComponent inbandComponent;
 
-    public SoundSystem(String localName) {
+    public SoundSystem(String localName, Dsp transcoder) {
         super(localName, RelayType.MIXER);
-        inbandComponent = new InbandComponent(-1);
+        inbandComponent = new InbandComponent(-1, transcoder);
     }
 
     @Override

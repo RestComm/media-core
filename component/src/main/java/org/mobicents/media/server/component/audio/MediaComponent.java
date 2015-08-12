@@ -28,6 +28,7 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Contains the media and out-of-band components of a connection.
@@ -41,9 +42,9 @@ public class MediaComponent {
     private final InbandComponent inbandComponent;
     private final OOBComponent oobComponent;
 
-    public MediaComponent(int channelId) {
+    public MediaComponent(int channelId, Processor transcoder) {
         this.channelId = channelId;
-        this.inbandComponent = new InbandComponent(channelId);
+        this.inbandComponent = new InbandComponent(channelId, transcoder);
         this.oobComponent = new OOBComponent(channelId);
     }
 

@@ -61,48 +61,48 @@ public class BridgeTest extends RTPEnvironment {
 
     private ResourcesPool resourcesPool;
 
-    Component sine1,sine2,sine3,sine4;
-    Component analyzer1,analyzer2,analyzer3,analyzer4;
+    Component sine1, sine2, sine3, sine4;
+    Component analyzer1, analyzer2, analyzer3, analyzer4;
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
         super.setup();
-        
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
-        //assign scheduler to the endpoint
-        endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER);
+
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+        // assign scheduler to the endpoint
+        endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER, dspFactory.newProcessor());
         endpoint1.setScheduler(scheduler);
         endpoint1.setResourcesPool(resourcesPool);
         endpoint1.setFreq(400);
         endpoint1.start();
 
-        endpoint2 = new MyTestEndpoint("test-2", RelayType.MIXER);
+        endpoint2 = new MyTestEndpoint("test-2", RelayType.MIXER, dspFactory.newProcessor());
         endpoint2.setScheduler(scheduler);
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.setFreq(200);
         endpoint2.start();
 
-        endpoint3 = new MyTestEndpoint("test-3", RelayType.MIXER);
+        endpoint3 = new MyTestEndpoint("test-3", RelayType.MIXER, dspFactory.newProcessor());
         endpoint3.setScheduler(scheduler);
         endpoint3.setResourcesPool(resourcesPool);
         endpoint3.setFreq(600);
         endpoint3.start();
 
-        endpoint4 = new MyTestEndpoint("test-4", RelayType.MIXER);
+        endpoint4 = new MyTestEndpoint("test-4", RelayType.MIXER, dspFactory.newProcessor());
         endpoint4.setScheduler(scheduler);
         endpoint4.setResourcesPool(resourcesPool);
         endpoint4.setFreq(800);
         endpoint4.start();
-        
-        sine1=endpoint1.getResource(MediaType.AUDIO,ComponentType.SINE);
-    	sine2=endpoint2.getResource(MediaType.AUDIO,ComponentType.SINE);
-    	sine3=endpoint3.getResource(MediaType.AUDIO,ComponentType.SINE);
-    	sine4=endpoint4.getResource(MediaType.AUDIO,ComponentType.SINE);
-    	
-    	analyzer1=endpoint1.getResource(MediaType.AUDIO,ComponentType.SPECTRA_ANALYZER);
-    	analyzer2=endpoint2.getResource(MediaType.AUDIO,ComponentType.SPECTRA_ANALYZER);
-    	analyzer3=endpoint3.getResource(MediaType.AUDIO,ComponentType.SPECTRA_ANALYZER);
-    	analyzer4=endpoint4.getResource(MediaType.AUDIO,ComponentType.SPECTRA_ANALYZER);
+
+        sine1 = endpoint1.getResource(MediaType.AUDIO, ComponentType.SINE);
+        sine2 = endpoint2.getResource(MediaType.AUDIO, ComponentType.SINE);
+        sine3 = endpoint3.getResource(MediaType.AUDIO, ComponentType.SINE);
+        sine4 = endpoint4.getResource(MediaType.AUDIO, ComponentType.SINE);
+
+        analyzer1 = endpoint1.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
+        analyzer2 = endpoint2.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
+        analyzer3 = endpoint3.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
+        analyzer4 = endpoint4.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
     }
 
     @After
@@ -123,7 +123,7 @@ public class BridgeTest extends RTPEnvironment {
         if (endpoint4 != null) {
             endpoint4.stop();
         }
-        
+
         super.tearDown();
     }
 
@@ -133,64 +133,64 @@ public class BridgeTest extends RTPEnvironment {
     @Test
     public void testTransmission() throws Exception {
         sine1.activate();
-    	sine2.activate();
-    	sine3.activate();
-    	sine4.activate();
-    	
-    	analyzer1.activate();
-    	analyzer2.activate();
-    	analyzer3.activate();
-    	analyzer4.activate();
-    	
-    	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
-    	Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);
-        
-    	connection1.generateOffer();
-    	connection1.setMode(ConnectionMode.SEND_ONLY);
-    	
+        sine2.activate();
+        sine3.activate();
+        sine4.activate();
+
+        analyzer1.activate();
+        analyzer2.activate();
+        analyzer3.activate();
+        analyzer4.activate();
+
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP, false);
+        Connection connection3 = endpoint3.createConnection(ConnectionType.RTP, false);
+
+        connection1.generateOffer();
+        connection1.setMode(ConnectionMode.SEND_ONLY);
+
         connection3.setOtherParty(new Text(connection1.getLocalDescriptor()));
         connection1.setOtherParty(new Text(connection3.getLocalDescriptor()));
 
-        //make inactive first        
-        
+        // make inactive first
+
         connection3.setMode(ConnectionMode.CONFERENCE);
         connection1.setMode(ConnectionMode.CONFERENCE);
 
-        Connection connection12 = endpoint1.createConnection(ConnectionType.LOCAL,false);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL,false);
-        
+        Connection connection12 = endpoint1.createConnection(ConnectionType.LOCAL, false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL, false);
+
         connection12.setOtherParty(connection2);
-        
-        //initial mode
+
+        // initial mode
         connection12.setMode(ConnectionMode.SEND_RECV);
-        
-        //working mode
+
+        // working mode
         connection12.setMode(ConnectionMode.CONFERENCE);
         connection2.setMode(ConnectionMode.SEND_RECV);
 
-        Connection connection34 = endpoint3.createConnection(ConnectionType.LOCAL,false);
-        Connection connection4 = endpoint4.createConnection(ConnectionType.LOCAL,false);
+        Connection connection34 = endpoint3.createConnection(ConnectionType.LOCAL, false);
+        Connection connection4 = endpoint4.createConnection(ConnectionType.LOCAL, false);
 
         connection34.setOtherParty(connection4);
         connection34.setMode(ConnectionMode.CONFERENCE);
-        
+
         connection4.setMode(ConnectionMode.SEND_RECV);
         Thread.sleep(100);
         connection4.setMode(ConnectionMode.SEND_RECV);
-        
+
         Thread.sleep(5000);
 
         sine1.deactivate();
-    	sine2.deactivate();
-    	sine3.deactivate();
-    	sine4.deactivate();
-    	
-    	analyzer1.deactivate();
-    	analyzer2.deactivate();
-    	analyzer3.deactivate();
-    	analyzer4.deactivate();
-    	
-    	SpectraAnalyzer a1 = (SpectraAnalyzer) analyzer1;
+        sine2.deactivate();
+        sine3.deactivate();
+        sine4.deactivate();
+
+        analyzer1.deactivate();
+        analyzer2.deactivate();
+        analyzer3.deactivate();
+        analyzer4.deactivate();
+
+        SpectraAnalyzer a1 = (SpectraAnalyzer) analyzer1;
         SpectraAnalyzer a2 = (SpectraAnalyzer) analyzer2;
         SpectraAnalyzer a3 = (SpectraAnalyzer) analyzer3;
         SpectraAnalyzer a4 = (SpectraAnalyzer) analyzer4;
@@ -202,14 +202,14 @@ public class BridgeTest extends RTPEnvironment {
 
         endpoint1.deleteConnection(connection1);
         endpoint1.deleteConnection(connection12);
-        
+
         endpoint2.deleteConnection(connection2);
 
         endpoint3.deleteConnection(connection3);
         endpoint3.deleteConnection(connection34);
-        
+
         endpoint4.deleteConnection(connection4);
-        
+
         printSpectra("E1", s1);
         printSpectra("E2", s2);
         printSpectra("E3", s3);
@@ -221,13 +221,12 @@ public class BridgeTest extends RTPEnvironment {
 
     }
 
-    
-    private void printSpectra(String title, int[]s) {
+    private void printSpectra(String title, int[] s) {
         System.out.println(title);
         for (int i = 0; i < s.length; i++) {
             System.out.print(s[i] + " ");
         }
         System.out.println();
     }
-    
+
 }

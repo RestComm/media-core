@@ -325,8 +325,9 @@ public class JitterBuffer implements Serializable {
      * Resets buffer.
      */
     public void reset() {
-        while (queue.size() > 0)
+        while (queue.size() > 0) {
             queue.remove(0).recycle();
+        }
     }
 
     public void restart() {

@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -28,6 +29,7 @@ public class DtmfTest implements DtmfDetectorListener {
 
     private Clock clock;
     private Scheduler scheduler;
+    private DspFactoryImpl dspFactory;
 
     private DetectorImpl detector;
     private GeneratorImpl generator;
@@ -41,6 +43,14 @@ public class DtmfTest implements DtmfDetectorListener {
     private OOBMixer oobMixer;
 
     private String tone;
+
+    public DtmfTest() {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+    }
 
     @Before
     public void setUp() throws TooManyListenersException {
@@ -62,12 +72,12 @@ public class DtmfTest implements DtmfDetectorListener {
 
         audioMixer = new AudioMixer(scheduler);
 
-        detectorComponent = new InbandComponent(1);
+        detectorComponent = new InbandComponent(1, dspFactory.newProcessor());
         detectorComponent.addOutput(detector.getMediaOutput());
         detectorComponent.setReadable(false);
         detectorComponent.setWritable(true);
 
-        generatorComponent = new InbandComponent(2);
+        generatorComponent = new InbandComponent(2, dspFactory.newProcessor());
         generatorComponent.addInput(generator.getMediaInput());
         generatorComponent.setReadable(true);
         generatorComponent.setWritable(false);

@@ -22,15 +22,14 @@
 
 package org.mobicents.media.server.bootstrap;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.apache.log4j.Logger;
 /**
  *

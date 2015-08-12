@@ -117,25 +117,25 @@ public class ChannelsManager {
     public UdpManager getUdpManager() {
         return this.udpManager;
     }
-    
+
     public DspFactory getDspFactory() {
         return dspFactory;
     }
 
     @Deprecated
     public RTPDataChannel getChannel() {
-        return new RTPDataChannel(this, channelIndex.incrementAndGet());
+        return new RTPDataChannel(this, channelIndex.incrementAndGet(), dspFactory.newProcessor());
     }
 
     public LocalChannel getLocalChannel() {
-        return new LocalChannel(this, channelIndex.incrementAndGet());
+        return new LocalChannel(this, channelIndex.incrementAndGet(), dspFactory.newProcessor());
     }
 
     public SS7DataChannel getSS7Channel(int dahdiChannelID, boolean isAlaw) throws IOException {
         if (ss7Manager == null) {
             throw new IOException("SS7 Not enabled");
         }
-        return new SS7DataChannel(ss7Manager, dahdiChannelID, channelIndex.incrementAndGet(), isAlaw);
+        return new SS7DataChannel(ss7Manager, dahdiChannelID, channelIndex.incrementAndGet(), isAlaw, dspFactory.newProcessor());
     }
 
     public AudioSession getAudioChannel() {

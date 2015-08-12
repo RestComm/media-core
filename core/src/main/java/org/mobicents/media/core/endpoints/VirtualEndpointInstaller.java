@@ -29,7 +29,6 @@ import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.spi.RelayType;
 
 /**
  * Endpoint installer is used for automatic creation and instalation of
@@ -126,7 +125,6 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 
 	@Override
 	public void install() {
-		ClassLoader loader = Server.class.getClassLoader();
 		for (int i = 0; i < initialSize; i++) {
 			newEndpoint();
 		}
@@ -137,7 +135,7 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 		ClassLoader loader = Server.class.getClassLoader();
 		nameParser.setPattern(namePattern);
 		try {
-			Constructor constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
+			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
 			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
 			server.install(endpoint, this);
 		} catch (Exception e) {

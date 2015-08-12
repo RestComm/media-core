@@ -138,7 +138,7 @@ public class RTPDataChannel {
      * @param channelManager Channel manager
      * 
      */
-    protected RTPDataChannel(ChannelsManager channelsManager, int channelId) {
+    protected RTPDataChannel(ChannelsManager channelsManager, int channelId, Processor transcoder) {
         this.channelsManager = channelsManager;
         this.jitterBufferSize = channelsManager.getJitterBufferSize();
 
@@ -167,7 +167,7 @@ public class RTPDataChannel {
 
         formats.add(LINEAR_FORMAT);
 
-        audioComponent = new InbandComponent(channelId);
+        audioComponent = new InbandComponent(channelId, transcoder);
         audioComponent.addInput(input.getAudioInput());
         audioComponent.addOutput(output.getAudioOutput());
 

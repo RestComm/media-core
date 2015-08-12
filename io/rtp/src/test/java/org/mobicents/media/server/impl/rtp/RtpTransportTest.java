@@ -126,7 +126,8 @@ public class RtpTransportTest {
         this.channel1.bind(false);
 
         // Create mixer component for channel 1
-        this.mixerComponent1 = new RtpComponent(CHANNEL1_ID, scheduler, channel1, rtpClock1, oobClock1);
+        this.mixerComponent1 = new RtpComponent(CHANNEL1_ID, scheduler, channel1, rtpClock1, oobClock1,
+                dspFactory.newProcessor());
         this.mixerComponent1.setRtpFormats(rtpFormats);
         this.channel1.setRtpRelay(mixerComponent1);
 
@@ -134,7 +135,7 @@ public class RtpTransportTest {
         // this.mixerComponent1.addAudioOutput(analyzer1.getAudioOutput());
         this.audioMixer1.addComponent(mixerComponent1.getInbandComponent());
 
-        InbandComponent sineComponent1 = new InbandComponent(1);
+        InbandComponent sineComponent1 = new InbandComponent(1, dspFactory.newProcessor());
         sineComponent1.addInput(source1.getMediaInput());
         sineComponent1.addOutput(analyzer1.getMediaOutput());
         sineComponent1.setReadable(true);
@@ -150,7 +151,8 @@ public class RtpTransportTest {
         this.channel2.bind(false);
 
         // Create mixer component for channel 2
-        this.mixerComponent2 = new RtpComponent(CHANNEL2_ID, scheduler, channel2, rtpClock2, oobClock2);
+        this.mixerComponent2 = new RtpComponent(CHANNEL2_ID, scheduler, channel2, rtpClock2, oobClock2,
+                dspFactory.newProcessor());
         this.mixerComponent2.setRtpFormats(rtpFormats);
         this.channel2.setRtpRelay(mixerComponent2);
 
@@ -158,7 +160,7 @@ public class RtpTransportTest {
         // this.mixerComponent2.addAudioOutput(analyzer2.getAudioOutput());
         this.audioMixer2.addComponent(mixerComponent2.getInbandComponent());
 
-        InbandComponent sineComponent2 = new InbandComponent(2);
+        InbandComponent sineComponent2 = new InbandComponent(2, dspFactory.newProcessor());
         sineComponent2.addInput(source2.getMediaInput());
         sineComponent2.addOutput(analyzer2.getMediaOutput());
         sineComponent2.setReadable(true);

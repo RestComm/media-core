@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
@@ -23,6 +24,7 @@ public class AudioRecorderImplTest {
 
     private Clock clock;
     private Scheduler scheduler;
+    private DspFactoryImpl dspFactory;
 
     private Sine sine;
     private AudioRecorderImpl recorder;
@@ -31,6 +33,14 @@ public class AudioRecorderImplTest {
     private InbandComponent recorderComponent;
 
     private AudioMixer mixer;
+
+    public AudioRecorderImplTest() {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+    }
 
     @Before
     public void setUp() throws IOException {
@@ -45,8 +55,8 @@ public class AudioRecorderImplTest {
 
         recorder = new AudioRecorderImpl(scheduler);
 
-        sineComponent = new InbandComponent(1);
-        recorderComponent = new InbandComponent(2);
+        sineComponent = new InbandComponent(1, dspFactory.newProcessor());
+        recorderComponent = new InbandComponent(2, dspFactory.newProcessor());
 
         sineComponent.setReadable(true);
         sineComponent.setWritable(true);

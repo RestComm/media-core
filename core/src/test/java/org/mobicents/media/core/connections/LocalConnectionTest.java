@@ -29,9 +29,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
@@ -52,55 +50,53 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  */
 public class LocalConnectionTest {
 
-    //clock and scheduler
+    // clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
-    //endpoint and connection
+
+    // endpoint and connection
     private LocalConnection connection;
     private MyTestEndpoint endpoint;
     private ResourcesPool resourcesPool;
 
     private ChannelsManager channelsManager;
 
-    protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
+    protected DspFactoryImpl dspFactory;
+
     public LocalConnectionTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
     }
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
-    	//use default clock
+        // use default clock
         clock = new DefaultClock();
 
-        //create single thread scheduler
+        // create single thread scheduler
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
         channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
-        channelsManager.setScheduler(scheduler);        
+        channelsManager.setScheduler(scheduler);
 
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
-        //assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test", RelayType.MIXER);
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+        // assign scheduler to the endpoint
+        endpoint = new MyTestEndpoint("test", RelayType.MIXER, dspFactory.newProcessor());
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();
 
-        connection = (LocalConnection) endpoint.createConnection(ConnectionType.LOCAL,false);    	
+        connection = (LocalConnection) endpoint.createConnection(ConnectionType.LOCAL, false);
     }
 
     @After
     public void tearDown() {
-    	endpoint.deleteAllConnections();
+        endpoint.deleteAllConnections();
         endpoint.stop();
         scheduler.stop();
     }
@@ -110,18 +106,18 @@ public class LocalConnectionTest {
      */
     @Test
     public void testDescription() throws Exception {
-//        connection.bind();
+        // connection.bind();
         Thread.sleep(1000);
 
-        System.out.println(connection.getDescriptor());        
+        System.out.println(connection.getDescriptor());
     }
 
     @Test
     public void testDuration() throws Exception {
         long s = System.nanoTime();
         for (int i = 0; i < 9; i++) {
-            connection = (LocalConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
-//            connection.bind();
+            connection = (LocalConnection) endpoint.createConnection(ConnectionType.LOCAL, false);
+            // connection.bind();
         }
         System.out.println("Duration=" + (System.nanoTime() - s));
     }

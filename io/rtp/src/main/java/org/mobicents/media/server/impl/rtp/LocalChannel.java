@@ -31,6 +31,7 @@ import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 
@@ -58,14 +59,14 @@ public class LocalChannel {
 
     private LocalChannel otherChannel = null;
 
-    protected LocalChannel(ChannelsManager channelsManager, int channelId) {
+    protected LocalChannel(ChannelsManager channelsManager, int channelId, Processor transcoder) {
         this.inbandInput = new MediaInput(1, PACKET_SIZE);
         this.inbandOutput = new MediaOutput(2, channelsManager.getScheduler());
         this.oobInput = new OOBInput(1);
         this.oobOutput = new OOBOutput(channelsManager.getScheduler(), 2);
 
         // Media relay
-        this.mediaComponent = new MediaComponent(channelId);
+        this.mediaComponent = new MediaComponent(channelId, transcoder);
         this.mediaComponent.addInput(inbandInput);
         this.mediaComponent.addOutput(inbandOutput);
         this.mediaComponent.addOOBInput(oobInput);

@@ -143,7 +143,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         audioMixer = new AudioMixer(scheduler);
         audioMixer.addComponent(channel.getAudioComponent());
 
-        detectorComponent = new InbandComponent(1);
+        detectorComponent = new InbandComponent(1, dspFactory.newProcessor());
         detectorComponent.addOutput(detector.getMediaOutput());
         detectorComponent.setReadable(true);
         detectorComponent.setWritable(true);

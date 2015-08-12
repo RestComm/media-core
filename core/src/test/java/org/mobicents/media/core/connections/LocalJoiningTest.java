@@ -27,23 +27,20 @@
 
 package org.mobicents.media.core.connections;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -62,69 +59,66 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  */
 public class LocalJoiningTest {
 
-    //clock and scheduler
+    // clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
 
-    //endpoint and connection
+    // endpoint and connection
     private MyTestEndpoint endpoint1;
     private MyTestEndpoint endpoint2;
 
     private ResourcesPool resourcesPool;
-    
+
     private ChannelsManager channelsManager;
-    
+
     private int count;
 
-    Component sine1,sine2;
-    Component analyzer1,analyzer2;
-    
-    protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
+    Component sine1, sine2;
+    Component analyzer1, analyzer2;
+
+    protected DspFactoryImpl dspFactory;
+
     public LocalJoiningTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
     }
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
-    	//use default clock
+        // use default clock
         clock = new DefaultClock();
 
-        //create single thread scheduler
+        // create single thread scheduler
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
         channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
         channelsManager.setScheduler(scheduler);
-        
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
-        
-        //assign scheduler to the endpoint
-        endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER);
+
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+
+        // assign scheduler to the endpoint
+        endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER, dspFactory.newProcessor());
         endpoint1.setScheduler(scheduler);
         endpoint1.setResourcesPool(resourcesPool);
         endpoint1.setFreq(200);
         endpoint1.start();
 
-        endpoint2 = new MyTestEndpoint("test-2", RelayType.MIXER);
+        endpoint2 = new MyTestEndpoint("test-2", RelayType.MIXER, dspFactory.newProcessor());
         endpoint2.setScheduler(scheduler);
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.setFreq(200);
         endpoint2.start();
-        
-        sine1=endpoint1.getResource(MediaType.AUDIO,ComponentType.SINE);
-    	sine2=endpoint2.getResource(MediaType.AUDIO,ComponentType.SINE);
-    	
-    	analyzer1=endpoint1.getResource(MediaType.AUDIO,ComponentType.SPECTRA_ANALYZER);
-    	analyzer2=endpoint2.getResource(MediaType.AUDIO,ComponentType.SPECTRA_ANALYZER);    	
+
+        sine1 = endpoint1.getResource(MediaType.AUDIO, ComponentType.SINE);
+        sine2 = endpoint2.getResource(MediaType.AUDIO, ComponentType.SINE);
+
+        analyzer1 = endpoint1.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
+        analyzer2 = endpoint2.getResource(MediaType.AUDIO, ComponentType.SPECTRA_ANALYZER);
     }
 
     @After
@@ -145,17 +139,17 @@ public class LocalJoiningTest {
      */
     @Test
     public void testFullduplex() throws Exception {
-    	long s = System.nanoTime();
+        long s = System.nanoTime();
 
         sine1.activate();
-    	sine2.activate();
-    	
-    	analyzer1.activate();
-    	analyzer2.activate();
-    	
-    	Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL,false);
-        
+        sine2.activate();
+
+        analyzer1.activate();
+        analyzer2.activate();
+
+        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL, false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL, false);
+
         connection1.setOtherParty(connection2);
 
         connection1.setMode(ConnectionMode.SEND_RECV);
@@ -165,12 +159,12 @@ public class LocalJoiningTest {
         Thread.sleep(5000);
 
         sine1.deactivate();
-    	sine2.deactivate();
-    	
-    	analyzer1.deactivate();
-    	analyzer2.deactivate();
-    	
-    	SpectraAnalyzer a1 = (SpectraAnalyzer) analyzer1;
+        sine2.deactivate();
+
+        analyzer1.deactivate();
+        analyzer2.deactivate();
+
+        SpectraAnalyzer a1 = (SpectraAnalyzer) analyzer1;
         SpectraAnalyzer a2 = (SpectraAnalyzer) analyzer2;
 
         int[] s1 = a1.getSpectra();
@@ -184,38 +178,38 @@ public class LocalJoiningTest {
         }
 
         assertEquals(1, s1.length);
-        assertEquals(1, s2.length);    	
+        assertEquals(1, s2.length);
     }
 
     @Test
     public void testHalfDuplex() throws Exception {
-    	long s = System.nanoTime();
+        long s = System.nanoTime();
 
         sine1.activate();
-    	sine2.activate();
-    	
-    	analyzer1.activate();
-    	analyzer2.activate();
-    	
-    	Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
-        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL,false);
-        
+        sine2.activate();
+
+        analyzer1.activate();
+        analyzer2.activate();
+
+        Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL, false);
+        Connection connection2 = endpoint2.createConnection(ConnectionType.LOCAL, false);
+
         connection1.setOtherParty(connection2);
 
         connection1.setMode(ConnectionMode.SEND_ONLY);
         connection2.setMode(ConnectionMode.RECV_ONLY);
-        
+
         System.out.println("Duration= " + (System.nanoTime() - s));
 
         Thread.sleep(5000);
 
         sine1.deactivate();
-    	sine2.deactivate();
-    	
-    	analyzer1.deactivate();
-    	analyzer2.deactivate();
-    	
-    	SpectraAnalyzer a1 = (SpectraAnalyzer) analyzer1;
+        sine2.deactivate();
+
+        analyzer1.deactivate();
+        analyzer2.deactivate();
+
+        SpectraAnalyzer a1 = (SpectraAnalyzer) analyzer1;
         SpectraAnalyzer a2 = (SpectraAnalyzer) analyzer2;
 
         int[] s1 = a1.getSpectra();
@@ -229,6 +223,6 @@ public class LocalJoiningTest {
         }
 
         assertEquals(0, s1.length);
-        assertEquals(1, s2.length);    	
+        assertEquals(1, s2.length);
     }
 }

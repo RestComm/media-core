@@ -120,7 +120,7 @@ public class RelayTest {
         ivr.setResourcesPool(resourcesPool);
         ivr.start();
 
-        soundcard = new SoundSystem("test-2");
+        soundcard = new SoundSystem("test-2", dspFactory.newProcessor());
         soundcard.setScheduler(scheduler);
         soundcard.setResourcesPool(resourcesPool);
         soundcard.start();

@@ -136,7 +136,7 @@ public abstract class RtpSession {
 
         // RTP relay
         this.relayType = RelayType.MIXER;
-        this.mixerComponent = new RtpComponent(channelId, scheduler, rtpTransport, clock, oobClock);
+        this.mixerComponent = new RtpComponent(channelId, scheduler, rtpTransport, clock, oobClock, dspFactory.newProcessor());
         this.rtpTransport.setRtpRelay(this.mixerComponent);
 
         // RTP format negotiation

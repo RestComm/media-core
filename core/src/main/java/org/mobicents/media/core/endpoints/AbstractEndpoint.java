@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
+import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;

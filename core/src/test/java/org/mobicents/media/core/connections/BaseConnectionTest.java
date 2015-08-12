@@ -33,9 +33,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
@@ -59,11 +57,11 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  */
 public class BaseConnectionTest implements ConnectionListener {
 
-    //clock and scheduler
+    // clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
 
-    //endpoint and connection
+    // endpoint and connection
     private AbstractConnection connection;
     private MyTestEndpoint endpoint;
 
@@ -75,47 +73,44 @@ public class BaseConnectionTest implements ConnectionListener {
 
     private ChannelsManager channelsManager;
 
-    protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
+    protected DspFactoryImpl dspFactory;
+
     public BaseConnectionTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
     }
 
     @Before
     public void setUp() throws ResourceUnavailableException, IOException, TooManyConnectionsException {
-        //use default clock
+        // use default clock
         clock = new DefaultClock();
-        
-        //create single thread scheduler 
+
+        // create single thread scheduler
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
         channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
-        channelsManager.setScheduler(scheduler);        
+        channelsManager.setScheduler(scheduler);
 
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
-        //assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test", RelayType.MIXER);
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+        // assign scheduler to the endpoint
+        endpoint = new MyTestEndpoint("test", RelayType.MIXER, dspFactory.newProcessor());
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();
 
-        connection = (AbstractConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
+        connection = (AbstractConnection) endpoint.createConnection(ConnectionType.LOCAL, false);
         connection.addListener(this);
     }
 
     @After
     public void tearDown() {
         endpoint.deleteAllConnections();
-        
+
         endpoint.stop();
         scheduler.stop();
     }
@@ -125,13 +120,13 @@ public class BaseConnectionTest implements ConnectionListener {
      */
     @Test
     public void testGetId() {
-        //assertEquals("1", connection.getId());
+        // assertEquals("1", connection.getId());
     }
 
     /**
      * Test of getState method, of class BaseConnection.
      */
-//    @Test
+    // @Test
     public void testGetState() {
         assertEquals(ConnectionState.NULL, connection.getState());
     }
@@ -139,18 +134,18 @@ public class BaseConnectionTest implements ConnectionListener {
     /**
      * Test of getEndpoint method, of class BaseConnection.
      */
-//    @Test
+    // @Test
     public void testGetEndpoint() {
         assertEquals(endpoint, connection.getEndpoint());
     }
-    
+
     /**
      * Test of bind method, of class BaseConnection.
      */
-//    @Test
+    // @Test
     public void testBind() throws Exception {
-//        assertEquals(ConnectionState.NULL, connection.getState());
-//        connection.bind();
+        // assertEquals(ConnectionState.NULL, connection.getState());
+        // connection.bind();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
@@ -160,10 +155,10 @@ public class BaseConnectionTest implements ConnectionListener {
     /**
      * Test of bind method, of class BaseConnection.
      */
-//    @Test
+    // @Test
     public void testTimeout() throws Exception {
-//        assertEquals(ConnectionState.NULL, connection.getState());
-//        connection.bind();
+        // assertEquals(ConnectionState.NULL, connection.getState());
+        // connection.bind();
 
         Thread.sleep(10000);
         assertEquals(ConnectionState.NULL, connection.getState());
@@ -172,12 +167,12 @@ public class BaseConnectionTest implements ConnectionListener {
     /**
      * Test of join method, of class BaseConnection.
      */
-//    @Test
+    // @Test
     public void testJoin() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
         connection.halfOpen();
         Thread.sleep(500);
-        
+
         connection.open();
 
         Thread.sleep(1000);
@@ -188,7 +183,7 @@ public class BaseConnectionTest implements ConnectionListener {
     /**
      * Test of close method, of class BaseConnection.
      */
-//    @Test
+    // @Test
     public void testClose() throws Exception {
         assertEquals(ConnectionState.NULL, connection.getState());
 
@@ -197,7 +192,7 @@ public class BaseConnectionTest implements ConnectionListener {
 
         connection.open();
         Thread.sleep(500);
-        
+
         connection.close();
         Thread.sleep(1000);
 
@@ -206,6 +201,7 @@ public class BaseConnectionTest implements ConnectionListener {
         assertTrue("Listener did not receive event", nullState);
     }
 
+    @Override
     public void process(ConnectionEvent event) {
         if (event.getId() == ConnectionEvent.STATE_CHANGE) {
             AbstractConnection conn = (AbstractConnection) event.getSource();

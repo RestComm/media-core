@@ -27,16 +27,13 @@
 
 package org.mobicents.media.core;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.core.naming.UnknownEndpointException;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.RelayType;
 
@@ -47,24 +44,14 @@ import org.mobicents.media.server.spi.RelayType;
 public class NamingServiceTest {
 
     private NamingService naming = new NamingService();
-    
+    private DspFactoryImpl dspFactory;
+
     public NamingServiceTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
     }
 
     /**
@@ -72,7 +59,7 @@ public class NamingServiceTest {
      */
     @Test
     public void testRegister() throws Exception {
-        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER);
+        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER, dspFactory.newProcessor());
         naming.register(te1);
 
         Endpoint ee = naming.lookup("/mobicents/media/1", false);
@@ -80,8 +67,8 @@ public class NamingServiceTest {
     }
 
     @Test
-    public void testUnregister() throws Exception  {
-        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER);
+    public void testUnregister() throws Exception {
+        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER, dspFactory.newProcessor());
         naming.register(te1);
 
         Endpoint ee = naming.lookup("/mobicents/media/1", false);
@@ -97,11 +84,10 @@ public class NamingServiceTest {
         fail("UnknownEndpointException expected");
     }
 
-
     @Test
-    public void testQuarantine() throws Exception  {
-        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER);
-        MyTestEndpoint te2 = new MyTestEndpoint("/mobicents/media/2", RelayType.MIXER);
+    public void testQuarantine() throws Exception {
+        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER, dspFactory.newProcessor());
+        MyTestEndpoint te2 = new MyTestEndpoint("/mobicents/media/2", RelayType.MIXER, dspFactory.newProcessor());
 
         naming.register(te1);
         naming.register(te2);

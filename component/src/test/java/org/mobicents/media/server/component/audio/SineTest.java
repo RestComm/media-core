@@ -27,16 +27,14 @@
 
 package org.mobicents.media.server.component.audio;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -50,6 +48,7 @@ public class SineTest {
 
     private Clock clock;
     private Scheduler scheduler;
+    private DspFactoryImpl dspFactory;
 
     private Sine sine;
     private SpectraAnalyzer analyzer;
@@ -58,6 +57,14 @@ public class SineTest {
     private InbandComponent analyzerComponent;
 
     private AudioMixer audioMixer;
+
+    public SineTest() {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+    }
 
     @Before
     public void setUp() throws IOException {
@@ -70,12 +77,12 @@ public class SineTest {
         sine = new Sine(scheduler);
         analyzer = new SpectraAnalyzer("analyzer", scheduler);
 
-        sineComponent = new InbandComponent(1);
+        sineComponent = new InbandComponent(1, dspFactory.newProcessor());
         sineComponent.addInput(sine.getMediaInput());
         sineComponent.setReadable(true);
         sineComponent.setWritable(false);
 
-        analyzerComponent = new InbandComponent(2);
+        analyzerComponent = new InbandComponent(2, dspFactory.newProcessor());
         analyzerComponent.addOutput(analyzer.getMediaOutput());
         analyzerComponent.setReadable(false);
         analyzerComponent.setWritable(true);

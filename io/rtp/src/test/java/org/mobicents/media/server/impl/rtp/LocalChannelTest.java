@@ -42,7 +42,6 @@ import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  *
@@ -56,7 +55,7 @@ public class LocalChannelTest {
 
     private ChannelsManager channelsManager;
     private UdpManager udpManager;
-    private DspFactory dspFactory;
+    private DspFactoryImpl dspFactory;
 
     private SpectraAnalyzer analyzer1, analyzer2;
     private Sine source1, source2;
@@ -85,6 +84,11 @@ public class LocalChannelTest {
         udpManager.start();
 
         this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+
         channelsManager = new ChannelsManager(udpManager, dspFactory);
         channelsManager.setScheduler(scheduler);
 
@@ -104,7 +108,7 @@ public class LocalChannelTest {
         audioMixer1 = new AudioMixer(scheduler);
         audioMixer2 = new AudioMixer(scheduler);
 
-        component1 = new InbandComponent(1);
+        component1 = new InbandComponent(1, dspFactory.newProcessor());
         component1.addInput(source1.getMediaInput());
         component1.addOutput(analyzer1.getMediaOutput());
         component1.setReadable(true);
@@ -113,7 +117,7 @@ public class LocalChannelTest {
         audioMixer1.addComponent(component1);
         audioMixer1.addComponent(channel1.getMediaComponent().getInbandComponent());
 
-        component2 = new InbandComponent(2);
+        component2 = new InbandComponent(2, dspFactory.newProcessor());
         component2.addInput(source2.getMediaInput());
         component2.addOutput(analyzer2.getMediaOutput());
         component2.setReadable(true);

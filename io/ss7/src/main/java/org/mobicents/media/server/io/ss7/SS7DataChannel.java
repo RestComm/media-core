@@ -70,7 +70,7 @@ public class SS7DataChannel {
      * @param SS7 manager , Dahdi Channel ID , Audio Format used on channel
      * @throws IOException
      */
-    public SS7DataChannel(SS7Manager ss7Manager, int dahdiChannelID, int audioChannelID, boolean isALaw) throws IOException {
+    public SS7DataChannel(SS7Manager ss7Manager, int dahdiChannelID, int audioChannelID, boolean isALaw, Processor transcoder) throws IOException {
         this.ss7Manager = ss7Manager;
         this.ss7Handler = new SS7Handler();
         this.channelID = dahdiChannelID;
@@ -89,7 +89,7 @@ public class SS7DataChannel {
             output = new SS7Output(ss7Manager.scheduler, channel, G711U);
         }
 
-        audioComponent = new InbandComponent(audioChannelID);
+        audioComponent = new InbandComponent(audioChannelID, transcoder);
         audioComponent.addInput(input.getMediaInput());
         audioComponent.addOutput(output.getAudioOutput());
 

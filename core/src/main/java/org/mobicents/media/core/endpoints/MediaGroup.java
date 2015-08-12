@@ -27,6 +27,7 @@ import java.util.concurrent.Semaphore;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
+import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
@@ -65,9 +66,9 @@ public class MediaGroup {
 
     private Semaphore resourceSemaphore = new Semaphore(1);
 
-    public MediaGroup(ResourcesPool resourcesPool, Endpoint endpoint) {
+    public MediaGroup(ResourcesPool resourcesPool, Endpoint endpoint, Dsp transcoder) {
         this.resourcesPool = resourcesPool;
-        this.inbandComponent = new InbandComponent(0);
+        this.inbandComponent = new InbandComponent(0, transcoder);
         this.oobComponent = new OOBComponent(0);
         this.endpoint = endpoint;
     }

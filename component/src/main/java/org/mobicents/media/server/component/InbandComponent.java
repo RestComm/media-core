@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
+import org.mobicents.media.server.spi.dsp.Processor;
+import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -39,13 +41,15 @@ public class InbandComponent {
     private final int componentId;
     private final ConcurrentMap<MediaInput> inputs;
     private final ConcurrentMap<MediaOutput> outputs;
+    private final Processor transcoder;
     private boolean readable;
     private boolean writable;
 
-    public InbandComponent(int componentId) {
+    public InbandComponent(int componentId, Processor transcoder) {
         this.componentId = componentId;
         this.inputs = new ConcurrentMap<MediaInput>();
         this.outputs = new ConcurrentMap<MediaOutput>();
+        this.transcoder = transcoder;
         this.readable = false;
         this.writable = false;
     }
@@ -91,10 +95,13 @@ public class InbandComponent {
      * The media relay (mixer or translator) that receives the data will decide whether to mix the frames from each
      * synchronization source or to simply forward them.
      * 
+     * @param format The expected format of the retrieved frames. May force the component to perform transcoding.<br>
+     *        If null, the frames will retain their original format.
+     * 
      * @return An array containing the most recent frame of each input. Return an empty array if no data is available or the
      *         component is not readable.
      */
-    public Frame[] retrieveData() {
+    public Frame[] retrieveData(Format format) {
         Frame[] data = EMPTY_DATA;
 
         if (this.readable && !this.inputs.isEmpty()) {
@@ -103,16 +110,32 @@ public class InbandComponent {
 
             while (activeInputs.hasNext()) {
                 MediaInput input = activeInputs.next();
-                Frame inputFrame = input.poll();
+                Frame frame = input.poll();
 
-                if (inputFrame != null) {
-                    frames.add(inputFrame);
+                if (frame != null) {
+                    // perform transcoding if necessary
+                    if (format != null && !frame.getFormat().equals(format)) {
+                        frame = this.transcoder.process(frame, frame.getFormat(), format);
+                    }
+                    frames.add(frame);
                 }
             }
             data = frames.toArray(new Frame[frames.size()]);
             frames.clear();
         }
         return data;
+    }
+
+    /**
+     * Retrieves data from each input registered in the component <b>maintaing the original format</b> (no transcoding involved).<br>
+     * The media relay (mixer or translator) that receives the data will decide whether to mix the frames from each
+     * synchronization source or to simply forward them.
+     * 
+     * @return An array containing the most recent frame of each input. Return an empty array if no data is available or the
+     *         component is not readable.
+     */
+    public Frame[] retrieveData() {
+        return retrieveData(null);
     }
 
     /**

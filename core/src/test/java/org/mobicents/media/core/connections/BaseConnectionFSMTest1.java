@@ -27,18 +27,14 @@
 
 package org.mobicents.media.core.connections;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
-
-import static org.junit.Assert.*;
-
-import org.mobicents.media.core.connections.AbstractConnection;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -58,39 +54,36 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  */
 public class BaseConnectionFSMTest1 {
 
-    //clock and scheduler
+    // clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
 
-    //endpoint and connection
+    // endpoint and connection
     private AbstractConnection connection;
     private MyTestEndpoint endpoint;
     private ResourcesPool resourcesPool;
-    
-    //RTP
+
+    // RTP
     private ChannelsManager channelsManager;
 
-    protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-        
+    protected DspFactoryImpl dspFactory;
+
     public BaseConnectionFSMTest1() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
     }
 
     @Before
     public void setUp() throws ResourceUnavailableException, IOException, TooManyConnectionsException {
         ConnectionState.OPEN.setTimeout(5);
 
-        //use default clock
+        // use default clock
         clock = new DefaultClock();
-        
-        //create single thread scheduler 
+
+        // create single thread scheduler
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
@@ -98,15 +91,15 @@ public class BaseConnectionFSMTest1 {
         channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
         channelsManager.setScheduler(scheduler);
 
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
-        
-        //assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test", RelayType.MIXER);
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+
+        // assign scheduler to the endpoint
+        endpoint = new MyTestEndpoint("test", RelayType.MIXER, dspFactory.newProcessor());
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();
 
-        connection = (AbstractConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
+        connection = (AbstractConnection) endpoint.createConnection(ConnectionType.LOCAL, false);
 
     }
 
@@ -180,7 +173,6 @@ public class BaseConnectionFSMTest1 {
         Thread.sleep(1000);
         assertEquals(ConnectionState.NULL, connection.getState());
     }
-
 
     @Test
     public void test_OPEN_Close() throws Exception {

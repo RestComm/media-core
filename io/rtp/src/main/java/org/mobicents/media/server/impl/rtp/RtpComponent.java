@@ -32,6 +32,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -57,8 +58,9 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
     private volatile int rxPackets;
     private volatile int sequenceNumber;
 
-    public RtpComponent(int channelId, Scheduler scheduler, RtpTransport rtpTransport, RtpClock rtpClock, RtpClock oobClock) {
-        super(channelId);
+    public RtpComponent(int channelId, Scheduler scheduler, RtpTransport rtpTransport, RtpClock rtpClock, RtpClock oobClock,
+            Processor transcoder) {
+        super(channelId, transcoder);
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);

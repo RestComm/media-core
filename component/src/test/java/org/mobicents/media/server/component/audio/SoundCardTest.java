@@ -5,10 +5,9 @@
 package org.mobicents.media.server.component.audio;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -22,6 +21,7 @@ public class SoundCardTest {
 
     private Clock clock;
     private Scheduler scheduler;
+    private DspFactoryImpl dspFactory;
 
     private Sine sine;
     private SoundCard soundCard;
@@ -30,6 +30,14 @@ public class SoundCardTest {
     private InbandComponent soundCardComponent;
 
     private AudioMixer audioMixer;
+
+    public SoundCardTest() {
+        this.dspFactory = new DspFactoryImpl();
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+    }
 
     @Before
     public void setUp() {
@@ -44,12 +52,12 @@ public class SoundCardTest {
 
         soundCard = new SoundCard(scheduler);
 
-        sineComponent = new InbandComponent(1);
+        sineComponent = new InbandComponent(1, dspFactory.newProcessor());
         sineComponent.addInput(sine.getMediaInput());
         sineComponent.setReadable(true);
         sineComponent.setWritable(false);
 
-        soundCardComponent = new InbandComponent(2);
+        soundCardComponent = new InbandComponent(2, dspFactory.newProcessor());
         soundCardComponent.addOutput(soundCard.getMediaOutput());
         soundCardComponent.setReadable(false);
         soundCardComponent.setWritable(true);
