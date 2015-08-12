@@ -28,6 +28,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.AbstractSplitterEndpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * 
@@ -46,12 +47,12 @@ public class BridgeEndpoint extends AbstractSplitterEndpoint {
 
     private static final Logger LOGGER = Logger.getLogger(BridgeEndpoint.class);
 
-    public BridgeEndpoint(String localName, RelayType relayType) {
-        super(localName, relayType);
+    public BridgeEndpoint(String localName, RelayType relayType, Processor transcoder) {
+        super(localName, relayType, transcoder);
     }
 
-    public BridgeEndpoint(String localName) {
-        super(localName, RelayType.MIXER);
+    public BridgeEndpoint(String localName, Processor transcoder) {
+        super(localName, RelayType.MIXER, transcoder);
     }
 
     @Override

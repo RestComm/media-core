@@ -28,6 +28,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Conference endpoint implementation
@@ -39,12 +40,12 @@ public class ConferenceEndpoint extends AbstractRelayEndpoint {
 
     private static final Logger logger = Logger.getLogger(ConferenceEndpoint.class);
 
-    public ConferenceEndpoint(String localName, RelayType relayType) {
-        super(localName, relayType);
+    public ConferenceEndpoint(String localName, RelayType relayType, Processor transcoder) {
+        super(localName, relayType, transcoder);
     }
 
-    public ConferenceEndpoint(String localName) {
-        super(localName, RelayType.MIXER);
+    public ConferenceEndpoint(String localName, Processor transcoder) {
+        super(localName, RelayType.MIXER, transcoder);
     }
 
     @Override

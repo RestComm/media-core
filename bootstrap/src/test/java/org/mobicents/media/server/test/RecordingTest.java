@@ -112,8 +112,8 @@ public class RecordingTest {
 
         controller.start();
 
-        user = new IvrEndpoint("/mobicents/ivr/1", RelayType.MIXER);
-        ivr = new IvrEndpoint("/mobicents/ivr/2", RelayType.MIXER);
+        user = new IvrEndpoint("/mobicents/ivr/1", RelayType.MIXER, dspFactory.newProcessor());
+        ivr = new IvrEndpoint("/mobicents/ivr/2", RelayType.MIXER, dspFactory.newProcessor());
 
         server.install(user, null);
         server.install(ivr, null);

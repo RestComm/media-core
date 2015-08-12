@@ -102,8 +102,6 @@ public class InbandComponent {
      *         component is not readable.
      */
     public Frame[] retrieveData(Format format) {
-        Frame[] data = EMPTY_DATA;
-
         if (this.readable && !this.inputs.isEmpty()) {
             List<Frame> frames = new ArrayList<Frame>(this.inputs.size());
             Iterator<MediaInput> activeInputs = this.inputs.valuesIterator();
@@ -114,16 +112,17 @@ public class InbandComponent {
 
                 if (frame != null) {
                     // perform transcoding if necessary
-                    if (format != null && !frame.getFormat().equals(format)) {
+                    if (format != null && !frame.getFormat().matches(format)) {
                         frame = this.transcoder.process(frame, frame.getFormat(), format);
                     }
                     frames.add(frame);
                 }
             }
-            data = frames.toArray(new Frame[frames.size()]);
-            frames.clear();
+            System.out.println("Component " + componentId + " is contributing with a total of " + frames.size() + " frames.");
+            return frames.toArray(new Frame[frames.size()]);
         }
-        return data;
+        System.out.println("Component " + componentId + " has no data.");
+        return EMPTY_DATA;
     }
 
     /**

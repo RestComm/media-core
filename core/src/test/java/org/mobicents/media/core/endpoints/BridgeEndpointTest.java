@@ -128,7 +128,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
         endpointLocal2.setFreq(250);
         endpointLocal2.start();
 
-        bridgeEndpoint = new BridgeEndpoint("test-ep-bridge", RelayType.MIXER);
+        bridgeEndpoint = new BridgeEndpoint("test-ep-bridge", RelayType.MIXER, dspFactory.newProcessor());
         bridgeEndpoint.setResourcesPool(resourcesPool);
         bridgeEndpoint.setScheduler(scheduler);
         bridgeEndpoint.start();

@@ -91,13 +91,13 @@ public class AudioMixerTest {
 
         sine2Component = new InbandComponent(2, dspFactory.newProcessor());
         sine2Component.addInput(sine2.getMediaInput());
-        sine1Component.setReadable(true);
-        sine1Component.setWritable(false);
+        sine2Component.setReadable(true);
+        sine2Component.setWritable(false);
 
         sine3Component = new InbandComponent(3, dspFactory.newProcessor());
         sine3Component.addInput(sine3.getMediaInput());
-        sine1Component.setReadable(true);
-        sine1Component.setWritable(false);
+        sine3Component.setReadable(true);
+        sine3Component.setWritable(false);
 
         analyzerComponent = new InbandComponent(4, dspFactory.newProcessor());
         analyzerComponent.addOutput(analyzer.getMediaOutput());
@@ -138,7 +138,7 @@ public class AudioMixerTest {
         sine2.activate();
         sine3.activate();
         analyzer.activate();
-
+        
         mixer.start();
 
         Thread.sleep(5000);
@@ -158,7 +158,6 @@ public class AudioMixerTest {
         assertEquals(80, res[0], 5);
         assertEquals(150, res[1], 5);
         assertEquals(250, res[2], 5);
-
     }
 
     @Test

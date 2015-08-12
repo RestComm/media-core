@@ -148,6 +148,7 @@ public class MediaInput extends AbstractSink {
                 activeFrame = Memory.allocate(packetSize);
                 activeFrame.setOffset(0);
                 activeFrame.setLength(packetSize);
+                activeFrame.setFormat(frame.getFormat());
                 activeData = activeFrame.getData();
                 byteIndex = 0;
             }
@@ -164,6 +165,7 @@ public class MediaInput extends AbstractSink {
                     buffer.poll().recycle();
                 }
                 buffer.offer(activeFrame);
+                System.out.println("Input " + this.hashCode() + " buffer size: " + buffer.size());
 
                 activeFrame = null;
                 activeData = null;

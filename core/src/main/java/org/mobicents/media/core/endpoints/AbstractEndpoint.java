@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -36,6 +35,7 @@ import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Basic implementation of the endpoint.
@@ -48,6 +48,7 @@ public abstract class AbstractEndpoint implements Endpoint {
     // Core elements
     protected ResourcesPool resourcesPool;
     private Scheduler scheduler;
+    private Processor transcoder;
 
     // Endpoint properties
     private final String localName;
@@ -56,15 +57,16 @@ public abstract class AbstractEndpoint implements Endpoint {
     private EndpointState state;
     protected MediaGroup mediaGroup;
 
-    public AbstractEndpoint(String localName, RelayType relayType) {
+    public AbstractEndpoint(String localName, RelayType relayType, Processor transcoder) {
         this.localName = localName;
         this.relayType = relayType;
         this.connections = new ConcurrentMap<Connection>();
         this.state = EndpointState.READY;
+        this.transcoder = transcoder;
     }
 
-    public AbstractEndpoint(String localName) {
-        this(localName, RelayType.MIXER);
+    public AbstractEndpoint(String localName, Processor transcoder) {
+        this(localName, RelayType.MIXER, transcoder);
     }
 
     @Override
@@ -85,7 +87,7 @@ public abstract class AbstractEndpoint implements Endpoint {
     public RelayType getRelayType() {
         return this.relayType;
     }
-    
+
     @Override
     public void setRelayType(RelayType relayType) {
         this.relayType = relayType;
@@ -116,7 +118,7 @@ public abstract class AbstractEndpoint implements Endpoint {
         }
 
         // create connections subsystem
-        this.mediaGroup = new MediaGroup(resourcesPool, this);
+        this.mediaGroup = new MediaGroup(resourcesPool, this, transcoder);
     }
 
     @Override
@@ -152,7 +154,7 @@ public abstract class AbstractEndpoint implements Endpoint {
 
     @Override
     public void deleteConnection(Connection connection) {
-        if(this.connections.containsKey(connection.getId())) {
+        if (this.connections.containsKey(connection.getId())) {
             // Release the connection back to the resources pool
             this.connections.remove(connection.getId());
 
@@ -161,7 +163,7 @@ public abstract class AbstractEndpoint implements Endpoint {
                 connection.close();
             }
             this.resourcesPool.releaseConnection(connection);
-            
+
             // Release the media group is no more connections are active
             if (this.connections.isEmpty()) {
                 this.mediaGroup.releaseAll();

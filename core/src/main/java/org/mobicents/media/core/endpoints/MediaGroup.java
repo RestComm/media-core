@@ -27,7 +27,6 @@ import java.util.concurrent.Semaphore;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
@@ -38,6 +37,7 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Implements Local Components Holder for endpoint Usefull for jsr 309 structure
@@ -66,7 +66,7 @@ public class MediaGroup {
 
     private Semaphore resourceSemaphore = new Semaphore(1);
 
-    public MediaGroup(ResourcesPool resourcesPool, Endpoint endpoint, Dsp transcoder) {
+    public MediaGroup(ResourcesPool resourcesPool, Endpoint endpoint, Processor transcoder) {
         this.resourcesPool = resourcesPool;
         this.inbandComponent = new InbandComponent(0, transcoder);
         this.oobComponent = new OOBComponent(0);

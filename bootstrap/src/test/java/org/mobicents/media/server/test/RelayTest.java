@@ -115,7 +115,7 @@ public class RelayTest {
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
 
         // assign scheduler to the endpoint
-        ivr = new IvrEndpoint("test-1", RelayType.MIXER);
+        ivr = new IvrEndpoint("test-1", RelayType.MIXER, dspFactory.newProcessor());
         ivr.setScheduler(scheduler);
         ivr.setResourcesPool(resourcesPool);
         ivr.start();
@@ -125,7 +125,7 @@ public class RelayTest {
         soundcard.setResourcesPool(resourcesPool);
         soundcard.start();
 
-        cnfBridge = new ConferenceEndpoint("test-3", RelayType.MIXER);
+        cnfBridge = new ConferenceEndpoint("test-3", RelayType.MIXER, dspFactory.newProcessor());
         cnfBridge.setScheduler(scheduler);
         cnfBridge.setResourcesPool(resourcesPool);
         cnfBridge.start();
