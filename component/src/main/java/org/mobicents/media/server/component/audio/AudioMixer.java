@@ -22,7 +22,9 @@
 
 package org.mobicents.media.server.component.audio;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.MediaRelay;
@@ -118,9 +120,11 @@ public class AudioMixer implements MediaRelay {
         private double currGain = 0;
         private int[] total = new int[PACKET_SIZE / 2];
         private int[] current;
+        private Map<Integer, int[]> contributions;
 
         public MixTask() {
             super();
+            this.contributions = new HashMap<Integer, int[]>();
         }
 
         private int[] depacketize(Frame... frames) {
@@ -171,15 +175,18 @@ public class AudioMixer implements MediaRelay {
 
         @Override
         public long perform() {
-            // summarize all
+            // Get data from all sources
+            this.contributions.clear();
             sourcesCount = 0;
             activeComponents = components.valuesIterator();
+
             while (activeComponents.hasNext()) {
                 InbandComponent component = activeComponents.next();
-
                 Frame[] frames = component.retrieveData(LINEAR_FORMAT);
+
                 if (frames.length > 0) {
                     current = depacketize(frames);
+
                     if (sourcesCount == 0) {
                         System.arraycopy(current, 0, total, 0, total.length);
                     } else {
@@ -187,6 +194,8 @@ public class AudioMixer implements MediaRelay {
                             total[i] += current[i];
                         }
                     }
+
+                    this.contributions.put(component.getComponentId(), current);
                     sourcesCount++;
                 }
             }
@@ -224,11 +233,24 @@ public class AudioMixer implements MediaRelay {
                 total[i] = (short) ((double) total[i] * currGain);
             }
 
-            // Submit mixed stream to all registered components
+            // send a single mixed stream for each registered component
             activeComponents = components.valuesIterator();
             while (activeComponents.hasNext()) {
                 InbandComponent component = activeComponents.next();
-                component.submitData(packetize(total));
+                current = this.contributions.remove(component.getComponentId());
+
+                if (current != null && sourcesCount > 1) {
+                    // Remove the bit stream contributed by the current component
+                    // This ensures the component will not hear itself
+                    for (i = 0; i < total.length; i++) {
+                        current[i] = total[i] - (short) ((double) current[i] * currGain);
+                    }
+                    component.submitData(packetize(current));
+                } else if (current == null) {
+                    // The current component did not contribute with media
+                    // Can safely forward the mixed stream of all contributing sources
+                    component.submitData(packetize(total));
+                }
             }
 
             scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);

@@ -67,9 +67,6 @@ public class LocalChannelTest {
     private AudioMixer audioMixer1, audioMixer2;
     private InbandComponent component1, component2;
 
-    public LocalChannelTest() {
-    }
-
     @Before
     public void setUp() throws Exception {
         // use default clock
@@ -98,8 +95,8 @@ public class LocalChannelTest {
         source2 = new Sine(scheduler);
         source2.setFrequency(100);
 
-        analyzer1 = new SpectraAnalyzer("analyzer", scheduler);
-        analyzer2 = new SpectraAnalyzer("analyzer", scheduler);
+        analyzer1 = new SpectraAnalyzer("analyzer-1", scheduler);
+        analyzer2 = new SpectraAnalyzer("analyzer-2", scheduler);
 
         channel1 = channelsManager.getLocalChannel();
         channel2 = channelsManager.getLocalChannel();
@@ -165,6 +162,7 @@ public class LocalChannelTest {
         audioMixer1.stop();
         audioMixer2.stop();
         channel1.updateMode(ConnectionMode.INACTIVE);
+        channel2.updateMode(ConnectionMode.INACTIVE);
 
         int s1[] = analyzer1.getSpectra();
         int s2[] = analyzer2.getSpectra();
