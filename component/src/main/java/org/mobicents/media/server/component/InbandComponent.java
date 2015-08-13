@@ -151,6 +151,7 @@ public class InbandComponent {
                 Iterator<MediaOutput> activeOutputs = this.outputs.valuesIterator();
                 while (activeOutputs.hasNext()) {
                     MediaOutput output = activeOutputs.next();
+                    System.out.println("Component " + componentId + " is offering data to output " + output.getOutputId());
                     if (activeOutputs.hasNext()) {
                         output.offer(frame.clone());
                     } else {

@@ -110,8 +110,20 @@ public class RtpTransportTest {
         this.source2.setFrequency(50);
 
         // Create media sinks
-        this.analyzer1 = new SpectraAnalyzer("analyzer", scheduler);
-        this.analyzer2 = new SpectraAnalyzer("analyzer", scheduler);
+        this.analyzer1 = new SpectraAnalyzer("analyzer-1", scheduler);
+        this.analyzer2 = new SpectraAnalyzer("analyzer-2", scheduler);
+
+        InbandComponent sineComponent1 = new InbandComponent(8888, dspFactory.newProcessor());
+        sineComponent1.addInput(source1.getMediaInput());
+        sineComponent1.addOutput(analyzer1.getMediaOutput());
+        sineComponent1.setReadable(true);
+        sineComponent1.setWritable(true);
+
+        InbandComponent sineComponent2 = new InbandComponent(8889, dspFactory.newProcessor());
+        sineComponent2.addInput(source2.getMediaInput());
+        sineComponent2.addOutput(analyzer2.getMediaOutput());
+        sineComponent2.setReadable(true);
+        sineComponent2.setWritable(true);
 
         // Create media mixers
         this.audioMixer1 = new AudioMixer(scheduler);
@@ -128,18 +140,12 @@ public class RtpTransportTest {
         // Create mixer component for channel 1
         this.mixerComponent1 = new RtpComponent(CHANNEL1_ID, scheduler, channel1, rtpClock1, oobClock1,
                 dspFactory.newProcessor());
-        this.mixerComponent1.setRtpFormats(rtpFormats);
+        // XXX this.mixerComponent1.setRtpFormats(rtpFormats);
         this.channel1.setRtpRelay(mixerComponent1);
 
-        // this.mixerComponent1.addAudioInput(source1.getAudioInput());
-        // this.mixerComponent1.addAudioOutput(analyzer1.getAudioOutput());
+        // this.mixerComponent1.addInput(source1.getMediaInput());
+        // this.mixerComponent1.addOutput(analyzer1.getMediaOutput());
         this.audioMixer1.addComponent(mixerComponent1.getInbandComponent());
-
-        InbandComponent sineComponent1 = new InbandComponent(1, dspFactory.newProcessor());
-        sineComponent1.addInput(source1.getMediaInput());
-        sineComponent1.addOutput(analyzer1.getMediaOutput());
-        sineComponent1.setReadable(true);
-        sineComponent1.setWritable(true);
         this.audioMixer1.addComponent(sineComponent1);
 
         // Create media channel 2
@@ -153,18 +159,12 @@ public class RtpTransportTest {
         // Create mixer component for channel 2
         this.mixerComponent2 = new RtpComponent(CHANNEL2_ID, scheduler, channel2, rtpClock2, oobClock2,
                 dspFactory.newProcessor());
-        this.mixerComponent2.setRtpFormats(rtpFormats);
+        // XXX this.mixerComponent2.setRtpFormats(rtpFormats);
         this.channel2.setRtpRelay(mixerComponent2);
 
-        // this.mixerComponent2.addAudioInput(source2.getAudioInput());
-        // this.mixerComponent2.addAudioOutput(analyzer2.getAudioOutput());
+        // this.mixerComponent2.addInput(source2.getMediaInput());
+        // this.mixerComponent2.addOutput(analyzer2.getMediaOutput());
         this.audioMixer2.addComponent(mixerComponent2.getInbandComponent());
-
-        InbandComponent sineComponent2 = new InbandComponent(2, dspFactory.newProcessor());
-        sineComponent2.addInput(source2.getMediaInput());
-        sineComponent2.addOutput(analyzer2.getMediaOutput());
-        sineComponent2.setReadable(true);
-        sineComponent2.setWritable(true);
         this.audioMixer2.addComponent(sineComponent2);
 
         // Connect both media channels
@@ -230,6 +230,7 @@ public class RtpTransportTest {
         source1.activate();
         source2.activate();
         analyzer1.activate();
+        analyzer2.activate();
         audioMixer1.start();
         audioMixer2.start();
 

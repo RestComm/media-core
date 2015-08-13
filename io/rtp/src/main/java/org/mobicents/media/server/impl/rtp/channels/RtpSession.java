@@ -407,7 +407,7 @@ public abstract class RtpSession {
      */
     protected void setFormats(RTPFormats formats) {
         this.rtpTransport.setFormatMap(formats);
-        this.mixerComponent.setRtpFormats(formats);
+        // XXX this.mixerComponent.setRtpFormats(formats);
     }
 
     /**

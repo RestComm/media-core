@@ -25,9 +25,10 @@ import java.io.IOException;
 
 import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -41,10 +42,10 @@ public class RtpSink extends AbstractSink {
     private static final long serialVersionUID = -3660168309653874674L;
 
     // Media processing components
-    private final MediaOutput audioOutput;
+    private final MediaOutput mediaOutput;
+    private final Processor transcoder;
 
     // RTP processing components
-    private RTPFormats formats;
     private final RtpClock rtpClock;
     private final RtpPacket rtpPacket;
 
@@ -52,15 +53,16 @@ public class RtpSink extends AbstractSink {
     private final RtpRelay rtpGateway;
 
     // Details of last transmitted packet
-    private RTPFormat currentFormat;
+    private RTPFormat currentFormat = AVProfile.audio.find(8);
     private long rtpTimestamp;
 
-    public RtpSink(Scheduler scheduler, RtpClock rtpClock, RtpRelay rtpGateway) {
+    public RtpSink(Scheduler scheduler, RtpClock rtpClock, RtpRelay rtpGateway, Processor transcoder) {
         super("output");
 
         // Media processing components
-        this.audioOutput = new MediaOutput(1, scheduler);
-        this.audioOutput.join(this);
+        this.mediaOutput = new MediaOutput(1, scheduler);
+        this.mediaOutput.join(this);
+        this.transcoder = transcoder;
 
         // RTP processing components
         this.rtpClock = rtpClock;
@@ -74,16 +76,11 @@ public class RtpSink extends AbstractSink {
     }
 
     public MediaOutput getMediaOutput() {
-        return audioOutput;
+        return mediaOutput;
     }
 
-    /**
-     * Sets the supported formats for audio output.
-     * 
-     * @param formats The supported audio formats.
-     */
-    public void setFormats(RTPFormats formats) {
-        this.formats = formats;
+    public void setCurrentFormat(RTPFormat format) {
+        this.currentFormat = format;
     }
 
     @Override
@@ -101,18 +98,12 @@ public class RtpSink extends AbstractSink {
             return false;
         }
 
-        // determine current RTP format if it is unknown
-        if (currentFormat == null || !currentFormat.getFormat().matches(frame.getFormat())) {
-            currentFormat = formats.getRTPFormat(frame.getFormat());
-
-            // discard packet if format is still unknown
-            if (currentFormat == null) {
-                frame.recycle();
-                return false;
-            }
-
-            // update clock rate
-            rtpClock.setClockRate(currentFormat.getClockRate());
+        // discard packet if codec used by remote party is unknown
+        if (currentFormat == null) {
+            frame.recycle();
+            return false;
+        } else if (!currentFormat.getFormat().matches(frame.getFormat())) {
+            frame = transcoder.process(frame, frame.getFormat(), this.currentFormat.getFormat());
         }
 
         // convert frame timestamp to milliseconds
@@ -137,12 +128,12 @@ public class RtpSink extends AbstractSink {
 
     @Override
     public void activate() {
-        this.audioOutput.start();
+        this.mediaOutput.start();
     }
 
     @Override
     public void deactivate() {
-        this.audioOutput.stop();
+        this.mediaOutput.stop();
     }
 
 }

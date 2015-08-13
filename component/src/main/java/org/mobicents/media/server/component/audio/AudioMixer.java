@@ -239,14 +239,14 @@ public class AudioMixer implements MediaRelay {
                 InbandComponent component = activeComponents.next();
                 current = this.contributions.remove(component.getComponentId());
 
-                if (current != null && sourcesCount > 1) {
+                if (current != null) {
                     // Remove the bit stream contributed by the current component
                     // This ensures the component will not hear itself
                     for (i = 0; i < total.length; i++) {
                         current[i] = total[i] - (short) ((double) current[i] * currGain);
                     }
                     component.submitData(packetize(current));
-                } else if (current == null) {
+                } else {
                     // The current component did not contribute with media
                     // Can safely forward the mixed stream of all contributing sources
                     component.submitData(packetize(total));
@@ -258,4 +258,5 @@ public class AudioMixer implements MediaRelay {
             return 0;
         }
     }
+
 }

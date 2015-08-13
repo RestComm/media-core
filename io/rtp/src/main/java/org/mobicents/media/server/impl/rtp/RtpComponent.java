@@ -29,7 +29,6 @@ import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dsp.Processor;
@@ -68,7 +67,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         this.dtmfSource = new DtmfSource(scheduler, oobClock);
 
         // RTP sink
-        this.rtpSink = new RtpSink(scheduler, rtpClock, this);
+        this.rtpSink = new RtpSink(scheduler, rtpClock, this, transcoder);
         this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
 
         // Register mixer components
@@ -83,10 +82,6 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         // RTP statistics
         this.rxPackets = 0;
         this.sequenceNumber = 0;
-    }
-
-    public void setRtpFormats(RTPFormats formats) {
-        this.rtpSink.setFormats(formats);
     }
 
     private void activateSources() {
