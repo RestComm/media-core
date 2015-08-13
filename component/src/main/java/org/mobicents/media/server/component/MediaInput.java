@@ -165,7 +165,6 @@ public class MediaInput extends AbstractSink {
                     buffer.poll().recycle();
                 }
                 buffer.offer(activeFrame);
-                System.out.println("Input " + this.hashCode() + " buffer size: " + buffer.size());
 
                 activeFrame = null;
                 activeData = null;

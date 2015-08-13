@@ -59,11 +59,20 @@ public class Sine extends AbstractSource {
 
     private MediaInput input;
 
-    public Sine(Scheduler scheduler) {
+    public Sine(Scheduler scheduler, boolean forwardTraffic) {
         super("sine.generator", scheduler, Scheduler.INPUT_QUEUE);
         // number of seconds covered by one sample
         dt = 1. / LINEAR_AUDIO.getSampleRate();
 
+        this.input = new MediaInput(ComponentType.SINE.getType(), PACKET_SIZE);
+        this.connect(this.input);
+    }
+
+    public Sine(Scheduler scheduler) {
+        super("sine.generator", scheduler, Scheduler.INPUT_QUEUE);
+        // number of seconds covered by one sample
+        dt = 1. / LINEAR_AUDIO.getSampleRate();
+        
         this.input = new MediaInput(ComponentType.SINE.getType(), PACKET_SIZE);
         this.connect(this.input);
     }

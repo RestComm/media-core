@@ -118,15 +118,14 @@ public class InbandComponent {
                     frames.add(frame);
                 }
             }
-            System.out.println("Component " + componentId + " is contributing with a total of " + frames.size() + " frames.");
             return frames.toArray(new Frame[frames.size()]);
         }
-        System.out.println("Component " + componentId + " has no data.");
         return EMPTY_DATA;
     }
 
     /**
-     * Retrieves data from each input registered in the component <b>maintaing the original format</b> (no transcoding involved).<br>
+     * Retrieves data from each input registered in the component <b>maintaing the original format</b> (no transcoding
+     * involved).<br>
      * The media relay (mixer or translator) that receives the data will decide whether to mix the frames from each
      * synchronization source or to simply forward them.
      * 

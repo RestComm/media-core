@@ -55,7 +55,8 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
 
     private final static AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     private final static long PERIOD = 20000000L;
-    private final static int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000 * LINEAR_FORMAT.getSampleSize() / 8;
+    private final static int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
+            * LINEAR_FORMAT.getSampleSize() / 8;
 
     private final static Formats FORMATS = new Formats();
     static {
@@ -240,11 +241,13 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         frame.setOffset(0);
         frame.setLength(2 * frameSize);
         frame.setTimestamp(getMediaTime());
-        frame.setDuration(20000000L);
+        frame.setDuration(PERIOD);
+        frame.setFormat(LINEAR_FORMAT);
 
         time += ((double) 20) / 1000.0;
-        if (time >= (double) toneDuration / 1000.0)
+        if (time >= (double) toneDuration / 1000.0) {
             listeners.dispatch(event);
+        }
 
         return frame;
     }
@@ -266,7 +269,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     private class OOBGenerator extends AbstractSource {
 
         private static final long serialVersionUID = 4681836801243880799L;
-        
+
         int index = 0;
         int eventDuration = 0;
         int oobVolume;
@@ -287,12 +290,13 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
             data[0] = (byte) oobDigitValue;
 
             oobVolume = 0 - volume;
-            if (index > (toneDuration / 20))
+            if (index > (toneDuration / 20)) {
                 // with end of event flag
                 data[1] = (byte) (0xBF & oobVolume);
-            else
+            } else {
                 // without end of event flag
                 data[1] = (byte) (0x3F & oobVolume);
+            }
 
             eventDuration = (short) (160 * index);
             data[2] = (byte) ((eventDuration >> 8) & 0xFF);
@@ -301,11 +305,13 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
             frame.setOffset(0);
             frame.setLength(4);
             frame.setTimestamp(getMediaTime());
-            frame.setDuration(20000000L);
+            frame.setDuration(PERIOD);
+            frame.setFormat(LINEAR_FORMAT);
 
             index++;
-            if (index == ((toneDuration / 20) + 2))
+            if (index == ((toneDuration / 20) + 2)) {
                 listeners.dispatch(event);
+            }
 
             return frame;
         }
