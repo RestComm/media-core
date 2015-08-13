@@ -66,6 +66,7 @@ public class RtpSink extends AbstractSink {
 
         // RTP processing components
         this.rtpClock = rtpClock;
+        this.rtpClock.setClockRate(currentFormat.getClockRate());
 
         // RTP transport
         this.rtpGateway = rtpGateway;
@@ -81,6 +82,7 @@ public class RtpSink extends AbstractSink {
 
     public void setCurrentFormat(RTPFormat format) {
         this.currentFormat = format;
+        this.rtpClock.setClockRate(currentFormat.getClockRate());
     }
 
     @Override

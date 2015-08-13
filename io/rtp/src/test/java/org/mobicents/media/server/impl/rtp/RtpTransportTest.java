@@ -21,7 +21,6 @@
 package org.mobicents.media.server.impl.rtp;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -251,8 +250,8 @@ public class RtpTransportTest {
         System.out.println("rx-channel2: " + channel2.getPacketsReceived());
         System.out.println("tx-channel2: " + channel2.getPacketsTransmitted());
 
-        assertTrue(s1.length == 1);
-        assertTrue(s2.length == 0);
+        assertEquals(1, s1.length);
+        assertEquals(0, s2.length);
         assertEquals(50, s1[0], 5);
     }
 
