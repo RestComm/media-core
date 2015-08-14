@@ -101,11 +101,11 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.rtpStatistics = statistics;
         this.rtpHandler = new RtpHandler(statistics, this);
     }
-    
+
     public RtpRelay getRtpRelay() {
         return rtpRelay;
     }
-    
+
     public void setRtpRelay(RtpRelay rtpRelay) {
         this.rtpRelay = rtpRelay;
     }
@@ -297,7 +297,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
             }
         }
     }
-    
+
     public void setRemotePeer(String address, int port) {
         setRemotePeer(new InetSocketAddress(address, port));
     }
@@ -447,9 +447,9 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
             return 0;
         }
     }
-    
+
     protected void incomingRtp(RtpPacket packet, RTPFormat format) {
-        if(this.rtpRelay != null) {
+        if (this.rtpRelay != null) {
             // delegate incoming packet to the RTP relay
             this.rtpRelay.incomingRtp(packet, format);
         } else {
@@ -459,12 +459,12 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     }
 
     public void send(RtpPacket packet) throws IOException {
-        if (this.dataChannel.isConnected()) {
-            // Do not send data while DTLS handshake is ongoing. WebRTC calls only.
-            if (this.secure && !this.dtlsHandler.isHandshakeComplete()) {
-                return;
-            }
+        // Do not send data while DTLS handshake is ongoing. WebRTC calls only.
+        if (this.secure && !this.dtlsHandler.isHandshakeComplete()) {
+            return;
+        }
 
+        if (this.dataChannel.isConnected()) {
             // Set packet information related with this transporter
             packet.setSyncSource(this.rtpStatistics.getSsrc());
 
