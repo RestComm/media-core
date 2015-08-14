@@ -29,6 +29,8 @@ import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
+import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Endpoint installer is used for automatic creation and instalation of
@@ -46,6 +48,7 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 
 	protected EndpointNameGenerator nameParser;
 	protected Server server;
+	private DspFactory transcoderFactory;
 
 	protected AtomicInteger lastEndpointID = new AtomicInteger(1);
 
@@ -122,6 +125,10 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 	public void setInitialSize(Integer initialSize) {
 		this.initialSize = initialSize;
 	}
+	
+	public void setTranscoderFactory(DspFactory transcoderFactory) {
+        this.transcoderFactory = transcoderFactory;
+    }
 
 	@Override
 	public void install() {
@@ -135,8 +142,8 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 		ClassLoader loader = Server.class.getClassLoader();
 		nameParser.setPattern(namePattern);
 		try {
-			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
-			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
+			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class, Processor.class);
+			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement(), transcoderFactory.newProcessor());
 			server.install(endpoint, this);
 		} catch (Exception e) {
 			server.logger.error("Couldn't instantiate endpoint", e);

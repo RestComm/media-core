@@ -103,30 +103,35 @@
         <property name="namePattern">mobicents/aap/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.AnnouncementEndpoint</property>
         <property name="initialSize">1</property>
+        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="IVR" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/ivr/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.IvrEndpoint</property>
         <property name="initialSize">5</property>
+        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="CNF" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/cnf/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.ConferenceEndpoint</property>
         <property name="initialSize">5</property>
+        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="Bridge" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/bridge/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.BridgeEndpoint</property>
         <property name="initialSize">5</property>
+        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="Relay" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/relay/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.PacketRelayEndpoint</property>
         <property name="initialSize">1</property>
+        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
 	<!-- DS0 Endpoints configuration sample -->
