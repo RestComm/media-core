@@ -120,7 +120,7 @@ public abstract class RtpSession {
     protected RtpSession(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
         // RTP channel properties
         this.channelId = channelId;
-        this.ssrc = 0L;
+        this.ssrc = SsrcGenerator.generateSsrc();
         this.mediaType = mediaType;
         this.clock = new RtpClock(scheduler.getClock());
         this.oobClock = new RtpClock(scheduler.getClock());
