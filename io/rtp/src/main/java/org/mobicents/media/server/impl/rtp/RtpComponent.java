@@ -29,6 +29,7 @@ import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dsp.Processor;
@@ -42,6 +43,8 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
     private static final Logger logger = Logger.getLogger(RtpComponent.class);
 
     private final static int DEFAULT_BUFFER_SIZER = 50;
+
+    static final RTPFormats EMPTY_FORMATS = new RTPFormats(0);
 
     // Media mixing
     private final RtpSink rtpSink;
@@ -84,6 +87,11 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         this.sequenceNumber = 0;
     }
 
+    @Override
+    public void setFormats(RTPFormats formats) {
+        this.rtpSink.setFormats(formats);
+    }
+
     private void activateSources() {
         this.rtpSource.activate();
         this.dtmfSource.activate();
@@ -113,6 +121,10 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         if (RtpSession.DTMF_FORMAT.matches(format.getFormat())) {
             this.dtmfSource.write(packet);
         } else {
+            // Tell the media sink what is the format the remote peer is expecting
+            this.rtpSink.setCurrentFormat(format);
+
+            // Place packet in the jitter buffer
             if (this.rxPackets == 0) {
                 logger.info("Restarting jitter buffer");
                 this.jitterBuffer.restart();

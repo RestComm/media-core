@@ -71,7 +71,7 @@ public class RtpTransportTest {
     private final AudioFormat pcma;
 
     private AudioMixer audioMixer1, audioMixer2;
-    private RtpComponent mixerComponent1, mixerComponent2;
+    private RtpComponent rtpComponent1, rtpComponent2;
 
     public RtpTransportTest() throws IOException {
         // Scheduler
@@ -133,18 +133,16 @@ public class RtpTransportTest {
         this.oobClock1 = new RtpClock(scheduler.getClock());
         this.statistics1 = new RtpStatistics(rtpClock1);
         this.channel1 = new RtpTransport(statistics1, scheduler, udpManager);
-        this.channel1.setFormatMap(rtpFormats);
         this.channel1.bind(false);
 
         // Create mixer component for channel 1
-        this.mixerComponent1 = new RtpComponent(CHANNEL1_ID, scheduler, channel1, rtpClock1, oobClock1,
-                dspFactory.newProcessor());
+        this.rtpComponent1 = new RtpComponent(CHANNEL1_ID, scheduler, channel1, rtpClock1, oobClock1, dspFactory.newProcessor());
         // XXX this.mixerComponent1.setRtpFormats(rtpFormats);
-        this.channel1.setRtpRelay(mixerComponent1);
+        this.channel1.setRtpRelay(rtpComponent1);
 
         // this.mixerComponent1.addInput(source1.getMediaInput());
         // this.mixerComponent1.addOutput(analyzer1.getMediaOutput());
-        this.audioMixer1.addComponent(mixerComponent1.getInbandComponent());
+        this.audioMixer1.addComponent(rtpComponent1.getInbandComponent());
         this.audioMixer1.addComponent(sineComponent1);
 
         // Create media channel 2
@@ -152,21 +150,21 @@ public class RtpTransportTest {
         this.oobClock2 = new RtpClock(scheduler.getClock());
         this.statistics2 = new RtpStatistics(rtpClock2);
         this.channel2 = new RtpTransport(statistics2, scheduler, udpManager);
-        this.channel2.setFormatMap(rtpFormats);
         this.channel2.bind(false);
 
         // Create mixer component for channel 2
-        this.mixerComponent2 = new RtpComponent(CHANNEL2_ID, scheduler, channel2, rtpClock2, oobClock2,
-                dspFactory.newProcessor());
+        this.rtpComponent2 = new RtpComponent(CHANNEL2_ID, scheduler, channel2, rtpClock2, oobClock2, dspFactory.newProcessor());
         // XXX this.mixerComponent2.setRtpFormats(rtpFormats);
-        this.channel2.setRtpRelay(mixerComponent2);
+        this.channel2.setRtpRelay(rtpComponent2);
 
         // this.mixerComponent2.addInput(source2.getMediaInput());
         // this.mixerComponent2.addOutput(analyzer2.getMediaOutput());
-        this.audioMixer2.addComponent(mixerComponent2.getInbandComponent());
+        this.audioMixer2.addComponent(rtpComponent2.getInbandComponent());
         this.audioMixer2.addComponent(sineComponent2);
 
         // Connect both media channels
+        this.channel1.setFormatMap(rtpFormats);
+        this.channel2.setFormatMap(rtpFormats);
         this.channel1.updateMode(ConnectionMode.SEND_RECV);
         this.channel2.updateMode(ConnectionMode.SEND_RECV);
         channel1.setRemotePeer(new InetSocketAddress("127.0.0.1", channel2.getLocalPort()));

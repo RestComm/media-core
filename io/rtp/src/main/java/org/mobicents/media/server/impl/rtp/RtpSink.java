@@ -25,8 +25,8 @@ import java.io.IOException;
 
 import org.mobicents.media.server.component.MediaOutput;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
+import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -51,9 +51,10 @@ public class RtpSink extends AbstractSink {
 
     // RTP transport
     private final RtpRelay rtpGateway;
+    private RTPFormats formats;
 
     // Details of last transmitted packet
-    private RTPFormat currentFormat = AVProfile.audio.find(8);
+    private RTPFormat currentFormat;
     private long rtpTimestamp;
 
     public RtpSink(Scheduler scheduler, RtpClock rtpClock, RtpRelay rtpGateway, Processor transcoder) {
@@ -66,11 +67,11 @@ public class RtpSink extends AbstractSink {
 
         // RTP processing components
         this.rtpClock = rtpClock;
-        this.rtpClock.setClockRate(currentFormat.getClockRate());
 
         // RTP transport
         this.rtpGateway = rtpGateway;
         this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
+        this.formats = RtpComponent.EMPTY_FORMATS;
 
         // Details of last transmitted packet
         this.rtpTimestamp = 0L;
@@ -80,7 +81,18 @@ public class RtpSink extends AbstractSink {
         return mediaOutput;
     }
 
-    public void setCurrentFormat(RTPFormat format) {
+    public void setFormats(RTPFormats formats) {
+        this.formats = formats;
+        // Set a default format
+        if (this.currentFormat == null) {
+            setCurrentFormat(formats.toArray()[0]);
+        }
+    }
+
+    public void setCurrentFormat(RTPFormat format) throws IllegalArgumentException {
+        if (!formats.contains(format.getID())) {
+            throw new IllegalArgumentException("The codec is not supported: " + format.toString());
+        }
         this.currentFormat = format;
         this.rtpClock.setClockRate(currentFormat.getClockRate());
     }
@@ -98,6 +110,25 @@ public class RtpSink extends AbstractSink {
         if (frame.getFormat() == null) {
             frame.recycle();
             return false;
+        }
+
+        // determine current RTP format if it is unknown
+        if (this.currentFormat == null) {
+            RTPFormat newFormat = this.formats.getRTPFormat(frame.getFormat());
+            if (newFormat == null) {
+                // discard packet if format is still unknown
+                frame.recycle();
+                return false;
+            } else {
+                // update the current format and clock rate according to it
+                this.currentFormat = newFormat;
+                rtpClock.setClockRate(currentFormat.getClockRate());
+            }
+        }
+
+        // perform transcoding if necessary
+        if (!this.currentFormat.getFormat().matches(frame.getFormat())) {
+
         }
 
         // discard packet if codec used by remote party is unknown

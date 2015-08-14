@@ -25,34 +25,33 @@ package org.mobicents.media.server.impl.rtp.sdp;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.Formats;
 import java.util.ArrayList;
+
 /**
  * Implements RTP formats collection with fast search.
  *
  * We assume that RTP formats collection varies slow.
+ * 
  * @author kulikov
  */
 public class RTPFormats {
-    //the default size of this collection
-    private final static int size = 10;
 
-    //backing array
-    private ArrayList<RTPFormat> rtpFormats;
-    
+    private final static int SIZE = 10;
+
+    private final ArrayList<RTPFormat> rtpFormats;
     private Formats formats = new Formats();
-
     private int cursor;
-    
+
     /**
      * Creates new format collection with default size.
      */
     public RTPFormats() {
-        this.rtpFormats = new ArrayList<RTPFormat>(size);
+        this.rtpFormats = new ArrayList<RTPFormat>(SIZE);
     }
 
-    public int getLen()
-    {
-    	return this.rtpFormats.size();
+    public int getLen() {
+        return this.rtpFormats.size();
     }
+
     /**
      * Creates new formats collection with specified size
      *
@@ -78,7 +77,8 @@ public class RTPFormats {
         int pos = -1;
         for (int i = 0; i < rtpFormats.size(); i++) {
             pos++;
-            if (rtpFormats.get(i).getID() == rtpFormat.getID()) break;
+            if (rtpFormats.get(i).getID() == rtpFormat.getID())
+                break;
         }
 
         if (pos == -1) {
@@ -90,7 +90,7 @@ public class RTPFormats {
     }
 
     public void clean() {
-    	rtpFormats.clear();
+        rtpFormats.clear();
         formats.clean();
         cursor = 0;
     }
@@ -98,44 +98,46 @@ public class RTPFormats {
     public int size() {
         return rtpFormats.size();
     }
-    
+
     public RTPFormat getRTPFormat(int payload) {
         for (int i = 0; i < rtpFormats.size(); i++) {
-            if (rtpFormats.get(i).getID() == payload) return rtpFormats.get(i);
+            if (rtpFormats.get(i).getID() == payload)
+                return rtpFormats.get(i);
         }
         return null;
     }
 
     public RTPFormat getRTPFormat(Format format) {
         for (int i = 0; i < rtpFormats.size(); i++) {
-            if (rtpFormats.get(i).getFormat().matches(format)) return rtpFormats.get(i);
+            if (rtpFormats.get(i).getFormat().matches(format))
+                return rtpFormats.get(i);
         }
         return null;
     }
 
     public RTPFormat[] toArray() {
         RTPFormat[] fmts = new RTPFormat[rtpFormats.size()];
-        return rtpFormats.toArray(fmts);        
+        return rtpFormats.toArray(fmts);
     }
 
     public Formats getFormats() {
         return formats;
     }
-    
+
     public RTPFormat find(int p) {
-    	int size = rtpFormats.size();
+        int size = rtpFormats.size();
         for (int i = 0; i < size; i++) {
-        	if (rtpFormats.get(i).getID() == p) {
-        		return rtpFormats.get(i);
-        	}
+            if (rtpFormats.get(i).getID() == p) {
+                return rtpFormats.get(i);
+            }
         }
         return null;
     }
-    
+
     public boolean contains(int p) {
-    	return this.find(p) != null;
+        return this.find(p) != null;
     }
-    
+
     public boolean contains(Format fmt) {
         for (int i = 0; i < rtpFormats.size(); i++) {
             if (rtpFormats.get(i).getFormat().matches(fmt)) {
@@ -144,7 +146,7 @@ public class RTPFormats {
         }
         return false;
     }
-    
+
     public RTPFormat find(Format fmt) {
         for (int i = 0; i < rtpFormats.size(); i++) {
             if (rtpFormats.get(i).getFormat().matches(fmt)) {
@@ -153,58 +155,59 @@ public class RTPFormats {
         }
         return null;
     }
-    
+
     public boolean isEmpty() {
         return rtpFormats.isEmpty();
     }
-    
+
     public void rewind() {
         cursor = 0;
     }
-    
+
     public boolean hasMore() {
         return cursor != rtpFormats.size();
     }
-    
+
     public RTPFormat next() {
         return rtpFormats.get(cursor++);
     }
-       
+
     public boolean hasNonDTMF() {
-    	for (int i = 0; i < this.rtpFormats.size(); i++) {
-    		if (!this.rtpFormats.get(i).getFormat().getName().equals(AVProfile.telephoneEvent.getName())) {
-    			return true;
-    		}
-    	}
-    	
-    	return false;
+        for (int i = 0; i < this.rtpFormats.size(); i++) {
+            if (!this.rtpFormats.get(i).getFormat().getName().equals(AVProfile.telephoneEvent.getName())) {
+                return true;
+            }
+        }
+
+        return false;
     }
-    
-	public void intersection(RTPFormats other, RTPFormats res) {
-		for (int i = 0; i < this.rtpFormats.size(); i++) {
-			RTPFormat supportedFormat = this.rtpFormats.get(i);
-			for (int j = 0; j < other.size(); j++) {
-				RTPFormat offeredFormat = other.rtpFormats.get(j);
-				if (supportedFormat.getFormat().matches(offeredFormat.getFormat())) {
-					// Add offered (instead of supported) format for DTMF dynamic payload
-					res.add(offeredFormat);
-					break;
-				}
-			}
-		}
-	}
-    
+
+    public void intersection(RTPFormats other, RTPFormats res) {
+        for (int i = 0; i < this.rtpFormats.size(); i++) {
+            RTPFormat supportedFormat = this.rtpFormats.get(i);
+            for (int j = 0; j < other.size(); j++) {
+                RTPFormat offeredFormat = other.rtpFormats.get(j);
+                if (supportedFormat.getFormat().matches(offeredFormat.getFormat())) {
+                    // Add offered (instead of supported) format for DTMF dynamic payload
+                    res.add(offeredFormat);
+                    break;
+                }
+            }
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("RTPFormats{");
-        
+
         for (int i = 0; i < rtpFormats.size(); i++) {
             buffer.append(rtpFormats.get(i));
-            if (i != rtpFormats.size() -1) buffer.append(",");
+            if (i != rtpFormats.size() - 1)
+                buffer.append(",");
         }
-        
-        buffer.append("}");                
+
+        buffer.append("}");
         return buffer.toString();
     }
 }

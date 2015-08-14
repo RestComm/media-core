@@ -134,6 +134,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     public void setFormatMap(RTPFormats rtpFormats) {
         flush();
         this.dtmfSupported = rtpFormats.contains(AVProfile.telephoneEventsID);
+        this.rtpRelay.setFormats(rtpFormats);
         this.rtpHandler.setFormatMap(rtpFormats);
     }
 
