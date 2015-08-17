@@ -174,6 +174,12 @@ public class MediaInput extends AbstractSink {
     }
 
     private void forwardFrame(Frame frame) {
+        frame.setEOM(false);
+        frame.setOffset(0);
+
+        if (buffer.size() >= bufferSize) {
+            buffer.poll().recycle();
+        }
         buffer.offer(frame);
     }
 

@@ -128,14 +128,6 @@ public class RtpSink extends AbstractSink {
 
         // perform transcoding if necessary
         if (!this.currentFormat.getFormat().matches(frame.getFormat())) {
-
-        }
-
-        // discard packet if codec used by remote party is unknown
-        if (currentFormat == null) {
-            frame.recycle();
-            return false;
-        } else if (!currentFormat.getFormat().matches(frame.getFormat())) {
             frame = transcoder.process(frame, frame.getFormat(), this.currentFormat.getFormat());
         }
 

@@ -29,6 +29,7 @@ import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.dsp.Processor;
 
@@ -142,8 +143,8 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 		ClassLoader loader = Server.class.getClassLoader();
 		nameParser.setPattern(namePattern);
 		try {
-			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class, Processor.class);
-			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement(), transcoderFactory.newProcessor());
+			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class, RelayType.class, Processor.class);
+			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement(), RelayType.MIXER, transcoderFactory.newProcessor());
 			server.install(endpoint, this);
 		} catch (Exception e) {
 			server.logger.error("Couldn't instantiate endpoint", e);
