@@ -161,7 +161,7 @@ public class RtpPacket implements Serializable {
     public int getSeqNumber() {
         return buffer.getShort(2) & 0xFFFF;
     }
-    
+
     public void setSequenceNumber(int sequenceNumber) {
         buffer.put(2, (byte) ((sequenceNumber & 0x0000FF00) >> 8));
         buffer.put(3, (byte) (sequenceNumber & 0x000000FF));
@@ -223,11 +223,8 @@ public class RtpPacket implements Serializable {
      * @return unsigned integer as long at offset
      */
     public long readUnsignedIntAsLong(int off) {
-        return (((long) (buffer.get(off) & 0xff) << 24) | 
-                ((long) (buffer.get(off + 1) & 0xff) << 16) | 
-                ((long) (buffer.get(off + 2) & 0xff) << 8) | 
-                ((long) (buffer.get(off + 3) & 0xff))) & 
-                0xFFFFFFFFL;
+        return (((long) (buffer.get(off) & 0xff) << 24) | ((long) (buffer.get(off + 1) & 0xff) << 16)
+                | ((long) (buffer.get(off + 2) & 0xff) << 8) | ((long) (buffer.get(off + 3) & 0xff))) & 0xFFFFFFFFL;
     }
 
     /**
@@ -239,6 +236,7 @@ public class RtpPacket implements Serializable {
     public void getPayload(byte[] buff, int offset) {
         buffer.position(FIXED_HEADER_SIZE);
         buffer.get(buff, offset, buffer.limit() - FIXED_HEADER_SIZE);
+        buffer.rewind();
     }
 
     /**
@@ -290,8 +288,8 @@ public class RtpPacket implements Serializable {
 
     @Override
     public String toString() {
-        return "RTP Packet[marker=" + getMarker() + ", seq=" + getSeqNumber() + ", timestamp=" + getTimestamp()
-                + ", payload_size=" + getPayloadLength() + ", payload=" + getPayloadType() + "]";
+        return "RTP Packet[marker=" + getMarker() + ", ssrc=" + getSyncSource() + ", seq=" + getSeqNumber() + ", timestamp="
+                + getTimestamp() + ", payload_size=" + getPayloadLength() + ", payload=" + getPayloadType() + "]";
     }
 
     /**
@@ -354,8 +352,7 @@ public class RtpPacket implements Serializable {
      * @return <tt>true</tt> if the extension bit of this packet has been set and false otherwise.
      */
     public boolean getExtensionBit() {
-        buffer.rewind();
-        return (buffer.get() & 0x10) == 0x10;
+        return (buffer.get(0) & 0x10) == 0x10;
     }
 
     /**
@@ -364,8 +361,7 @@ public class RtpPacket implements Serializable {
      * @return the CSRC count for this <tt>RawPacket</tt>.
      */
     public int getCsrcCount() {
-        buffer.rewind();
-        return (buffer.get() & 0x0f);
+        return (buffer.get(0) & 0x0f);
     }
 
     /**
@@ -374,8 +370,7 @@ public class RtpPacket implements Serializable {
      * @return RTP padding size from source RTP packet
      */
     public int getPaddingSize() {
-        buffer.rewind();
-        if ((buffer.get() & 0x4) == 0) {
+        if ((buffer.get(0) & 0x4) == 0) {
             return 0;
         } else {
             return buffer.get(buffer.limit() - 1);
