@@ -22,7 +22,6 @@
 
 package org.mobicents.media.server.impl;
 
-
 import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSource;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -32,179 +31,150 @@ import org.mobicents.media.server.spi.memory.Frame;
 /**
  * The base implementation of the Media source.
  * 
- * <code>AbstractSource</code> and <code>AbstractSink</code> are implement general wirring contruct. All media
- * components have to extend one of these classes.
+ * <code>AbstractSource</code> and <code>AbstractSink</code> are implement general wirring contruct. All media components have
+ * to extend one of these classes.
  * 
  * @author Oifa Yulian
  */
 public abstract class AbstractSource extends BaseComponent implements MediaSource {
 
-	private static final long serialVersionUID = 3157479112733053482L;
+    private static final long serialVersionUID = 3157479112733053482L;
 
-	//transmission statisctics
+    // transmission statisctics
     private volatile long txPackets;
     private volatile long txBytes;
-    
-    //shows if component is started or not.
+
+    // shows if component is started or not.
     private volatile boolean started;
 
-    //stream synchronization flag
+    // stream synchronization flag
     private volatile boolean isSynchronized;
 
-    //local media time
+    // local media time
     private volatile long timestamp = 0;
-    
-    //initial media time
+
+    // initial media time
     private long initialOffset;
-    
-    //frame sequence number
+
+    // frame sequence number
     private long sn = 1;
 
-    //scheduler instance
+    // scheduler instance
     private Scheduler scheduler;
 
-    //media generator
+    // media generator
     private final Worker worker;
 
-  //duration of media stream in nanoseconds
+    // duration of media stream in nanoseconds
     protected long duration = -1;
 
-    //intial delay for media processing
+    // intial delay for media processing
     private long initialDelay = 0;
-    
-    //media transmission pipe
-    protected AbstractSink mediaSink;        
+
+    // media transmission pipe
+    protected AbstractSink mediaSink;
 
     private static final Logger logger = Logger.getLogger(AbstractSource.class);
+
     /**
      * Creates new instance of source with specified name.
      * 
-     * @param name
-     *            the name of the source to be created.
+     * @param name the name of the source to be created.
      */
-    public AbstractSource(String name, Scheduler scheduler,int queueNumber) {
+    public AbstractSource(String name, Scheduler scheduler, int queueNumber) {
         super(name);
         this.scheduler = scheduler;
-        this.worker = new Worker(queueNumber);        
-    }    
+        this.worker = new Worker(queueNumber);
+    }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.impl.AbstractSource#setInitialDelay(long) 
-     */
+    @Override
     public void setInitialDelay(long initialDelay) {
         this.initialDelay = initialDelay;
     }
 
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#getMediaTime();
-     */
+    @Override
     public long getMediaTime() {
         return timestamp;
     }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#setDuration(long duration);
-     */
+
+    @Override
     public void setDuration(long duration) {
         this.duration = duration;
     }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#getDuration();
-     */
+
+    @Override
     public long getDuration() {
         return this.duration;
     }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#setMediaTime(long timestamp);
-     */
+
+    @Override
     public void setMediaTime(long timestamp) {
         this.initialOffset = timestamp;
-    }       
+    }
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#start().
-     */
+    @Override
     public void start() {
-    	synchronized(worker) {
-    		//check scheduler
-    		try {
-    			//prevent duplicate starting
-    			if (started) {
-    				return;
-    			}
+        synchronized (worker) {
+            // check scheduler
+            try {
+                // prevent duplicate starting
+                if (started) {
+                    return;
+                }
 
-    			if (scheduler == null) {
-    				throw new IllegalArgumentException("Scheduler is not assigned");
-    			}
+                if (scheduler == null) {
+                    throw new IllegalArgumentException("Scheduler is not assigned");
+                }
 
-    			this.txBytes = 0;
-    			this.txPackets = 0;
-            
-    			//reset media time and sequence number
-    			timestamp = this.initialOffset;
-    			this.initialOffset = 0;
-            
-    			sn = 0;
+                this.txBytes = 0;
+                this.txPackets = 0;
 
-    			//switch indicator that source has been started
-    			started = true;
+                // reset media time and sequence number
+                timestamp = this.initialOffset;
+                this.initialOffset = 0;
 
-    			//just started component always synchronized as well
-    			this.isSynchronized = true;
-    			
-    			if(mediaSink!=null)
-    				mediaSink.start();
-    			
-    			//scheduler worker    
-    			worker.reinit();
-    			scheduler.submit(worker,worker.getQueueNumber());
-    			
-    			//started!
-    			started();
-    		} catch (Exception e) {
-    			started = false;
-    			failed(e);
-    			logger.error(e);
-    		}
-    	}
+                sn = 0;
+
+                // switch indicator that source has been started
+                started = true;
+
+                // just started component always synchronized as well
+                this.isSynchronized = true;
+
+                if (mediaSink != null)
+                    mediaSink.start();
+
+                // scheduler worker
+                worker.reinit();
+                scheduler.submit(worker, worker.getQueueNumber());
+
+                // started!
+                started();
+            } catch (Exception e) {
+                started = false;
+                failed(e);
+                logger.error(e);
+            }
+        }
     }
 
     /**
      * Restores synchronization
      */
-    public void wakeup() {    	
-        synchronized(worker) {
-            if (!started) {            	
+    public void wakeup() {
+        synchronized (worker) {
+            if (!started) {
                 return;
             }
-            
+
             if (!this.isSynchronized) {
                 this.isSynchronized = true;
-                scheduler.submit(worker,worker.getQueueNumber());
+                scheduler.submit(worker, worker.getQueueNumber());
             }
         }
     }
-    
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#stop().
-     */
+
+    @Override
     public void stop() {
         if (started) {
             stopped();
@@ -213,24 +183,24 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         if (worker != null) {
             worker.cancel();
         }
-        
-        if(mediaSink!=null) {
-        	mediaSink.stop();
+
+        if (mediaSink != null) {
+            mediaSink.stop();
         }
-        	
+
         timestamp = 0;
     }
 
-    public void activate()
-    {
-    	start();
+    @Override
+    public void activate() {
+        start();
     }
-    
-    public void deactivate()
-    {
-    	stop();
+
+    @Override
+    public void deactivate() {
+        stop();
     }
-    
+
     /**
      * (Non Java-doc).
      *
@@ -238,8 +208,8 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      */
     protected void connect(AbstractSink sink) {
         this.mediaSink = sink;
-        if(started)
-        	this.mediaSink.start();
+        if (started)
+            this.mediaSink.start();
     }
 
     /**
@@ -248,39 +218,27 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      * @see org.mobicents.media.MediaSource#disconnect(org.mobicents.media.server.spi.io.Pipe)
      */
     protected void disconnect() {
-    	if(this.mediaSink!=null)
-    	{
-    		this.mediaSink.stop();
-    		this.mediaSink=null;
-    	}
+        if (this.mediaSink != null) {
+            this.mediaSink.stop();
+            this.mediaSink = null;
+        }
     }
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSink#isConnected().
-     */
+    @Override
     public boolean isConnected() {
         return mediaSink != null;
     }
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#isStarted().
-     */
+    @Override
     public boolean isStarted() {
         return this.started;
     }
 
     /**
-     * This method must be overriden by concrete media source. T
-     * he media have to fill buffer with media data and
-     * attributes.
+     * This method must be overriden by concrete media source. T he media have to fill buffer with media data and attributes.
      * 
      * @param buffer the buffer object for media.
-     * @param sequenceNumber
-     *            the number of timer ticks from the begining.
+     * @param sequenceNumber the number of timer ticks from the begining.
      */
     public abstract Frame evolve(long timestamp);
 
@@ -313,20 +271,12 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     protected void stopped() {
     }
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#getPacketsReceived()
-     */
+    @Override
     public long getPacketsTransmitted() {
-    	return txPackets;
+        return txPackets;
     }
 
-    /**
-     * (Non Java-doc).
-     * 
-     * @see org.mobicents.media.MediaSource#getBytesTransmitted()
-     */
+    @Override
     public long getBytesTransmitted() {
         return txBytes;
     }
@@ -334,124 +284,110 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     @Override
     public void reset() {
         this.txPackets = 0;
-        this.txBytes = 0;        
+        this.txBytes = 0;
     }
-    
+
     public String report() {
         return "";
-    }    
+    }
 
     /**
      * Media generator task
      */
     private class Worker extends Task {
-    	/**
-         * Creates new instance of task.
-         *
-         * @param scheduler the scheduler instance.
-         */
-    	private int queueNumber;    	
-    	private long initialTime;
-    	int readCount=0,length;
-    	long overallDelay=0;
-    	Frame frame;
-    	long frameDuration;
-    	Boolean isEOM;
-    	
-    	public Worker(int queueNumber) {
+
+        private int queueNumber;
+        private long initialTime;
+        int readCount = 0, length;
+        long overallDelay = 0;
+        Frame frame;
+        long frameDuration;
+        Boolean isEOM;
+
+        public Worker(int queueNumber) {
             super();
-            this.queueNumber=queueNumber;
-            initialTime=scheduler.getClock().getTime();            
-        }
-        
-        public void reinit()
-        {
-        	initialTime=scheduler.getClock().getTime();        	
-        }
-        
-        public int getQueueNumber()
-        {
-        	return queueNumber;
+            this.queueNumber = queueNumber;
+            initialTime = scheduler.getClock().getTime();
         }
 
-        /**
-         * (Non Java-doc.)
-         *
-         * @see org.mobicents.media.server.scheduler.Task#perform()
-         */
+        public void reinit() {
+            initialTime = scheduler.getClock().getTime();
+        }
+
+        @Override
+        public int getQueueNumber() {
+            return queueNumber;
+        }
+
+        @Override
         public long perform() {
-        	if(initialDelay+initialTime>scheduler.getClock().getTime())
-        	{
-        		//not a time yet
-        		scheduler.submit(this,queueNumber);
+            if (initialDelay + initialTime > scheduler.getClock().getTime()) {
+                // not a time yet
+                scheduler.submit(this, queueNumber);
                 return 0;
-        	}
-        	
-        	readCount=0;
-        	overallDelay=0;
-        	while(overallDelay<20000000L)
-        	{
-        		readCount++;
-        		frame = evolve(timestamp);
-        		if (frame == null) {
-        			if(readCount==1)
-        			{     
-        				//stop if frame was not generated
-        				isSynchronized = false;
-        				return 0;
-        			}
-        			else
-        			{
-        				//frame was generated so continue
-        				scheduler.submit(this,queueNumber);
-        	            return 0;
-        			}
-            	}
+            }
 
-            	//mark frame with media time and sequence number
-            	frame.setTimestamp(timestamp);
-            	frame.setSequenceNumber(sn);
+            readCount = 0;
+            overallDelay = 0;
+            while (overallDelay < 20000000L) {
+                readCount++;
+                frame = evolve(timestamp);
+                if (frame == null) {
+                    if (readCount == 1) {
+                        // stop if frame was not generated
+                        isSynchronized = false;
+                        return 0;
+                    } else {
+                        // frame was generated so continue
+                        scheduler.submit(this, queueNumber);
+                        return 0;
+                    }
+                }
 
-            	//update media time and sequence number for the next frame
-            	timestamp += frame.getDuration();
-            	overallDelay += frame.getDuration();
-            	sn= (sn==Long.MAX_VALUE) ? 0: sn+1;
+                // mark frame with media time and sequence number
+                frame.setTimestamp(timestamp);
+                frame.setSequenceNumber(sn);
 
-            	//set end_of_media flag if stream has reached the end
-            	if (duration > 0 && timestamp >= duration) {
-            		frame.setEOM(true);
-            	}
+                // update media time and sequence number for the next frame
+                timestamp += frame.getDuration();
+                overallDelay += frame.getDuration();
+                sn = (sn == Long.MAX_VALUE) ? 0 : sn + 1;
 
-            	frameDuration = frame.getDuration();            	            	            	          
-            	isEOM=frame.isEOM();
-            	length=frame.getLength();
-            	
-            	//delivering data to the other party.
-            	if (mediaSink != null) {
-            		mediaSink.perform(frame);
-            	}
-            	
-            	//update transmission statistics
-            	txPackets++;
-            	txBytes += length;
-            
-            	//send notifications about media termination
-            	//and do not resubmit this task again if stream has bee ended
-            	if (isEOM) { 
-            		started=false;
-        			completed();
-            		return -1;
-            	}
+                // set end_of_media flag if stream has reached the end
+                if (duration > 0 && timestamp >= duration) {
+                    frame.setEOM(true);
+                }
 
-            	//check synchronization
-            	if (frameDuration <= 0) {
-            		//loss of synchronization
-                	isSynchronized = false;
-                	return 0;
-            	}            
-        	}
-        	
-        	scheduler.submit(this,queueNumber);
+                frameDuration = frame.getDuration();
+                isEOM = frame.isEOM();
+                length = frame.getLength();
+
+                // delivering data to the other party.
+                if (mediaSink != null) {
+                    mediaSink.perform(frame);
+                }
+
+                // update transmission statistics
+                txPackets++;
+                txBytes += length;
+
+                // send notifications about media termination
+                // and do not resubmit this task again if stream has bee ended
+                if (isEOM) {
+                    started = false;
+                    completed();
+                    return -1;
+                }
+
+                // check synchronization
+                if (frameDuration <= 0) {
+                    // loss of synchronization
+                    isSynchronized = false;
+                    return 0;
+                }
+            }
+
+            scheduler.submit(this, queueNumber);
             return 0;
         }
 
