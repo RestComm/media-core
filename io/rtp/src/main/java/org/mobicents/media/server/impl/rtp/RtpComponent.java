@@ -25,9 +25,9 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.MediaComponent;
-import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
+import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -118,7 +118,7 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
     public void incomingRtp(RtpPacket packet, RTPFormat format) {
         // Determine whether the RTP packet is DTMF or not
         // and send it to the according media source
-        if (RtpSession.DTMF_FORMAT.matches(format.getFormat())) {
+        if (AVProfile.telephoneEvent.matches(format.getFormat())) {
             this.dtmfSource.write(packet);
         } else {
             // Tell the media sink what is the format the remote peer is expecting
