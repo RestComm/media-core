@@ -525,7 +525,7 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     public MediaComponent getMediaComponent(String mediaType) {
         switch (mediaType) {
             case "audio":
-                return this.audioSession.getMixerComponent();
+                return this.audioSession.getMediaComponent();
 
             default:
                 return null;

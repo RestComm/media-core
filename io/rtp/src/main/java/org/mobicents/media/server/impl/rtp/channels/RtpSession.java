@@ -255,7 +255,7 @@ public class RtpSession implements RtpRelay {
         return 0;
     }
 
-    public RtpComponent getMixerComponent() {
+    public RtpComponent getMediaComponent() {
         return mediaComponent;
     }
 
@@ -645,6 +645,19 @@ public class RtpSession implements RtpRelay {
                 this.offeredFormats.add(format);
             }
         }
+
+        // Negotiate the formats and store intersection
+        this.negotiatedFormats.clean();
+        this.supportedFormats.intersection(this.offeredFormats, this.negotiatedFormats);
+
+        // Apply formats
+        setFormats(this.negotiatedFormats);
+        this.negotiated = true;
+    }
+
+    public void negotiateFormats(RTPFormats formats) {
+        // Update the collection of offered formats
+        this.offeredFormats = formats;
 
         // Negotiate the formats and store intersection
         this.negotiatedFormats.clean();
@@ -1093,7 +1106,7 @@ public class RtpSession implements RtpRelay {
 
     @Override
     public void outgoingRtp(RtpPacket packet) {
-        outgoingRtp(packet, true);
+        outgoingRtp(packet, false);
     }
 
     @Override
