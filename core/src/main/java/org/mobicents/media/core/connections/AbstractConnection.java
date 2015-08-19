@@ -89,6 +89,10 @@ public abstract class AbstractConnection implements Connection {
         this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
     }
 
+    protected AbstractConnection(int id, Scheduler scheduler, ConnectionType connectionType) {
+        this(id, scheduler, RelayType.MIXER, connectionType);
+    }
+
     @Override
     public int getId() {
         return id;
@@ -108,7 +112,7 @@ public abstract class AbstractConnection implements Connection {
     public void setRelayType(RelayType relayType) {
         this.relayType = relayType;
     }
-    
+
     @Override
     public ConnectionType getConnectionType() {
         return this.connectionType;
@@ -234,7 +238,7 @@ public abstract class AbstractConnection implements Connection {
             }
         }
     }
-    
+
     @Override
     public boolean isClosed() {
         return this.currentState.equals(ConnectionState.NULL);

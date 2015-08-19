@@ -23,7 +23,7 @@ package org.mobicents.media.server.impl.rtp.channels;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Media channel responsible for audio processing.
@@ -33,10 +33,10 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  */
 public class AudioSession extends RtpSession {
 
-    public AudioSession(int channelId, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
-        super(channelId, AVProfile.AUDIO, scheduler, dspFactory, udpManager);
-        super.supportedFormats = AVProfile.audio;
-        super.setFormats(this.supportedFormats);
+    public AudioSession(int channelId, Scheduler scheduler, Processor transcoder, UdpManager udpManager) {
+        super(channelId, AVProfile.AUDIO, scheduler, transcoder, udpManager);
+        this.supportedFormats = AVProfile.audio;
+        setFormats(this.supportedFormats);
     }
 
 }

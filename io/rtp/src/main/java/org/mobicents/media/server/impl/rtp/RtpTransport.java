@@ -32,23 +32,25 @@ import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.utils.Text;
 
 /**
+ * Channel from where RTP packets are sent and received.
+ * 
+ * <p>
+ * Supports multiplexing of the following protocols: STUN, DTLS, (S)RTP and (S)RTCP.
+ * </p>
  * 
  * @author Yulian Oifa
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * 
+ * @see MultiplexedChannel
  */
 public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
@@ -58,8 +60,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
     // Core elements
     private final UdpManager udpManager;
-    private final Scheduler scheduler;
-    private final HeartBeat heartBeat;
 
     // Channel attributes
     private SocketAddress remotePeer;
@@ -70,8 +70,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
     // RTP elements
     private RtpListener rtpListener;
-    private RtpStatistics rtpStatistics;
-    private RtpRelay rtpRelay;
 
     // Protocol handlers pipeline
     private static final int RTP_PRIORITY = 3; // a packet each 20ms
@@ -83,13 +81,11 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private StunHandler stunHandler;
     private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
 
-    public RtpTransport(RtpStatistics statistics, Scheduler scheduler, UdpManager udpManager) {
+    public RtpTransport(UdpManager udpManager, RtpRelay rtpRelay) {
         super();
 
         // Core elements
-        this.scheduler = scheduler;
         this.udpManager = udpManager;
-        this.heartBeat = new HeartBeat();
 
         // Channel attributes
         this.bound = false;
@@ -98,32 +94,11 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.dtmfSupported = false;
 
         // RTP elements
-        this.rtpStatistics = statistics;
-        this.rtpHandler = new RtpHandler(statistics, this);
-    }
-
-    public RtpRelay getRtpRelay() {
-        return rtpRelay;
-    }
-
-    public void setRtpRelay(RtpRelay rtpRelay) {
-        this.rtpRelay = rtpRelay;
-    }
-
-    public long getSsrc() {
-        return this.rtpStatistics.getSsrc();
+        this.rtpHandler = new RtpHandler(rtpRelay);
     }
 
     public void setRtpListener(RtpListener listener) {
         this.rtpListener = listener;
-    }
-
-    public long getPacketsReceived() {
-        return this.rtpStatistics.getRtpPacketsReceived();
-    }
-
-    public long getPacketsTransmitted() {
-        return this.rtpStatistics.getRtpPacketsSent();
     }
 
     /**
@@ -134,61 +109,11 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     public void setFormatMap(RTPFormats rtpFormats) {
         flush();
         this.dtmfSupported = rtpFormats.contains(AVProfile.telephoneEventsID);
-        this.rtpRelay.setFormats(rtpFormats);
         this.rtpHandler.setFormatMap(rtpFormats);
     }
 
     public RTPFormats getFormatMap() {
         return this.rtpHandler.getFormatMap();
-    }
-
-    /**
-     * Sets the connection mode of the channel.<br>
-     * Possible modes: send_only, recv_only, inactive, send_recv, conference, network_loopback.
-     * 
-     * @param connectionMode the new connection mode adopted by the channel
-     */
-    public void updateMode(ConnectionMode connectionMode) {
-        switch (connectionMode) {
-            case SEND_ONLY:
-                this.rtpHandler.setReceivable(false);
-                this.rtpHandler.setLoopable(false);
-                break;
-            case RECV_ONLY:
-                this.rtpHandler.setReceivable(true);
-                this.rtpHandler.setLoopable(false);
-                break;
-            case INACTIVE:
-                this.rtpHandler.setReceivable(false);
-                this.rtpHandler.setLoopable(false);
-                break;
-            case SEND_RECV:
-            case CONFERENCE:
-                this.rtpHandler.setReceivable(true);
-                this.rtpHandler.setLoopable(false);
-                break;
-            case NETWORK_LOOPBACK:
-                this.rtpHandler.setReceivable(false);
-                this.rtpHandler.setLoopable(true);
-                break;
-            default:
-                break;
-        }
-        this.rtpRelay.updateMode(connectionMode);
-
-        boolean connectImmediately = false;
-        if (this.remotePeer != null) {
-            connectImmediately = udpManager.connectImmediately((InetSocketAddress) this.remotePeer);
-        }
-
-        if (udpManager.getRtpTimeout() > 0 && this.remotePeer != null && !connectImmediately) {
-            if (this.rtpHandler.isReceivable()) {
-                this.rtpStatistics.setLastHeartbeat(scheduler.getClock().getTime());
-                scheduler.submitHeatbeat(heartBeat);
-            } else {
-                heartBeat.cancel();
-            }
-        }
     }
 
     private void onBinding(boolean useJitterBuffer) {
@@ -287,15 +212,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
                 }
             }
         }
-
-        if (udpManager.getRtpTimeout() > 0 && !connectImmediately) {
-            if (this.rtpHandler.isReceivable()) {
-                this.rtpStatistics.setLastHeartbeat(scheduler.getClock().getTime());
-                scheduler.submitHeatbeat(heartBeat);
-            } else {
-                heartBeat.cancel();
-            }
-        }
     }
 
     public void setRemotePeer(String address, int port) {
@@ -360,18 +276,13 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         }
     }
 
-    /**
-     * Configures whether rtcp-mux is active in this channel or not.
-     * 
-     * @param enable decides whether rtcp-mux is to be enabled
-     */
-    public void setRtcpMux(boolean enable) {
-        this.rtcpMux = enable;
+    public void disableRtcp() {
+        this.rtcpMux = false;
+    }
 
-        // initialize handler if necessary
-        if (enable && this.rtcpHandler == null) {
-            this.rtcpHandler = new RtcpHandler(this.rtpStatistics);
-        }
+    public void enableRtcp(RtpStatistics statistics) {
+        this.rtcpHandler = new RtcpHandler(statistics);
+        this.rtcpMux = true;
     }
 
     public Text getWebRtcLocalFingerprint() {
@@ -393,9 +304,6 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     }
 
     private void reset() {
-        // Heartbeat reset
-        heartBeat.cancel();
-
         // RTP reset
         this.dtmfSupported = false;
         this.rtpHandler.reset();
@@ -427,47 +335,17 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.rtpListener.onRtpFailure(e);
     }
 
-    private class HeartBeat extends Task {
-
-        @Override
-        public int getQueueNumber() {
-            return Scheduler.HEARTBEAT_QUEUE;
-        }
-
-        @Override
-        public long perform() {
-            long elapsedTime = scheduler.getClock().getTime() - rtpStatistics.getLastHeartbeat();
-            if (elapsedTime > udpManager.getRtpTimeout() * 1000000000L) {
-                if (rtpListener != null) {
-                    rtpListener.onRtpFailure("RTP timeout! Elapsed time since last heartbeat: " + elapsedTime);
-                }
-            } else {
-                scheduler.submitHeatbeat(this);
-            }
-            return 0;
-        }
-    }
-
-    protected void incomingRtp(RtpPacket packet, RTPFormat format) {
-        if (this.rtpRelay != null) {
-            // delegate incoming packet to the RTP relay
-            this.rtpRelay.incomingRtp(packet, format);
-        } else {
-            // abort call because there is no way to process incoming media packets
-            this.rtpListener.onRtpFailure("No RTP relay was defined to process incoming packets.");
-        }
-    }
-
-    public void send(RtpPacket packet) throws IOException {
+    public void send(RtpPacket packet, boolean dtmf) throws IOException {
         // Do not send data while DTLS handshake is ongoing. WebRTC calls only.
         if (this.secure && !this.dtlsHandler.isHandshakeComplete()) {
-            return;
+            throw new IOException("Ongoing DTLS handshake.");
+        }
+
+        if (dtmf && !this.dtmfSupported) {
+            throw new IOException("DTMF format is not supported.");
         }
 
         if (this.dataChannel.isConnected()) {
-            // Set packet information related with this transporter
-            packet.setSyncSource(this.rtpStatistics.getSsrc());
-
             // Get the contents of the packet
             ByteBuffer buffer = packet.getBuffer();
 
@@ -491,17 +369,8 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
 
             // send RTP packet to the network and update statistics for RTCP
             this.dataChannel.send(buffer, this.remotePeer);
-            this.rtpStatistics.onRtpSent(packet);
         } else {
             throw new IOException("The RTP channel is not connected.");
-        }
-    }
-
-    public void sendDtmf(RtpPacket packet) throws IOException {
-        if (this.dtmfSupported) {
-            send(packet);
-        } else {
-            throw new IOException("DTMF format is not supported.");
         }
     }
 

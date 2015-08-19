@@ -21,10 +21,9 @@
 
 package org.mobicents.media.server.impl.rtp;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.MediaComponent;
+import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSink;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfSource;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -38,7 +37,7 @@ import org.mobicents.media.server.spi.dsp.Processor;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpComponent extends MediaComponent implements RtpRelay {
+public class RtpComponent extends MediaComponent {
 
     private static final Logger logger = Logger.getLogger(RtpComponent.class);
 
@@ -54,24 +53,20 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
     private final JitterBuffer jitterBuffer;
 
     // RTP transport
-    private final RtpTransport rtpTransport;
+    private final RtpSession rtpSession;
+    private boolean firstPacket;
 
-    // RTP statistics
-    private volatile int rxPackets;
-    private volatile int sequenceNumber;
-
-    public RtpComponent(int channelId, Scheduler scheduler, RtpTransport rtpTransport, RtpClock rtpClock, RtpClock oobClock,
-            Processor transcoder) {
+    public RtpComponent(int channelId, Scheduler scheduler, RtpSession rtpSession, Processor transcoder) {
         super(channelId, transcoder);
 
         // RTP source
-        this.jitterBuffer = new JitterBuffer(rtpClock, DEFAULT_BUFFER_SIZER);
+        this.jitterBuffer = new JitterBuffer(new RtpClock(scheduler.getClock()), DEFAULT_BUFFER_SIZER);
         this.rtpSource = new RtpSource(scheduler, jitterBuffer);
-        this.dtmfSource = new DtmfSource(scheduler, oobClock);
+        this.dtmfSource = new DtmfSource(scheduler, new RtpClock(scheduler.getClock()));
 
         // RTP sink
-        this.rtpSink = new RtpSink(scheduler, rtpClock, this, transcoder);
-        this.dtmfSink = new DtmfSink(scheduler, this, oobClock);
+        this.rtpSink = new RtpSink(scheduler, new RtpClock(scheduler.getClock()), this, transcoder);
+        this.dtmfSink = new DtmfSink(scheduler, this, new RtpClock(scheduler.getClock()));
 
         // Register mixer components
         addInput(this.rtpSource.getMediaInput());
@@ -80,14 +75,10 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         addOOBOutput(this.dtmfSink.getOobOutput());
 
         // RTP transport
-        this.rtpTransport = rtpTransport;
-
-        // RTP statistics
-        this.rxPackets = 0;
-        this.sequenceNumber = 0;
+        this.rtpSession = rtpSession;
+        this.firstPacket = false;
     }
 
-    @Override
     public void setFormats(RTPFormats formats) {
         this.rtpSink.setFormats(formats);
     }
@@ -112,60 +103,6 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
         this.rtpSink.deactivate();
         this.dtmfSink.deactivate();
         this.dtmfSink.reset();
-    }
-
-    @Override
-    public void incomingRtp(RtpPacket packet, RTPFormat format) {
-        // Determine whether the RTP packet is DTMF or not
-        // and send it to the according media source
-        if (AVProfile.telephoneEvent.matches(format.getFormat())) {
-            this.dtmfSource.write(packet);
-        } else {
-            // Tell the media sink what is the format the remote peer is expecting
-            this.rtpSink.setCurrentFormat(format);
-
-            // Place packet in the jitter buffer
-            if (this.rxPackets == 0) {
-                logger.info("Restarting jitter buffer");
-                this.jitterBuffer.restart();
-            }
-            this.rxPackets++;
-            this.jitterBuffer.write(packet, format);
-        }
-    }
-
-    @Override
-    public void outgoingRtp(RtpPacket packet) {
-        try {
-            // Increment sequence number
-            int nextSequence = this.sequenceNumber++;
-            packet.setSequenceNumber(nextSequence);
-
-            // Adjust SSRC of the packet
-            packet.setSyncSource(this.rtpTransport.getSsrc());
-
-            // Send packet to remote peer
-            this.rtpTransport.send(packet);
-        } catch (IOException e) {
-            logger.warn("RTP packet dropped: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void outgoingDtmf(RtpPacket packet) {
-        try {
-            // Increment sequence number
-            int nextSequence = this.sequenceNumber++;
-            packet.setSequenceNumber(nextSequence);
-
-            // Adjust SSRC of the packet
-            packet.setSyncSource(this.rtpTransport.getSsrc());
-
-            // Send packet to remote peer
-            this.rtpTransport.sendDtmf(packet);
-        } catch (IOException e) {
-            logger.warn("DTMF packet dropped: " + e.getMessage(), e);
-        }
     }
 
     @Override
@@ -195,6 +132,33 @@ public class RtpComponent extends MediaComponent implements RtpRelay {
                 deactivateSources();
                 break;
         }
+    }
+
+    public void incomingRtp(RtpPacket packet, RTPFormat format) {
+        // Determine whether the RTP packet is DTMF or not
+        // and send it to the according media source
+        if (AVProfile.telephoneEvent.matches(format.getFormat())) {
+            this.dtmfSource.write(packet);
+        } else {
+            // Tell the media sink what is the format the remote peer is expecting
+            this.rtpSink.setCurrentFormat(format);
+
+            // Place packet in the jitter buffer
+            if (!firstPacket) {
+                logger.info("Restarting jitter buffer");
+                this.jitterBuffer.restart();
+                this.firstPacket = true;
+            }
+            this.jitterBuffer.write(packet, format);
+        }
+    }
+
+    public void outgoingRtp(RtpPacket packet) {
+        this.rtpSession.outgoingRtp(packet);
+    }
+
+    public void outgoingDtmf(RtpPacket packet) {
+        this.rtpSession.outgoingDtmf(packet);
     }
 
 }

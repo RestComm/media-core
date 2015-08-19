@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpHeader;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
-import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
@@ -48,29 +47,23 @@ public class RtpHandler implements PacketHandler {
     private DtlsHandler dtlsHandler;
 
     // Channel properties
-    private boolean loopable;
-    private boolean receivable;
     private boolean secure;
 
     // RTP components
-    private RtpTransport rtpReceiver;
+    private RtpReceiver rtpReceiver;
     private RTPFormats rtpFormats;
     private final RtpPacket rtpPacket;
-    private final RtpStatistics statistics;
 
-    public RtpHandler(RtpStatistics statistics, RtpTransport rtpReceiver) {
+    public RtpHandler(RtpReceiver rtpReceiver) {
         // Packet handler properties
         this.pipelinePriority = 0;
 
         // Channel properties
-        this.receivable = false;
-        this.loopable = false;
         this.secure = false;
 
         // RTP components
         this.rtpFormats = new RTPFormats();
         this.rtpPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
-        this.statistics = statistics;
         this.rtpReceiver = rtpReceiver;
     }
 
@@ -82,22 +75,6 @@ public class RtpHandler implements PacketHandler {
     @Override
     public void setPipelinePriority(int pipelinePriority) {
         this.pipelinePriority = pipelinePriority;
-    }
-
-    public boolean isLoopable() {
-        return loopable;
-    }
-
-    public void setLoopable(boolean loopable) {
-        this.loopable = loopable;
-    }
-
-    public boolean isReceivable() {
-        return receivable;
-    }
-
-    public void setReceivable(boolean receivable) {
-        this.receivable = receivable;
     }
 
     /**
@@ -135,28 +112,22 @@ public class RtpHandler implements PacketHandler {
     }
 
     @Override
-	public boolean canHandle(byte[] packet, int dataLength, int offset) {
-		/*
-		 * The RTP header has the following format:
-		 *
-	     * 0                   1                   2                   3
-	     * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	     * |V=2|P|X|  CC   |M|     PT      |       sequence number         |
-	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	     * |                           timestamp                           |
-	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	     * |           synchronization source (SSRC) identifier            |
-	     * +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-	     * |            contributing source (CSRC) identifiers             |
-	     * |                             ....                              |
-	     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	     *
-	     * The first twelve octets are present in every RTP packet, while the
-	     * list of CSRC identifiers is present only when inserted by a mixer.
-	     *
-	     * The version defined by RFC3550 specification is two.
-		 */
+    public boolean canHandle(byte[] packet, int dataLength, int offset) {
+        /*
+         * The RTP header has the following format:
+         * 
+         * 0 1 2 3 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ |V=2|P|X| CC |M| PT | sequence number |
+         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ | timestamp |
+         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ | synchronization source (SSRC) identifier |
+         * +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+ | contributing source (CSRC) identifiers | | .... |
+         * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         * 
+         * The first twelve octets are present in every RTP packet, while the list of CSRC identifiers is present only when
+         * inserted by a mixer.
+         * 
+         * The version defined by RFC3550 specification is two.
+         */
         // Packet must be equal or greater than an RTP Packet Header
         if (dataLength >= RtpPacket.FIXED_HEADER_SIZE) {
             // The most significant 2 bits of every RTP message correspond to the version.
@@ -194,8 +165,8 @@ public class RtpHandler implements PacketHandler {
             }
         }
         return false;
-	}
-	
+    }
+
     @Override
     public byte[] handle(byte[] packet, InetSocketAddress localPeer, InetSocketAddress remotePeer)
             throws PacketHandlerException {
@@ -232,28 +203,16 @@ public class RtpHandler implements PacketHandler {
         }
 
         // RTP v0 packets are used in some applications. Discarded since we do not handle them.
-        if (rtpPacket.getVersion() != 0 && (receivable || loopable)) {
+        if (rtpPacket.getVersion() != 0) {
             if (rtpPacket.getBuffer().limit() > 0) {
-                if (loopable) {
-                    // Update statistics for RTCP
-                    this.statistics.onRtpReceive(rtpPacket);
-                    this.statistics.onRtpSent(rtpPacket);
-
-                    // Return same packet (looping) so it can be transmitted
-                    return packet;
+                // Send packet to the RTP gateway to be mixed or forwarded
+                // depending on the relay type defined for the channel
+                int payloadType = rtpPacket.getPayloadType();
+                RTPFormat format = rtpFormats.find(payloadType);
+                if (format != null) {
+                    this.rtpReceiver.incomingRtp(rtpPacket, format);
                 } else {
-                    // Update statistics for RTCP
-                    this.statistics.onRtpReceive(rtpPacket);
-
-                    // Send packet to the RTP gateway to be mixed or forwarded
-                    // depending on the relay type defined for the channel
-                    int payloadType = rtpPacket.getPayloadType();
-                    RTPFormat format = rtpFormats.find(payloadType);
-                    if (format != null) {
-                        this.rtpReceiver.incomingRtp(rtpPacket, format);
-                    } else {
-                        logger.warn("Dropping packet because payload type (" + payloadType + ") is unknown.");
-                    }
+                    logger.warn("Dropping packet because payload type (" + payloadType + ") is unknown.");
                 }
             } else {
                 logger.warn("Skipping packet because limit of the packets buffer is zero");

@@ -84,11 +84,10 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
      * 
      * @param id The unique ID of the connection
      * @param channelsManager The media channel provider
-     * @param relayType The default relay type to be used by the connection.
      */
-    public RtpConnection(int id, ChannelsManager channelsManager, RelayType relayType) {
+    public RtpConnection(int id, ChannelsManager channelsManager) {
         // Core elements
-        super(id, channelsManager.getScheduler(), relayType, ConnectionType.RTP);
+        super(id, channelsManager.getScheduler(), ConnectionType.RTP);
         this.channelsManager = channelsManager;
 
         // Connection state
@@ -100,20 +99,6 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         this.audioSession = this.channelsManager.getAudioChannel();
         this.audioSession.setCname(this.cname);
         this.audioSession.setRtpListener(this);
-        this.audioSession.setRelayType(relayType);
-    }
-
-    /**
-     * Constructs a new RTP connection with one audio channel.
-     * <p>
-     * The connection will perform media mixing by default. To change settings, set the relay type.
-     * </p>
-     * 
-     * @param id The unique ID of the connection
-     * @param channelsManager The media channel provider
-     */
-    public RtpConnection(int id, ChannelsManager channelsManager) {
-        this(id, channelsManager, RelayType.MIXER);
     }
 
     @Override
@@ -147,7 +132,6 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
     @Override
     public void setRelayType(RelayType relayType) {
         super.setRelayType(relayType);
-        this.audioSession.setRelayType(relayType);
     }
 
     @Override

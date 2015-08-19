@@ -25,13 +25,10 @@ import java.io.IOException;
 
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.impl.rtp.RtpRelay;
-import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
+import org.mobicents.media.server.impl.rtp.RtpComponent;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -51,14 +48,14 @@ public class DtmfSink extends AbstractSink {
     private final OOBOutput oobOutput;
 
     // RTP transport
-    private final RtpRelay rtpGateway;
+    private final RtpComponent rtpComponent;
     private final RtpPacket dtmfPacket;
     private final RtpClock oobClock;
 
     // Details of a transmitted packet
     private long dtmfTimestamp;
 
-    public DtmfSink(Scheduler scheduler, RtpRelay rtpGateway, RtpClock oobClock) {
+    public DtmfSink(Scheduler scheduler, RtpComponent rtpGateway, RtpClock oobClock) {
         super(SINK_NAME);
 
         // Media mixer components
@@ -66,7 +63,7 @@ public class DtmfSink extends AbstractSink {
         oobOutput.join(this);
 
         // RTP transport
-        this.rtpGateway = rtpGateway;
+        this.rtpComponent = rtpGateway;
         this.dtmfPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
         this.oobClock = oobClock;
 
@@ -81,7 +78,7 @@ public class DtmfSink extends AbstractSink {
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
         if (evolve(frame)) {
-            this.rtpGateway.outgoingDtmf(this.dtmfPacket);
+            this.rtpComponent.outgoingDtmf(this.dtmfPacket);
         }
     }
 

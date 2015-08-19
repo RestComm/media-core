@@ -41,6 +41,8 @@ import org.mobicents.media.server.impl.rtcp.RtcpTransport;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.RtpComponent;
 import org.mobicents.media.server.impl.rtp.RtpListener;
+import org.mobicents.media.server.impl.rtp.RtpPacket;
+import org.mobicents.media.server.impl.rtp.RtpRelay;
 import org.mobicents.media.server.impl.rtp.RtpTransport;
 import org.mobicents.media.server.impl.rtp.SsrcGenerator;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
@@ -52,8 +54,7 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.RelayType;
-import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Abstract representation of a media channel with RTP and RTCP components.
@@ -61,41 +62,45 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public abstract class RtpSession {
+public class RtpSession implements RtpRelay {
 
     protected static final Logger logger = Logger.getLogger(RtpSession.class);
 
-    // RTP channel properties
-    protected final int channelId;
-    protected long ssrc;
-    protected String cname;
-    protected final String mediaType;
-    protected final RtpClock clock;
-    protected final RtpClock oobClock;
-    protected final RtpTransport rtpTransport;
-    protected final RtcpTransport rtcpTransport;
-    protected final RtpStatistics statistics;
-    protected boolean rtcpMux;
-    protected boolean secure;
-    protected boolean open;
-
-    // RTP relay
-    protected RelayType relayType;
-    protected RtpComponent mixerComponent;
+    // RTP session
+    private final int channelId;
+    private String cname;
+    private long ssrc;
+    private final String mediaType;
+    private final RtpClock clock;
+    private final RtpStatistics statistics;
+    private boolean receivable;
+    private boolean transmittable;
+    private boolean loopable;
+    private boolean open;
 
     // RTP format negotiation
     protected RTPFormats supportedFormats;
-    protected RTPFormats offeredFormats;
-    protected RTPFormats negotiatedFormats;
-    protected boolean negotiated;
+    private RTPFormats offeredFormats;
+    private RTPFormats negotiatedFormats;
+    private boolean negotiated;
+
+    // RTP transport
+    protected final RtpTransport rtpTransport;
+    protected final RtcpTransport rtcpTransport;
+    private int sequenceNumber;
+    private boolean rtcpMux;
+    private boolean secure;
+
+    // Media processing
+    private RtpComponent mediaComponent;
 
     // Listeners
-    protected RtpListener rtpListener;
+    private RtpListener rtpListener;
 
     // ICE
-    protected boolean ice;
-    protected IceAgent iceAgent;
-    protected IceListener iceListener;
+    private boolean ice;
+    private IceAgent iceAgent;
+    private IceListener iceListener;
 
     /**
      * Constructs a new media channel containing both RTP and RTCP components.
@@ -109,32 +114,34 @@ public abstract class RtpSession {
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected RtpSession(int channelId, String mediaType, Scheduler scheduler, DspFactory dspFactory, UdpManager udpManager) {
+    protected RtpSession(int channelId, String mediaType, Scheduler scheduler, Processor transcoder, UdpManager udpManager) {
         // RTP channel properties
         this.channelId = channelId;
+        this.cname = "";
         this.ssrc = SsrcGenerator.generateSsrc();
         this.mediaType = mediaType;
         this.clock = new RtpClock(scheduler.getClock());
-        this.oobClock = new RtpClock(scheduler.getClock());
         this.statistics = new RtpStatistics(clock, this.ssrc);
-        this.rtcpMux = false;
-        this.secure = false;
-        this.ice = false;
         this.open = false;
 
-        // RTP transport
-        this.rtpTransport = new RtpTransport(statistics, scheduler, udpManager);
-        this.rtcpTransport = new RtcpTransport(statistics, udpManager);
-
-        // RTP relay
-        this.relayType = RelayType.MIXER;
-        this.mixerComponent = new RtpComponent(channelId, scheduler, rtpTransport, clock, oobClock, dspFactory.newProcessor());
-        this.rtpTransport.setRtpRelay(this.mixerComponent);
-
         // RTP format negotiation
+        this.supportedFormats = new RTPFormats();
         this.offeredFormats = new RTPFormats();
         this.negotiatedFormats = new RTPFormats();
         this.negotiated = false;
+
+        // RTP transport
+        this.rtpTransport = new RtpTransport(udpManager, this);
+        this.rtcpTransport = new RtcpTransport(statistics, udpManager);
+        this.sequenceNumber = 0;
+        this.rtcpMux = false;
+        this.secure = false;
+
+        // Media processing
+        this.mediaComponent = new RtpComponent(channelId, scheduler, this, transcoder);
+
+        // ICE
+        this.ice = false;
     }
 
     public int getChannelId() {
@@ -190,25 +197,6 @@ public abstract class RtpSession {
     public void setCname(String cname) {
         this.cname = cname;
         this.statistics.setCname(cname);
-    }
-
-    public void setRelayType(RelayType relayType) {
-        if (this.relayType.equals(relayType)) {
-            this.relayType = relayType;
-            switch (relayType) {
-                case MIXER:
-                    // TODO close and reset translator
-                    // this.mixerComponent.deactivate();
-                    break;
-
-                case TRANSLATOR:
-
-                    break;
-
-                default:
-                    break;
-            }
-        }
     }
 
     /**
@@ -268,7 +256,7 @@ public abstract class RtpSession {
     }
 
     public RtpComponent getMixerComponent() {
-        return mixerComponent;
+        return mediaComponent;
     }
 
     /**
@@ -319,12 +307,12 @@ public abstract class RtpSession {
         resetFormats();
 
         // Reset relay components
-        this.mixerComponent.updateMode(ConnectionMode.INACTIVE);
+        this.mediaComponent.updateMode(ConnectionMode.INACTIVE);
 
         // Reset channels
         if (this.rtcpMux) {
             this.rtcpMux = false;
-            this.rtpTransport.setRtcpMux(false);
+            this.rtpTransport.disableRtcp();
         }
 
         // Reset ICE
@@ -389,7 +377,39 @@ public abstract class RtpSession {
      * @param mode The new connection mode of the RTP component
      */
     public void setConnectionMode(ConnectionMode mode) {
-        this.rtpTransport.updateMode(mode);
+        switch (mode) {
+            case RECV_ONLY:
+                this.receivable = true;
+                this.transmittable = false;
+                this.loopable = false;
+                break;
+
+            case SEND_ONLY:
+                this.receivable = false;
+                this.transmittable = true;
+                this.loopable = false;
+                break;
+
+            case SEND_RECV:
+            case CONFERENCE:
+                this.receivable = true;
+                this.transmittable = true;
+                this.loopable = false;
+                break;
+
+            case NETWORK_LOOPBACK:
+                this.receivable = false;
+                this.transmittable = false;
+                this.loopable = true;
+                break;
+
+            default:
+                this.receivable = false;
+                this.transmittable = false;
+                this.loopable = false;
+                break;
+        }
+        this.mediaComponent.updateMode(mode);
     }
 
     /**
@@ -399,7 +419,7 @@ public abstract class RtpSession {
      */
     protected void setFormats(RTPFormats formats) {
         this.rtpTransport.setFormatMap(formats);
-        // XXX this.mixerComponent.setRtpFormats(formats);
+        this.mediaComponent.setFormats(formats);
     }
 
     /**
@@ -1049,6 +1069,56 @@ public abstract class RtpSession {
             return this.statistics.getMember(this.ssrc).getJitter();
         }
         return 0;
+    }
+
+    /*
+     * RTP Relay
+     */
+    @Override
+    public void incomingRtp(RtpPacket packet, RTPFormat format) {
+        if (this.receivable) {
+            // Send the incoming packet to the media component for processing
+            this.mediaComponent.incomingRtp(packet, format);
+
+            // Update statistics
+            this.statistics.onRtpReceive(packet);
+        } else if (this.loopable) {
+            // Update statistics
+            this.statistics.onRtpReceive(packet);
+
+            // Send back the received packet
+            outgoingRtp(packet);
+        }
+    }
+
+    @Override
+    public void outgoingRtp(RtpPacket packet) {
+        outgoingRtp(packet, true);
+    }
+
+    @Override
+    public void outgoingDtmf(RtpPacket packet) {
+        outgoingRtp(packet, true);
+    }
+
+    private void outgoingRtp(RtpPacket packet, boolean dtmf) {
+        if (this.transmittable) {
+            try {
+                // Increment sequence number
+                packet.setSequenceNumber(sequenceNumber++);
+
+                // Adjust SSRC of the packet
+                packet.setSyncSource(this.ssrc);
+
+                // Send packet to remote peer
+                this.rtpTransport.send(packet, dtmf);
+
+                // update statistics
+                this.statistics.onRtpSent(packet);
+            } catch (IOException e) {
+                logger.warn("RTP packet dropped: " + e.getMessage(), e);
+            }
+        }
     }
 
 }
