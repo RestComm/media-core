@@ -210,6 +210,12 @@ public class AudioMixingSplitter implements MediaSplitter {
                             total[i] += current[i];
                         }
                     }
+
+                    // Recycle frames for reuse
+                    for (Frame frame : frames) {
+                        frame.recycle();
+                    }
+                    frames = null;
                 }
             }
 

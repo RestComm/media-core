@@ -197,6 +197,12 @@ public class AudioMixer implements MediaRelay {
 
                     this.contributions.put(component.getComponentId(), current);
                     sourcesCount++;
+
+                    // Recycle frames for reuse
+                    for (Frame frame : frames) {
+                        frame.recycle();
+                    }
+                    frames = null;
                 }
             }
 
