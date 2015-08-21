@@ -1115,7 +1115,7 @@ public class RtpSession implements RtpRelay {
     }
 
     private void outgoingRtp(RtpPacket packet, boolean dtmf) {
-        if (this.transmittable) {
+        if (this.transmittable || this.loopable) {
             try {
                 // Increment sequence number
                 packet.setSequenceNumber(sequenceNumber++);
