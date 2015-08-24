@@ -327,13 +327,13 @@ public class DtlsHandler {
 	private class HandshakeWorker implements Runnable {
 
 		public void run() {
-			SecureRandom secureRandom = new SecureRandom();
-			DTLSServerProtocol serverProtocol = new DTLSServerProtocol(
-					secureRandom);
-			NioUdpTransport transport = new NioUdpTransport(getChannel());
-
 			try {
-				// Perform the handshake in a non-blocking fashion
+			    SecureRandom secureRandom = new SecureRandom();
+			    DTLSServerProtocol serverProtocol = new DTLSServerProtocol(
+			            secureRandom);
+			    NioUdpTransport transport = new NioUdpTransport(getChannel());
+
+			    // Perform the handshake in a non-blocking fashion
 				serverProtocol.accept(server, transport);
 
 				// Prepare the shared key to be used in RTP streaming

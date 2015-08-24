@@ -1129,7 +1129,9 @@ public class RtpSession implements RtpRelay {
                 // update statistics
                 this.statistics.onRtpSent(packet);
             } catch (IOException e) {
-                logger.warn("RTP packet dropped: " + e.getMessage(), e);
+                if(logger.isDebugEnabled()) {
+                    logger.debug("Outgoing RTP packet dropped: " + e.getMessage());
+                }
             }
         }
     }
