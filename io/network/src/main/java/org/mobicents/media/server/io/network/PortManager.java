@@ -23,60 +23,72 @@
 package org.mobicents.media.server.io.network;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
 /**
- * The utility class that helps to accuire port for converstion.
+ * The utility class that helps to acquire port for conversation.
  *
- * The range of available port is identified by a pair of integer constants.
- * Method <code>next</code> consiquently peeks up even port either from beginning or
- * from the end of range.
+ * The range of available port is identified by a pair of integer constants. Method <code>next</code> consequently peeks up even
+ * port either from beginning or from the end of range.
  *
  * @author yulian oifa
  */
 public class PortManager {
-    //the available range
-    private int low = 1024, high=65534;
-    private int step=(high-low)/2;
-    //pointers
+
+    private static final int DEFAULT_LOW_PORT = 1024;
+    private static final int DEFAULT_HIGH_PORT = 65534;
+
+    private int lowestPort;
+    private int highestPort;
+    private int step;
+
     private AtomicInteger currPort = new AtomicInteger(0);
 
-    /**
-     * Creates new instance.
-     */
+    public PortManager(int lowestPort, int highestPort) {
+        this.lowestPort = lowestPort;
+        this.highestPort = highestPort;
+        this.step = (highestPort - lowestPort) / 2;
+    }
+
     public PortManager() {
+        this(DEFAULT_LOW_PORT, DEFAULT_HIGH_PORT);
     }
 
     /**
      * Modify the low boundary.
+     * 
      * @param low port number
      */
     public void setLowestPort(int low) {
-        this.low = low % 2 == 0 ? low : low + 1;
-        step=(high-low)/2;
+        this.lowestPort = (low % 2 == 0) ? low : low + 1;
+        this.step = (this.highestPort - low) / 2;
     }
 
     /**
      * Gets the low boundary of available range.
+     * 
      * @return low min port number
      */
     public int getLowestPort() {
-        return low;
+        return lowestPort;
     }
 
     /**
      * Modify the upper boundary.
+     * 
      * @param high port number
      */
     public void setHighestPort(int high) {
-        this.high = high % 2 == 0 ? high : high - 1;
-        step=(high-low)/2 + 1;
+        this.highestPort = high % 2 == 0 ? high : high - 1;
+        this.step = (high - this.lowestPort) / 2 + 1;
     }
 
     /**
      * Gets the upper boundary of available range.
+     * 
      * @retun min port number
      */
     public int getHighestPort() {
-        return this.high;
+        return this.highestPort;
     }
 
     /**
@@ -85,15 +97,15 @@ public class PortManager {
      * @return even port number
      */
     public int next() {
-    	return high-(currPort.getAndAdd(1)%step)*2;        
+        return highestPort - (currPort.getAndAdd(1) % step) * 2;
     }
-    
+
     public int peek() {
-    	return high-((currPort.get()+1)%step)*2;
+        return highestPort - ((currPort.get() + 1) % step) * 2;
     }
 
     public int current() {
-    	return high-(currPort.get()%step)*2;
+        return highestPort - (currPort.get() % step) * 2;
     }
-    
+
 }
