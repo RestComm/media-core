@@ -495,7 +495,7 @@ public class RtpSession implements RtpRelay {
      * @param address The address of the remote peer
      */
     public void connectRtp(SocketAddress address) {
-        this.rtpTransport.setRemotePeer(address);
+        this.rtpTransport.connect(address);
 
         if (logger.isDebugEnabled()) {
             logger.debug(this.mediaType + " RTP channel " + this.ssrc + " connected to remote peer " + address.toString());
@@ -929,7 +929,7 @@ public class RtpSession implements RtpRelay {
 
                 // Bind candidate to RTP audio channel
                 rtpTransport.bind(rtpCandidate.getChannel());
-                rtpTransport.setRemotePeer(rtpCandidate.getRemoteAddress(), rtpCandidate.getRemotePort());
+                rtpTransport.connect(rtpCandidate.getRemoteAddress(), rtpCandidate.getRemotePort());
 
                 CandidatePair rtcpCandidate = agent.getSelectedRtcpCandidate(mediaType);
                 if (rtcpCandidate != null) {

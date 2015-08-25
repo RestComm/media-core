@@ -275,7 +275,7 @@ public abstract class IceAgent implements IceAuthenticator {
 			IceComponent rtpComponent = mediaStream.getRtpComponent();
 			candidatePair = selectCandidatePair(rtpComponent, channel);
 			if (candidatePair != null) {
-				logger.info("Selected RTP candidate on address "+ address.getHostName() +":"+ address.getPort());
+				logger.info("Selected RTP candidate on address "+ address.getHostString() +":"+ address.getPort());
 				// candidate pair was selected
 				break;
 			}
@@ -285,7 +285,7 @@ public abstract class IceAgent implements IceAuthenticator {
 				IceComponent rtcpComponent = mediaStream.getRtcpComponent();
 				candidatePair = selectCandidatePair(rtcpComponent, channel);
 				if (candidatePair != null) {
-					logger.info("Selected RTCP candidate on address "+ address.getHostName() +":"+ address.getPort());
+					logger.info("Selected RTCP candidate on address "+ address.getHostString() +":"+ address.getPort());
 					// candidate pair was selected
 					break;
 				}

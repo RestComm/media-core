@@ -190,7 +190,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         return available;
     }
 
-    public void setRemotePeer(SocketAddress address) {
+    public void connect(SocketAddress address) {
         this.remotePeer = address;
         boolean connectImmediately = false;
         if (this.dataChannel != null) {
@@ -202,20 +202,20 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
                 }
             }
 
-            connectImmediately = udpManager.connectImmediately((InetSocketAddress) address);
-            if (connectImmediately) {
-                try {
-                    this.dataChannel.connect(address);
-                } catch (IOException e) {
-                    logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
-                    logger.error(e.getMessage(), e);
-                }
+            // connectImmediately = udpManager.connectImmediately((InetSocketAddress) address);
+            // if (connectImmediately) {
+            try {
+                this.dataChannel.connect(address);
+            } catch (IOException e) {
+                logger.info("Can not connect to remote address , please check that you are not using local address - 127.0.0.X to connect to remote");
+                logger.error(e.getMessage(), e);
             }
+            // }
         }
     }
 
-    public void setRemotePeer(String address, int port) {
-        setRemotePeer(new InetSocketAddress(address, port));
+    public void connect(String address, int port) {
+        connect(new InetSocketAddress(address, port));
     }
 
     public String getExternalAddress() {
