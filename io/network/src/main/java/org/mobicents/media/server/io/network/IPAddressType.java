@@ -18,24 +18,22 @@
 package org.mobicents.media.server.io.network;
 
 /**
- * Defines relation between audio/video format and RTP payload number as
- * specified by Audio/Video Profile spec.
+ * Possible types of IP addresses.
  * 
  * @author Oleg Kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public enum IPAddressType {
 
-    IPV4(0),IPV6(1),INVALID(2);
-    
-    private int value;
-    
-    IPAddressType(int value)
-    {
-    	this.value=value;
+    IPV4(0), IPV6(1), INVALID(2);
+
+    private final int value;
+
+    IPAddressType(int value) {
+        this.value = value;
     }
-    
-    public int getValue()
-    {
-    	return value;
+
+    public int getValue() {
+        return value;
     }
 }
