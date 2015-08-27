@@ -33,7 +33,6 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Generic endpoint that relies on a translator to forward all traffic.
@@ -55,8 +54,8 @@ public class TranslatorEndpoint extends AbstractEndpoint {
     private AtomicInteger readCount = new AtomicInteger(0);
     private AtomicInteger writeCount = new AtomicInteger(0);
 
-    public TranslatorEndpoint(String localName, Processor transcoder) {
-        super(localName, RelayType.TRANSLATOR, transcoder);
+    public TranslatorEndpoint(String localName) {
+        super(localName, RelayType.TRANSLATOR);
         this.mediaComponents = new ConcurrentMap<MediaComponent>(5);
     }
 

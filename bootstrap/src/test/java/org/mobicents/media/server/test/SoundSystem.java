@@ -39,7 +39,6 @@ import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  *
@@ -55,9 +54,9 @@ public class SoundSystem extends AbstractRelayEndpoint implements Endpoint {
 
     private InbandComponent inbandComponent;
 
-    public SoundSystem(String localName, Processor transcoder) {
-        super(localName, RelayType.MIXER, transcoder);
-        inbandComponent = new InbandComponent(-1, transcoder);
+    public SoundSystem(String localName) {
+        super(localName, RelayType.MIXER);
+        inbandComponent = new InbandComponent(-1);
     }
 
     @Override

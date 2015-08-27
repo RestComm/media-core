@@ -41,6 +41,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.LinearFormats;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -86,7 +87,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
      */
     public AudioPlayerImpl(String name, Scheduler scheduler) {
         super(name, scheduler, Scheduler.INPUT_QUEUE);
-        this.input = new MediaInput(ComponentType.PLAYER.getType(), PACKET_SIZE);
+        this.input = new MediaInput(ComponentType.PLAYER.getType(), LinearFormats.AUDIO);
         this.connect(this.input);
     }
 

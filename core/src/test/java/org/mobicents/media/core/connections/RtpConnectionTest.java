@@ -88,7 +88,7 @@ public class RtpConnectionTest {
 
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
         // assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test", RelayType.MIXER, dspFactory.newProcessor());
+        endpoint = new MyTestEndpoint("test", RelayType.MIXER);
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();

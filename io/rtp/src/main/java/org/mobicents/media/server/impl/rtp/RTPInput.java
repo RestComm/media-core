@@ -29,6 +29,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.LinearFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -65,7 +66,7 @@ public class RTPInput extends AbstractSource implements BufferListener {
     public RTPInput(Scheduler scheduler, JitterBuffer rxBuffer) {
         super("rtpinput", scheduler, Scheduler.INPUT_QUEUE);
         this.rxBuffer = rxBuffer;
-        input = new MediaInput(1, packetSize);
+        input = new MediaInput(1, LinearFormats.AUDIO);
         this.connect(input);
     }
 

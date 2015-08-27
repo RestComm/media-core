@@ -30,12 +30,9 @@ import org.mobicents.media.core.naming.EndpointNameGenerator;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.RelayType;
-import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
- * Endpoint installer is used for automatic creation and instalation of
- * endpoints.
+ * Endpoint installer is used for automatic creation and instalation of endpoints.
  * 
  * It uses three parameters: the name pattern, class name and configuration
  * 
@@ -43,121 +40,113 @@ import org.mobicents.media.server.spi.dsp.Processor;
  */
 public class VirtualEndpointInstaller implements EndpointInstaller {
 
-	private String namePattern;
-	private String endpointClass;
-	protected Integer initialSize;
+    private String namePattern;
+    private String endpointClass;
+    protected Integer initialSize;
 
-	protected EndpointNameGenerator nameParser;
-	protected Server server;
-	private DspFactory transcoderFactory;
+    protected EndpointNameGenerator nameParser;
+    protected Server server;
 
-	protected AtomicInteger lastEndpointID = new AtomicInteger(1);
+    protected AtomicInteger lastEndpointID = new AtomicInteger(1);
 
-	/**
-	 * Creates new endpoint installer.
-	 */
-	public VirtualEndpointInstaller() {
-		nameParser = new EndpointNameGenerator();
-	}
-
-	/**
-	 * Creates relation with server instance.
-	 * 
-	 * @param server
-	 *            the server instance.
-	 */
-	public void setServer(Server server) {
-		this.server = server;
-	}
-
-	/**
-	 * Gets the pattern used for generating endpoint name.
-	 * 
-	 * @return text pattern
-	 */
-	public String getNamePattern() {
-		return namePattern;
-	}
-
-	/**
-	 * Sets the pattern used for generating endpoint name.
-	 * 
-	 * @param namePattern
-	 *            the pattern text.
-	 */
-	public void setNamePattern(String namePattern) {
-		this.namePattern = namePattern;
-	}
-
-	/**
-	 * Gets the name of the class implementing endpoint.
-	 * 
-	 * @return the fully qualified class name.
-	 */
-	public String getEndpointClass() {
-		return this.endpointClass;
-	}
-
-	/**
-	 * Sets the name of the class implementing endpoint.
-	 * 
-	 * @param endpointClass
-	 *            the fully qualified class name.
-	 */
-	public void setEndpointClass(String endpointClass) {
-		this.endpointClass = endpointClass;
-	}
-
-	/**
-	 * Gets the initial size of endpoints pool
-	 * 
-	 * @return initial size
-	 */
-	public Integer getInitialSize() {
-		return this.initialSize;
-	}
-
-	/**
-	 * Sets the initial size of endpoints pool
-	 * 
-	 * @param initial
-	 *            size
-	 */
-	public void setInitialSize(Integer initialSize) {
-		this.initialSize = initialSize;
-	}
-	
-	public void setTranscoderFactory(DspFactory transcoderFactory) {
-        this.transcoderFactory = transcoderFactory;
+    /**
+     * Creates new endpoint installer.
+     */
+    public VirtualEndpointInstaller() {
+        nameParser = new EndpointNameGenerator();
     }
 
-	@Override
-	public void install() {
-		for (int i = 0; i < initialSize; i++) {
-			newEndpoint();
-		}
-	}
+    /**
+     * Creates relation with server instance.
+     * 
+     * @param server the server instance.
+     */
+    public void setServer(Server server) {
+        this.server = server;
+    }
 
-	@Override
-	public void newEndpoint() {
-		ClassLoader loader = Server.class.getClassLoader();
-		nameParser.setPattern(namePattern);
-		try {
-			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class, RelayType.class, Processor.class);
-			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement(), RelayType.MIXER, transcoderFactory.newProcessor());
-			server.install(endpoint, this);
-		} catch (Exception e) {
-			server.logger.error("Couldn't instantiate endpoint", e);
-		}
-	}
+    /**
+     * Gets the pattern used for generating endpoint name.
+     * 
+     * @return text pattern
+     */
+    public String getNamePattern() {
+        return namePattern;
+    }
 
-	@Override
-	public boolean canExpand() {
-		return true;
-	}
+    /**
+     * Sets the pattern used for generating endpoint name.
+     * 
+     * @param namePattern the pattern text.
+     */
+    public void setNamePattern(String namePattern) {
+        this.namePattern = namePattern;
+    }
 
-	@Override
-	public void uninstall() {
-	}
+    /**
+     * Gets the name of the class implementing endpoint.
+     * 
+     * @return the fully qualified class name.
+     */
+    public String getEndpointClass() {
+        return this.endpointClass;
+    }
+
+    /**
+     * Sets the name of the class implementing endpoint.
+     * 
+     * @param endpointClass the fully qualified class name.
+     */
+    public void setEndpointClass(String endpointClass) {
+        this.endpointClass = endpointClass;
+    }
+
+    /**
+     * Gets the initial size of endpoints pool
+     * 
+     * @return initial size
+     */
+    public Integer getInitialSize() {
+        return this.initialSize;
+    }
+
+    /**
+     * Sets the initial size of endpoints pool
+     * 
+     * @param initial size
+     */
+    public void setInitialSize(Integer initialSize) {
+        this.initialSize = initialSize;
+    }
+
+    @Override
+    public void install() {
+        for (int i = 0; i < initialSize; i++) {
+            newEndpoint();
+        }
+    }
+
+    @Override
+    public void newEndpoint() {
+        ClassLoader loader = Server.class.getClassLoader();
+        nameParser.setPattern(namePattern);
+        try {
+            Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class, RelayType.class);
+            Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement(),
+                    RelayType.MIXER);
+            server.install(endpoint, this);
+        } catch (Exception e) {
+            server.logger.error("Couldn't instantiate endpoint", e);
+        }
+    }
+
+    @Override
+    public boolean canExpand() {
+        return true;
+    }
+
+    @Override
+    public void uninstall() {
+    }
 
 }

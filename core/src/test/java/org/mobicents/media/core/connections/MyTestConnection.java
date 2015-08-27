@@ -29,7 +29,6 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.audio.MediaComponent;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -55,9 +54,9 @@ public class MyTestConnection extends AbstractConnection {
 
     private final MediaComponent mediaComponent;
 
-    public MyTestConnection(int id, Scheduler scheduler, Dsp transcoder) throws Exception {
+    public MyTestConnection(int id, Scheduler scheduler) throws Exception {
         super(id, scheduler, RelayType.MIXER, ConnectionType.LOCAL);
-        this.mediaComponent = new MediaComponent(id, transcoder);
+        this.mediaComponent = new MediaComponent(id);
     }
 
     @Override

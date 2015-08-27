@@ -9,7 +9,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.scheduler.Clock;
@@ -27,7 +26,6 @@ public class ToneTest implements ToneDetectorListener {
 
     private Clock clock;
     private Scheduler scheduler;
-    private DspFactoryImpl dspFactory;
 
     private PhoneSignalDetector detector;
     private PhoneSignalGenerator generator;
@@ -37,14 +35,6 @@ public class ToneTest implements ToneDetectorListener {
     private AudioMixer audioMixer;
 
     private Boolean detected = false;
-
-    public ToneTest() {
-        this.dspFactory = new DspFactoryImpl();
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
-    }
 
     @Before
     public void setUp() throws TooManyListenersException {
@@ -61,12 +51,12 @@ public class ToneTest implements ToneDetectorListener {
 
         audioMixer = new AudioMixer(scheduler);
 
-        detectorComponent = new InbandComponent(1, dspFactory.newProcessor());
+        detectorComponent = new InbandComponent(1);
         detectorComponent.addOutput(detector.getMediaOutput());
         detectorComponent.setReadable(false);
         detectorComponent.setWritable(true);
 
-        generatorComponent = new InbandComponent(2, dspFactory.newProcessor());
+        generatorComponent = new InbandComponent(2);
         generatorComponent.addInput(generator.getMediaInput());
         generatorComponent.setReadable(true);
         generatorComponent.setWritable(false);

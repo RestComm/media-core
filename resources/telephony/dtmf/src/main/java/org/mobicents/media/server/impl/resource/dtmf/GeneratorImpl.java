@@ -33,6 +33,7 @@ import org.mobicents.media.server.spi.dtmf.DtmfGeneratorListener;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
+import org.mobicents.media.server.spi.format.LinearFormats;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -90,7 +91,7 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
         super(name, scheduler, Scheduler.INPUT_QUEUE);
         dt = 1.0 / LINEAR_FORMAT.getSampleRate();
 
-        this.input = new MediaInput(ComponentType.DTMF_GENERATOR.getType(), PACKET_SIZE);
+        this.input = new MediaInput(ComponentType.DTMF_GENERATOR.getType(), LinearFormats.AUDIO);
         this.connect(this.input);
 
         this.oobInput = new OOBInput(ComponentType.DTMF_GENERATOR.getType());

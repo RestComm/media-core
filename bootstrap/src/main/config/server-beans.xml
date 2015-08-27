@@ -59,23 +59,23 @@
         </property>
     </bean>
 
-    <!-- Resources pool definition -->
-    <bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
-        <constructor>
-           <parameter><inject bean="Scheduler"/></parameter>
-	   <parameter><inject bean="channelsManager"/></parameter>
- 	   <parameter><inject bean="DSP"/></parameter>
-        </constructor>
-        <property name="defaultPlayers">5</property>
-	<property name="defaultRecorders">5</property>
-	<property name="defaultDtmfDetectors">5</property>
-        <property name="defaultDtmfGenerators">0</property>
-	<property name="defaultSignalDetectors">0</property>
-        <property name="defaultSignalGenerators">0</property>
-        <property name="defaultLocalConnections">10</property>
-        <property name="defaultRemoteConnections">10</property>
-	<property name="dtmfDetectorDbi">-35</property>
-    </bean>
+	<!-- Resources pool definition -->
+	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
+		<constructor>
+			<parameter><inject bean="Scheduler" /></parameter>
+			<parameter><inject bean="channelsManager" /></parameter>
+			<parameter><inject bean="DSP" /></parameter>
+		</constructor>
+		<property name="defaultPlayers">5</property>
+		<property name="defaultRecorders">5</property>
+		<property name="defaultDtmfDetectors">5</property>
+		<property name="defaultDtmfGenerators">0</property>
+		<property name="defaultSignalDetectors">0</property>
+		<property name="defaultSignalGenerators">0</property>
+		<property name="defaultLocalConnections">10</property>
+		<property name="defaultRemoteConnections">10</property>
+		<property name="dtmfDetectorDbi">-35</property>
+	</bean>
     
     <!-- MGCP Controller definition -->
     <bean name="MGCP" class ="org.mobicents.media.server.mgcp.controller.Controller">
@@ -84,7 +84,7 @@
         <property name="scheduler"><inject bean="Scheduler"/></property>
         <property name="server"><inject bean="MediaServer"/></property>
         <property name="configuration">mgcp-conf.xml</property>
-	<property name="poolSize">25</property>
+		<property name="poolSize">25</property>
     </bean>    
     
     <!-- Media Server -->
@@ -92,7 +92,7 @@
         <property name="clock"><inject bean="SystemClock"/></property>
         <property name="scheduler"><inject bean="Scheduler"/></property>
         <property name="udpManager"><inject bean="localhost"/></property>
-	<property name="resourcesPool"><inject bean="resourcesPool"/></property>
+		<property name="resourcesPool"><inject bean="resourcesPool"/></property>
         <property name="heartBeatTime">0</property>
         <incallback method="addInstaller"/>
         <uncallback method="removeInstaller"/>
@@ -103,35 +103,30 @@
         <property name="namePattern">mobicents/aap/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.AnnouncementEndpoint</property>
         <property name="initialSize">1</property>
-        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="IVR" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/ivr/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.IvrEndpoint</property>
         <property name="initialSize">5</property>
-        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="CNF" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/cnf/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.ConferenceEndpoint</property>
         <property name="initialSize">5</property>
-        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="Bridge" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/bridge/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.BridgeEndpoint</property>
         <property name="initialSize">5</property>
-        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
     <bean name="Relay" class="org.mobicents.media.core.endpoints.VirtualEndpointInstaller">
         <property name="namePattern">mobicents/relay/</property>
         <property name="endpointClass">org.mobicents.media.core.endpoints.impl.PacketRelayEndpoint</property>
         <property name="initialSize">1</property>
-        <property name="transcoderFactory"><inject bean="DSP"/></property>
     </bean>
 
 	<!-- DS0 Endpoints configuration sample -->

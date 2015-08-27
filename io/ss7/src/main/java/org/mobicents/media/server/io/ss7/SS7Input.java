@@ -32,6 +32,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.LinearFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -77,7 +78,7 @@ public class SS7Input extends AbstractSource {
         this.channel = channel;
         this.sourceFormat = sourceFormat;
 
-        input = new MediaInput(1, PACKET_SIZE);
+        input = new MediaInput(1, LinearFormats.AUDIO);
         this.connect(input);
     }
 

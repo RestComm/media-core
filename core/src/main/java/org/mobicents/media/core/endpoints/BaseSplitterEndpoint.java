@@ -35,7 +35,6 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Basic implementation of the endpoint.
@@ -60,8 +59,8 @@ public class BaseSplitterEndpoint extends AbstractEndpoint {
     private AtomicInteger readCount = new AtomicInteger(0);
     private AtomicInteger writeCount = new AtomicInteger(0);
 
-    public BaseSplitterEndpoint(String localName, Processor transcoder) {
-        super(localName, RelayType.MIXER, transcoder);
+    public BaseSplitterEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
         this.mediaComponents = new ConcurrentMap<MediaComponent>(2);
     }
 

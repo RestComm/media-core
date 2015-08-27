@@ -34,7 +34,7 @@ public class AVProfile {
 
     public final static String AUDIO = "audio";
     public final static String VIDEO = "video";
-
+    
     public final static int telephoneEventsID = 101;
     public final static int telephoneEvent126 = 126;
     public final static AudioFormat telephoneEvent = FormatFactory.createAudioFormat("telephone-event", 8000);

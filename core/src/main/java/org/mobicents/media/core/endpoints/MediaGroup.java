@@ -37,7 +37,6 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Implements Local Components Holder for endpoint Usefull for jsr 309 structure
@@ -66,9 +65,9 @@ public class MediaGroup {
 
     private Semaphore resourceSemaphore = new Semaphore(1);
 
-    public MediaGroup(ResourcesPool resourcesPool, Endpoint endpoint, Processor transcoder) {
+    public MediaGroup(ResourcesPool resourcesPool, Endpoint endpoint) {
         this.resourcesPool = resourcesPool;
-        this.inbandComponent = new InbandComponent(0, transcoder);
+        this.inbandComponent = new InbandComponent(0);
         this.oobComponent = new OOBComponent(0);
         this.endpoint = endpoint;
     }

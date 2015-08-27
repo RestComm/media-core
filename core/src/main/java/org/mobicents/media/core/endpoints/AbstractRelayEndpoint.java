@@ -36,7 +36,6 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Generic endpoint that allows the user to select the relay type of the media streams: mixing or forwarding.
@@ -56,8 +55,8 @@ public abstract class AbstractRelayEndpoint extends AbstractEndpoint {
     private AtomicInteger readCount = new AtomicInteger(0);
     private AtomicInteger writeCount = new AtomicInteger(0);
 
-    public AbstractRelayEndpoint(String localName, RelayType relayType, Processor transcoder) {
-        super(localName, relayType, transcoder);
+    public AbstractRelayEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
         this.mediaComponents = new ConcurrentMap<MediaComponent>();
     }
 
