@@ -31,7 +31,6 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Packet Relay Endpoint Implementation
@@ -43,12 +42,12 @@ public class PacketRelayEndpoint extends AbstractRelayEndpoint {
 
     private static final Logger LOGGER = Logger.getLogger(PacketRelayEndpoint.class);
 
-    public PacketRelayEndpoint(String localName, RelayType relayType, Processor transcoder) {
-        super(localName, relayType, transcoder);
+    public PacketRelayEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
     }
 
-    public PacketRelayEndpoint(String localName, Processor transcoder) {
-        super(localName, RelayType.MIXER, transcoder);
+    public PacketRelayEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
     }
 
     @Override

@@ -57,7 +57,7 @@ public class RtpComponent extends MediaComponent {
     private boolean firstPacket;
 
     public RtpComponent(int channelId, Scheduler scheduler, RtpSession rtpSession, Processor transcoder) {
-        super(channelId, transcoder);
+        super(channelId);
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(new RtpClock(scheduler.getClock()), DEFAULT_BUFFER_SIZER);

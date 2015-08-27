@@ -31,7 +31,6 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Basic implementation of the endpoint.
@@ -44,12 +43,12 @@ public class IvrEndpoint extends AbstractRelayEndpoint {
 
     private static final Logger logger = Logger.getLogger(IvrEndpoint.class);
 
-    public IvrEndpoint(String localName, RelayType relayType, Processor transcoder) {
-        super(localName, relayType, transcoder);
+    public IvrEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
     }
 
-    public IvrEndpoint(String localName, Processor transcoder) {
-        super(localName, RelayType.MIXER, transcoder);
+    public IvrEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
     }
 
     @Override

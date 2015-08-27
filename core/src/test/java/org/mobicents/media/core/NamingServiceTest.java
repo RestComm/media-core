@@ -59,7 +59,7 @@ public class NamingServiceTest {
      */
     @Test
     public void testRegister() throws Exception {
-        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER, dspFactory.newProcessor());
+        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER);
         naming.register(te1);
 
         Endpoint ee = naming.lookup("/mobicents/media/1", false);
@@ -68,7 +68,7 @@ public class NamingServiceTest {
 
     @Test
     public void testUnregister() throws Exception {
-        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER, dspFactory.newProcessor());
+        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER);
         naming.register(te1);
 
         Endpoint ee = naming.lookup("/mobicents/media/1", false);
@@ -86,8 +86,8 @@ public class NamingServiceTest {
 
     @Test
     public void testQuarantine() throws Exception {
-        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER, dspFactory.newProcessor());
-        MyTestEndpoint te2 = new MyTestEndpoint("/mobicents/media/2", RelayType.MIXER, dspFactory.newProcessor());
+        MyTestEndpoint te1 = new MyTestEndpoint("/mobicents/media/1", RelayType.MIXER);
+        MyTestEndpoint te2 = new MyTestEndpoint("/mobicents/media/2", RelayType.MIXER);
 
         naming.register(te1);
         naming.register(te2);

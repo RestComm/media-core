@@ -37,7 +37,6 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Basic implementation of the endpoint.
@@ -65,9 +64,8 @@ public class BaseSS7EndpointImpl extends AbstractEndpoint {
 
     private ChannelsManager channelsManager;
 
-    public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw,
-            Processor transcoder) {
-        super(localName, RelayType.MIXER, transcoder);
+    public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
+        super(localName, RelayType.MIXER);
         this.isALaw = isALaw;
         this.channelID = channelID;
         this.channelsManager = channelsManager;

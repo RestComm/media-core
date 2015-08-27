@@ -28,7 +28,6 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.AbstractRelayEndpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Announcement endpoint implementation
@@ -40,12 +39,12 @@ public class AnnouncementEndpoint extends AbstractRelayEndpoint {
 
     private static final Logger logger = Logger.getLogger(AnnouncementEndpoint.class);
 
-    public AnnouncementEndpoint(String localName, RelayType relayType, Processor transcoder) {
-        super(localName, relayType, transcoder);
+    public AnnouncementEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
     }
 
-    public AnnouncementEndpoint(String localName, Processor transcoder) {
-        super(localName, RelayType.MIXER, transcoder);
+    public AnnouncementEndpoint(String localName) {
+        super(localName, RelayType.MIXER);
     }
 
     @Override

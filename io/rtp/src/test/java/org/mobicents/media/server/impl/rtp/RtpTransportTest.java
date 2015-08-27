@@ -93,7 +93,7 @@ public class RtpTransportTest {
         private final SpectraAnalyzer analyzer;
 
         public SineComponent(int componentId, int frequency, boolean readable, boolean writable) {
-            super(componentId, dspFactory.newProcessor());
+            super(componentId);
             this.sine = new Sine(scheduler);
             this.sine.setFrequency(frequency);
             this.analyzer = new SpectraAnalyzer("analyzer" + componentId, scheduler);

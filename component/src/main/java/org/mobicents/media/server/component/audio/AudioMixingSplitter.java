@@ -29,8 +29,7 @@ import org.mobicents.media.server.component.MediaSplitter;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.LinearFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -41,12 +40,6 @@ import org.mobicents.media.server.spi.memory.Memory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class AudioMixingSplitter implements MediaSplitter {
-
-    // Format of the output stream.
-    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private static final long PERIOD = 20000000L;
-    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
-            * LINEAR_FORMAT.getSampleSize() / 8;
 
     // Pools of components
     private final ConcurrentMap<InbandComponent> insideComponents;
@@ -100,7 +93,7 @@ public class AudioMixingSplitter implements MediaSplitter {
     }
 
     protected int getPacketSize() {
-        return PACKET_SIZE;
+        return LinearFormats.AUDIO.getPacketSize();
     }
 
     /**
@@ -132,7 +125,7 @@ public class AudioMixingSplitter implements MediaSplitter {
     }
 
     private int[] depacketize(Frame... frames) {
-        int[] data = new int[PACKET_SIZE / 2];
+        int[] data = new int[LinearFormats.AUDIO.getPacketSize() / 2];
         boolean first = true;
 
         for (Frame frame : frames) {
@@ -156,11 +149,11 @@ public class AudioMixingSplitter implements MediaSplitter {
 
     private Frame packetize(int[] data) {
         // Allocate new media frame
-        Frame frame = Memory.allocate(PACKET_SIZE);
+        Frame frame = Memory.allocate(LinearFormats.AUDIO.getPacketSize());
         frame.setOffset(0);
-        frame.setLength(PACKET_SIZE);
-        frame.setDuration(PERIOD);
-        frame.setFormat(LINEAR_FORMAT);
+        frame.setLength(LinearFormats.AUDIO.getPacketSize());
+        frame.setDuration(LinearFormats.AUDIO.getPeriod());
+        frame.setFormat(LinearFormats.AUDIO.getFormat());
 
         // Fill payload with mixed data
         int index = 0;
@@ -178,7 +171,7 @@ public class AudioMixingSplitter implements MediaSplitter {
         private int minValue = 0;
         private int maxValue = 0;
         private double currGain = 0;
-        private int[] total = new int[PACKET_SIZE / 2];
+        private int[] total = new int[LinearFormats.AUDIO.getPacketSize() / 2];
         private int[] current;
 
         public InsideMixTask() {
@@ -198,7 +191,7 @@ public class AudioMixingSplitter implements MediaSplitter {
 
             while (insideRIterator.hasNext()) {
                 InbandComponent component = insideRIterator.next();
-                Frame[] frames = component.retrieveData(LINEAR_FORMAT);
+                Frame[] frames = component.retrieveData();
 
                 if (frames.length > 0) {
                     current = depacketize(frames);
@@ -271,7 +264,7 @@ public class AudioMixingSplitter implements MediaSplitter {
         private int minValue = 0;
         private int maxValue = 0;
         private double currGain = 0;
-        private int[] total = new int[PACKET_SIZE / 2];
+        private int[] total = new int[LinearFormats.AUDIO.getPacketSize() / 2];
         private int[] current;
 
         public OutsideMixTask() {
@@ -291,7 +284,7 @@ public class AudioMixingSplitter implements MediaSplitter {
 
             while (outsideRIterator.hasNext()) {
                 InbandComponent component = outsideRIterator.next();
-                Frame[] frames = component.retrieveData(LINEAR_FORMAT);
+                Frame[] frames = component.retrieveData();
 
                 if (frames.length > 0) {
                     current = depacketize(frames);

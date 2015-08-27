@@ -110,25 +110,25 @@ public class BridgeEndpointTest extends RTPEnvironment {
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
 
         // assign scheduler to the end points
-        endpointRTP1 = new MyTestEndpoint("test-ep-RTP1", RelayType.MIXER, dspFactory.newProcessor());
+        endpointRTP1 = new MyTestEndpoint("test-ep-RTP1", RelayType.MIXER);
         endpointRTP1.setScheduler(scheduler);
         endpointRTP1.setResourcesPool(resourcesPool);
         endpointRTP1.setFreq(80);
         endpointRTP1.start();
 
-        endpointLocal1 = new MyTestEndpoint("test-ep-Local1", RelayType.MIXER, dspFactory.newProcessor());
+        endpointLocal1 = new MyTestEndpoint("test-ep-Local1", RelayType.MIXER);
         endpointLocal1.setScheduler(scheduler);
         endpointLocal1.setResourcesPool(resourcesPool);
         endpointLocal1.setFreq(150);
         endpointLocal1.start();
 
-        endpointLocal2 = new MyTestEndpoint("test-ep-Local2", RelayType.MIXER, dspFactory.newProcessor());
+        endpointLocal2 = new MyTestEndpoint("test-ep-Local2", RelayType.MIXER);
         endpointLocal2.setScheduler(scheduler);
         endpointLocal2.setResourcesPool(resourcesPool);
         endpointLocal2.setFreq(250);
         endpointLocal2.start();
 
-        bridgeEndpoint = new BridgeEndpoint("test-ep-bridge", RelayType.MIXER, dspFactory.newProcessor());
+        bridgeEndpoint = new BridgeEndpoint("test-ep-bridge", RelayType.MIXER);
         bridgeEndpoint.setResourcesPool(resourcesPool);
         bridgeEndpoint.setScheduler(scheduler);
         bridgeEndpoint.start();

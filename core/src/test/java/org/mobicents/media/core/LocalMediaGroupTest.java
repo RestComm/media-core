@@ -102,17 +102,17 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
 
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
         // assign scheduler to the endpoint
-        endpoint1 = new IvrEndpoint("test", RelayType.MIXER, dspFactory.newProcessor());
+        endpoint1 = new IvrEndpoint("test", RelayType.MIXER);
         endpoint1.setScheduler(scheduler);
         endpoint1.setResourcesPool(resourcesPool);
         endpoint1.start();
 
-        endpoint2 = new IvrEndpoint("test 2", RelayType.MIXER, dspFactory.newProcessor());
+        endpoint2 = new IvrEndpoint("test 2", RelayType.MIXER);
         endpoint2.setScheduler(scheduler);
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.start();
 
-        endpoint3 = new BridgeEndpoint("test 3", RelayType.MIXER, dspFactory.newProcessor());
+        endpoint3 = new BridgeEndpoint("test 3", RelayType.MIXER);
         endpoint3.setScheduler(scheduler);
         endpoint3.setResourcesPool(resourcesPool);
         endpoint3.start();

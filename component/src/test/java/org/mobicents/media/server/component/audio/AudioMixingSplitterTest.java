@@ -34,7 +34,6 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.InbandComponent;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
@@ -48,7 +47,6 @@ public class AudioMixingSplitterTest {
 
     private Clock clock;
     private Scheduler scheduler;
-    private DspFactoryImpl dspFactory;
 
     private Sine sine;
 
@@ -62,14 +60,6 @@ public class AudioMixingSplitterTest {
     private InbandComponent analyzer3Component;
 
     private AudioMixingSplitter splitter;
-
-    public AudioMixingSplitterTest() {
-        this.dspFactory = new DspFactoryImpl();
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
-    }
 
     @Before
     public void setUp() throws IOException {
@@ -85,22 +75,22 @@ public class AudioMixingSplitterTest {
         analyzer2 = new SpectraAnalyzer("analyzer-1", scheduler);
         analyzer3 = new SpectraAnalyzer("analyzer-1", scheduler);
 
-        sineComponent = new InbandComponent(1, dspFactory.newProcessor());
+        sineComponent = new InbandComponent(1);
         sineComponent.addInput(sine.getMediaInput());
         sineComponent.setReadable(true);
         sineComponent.setWritable(false);
 
-        analyzer1Component = new InbandComponent(2, dspFactory.newProcessor());
+        analyzer1Component = new InbandComponent(2);
         analyzer1Component.addOutput(analyzer1.getMediaOutput());
         analyzer1Component.setReadable(false);
         analyzer1Component.setWritable(true);
 
-        analyzer2Component = new InbandComponent(3, dspFactory.newProcessor());
+        analyzer2Component = new InbandComponent(3);
         analyzer2Component.addOutput(analyzer2.getMediaOutput());
         analyzer2Component.setReadable(false);
         analyzer2Component.setWritable(true);
 
-        analyzer3Component = new InbandComponent(4, dspFactory.newProcessor());
+        analyzer3Component = new InbandComponent(4);
         analyzer3Component.addOutput(analyzer3.getMediaOutput());
         analyzer3Component.setReadable(false);
         analyzer3Component.setWritable(true);

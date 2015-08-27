@@ -147,7 +147,7 @@ public class RTPDataChannelTest {
         audioMixer1 = new AudioMixer(scheduler);
         audioMixer2 = new AudioMixer(scheduler);
 
-        component1 = new InbandComponent(1, dspFactory.newProcessor());
+        component1 = new InbandComponent(1);
         component1.addInput(source1.getMediaInput());
         component1.addOutput(analyzer1.getMediaOutput());
         component1.setReadable(true);
@@ -156,7 +156,7 @@ public class RTPDataChannelTest {
         audioMixer1.addComponent(component1);
         audioMixer1.addComponent(channel1.getAudioComponent());
 
-        component2 = new InbandComponent(2, dspFactory.newProcessor());
+        component2 = new InbandComponent(2);
         component2.addInput(source2.getMediaInput());
         component2.addOutput(analyzer2.getMediaOutput());
         component2.setReadable(true);

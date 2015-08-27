@@ -41,7 +41,6 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * 
@@ -60,9 +59,9 @@ public class MyTestEndpoint extends AbstractRelayEndpoint {
     private InbandComponent inbandComponent;
     private OOBComponent oobComponent;
 
-    public MyTestEndpoint(String localName, RelayType relayType, Processor transcoder) {
-        super(localName, relayType, transcoder);
-        inbandComponent = new InbandComponent(1, transcoder);
+    public MyTestEndpoint(String localName, RelayType relayType) {
+        super(localName, relayType);
+        inbandComponent = new InbandComponent(1);
         oobComponent = new OOBComponent(-1);
     }
 

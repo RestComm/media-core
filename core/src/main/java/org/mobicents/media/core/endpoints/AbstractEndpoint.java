@@ -35,7 +35,6 @@ import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.dsp.Processor;
 
 /**
  * Basic implementation of the endpoint.
@@ -48,7 +47,6 @@ public abstract class AbstractEndpoint implements Endpoint {
     // Core elements
     protected ResourcesPool resourcesPool;
     private Scheduler scheduler;
-    private Processor transcoder;
 
     // Endpoint properties
     private final String localName;
@@ -57,16 +55,15 @@ public abstract class AbstractEndpoint implements Endpoint {
     private EndpointState state;
     protected MediaGroup mediaGroup;
 
-    public AbstractEndpoint(String localName, RelayType relayType, Processor transcoder) {
+    public AbstractEndpoint(String localName, RelayType relayType) {
         this.localName = localName;
         this.relayType = relayType;
         this.connections = new ConcurrentMap<Connection>();
         this.state = EndpointState.READY;
-        this.transcoder = transcoder;
     }
 
-    public AbstractEndpoint(String localName, Processor transcoder) {
-        this(localName, RelayType.MIXER, transcoder);
+    public AbstractEndpoint(String localName) {
+        this(localName, RelayType.MIXER);
     }
 
     @Override
@@ -118,7 +115,7 @@ public abstract class AbstractEndpoint implements Endpoint {
         }
 
         // create connections subsystem
-        this.mediaGroup = new MediaGroup(resourcesPool, this, transcoder);
+        this.mediaGroup = new MediaGroup(resourcesPool, this);
     }
 
     @Override
