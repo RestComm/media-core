@@ -32,8 +32,7 @@ import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.dsp.Processor;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.LinearFormats;
 
 /**
  * Local Channel implementation. Bridge between 2 endpoints.
@@ -42,11 +41,6 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class LocalChannel {
-
-    private static final AudioFormat LINEAR_FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
-    private static final long PERIOD = 20000000L;
-    private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * LINEAR_FORMAT.getSampleRate() / 1000
-            * LINEAR_FORMAT.getSampleSize() / 8;
 
     private final MediaInput inbandInput;
     private final MediaOutput inbandOutput;
@@ -60,7 +54,7 @@ public class LocalChannel {
     private LocalChannel otherChannel = null;
 
     protected LocalChannel(ChannelsManager channelsManager, int channelId, Processor transcoder) {
-        this.inbandInput = new MediaInput(1, PACKET_SIZE);
+        this.inbandInput = new MediaInput(1, LinearFormats.AUDIO);
         this.inbandOutput = new MediaOutput(2, channelsManager.getScheduler());
         this.oobInput = new OOBInput(1);
         this.oobOutput = new OOBOutput(channelsManager.getScheduler(), 2);

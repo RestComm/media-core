@@ -26,9 +26,11 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.MediaInput;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.RelayType;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
+import org.mobicents.media.server.spi.format.LinearFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -64,7 +66,8 @@ public class Sine extends AbstractSource {
         // number of seconds covered by one sample
         dt = 1. / LINEAR_AUDIO.getSampleRate();
 
-        this.input = new MediaInput(ComponentType.SINE.getType(), PACKET_SIZE);
+        this.input = new MediaInput(ComponentType.SINE.getType(), LinearFormats.AUDIO);
+        this.input.setRelayType(forwardTraffic ? RelayType.TRANSLATOR : RelayType.MIXER);
         this.connect(this.input);
     }
 
@@ -73,7 +76,7 @@ public class Sine extends AbstractSource {
         // number of seconds covered by one sample
         dt = 1. / LINEAR_AUDIO.getSampleRate();
         
-        this.input = new MediaInput(ComponentType.SINE.getType(), PACKET_SIZE);
+        this.input = new MediaInput(ComponentType.SINE.getType(), LinearFormats.AUDIO);
         this.connect(this.input);
     }
 

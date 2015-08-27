@@ -25,6 +25,9 @@ import java.io.IOException;
 
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.AbstractSink;
+import org.mobicents.media.server.spi.RelayType;
+import org.mobicents.media.server.spi.dsp.Processor;
+import org.mobicents.media.server.spi.format.LinearFormat;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -39,24 +42,27 @@ public class MediaInput extends AbstractSink {
 
     private static final long serialVersionUID = 7744459545593089374L;
 
+    // Input properties
     private static final String NAME_PREFIX = "compound.input.";
-
-    private static final int PASSTHROUGH = 0;
     private static final int BUFFER_SIZE = 3;
 
-    // Input properties
     private final int inputId;
     private final ConcurrentCyclicFIFO<Frame> buffer;
     private int bufferSize;
 
-    // Media processing (runtime)
+    // Media transcoding
+    private RelayType relayType;
+    private LinearFormat linearFormat;
+    private Processor transcoder;
+
+    // Media processing - runtime
     private Frame activeFrame = null;
     private byte[] activeData;
     private byte[] oldData;
-    private int byteIndex;
-    private int packetSize;
+    private int byteIndex = 0;
+    private int count = 0;
 
-    public MediaInput(int inputId, int packetSize) {
+    public MediaInput(int inputId, LinearFormat linearFormat, Processor transcoder) {
         super(NAME_PREFIX + inputId);
 
         // Input properties
@@ -64,25 +70,30 @@ public class MediaInput extends AbstractSink {
         this.bufferSize = BUFFER_SIZE;
         this.buffer = new ConcurrentCyclicFIFO<Frame>();
 
-        // Media processing
-        this.byteIndex = 0;
-        this.packetSize = packetSize;
+        // Media transcoding
+        this.relayType = RelayType.MIXER;
+        this.linearFormat = linearFormat;
+        this.transcoder = transcoder;
     }
 
+    public MediaInput(int inputId, LinearFormat linearFormat) {
+        this(inputId, linearFormat, null);
+    }
+    
     public MediaInput(int inputId) {
-        this(inputId, PASSTHROUGH);
+        this(inputId, null, null);
     }
 
     public int getInputId() {
         return inputId;
     }
 
-    public int getPacketSize() {
-        return packetSize;
+    public RelayType getRelayType() {
+        return relayType;
     }
 
-    public void setPacketSize(int packetSize) {
-        this.packetSize = packetSize < 0 ? 0 : packetSize;
+    public void setRelayType(RelayType relayType) {
+        this.relayType = relayType;
     }
 
     public int getBufferSize() {
@@ -130,24 +141,39 @@ public class MediaInput extends AbstractSink {
 
     @Override
     public void onMediaTransfer(Frame frame) throws IOException {
-        if (this.packetSize == PASSTHROUGH) {
-            forwardFrame(frame);
-        } else {
-            aggregateFrame(frame);
+        switch (relayType) {
+            case MIXER:
+                if (this.transcoder != null) {
+                    // Frame needs to be transcoded to linear format before processing it
+                    frame = transcoder.process(frame, frame.getFormat(), this.linearFormat.getFormat());
+                }
+                adjust(frame);
+                break;
+
+            case TRANSLATOR:
+                forward(frame);
+                break;
+
+            default:
+                throw new IOException("Unrecognized relay type: " + relayType.name());
         }
     }
 
-    private void aggregateFrame(Frame frame) {
-        // generate frames with correct size here, aggregate frames if needed.
-        // allows to accept several sources with different ptime (packet time)
+    /**
+     * Adjusts frame to fit a standard size which may result in aggregated frames.<br>
+     * This process allows to aggregate frames from several sources with different ptimes.
+     * 
+     * @param frame The frame to be adjusted.
+     */
+    protected void adjust(Frame frame) {
         this.oldData = frame.getData();
 
-        int count = 0;
+        count = 0;
         while (count < oldData.length) {
             if (activeData == null) {
-                activeFrame = Memory.allocate(packetSize);
+                activeFrame = Memory.allocate(this.linearFormat.getPacketSize());
                 activeFrame.setOffset(0);
-                activeFrame.setLength(packetSize);
+                activeFrame.setLength(this.linearFormat.getPacketSize());
                 activeFrame.setFormat(frame.getFormat());
                 activeData = activeFrame.getData();
                 byteIndex = 0;
@@ -173,10 +199,9 @@ public class MediaInput extends AbstractSink {
         frame.recycle();
     }
 
-    private void forwardFrame(Frame frame) {
+    private void forward(Frame frame) {
         frame.setEOM(false);
         frame.setOffset(0);
-
         if (buffer.size() >= bufferSize) {
             buffer.poll().recycle();
         }
@@ -185,12 +210,13 @@ public class MediaInput extends AbstractSink {
 
     @Override
     public void activate() {
-        // Does nothing
+        // TODO Auto-generated method stub
+        
     }
 
     @Override
     public void deactivate() {
-        // Does nothing
+        // TODO Auto-generated method stub
+        
     }
-
 }

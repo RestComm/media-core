@@ -72,12 +72,9 @@ public class AudioTranslatorTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        sine1 = new Sine(scheduler);
-        sine1.getMediaInput().setPacketSize(0);
-        sine2 = new Sine(scheduler);
-        sine2.getMediaInput().setPacketSize(0);
-        sine3 = new Sine(scheduler);
-        sine3.getMediaInput().setPacketSize(0);
+        sine1 = new Sine(scheduler, true);
+        sine2 = new Sine(scheduler, true);
+        sine3 = new Sine(scheduler, true);
         analyzer = new SpectraAnalyzer("analyzer", scheduler);
 
         sine1Component = new InbandComponent(1, dspFactory.newProcessor());

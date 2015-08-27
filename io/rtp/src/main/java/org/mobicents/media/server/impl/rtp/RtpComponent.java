@@ -61,7 +61,7 @@ public class RtpComponent extends MediaComponent {
 
         // RTP source
         this.jitterBuffer = new JitterBuffer(new RtpClock(scheduler.getClock()), DEFAULT_BUFFER_SIZER);
-        this.rtpSource = new RtpSource(scheduler, jitterBuffer);
+        this.rtpSource = new RtpSource(scheduler, jitterBuffer, rtpSession.getLinearFormat(), transcoder);
         this.dtmfSource = new DtmfSource(scheduler, new RtpClock(scheduler.getClock()));
 
         // RTP sink

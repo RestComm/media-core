@@ -23,6 +23,8 @@ import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.LinearFormat;
+import org.mobicents.media.server.spi.format.LinearFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 
@@ -60,7 +62,7 @@ public class PhoneSignalGenerator extends AbstractSource {
         super(name, scheduler, Scheduler.INPUT_QUEUE);
         init();
 
-        this.input = new MediaInput(ComponentType.SIGNAL_GENERATOR.getType(), FRAME_SIZE);
+        this.input = new MediaInput(ComponentType.SIGNAL_GENERATOR.getType(), LinearFormats.AUDIO);
         this.connect(this.input);
     }
 
