@@ -67,4 +67,9 @@ public class RtpSource extends AbstractSource implements BufferListener {
         this.wakeup();
     }
 
+    @Override
+    public void activate() {
+        super.activate();
+        this.jitterBuffer.restart();
+    }
 }
