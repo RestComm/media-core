@@ -70,7 +70,7 @@ public class RtcpHandler implements PacketHandler {
 	private boolean initial;
 	
 	/** Flag that is true once the handler joined an RTP session */
-	private boolean joined;
+	private volatile boolean joined;
 
 	/* WebRTC */
 	/** Checks whether communication of this channel is secure. WebRTC calls only. */
@@ -453,9 +453,9 @@ public class RtcpHandler implements PacketHandler {
 	}
 	
 	public void reset() {
-		if(joined) {
-			throw new IllegalStateException("Cannot reset handler while is part of active RTP session.");
-		}
+//		if(joined) {
+//			throw new IllegalStateException("Cannot reset handler while is part of active RTP session.");
+//		}
 		
 		if(this.scheduledTask != null) {
 			this.scheduledTask.cancel();

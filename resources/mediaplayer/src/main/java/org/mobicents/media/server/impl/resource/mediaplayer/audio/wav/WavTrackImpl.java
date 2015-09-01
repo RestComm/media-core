@@ -296,6 +296,7 @@ public class WavTrackImpl implements Track {
         try {
         	inStream.close();
         } catch (Exception e) {
+            logger.error("Could not close wav track", e);
         }
     }
 
