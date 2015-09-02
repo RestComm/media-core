@@ -60,8 +60,7 @@ public class RtpSessionTest {
         this.scheduler.setClock(this.wallClock);
         this.udpManager = new UdpManager(this.scheduler);
         this.dspFactory = new DspFactoryImpl();
-        this.channelsManager = new ChannelsManager(udpManager, dspFactory);
-        this.channelsManager.setScheduler(this.scheduler);
+        this.channelsManager = new ChannelsManager(scheduler, udpManager, dspFactory);
 
         this.localChannel = this.channelsManager.getAudioChannel();
         this.remoteChannel = this.channelsManager.getAudioChannel();

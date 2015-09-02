@@ -78,8 +78,7 @@ public class RtpTransportTest {
         this.dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
         // Media Sessions
-        this.channelsManager = new ChannelsManager(udpManager, dspFactory);
-        this.channelsManager.setScheduler(scheduler);
+        this.channelsManager = new ChannelsManager(scheduler, udpManager, dspFactory);
 
         // Codecs
         AudioFormat pcma = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);

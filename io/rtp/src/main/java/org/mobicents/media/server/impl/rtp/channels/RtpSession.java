@@ -265,6 +265,10 @@ public abstract class RtpSession implements RtpRelay {
     public RtpComponent getMediaComponent() {
         return mediaComponent;
     }
+    
+    public void setMaxJitterSize(int size) {
+        this.mediaComponent.setMaxJitterSize(size);
+    }
 
     /**
      * Enables the channel and activates it's resources.

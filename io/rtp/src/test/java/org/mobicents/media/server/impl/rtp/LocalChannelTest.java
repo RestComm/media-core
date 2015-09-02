@@ -86,8 +86,7 @@ public class LocalChannelTest {
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
-        channelsManager = new ChannelsManager(udpManager, dspFactory);
-        channelsManager.setScheduler(scheduler);
+        channelsManager = new ChannelsManager(scheduler, udpManager, dspFactory);
 
         source1 = new Sine(scheduler);
         source1.setFrequency(50);

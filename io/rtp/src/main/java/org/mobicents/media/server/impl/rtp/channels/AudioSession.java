@@ -40,4 +40,11 @@ public class AudioSession extends RtpSession {
         setFormats(this.supportedFormats);
     }
 
+    public AudioSession(int channelId, Scheduler scheduler, Processor transcoder, UdpManager udpManager, int jitterBufferSize) {
+        super(channelId, AVProfile.AUDIO, LinearFormats.AUDIO, scheduler, transcoder, udpManager);
+        this.supportedFormats = AVProfile.audio;
+        setFormats(this.supportedFormats);
+        setMaxJitterSize(jitterBufferSize);
+    }
+
 }

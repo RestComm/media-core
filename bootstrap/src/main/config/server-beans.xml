@@ -35,10 +35,10 @@
     <!-- Channels manager definition -->
     <bean name="channelsManager" class="org.mobicents.media.server.impl.rtp.ChannelsManager">
         <constructor>
+            <parameter><inject bean="Scheduler"/></parameter>
             <parameter><inject bean="localhost"/></parameter>
             <parameter><inject bean="DSP"/></parameter>
         </constructor>
-        <property name="scheduler"><inject bean="Scheduler" /></property>
         <property name="jitterBufferSize">50</property>
         <!--<property name="SS7Manager"><inject bean="SS7" /></property>-->
     </bean>

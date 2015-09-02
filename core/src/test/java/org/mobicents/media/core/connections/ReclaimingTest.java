@@ -84,10 +84,9 @@ public class ReclaimingTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
-        channelsManager.setScheduler(scheduler);
-
+        channelsManager = new ChannelsManager(scheduler, new UdpManager(scheduler), dspFactory);
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+
         // assign scheduler to the endpoint
         endpoint1 = new MyTestEndpoint("test-1", RelayType.MIXER);
         endpoint1.setScheduler(scheduler);

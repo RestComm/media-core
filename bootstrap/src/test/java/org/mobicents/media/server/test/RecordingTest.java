@@ -92,9 +92,7 @@ public class RecordingTest {
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 
-        channelsManager = new ChannelsManager(udpManager, dspFactory);
-        channelsManager.setScheduler(scheduler);
-
+        channelsManager = new ChannelsManager(scheduler, udpManager, dspFactory);
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
 
         server = new Server();

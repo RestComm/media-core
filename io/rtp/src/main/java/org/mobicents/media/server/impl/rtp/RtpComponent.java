@@ -56,27 +56,35 @@ public class RtpComponent extends MediaComponent {
     private final RtpSession rtpSession;
     private boolean firstPacket;
 
-    public RtpComponent(int channelId, Scheduler scheduler, RtpSession rtpSession, Processor transcoder) {
+    public RtpComponent(int channelId, Scheduler scheduler, RtpSession rtpSession, Processor transcoder, int jitterBufferSize) {
         super(channelId);
-
+        
         // RTP source
-        this.jitterBuffer = new JitterBuffer(new RtpClock(scheduler.getClock()), DEFAULT_BUFFER_SIZER);
+        this.jitterBuffer = new JitterBuffer(new RtpClock(scheduler.getClock()), jitterBufferSize);
         this.rtpSource = new RtpSource(scheduler, jitterBuffer, rtpSession.getLinearFormat(), transcoder);
         this.dtmfSource = new DtmfSource(scheduler, new RtpClock(scheduler.getClock()));
-
+        
         // RTP sink
         this.rtpSink = new RtpSink(scheduler, new RtpClock(scheduler.getClock()), this, transcoder);
         this.dtmfSink = new DtmfSink(scheduler, this, new RtpClock(scheduler.getClock()));
-
+        
         // Register mixer components
         addInput(this.rtpSource.getMediaInput());
         addOutput(this.rtpSink.getMediaOutput());
         addOOBInput(this.dtmfSource.getOoBinput());
         addOOBOutput(this.dtmfSink.getOobOutput());
-
+        
         // RTP transport
         this.rtpSession = rtpSession;
         this.firstPacket = false;
+    }
+    
+    public RtpComponent(int channelId, Scheduler scheduler, RtpSession rtpSession, Processor transcoder) {
+        this(channelId, scheduler, rtpSession, transcoder, DEFAULT_BUFFER_SIZER);
+    }
+    
+    public void setMaxJitterSize(int size) {
+        this.jitterBuffer.setMaxJitterSize(size);
     }
 
     public void setFormats(RTPFormats formats) {

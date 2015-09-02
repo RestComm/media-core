@@ -58,7 +58,7 @@ public class JitterBuffer implements Serializable {
     private final ArrayList<Frame> queue;
     private volatile boolean ready;
     private boolean buffering;
-    private long maxJitter;
+    private int maxJitterSize;
 
     // Listeners
     private BufferListener listener;
@@ -86,11 +86,15 @@ public class JitterBuffer implements Serializable {
     public JitterBuffer(RtpClock clock, int jitterBufferSize) {
         this.rtpClock = clock;
         this.queue = new ArrayList<Frame>(DEFAULT_QUEUE_SIZE);
-        this.maxJitter = jitterBufferSize;
+        this.maxJitterSize = jitterBufferSize;
         this.buffering = true;
         this.ready = false;
     }
 
+    public void setMaxJitterSize(int maxJitter) {
+        this.maxJitterSize = maxJitter;
+    }
+    
     private void initJitter(RtpPacket firstPacket) {
         long arrival = rtpClock.getLocalRtpTime();
         long firstPacketTimestamp = firstPacket.getTimestamp();
@@ -282,7 +286,7 @@ public class JitterBuffer implements Serializable {
 
         // check if this buffer already full
         if (!ready) {
-            ready = !buffering || (currentDuration >= maxJitter && queue.size() > 1);
+            ready = !buffering || (currentDuration >= maxJitterSize && queue.size() > 1);
             if (ready && listener != null) {
                 listener.onFill();
             }

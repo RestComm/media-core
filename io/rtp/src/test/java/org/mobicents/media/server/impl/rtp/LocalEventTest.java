@@ -98,8 +98,7 @@ public class LocalEventTest implements DtmfDetectorListener {
 
         this.dspFactory = new DspFactoryImpl();
 
-        channelsManager = new ChannelsManager(udpManager, dspFactory);
-        channelsManager.setScheduler(scheduler);
+        channelsManager = new ChannelsManager(scheduler, udpManager, dspFactory);
 
         detector = new DetectorImpl("dtmf", scheduler);
         detector.setVolume(-35);

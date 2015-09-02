@@ -31,7 +31,6 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
@@ -39,31 +38,31 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * Local and RTP channels storage Use for local and remote connections
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class ChannelsManager {
-    // transport for RTP and RTCP
+
+    // Core elements
+    private final Scheduler scheduler;
     private final UdpManager udpManager;
-
-    // Media transcoder provider
     private final DspFactory dspFactory;
-
-    // ss7 manager
     private SS7Manager ss7Manager;
 
-    private Clock clock = new DefaultClock();
+    // Channels Manager properties
+    private AtomicInteger channelIndex;
+    private boolean isControlEnabled;
+    private int jitterBufferSize;
 
-    private boolean isControlEnabled = false;
-
-    private Scheduler scheduler;
-
-    private int jitterBufferSize = 50;
-
-    // channel id generator
-    private AtomicInteger channelIndex = new AtomicInteger(100);
-
-    public ChannelsManager(UdpManager udpManager, DspFactory dspFactory) {
+    public ChannelsManager(Scheduler scheduler, UdpManager udpManager, DspFactory dspFactory) {
+        // Core elements
+        this.scheduler = scheduler;
         this.udpManager = udpManager;
         this.dspFactory = dspFactory;
+
+        // Channels Manager properties
+        this.channelIndex = new AtomicInteger(100);
+        this.isControlEnabled = false;
+        this.jitterBufferSize = 50;
     }
 
     public void setSS7Manager(SS7Manager ss7Manager) {
@@ -90,16 +89,12 @@ public class ChannelsManager {
         return udpManager.getPortManager();
     }
 
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
-    }
-
     public Scheduler getScheduler() {
         return this.scheduler;
     }
 
     public Clock getClock() {
-        return clock;
+        return scheduler.getClock();
     }
 
     public Boolean getIsControlEnabled() {
@@ -139,7 +134,8 @@ public class ChannelsManager {
     }
 
     public AudioSession getAudioChannel() {
-        return new AudioSession(channelIndex.incrementAndGet(), scheduler, this.dspFactory.newProcessor(), this.udpManager);
+        return new AudioSession(channelIndex.incrementAndGet(), scheduler, dspFactory.newProcessor(), udpManager,
+                jitterBufferSize);
     }
 
 }

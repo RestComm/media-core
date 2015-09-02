@@ -88,9 +88,7 @@ public class BaseConnectionFSMTest1 {
         scheduler.setClock(clock);
         scheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
-        channelsManager.setScheduler(scheduler);
-
+        channelsManager = new ChannelsManager(scheduler, new UdpManager(scheduler), dspFactory);
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
 
         // assign scheduler to the endpoint

@@ -93,10 +93,9 @@ public class BaseConnectionTest implements ConnectionListener {
         scheduler.setClock(clock);
         scheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(scheduler), dspFactory);
-        channelsManager.setScheduler(scheduler);
-
+        channelsManager = new ChannelsManager(scheduler, new UdpManager(scheduler), dspFactory);
         resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+
         // assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test", RelayType.MIXER);
         endpoint.setScheduler(scheduler);
