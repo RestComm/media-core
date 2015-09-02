@@ -65,7 +65,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private SocketAddress remotePeer;
     private boolean bound;
     private boolean secure;
-    private boolean rtcpMux;
+    private boolean rtcp;
     private boolean dtmfSupported;
 
     // RTP elements
@@ -90,7 +90,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         // Channel attributes
         this.bound = false;
         this.secure = false;
-        this.rtcpMux = false;
+        this.rtcp = false;
         this.dtmfSupported = false;
 
         // RTP elements
@@ -119,7 +119,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     private void onBinding(boolean useJitterBuffer) {
         // Set protocol handler priorities
         this.rtpHandler.setPipelinePriority(RTP_PRIORITY);
-        if (this.rtcpMux) {
+        if (this.rtcp) {
             this.rtcpHandler.setPipelinePriority(RTCP_PRIORITY);
         }
         if (this.secure) {
@@ -129,7 +129,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         // Configure protocol handlers
         this.handlers.addHandler(this.rtpHandler);
 
-        if (this.rtcpMux) {
+        if (this.rtcp) {
             this.rtcpHandler.setChannel(this.dataChannel);
             this.handlers.addHandler(this.rtcpHandler);
         }
@@ -248,7 +248,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.rtpHandler.enableSrtp(this.dtlsHandler);
 
         // Setup the RTCP handler. RTCP-MUX channels only!
-        if (this.rtcpMux) {
+        if (this.rtcp) {
             this.rtcpHandler.enableSRTCP(this.dtlsHandler);
         }
     }
@@ -271,18 +271,23 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.rtpHandler.disableSrtp();
 
         // Setup the RTCP handler
-        if (this.rtcpMux) {
+        if (this.rtcp) {
             this.rtcpHandler.disableSRTCP();
         }
     }
 
     public void disableRtcp() {
-        this.rtcpMux = false;
+        if (this.rtcp) {
+            this.handlers.removeHandler(this.rtcpHandler);
+            this.rtcp = false;
+        }
     }
 
     public void enableRtcp(RtpStatistics statistics) {
-        this.rtcpHandler = new RtcpHandler(statistics);
-        this.rtcpMux = true;
+        if (!this.rtcp) {
+            this.rtcpHandler = new RtcpHandler(statistics);
+            this.rtcp = true;
+        }
     }
 
     public Text getWebRtcLocalFingerprint() {
@@ -293,7 +298,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     }
 
     public void close() {
-        if (rtcpMux) {
+        if (rtcp) {
             this.rtcpHandler.leaveRtpSession();
             reset();
         } else {
@@ -310,9 +315,9 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
         this.remotePeer = null;
 
         // RTCP reset
-        if (this.rtcpMux) {
+        if (this.rtcp) {
             this.rtcpHandler.reset();
-            this.rtcpMux = false;
+            this.rtcp = false;
         }
 
         // DTLS reset
@@ -325,7 +330,7 @@ public class RtpTransport extends MultiplexedChannel implements DtlsListener {
     @Override
     public void onDtlsHandshakeComplete() {
         logger.info("DTLS handshake completed for RTP candidate.");
-        if (this.rtcpMux) {
+        if (this.rtcp) {
             this.rtcpHandler.joinRtpSession();
         }
     }

@@ -299,7 +299,7 @@ public class RTPDataChannel {
             rtpChannel = udpManager.open(rtpHandler);
 
             // if control enabled open rtcp channel as well
-            if (channelsManager.getIsControlEnabled()) {
+            if (channelsManager.isRtcpEnabled()) {
                 rtcpChannel = udpManager.open(new RTCPHandler());
             }
         } catch (IOException e) {
@@ -317,7 +317,7 @@ public class RTPDataChannel {
         this.rtpChannelBound = true;
 
         // if control enabled open rtcp channel as well
-        if (channelsManager.getIsControlEnabled()) {
+        if (channelsManager.isRtcpEnabled()) {
             if (!isLocal)
                 udpManager.bind(rtcpChannel, rtpChannel.socket().getLocalPort() + 1);
             else

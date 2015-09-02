@@ -302,7 +302,9 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
             String remoteAddr = remoteAudio.getConnection().getAddress();
             this.audioSession.bind(this.localInterface, rtcpMux);
             this.audioSession.connectRtp(remoteAddr, remoteAudio.getPort());
-            this.audioSession.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
+            if (this.audioSession.isRtcpEnabled()) {
+                this.audioSession.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
+            }
         }
 
         // Check whether SRTP should be active
@@ -335,7 +337,9 @@ public class RtpConnection extends AbstractConnection implements RtpListener {
         // connect to remote peer - RTCP
         boolean remoteRtcpMux = remoteAudio.isRtcpMux();
         if (remoteRtcpMux) {
-            this.audioSession.connectRtcp(remoteRtpAddress, remoteRtpPort);
+            if (this.audioSession.isRtcpEnabled()) {
+                this.audioSession.connectRtcp(remoteRtpAddress, remoteRtpPort);
+            }
         } else {
             RtcpAttribute remoteRtcp = remoteAudio.getRtcp();
             if (remoteRtcp == null) {

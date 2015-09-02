@@ -50,7 +50,7 @@ public class ChannelsManager {
 
     // Channels Manager properties
     private AtomicInteger channelIndex;
-    private boolean isControlEnabled;
+    private boolean rtcpEnabled;
     private int jitterBufferSize;
 
     public ChannelsManager(Scheduler scheduler, UdpManager udpManager, DspFactory dspFactory) {
@@ -61,7 +61,7 @@ public class ChannelsManager {
 
         // Channels Manager properties
         this.channelIndex = new AtomicInteger(100);
-        this.isControlEnabled = false;
+        this.rtcpEnabled = true;
         this.jitterBufferSize = 50;
     }
 
@@ -97,8 +97,12 @@ public class ChannelsManager {
         return scheduler.getClock();
     }
 
-    public Boolean getIsControlEnabled() {
-        return isControlEnabled;
+    public boolean isRtcpEnabled() {
+        return rtcpEnabled;
+    }
+
+    public void setRtcpEnabled(boolean rtcpEnabled) {
+        this.rtcpEnabled = rtcpEnabled;
     }
 
     public int getJitterBufferSize() {
@@ -134,8 +138,11 @@ public class ChannelsManager {
     }
 
     public AudioSession getAudioChannel() {
-        return new AudioSession(channelIndex.incrementAndGet(), scheduler, dspFactory.newProcessor(), udpManager,
-                jitterBufferSize);
+        AudioSession session = new AudioSession(channelIndex.incrementAndGet(), scheduler, dspFactory.newProcessor(),
+                udpManager);
+        session.setMaxJitterSize(this.jitterBufferSize);
+        session.setRtcpEnabled(this.rtcpEnabled);
+        return session;
     }
 
 }

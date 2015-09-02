@@ -90,6 +90,7 @@ public abstract class RtpSession implements RtpRelay {
     protected final RtpTransport rtpTransport;
     protected final RtcpTransport rtcpTransport;
     private int sequenceNumber;
+    private boolean rtcpEnabled;
     private boolean rtcpMux;
     private boolean secure;
 
@@ -116,7 +117,8 @@ public abstract class RtpSession implements RtpRelay {
      * @param wallClock The wall clock used to synchronize media flows
      * @param channelsManager The RTP and RTCP channel provider
      */
-    protected RtpSession(int channelId, String mediaType, LinearFormat linearFormat, Scheduler scheduler, Processor transcoder, UdpManager udpManager) {
+    protected RtpSession(int channelId, String mediaType, LinearFormat linearFormat, Scheduler scheduler, Processor transcoder,
+            UdpManager udpManager) {
         // RTP channel properties
         this.channelId = channelId;
         this.cname = "";
@@ -137,6 +139,7 @@ public abstract class RtpSession implements RtpRelay {
         this.rtpTransport = new RtpTransport(udpManager, this);
         this.rtcpTransport = new RtcpTransport(statistics, udpManager);
         this.sequenceNumber = 0;
+        this.rtcpEnabled = true;
         this.rtcpMux = false;
         this.secure = false;
 
@@ -159,7 +162,7 @@ public abstract class RtpSession implements RtpRelay {
     public String getMediaType() {
         return mediaType;
     }
-    
+
     public LinearFormat getLinearFormat() {
         return linearFormat;
     }
@@ -206,6 +209,14 @@ public abstract class RtpSession implements RtpRelay {
         this.statistics.setCname(cname);
     }
 
+    public boolean isRtcpEnabled() {
+        return rtcpEnabled;
+    }
+
+    public void setRtcpEnabled(boolean rtcpEnabled) {
+        this.rtcpEnabled = rtcpEnabled;
+    }
+
     /**
      * Gets the address the RTP channel is bound to.
      * 
@@ -236,12 +247,14 @@ public abstract class RtpSession implements RtpRelay {
      * @return The address of the RTCP channel. Returns empty String if RTCP channel is not bound.
      */
     public String getRtcpAddress() {
-        if (this.rtcpMux) {
-            return getRtpAddress();
-        }
+        if (this.rtcpEnabled) {
+            if (this.rtcpMux) {
+                return getRtpAddress();
+            }
 
-        if (this.rtcpTransport.isBound()) {
-            return this.rtcpTransport.getLocalHost();
+            if (this.rtcpTransport.isBound()) {
+                return this.rtcpTransport.getLocalHost();
+            }
         }
         return "";
     }
@@ -252,12 +265,14 @@ public abstract class RtpSession implements RtpRelay {
      * @return The port of the RTCP channel. Returns zero if RTCP channel is not bound.
      */
     public int getRtcpPort() {
-        if (this.rtcpMux) {
-            return getRtpPort();
-        }
+        if (this.rtcpEnabled) {
+            if (this.rtcpMux) {
+                return getRtpPort();
+            }
 
-        if (this.rtcpTransport.isBound()) {
-            return this.rtcpTransport.getLocalPort();
+            if (this.rtcpTransport.isBound()) {
+                return this.rtcpTransport.getLocalPort();
+            }
         }
         return 0;
     }
@@ -265,7 +280,7 @@ public abstract class RtpSession implements RtpRelay {
     public RtpComponent getMediaComponent() {
         return mediaComponent;
     }
-    
+
     public void setMaxJitterSize(int size) {
         this.mediaComponent.setMaxJitterSize(size);
     }
@@ -292,7 +307,7 @@ public abstract class RtpSession implements RtpRelay {
         if (this.open) {
             // Close channels
             this.rtpTransport.close();
-            if (!this.rtcpMux) {
+            if (this.rtcpEnabled && !this.rtcpMux) {
                 this.rtcpTransport.close();
             }
 
@@ -321,7 +336,7 @@ public abstract class RtpSession implements RtpRelay {
         this.mediaComponent.updateMode(ConnectionMode.INACTIVE);
 
         // Reset channels
-        if (this.rtcpMux) {
+        if (this.rtcpEnabled && this.rtcpMux) {
             this.rtcpMux = false;
             this.rtpTransport.disableRtcp();
         }
@@ -361,7 +376,7 @@ public abstract class RtpSession implements RtpRelay {
      */
     public boolean isAvailable() {
         boolean available = this.rtpTransport.isAvailable();
-        if (!this.rtcpMux) {
+        if (this.rtcpEnabled && !this.rtcpMux) {
             available = available && this.rtcpTransport.isAvailable();
         }
         return available;
@@ -470,7 +485,7 @@ public abstract class RtpSession implements RtpRelay {
             throw new IllegalStateException("Cannot bind when ICE is enabled");
         }
         this.rtpTransport.bind(isLocal);
-        if (!rtcpMux) {
+        if (this.rtcpEnabled && !rtcpMux) {
             this.rtcpTransport.bind(isLocal, this.rtpTransport.getLocalPort() + 1);
         }
         this.rtcpMux = rtcpMux;
@@ -528,22 +543,6 @@ public abstract class RtpSession implements RtpRelay {
     }
 
     /**
-     * Binds the RTCP component to a suitable address and port.
-     * 
-     * @param isLocal Whether the binding address must be in local range.
-     * @param port A specific port to bind to
-     * @throws IOException When the RTCP component cannot be bound to an address.
-     * @throws IllegalStateException The binding operation is not allowed if ICE is active
-     */
-    public void bindRtcp(boolean isLocal, int port) throws IOException, IllegalStateException {
-        if (this.ice) {
-            throw new IllegalStateException("Cannot bind when ICE is enabled");
-        }
-        this.rtcpTransport.bind(isLocal, port);
-        this.rtcpMux = (port == this.rtpTransport.getLocalPort());
-    }
-
-    /**
      * Connects the RTCP component to the remote peer.
      * 
      * <p>
@@ -553,6 +552,10 @@ public abstract class RtpSession implements RtpRelay {
      * @param address The address of the remote peer
      */
     public void connectRtcp(SocketAddress remoteAddress) {
+        if(!this.rtcpEnabled) {
+            throw new IllegalStateException("Cannot connect when RTCP is disabled in this session");
+        }
+        
         this.rtcpTransport.setRemotePeer(remoteAddress);
 
         if (logger.isDebugEnabled()) {
@@ -1140,7 +1143,7 @@ public abstract class RtpSession implements RtpRelay {
                 // update statistics
                 this.statistics.onRtpSent(packet);
             } catch (IOException e) {
-                if(logger.isDebugEnabled()) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("Outgoing RTP packet dropped: " + e.getMessage());
                 }
             }
