@@ -61,7 +61,7 @@ public class UdpPeripheryTest {
     @Before
     public void setUp() throws IOException {
     	Scheduler scheduler=new Scheduler();
-        udpPeriphery = new UdpManager(scheduler);
+        udpPeriphery = new UdpManager();
     }
 
     @After

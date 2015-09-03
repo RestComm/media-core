@@ -70,7 +70,7 @@ public class RtpTransportTest {
         this.scheduler.setClock(new DefaultClock());
 
         // Network
-        this.udpManager = new UdpManager(scheduler);
+        this.udpManager = new UdpManager();
 
         // Transcoder
         this.dspFactory = new DspFactoryImpl();

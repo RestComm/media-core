@@ -58,7 +58,7 @@ public class RtpSessionTest {
         this.wallClock = new DefaultClock();
         this.scheduler = new Scheduler();
         this.scheduler.setClock(this.wallClock);
-        this.udpManager = new UdpManager(this.scheduler);
+        this.udpManager = new UdpManager();
         this.dspFactory = new DspFactoryImpl();
         this.channelsManager = new ChannelsManager(scheduler, udpManager, dspFactory);
 

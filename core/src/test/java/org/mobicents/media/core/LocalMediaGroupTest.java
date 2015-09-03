@@ -90,7 +90,7 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager(scheduler);
+        udpManager = new UdpManager();
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 

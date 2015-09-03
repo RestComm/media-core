@@ -32,12 +32,14 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.channel.Channel;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
 
 /**
  * Manager responsible for scheduling I/O operations over UDP.
@@ -52,7 +54,6 @@ public class UdpManager {
     private final static Logger logger = Logger.getLogger(UdpManager.class);
 
     // Core elements
-    private final Scheduler scheduler;
     private final PortManager portManager;
     private final PortManager localPortManager;
 
@@ -76,21 +77,26 @@ public class UdpManager {
     private volatile boolean active;
 
     // UDP manager tasks
+    private static final int POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
+
+    private final ScheduledExecutorService executor;
+    private final ThreadFactory threadFactory = new ThreadFactory() {
+
+        private AtomicInteger index = new AtomicInteger(0);
+
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "udpmanager-" + index.incrementAndGet());
+        }
+    };
+
     private final Object LOCK;
     private final List<Selector> selectors;
     private List<PollTask> pollTasks;
     private AtomicInteger currSelectorIndex;
 
-    /**
-     * Creates UDP periphery.
-     * 
-     * @param inet the name of the interface.
-     * @scheduler the job scheduler instance.
-     * @throws IOException
-     */
-    public UdpManager(Scheduler scheduler) {
+    public UdpManager() {
         // Core elements
-        this.scheduler = scheduler;
         this.portManager = new PortManager();
         this.localPortManager = new PortManager();
 
@@ -107,8 +113,9 @@ public class UdpManager {
         this.LOCK = new Object();
 
         // UDP manager tasks
-        this.selectors = new ArrayList<Selector>(scheduler.getPoolSize());
-        this.pollTasks = new ArrayList<PollTask>(scheduler.getPoolSize());
+        this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+        this.selectors = new ArrayList<Selector>(POOL_SIZE);
+        this.pollTasks = new ArrayList<PollTask>(POOL_SIZE);
         this.currSelectorIndex = new AtomicInteger(0);
     }
 
@@ -261,7 +268,7 @@ public class UdpManager {
                 this.selectors.add(selector);
                 PollTask pollTask = new PollTask(selector);
                 this.pollTasks.add(pollTask);
-                pollTask.startNow();
+                this.executor.execute(pollTask);
             }
         }
     }
@@ -409,21 +416,17 @@ public class UdpManager {
         }
     }
 
-    private void generateTasks(boolean startTasks) throws IOException {
-        for (int i = 0; i < scheduler.getPoolSize(); i++) {
+    private void generateTasks() throws IOException {
+        for (int i = 0; i < POOL_SIZE; i++) {
             this.selectors.add(SelectorProvider.provider().openSelector());
             PollTask pollTask = new PollTask(this.selectors.get(i));
             this.pollTasks.add(pollTask);
-            if (startTasks) {
-                pollTask.startNow();
-            }
+            this.executor.scheduleAtFixedRate(pollTask, 1000L, 2, TimeUnit.MILLISECONDS);
         }
     }
 
-    private void cancelTasks() {
-        for (Task task : this.pollTasks) {
-            task.cancel();
-        }
+    private void stopTasks() {
+        this.executor.shutdown();
     }
 
     private void closeSelectors() {
@@ -439,6 +442,11 @@ public class UdpManager {
         }
     }
 
+    private void cleanResources() {
+        this.pollTasks.clear();
+        this.selectors.clear();
+    }
+
     /**
      * Starts polling the network.
      */
@@ -448,7 +456,7 @@ public class UdpManager {
                 this.active = true;
                 logger.info("Starting UDP Manager");
                 try {
-                    generateTasks(true);
+                    generateTasks();
                     logger.info("Initialized UDP interface[" + inet + "]: bind address=" + bindAddress);
                 } catch (IOException e) {
                     logger.error("An error occurred while initializing the polling tasks", e);
@@ -466,100 +474,80 @@ public class UdpManager {
             if (this.active) {
                 this.active = false;
                 logger.info("Stopping UDP Manager");
-                cancelTasks();
+                stopTasks();
                 closeSelectors();
+                cleanResources();
                 logger.info("UDP Manager has stopped");
             }
         }
     }
 
     /**
-     * Schedulable task for polling UDP channels
+     * Runnable task for polling UDP channels
      */
-    private class PollTask extends Task {
+    private class PollTask implements Runnable {
 
-        private Selector localSelector;
+        private final Selector localSelector;
 
         public PollTask(Selector selector) {
-            super();
             this.localSelector = selector;
         }
 
         @Override
-        public int getQueueNumber() {
-            return Scheduler.UDP_MANAGER_QUEUE;
-        }
+        public void run() {
+            if (active) {
+                // select channels ready for IO and ignore error
+                try {
+                    localSelector.selectNow();
+                    Iterator<SelectionKey> it = localSelector.selectedKeys().iterator();
+                    while (it.hasNext() && active) {
+                        SelectionKey key = it.next();
+                        it.remove();
 
-        @Override
-        public long perform() {
-            // force stop
-            if (!active) {
-                return 0;
-            }
+                        // get references to channel and associated RTP socket
+                        DatagramChannel udpChannel = (DatagramChannel) key.channel();
+                        Object attachment = key.attachment();
 
-            // select channels ready for IO and ignore error
-            try {
-                localSelector.selectNow();
-                Iterator<SelectionKey> it = localSelector.selectedKeys().iterator();
-                while (it.hasNext()) {
-                    SelectionKey key = it.next();
-                    it.remove();
-
-                    // get references to channel and associated RTP socket
-                    DatagramChannel udpChannel = (DatagramChannel) key.channel();
-                    Object attachment = key.attachment();
-
-                    if (attachment == null) {
-                        continue;
-                    }
-
-                    if (attachment instanceof ProtocolHandler) {
-                        ProtocolHandler handler = (ProtocolHandler) key.attachment();
-
-                        if (!udpChannel.isOpen()) {
-                            handler.onClosed();
+                        if (attachment == null) {
                             continue;
                         }
+                        if (attachment instanceof ProtocolHandler) {
+                            ProtocolHandler handler = (ProtocolHandler) key.attachment();
 
-                        // do read
-                        if (key.isReadable()) {
-                            handler.receive(udpChannel);
-                        }
-
-                    } else if (attachment instanceof Channel) {
-                        Channel channel = (Channel) attachment;
-
-                        // Perform an operation only if channel is open and key is valid
-                        if (udpChannel.isOpen()) {
-                            if (key.isValid()) {
-                                channel.receive();
-
-                                if (channel.hasPendingData()) {
-                                    channel.send();
-                                }
+                            if (!udpChannel.isOpen()) {
+                                handler.onClosed();
+                                continue;
                             }
-                        } else {
-                            // Close data channel if datagram channel is closed
-                            channel.close();
+
+                            // do read
+                            if (key.isReadable()) {
+                                handler.receive(udpChannel);
+                            }
+
+                        } else if (attachment instanceof Channel) {
+                            Channel channel = (Channel) attachment;
+
+                            // Perform an operation only if channel is open and key is valid
+                            if (udpChannel.isOpen()) {
+                                if (key.isValid()) {
+                                    channel.receive();
+
+                                    if (channel.hasPendingData()) {
+                                        channel.send();
+                                    }
+                                }
+                            } else {
+                                // Close data channel if datagram channel is closed
+                                channel.close();
+                            }
                         }
                     }
+                    localSelector.selectedKeys().clear();
+                } catch (IOException e) {
+                    logger.error("Error while reading from channel", e);
                 }
-                localSelector.selectedKeys().clear();
-            } catch (IOException e) {
-                logger.error(e);
-                return 0;
-            } finally {
-                scheduler.submit(this, Scheduler.UDP_MANAGER_QUEUE);
             }
-
-            return 0;
-        }
-
-        /**
-         * Immediately start current task
-         */
-        public void startNow() {
-            scheduler.submit(this, Scheduler.UDP_MANAGER_QUEUE);
         }
     }
+
 }

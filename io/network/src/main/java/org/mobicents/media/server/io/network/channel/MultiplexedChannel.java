@@ -192,14 +192,14 @@ public class MultiplexedChannel implements Channel {
 					// Let the handler process the incoming packet.
 					// A response MAY be provided as result.
 					byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) dataChannel.getLocalAddress(), (InetSocketAddress) dataChannel.getRemoteAddress());
-					
 					/*
 					 * If handler intends to send a response to the remote peer,
 					 * queue the data to send it on writing cycle. Only allowed if
 					 * Selection Key is writable!
 					 */
 					if (response != null && response.length > 0) {
-						queueData(response);
+					    send(response);
+                        // queueData(response);
 					}
 				} catch (PacketHandlerException e) {
 					logger.error("Could not handle incoming packet: " + e.getMessage());
@@ -208,6 +208,16 @@ public class MultiplexedChannel implements Channel {
 				logger.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
 			}
 		}
+	}
+	
+	public void send(byte[] data) throws IOException {
+	    // Get pending data into the proper buffer
+        this.pendingDataBuffer.clear();
+        this.pendingDataBuffer.put(data);
+        this.pendingDataBuffer.flip();
+        
+     // Send data over the channel
+        this.dataChannel.send(this.pendingDataBuffer, this.dataChannel.getRemoteAddress());
 	}
 
 	@Override
