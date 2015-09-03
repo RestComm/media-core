@@ -51,11 +51,9 @@ public class JitterBuffer implements Serializable {
 
     private final static Logger logger = Logger.getLogger(JitterBuffer.class);
 
-    private static final int DEFAULT_QUEUE_SIZE = 10;
-
     // Buffer properties
+    private final DataQueue queue;
     private RtpClock rtpClock;
-    private final ArrayList<Frame> queue;
     private volatile boolean ready;
     private boolean buffering;
     private int maxJitterSize;
@@ -85,7 +83,7 @@ public class JitterBuffer implements Serializable {
 
     public JitterBuffer(RtpClock clock, int jitterBufferSize) {
         this.rtpClock = clock;
-        this.queue = new ArrayList<Frame>(DEFAULT_QUEUE_SIZE);
+        this.queue = new DataQueue();
         this.maxJitterSize = jitterBufferSize;
         this.buffering = true;
         this.ready = false;
@@ -94,7 +92,7 @@ public class JitterBuffer implements Serializable {
     public void setMaxJitterSize(int maxJitter) {
         this.maxJitterSize = maxJitter;
     }
-    
+
     private void initJitter(RtpPacket firstPacket) {
         long arrival = rtpClock.getLocalRtpTime();
         long firstPacketTimestamp = firstPacket.getTimestamp();
@@ -222,7 +220,7 @@ public class JitterBuffer implements Serializable {
 
             // checking if not dropping too much
             droppedInRaw++;
-            if (droppedInRaw == DEFAULT_QUEUE_SIZE / 2 || queue.size() == 0) {
+            if (droppedInRaw == DataQueue.DEFAULT_QUEUE_SIZE / 2 || queue.size() == 0) {
                 arrivalDeadLine = 0;
             } else {
                 return;
@@ -278,7 +276,7 @@ public class JitterBuffer implements Serializable {
 
         // overflow?
         // only now remove packet if overflow, possibly the same packet we just received
-        if (queue.size() > DEFAULT_QUEUE_SIZE) {
+        if (queue.size() > DataQueue.DEFAULT_QUEUE_SIZE) {
             logger.warn("Buffer overflow!");
             dropCount++;
             queue.remove(0).recycle();
@@ -300,7 +298,7 @@ public class JitterBuffer implements Serializable {
      * @return the media frame.
      */
     public Frame read(long timestamp) {
-        if (queue.size() == 0) {
+        if (queue.isEmpty()) {
             this.ready = false;
             return null;
         }
@@ -329,11 +327,7 @@ public class JitterBuffer implements Serializable {
      * Resets buffer.
      */
     public void reset() {
-        synchronized (queue) {
-            while (queue.size() > 0) {
-                queue.remove(0).recycle();
-            }
-        }
+        this.queue.clear();
     }
 
     public void restart() {
@@ -344,5 +338,56 @@ public class JitterBuffer implements Serializable {
         droppedInRaw = 0;
         currentFormat = null;
         initialSequenceNr = -1;
+    }
+
+    private class DataQueue {
+
+        static final int DEFAULT_QUEUE_SIZE = 10;
+        private final ArrayList<Frame> queue;
+
+        public DataQueue() {
+            this.queue = new ArrayList<Frame>(DEFAULT_QUEUE_SIZE);
+        }
+
+        public int size() {
+            synchronized (queue) {
+                return queue.size();
+            }
+        }
+
+        public boolean isEmpty() {
+            synchronized (queue) {
+                return queue.isEmpty();
+            }
+        }
+
+        public Frame get(int index) {
+            synchronized (queue) {
+                return this.queue.get(index);
+            }
+        }
+
+        public Frame remove(int index) {
+            synchronized (queue) {
+                return this.queue.remove(index);
+            }
+        }
+
+        public void add(int index, Frame frame) {
+            if (frame != null) {
+                synchronized (queue) {
+                    queue.add(index, frame);
+                }
+            }
+        }
+
+        public void clear() {
+            synchronized (queue) {
+                while (!queue.isEmpty()) {
+                    queue.remove(0).recycle();
+                }
+            }
+        }
+
     }
 }
