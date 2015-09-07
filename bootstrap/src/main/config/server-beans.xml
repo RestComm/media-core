@@ -37,6 +37,7 @@
             <parameter><inject bean="DSP"/></parameter>
         </constructor>
         <property name="jitterBufferSize">50</property>
+        <property name="rtcpEnabled">true</property>
         <!--<property name="SS7Manager"><inject bean="SS7" /></property>-->
     </bean>
 
