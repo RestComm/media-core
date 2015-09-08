@@ -37,6 +37,7 @@ import java.util.ArrayList;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -45,6 +46,7 @@ import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import org.mobicents.media.server.impl.rtp.channels.RtpSession;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -58,9 +60,10 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 
 /**
- *
+ * TODO Move to {@link RtpSession} class
  * @author oifa yulian
  */
+@Ignore
 public class RTPEventTest implements DtmfDetectorListener {
 
     // clock and scheduler

@@ -47,25 +47,15 @@ public class UdpPeripheryTest {
 
     private UdpManager udpPeriphery;
 
-    public UdpPeripheryTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     @Before
     public void setUp() throws IOException {
-    	Scheduler scheduler=new Scheduler();
         udpPeriphery = new UdpManager();
+        udpPeriphery.start();
     }
 
     @After
     public void tearDown() {
+        udpPeriphery.stop();
     }
 
     /**

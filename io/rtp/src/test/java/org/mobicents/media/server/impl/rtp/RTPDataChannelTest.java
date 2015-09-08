@@ -33,6 +33,7 @@ import java.net.InetSocketAddress;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -55,6 +56,7 @@ import org.mobicents.media.server.spi.format.Formats;
  * @author oifa yulian
  */
 @Deprecated
+@Ignore
 public class RTPDataChannelTest {
 
     // clock and scheduler
