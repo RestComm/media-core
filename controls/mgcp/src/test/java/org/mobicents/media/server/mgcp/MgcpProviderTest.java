@@ -79,7 +79,7 @@ public class MgcpProviderTest {
         scheduler.setClock(clock);
         scheduler.start();
         
-        udpInterface = new UdpManager(scheduler);
+        udpInterface = new UdpManager();
         udpInterface.setLocalBindAddress("127.0.0.1");
         udpInterface.setBindAddress("127.0.0.1");
         udpInterface.start();

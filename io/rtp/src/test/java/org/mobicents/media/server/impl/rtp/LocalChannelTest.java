@@ -78,7 +78,7 @@ public class LocalChannelTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager(scheduler);
+        udpManager = new UdpManager();
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager);
