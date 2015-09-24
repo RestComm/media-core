@@ -24,6 +24,7 @@ package org.mobicents.media.server.impl.rtp;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
@@ -52,6 +53,8 @@ import org.mobicents.media.server.spi.memory.Memory;
 public class JitterBuffer implements Serializable {
 	
 	private static final long serialVersionUID = -389930569631795779L;
+	
+	private final ReentrantLock LOCK = new ReentrantLock();
 
 	//The underlying buffer size
     private static final int QUEUE_SIZE = 10;
@@ -258,10 +261,12 @@ public class JitterBuffer implements Serializable {
 
 		// set format
 		f.setFormat(this.format.getFormat());
-
+		
 		// make checks only if have packet
 		if (f != null) {
-			droppedInRaw = 0;
+		    LOCK.lock();
+
+		    droppedInRaw = 0;
 
 			// find correct position to insert a packet
 			// use timestamp since its always positive
@@ -272,6 +277,7 @@ public class JitterBuffer implements Serializable {
 
 			// check for duplicate packet
 			if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
+			    LOCK.unlock();
 				return;
 			}
 
@@ -296,6 +302,7 @@ public class JitterBuffer implements Serializable {
 			if (duration < 0 && queue.size() > 1) {
 				logger.warn("Something messy happened. Reseting jitter buffer!");
 				reset();
+				LOCK.unlock();
 				return;
 			}
 
@@ -306,6 +313,7 @@ public class JitterBuffer implements Serializable {
 				dropCount++;
 				queue.remove(0).recycle();
 			}
+			LOCK.unlock();
 
 			// check if this buffer already full
 			if (!ready) {
@@ -329,6 +337,8 @@ public class JitterBuffer implements Serializable {
     		return null;
     	}
     	
+    	LOCK.lock();
+    	
     	//extract packet
     	Frame frame = queue.remove(0);
     		
@@ -338,7 +348,9 @@ public class JitterBuffer implements Serializable {
     		//arrivalDeadLine = 0;
     		//set it as 1 ms since otherwise will be dropped by pipe
     		frame.setDuration(1);
-    	}    		
+    	}
+    	
+    	LOCK.unlock();
     		
     	arrivalDeadLine = rtpClock.convertToRtpTime(frame.getTimestamp() + frame.getDuration());
     	
@@ -354,7 +366,7 @@ public class JitterBuffer implements Serializable {
      */
     public void reset() {
     	while(queue.size()>0)
-    		queue.remove(0).recycle();    	
+    		queue.remove(0).recycle();
     }
     
     public void restart() {
