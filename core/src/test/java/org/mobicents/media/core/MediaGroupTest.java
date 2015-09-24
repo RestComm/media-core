@@ -61,122 +61,122 @@ import org.mobicents.media.server.utils.Text;
  */
 public class MediaGroupTest {
 
-	// clock and scheduler
-	private Clock clock;
-	private Scheduler scheduler;
+    // clock and scheduler
+    private Clock clock;
+    private Scheduler scheduler;
 
-	// RTP
-	private ChannelsManager channelsManager;
+    // RTP
+    private ChannelsManager channelsManager;
 
-	protected DspFactoryImpl dspFactory = new DspFactoryImpl();
+    protected DspFactoryImpl dspFactory = new DspFactoryImpl();
 
-	// endpoint and connection
-	private BaseMixerEndpointImpl endpoint1, endpoint2;
-	private ResourcesPool resourcesPool;
-	protected UdpManager udpManager;
+    // endpoint and connection
+    private BaseMixerEndpointImpl endpoint1, endpoint2;
+    private ResourcesPool resourcesPool;
+    protected UdpManager udpManager;
 
-	private String tone;
+    private String tone;
 
-	@Before
-	public void setUp() throws ResourceUnavailableException, IOException, InterruptedException {
-		// use default clock
-		clock = new DefaultClock();
+    @Before
+    public void setUp() throws ResourceUnavailableException, IOException, InterruptedException {
+        // use default clock
+        clock = new DefaultClock();
 
-		// create single thread scheduler
-		scheduler = new Scheduler();
-		scheduler.setClock(clock);
-		scheduler.start();
+        // create single thread scheduler
+        scheduler = new Scheduler();
+        scheduler.setClock(clock);
+        scheduler.start();
 
-		udpManager = new UdpManager(scheduler);
-		udpManager.setBindAddress("127.0.0.1");
-		udpManager.start();
+        udpManager = new UdpManager();
+        udpManager.setBindAddress("127.0.0.1");
+        udpManager.start();
 
-		channelsManager = new ChannelsManager(udpManager);
-		channelsManager.setScheduler(scheduler);
+        channelsManager = new ChannelsManager(udpManager);
+        channelsManager.setScheduler(scheduler);
 
-		dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-		dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
-		resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
 
-		// assign scheduler to the endpoint
-		endpoint1 = new IvrEndpoint("test");
-		endpoint1.setScheduler(scheduler);
-		endpoint1.setResourcesPool(resourcesPool);
-		endpoint1.start();
-		Thread.sleep(1000);
+        // assign scheduler to the endpoint
+        endpoint1 = new IvrEndpoint("test");
+        endpoint1.setScheduler(scheduler);
+        endpoint1.setResourcesPool(resourcesPool);
+        endpoint1.start();
+        Thread.sleep(1000);
 
-		endpoint2 = new IvrEndpoint("test 2");
-		endpoint2.setScheduler(scheduler);
-		endpoint2.setResourcesPool(resourcesPool);
-		endpoint2.start();
-		Thread.sleep(1000);
-	}
+        endpoint2 = new IvrEndpoint("test 2");
+        endpoint2.setScheduler(scheduler);
+        endpoint2.setResourcesPool(resourcesPool);
+        endpoint2.start();
+        Thread.sleep(1000);
+    }
 
-	@After
-	public void tearDown() {
-		endpoint1.deleteAllConnections();
-		endpoint2.deleteAllConnections();
-		endpoint1.releaseResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
-		endpoint2.releaseResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
-		endpoint1.stop();
-		endpoint2.stop();
-		udpManager.stop();
-		scheduler.stop();
-	}
-	
-	/**
-	 * Test of setOtherParty method, of class RtpConnectionImpl.
-	 */
-	@Test
-	public void testResources() throws Exception {
-		// given
-		Connection connection1 = endpoint1.createConnection(ConnectionType.RTP, false);
-		
-		Connection connection2 = endpoint2.createConnection(ConnectionType.RTP, false);
-		
-		connection1.generateOffer();
-		connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
-		connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
+    @After
+    public void tearDown() {
+        endpoint1.deleteAllConnections();
+        endpoint2.deleteAllConnections();
+        endpoint1.releaseResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
+        endpoint2.releaseResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+        endpoint1.stop();
+        endpoint2.stop();
+        udpManager.stop();
+        scheduler.stop();
+    }
 
-		connection1.setMode(ConnectionMode.SEND_RECV);
-		connection2.setMode(ConnectionMode.SEND_RECV);
+    /**
+     * Test of setOtherParty method, of class RtpConnectionImpl.
+     */
+    @Test
+    public void testResources() throws Exception {
+        // given
+        Connection connection1 = endpoint1.createConnection(ConnectionType.RTP, false);
 
-		GeneratorImpl generator = (GeneratorImpl) endpoint1.getResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
-		generator.setToneDuration(200);
-		generator.setVolume(-20);
-		
-		DetectorImpl detector = (DetectorImpl) endpoint2.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
-		detector.addListener(new MockDtmfDetectorListener());
+        Connection connection2 = endpoint2.createConnection(ConnectionType.RTP, false);
 
-		// when
-		generator.setDigit("1");
-		generator.activate();
-		detector.activate();
-		
-		Thread.sleep(1000);
+        connection1.generateOffer();
+        connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
+        connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
 
-		// then
-		assertEquals("1", tone);
-		generator.deactivate();
+        connection1.setMode(ConnectionMode.SEND_RECV);
+        connection2.setMode(ConnectionMode.SEND_RECV);
 
-		tone = "";
-		generator.setOOBDigit("1");
-		generator.activate();
-		detector.activate();
+        GeneratorImpl generator = (GeneratorImpl) endpoint1.getResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
+        generator.setToneDuration(200);
+        generator.setVolume(-20);
 
-		Thread.sleep(1000);
+        DetectorImpl detector = (DetectorImpl) endpoint2.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+        detector.addListener(new MockDtmfDetectorListener());
 
-		assertEquals("1", tone);
-	}
+        // when
+        generator.setDigit("1");
+        generator.activate();
+        detector.activate();
 
-	private class MockDtmfDetectorListener implements DtmfDetectorListener {
+        Thread.sleep(1000);
 
-		@Override
-		public void process(DtmfEvent event) {
-			tone = event.getTone();
-		}
+        // then
+        assertEquals("1", tone);
+        generator.deactivate();
 
-	}
+        tone = "";
+        generator.setOOBDigit("1");
+        generator.activate();
+        detector.activate();
+
+        Thread.sleep(1000);
+
+        assertEquals("1", tone);
+    }
+
+    private class MockDtmfDetectorListener implements DtmfDetectorListener {
+
+        @Override
+        public void process(DtmfEvent event) {
+            tone = event.getTone();
+        }
+
+    }
 
 }

@@ -27,24 +27,19 @@
 
 package org.mobicents.media.server.test;
 
-import java.io.IOException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.Server;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
+import org.mobicents.media.core.Server;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
-import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -52,8 +47,6 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
-import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.utils.Text;
@@ -108,7 +101,7 @@ public class RecordingTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager(scheduler);
+        udpManager = new UdpManager();
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 

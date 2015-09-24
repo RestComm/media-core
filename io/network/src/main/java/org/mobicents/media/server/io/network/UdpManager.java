@@ -32,530 +32,522 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.channel.Channel;
-import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.scheduler.Task;
 
 /**
- * Implements schedulable IO over UDP
+ * Manager responsible for scheduling I/O operations over UDP.
  * 
  * Important! Any CPU-bound action here are illegal!
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class UdpManager {
-	private final static int PORT_ANY = -1;
 
-	/** Channel selector */
-	private List<Selector> selectors;
+    private final static Logger logger = Logger.getLogger(UdpManager.class);
 
-	/** bind address */
-	private String bindAddress = "127.0.0.1";
-	private String localBindAddress = "127.0.0.1";
-	
-	/** external address */
-	private String externalAddress = "";
+    // Core elements
+    private final PortManager portManager;
+    private final PortManager localPortManager;
 
-	/** local network address and subnet */
-	private byte[] localNetwork;
-	private IPAddressType currNetworkType;
-	private byte[] localSubnet;
-	private IPAddressType currSubnetType;
+    // UDP Manager properties
+    private static final int PORT_ANY = -1;
+    private static final String INET_UNKNOWN = "unknown";
+    private static final String LOCALHOST = "127.0.0.1";
 
-	/** use sbc */
-	private Boolean useSbc = false;
+    private String inet;
+    private String bindAddress;
+    private String localBindAddress;
+    private String externalAddress;
 
-	/** rtp timeout in seconds */
-	private int rtpTimeout = 0;
+    private byte[] localNetwork;
+    private IPAddressType currNetworkType;
+    private byte[] localSubnet;
+    private IPAddressType currSubnetType;
 
-	// port manager
-	private PortManager portManager = new PortManager();
-	private PortManager localPortManager = new PortManager();
+    private Boolean useSbc;
+    private int rtpTimeout; // in seconds!
+    private volatile boolean active;
 
-	// poll task
-	private List<PollTask> pollTasks;
+    // UDP manager tasks
+    private static final int POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
 
-	// state flag
-	private volatile boolean isActive;
+    private final ScheduledExecutorService executor;
+    private final ThreadFactory threadFactory = new ThreadFactory() {
 
-	private volatile int count;
+        private AtomicInteger index = new AtomicInteger(0);
 
-	// name of the interface
-	private String name = "unknown";
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "udpmanager-" + index.incrementAndGet());
+        }
+    };
 
-	private Scheduler scheduler;
-	// logger instance
-	private final static Logger logger = Logger.getLogger(UdpManager.class);
-	private final Object LOCK = new Object();
+    private final Object LOCK;
+    private final List<Selector> selectors;
+    private List<PollTask> pollTasks;
+    private AtomicInteger currSelectorIndex;
 
-	private AtomicInteger currSelectorIndex = new AtomicInteger(0);
+    public UdpManager() {
+        // Core elements
+        this.portManager = new PortManager();
+        this.localPortManager = new PortManager();
 
-	/**
-	 * Creates UDP periphery.
-	 * 
-	 * @param name
-	 *            the name of the interface.
-	 * @scheduler the job scheduler instance.
-	 * @throws IOException
-	 */
-	public UdpManager(Scheduler scheduler) throws IOException {
-		this.scheduler = scheduler;
-		this.selectors = new ArrayList<Selector>(scheduler.getPoolSize());
-		this.pollTasks = new ArrayList<PollTask>(scheduler.getPoolSize());
-		for (int i = 0; i < scheduler.getPoolSize(); i++) {
-			this.selectors.add(SelectorProvider.provider().openSelector());
-			this.pollTasks.add(new PollTask(this.selectors.get(i)));
-		}
-	}
+        // UDP Manager properties
+        this.inet = INET_UNKNOWN;
+        this.bindAddress = LOCALHOST;
+        this.localBindAddress = LOCALHOST;
+        this.externalAddress = "";
 
-	public int getCount() {
-		return count;
-	}
+        this.useSbc = false;
+        this.rtpTimeout = 0;
+        this.active = false;
 
-	/**
-	 * Modify bind address.
-	 * 
-	 * @param address
-	 *            the IP address as character string.
-	 */
-	public void setBindAddress(String address) {
-		this.bindAddress = address;
-	}
+        this.LOCK = new Object();
 
-	/**
-	 * Gets the bind address.
-	 * 
-	 * @return the IP address as character string.
-	 */
-	public String getBindAddress() {
-		return bindAddress;
-	}
+        // UDP manager tasks
+        this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+        this.selectors = new ArrayList<Selector>(POOL_SIZE);
+        this.pollTasks = new ArrayList<PollTask>(POOL_SIZE);
+        this.currSelectorIndex = new AtomicInteger(0);
+    }
 
-	/**
-	 * Modify bind address.
-	 * 
-	 * @param address
-	 *            the IP address as character string.
-	 */
-	public void setLocalBindAddress(String address) {
-		this.localBindAddress = address;
-	}
+    /**
+     * Modify bind address.
+     * 
+     * @param address the IP address as character string.
+     */
+    public void setBindAddress(String address) {
+        this.bindAddress = address;
+    }
 
-	/**
-	 * Gets the bind address.
-	 * 
-	 * @return the IP address as character string.
-	 */
-	public String getLocalBindAddress() {
-		return localBindAddress;
-	}
-	
-	public String getExternalAddress() {
-		return externalAddress;
-	}
-	
-	public void setExternalAddress(String externalAddress) {
-		this.externalAddress = externalAddress;
-	}
+    /**
+     * Gets the bind address.
+     * 
+     * @return the IP address as character string.
+     */
+    public String getBindAddress() {
+        return bindAddress;
+    }
 
-	/**
-	 * Modify rtp timeout.
-	 * 
-	 * @param rtpTimeout
-	 *            the time in seconds.
-	 */
-	public void setRtpTimeout(int rtpTimeout) {
-		this.rtpTimeout = rtpTimeout;
-	}
+    /**
+     * Modify bind address.
+     * 
+     * @param address the IP address as character string.
+     */
+    public void setLocalBindAddress(String address) {
+        this.localBindAddress = address;
+    }
 
-	/**
-	 * Gets the rtp timeout.
-	 * 
-	 * @return the rtptimeout as integer.
-	 */
-	public int getRtpTimeout() {
-		return this.rtpTimeout;
-	}
+    /**
+     * Gets the bind address.
+     * 
+     * @return the IP address as character string.
+     */
+    public String getLocalBindAddress() {
+        return localBindAddress;
+    }
 
-	/**
-	 * Set the local network address
-	 * 
-	 * @param address
-	 *            the IP address as character string.
-	 */
-	public void setLocalNetwork(String localNetwork) {
-		IPAddressType currNetworkType = IPAddressCompare
-				.getAddressType(localNetwork);
-		this.currNetworkType = currNetworkType;
-		if (currNetworkType == IPAddressType.IPV4)
-			this.localNetwork = IPAddressCompare
-					.addressToByteArrayV4(localNetwork);
-		else if (currNetworkType == IPAddressType.IPV6)
-			this.localNetwork = IPAddressCompare
-					.addressToByteArrayV6(localNetwork);
-	}
+    public String getExternalAddress() {
+        return externalAddress;
+    }
 
-	/**
-	 * Set the local network address
-	 * 
-	 * @param address
-	 *            the IP subnet as character string.
-	 */
-	public void setLocalSubnet(String localSubnet) {
-		IPAddressType currSubnetType = IPAddressCompare
-				.getAddressType(localSubnet);
-		this.currSubnetType = currSubnetType;
-		if (currSubnetType == IPAddressType.IPV4)
-			this.localSubnet = IPAddressCompare
-					.addressToByteArrayV4(localSubnet);
-		else if (currSubnetType == IPAddressType.IPV6)
-			this.localSubnet = IPAddressCompare
-					.addressToByteArrayV6(localSubnet);
-	}
+    public void setExternalAddress(String externalAddress) {
+        this.externalAddress = externalAddress;
+    }
 
-	/**
-	 * Set the useSbc property
-	 * 
-	 * @param useSbc
-	 *            whether to use sbc or not
-	 */
-	public void setUseSbc(Boolean useSbc) {
-		this.useSbc = useSbc;
-	}
-	
-	public PortManager getPortManager() {
-		return portManager;
-	}
+    /**
+     * Modify rtp timeout.
+     * 
+     * @param rtpTimeout the time in seconds.
+     */
+    public void setRtpTimeout(int rtpTimeout) {
+        this.rtpTimeout = rtpTimeout;
+    }
 
-	/**
-	 * Modify the low boundary.
-	 * 
-	 * @param low
-	 *            port number
-	 */
-	public void setLowestPort(int low) {
-		portManager.setLowestPort(low);
-	}
+    /**
+     * Gets the rtp timeout.
+     * 
+     * @return the rtptimeout as integer.
+     */
+    public int getRtpTimeout() {
+        return this.rtpTimeout;
+    }
 
-	/**
-	 * Gets the low boundary of available range.
-	 * 
-	 * @return low min port number
-	 */
-	public int getLowestPort() {
-		return portManager.getLowestPort();
-	}
+    /**
+     * Set the local network address
+     * 
+     * @param address the IP address as character string.
+     */
+    public void setLocalNetwork(String localNetwork) {
+        IPAddressType currNetworkType = IPAddressCompare.getAddressType(localNetwork);
+        this.currNetworkType = currNetworkType;
 
-	/**
-	 * Modify the upper boundary.
-	 * 
-	 * @param high
-	 *            port number
-	 */
-	public void setHighestPort(int high) {
-		portManager.setHighestPort(high);
-	}
+        if (currNetworkType == IPAddressType.IPV4) {
+            this.localNetwork = IPAddressCompare.addressToByteArrayV4(localNetwork);
+        } else if (currNetworkType == IPAddressType.IPV6) {
+            this.localNetwork = IPAddressCompare.addressToByteArrayV6(localNetwork);
+        }
+    }
 
-	/**
-	 * Gets the upper boundary of available range.
-	 * 
-	 * @retun min port number
-	 */
-	public int getHighestPort() {
-		return portManager.getLowestPort();
-	}
+    /**
+     * Set the local network address
+     * 
+     * @param address the IP subnet as character string.
+     */
+    public void setLocalSubnet(String localSubnet) {
+        IPAddressType currSubnetType = IPAddressCompare.getAddressType(localSubnet);
+        this.currSubnetType = currSubnetType;
 
-	public void addSelector(Selector selector) {
-		synchronized (LOCK) {
-			if (!this.selectors.contains(selector)) {
-				this.selectors.add(selector);
-				PollTask pollTask = new PollTask(selector);
-				this.pollTasks.add(pollTask);
-				pollTask.startNow();
-			}
-		}
-	}
+        if (currSubnetType == IPAddressType.IPV4) {
+            this.localSubnet = IPAddressCompare.addressToByteArrayV4(localSubnet);
+        } else if (currSubnetType == IPAddressType.IPV6) {
+            this.localSubnet = IPAddressCompare.addressToByteArrayV6(localSubnet);
+        }
+    }
 
-	public boolean connectImmediately(InetSocketAddress address) {
-		if (!useSbc)
-			return true;
+    /**
+     * Set the useSbc property
+     * 
+     * @param useSbc whether to use sbc or not
+     */
+    public void setUseSbc(Boolean useSbc) {
+        this.useSbc = useSbc;
+    }
 
-		boolean connectImmediately = false;
-		byte[] addressValue = address.getAddress().getAddress();
+    public PortManager getPortManager() {
+        return portManager;
+    }
 
-		if (currSubnetType == IPAddressType.IPV4
-				&& currNetworkType == IPAddressType.IPV4) {
-			if (IPAddressCompare.isInRangeV4(localNetwork, localSubnet,
-					addressValue))
-				connectImmediately = true;
-		} else if (currSubnetType == IPAddressType.IPV6
-				&& currNetworkType == IPAddressType.IPV6) {
-			if (IPAddressCompare.isInRangeV6(localNetwork, localSubnet,
-					addressValue))
-				connectImmediately = true;
-		}
+    /**
+     * Modify the low boundary.
+     * 
+     * @param low port number
+     */
+    public void setLowestPort(int low) {
+        portManager.setLowestPort(low);
+    }
 
-		return connectImmediately;
-	}
+    /**
+     * Gets the low boundary of available range.
+     * 
+     * @return low min port number
+     */
+    public int getLowestPort() {
+        return portManager.getLowestPort();
+    }
 
-	/**
-	 * Opens and binds new datagram channel.
-	 * 
-	 * @param handler
-	 *            the packet handler implementation
-	 * @param port
-	 *            the port to bind to
-	 * @return datagram channel
-	 * @throws IOException
-	 */
-	@Deprecated
-	public DatagramChannel open(ProtocolHandler handler) throws IOException {
-		DatagramChannel channel = DatagramChannel.open();
-		channel.configureBlocking(false);
-		int index = currSelectorIndex.getAndIncrement();
-		SelectionKey key = channel.register(
-				selectors.get(index % selectors.size()), SelectionKey.OP_READ);
-		key.attach(handler);
-		handler.setKey(key);
-		return channel;
-	}
-	
-	public SelectionKey open(Channel channel) throws IOException {
-		DatagramChannel dataChannel = DatagramChannel.open();
-		dataChannel.configureBlocking(false);
-		int index = currSelectorIndex.getAndIncrement();
-		SelectionKey key = dataChannel.register(selectors.get(index % selectors.size()), SelectionKey.OP_READ);
-		key.attach(channel);
-		return key;
-	}
-	
-	public SelectionKey open(DatagramChannel dataChannel, Channel channel) throws IOException {
-		 // Get a selector
-		 int index = currSelectorIndex.getAndIncrement();
-		 Selector selector = selectors.get(index % selectors.size());
-		 // Register the channel under the chosen selector
-		 SelectionKey key = dataChannel.register(selector, SelectionKey.OP_READ);
-		 // Attach the multiplexer to the key
-		 key.attach(channel);
-		 return key;
-	}
+    /**
+     * Modify the upper boundary.
+     * 
+     * @param high port number
+     */
+    public void setHighestPort(int high) {
+        portManager.setHighestPort(high);
+    }
 
-	@Deprecated
-	public void open(DatagramChannel channel, ProtocolHandler handler) throws IOException {
-		 // Get a selector
-		 int index = currSelectorIndex.getAndIncrement();
-		 Selector selector = selectors.get(index % selectors.size());
-		 // Register the channel under the chosen selector
-		 SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
-		 // Attach the protocol handler to the key
-		 key.attach(handler);
-		 handler.setKey(key);
-	}
-	
-	public void bind(DatagramChannel channel, int port, boolean local) throws SocketException {
-		if(local) {
-			bindLocal(channel, port);
-		} else {
-			bind(channel, port);
-		}
-	}
+    /**
+     * Gets the upper boundary of available range.
+     * 
+     * @retun min port number
+     */
+    public int getHighestPort() {
+        return portManager.getLowestPort();
+    }
 
-	/**
-	 * Binds socket to global bind address and specified port.
-	 * 
-	 * @param channel
-	 *            the channel
-	 * @param port
-	 *            the port to bind to
-	 * @throws SocketException
-	 */
-	public void bind(DatagramChannel channel, int port) throws SocketException {
-		// select port if wildcarded
-		if (port == PORT_ANY) {
-			port = portManager.next();
-		}
-		// try bind
-		SocketException ex = null;
-		for (int q = 0; q < 100; q++) {
-			try {
-				channel.socket().bind(new InetSocketAddress(bindAddress, port));
-				ex = null;
-				break;
-			} catch (SocketException e) {
-				ex = e;
-				logger.info("Failed trying to bind " + bindAddress + ":" + port);
-				port = portManager.next();
-			}
-		}
-		if (ex != null)
-			throw ex;
-	}
+    public void addSelector(Selector selector) {
+        synchronized (LOCK) {
+            if (!this.selectors.contains(selector)) {
+                this.selectors.add(selector);
+                PollTask pollTask = new PollTask(selector);
+                this.pollTasks.add(pollTask);
+                this.executor.execute(pollTask);
+            }
+        }
+    }
 
-	/**
-	 * Binds socket to global bind address and specified port.
-	 * 
-	 * @param channel
-	 *            the channel
-	 * @param port
-	 *            the port to bind to
-	 * @throws SocketException
-	 */
-	public void bindLocal(DatagramChannel channel, int port)
-			throws SocketException {
-		// select port if wildcarded
-		if (port == PORT_ANY) {
-			port = localPortManager.next();
-		}
-		// try bind
-		SocketException ex = null;
-		for (int q = 0; q < 100; q++) {
-			try {
-				channel.socket().bind(
-						new InetSocketAddress(localBindAddress, port));
-				ex = null;
-				break;
-			} catch (SocketException e) {
-				ex = e;
-				logger.info("Failed trying to bind " + localBindAddress + ":"
-						+ port);
-				port = localPortManager.next();
-			}
-		}
-		if (ex != null)
-			throw ex;
-	}
+    public boolean connectImmediately(InetSocketAddress address) {
+        if (!useSbc) {
+            return true;
+        }
 
-	/**
-	 * Starts polling the network.
-	 */
-	public void start() {
-		synchronized (LOCK) {
-			if (this.isActive)
-				return;
+        boolean connectImmediately = false;
+        byte[] addressValue = address.getAddress().getAddress();
 
-			this.isActive = true;
-			for (int i = 0; i < this.pollTasks.size(); i++)
-				this.pollTasks.get(i).startNow();
+        if (currSubnetType == IPAddressType.IPV4 && currNetworkType == IPAddressType.IPV4) {
+            if (IPAddressCompare.isInRangeV4(localNetwork, localSubnet, addressValue)) {
+                connectImmediately = true;
+            }
+        } else if (currSubnetType == IPAddressType.IPV6 && currNetworkType == IPAddressType.IPV6) {
+            if (IPAddressCompare.isInRangeV6(localNetwork, localSubnet, addressValue)) {
+                connectImmediately = true;
+            }
+        }
+        return connectImmediately;
+    }
 
-			logger.info(String.format(
-					"Initialized UDP interface[%s]: bind address=%s", name,
-					bindAddress));
-		}
-	}
+    /**
+     * Opens and binds new datagram channel.
+     * 
+     * @param handler the packet handler implementation
+     * @param port the port to bind to
+     * @return datagram channel
+     * @throws IOException
+     */
+    @Deprecated
+    public DatagramChannel open(ProtocolHandler handler) throws IOException {
+        DatagramChannel channel = DatagramChannel.open();
+        channel.configureBlocking(false);
+        int index = currSelectorIndex.getAndIncrement();
+        SelectionKey key = channel.register(selectors.get(index % selectors.size()), SelectionKey.OP_READ);
+        key.attach(handler);
+        handler.setKey(key);
+        return channel;
+    }
 
-	/**
-	 * Stops polling the network.
-	 */
-	public void stop() {
-		synchronized (LOCK) {
-			if (!this.isActive)
-				return;
+    public SelectionKey open(Channel channel) throws IOException {
+        DatagramChannel dataChannel = DatagramChannel.open();
+        dataChannel.configureBlocking(false);
+        int index = currSelectorIndex.getAndIncrement();
+        SelectionKey key = dataChannel.register(selectors.get(index % selectors.size()), SelectionKey.OP_READ);
+        key.attach(channel);
+        return key;
+    }
 
-			this.isActive = false;
-			for (int i = 0; i < this.pollTasks.size(); i++)
-				this.pollTasks.get(i).cancel();
+    public SelectionKey open(DatagramChannel dataChannel, Channel channel) throws IOException {
+        // Get a selector
+        int index = currSelectorIndex.getAndIncrement();
+        Selector selector = selectors.get(index % selectors.size());
+        // Register the channel under the chosen selector
+        SelectionKey key = dataChannel.register(selector, SelectionKey.OP_READ);
+        // Attach the multiplexer to the key
+        key.attach(channel);
+        return key;
+    }
 
-			logger.info("Stopped");
-		}
-	}
+    @Deprecated
+    public void open(DatagramChannel channel, ProtocolHandler handler) throws IOException {
+        // Get a selector
+        int index = currSelectorIndex.getAndIncrement();
+        Selector selector = selectors.get(index % selectors.size());
+        // Register the channel under the chosen selector
+        SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+        // Attach the protocol handler to the key
+        key.attach(handler);
+        handler.setKey(key);
+    }
 
-	/**
-	 * Schedulable task for polling UDP channels
-	 */
-	private class PollTask extends Task {
+    public void bind(DatagramChannel channel, int port, boolean local) throws SocketException {
+        if (local) {
+            bindLocal(channel, port);
+        } else {
+            bind(channel, port);
+        }
+    }
 
-		private Selector localSelector;
+    /**
+     * Binds socket to global bind address and specified port.
+     * 
+     * @param channel the channel
+     * @param port the port to bind to
+     * @throws SocketException
+     */
+    public void bind(DatagramChannel channel, int port) throws SocketException {
+        // select port if wildcarded
+        if (port == PORT_ANY) {
+            port = portManager.next();
+        }
 
-		/**
-		 * Creates new instance of this task
-		 * 
-		 * @param scheduler
-		 */
-		public PollTask(Selector selector) {
-			super();
-			this.localSelector = selector;
-		}
+        // try bind
+        SocketException ex = null;
+        for (int q = 0; q < 100; q++) {
+            try {
+                channel.socket().bind(new InetSocketAddress(bindAddress, port));
+                ex = null;
+                break;
+            } catch (SocketException e) {
+                ex = e;
+                logger.info("Failed trying to bind " + bindAddress + ":" + port);
+                port = portManager.next();
+            }
+        }
 
-		public int getQueueNumber() {
-			return Scheduler.UDP_MANAGER_QUEUE;
-		}
+        if (ex != null) {
+            throw ex;
+        }
+    }
 
-		@Override
-		public long perform() {
-			// force stop
-			if (!isActive) {
-				return 0;
-			}
+    /**
+     * Binds socket to global bind address and specified port.
+     * 
+     * @param channel the channel
+     * @param port the port to bind to
+     * @throws SocketException
+     */
+    public void bindLocal(DatagramChannel channel, int port) throws SocketException {
+        // select port if wildcarded
+        if (port == PORT_ANY) {
+            port = localPortManager.next();
+        }
 
-			// select channels ready for IO and ignore error
-			try {
-				localSelector.selectNow();
-				Iterator<SelectionKey> it = localSelector.selectedKeys().iterator();
-				while (it.hasNext()) {
-					SelectionKey key = it.next();
-					it.remove();
-					
-					// get references to channel and associated RTP socket
-					DatagramChannel udpChannel = (DatagramChannel) key.channel();
-					Object attachment = key.attachment();
-					
-					if (attachment == null) {
-						continue;
-					}
+        // try bind
+        SocketException ex = null;
+        for (int q = 0; q < 100; q++) {
+            try {
+                channel.socket().bind(new InetSocketAddress(localBindAddress, port));
+                ex = null;
+                break;
+            } catch (SocketException e) {
+                ex = e;
+                logger.info("Failed trying to bind " + localBindAddress + ":" + port);
+                port = localPortManager.next();
+            }
+        }
 
-					if(attachment instanceof ProtocolHandler) {
-						ProtocolHandler handler = (ProtocolHandler) key.attachment();
+        if (ex != null) {
+            throw ex;
+        }
+    }
 
-						if (!udpChannel.isOpen()) {
-							handler.onClosed();
-							continue;
-						}
+    private void generateTasks() throws IOException {
+        for (int i = 0; i < POOL_SIZE; i++) {
+            this.selectors.add(SelectorProvider.provider().openSelector());
+            PollTask pollTask = new PollTask(this.selectors.get(i));
+            this.pollTasks.add(pollTask);
+            this.executor.scheduleAtFixedRate(pollTask, 1000L, 2, TimeUnit.MILLISECONDS);
+        }
+    }
 
-						// do read
-						if (key.isReadable()) {
-							handler.receive(udpChannel);
-							count++;
-						}
-						
-					} else if (attachment instanceof Channel) {
-						Channel channel = (Channel) attachment;
+    private void stopTasks() {
+        this.executor.shutdown();
+    }
 
-						// Perform an operation only if channel is open and key is valid
-						if(udpChannel.isOpen()) {
-							if(key.isValid()) {
-								channel.receive();
-								count++;
-								
-								if(channel.hasPendingData()) {
-									channel.send();
-									count++;
-								}
-							}
-						} else {
-							// Close data channel if datagram channel is closed
-							channel.close();
-						}
-					}
-				}
-				localSelector.selectedKeys().clear();
-			} catch (IOException e) {
-				logger.error(e);
-				return 0;
-			} finally {
-				scheduler.submit(this, Scheduler.UDP_MANAGER_QUEUE);
-			}
+    private void closeSelectors() {
+        for (int i = 0; i < this.selectors.size(); i++) {
+            Selector selector = this.selectors.get(i);
+            if (selector != null && selector.isOpen()) {
+                try {
+                    selector.close();
+                } catch (Exception e) {
+                    logger.error("Could not close selector " + i, e);
+                }
+            }
+        }
+    }
 
-			return 0;
-		}
-		
-		/**
-		 * Immediately start current task
-		 */
-		public void startNow() {
-			scheduler.submit(this, Scheduler.UDP_MANAGER_QUEUE);
-		}
-	}
+    private void cleanResources() {
+        this.pollTasks.clear();
+        this.selectors.clear();
+    }
+
+    /**
+     * Starts polling the network.
+     */
+    public void start() {
+        synchronized (LOCK) {
+            if (!this.active) {
+                this.active = true;
+                logger.info("Starting UDP Manager");
+                try {
+                    generateTasks();
+                    logger.info("Initialized UDP interface[" + inet + "]: bind address=" + bindAddress);
+                } catch (IOException e) {
+                    logger.error("An error occurred while initializing the polling tasks", e);
+                    stop();
+                }
+            }
+        }
+    }
+
+    /**
+     * Stops polling the network.
+     */
+    public void stop() {
+        synchronized (LOCK) {
+            if (this.active) {
+                this.active = false;
+                logger.info("Stopping UDP Manager");
+                stopTasks();
+                closeSelectors();
+                cleanResources();
+                logger.info("UDP Manager has stopped");
+            }
+        }
+    }
+
+    /**
+     * Runnable task for polling UDP channels
+     */
+    private class PollTask implements Runnable {
+
+        private final Selector localSelector;
+
+        public PollTask(Selector selector) {
+            this.localSelector = selector;
+        }
+
+        @Override
+        public void run() {
+            if (active) {
+                // select channels ready for IO and ignore error
+                try {
+                    localSelector.selectNow();
+                    Iterator<SelectionKey> it = localSelector.selectedKeys().iterator();
+                    while (it.hasNext() && active) {
+                        SelectionKey key = it.next();
+                        it.remove();
+
+                        // get references to channel and associated RTP socket
+                        DatagramChannel udpChannel = (DatagramChannel) key.channel();
+                        Object attachment = key.attachment();
+
+                        if (attachment == null) {
+                            continue;
+                        }
+                        if (attachment instanceof ProtocolHandler) {
+                            ProtocolHandler handler = (ProtocolHandler) key.attachment();
+
+                            if (!udpChannel.isOpen()) {
+                                handler.onClosed();
+                                continue;
+                            }
+
+                            // do read
+                            if (key.isReadable()) {
+                                handler.receive(udpChannel);
+                            }
+
+                        } else if (attachment instanceof Channel) {
+                            Channel channel = (Channel) attachment;
+
+                            // Perform an operation only if channel is open and key is valid
+                            if (udpChannel.isOpen()) {
+                                if (key.isValid()) {
+                                    channel.receive();
+
+                                    if (channel.hasPendingData()) {
+                                        channel.send();
+                                    }
+                                }
+                            } else {
+                                // Close data channel if datagram channel is closed
+                                channel.close();
+                            }
+                        }
+                    }
+                    localSelector.selectedKeys().clear();
+                } catch (IOException e) {
+                    logger.error("Error while reading from channel", e);
+                }
+            }
+        }
+    }
+
 }
