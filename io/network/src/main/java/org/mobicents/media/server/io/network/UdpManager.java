@@ -421,7 +421,7 @@ public class UdpManager {
             this.selectors.add(SelectorProvider.provider().openSelector());
             PollTask pollTask = new PollTask(this.selectors.get(i));
             this.pollTasks.add(pollTask);
-            this.executor.scheduleAtFixedRate(pollTask, 1000L, 2, TimeUnit.MILLISECONDS);
+            this.executor.scheduleAtFixedRate(pollTask, 0L, 2L, TimeUnit.MILLISECONDS);
         }
     }
 
