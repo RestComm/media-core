@@ -107,7 +107,7 @@ public class RtpChannelTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(scheduler);
         udpManager.start();
         
         channelsManager = new ChannelsManager(udpManager);

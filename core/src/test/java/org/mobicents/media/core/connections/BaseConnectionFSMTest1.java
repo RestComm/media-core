@@ -27,16 +27,15 @@
 
 package org.mobicents.media.core.connections;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
+import static org.junit.Assert.*;
+import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -55,20 +54,20 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  */
 public class BaseConnectionFSMTest1 {
 
-    // clock and scheduler
+    //clock and scheduler
     private Clock clock;
     private Scheduler scheduler;
 
-    // endpoint and connection
+    //endpoint and connection
     private BaseConnection connection;
     private MyTestEndpoint endpoint;
     private ResourcesPool resourcesPool;
-
-    // RTP
+    
+    //RTP
     private ChannelsManager channelsManager;
 
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-
+        
     public BaseConnectionFSMTest1() {
     }
 
@@ -84,26 +83,26 @@ public class BaseConnectionFSMTest1 {
     public void setUp() throws ResourceUnavailableException, IOException, TooManyConnectionsException {
         ConnectionState.OPEN.setTimeout(5);
 
-        // use default clock
+        //use default clock
         clock = new DefaultClock();
-
-        // create single thread scheduler
+        
+        //create single thread scheduler 
         scheduler = new Scheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager());
+        channelsManager = new ChannelsManager(new UdpManager(scheduler));
         channelsManager.setScheduler(scheduler);
 
-        resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
-
-        // assign scheduler to the endpoint
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
+        
+        //assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test");
         endpoint.setScheduler(scheduler);
         endpoint.setResourcesPool(resourcesPool);
         endpoint.start();
 
-        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL, false);
+        connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);
 
     }
 
@@ -177,6 +176,7 @@ public class BaseConnectionFSMTest1 {
         Thread.sleep(1000);
         assertEquals(ConnectionState.NULL, connection.getState());
     }
+
 
     @Test
     public void test_OPEN_Close() throws Exception {

@@ -28,17 +28,19 @@
 package org.mobicents.media.server.test;
 
 import java.io.IOException;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
+import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -105,7 +107,7 @@ public class RelayTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(scheduler);
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 

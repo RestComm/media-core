@@ -56,7 +56,7 @@ public class ActionSelectorTest {
         scheduler.setClock(clock);
         scheduler.start();
         
-        udpInterface = new UdpManager();
+        udpInterface = new UdpManager(scheduler);
         udpInterface.setBindAddress("localhost");
         udpInterface.start();
         

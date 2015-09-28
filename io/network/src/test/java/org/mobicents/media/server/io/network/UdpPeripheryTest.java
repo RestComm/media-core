@@ -27,18 +27,17 @@
 
 package org.mobicents.media.server.io.network;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
+import org.mobicents.media.server.scheduler.Scheduler;
 import java.net.InetSocketAddress;
+import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -61,7 +60,8 @@ public class UdpPeripheryTest {
 
     @Before
     public void setUp() throws IOException {
-        udpPeriphery = new UdpManager();
+    	Scheduler scheduler=new Scheduler();
+        udpPeriphery = new UdpManager(scheduler);
     }
 
     @After
