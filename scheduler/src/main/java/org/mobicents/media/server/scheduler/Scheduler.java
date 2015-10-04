@@ -94,16 +94,16 @@ public class Scheduler  {
     	for(int i=0;i<heartBeatQueue.length;i++)
     		heartBeatQueue[i]=new OrderedTaskQueue();
     	
-    	coreThread = new CoreThread(String.format("Scheduler"));  
-    	criticalThread = new CriticalThread(String.format("Scheduler"));
+    	coreThread = new CoreThread("scheduler-core");  
+    	criticalThread = new CriticalThread("scheduler-critical");
     	
         workerThreads=new WorkerThread[Runtime.getRuntime().availableProcessors()*2];
         criticalWorkerThreads=new CriticalWorkerThread[Runtime.getRuntime().availableProcessors()*2];
         for(int i=0;i<workerThreads.length;i++)
-        	workerThreads[i]=new WorkerThread();
+            workerThreads[i] = new WorkerThread("scheduler-worker-" + i);
         
         for(int i=0;i<criticalWorkerThreads.length;i++)
-        	criticalWorkerThreads[i]=new CriticalWorkerThread();
+            criticalWorkerThreads[i] = new CriticalWorkerThread("scheduler-critical-worker-" + i);
     }    
 
     public int getPoolSize()
@@ -402,6 +402,10 @@ public class Scheduler  {
     	private volatile boolean active;
     	private Task current;
     	
+    	public WorkerThread(String name) {
+    	    super(name);
+        }
+    	
     	public void run() {
     		while(active)
     		{
@@ -436,8 +440,13 @@ public class Scheduler  {
     }
     
     private class CriticalWorkerThread extends Thread {
+        
     	private volatile boolean active;
         private Task current;
+        
+        public CriticalWorkerThread(String name) {
+            super(name);
+        }
         
     	public void run() {
     		while(active)

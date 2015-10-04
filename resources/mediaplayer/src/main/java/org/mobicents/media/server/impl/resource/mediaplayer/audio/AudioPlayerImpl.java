@@ -83,7 +83,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
      * @param vc  the TTS voice cache. 
      */
     public AudioPlayerImpl(String name, Scheduler scheduler) {
-        super(name, scheduler,scheduler.INPUT_QUEUE);
+        super(name, scheduler,Scheduler.INPUT_QUEUE);
         
         this.input=new AudioInput(ComponentType.PLAYER.getType(),packetSize);
         this.connect(this.input);        
@@ -213,6 +213,12 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
     @Override
     public Frame evolve(long timestamp) {
         try {
+            // Null check is necessary when a DTMF detector stops the announcement earlier causing the player
+            // to stop and the track to null
+            if (track == null) {
+                return null;
+            }
+            
             Frame frame = track.process(timestamp);
             if(frame==null)
             	return null;
