@@ -25,29 +25,27 @@ package org.mobicents.media.server.impl.resource.mediaplayer.audio;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioInput;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.resource.mediaplayer.Track;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.gsm.GsmTrackImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.mpeg.AMRTrackImpl;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.TtsTrackImpl;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.VoicesCache;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.wav.WavTrackImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.tone.ToneTrackImpl;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.tts.TtsTrackImpl;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.wav.WavTrackImpl;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.dsp.Processor;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.player.Player;
-import org.mobicents.media.server.spi.player.PlayerListener;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.player.Player;
+import org.mobicents.media.server.spi.player.PlayerListener;
 import org.mobicents.media.server.spi.resource.TTSEngine;
 
 /**
@@ -55,6 +53,8 @@ import org.mobicents.media.server.spi.resource.TTSEngine;
  * @author yulian oifa
  */
 public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine {
+
+    private static final long serialVersionUID = 8321615909592642344L;
 
     //define natively supported formats
     private final static AudioFormat LINEAR = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
@@ -248,7 +248,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         		}                	
         	}  
         	
-        	if (frame.isEOM()) {
+        	if (frame.isEOM() && track != null) {
             	track.close();                
             }
             return frame;
@@ -258,7 +258,9 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         	else        		
         		logger.error("(" + getEndpoint().getLocalName() + ")",e);
         	
-            track.close();            
+            if (track != null) {
+                track.close();
+            }
         }
         return null;
     }
