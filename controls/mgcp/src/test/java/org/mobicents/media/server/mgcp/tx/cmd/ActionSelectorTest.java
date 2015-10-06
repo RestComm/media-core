@@ -18,7 +18,7 @@ import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.tx.Action;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.utils.Text;
 
@@ -28,7 +28,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class ActionSelectorTest {
     
-    private DefaultClock clock;
+    private WallClock clock;
     private PriorityQueueScheduler scheduler;
     
     private ActionSelector selector;
@@ -50,7 +50,7 @@ public class ActionSelectorTest {
     
     @Before
     public void setUp() throws IOException {
-        clock = new DefaultClock();
+        clock = new WallClock();
         
         scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);

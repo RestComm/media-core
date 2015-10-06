@@ -33,7 +33,7 @@ import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
@@ -54,7 +54,7 @@ public class MediaChannelTest {
 	private final AudioChannel remoteChannel;
 	
 	public MediaChannelTest() throws IOException {
-		this.wallClock = new DefaultClock();
+		this.wallClock = new WallClock();
 		this.scheduler = new PriorityQueueScheduler();
 		this.scheduler.setClock(this.wallClock);
 		this.udpManager = new UdpManager();

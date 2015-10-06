@@ -25,44 +25,33 @@ package org.mobicents.media.server.scheduler;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Clock implementation wich uses the default OS clock.
+ * Clock implementation which uses the default OS clock.
  * 
  * @author kulikov
  */
-public class DefaultClock implements Clock {
+public class WallClock implements Clock {
 
     /**
      * The default time unit: nanoseconds.
      */
     private TimeUnit timeUnit = TimeUnit.NANOSECONDS;
 
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.scheduler.Clock.getTime().
-     */
+    @Override
     public long getTime() {
         return System.nanoTime();
     }
-    
-	public long getCurrentTime() {
-		return System.currentTimeMillis();
-	}
 
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.scheduler.Clock.getTimeUnit().
-     */
+    @Override
+    public long getCurrentTime() {
+        return System.currentTimeMillis();
+    }
+
+    @Override
     public TimeUnit getTimeUnit() {
         return timeUnit;
     }
 
-    /**
-     * (Non Java-doc.)
-     *
-     * @see org.mobicents.media.server.scheduler.Clock.getTime().
-     */
+    @Override
     public long getTime(TimeUnit timeUnit) {
         return timeUnit.convert(System.nanoTime(), this.timeUnit);
     }

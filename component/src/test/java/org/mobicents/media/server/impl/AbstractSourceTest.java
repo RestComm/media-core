@@ -14,7 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -58,7 +58,7 @@ public class AbstractSourceTest {
     
     @Before
     public void setUp() {
-        clock = new DefaultClock();
+        clock = new WallClock();
 
         scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);

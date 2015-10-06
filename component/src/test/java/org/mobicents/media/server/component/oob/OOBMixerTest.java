@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
@@ -74,7 +74,7 @@ public class OOBMixerTest {
 
     @Before
     public void setUp() throws IOException {
-        clock = new DefaultClock();
+        clock = new WallClock();
 
         scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);

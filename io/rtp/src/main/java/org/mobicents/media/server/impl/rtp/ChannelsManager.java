@@ -33,7 +33,7 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
@@ -49,7 +49,7 @@ public class ChannelsManager {
 	//ss7 manager
 	private SS7Manager ss7Manager;
 	
-    private Clock clock = new DefaultClock();
+    private Clock clock = new WallClock();
 
     private boolean isControlEnabled=false;
 

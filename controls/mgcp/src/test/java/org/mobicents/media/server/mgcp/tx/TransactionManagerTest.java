@@ -25,7 +25,7 @@ import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.scheduler.Task;
 import java.util.Random;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  */
 public class TransactionManagerTest {
     
-    private DefaultClock clock;
+    private WallClock clock;
     private PriorityQueueScheduler scheduler;
     
     private TransactionManager txManager;
@@ -59,7 +59,7 @@ public class TransactionManagerTest {
     
     @Before
     public void setUp() {
-        clock = new DefaultClock();
+        clock = new WallClock();
         
         scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);

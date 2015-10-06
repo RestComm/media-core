@@ -34,7 +34,7 @@ import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 
 /**
  *
@@ -59,7 +59,7 @@ public class MediaPlayerImplTest {
     @Before
     public void setUp() throws Exception {    	
     	scheduler = new PriorityQueueScheduler();
-    	scheduler.setClock(new DefaultClock());
+    	scheduler.setClock(new WallClock());
         scheduler.start();
         
         audioPlayer = new AudioPlayerImpl("test", scheduler);

@@ -38,7 +38,7 @@ import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 
@@ -71,7 +71,7 @@ public class LocalChannelTest {
     @Before
     public void setUp() throws Exception {
     	//use default clock
-        clock = new DefaultClock();
+        clock = new WallClock();
 
         //create single thread scheduler
         scheduler = new PriorityQueueScheduler();

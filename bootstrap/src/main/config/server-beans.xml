@@ -4,10 +4,10 @@
 	xmlns="urn:jboss:bean-deployer:2.0">
 
     <!-- System clock -->
-    <bean name="SystemClock" class="org.mobicents.media.server.scheduler.DefaultClock"/>
+    <bean name="SystemClock" class="org.mobicents.media.server.scheduler.WallClock"/>
 
     <!-- EDF scheduler -->
-    <bean name="Scheduler" class="org.mobicents.media.server.scheduler.Scheduler">
+    <bean name="Scheduler" class="org.mobicents.media.server.scheduler.PriorityQueueScheduler">
         <property name="clock"><inject bean="SystemClock"/></property>        
     </bean>    
     

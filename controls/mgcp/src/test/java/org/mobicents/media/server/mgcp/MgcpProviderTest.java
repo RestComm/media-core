@@ -27,7 +27,7 @@
 package org.mobicents.media.server.mgcp;
 
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.Clock;
 import java.net.InetSocketAddress;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
  */
 public class MgcpProviderTest {
     
-    private Clock clock = new DefaultClock();
+    private Clock clock = new WallClock();
     
     private PriorityQueueScheduler scheduler;
     private UdpManager udpInterface;

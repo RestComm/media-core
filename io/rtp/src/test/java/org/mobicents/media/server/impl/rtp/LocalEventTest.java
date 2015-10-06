@@ -42,7 +42,7 @@ import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
@@ -83,7 +83,7 @@ public class LocalEventTest implements DtmfDetectorListener {
     @Before
     public void setUp() throws Exception {
     	//use default clock
-        clock = new DefaultClock();
+        clock = new WallClock();
 
         //create single thread scheduler
         scheduler = new PriorityQueueScheduler();

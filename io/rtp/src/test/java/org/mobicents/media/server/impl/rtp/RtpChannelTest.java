@@ -37,7 +37,7 @@ import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -96,7 +96,7 @@ public class RtpChannelTest {
         dsp22 = dspFactory.newProcessor();
         
         //use default clock
-        clock = new DefaultClock();
+        clock = new WallClock();
         rtpClock1 = new RtpClock(clock);
         rtpClock2 = new RtpClock(clock);
         oobClock1 = new RtpClock(clock);
