@@ -38,7 +38,7 @@ import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImp
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
@@ -52,7 +52,7 @@ public class ResourcesPool implements ComponentFactory {
 	private static final Logger logger = Logger.getLogger(ResourcesPool.class);
 
 	// Core components
-	private final Scheduler scheduler;
+	private final PriorityQueueScheduler scheduler;
 	private final ChannelsManager channelsManager;
 	private final DspFactory dspFactory;
 
@@ -92,7 +92,7 @@ public class ResourcesPool implements ComponentFactory {
 	private AtomicInteger localConnectionsCount;
 	private AtomicInteger rtpConnectionsCount;
 
-	public ResourcesPool(Scheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory) {
+	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory) {
 		this.scheduler = scheduler;
 		this.channelsManager = channelsManager;
 		this.dspFactory = dspFactory;

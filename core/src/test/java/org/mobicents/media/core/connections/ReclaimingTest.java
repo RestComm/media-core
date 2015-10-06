@@ -41,7 +41,7 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -55,7 +55,7 @@ public class ReclaimingTest {
 
     //clock and scheduler
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     //endpoint and connection
     private MyTestEndpoint endpoint1;
@@ -81,7 +81,7 @@ public class ReclaimingTest {
         clock = new DefaultClock();
 
         //create single thread scheduler
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 

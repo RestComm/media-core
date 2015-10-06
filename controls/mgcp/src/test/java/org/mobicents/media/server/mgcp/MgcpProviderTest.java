@@ -35,7 +35,7 @@ import org.mobicents.media.server.utils.Text;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import java.io.IOException;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class MgcpProviderTest {
     
     private Clock clock = new DefaultClock();
     
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     private UdpManager udpInterface;
 
     private MgcpProvider provider1, provider2, provider3, provider4;
@@ -75,7 +75,7 @@ public class MgcpProviderTest {
     
     @Before
     public void setUp() throws IOException, TooManyListenersException {
-    	scheduler = new Scheduler();
+    	scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
         

@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
 
@@ -44,7 +44,7 @@ public class MediaPlayerImplTest {
 	//
     private AudioPlayerImpl audioPlayer;
     
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     public MediaPlayerImplTest() {
     }
 
@@ -58,7 +58,7 @@ public class MediaPlayerImplTest {
 
     @Before
     public void setUp() throws Exception {    	
-    	scheduler = new Scheduler();
+    	scheduler = new PriorityQueueScheduler();
     	scheduler.setClock(new DefaultClock());
         scheduler.start();
         

@@ -37,7 +37,7 @@ import org.mobicents.media.MediaSource;
 import org.mobicents.media.hardware.dahdi.Channel;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.dtmf.DtmfTonesData;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
@@ -81,7 +81,7 @@ public class SS7Output extends AbstractSink {
     //signaling processor
     private Processor dsp;                               
         
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     //The underlying buffer size for both audio and oob
     private static final int QUEUE_SIZE = 5;
@@ -102,7 +102,7 @@ public class SS7Output extends AbstractSink {
     /**
      * Creates new transmitter
      */
-    protected SS7Output(Scheduler scheduler,Channel channel,AudioFormat destinationFormat) {
+    protected SS7Output(PriorityQueueScheduler scheduler,Channel channel,AudioFormat destinationFormat) {
         super("Output");
         this.channel=channel;        
         this.destinationFormat=destinationFormat;

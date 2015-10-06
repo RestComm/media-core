@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  *
  * @author Oifa Yulian
  */
-public class Scheduler  {
+public class PriorityQueueScheduler  {
 	//SS7 QUEUES
 	public static final Integer RECEIVER_QUEUE=0;
 	public static final Integer SENDER_QUEUE=1;
@@ -77,7 +77,7 @@ public class Scheduler  {
     //flag indicating state of the scheduler
     private boolean isActive;
 
-    private Logger logger = Logger.getLogger(Scheduler.class) ;
+    private Logger logger = Logger.getLogger(PriorityQueueScheduler.class) ;
     
     private ConcurrentCyclicFIFO<Task> waitingTasks=new ConcurrentCyclicFIFO<Task>();
     private ConcurrentCyclicFIFO<Task> criticalTasks=new ConcurrentCyclicFIFO<Task>();
@@ -87,7 +87,7 @@ public class Scheduler  {
     /**
      * Creates new instance of scheduler.
      */
-    public Scheduler() {
+    public PriorityQueueScheduler() {
     	for(int i=0;i<taskQueues.length;i++)
     		taskQueues[i]=new OrderedTaskQueue();
     	

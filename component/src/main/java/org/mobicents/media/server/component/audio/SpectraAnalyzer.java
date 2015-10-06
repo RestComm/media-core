@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
@@ -61,7 +61,7 @@ public class SpectraAnalyzer extends AbstractSink {
 
     private AudioOutput output;
     
-    public SpectraAnalyzer(String name,Scheduler scheduler) {
+    public SpectraAnalyzer(String name,PriorityQueueScheduler scheduler) {
         super(name);
         output=new AudioOutput(scheduler,ComponentType.SPECTRA_ANALYZER.getType());
         output.join(this);

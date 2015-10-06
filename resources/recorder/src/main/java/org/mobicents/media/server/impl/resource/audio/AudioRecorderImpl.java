@@ -35,7 +35,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.dtmf.DtmfTonesData;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -92,7 +92,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     
     private long lastPacketData=0,startTime=0;
     
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     //maximum recrding time. -1 means until stopped.
     private long maxRecordTime = -1;
@@ -119,7 +119,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     
     private static final Logger logger = Logger.getLogger(AudioRecorderImpl.class);
     
-    public AudioRecorderImpl(Scheduler scheduler) {
+    public AudioRecorderImpl(PriorityQueueScheduler scheduler) {
         super("recorder");
         this.scheduler = scheduler;
         

@@ -28,7 +28,7 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.Connection;
@@ -49,7 +49,7 @@ public class MyTestConnection extends BaseConnection {
 
     private AudioComponent audioComponent;
     private OOBComponent oobComponent;
-    public MyTestConnection(int id,Scheduler scheduler) throws Exception {
+    public MyTestConnection(int id,PriorityQueueScheduler scheduler) throws Exception {
         super(id, scheduler);
         audioComponent=new AudioComponent(-1);
         oobComponent=new OOBComponent(-1);

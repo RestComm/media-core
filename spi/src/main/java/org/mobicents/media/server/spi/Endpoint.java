@@ -24,7 +24,7 @@ package org.mobicents.media.server.spi;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
  * The basic implementation of the endpoint.
@@ -113,12 +113,12 @@ public interface Endpoint {
     /**
      * Gets the scheduler
      */
-    public Scheduler getScheduler();
+    public PriorityQueueScheduler getScheduler();
     
     /**
      * Sets the scheduler
      */
-    public void setScheduler(Scheduler scheduler);
+    public void setScheduler(PriorityQueueScheduler scheduler);
     
     /**
      * Provides access to the specific resource of the endpoint.

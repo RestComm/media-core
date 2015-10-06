@@ -30,7 +30,7 @@ import org.mobicents.media.hardware.dahdi.Selector;
 import java.util.Iterator;
 import javolution.util.FastList;
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 
 /**
@@ -60,7 +60,7 @@ public class SS7Manager {
     private final static Logger logger = Logger.getLogger(SS7Manager.class);
     private final Object LOCK = new Object();
     
-    protected Scheduler scheduler;
+    protected PriorityQueueScheduler scheduler;
     /**
      * Creates UDP periphery.
      * 
@@ -68,7 +68,7 @@ public class SS7Manager {
      * @scheduler the job scheduler instance.
      * @throws IOException
      */
-    public SS7Manager(Scheduler scheduler) throws IOException {
+    public SS7Manager(PriorityQueueScheduler scheduler) throws IOException {
     	this.scheduler=scheduler;
         this.selector = new Selector();
         pollTask = new PollTask();

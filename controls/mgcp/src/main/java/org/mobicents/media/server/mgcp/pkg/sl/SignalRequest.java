@@ -37,7 +37,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 
 /**
@@ -59,7 +59,7 @@ public class SignalRequest extends Signal implements DtmfGeneratorListener
         private Semaphore terminateSemaphore=new Semaphore(1);
         private Heartbeat heartbeat;
         
-        private Scheduler scheduler;
+        private PriorityQueueScheduler scheduler;
         
         public SignalRequest(final String name) 
         {
@@ -183,7 +183,7 @@ public class SignalRequest extends Signal implements DtmfGeneratorListener
             
             public int getQueueNumber()
             {
-                    return Scheduler.HEARTBEAT_QUEUE;
+                    return PriorityQueueScheduler.HEARTBEAT_QUEUE;
             }     
             
             public void disable()

@@ -33,7 +33,7 @@ import org.mobicents.media.hardware.dahdi.Channel;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.io.ss7.ProtocolHandler;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -79,7 +79,7 @@ public class SS7Input extends AbstractSource {
     /**
      * Creates new receiver.
      */
-    protected SS7Input(Scheduler scheduler,Channel channel,AudioFormat sourceFormat) {
+    protected SS7Input(PriorityQueueScheduler scheduler,Channel channel,AudioFormat sourceFormat) {
         super("input", scheduler,scheduler.INPUT_QUEUE);               
         this.channel=channel;
         this.sourceFormat=sourceFormat;

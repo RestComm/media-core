@@ -38,7 +38,7 @@ import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -53,7 +53,7 @@ import org.mobicents.media.server.spi.format.Formats;
 public class RtpChannelTest {
 	
     //clock and scheduler
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
     private Clock clock;
 
     private ChannelsManager channelsManager;
@@ -103,7 +103,7 @@ public class RtpChannelTest {
         oobClock2 = new RtpClock(clock);
 
         //create single thread scheduler
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 

@@ -19,7 +19,7 @@ import org.mobicents.media.server.component.oob.OOBMixer;
 
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
@@ -31,7 +31,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 public class DtmfTest implements DtmfDetectorListener {
     
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     private DetectorImpl detector;
     private GeneratorImpl generator;
@@ -61,7 +61,7 @@ public class DtmfTest implements DtmfDetectorListener {
     public void setUp() throws TooManyListenersException {
     	clock = new DefaultClock();
 
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
         

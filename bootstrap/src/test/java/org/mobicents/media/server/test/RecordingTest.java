@@ -42,7 +42,7 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -59,7 +59,7 @@ public class RecordingTest {
 
     //clock and scheduler
     protected Clock clock;
-    protected Scheduler scheduler;
+    protected PriorityQueueScheduler scheduler;
 
     protected ChannelsManager channelsManager;
 
@@ -97,7 +97,7 @@ public class RecordingTest {
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
         
         //create single thread scheduler
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 

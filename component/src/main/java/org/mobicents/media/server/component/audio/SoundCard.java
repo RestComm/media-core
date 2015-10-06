@@ -31,7 +31,7 @@ import javax.sound.sampled.SourceDataLine;
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
@@ -61,7 +61,7 @@ public class SoundCard extends AbstractSink {
     
     private static final Logger logger = Logger.getLogger(SoundCard.class);
     
-    public SoundCard(Scheduler scheduler) {
+    public SoundCard(PriorityQueueScheduler scheduler) {
         super("soundcard");
         output=new AudioOutput(scheduler,ComponentType.SOUND_CARD.getType());
         output.join(this);

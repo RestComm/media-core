@@ -43,7 +43,7 @@ import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
@@ -58,7 +58,7 @@ public class LocalEventTest implements DtmfDetectorListener {
 
     //clock and scheduler
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     private UdpManager udpManager;
 
@@ -86,7 +86,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         clock = new DefaultClock();
 
         //create single thread scheduler
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 
@@ -184,7 +184,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         };
         
         public Sender() throws SocketException {
-        	super("oob generator", scheduler, Scheduler.INPUT_QUEUE);            
+        	super("oob generator", scheduler, PriorityQueueScheduler.INPUT_QUEUE);            
         	
         	index=0;
         	this.oobInput=new OOBInput(ComponentType.DTMF_GENERATOR.getType());

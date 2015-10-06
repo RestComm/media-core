@@ -32,7 +32,7 @@ import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.mgcp.tx.Action;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.utils.Text;
@@ -69,7 +69,7 @@ public class EndpointConfigurationCmd extends Action {
     
     private final static Logger logger = Logger.getLogger(EndpointConfigurationCmd.class);    
     
-    public EndpointConfigurationCmd(Scheduler scheduler) {
+    public EndpointConfigurationCmd(PriorityQueueScheduler scheduler) {
         handler = new TaskChain(2,scheduler);
         
         Configurator configurator = new Configurator();
@@ -93,7 +93,7 @@ public class EndpointConfigurationCmd extends Action {
         @Override
         public int getQueueNumber()
         {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -145,7 +145,7 @@ public class EndpointConfigurationCmd extends Action {
         @Override
         public int getQueueNumber()
         {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -177,7 +177,7 @@ public class EndpointConfigurationCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override

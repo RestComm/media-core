@@ -30,7 +30,7 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 
 /**
@@ -54,7 +54,7 @@ public class TransactionManager {
     private ConcurrentMap<Transaction> active;
     
     //scheduler instance
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     //access to MGCP protocol provider
     protected MgcpProvider provider;
@@ -74,7 +74,7 @@ public class TransactionManager {
      * @param scheduler the job scheduler
      * @param size the size of the pool.
      */
-    public TransactionManager(Scheduler scheduler, int size) {
+    public TransactionManager(PriorityQueueScheduler scheduler, int size) {
         this.scheduler = scheduler;
         
         active = new ConcurrentMap<Transaction>();
@@ -107,7 +107,7 @@ public class TransactionManager {
      * 
      * @return job scheduler.
      */
-    public Scheduler scheduler() {
+    public PriorityQueueScheduler scheduler() {
         return scheduler;
     }
     
@@ -245,7 +245,7 @@ public class TransactionManager {
 
         @Override
         public int getQueueNumber() {
-            return Scheduler.HEARTBEAT_QUEUE;
+            return PriorityQueueScheduler.HEARTBEAT_QUEUE;
         }
     }
 }

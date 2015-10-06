@@ -38,7 +38,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
  *
@@ -47,7 +47,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 public class AudioMixerTest {
 
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     private Sine sine1;
     private Sine sine2;
@@ -76,7 +76,7 @@ public class AudioMixerTest {
     public void setUp() throws IOException {
         clock = new DefaultClock();
 
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 

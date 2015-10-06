@@ -25,7 +25,7 @@ package org.mobicents.media.server.impl;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.MediaSource;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -61,7 +61,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
     private long sn = 1;
 
     //scheduler instance
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     //media generator
     private final Worker worker;
@@ -82,7 +82,7 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      * @param name
      *            the name of the source to be created.
      */
-    public AbstractSource(String name, Scheduler scheduler,int queueNumber) {
+    public AbstractSource(String name, PriorityQueueScheduler scheduler,int queueNumber) {
         super(name);
         this.scheduler = scheduler;
         this.worker = new Worker(queueNumber);        

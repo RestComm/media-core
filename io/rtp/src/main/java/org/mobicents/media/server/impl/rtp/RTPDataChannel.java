@@ -37,7 +37,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
@@ -120,7 +120,7 @@ public class RTPDataChannel {
 	private long lastPacketReceived;
 
 	private RTPChannelListener rtpChannelListener;
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
 	private UdpManager udpManager;
 
 	private AudioComponent audioComponent;
@@ -807,7 +807,7 @@ public class RTPDataChannel {
 		}
 
 		public int getQueueNumber() {
-			return Scheduler.HEARTBEAT_QUEUE;
+			return PriorityQueueScheduler.HEARTBEAT_QUEUE;
 		}
 
 		@Override

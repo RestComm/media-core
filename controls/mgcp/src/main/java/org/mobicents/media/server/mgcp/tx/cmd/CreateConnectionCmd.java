@@ -35,7 +35,7 @@ import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.mgcp.params.LocalConnectionOptions;
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.mgcp.tx.Transaction;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -113,7 +113,7 @@ public class CreateConnectionCmd extends Action {
      * 
      * @param scheduler the job scheduler.
      */
-    public CreateConnectionCmd(Scheduler scheduler) {
+    public CreateConnectionCmd(PriorityQueueScheduler scheduler) {
 
         handler = new TaskChain(2,scheduler);
         
@@ -150,7 +150,7 @@ public class CreateConnectionCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -317,7 +317,7 @@ public class CreateConnectionCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -366,7 +366,7 @@ public class CreateConnectionCmd extends Action {
         
         public int getQueueNumber()
         {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override

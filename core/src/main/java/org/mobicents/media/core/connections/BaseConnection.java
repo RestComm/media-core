@@ -27,7 +27,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionEvent;
@@ -55,7 +55,7 @@ public abstract class BaseConnection implements Connection {
 	private String textualId;
 
 	// scheduler instance
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
 
 	/** FSM current state */
 	private volatile ConnectionState state = ConnectionState.NULL;
@@ -84,7 +84,7 @@ public abstract class BaseConnection implements Connection {
 	 * @param endpoint
 	 *            the endpoint owner of this connection.
 	 */
-	public BaseConnection(int id, Scheduler scheduler) {
+	public BaseConnection(int id, PriorityQueueScheduler scheduler) {
 		this.id = id;
 		this.textualId = Integer.toHexString(id);
 
@@ -366,7 +366,7 @@ public abstract class BaseConnection implements Connection {
 		}
 
 		public int getQueueNumber() {
-			return Scheduler.HEARTBEAT_QUEUE;
+			return PriorityQueueScheduler.HEARTBEAT_QUEUE;
 		}
 
 		@Override

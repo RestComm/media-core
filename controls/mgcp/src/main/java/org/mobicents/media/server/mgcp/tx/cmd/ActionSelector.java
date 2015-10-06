@@ -26,7 +26,7 @@ import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.mgcp.tx.Action;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -60,7 +60,7 @@ public class ActionSelector  {
      * 
      * @param scheduler 
      */
-    public ActionSelector(Scheduler scheduler) {
+    public ActionSelector(PriorityQueueScheduler scheduler) {
     	aucx = new AuditConnectionCmd(scheduler);
         crcx = new CreateConnectionCmd(scheduler);
         mdcx = new ModifyConnectionCmd(scheduler);
