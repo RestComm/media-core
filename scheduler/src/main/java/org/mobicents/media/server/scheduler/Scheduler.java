@@ -27,6 +27,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * A Scheduler allows users to submit tasks for executions.
+ * <p>
+ * Task executions can be scheduled to run immediately or given a certain delay or even at regular intervals.
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */

@@ -34,6 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Scheduler implementation that relies on a {@link ScheduledExecutorService} to manage the thread pool as well as the scheduled
  * tasks.
  * 
+ * The ServiceScheduler is a Singleton because its meant to be used as the core element of the Media Server, so it relies on a
+ * ServiceExecutor that will allocate a thread pool as big as the system allows (within recommended values).
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -54,10 +57,17 @@ public class ServiceScheduler implements Scheduler {
         }
     };
 
-    public ServiceScheduler(Clock clock) {
+    /** SINGLETON **/
+    private static final ServiceScheduler INSTANCE = new ServiceScheduler();
+
+    private ServiceScheduler() {
         this.started = false;
-        this.wallClock = clock;
+        this.wallClock = new WallClock();
         this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+    }
+
+    public static final ServiceScheduler getInstance() {
+        return INSTANCE;
     }
 
     @Override
