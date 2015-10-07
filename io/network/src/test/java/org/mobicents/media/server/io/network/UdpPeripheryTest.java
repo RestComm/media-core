@@ -33,30 +33,44 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 
 /**
  *
  * @author yulian oifa
  */
 public class UdpPeripheryTest {
+    
+    private static final Logger LOGGER = Logger.getLogger(UdpPeripheryTest.class);
 
     private UdpManager udpPeriphery;
+    private Scheduler scheduler = ServiceScheduler.getInstance(); 
 
     @Before
     public void setUp() throws IOException {
-        udpPeriphery = new UdpManager();
+        udpPeriphery = new UdpManager(scheduler);
+        scheduler.start();
         udpPeriphery.start();
     }
 
     @After
     public void tearDown() {
         udpPeriphery.stop();
+        scheduler.stop();
+        try {
+            scheduler.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOGGER.warn("Scheduler stopped because thread was interrupted.");
+        }
     }
 
     /**

@@ -42,11 +42,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ServiceScheduler implements Scheduler {
 
-    private static final int POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
+    public static final int POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
 
     private volatile boolean started;
     private final Clock wallClock;
-    private final ScheduledExecutorService executor;
+    private ScheduledExecutorService executor;
     private final ThreadFactory threadFactory = new ThreadFactory() {
 
         private AtomicInteger index = new AtomicInteger(0);
@@ -63,7 +63,6 @@ public class ServiceScheduler implements Scheduler {
     private ServiceScheduler() {
         this.started = false;
         this.wallClock = new WallClock();
-        this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
     }
 
     public static final ServiceScheduler getInstance() {
@@ -104,19 +103,12 @@ public class ServiceScheduler implements Scheduler {
     public void start() {
         if (!this.started) {
             this.started = true;
+            this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
         }
     }
 
     @Override
     public void stop() {
-        if (this.started) {
-            this.started = false;
-            this.executor.shutdown();
-        }
-    }
-
-    @Override
-    public void stopNow() {
         if (this.started) {
             this.started = false;
             this.executor.shutdownNow();

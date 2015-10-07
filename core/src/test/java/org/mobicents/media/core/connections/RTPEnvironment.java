@@ -22,12 +22,15 @@
 package org.mobicents.media.core.connections;
 
 import java.io.IOException;
+
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
+import org.mobicents.media.server.scheduler.WallClock;
 
 /**
  * Super class for all RTP transmission tests
@@ -37,7 +40,8 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 public class RTPEnvironment {
     //clock and scheduler
     protected Clock clock;
-    protected PriorityQueueScheduler scheduler;
+    protected PriorityQueueScheduler mediaScheduler;
+    protected final Scheduler scheduler = ServiceScheduler.getInstance();
 
     protected ChannelsManager channelsManager;
 
@@ -52,20 +56,22 @@ public class RTPEnvironment {
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
         
         //create single thread scheduler
-        scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+        mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(scheduler);
         udpManager.setBindAddress("127.0.0.1");
+        scheduler.start();
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager);
-        channelsManager.setScheduler(scheduler);
+        channelsManager.setScheduler(mediaScheduler);
     }
     
     public void tearDown() {        
         udpManager.stop();
         scheduler.stop();
+        mediaScheduler.stop();
     }
 }

@@ -37,6 +37,8 @@ import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -53,8 +55,9 @@ import org.mobicents.media.server.spi.format.Formats;
 public class RtpChannelTest {
 	
     //clock and scheduler
-	private PriorityQueueScheduler scheduler;
     private Clock clock;
+	private PriorityQueueScheduler mediaScheduler;
+	private final Scheduler scheduler;
 
     private ChannelsManager channelsManager;
     private UdpManager udpManager;
@@ -76,6 +79,10 @@ public class RtpChannelTest {
     
     private AudioMixer audioMixer1,audioMixer2;
     private AudioComponent component1,component2;
+    
+    public RtpChannelTest() {
+        scheduler = ServiceScheduler.getInstance();
+    }
     
     @Before
     public void setUp() throws Exception {
@@ -103,24 +110,25 @@ public class RtpChannelTest {
         oobClock2 = new RtpClock(clock);
 
         //create single thread scheduler
-        scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+        mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(scheduler);
+        scheduler.start();
         udpManager.start();
         
         channelsManager = new ChannelsManager(udpManager);
-        channelsManager.setScheduler(scheduler);
+        channelsManager.setScheduler(mediaScheduler);
 
-        source1 = new Sine(scheduler);
+        source1 = new Sine(mediaScheduler);
         source1.setFrequency(100);        
         
-        source2 = new Sine(scheduler);
+        source2 = new Sine(mediaScheduler);
         source2.setFrequency(50);
         
-        analyzer1 = new SpectraAnalyzer("analyzer",scheduler);        
-        analyzer2 = new SpectraAnalyzer("analyzer",scheduler);
+        analyzer1 = new SpectraAnalyzer("analyzer",mediaScheduler);        
+        analyzer2 = new SpectraAnalyzer("analyzer",mediaScheduler);
         
         this.statistics1 = new RtpStatistics(rtpClock1);
         this.statistics2 = new RtpStatistics(rtpClock2);
@@ -146,8 +154,8 @@ public class RtpChannelTest {
         channel1.setFormatMap(AVProfile.audio);
         channel2.setFormatMap(AVProfile.audio);
 
-        audioMixer1=new AudioMixer(scheduler);
-        audioMixer2=new AudioMixer(scheduler);
+        audioMixer1=new AudioMixer(mediaScheduler);
+        audioMixer2=new AudioMixer(mediaScheduler);
         
         component1=new AudioComponent(1);
         component1.addInput(source1.getAudioInput());
@@ -178,6 +186,7 @@ public class RtpChannelTest {
     	audioMixer2.stop();
     	
         udpManager.stop();
+        mediaScheduler.stop();
         scheduler.stop();
     }
 

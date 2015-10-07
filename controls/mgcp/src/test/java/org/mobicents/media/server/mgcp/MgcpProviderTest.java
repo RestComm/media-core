@@ -27,13 +27,19 @@
 package org.mobicents.media.server.mgcp;
 
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.Clock;
+
 import java.net.InetSocketAddress;
+
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
+
 import java.io.IOException;
+
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.junit.After;
@@ -42,6 +48,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.mgcp.message.Parameter;
+
 import static org.junit.Assert.*;
 
 /**
@@ -52,7 +59,8 @@ public class MgcpProviderTest {
     
     private Clock clock = new WallClock();
     
-    private PriorityQueueScheduler scheduler;
+    private PriorityQueueScheduler mediaScheduler;
+    private final Scheduler scheduler = ServiceScheduler.getInstance();
     private UdpManager udpInterface;
 
     private MgcpProvider provider1, provider2, provider3, provider4;
@@ -75,19 +83,20 @@ public class MgcpProviderTest {
     
     @Before
     public void setUp() throws IOException, TooManyListenersException {
-    	scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+    	mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
         
-        udpInterface = new UdpManager();
+        udpInterface = new UdpManager(scheduler);
         udpInterface.setLocalBindAddress("127.0.0.1");
         udpInterface.setBindAddress("127.0.0.1");
+        scheduler.start();
         udpInterface.start();
         
         destination = new InetSocketAddress("127.0.0.1", 1029);
         
-        provider1 = new MgcpProvider(udpInterface, 1027, scheduler);
-        provider2 = new MgcpProvider(udpInterface, 1029, scheduler);
+        provider1 = new MgcpProvider(udpInterface, 1027, mediaScheduler);
+        provider2 = new MgcpProvider(udpInterface, 1029, mediaScheduler);
         
         provider1.activate();
         provider2.activate();
@@ -105,6 +114,7 @@ public class MgcpProviderTest {
         
         udpInterface.stop();
         scheduler.stop();
+        mediaScheduler.stop();
     }
 
     /**
@@ -155,8 +165,8 @@ public class MgcpProviderTest {
     
     @Test
     public void testResponse() throws Exception {
-    	provider3 = new MgcpProvider(udpInterface, 1031, scheduler);
-        provider4 = new MgcpProvider(udpInterface, 1033, scheduler);
+    	provider3 = new MgcpProvider(udpInterface, 1031, mediaScheduler);
+        provider4 = new MgcpProvider(udpInterface, 1033, mediaScheduler);
         
         provider3.activate();
         provider4.activate();

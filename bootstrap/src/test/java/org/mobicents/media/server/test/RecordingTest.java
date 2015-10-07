@@ -41,6 +41,7 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -101,7 +102,7 @@ public class RecordingTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(ServiceScheduler.getInstance());
         udpManager.setBindAddress("127.0.0.1");
         udpManager.start();
 

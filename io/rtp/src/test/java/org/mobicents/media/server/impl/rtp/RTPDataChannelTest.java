@@ -33,7 +33,9 @@ import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.Dsp;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+
 import java.net.InetSocketAddress;
+
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
@@ -42,10 +44,13 @@ import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.spi.format.FormatFactory;
+
 import static org.junit.Assert.*;
 
 /**
@@ -57,7 +62,8 @@ public class RTPDataChannelTest {
 
     //clock and scheduler
     private Clock clock;
-    private PriorityQueueScheduler scheduler;
+    private PriorityQueueScheduler mediaScheduler;
+    private final Scheduler scheduler;
 
     private ChannelsManager channelsManager;
     private UdpManager udpManager;
@@ -78,6 +84,7 @@ public class RTPDataChannelTest {
     private AudioComponent component1,component2;
     
     public RTPDataChannelTest() {
+        scheduler = ServiceScheduler.getInstance();
     }
 
     @Before
@@ -102,24 +109,25 @@ public class RTPDataChannelTest {
         clock = new WallClock();
 
         //create single thread scheduler
-        scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+        mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(scheduler);
+        scheduler.start();
         udpManager.start();
         
         channelsManager = new ChannelsManager(udpManager);
-        channelsManager.setScheduler(scheduler);
+        channelsManager.setScheduler(mediaScheduler);
 
-        source1 = new Sine(scheduler);
+        source1 = new Sine(mediaScheduler);
         source1.setFrequency(100);        
         
-        source2 = new Sine(scheduler);
+        source2 = new Sine(mediaScheduler);
         source2.setFrequency(50);
         
-        analyzer1 = new SpectraAnalyzer("analyzer",scheduler);        
-        analyzer2 = new SpectraAnalyzer("analyzer",scheduler);
+        analyzer1 = new SpectraAnalyzer("analyzer",mediaScheduler);        
+        analyzer2 = new SpectraAnalyzer("analyzer",mediaScheduler);
         
         channel1 = channelsManager.getChannel();
         channel1.updateMode(ConnectionMode.SEND_RECV);
@@ -142,8 +150,8 @@ public class RTPDataChannelTest {
         channel1.setFormatMap(AVProfile.audio);
         channel2.setFormatMap(AVProfile.audio);
 
-        audioMixer1=new AudioMixer(scheduler);
-        audioMixer2=new AudioMixer(scheduler);
+        audioMixer1=new AudioMixer(mediaScheduler);
+        audioMixer2=new AudioMixer(mediaScheduler);
         
         component1=new AudioComponent(1);
         component1.addInput(source1.getAudioInput());
@@ -174,6 +182,7 @@ public class RTPDataChannelTest {
     	audioMixer2.stop();
     	
         udpManager.stop();
+        mediaScheduler.stop();
         scheduler.stop();
     }
 

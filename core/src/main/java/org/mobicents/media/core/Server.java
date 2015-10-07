@@ -25,6 +25,7 @@ package org.mobicents.media.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.endpoints.BaseEndpointImpl;
@@ -33,6 +34,7 @@ import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -229,6 +231,8 @@ public class Server implements MediaServer {
         	heartbeat=new HeartBeat();
         	heartbeat.restart();
         }
+        
+        ServiceScheduler.getInstance().start();
     }
 
     /**
@@ -244,6 +248,12 @@ public class Server implements MediaServer {
         
         logger.info("Stopping scheduler");
         scheduler.stop();
+        ServiceScheduler.getInstance().stop();
+        try {
+            ServiceScheduler.getInstance().awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.warn("Scheduler has shutdown because its thread was interrupted.");
+        }
         logger.info("Stopped media server instance ");                
     }
 
