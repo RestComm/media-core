@@ -69,7 +69,7 @@ public class LocalChannelTest {
     private AudioComponent component1,component2;
     
     public LocalChannelTest() {
-        scheduler = ServiceScheduler.getInstance();
+        scheduler = new ServiceScheduler();
     }
 
     @Before

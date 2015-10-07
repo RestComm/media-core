@@ -61,6 +61,7 @@ public class RecordingTest {
     //clock and scheduler
     protected Clock clock;
     protected PriorityQueueScheduler scheduler;
+    protected ServiceScheduler serviceScheduler = new ServiceScheduler();
 
     protected ChannelsManager channelsManager;
 
@@ -102,8 +103,9 @@ public class RecordingTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager(ServiceScheduler.getInstance());
+        udpManager = new UdpManager(serviceScheduler);
         udpManager.setBindAddress("127.0.0.1");
+        serviceScheduler.start();
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager);
@@ -135,6 +137,7 @@ public class RecordingTest {
 
     @After
     public void tearDown() {
+        serviceScheduler.stop();
     	controller.stop();
     	server.stop();    	       
         

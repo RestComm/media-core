@@ -102,7 +102,7 @@ public class LocalJoiningTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(ServiceScheduler.getInstance()));
+        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()));
         channelsManager.setScheduler(scheduler);
         
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);

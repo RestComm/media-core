@@ -81,7 +81,7 @@ public class LocalEventTest implements DtmfDetectorListener {
     private int count=0;
     
     public LocalEventTest() {
-        scheduler = ServiceScheduler.getInstance();
+        scheduler = new ServiceScheduler();
     }
 
     @Before

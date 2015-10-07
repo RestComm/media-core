@@ -84,7 +84,7 @@ public class RTPDataChannelTest {
     private AudioComponent component1,component2;
     
     public RTPDataChannelTest() {
-        scheduler = ServiceScheduler.getInstance();
+        scheduler = new ServiceScheduler();
     }
 
     @Before

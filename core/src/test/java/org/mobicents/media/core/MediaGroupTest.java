@@ -66,7 +66,7 @@ public class MediaGroupTest {
     // clock and scheduler
     private Clock clock;
     private PriorityQueueScheduler mediaScheduler;
-    private final Scheduler scheduler = ServiceScheduler.getInstance();
+    private final Scheduler scheduler = new ServiceScheduler();
 
     // RTP
     private ChannelsManager channelsManager;

@@ -35,7 +35,7 @@ public class ActionSelectorTest {
     
     private WallClock clock;
     private PriorityQueueScheduler mediaScheduler;
-    private final Scheduler scheduler = ServiceScheduler.getInstance();
+    private final Scheduler scheduler = new ServiceScheduler();
     
     private ActionSelector selector;
     private MgcpProvider mgcpProvider;

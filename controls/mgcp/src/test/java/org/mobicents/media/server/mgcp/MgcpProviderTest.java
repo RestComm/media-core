@@ -60,7 +60,7 @@ public class MgcpProviderTest {
     private Clock clock = new WallClock();
     
     private PriorityQueueScheduler mediaScheduler;
-    private final Scheduler scheduler = ServiceScheduler.getInstance();
+    private final Scheduler scheduler = new ServiceScheduler();
     private UdpManager udpInterface;
 
     private MgcpProvider provider1, provider2, provider3, provider4;

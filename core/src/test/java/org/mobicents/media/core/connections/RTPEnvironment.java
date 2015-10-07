@@ -41,7 +41,7 @@ public class RTPEnvironment {
     //clock and scheduler
     protected Clock clock;
     protected PriorityQueueScheduler mediaScheduler;
-    protected final Scheduler scheduler = ServiceScheduler.getInstance();
+    protected final Scheduler scheduler = new ServiceScheduler();
 
     protected ChannelsManager channelsManager;
 

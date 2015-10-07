@@ -63,6 +63,7 @@ public class RelayTest {
     //clock and scheduler
     protected Clock clock;
     protected PriorityQueueScheduler scheduler;
+    protected ServiceScheduler serviceScheduler = new ServiceScheduler();
 
     protected ChannelsManager channelsManager;
 
@@ -106,8 +107,9 @@ public class RelayTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager(ServiceScheduler.getInstance());
+        udpManager = new UdpManager(serviceScheduler);
         udpManager.setBindAddress("127.0.0.1");
+        serviceScheduler.start();
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager);
@@ -136,6 +138,7 @@ public class RelayTest {
     @After
     public void tearDown() {
         udpManager.stop();
+        serviceScheduler.stop();
         scheduler.stop();
         
         if (ivr != null) {

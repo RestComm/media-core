@@ -94,7 +94,7 @@ public class RTPEventTest implements DtmfDetectorListener {
     private int count=0;
     
     public RTPEventTest() {
-        scheduler = ServiceScheduler.getInstance();
+        scheduler = new ServiceScheduler();
     }
 
     @Before

@@ -37,9 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
@@ -53,7 +51,7 @@ public class UdpPeripheryTest {
     private static final Logger LOGGER = Logger.getLogger(UdpPeripheryTest.class);
 
     private UdpManager udpPeriphery;
-    private Scheduler scheduler = ServiceScheduler.getInstance(); 
+    private Scheduler scheduler = new ServiceScheduler(); 
 
     @Before
     public void setUp() throws IOException {

@@ -60,7 +60,7 @@ public class MediaChannelTest {
 		this.wallClock = new WallClock();
 		this.mediaScheduler = new PriorityQueueScheduler();
 		this.mediaScheduler.setClock(this.wallClock);
-		this.scheduler = ServiceScheduler.getInstance();
+		this.scheduler = new ServiceScheduler();
 		this.udpManager = new UdpManager(scheduler);
 		this.channelsManager = new ChannelsManager(udpManager);
 		this.channelsManager.setScheduler(this.mediaScheduler);
