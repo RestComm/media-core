@@ -80,7 +80,6 @@ public class MediaChannelTest {
 	@After
 	public void after() {
 		this.mediaScheduler.stop();
-		this.scheduler.stop();
 		this.udpManager.stop();
 		if(this.localChannel.isOpen()) {
 			this.localChannel.close();
@@ -88,6 +87,7 @@ public class MediaChannelTest {
 		if(this.remoteChannel.isOpen()) {
 			this.remoteChannel.close();
 		}
+		this.scheduler.stop();
 	}
 
 	@Test

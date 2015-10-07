@@ -80,7 +80,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		this.bound = false;
 
 		// Protocol Handler pipeline
-		this.rtcpHandler = new RtcpHandler(statistics);
+		this.rtcpHandler = new RtcpHandler(udpManager.getScheduler(), statistics);
 		
 		// WebRTC
 		this.secure = false;
