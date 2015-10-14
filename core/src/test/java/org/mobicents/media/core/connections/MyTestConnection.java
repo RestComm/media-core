@@ -65,7 +65,7 @@ public class MyTestConnection extends BaseConnection {
     	throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    public void generateOffer() throws IOException {
+    public void generateOffer(boolean webrtc) throws IOException {
     	throw new UnsupportedOperationException("Not supported yet.");
     }
 

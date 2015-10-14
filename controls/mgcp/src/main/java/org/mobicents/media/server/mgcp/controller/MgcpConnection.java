@@ -120,8 +120,8 @@ public class MgcpConnection implements ConnectionFailureListener {
 	 * 
 	 * @throws IOException
 	 */
-    public void generateLocalDescriptor() throws IOException {
-    	connection.generateOffer();
+    public void generateLocalDescriptor(boolean webrtc) throws IOException {
+    	connection.generateOffer(webrtc);
     }
 
     public void setOtherParty(Text sdp) throws IOException {

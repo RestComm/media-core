@@ -144,7 +144,7 @@ public class BridgeTest extends RTPEnvironment {
     	Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
     	Connection connection3 = endpoint3.createConnection(ConnectionType.RTP,false);
         
-    	connection1.generateOffer();
+    	connection1.generateOffer(false);
     	connection1.setMode(ConnectionMode.SEND_ONLY);
     	
         connection3.setOtherParty(new Text(connection1.getLocalDescriptor()));

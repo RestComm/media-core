@@ -240,11 +240,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		String externalAddress = this.channelsManager.getUdpManager()
 				.getExternalAddress();
 		if (this.audioChannel.isOpen()) {
-			this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress,
+			this.localSdp = SdpFactory.buildSdp(false, bindAddress, externalAddress,
 					this.audioChannel);
 		} else {
 			// In case remote peer did not offer audio channel
-			this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress);
+			this.localSdp = SdpFactory.buildSdp(false, bindAddress, externalAddress);
 		}
 
 		// Reject any channels other than audio
@@ -269,34 +269,36 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 	}
 
-	/**
-	 * Sets the remote peer based on the remote SDP description.
-	 * 
-	 * <p>
-	 * In this case, the connection belongs to an inbound call. So, the remote
-	 * SDP is the answer which implies that this connection already generated
-	 * the proper offer.
-	 * </p>
-	 * 
-	 * @throws IOException
-	 *             If an error occurs while setting up the remote peer
-	 */
-	private void setOtherPartyOutboundCall() throws IOException {
-		// Setup audio channel
-		MediaDescriptionField remoteAudio = this.remoteSdp
-				.getMediaDescription("audio");
-		if (remoteAudio != null) {
-			setupAudioChannelOutbound(remoteAudio);
-		}
+    /**
+     * Sets the remote peer based on the remote SDP description.
+     * 
+     * <p>
+     * In this case, the connection belongs to an inbound call. So, the remote SDP is the answer which implies that this
+     * connection already generated the proper offer.
+     * </p>
+     * 
+     * @throws IOException If an error occurs while setting up the remote peer
+     */
+    private void setOtherPartyOutboundCall() throws IOException {
+        // Setup audio channel
+        MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
+        if (remoteAudio != null) {
+            // Set remote DTLS fingerprint
+            if(this.audioChannel.isDtlsEnabled()) {
+                FingerprintAttribute fingerprint = remoteAudio.getFingerprint();
+                this.audioChannel.setRemoteFingerprint(fingerprint.getHashFunction(), fingerprint.getFingerprint());
+            }
+            setupAudioChannelOutbound(remoteAudio);
+        }
 
-		// Change the state of this RTP connection from HALF_OPEN to OPEN
-		try {
-			this.join();
-		} catch (Exception e) {
-			// exception is possible here when already joined
-			logger.warn("Could not set connection state to OPEN", e);
-		}
-	}
+        // Change the state of this RTP connection from HALF_OPEN to OPEN
+        try {
+            this.join();
+        } catch (Exception e) {
+            // exception is possible here when already joined
+            logger.warn("Could not set connection state to OPEN", e);
+        }
+    }
 
 	/**
 	 * Reads the remote SDP offer and sets up the available resources according
@@ -373,7 +375,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 */
 	private void setupAudioChannelOutbound(MediaDescriptionField remoteAudio)
 			throws IOException {
-		// Negotiate audio codecs
+	    // Negotiate audio codecs
 		this.audioChannel.negotiateFormats(remoteAudio);
 		if (!this.audioChannel.containsNegotiatedFormats()) {
 			throw new IOException("Audio codecs were not supported");
@@ -420,28 +422,36 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		return (this.localSdp == null) ? "" : this.localSdp.toString();
 	}
 
-	@Override
-	public void generateOffer() throws IOException {
-		// Only open and bind a new channel if not currently configured
-		if (!this.audioChannel.isOpen()) {
-			// call is outbound since the connection is generating the offer
-			this.outbound = true;
+    @Override
+    public void generateOffer(boolean webrtc) throws IOException {
+        // Only open and bind a new channel if not currently configured
+        if (!this.audioChannel.isOpen()) {
+            // call is outbound since the connection is generating the offer
+            this.outbound = true;
 
-			// setup audio channel
-			this.audioChannel.open();
-			this.audioChannel.bind(this.local, false);
+            // setup audio channel
+            this.audioChannel.open();
+            if (webrtc) {
+                try {
+                    this.audioChannel.enableDTLS();
+                    this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), true);
+                    this.audioChannel.gatherIceCandidates(this.channelsManager.getPortManager());
+                    this.audioChannel.startIceAgent();
+                } catch (HarvestException | IllegalStateException e) {
+                    throw new IOException("Cannot harvest ICE candidates", e);
+                }
+            } else {
+                this.audioChannel.bind(this.local, false);
+            }
 
-			// generate SDP offer based on audio channel
-			String bindAddress = this.local ? this.channelsManager
-					.getLocalBindAddress() : this.channelsManager
-					.getBindAddress();
-			String externalAddress = this.channelsManager.getUdpManager()
-					.getExternalAddress();
-			this.localSdp = SdpFactory.buildSdp(bindAddress, externalAddress,
-					this.audioChannel);
-			this.remoteSdp = null;
-		}
-	}
+            // generate SDP offer based on audio channel
+            String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager
+                    .getBindAddress();
+            String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
+            this.localSdp = SdpFactory.buildSdp(true, bindAddress, externalAddress, this.audioChannel);
+            this.remoteSdp = null;
+        }
+    }
 
 	@Override
 	public String getLocalDescriptor() {

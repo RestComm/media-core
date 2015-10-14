@@ -135,7 +135,7 @@ public class MediaGroupTest {
 
         Connection connection2 = endpoint2.createConnection(ConnectionType.RTP, false);
 
-        connection1.generateOffer();
+        connection1.generateOffer(false);
         connection2.setOtherParty(new Text(connection1.getLocalDescriptor()));
         connection1.setOtherParty(new Text(connection2.getLocalDescriptor()));
 

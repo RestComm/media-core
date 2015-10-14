@@ -50,7 +50,8 @@ public class DtlsHandler {
 	private volatile boolean handshakeFailed;
 	private volatile boolean handshaking;
 	private Thread worker;
-	private String hashFunction;
+	private String localHashFunction;
+	private String remoteHashFunction;
 	private String remoteFingerprint;
 	private String localFingerprint;
 
@@ -95,7 +96,8 @@ public class DtlsHandler {
 		this.handshakeComplete = false;
 		this.handshakeFailed = false;
 		this.handshaking = false;
-		this.hashFunction = "";
+		this.localHashFunction = "SHA-256";
+		this.remoteHashFunction = "";
 		this.remoteFingerprint = "";
 		this.localFingerprint = "";
 	}
@@ -132,7 +134,7 @@ public class DtlsHandler {
 
 	public Text getLocalFingerprint() {
 		if(this.localFingerprint == null || this.localFingerprint.isEmpty()) {
-			this.localFingerprint = this.server.generateFingerprint(this.hashFunction);
+			this.localFingerprint = this.server.generateFingerprint(this.localHashFunction);
 		}
 		return new Text(this.localFingerprint);
 	}
@@ -140,9 +142,13 @@ public class DtlsHandler {
 	public void resetLocalFingerprint() {
 		this.localFingerprint = "";
 	}
+	
+	public String getLocalHashFunction() {
+        return localHashFunction;
+    }
 
-	public String getHashFunction() {
-		return hashFunction;
+	public String getRemoteHashFunction() {
+		return remoteHashFunction;
 	}
 
 	public String getRemoteFingerprintValue() {
@@ -150,11 +156,11 @@ public class DtlsHandler {
 	}
 
 	public String getRemoteFingerprint() {
-		return hashFunction + " " + remoteFingerprint;
+		return remoteHashFunction + " " + remoteFingerprint;
 	}
 
 	public void setRemoteFingerprint(String hashFunction, String fingerprint) {
-		this.hashFunction = hashFunction;
+		this.remoteHashFunction = hashFunction;
 		this.remoteFingerprint = fingerprint;
 	}
 
@@ -316,7 +322,7 @@ public class DtlsHandler {
 		this.srtcpEncoder = null;
 		this.srtpDecoder = null;
 		this.srtpEncoder = null;
-		this.hashFunction = "";
+		this.remoteHashFunction = "";
 		this.remoteFingerprint = "";
 		this.localFingerprint = "";
 		this.handshakeComplete = false;

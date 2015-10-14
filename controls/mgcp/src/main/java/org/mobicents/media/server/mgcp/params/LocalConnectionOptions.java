@@ -41,6 +41,7 @@ public class LocalConnectionOptions {
     public final static Text RESOURCE_RESERVATION = new Text("r");
     public final static Text ENCRYPTION_KEY = new Text("k");
     public final static Text DTMF_CLAMP = new Text("x-dc");    
+    public final static Text WEBRTC = new Text("webrtc");
     public final static Text LOCAL_NETWORK = new Text("LOCAL");
     public final static Text TRUE = new Text("true");
     
@@ -53,7 +54,8 @@ public class LocalConnectionOptions {
             silenceSuppression = new Text(),
             resourceReservation = new Text(),
             encryptionKey = new Text(),
-            dtmfclamp=new Text();
+            dtmfclamp=new Text(), 
+            webrtc=new Text();
     
     private Text keyword = new Text();
     private Text value = new Text();
@@ -140,8 +142,12 @@ public class LocalConnectionOptions {
                     		break;                		
                     }	
             	}
-            	else if (keyword.equals(DTMF_CLAMP))
-                	value.copy(this.dtmfclamp);                            			
+            	else if (keyword.equals(DTMF_CLAMP)) {
+            	    value.copy(this.dtmfclamp);                            			
+            	}
+            	else if(keyword.equals(WEBRTC)) {
+            	    value.copy(this.webrtc);
+            	}
             }                        
         }
     }
@@ -162,5 +168,9 @@ public class LocalConnectionOptions {
     		return true;
     	
     	return false;
+    }
+    
+    public boolean isWebRTC() {
+        return this.isValid && this.webrtc.equals(TRUE);
     }
 }

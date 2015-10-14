@@ -188,10 +188,10 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
 		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
-		connectionRTP1.generateOffer();
-		connectionBepRTP1.generateOffer();
+		connectionRTP1.generateOffer(false);
+		connectionBepRTP1.generateOffer(false);
 		
-		connectionRTP1.generateOffer();
+		connectionRTP1.generateOffer(false);
 		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
 		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
@@ -320,7 +320,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
 		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
-		connectionRTP1.generateOffer();
+		connectionRTP1.generateOffer(false);
 		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
 		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
@@ -436,7 +436,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
 		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 
-		connectionRTP1.generateOffer();
+		connectionRTP1.generateOffer(false);
 		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
 		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 
@@ -512,7 +512,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		Connection connectionRTP1 = endpointRTP1.createConnection(ConnectionType.RTP, false);
 		Connection connectionBepRTP1 = bridgeEndpoint.createConnection(ConnectionType.RTP, false);
 		
-		connectionRTP1.generateOffer();
+		connectionRTP1.generateOffer(false);
 		connectionBepRTP1.setOtherParty(new Text(connectionRTP1.getLocalDescriptor()));
 		connectionRTP1.setOtherParty(new Text(connectionBepRTP1.getLocalDescriptor()));
 

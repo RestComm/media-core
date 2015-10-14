@@ -122,13 +122,13 @@ public interface Connection {
 	 */
 	public String getRemoteDescriptor();
 
-	/**
-	 * Generates the local connection descriptor and allocates the necessary
-	 * resources.
-	 * 
-	 * @throws IOException
-	 */
-	public void generateOffer() throws IOException;
+    /**
+     * Generates the local connection descriptor and allocates the necessary resources.
+     * 
+     * @param webrtc Whether the offer should be WebRTC compatible or not.
+     * @throws IOException
+     */
+    public void generateOffer(boolean webrtc) throws IOException;
 
 	/**
 	 * Joins endpoint wich executes this connection with other party.

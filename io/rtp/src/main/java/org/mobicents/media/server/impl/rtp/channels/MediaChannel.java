@@ -987,6 +987,10 @@ public abstract class MediaChannel {
 	 * Enables DTLS on the channel. RTP and RTCP packets flowing through this
 	 * channel will be secured.
 	 * 
+	 * <p>
+	 * This method is used in <b>inbound</b> calls where the remote fingerprint is known.
+	 * </p>
+	 * 
 	 * @param remoteFingerprint
 	 *            The DTLS finger print of the remote peer.
 	 * @throws IllegalStateException
@@ -1007,7 +1011,43 @@ public abstract class MediaChannel {
 			logger.debug(this.mediaType + " channel " + this.ssrc + " enabled DTLS");
 		}
 	}
+	
+    /**
+     * Enables DTLS on the channel. RTP and RTCP packets flowing through this channel will be secured.
+     * 
+     * <p>
+     * This method is used in <b>outbound</b> calls where the remote fingerprint is NOT known.<br>
+     * Once the remote peer replies via SDP, the remote fingerprint must be set.
+     * </p>
+     * 
+     * @throws IllegalStateException Cannot be invoked when DTLS is already enabled
+     */
+    public void enableDTLS() {
+        if (this.dtls) {
+            throw new IllegalStateException("DTLS is already enabled on this channel");
+        }
 
+        this.rtpChannel.enableSRTP(this.iceAgent);
+        if (!this.rtcpMux) {
+            rtcpChannel.enableSRTCP(this.iceAgent);
+        }
+        this.dtls = true;
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(this.mediaType + " channel " + this.ssrc + " enabled DTLS");
+        }
+    }
+    
+    public void setRemoteFingerprint(String hashFunction, String fingerprint) {
+        if (!this.dtls) {
+            throw new IllegalStateException("DTLS is disabled on this channel");
+        }
+        
+        this.rtpChannel.setRemoteFingerprint(hashFunction, fingerprint);
+        if(!this.rtcpMux) {
+            this.rtcpChannel.setRemoteFingerprint(hashFunction, fingerprint);
+        }
+    }
 	/**
 	 * Disables DTLS and closes related resources.
 	 * 

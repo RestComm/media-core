@@ -56,18 +56,16 @@ import org.mobicents.media.server.spi.format.AudioFormat;
  */
 public class SdpFactory {
 	
-	/**
-	 * Builds a Session Description object to be sent to a remote peer.
-	 * 
-	 * @param localAddress
-	 *            The local address of the media server.
-	 * @param externalAddress
-	 *            The public address of the media server.
-	 * @param channels
-	 *            The media channels to be included in the session description.
-	 * @return The Session Description object.
-	 */
-	public static SessionDescription buildSdp(String localAddress, String externalAddress, MediaChannel... channels) {
+    /**
+     * Builds a Session Description object to be sent to a remote peer.
+     * 
+     * @param offer if the SDP is for an answer or answer.
+     * @param localAddress The local address of the media server.
+     * @param externalAddress The public address of the media server.
+     * @param channels The media channels to be included in the session description.
+     * @return The Session Description object.
+     */
+	public static SessionDescription buildSdp(boolean offer, String localAddress, String externalAddress, MediaChannel... channels) {
 		// Session-level fields
 		SessionDescription sd = new SessionDescription();
 		sd.setVersion(new VersionField((short) 0));
@@ -80,7 +78,7 @@ public class SdpFactory {
 		// Media Descriptions
 		boolean ice = false;
 		for (MediaChannel channel : channels) {
-			MediaDescriptionField md = buildMediaDescription(channel);
+			MediaDescriptionField md = buildMediaDescription(channel, offer);
 			md.setSession(sd);
 			sd.addMediaDescription(md);
 			
@@ -124,7 +122,7 @@ public class SdpFactory {
 	 *            The channel to read information from
 	 * @return The SDP media description
 	 */
-	public static MediaDescriptionField buildMediaDescription(MediaChannel channel) {
+	public static MediaDescriptionField buildMediaDescription(MediaChannel channel, boolean offer) {
 		MediaDescriptionField md = new MediaDescriptionField();
 		
 		md.setMedia(channel.getMediaType());
@@ -212,7 +210,7 @@ public class SdpFactory {
 
 		// DTLS attributes
 		if (channel.isDtlsEnabled()) {
-			md.setSetup(new SetupAttribute(SetupAttribute.PASSIVE));
+			md.setSetup(new SetupAttribute(offer ? SetupAttribute.ACTPASS : SetupAttribute.PASSIVE));
 			String fingerprint = channel.getDtlsFingerprint();
 			int whitespace = fingerprint.indexOf(" ");
 			String fingerprintHash = fingerprint.substring(0, whitespace);

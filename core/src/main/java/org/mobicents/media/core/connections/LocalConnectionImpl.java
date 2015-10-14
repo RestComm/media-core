@@ -68,7 +68,8 @@ public class LocalConnectionImpl extends BaseConnection {
     	return this.localAudioChannel.getOOBComponent();
     }
     
-    public void generateOffer() throws IOException {
+    @Override
+    public void generateOffer(boolean webrtc) throws IOException {
     	throw new UnsupportedOperationException("Not supported yet!");
     }
     

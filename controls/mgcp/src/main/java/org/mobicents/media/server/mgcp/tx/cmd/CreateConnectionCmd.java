@@ -291,7 +291,7 @@ public class CreateConnectionCmd extends Action {
                     }
                 } else {
                 	try {
-						connections[0].generateLocalDescriptor();
+						connections[0].generateLocalDescriptor(lcOptions.isWebRTC());
 					} catch (IOException e) {
 						throw new MgcpCommandException(MgcpResponseCode.INTERNAL_INCONSISTENCY_IN_LOCAL_SDP, new Text("Could not generate local connection descriptor."));
 					}
@@ -384,7 +384,7 @@ public class CreateConnectionCmd extends Action {
                     endpoint2.deleteConnection(connections[1].getID());
                 }
             }
-            
+
             code = ((MgcpCommandException)transaction().getLastError()).getCode();
             message = ((MgcpCommandException)transaction().getLastError()).getErrorMessage();
             
