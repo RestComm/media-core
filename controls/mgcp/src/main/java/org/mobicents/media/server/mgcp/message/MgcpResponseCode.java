@@ -65,5 +65,6 @@ public interface MgcpResponseCode {
     public final static int INVALID_OR_UNSUPPORTED_MODE = 517;
     public final static int INTERNAL_INCONSISTENCY_IN_LOCAL_SDP = 524;
     public final static int MISSING_REMOTE_CONNECTION_DESCRIPTOR = 527;
+    public final static int RESPONSE_TOO_LARGE = 533;
     
 }
