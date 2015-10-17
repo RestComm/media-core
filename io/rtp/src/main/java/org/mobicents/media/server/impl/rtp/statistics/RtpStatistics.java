@@ -230,6 +230,30 @@ public class RtpStatistics {
 	/*
 	 * RTP Statistics
 	 */
+    public int getAverageLatency() {
+        int latency = 0;
+        if (this.members > 0) {
+            for (RtpMember member : this.membersMap.values()) {
+                latency += member.getRTT();
+            }
+            latency /= this.members;
+        }
+        return latency;
+    }
+	
+	/**
+     * Gets the total number of RTP packets, from all registered members, that were lost during RTP session.
+     * 
+     * @return the number of lost RTP packets
+     */
+    public long getRtpPacketsLost() {
+        long lost = 0L;
+        for (RtpMember member : this.membersMap.values()) {
+            lost += member.getPacketsLost();
+        }
+        return lost;
+    }
+	
 	/**
 	 * Gets the total number of RTP packets that were received during the RTP
 	 * session.
@@ -239,7 +263,7 @@ public class RtpStatistics {
 	public long getRtpPacketsReceived() {
 		return rtpRxPackets;
 	}
-
+	
 	/**
 	 * 
 	 * @return

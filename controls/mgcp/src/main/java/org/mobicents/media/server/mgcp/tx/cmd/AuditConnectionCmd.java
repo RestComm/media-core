@@ -55,6 +55,7 @@ public class AuditConnectionCmd extends Action {
     private final static Text ENDPOINT_INEXISTENT = new Text("Endpoint not available");
     private final static Text CONNECTION_ID_EXPECTED = new Text("Connection identifier was not specified");
     private final static Text CONNECTION_INEXISTENT = new Text("Connection not available");
+    private final static Text WILDCARD_NOT_ALLOWED = new Text("Wildcard conventions cannot be used");
     private final static Text SUCCESS= new Text("Success");
     private final static Text CONNECTION_NOT_READY= new Text("Connection not ready");
 
@@ -134,16 +135,18 @@ public class AuditConnectionCmd extends Action {
 			requestedInfo = request.getParameter(Parameter.REQUESTED_INFO);
 			
 			// Validate the parameters
+			if (connectionId == null) {
+			    throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, CONNECTION_ID_EXPECTED);
+			}
+
 			if(request.getEndpoint() == null || request.getEndpoint().length() == 0) {
 				throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, ENDPOINT_ID_MISSING);
 			} else {
 				request.getEndpoint().divide('@', endpointName);
-	            // TODO endpoint id SHALL NOT use wildcard conventions
+				if(localName.contains('*') || localName.contains('$')) {
+				    throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, WILDCARD_NOT_ALLOWED);
+				}
 			}
-			
-			if (connectionId == null) {
-                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, CONNECTION_ID_EXPECTED);
-            }
 
 			// Search for the MGCP endpoint
 			findMgcpEndpoints(localName, endpoints);
@@ -213,11 +216,11 @@ public class AuditConnectionCmd extends Action {
 			connectionParameters = new ConnectionParameters();
 			connectionParameters.packetsSent = connection.getPacketsTransmitted();
 			connectionParameters.packetsReceived = connection.getPacketsReceived();
+			connectionParameters.packetsLost = (int) connection.getConnection().getPacketsLost();
 			connectionParameters.jitter = (int) connection.getConnection().getJitter();
-			// TODO hrosa - get transmitted octets from MGCP connection
-			// TODO hrosa - get received octets from MGCP connection
-			// TODO hrosa - get latency from MGCP connection
-			// TODO hrosa - get lost packets from MGCP connection
+			connectionParameters.octetsReceived = (int) connection.getConnection().getBytesReceived();
+			connectionParameters.octetsSent = (int) connection.getConnection().getBytesTransmitted();
+			connectionParameters.latency = connection.getConnection().getLatency();
 		}
 	}
 	

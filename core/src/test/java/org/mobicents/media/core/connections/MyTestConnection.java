@@ -87,18 +87,15 @@ public class MyTestConnection extends BaseConnection {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public long getPacketsReceived(MediaType media) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @Override
+    public long getPacketsLost() {
+        return 0L;
     }
-
+    
     public long getPacketsReceived() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    public long getBytesReceived(MediaType media) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     public long getBytesReceived() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -125,6 +122,11 @@ public class MyTestConnection extends BaseConnection {
 
     public double getJitter() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public int getLatency() {
+        return 0;
     }
     
     @Override

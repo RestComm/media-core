@@ -1095,6 +1095,14 @@ public abstract class MediaChannel {
 	/*
 	 * Statistics
 	 */
+	public long getPacketsLost() {
+	    if(this.open) {
+	        return this.statistics.getRtpPacketsLost();
+	    }
+	    return 0L;
+	}
+	
+	
 	/**
 	 * Gets the number of RTP packets received during the current call.
 	 * 
@@ -1104,7 +1112,7 @@ public abstract class MediaChannel {
 		if(this.open) {
 			return this.statistics.getRtpPacketsReceived();
 		}
-		return 0;
+		return 0L;
 	}
 
 	/**
@@ -1120,7 +1128,7 @@ public abstract class MediaChannel {
 		if(this.open) {
 			return this.statistics.getRtpOctetsReceived();
 		}
-		return 0;
+		return 0L;
 	}
 
 	/**
@@ -1167,6 +1175,13 @@ public abstract class MediaChannel {
 			return this.statistics.getMember(this.ssrc).getJitter();
 		}
 		return 0;
+	}
+	
+	public int getLatency() {
+	    if(this.open) {
+	        return this.statistics.getAverageLatency();
+	    }
+	    return 0;
 	}
 
 }

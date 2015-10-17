@@ -97,28 +97,42 @@ public class LocalConnectionImpl extends BaseConnection {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
+    @Override
+    public long getPacketsLost() {
+        return 0L;
+    }
     
+    @Override
     public long getPacketsReceived() {
-        return 0;
+        return 0L;
     }
 
+    @Override
     public long getBytesReceived() {
-        return 0;
+        return 0L;
     }
     
+    @Override
     public long getPacketsTransmitted() {
-        return 0;
+        return 0L;
     }
 
+    @Override
     public long getBytesTransmitted() {
-        return 0;
+        return 0L;
     }
     
+    @Override
     public String toString() {
         return "Local Connection [" + getId() + "]";
     }
-
     
+    @Override
+    public int getLatency() {
+        return 0;
+    }
+
+    @Override
     public double getJitter() {
         return 0;
     }

@@ -462,6 +462,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	public String getRemoteDescriptor() {
 		return (this.remoteSdp == null) ? "" : this.remoteSdp.toString();
 	}
+	
+	@Override
+	public long getPacketsLost() {
+	    return this.audioChannel.getPacketsLost();
+	}
 
 	public long getPacketsReceived() {
 		return this.audioChannel.getPacketsReceived();
@@ -485,6 +490,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	@Override
 	public double getJitter() {
 		return this.audioChannel.getJitter();
+	}
+	
+	@Override
+	public int getLatency() {
+	    return this.audioChannel.getLatency();
 	}
 
 	@Override

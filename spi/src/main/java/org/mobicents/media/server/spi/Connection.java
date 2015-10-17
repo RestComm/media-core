@@ -32,95 +32,89 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface Connection {
-	/**
-	 * Gets the identifier of this connection.
-	 *
-	 * @return integer.
-	 */
-	public int getId();
+    /**
+     * Gets the identifier of this connection.
+     *
+     * @return integer.
+     */
+    public int getId();
 
-	/**
-	 * Gets the identifier of this connection.
-	 *
-	 * @return hex view of the integer.
-	 */
-	public String getTextualId();
+    /**
+     * Gets the identifier of this connection.
+     *
+     * @return hex view of the integer.
+     */
+    public String getTextualId();
 
-	/**
-	 * Gets whether connection should be bound to local or remote interface ,
-	 * supported only for rtp connections.
-	 *
-	 * @return boolean value
-	 */
-	public boolean getIsLocal();
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    public boolean getIsLocal();
 
-	/**
-	 * Gets whether connection should be bound to local or remote interface ,
-	 * supported only for rtp connections.
-	 *
-	 * @return boolean value
-	 */
-	public void setIsLocal(boolean isLocal);
+    /**
+     * Gets whether connection should be bound to local or remote interface , supported only for rtp connections.
+     *
+     * @return boolean value
+     */
+    public void setIsLocal(boolean isLocal);
 
-	/**
-	 * Returns state of this connection
-	 * 
-	 * @return
-	 */
-	public ConnectionState getState();
+    /**
+     * Returns state of this connection
+     * 
+     * @return
+     */
+    public ConnectionState getState();
 
-	/**
-	 * Gets the current mode of this connection.
-	 *
-	 * @return integer constant indicating mode.
-	 */
-	public ConnectionMode getMode();
+    /**
+     * Gets the current mode of this connection.
+     *
+     * @return integer constant indicating mode.
+     */
+    public ConnectionMode getMode();
 
-	/**
-	 * Modify mode of this connection for all known media types.
-	 * 
-	 * @param mode
-	 *            the new mode of the connection.
-	 */
-	public void setMode(ConnectionMode mode) throws ModeNotSupportedException;
+    /**
+     * Modify mode of this connection for all known media types.
+     * 
+     * @param mode the new mode of the connection.
+     */
+    public void setMode(ConnectionMode mode) throws ModeNotSupportedException;
 
-	/**
-	 * Sets the endpoint which executes this connection.
-	 *
-	 * @param the
-	 *            endpoint object.
-	 */
-	public void setEndpoint(Endpoint endpoint);
+    /**
+     * Sets the endpoint which executes this connection.
+     *
+     * @param the endpoint object.
+     */
+    public void setEndpoint(Endpoint endpoint);
 
-	/**
-	 * Gets the endpoint which executes this connection.
-	 *
-	 * @return the endpoint object.
-	 */
-	public Endpoint getEndpoint();
+    /**
+     * Gets the endpoint which executes this connection.
+     *
+     * @return the endpoint object.
+     */
+    public Endpoint getEndpoint();
 
-	/**
-	 * Gets the descriptor of this connection in SDP format.
-	 * 
-	 * @return SDP descriptor as text string.
-	 */
-	public String getDescriptor();
+    /**
+     * Gets the descriptor of this connection in SDP format.
+     * 
+     * @return SDP descriptor as text string.
+     */
+    public String getDescriptor();
 
-	/**
-	 * Gets the local descriptor of this connection in SDP format
-	 * 
-	 * @return The local SDP descriptor. Returns an empty string if not
-	 *         available.
-	 */
-	public String getLocalDescriptor();
+    /**
+     * Gets the local descriptor of this connection in SDP format
+     * 
+     * @return The local SDP descriptor. Returns an empty string if not available.
+     */
+    public String getLocalDescriptor();
 
-	/**
-	 * Gets the remote descriptor of this connection in SDP format
-	 * 
-	 * @return The remote SDP descriptor. Returns an empty string if not
-	 *         available.
-	 */
-	public String getRemoteDescriptor();
+    /**
+     * Gets the remote descriptor of this connection in SDP format
+     * 
+     * @return The remote SDP descriptor. Returns an empty string if not available.
+     */
+    public String getRemoteDescriptor();
 
     /**
      * Generates the local connection descriptor and allocates the necessary resources.
@@ -130,115 +124,119 @@ public interface Connection {
      */
     public void generateOffer(boolean webrtc) throws IOException;
 
-	/**
-	 * Joins endpoint wich executes this connection with other party.
-	 *
-	 * @param other
-	 *            the connection executed by other party endpoint.
-	 * @throws IOException
-	 */
-	public void setOtherParty(Connection other) throws IOException;
+    /**
+     * Joins endpoint wich executes this connection with other party.
+     *
+     * @param other the connection executed by other party endpoint.
+     * @throws IOException
+     */
+    public void setOtherParty(Connection other) throws IOException;
 
-	/**
-	 * Joins endpoint which executes this connection with other party.
-	 *
-	 * @param descriptor
-	 *            the SDP descriptor of the other party.
-	 * @throws IOException
-	 */
-	public void setOtherParty(byte[] descriptor) throws IOException;
+    /**
+     * Joins endpoint which executes this connection with other party.
+     *
+     * @param descriptor the SDP descriptor of the other party.
+     * @throws IOException
+     */
+    public void setOtherParty(byte[] descriptor) throws IOException;
 
-	/**
-	 * Joins endpoint which executes this connection with other party.
-	 *
-	 * @param descriptor
-	 *            the SDP descriptor of the other party.
-	 * @throws IOException
-	 */
-	public void setOtherParty(Text descriptor) throws IOException;
+    /**
+     * Joins endpoint which executes this connection with other party.
+     *
+     * @param descriptor the SDP descriptor of the other party.
+     * @throws IOException
+     */
+    public void setOtherParty(Text descriptor) throws IOException;
 
-	/**
-	 * Adds connection state listener.
-	 * 
-	 * @param listener
-	 *            to be registered
-	 */
-	public void addListener(ConnectionListener listener);
+    /**
+     * Adds connection state listener.
+     * 
+     * @param listener to be registered
+     */
+    public void addListener(ConnectionListener listener);
 
-	/**
-	 * Sets connection failure listener.
-	 * 
-	 * @param listener
-	 *            to be registered
-	 */
-	public void setConnectionFailureListener(
-			ConnectionFailureListener connectionFailureListener);
+    /**
+     * Sets connection failure listener.
+     * 
+     * @param listener to be registered
+     */
+    public void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener);
 
-	/**
-	 * Removes connection state listener.
-	 * 
-	 * @param listener
-	 *            to be unregistered
-	 */
-	public void removeListener(ConnectionListener listener);
+    /**
+     * Removes connection state listener.
+     * 
+     * @param listener to be unregistered
+     */
+    public void removeListener(ConnectionListener listener);
 
-	/**
-	 * The number of packets of the specified media type received .
-	 * 
-	 * @param media
-	 *            the media type.
-	 * @return the number of packets.
-	 */
-	public long getPacketsReceived();
+    /**
+     * Gets the number of packets lost in the connection.
+     * 
+     * @return the number of packets lost
+     */
+    public long getPacketsLost();
 
-	/**
-	 * The total number of bytes received .
-	 * 
-	 * @return the number of bytes.
-	 */
-	public long getBytesReceived();
+    /**
+     * The number of packets of the specified media type received .
+     * 
+     * @param media the media type.
+     * @return the number of packets.
+     */
+    public long getPacketsReceived();
 
-	/**
-	 * The number of packets of the specified media type transmitted.
-	 * 
-	 * @param media
-	 *            the media type
-	 * @return the number of packets.
-	 */
-	public long getPacketsTransmitted();
+    /**
+     * The total number of bytes received .
+     * 
+     * @return the number of bytes.
+     */
+    public long getBytesReceived();
 
-	/**
-	 * The total number of bytes transmitted.
-	 * 
-	 * @return the number of bytes.
-	 */
-	public long getBytesTransmitted();
+    /**
+     * The number of packets of the specified media type transmitted.
+     * 
+     * @param media the media type
+     * @return the number of packets.
+     */
+    public long getPacketsTransmitted();
 
-	/**
-	 * The average jitter value accross all media types.
-	 * 
-	 * @return average jitter value.
-	 */
-	public double getJitter();
+    /**
+     * The total number of bytes transmitted.
+     * 
+     * @return the number of bytes.
+     */
+    public long getBytesTransmitted();
 
-	/**
-	 * Checks whether a connection has finished gathering all necessary
-	 * resources and is ready to use.
-	 * 
-	 * @return whether connection is available
-	 */
-	public boolean isAvailable();
+    /**
+     * The average jitter value accross all media types.
+     * 
+     * @return average jitter value.
+     */
+    public double getJitter();
+    
+    /**
+     * Gets the current latency of the connection.
+     * 
+     * @return The average latency, in milliseconds.
+     */
+    public int getLatency();
 
-	/**
-	 * Generates a unique CNAME for the connection and its channels.<br>
-	 * Only applicable to RTP connections!
-	 */
-	public void generateCname();
+    /**
+     * Checks whether a connection has finished gathering all necessary resources and is ready to use.
+     * 
+     * @return whether connection is available
+     */
+    public boolean isAvailable();
 
-	/**
-	 * Gets the CNAME of the connection. Only applicable to RTP connections!
-	 * 
-	 * @return The unique CNAME that identifies the connection and its channels.
-	 */
-	public String getCname();
+    /**
+     * Generates a unique CNAME for the connection and its channels.<br>
+     * Only applicable to RTP connections!
+     */
+    public void generateCname();
+
+    /**
+     * Gets the CNAME of the connection. Only applicable to RTP connections!
+     * 
+     * @return The unique CNAME that identifies the connection and its channels.
+     */
+    public String getCname();
 }
