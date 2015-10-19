@@ -407,18 +407,4 @@ public class CreateConnectionCmd extends Action {
         
     }
     
-    /**
-     * Converts mode in case of unidirectional transmission.
-     * 
-     * @param mode the original mode value
-     * @return mode with opposite transmission mode. 
-     */
-    private ConnectionMode invert(ConnectionMode mode) {
-        switch (mode) {
-            case SEND_ONLY : return ConnectionMode.RECV_ONLY;
-            case RECV_ONLY : return ConnectionMode.SEND_ONLY;
-            default : return mode;    
-        }
-    }
-    
 }

@@ -86,8 +86,8 @@ public class MgcpProviderTest {
         
         destination = new InetSocketAddress("127.0.0.1", 1029);
         
-        provider1 = new MgcpProvider(udpInterface, 1027, scheduler);
-        provider2 = new MgcpProvider(udpInterface, 1029, scheduler);
+        provider1 = new MgcpProvider(udpInterface, 1027);
+        provider2 = new MgcpProvider(udpInterface, 1029);
         
         provider1.activate();
         provider2.activate();
@@ -155,8 +155,8 @@ public class MgcpProviderTest {
     
     @Test
     public void testResponse() throws Exception {
-    	provider3 = new MgcpProvider(udpInterface, 1031, scheduler);
-        provider4 = new MgcpProvider(udpInterface, 1033, scheduler);
+    	provider3 = new MgcpProvider(udpInterface, 1031);
+        provider4 = new MgcpProvider(udpInterface, 1033);
         
         provider3.activate();
         provider4.activate();

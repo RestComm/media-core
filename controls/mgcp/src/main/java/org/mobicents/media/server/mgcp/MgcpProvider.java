@@ -52,7 +52,7 @@ public class MgcpProvider {
     //event listeners
     private Listeners<MgcpListener> listeners = new Listeners<MgcpListener>();
     
-    //Underlying network interface\
+    //Underlying network interface
     private UdpManager transport;
     
     //datagram channel
@@ -60,9 +60,6 @@ public class MgcpProvider {
     
     //MGCP port number
     private int port;
-    
-    //Job scheduler
-    private Scheduler scheduler;
     
     //transmission buffer
     private ConcurrentCyclicFIFO<ByteBuffer> txBuffer = new ConcurrentCyclicFIFO<ByteBuffer>();
@@ -81,10 +78,9 @@ public class MgcpProvider {
      * @param port port number to bind
      * @param scheduler job scheduler
      */
-    public MgcpProvider(UdpManager transport, int port, Scheduler scheduler) {
+    public MgcpProvider(UdpManager transport, int port) {
         this.transport = transport;
         this.port = port;
-        this.scheduler = scheduler;
         
         //prepare event pool
         for (int i = 0; i < 100; i++) {
@@ -107,7 +103,6 @@ public class MgcpProvider {
         this.name = name;
         this.transport = transport;
         this.port = port;
-        this.scheduler = scheduler;
         
         //prepare event pool
         for (int i = 0; i < 100; i++) {
@@ -302,11 +297,6 @@ public class MgcpProvider {
         
         public Receiver() {
             super();
-        }        
-
-        public int getQueueNumber()
-        {
-        	return Scheduler.MANAGEMENT_QUEUE;
         }
         
         public long perform() {

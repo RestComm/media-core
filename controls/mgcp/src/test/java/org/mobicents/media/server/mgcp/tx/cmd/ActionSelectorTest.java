@@ -60,7 +60,7 @@ public class ActionSelectorTest {
         udpInterface.setBindAddress("localhost");
         udpInterface.start();
         
-        mgcpProvider = new MgcpProvider(udpInterface, 1024, scheduler);
+        mgcpProvider = new MgcpProvider(udpInterface, 1024);
         address = new InetSocketAddress("localhost", 2425);
         
         selector = new ActionSelector(scheduler);
