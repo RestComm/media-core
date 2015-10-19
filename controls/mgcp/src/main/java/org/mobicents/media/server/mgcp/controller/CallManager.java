@@ -46,7 +46,10 @@ public class CallManager {
         if (calls.containsKey(id)) {
             return null;
         }
-        return this.calls.putIfAbsent(id, new MgcpCall(this, id));
+
+        MgcpCall call = new MgcpCall(this, id);
+        this.calls.put(id, call);
+        return call;
     }
 
     /**

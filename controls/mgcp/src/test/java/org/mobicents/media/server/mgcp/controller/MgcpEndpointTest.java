@@ -20,32 +20,16 @@ import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
  * @author kulikov
  */
 public class MgcpEndpointTest {
-    
+
     private MyTestEndpoint endpoint;
     private CallManager callManager;
     private MgcpEndpoint mgcpEndpoint;
-    
-    public MgcpEndpointTest() {
-    }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
     @Before
     public void setUp() {
         endpoint = new MyTestEndpoint("test");
-        
-        mgcpEndpoint = new MgcpEndpoint(endpoint, null, "localhost", 2727, new ArrayList<MgcpPackage>());        
+        mgcpEndpoint = new MgcpEndpoint(endpoint, null, "localhost", 2727, new ArrayList<MgcpPackage>());
         callManager = new CallManager();
-    }
-    
-    @After
-    public void tearDown() {
     }
 
     /**
@@ -98,14 +82,14 @@ public class MgcpEndpointTest {
      */
     @Test
     public void testPollAndOffer() {
-    	MgcpCall call = callManager.createCall(1);
+        MgcpCall call = callManager.createCall(1);
         for (int i = 0; i < 1000; i++) {
-            MgcpConnection mgcpConnection = mgcpEndpoint.poll(call);            
+            MgcpConnection mgcpConnection = mgcpEndpoint.poll(call);
             assertEquals(1, call.size());
-            
+
             mgcpEndpoint.offer(mgcpConnection);
-            assertEquals(0, call.size());            
-        }    	
+            assertEquals(0, call.size());
+        }
     }
 
 }
