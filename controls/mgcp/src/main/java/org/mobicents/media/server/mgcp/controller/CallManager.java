@@ -59,7 +59,7 @@ public class CallManager {
      * @return The call with corresponding identifier. Return null if no call matches the identifier.
      */
     public MgcpCall getCall(int id) {
-        return this.calls.put(id, new MgcpCall(this, id));
+        return this.calls.get(id);
     }
 
     /**
