@@ -208,7 +208,7 @@ public class CreateConnectionCmd extends Action {
             connections[0]=null;
             connections[1]=null;
             
-            call = transaction().getCall(callID.getValue().hexToInteger(), true);
+            call = transaction().createCall(callID.getValue().hexToInteger());
             
             try {
                 //searching endpoint

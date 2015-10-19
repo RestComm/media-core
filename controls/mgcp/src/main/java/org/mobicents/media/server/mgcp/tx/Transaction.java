@@ -89,10 +89,13 @@ public class Transaction implements ActionListener {
         return txManager.provider;
     }
 
-    public MgcpCall getCall(Integer id, boolean isNew) {
-        return txManager.callManager.getCall(id, isNew);
+    public MgcpCall createCall(Integer id) {
+        return txManager.callManager.createCall(id);
     }
-    
+
+    public MgcpCall getCall(Integer id) {
+        return txManager.callManager.getCall(id);
+    }
     
     /**
      * Finds endpoints with specified name pattern.

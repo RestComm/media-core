@@ -29,36 +29,52 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
  * @author yulian oifa
  */
 public class CallManager {
-	// list of active calls
-	private ConcurrentMap<MgcpCall> calls = new ConcurrentMap<MgcpCall>();
 
-	public MgcpCall getCall(int id, boolean allowNew) {
-		MgcpCall result = calls.get(id);
+    private final ConcurrentMap<MgcpCall> calls;
 
-		if (result != null) {
-			return result;
-		}
+    public CallManager() {
+        this.calls = new ConcurrentMap<MgcpCall>();
+    }
 
-		if (!allowNew) {
-			return null;
-		}
+    /**
+     * Creates and registers a new call.
+     * 
+     * @param id The identifier of the call.
+     * @return Returns the newly created call. Returns null if a call with same identifier already exists.
+     */
+    public MgcpCall createCall(int id) {
+        if (calls.containsKey(id)) {
+            return null;
+        }
+        return this.calls.putIfAbsent(id, new MgcpCall(this, id));
+    }
 
-		MgcpCall call = new MgcpCall(this, id);
-		result = calls.putIfAbsent(id, call);
-		if (result != null) {
-			return result;
-		}
-		return call;
-	}
+    /**
+     * Retrieves a call by identifier.
+     * 
+     * @param id The identifier of the call.
+     * @return The call with corresponding identifier. Return null if no call matches the identifier.
+     */
+    public MgcpCall getCall(int id) {
+        return this.calls.put(id, new MgcpCall(this, id));
+    }
 
-	/**
-	 * Terminates specified call.
-	 * 
-	 * @param call
-	 *            the call to be terminated
-	 */
-	protected void terminate(MgcpCall call) {
-		calls.remove(call.id);
-	}
+    /**
+     * Terminates specified call.
+     * 
+     * @param call the call to be terminated
+     */
+    protected void terminate(MgcpCall call) {
+        calls.remove(call.id);
+    }
+
+    /**
+     * Counts the number of existing calls.
+     * 
+     * @return The number of calls.
+     */
+    public int countCalls() {
+        return this.calls.size();
+    }
 
 }

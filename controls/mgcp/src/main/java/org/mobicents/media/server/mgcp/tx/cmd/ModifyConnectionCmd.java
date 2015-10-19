@@ -108,7 +108,7 @@ public class ModifyConnectionCmd extends Action {
             }
             
             //getting call
-            MgcpCall call = transaction().getCall(callID.getValue().hexToInteger(), false);
+            MgcpCall call = transaction().getCall(callID.getValue().hexToInteger());
             if (call == null) {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID, UNKNOWN_CALL_IDENTIFIER);
             }
