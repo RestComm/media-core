@@ -52,16 +52,17 @@
     </properties>
 
     <modules>
-	<module>hardware</module>
+	    <module>monitor</module>
+	    <module>hardware</module>
         <module>spi</module>
-	<module>concurrent</module>
+	    <module>concurrent</module>
         <module>scheduler</module>
         <module>codecs</module>
         <module>component</module>
         <module>io</module>
         <module>resources</module>
         <module>core</module>
-	<module>client</module>
+	    <module>client</module>
         <module>controls</module>
         <module>media-server-docs</module>
         <module>bootstrap</module>
