@@ -31,6 +31,8 @@ import org.mobicents.media.server.utils.Text;
  * @author kulikov
  */
 public class Parameter {
+
+    // Standard MGCP parameters
     public final static Text CALL_ID = new Text("C");
     public final static Text MODE = new Text("M");
     public final static Text SECOND_ENDPOINT = new Text("Z2");
@@ -41,15 +43,19 @@ public class Parameter {
     public final static Text REQUEST_ID = new Text("X");
     public final static Text REQUESTED_EVENTS = new Text("R");
     public final static Text REQUESTED_SIGNALS = new Text("S");
-    public final static Text NOTIFIED_ENTITY= new Text("N");
-    public final static Text OBSERVED_EVENT= new Text("O");
-    public final static Text CONNECTION_PARAMETERS= new Text("P");
-    public final static Text LOCAL_CONNECTION_OPTIONS= new Text("L");
+    public final static Text NOTIFIED_ENTITY = new Text("N");
+    public final static Text OBSERVED_EVENT = new Text("O");
+    public final static Text CONNECTION_PARAMETERS = new Text("P");
+    public final static Text LOCAL_CONNECTION_OPTIONS = new Text("L");
     public final static Text REASON_CODE = new Text("E");
     public final static Text BARER_INFORMATION = new Text("B");
     public final static Text REQUESTED_INFO = new Text("F");
     public final static Text REMOTE_CONNECTION_DESCRIPTION = new Text("RC");
     public final static Text LOCAL_CONNECTION_DESCRIPTION = new Text("LC");
+
+    // Extended parameter for monitoring
+    public final static Text SDP_OFFER = new Text("sdp-offer");
+    public final static Text SDP_ANSWER = new Text("sdp-answer");
     
     private Text key = new Text();
     private Text value = new Text();

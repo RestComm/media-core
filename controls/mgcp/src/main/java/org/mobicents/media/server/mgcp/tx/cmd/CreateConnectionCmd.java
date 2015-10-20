@@ -32,6 +32,7 @@ import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.message.Parameter;
+import org.mobicents.media.server.mgcp.monitor.MgcpConnectionListener;
 import org.mobicents.media.server.mgcp.params.LocalConnectionOptions;
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.mgcp.tx.Transaction;
@@ -108,6 +109,8 @@ public class CreateConnectionCmd extends Action {
     
     private final static Logger logger = Logger.getLogger(CreateConnectionCmd.class);
     
+    private MgcpConnectionListener connectionListener;
+    
     /**
      * Creates new instance of this action executor.
      * 
@@ -147,7 +150,8 @@ public class CreateConnectionCmd extends Action {
         public Preprocessor() {
             super();
         }
-        
+
+        @Override
         public int getQueueNumber()
         {
         	return Scheduler.MANAGEMENT_QUEUE;
@@ -314,7 +318,8 @@ public class CreateConnectionCmd extends Action {
         public Responder() {
             super();
         }
-        
+
+        @Override
         public int getQueueNumber()
         {
         	return Scheduler.MANAGEMENT_QUEUE;
@@ -346,14 +351,18 @@ public class CreateConnectionCmd extends Action {
                     response.setParameter(Parameter.CONNECTION_ID2, connections[1].getTextualID());
                 }
 
+                // Tell monitor that a new connection has been successfully created
+                if (connectionListener != null) {
+                    connectionListener.onConnectionCreated(response);
+                }
+
+                // Send response to remote peer
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
             	logger.error(e);
             } finally {
                 evt.recycle();
             }
-
-
             return 0;
         }
         

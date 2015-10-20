@@ -22,6 +22,7 @@
 package org.mobicents.media.server.mgcp.tx.cmd;
 
 import java.io.IOException;
+
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.MgcpCall;
 import org.mobicents.media.server.mgcp.controller.MgcpConnection;
@@ -29,6 +30,7 @@ import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.message.Parameter;
+import org.mobicents.media.server.mgcp.monitor.MgcpConnectionListener;
 import org.mobicents.media.server.mgcp.params.LocalConnectionOptions;
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -64,8 +66,10 @@ public class ModifyConnectionCmd extends Action {
     //local connection options
     private LocalConnectionOptions lcOptions = new LocalConnectionOptions();
     
-    private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);    
-    
+    private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);   
+
+    private MgcpConnectionListener connectionListener;
+
     public ModifyConnectionCmd(Scheduler scheduler) {
     	handler = new TaskChain(1,scheduler);
         
@@ -85,6 +89,7 @@ public class ModifyConnectionCmd extends Action {
             super();
         }
 
+        @Override
         public int getQueueNumber()
         {
         	return Scheduler.MANAGEMENT_QUEUE;
@@ -121,11 +126,11 @@ public class ModifyConnectionCmd extends Action {
             try {
                 mgcpConnection = call.getMgcpConnection(connectionID.getValue().hexToInteger());
             } catch (Exception e) {
-                throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connectionidentifier, probably it was deleted"));
+                throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connection identifier, probably it was deleted"));
             }
             
             if(mgcpConnection==null)
-            	throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connectionidentifier, probably it was deleted"));
+            	throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connection identifier, probably it was deleted"));
             
             //set SDP if requested
             Parameter sdp = request.getParameter(Parameter.SDP);
@@ -164,6 +169,12 @@ public class ModifyConnectionCmd extends Action {
             if(descriptor!=null)
             	response.setParameter(Parameter.SDP, mgcpConnection.getDescriptor());
             
+            // Tell monitor that an existing connection has been modified
+            if (connectionListener != null) {
+                connectionListener.onConnectionModified(response);
+            }
+
+            // Send response to remote peer
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {

@@ -32,6 +32,7 @@ import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.message.Parameter;
+import org.mobicents.media.server.mgcp.monitor.MgcpConnectionListener;
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
@@ -77,6 +78,8 @@ public class DeleteConnectionCmd extends Action {
 	private int tx, rx;
 
 	private final static Logger logger = Logger.getLogger(DeleteConnectionCmd.class);
+
+    private MgcpConnectionListener connectionListener;
 
 	public DeleteConnectionCmd(Scheduler scheduler) {
 		handler = new TaskChain(2, scheduler);
@@ -203,47 +206,6 @@ public class DeleteConnectionCmd extends Action {
 
 	}
 
-	/**
-	 * Searches endpoint specified in message.
-	 * 
-	 * The result will be stored into variable endpoint.
-	 */
-	private class EndpointLocator extends Task {
-
-		public EndpointLocator() {
-			super();
-		}
-
-		@Override
-		public int getQueueNumber() {
-			return Scheduler.MANAGEMENT_QUEUE;
-		}
-
-		@Override
-		public long perform() {
-			try {
-				// searching endpoint
-				int n = transaction().find(localName, endpoints);
-
-				if (n == 0) {
-					throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
-				}
-
-				// extract found endpoint
-				endpoint = endpoints[0];
-
-				// checking endpoint's state
-				if (endpoint.getState() == MgcpEndpoint.STATE_BUSY) {
-					throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
-				}
-			} catch (Exception e) {
-				throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
-			}
-			return 0;
-		}
-
-	}
-
 	private class Responder extends Task {
 
 		public Responder() {
@@ -268,6 +230,12 @@ public class DeleteConnectionCmd extends Action {
 			}
 			response.setParameter(Parameter.CONNECTION_PARAMETERS, new Text("PS=" + tx + ", PR=" + rx));
 
+            // Tell monitor that an existing connection has been modified
+            if (connectionListener != null) {
+                connectionListener.onConnectionModified(response);
+            }
+
+            // Send response to remote peer
 			try {
 				transaction().getProvider().send(evt);
 			} catch (IOException e) {
