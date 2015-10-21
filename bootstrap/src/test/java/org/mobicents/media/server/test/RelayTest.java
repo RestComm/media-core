@@ -42,6 +42,7 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
@@ -62,6 +63,7 @@ public class RelayTest {
     //clock and scheduler
     protected Clock clock;
     protected PriorityQueueScheduler scheduler;
+    protected ServiceScheduler serviceScheduler = new ServiceScheduler();
 
     protected ChannelsManager channelsManager;
 
@@ -105,8 +107,9 @@ public class RelayTest {
         scheduler.setClock(clock);
         scheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(serviceScheduler);
         udpManager.setBindAddress("127.0.0.1");
+        serviceScheduler.start();
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager);
@@ -135,6 +138,7 @@ public class RelayTest {
     @After
     public void tearDown() {
         udpManager.stop();
+        serviceScheduler.stop();
         scheduler.stop();
         
         if (ivr != null) {

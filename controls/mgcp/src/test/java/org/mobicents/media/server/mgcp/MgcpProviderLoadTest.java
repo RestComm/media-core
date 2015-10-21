@@ -45,6 +45,8 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
@@ -58,7 +60,8 @@ public class MgcpProviderLoadTest {
 	
     private Clock clock = new WallClock();
     
-    private PriorityQueueScheduler scheduler;
+    private PriorityQueueScheduler mediaScheduler;
+    private final Scheduler scheduler = new ServiceScheduler();
     private UdpManager udpInterface;
 
     private MgcpProvider provider1, provider2;
@@ -84,17 +87,18 @@ public class MgcpProviderLoadTest {
     
     @Before
     public void setUp() throws IOException, TooManyListenersException {
-    	scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+    	mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
         
-        udpInterface = new UdpManager();
+        udpInterface = new UdpManager(scheduler);
         udpInterface.setLocalBindAddress("127.0.0.1");
         udpInterface.setBindAddress("127.0.0.1");
+        scheduler.start();
         udpInterface.start();
         
-        provider1 = new MgcpProvider("provider1", udpInterface, 1024, scheduler);
-        provider2 = new MgcpProvider("provider2", udpInterface, 1025, scheduler);
+        provider1 = new MgcpProvider("provider1", udpInterface, 1024, mediaScheduler);
+        provider2 = new MgcpProvider("provider2", udpInterface, 1025, mediaScheduler);
         
         provider1.activate();
         provider2.activate();
@@ -112,6 +116,7 @@ public class MgcpProviderLoadTest {
         
         udpInterface.stop();
         scheduler.stop();
+        mediaScheduler.stop();
     }
 
     /**

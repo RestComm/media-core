@@ -104,30 +104,30 @@ public class BridgeEndpointTest extends RTPEnvironment {
 	public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException, TooManyListenersException {
 		super.setup();
 
-		resourcesPool = new ResourcesPool(scheduler, channelsManager, dspFactory);
+		resourcesPool = new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
 
 		// assign scheduler to the end points
 		endpointRTP1 = new MyTestEndpoint("test-ep-RTP1");
-		endpointRTP1.setScheduler(scheduler);
+		endpointRTP1.setScheduler(mediaScheduler);
 		endpointRTP1.setResourcesPool(resourcesPool);
 		endpointRTP1.setFreq(80);
 		endpointRTP1.start();
 
 		endpointLocal1 = new MyTestEndpoint("test-ep-Local1");
-		endpointLocal1.setScheduler(scheduler);
+		endpointLocal1.setScheduler(mediaScheduler);
 		endpointLocal1.setResourcesPool(resourcesPool);
 		endpointLocal1.setFreq(150);
 		endpointLocal1.start();
 
 		endpointLocal2 = new MyTestEndpoint("test-ep-Local2");
-		endpointLocal2.setScheduler(scheduler);
+		endpointLocal2.setScheduler(mediaScheduler);
 		endpointLocal2.setResourcesPool(resourcesPool);
 		endpointLocal2.setFreq(250);
 		endpointLocal2.start();
 
 		bridgeEndpoint = new BridgeEndpoint("test-ep-bridge");
 		bridgeEndpoint.setResourcesPool(resourcesPool);
-		bridgeEndpoint.setScheduler(scheduler);
+		bridgeEndpoint.setScheduler(mediaScheduler);
 		bridgeEndpoint.start();
 
 		sineRTP1 = endpointRTP1.getResource(MediaType.AUDIO, ComponentType.SINE);

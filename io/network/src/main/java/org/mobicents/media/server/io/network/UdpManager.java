@@ -32,14 +32,15 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.channel.Channel;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 
 /**
  * Manager responsible for scheduling I/O operations over UDP.
@@ -54,6 +55,7 @@ public class UdpManager {
     private final static Logger logger = Logger.getLogger(UdpManager.class);
 
     // Core elements
+    private final Scheduler scheduler;
     private final PortManager portManager;
     private final PortManager localPortManager;
 
@@ -76,26 +78,13 @@ public class UdpManager {
     private int rtpTimeout; // in seconds!
     private volatile boolean active;
 
-    // UDP manager tasks
-    private static final int POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
-
-    private final ScheduledExecutorService executor;
-    private final ThreadFactory threadFactory = new ThreadFactory() {
-
-        private AtomicInteger index = new AtomicInteger(0);
-
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r, "udpmanager-" + index.incrementAndGet());
-        }
-    };
-
     private final Object LOCK;
     private final List<Selector> selectors;
     private List<PollTask> pollTasks;
+    private List<Future<?>> pollTaskFutures;
     private AtomicInteger currSelectorIndex;
 
-    public UdpManager() {
+    public UdpManager(Scheduler scheduler) {
         // Core elements
         this.portManager = new PortManager();
         this.localPortManager = new PortManager();
@@ -113,9 +102,10 @@ public class UdpManager {
         this.LOCK = new Object();
 
         // UDP manager tasks
-        this.executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
-        this.selectors = new ArrayList<Selector>(POOL_SIZE);
-        this.pollTasks = new ArrayList<PollTask>(POOL_SIZE);
+        this.scheduler = scheduler;
+        this.selectors = new ArrayList<Selector>(ServiceScheduler.POOL_SIZE);
+        this.pollTasks = new ArrayList<PollTask>(ServiceScheduler.POOL_SIZE);
+        this.pollTaskFutures = new ArrayList<Future<?>>(ServiceScheduler.POOL_SIZE);
         this.currSelectorIndex = new AtomicInteger(0);
     }
 
@@ -268,7 +258,8 @@ public class UdpManager {
                 this.selectors.add(selector);
                 PollTask pollTask = new PollTask(selector);
                 this.pollTasks.add(pollTask);
-                this.executor.execute(pollTask);
+                ScheduledFuture<?> future = this.scheduler.scheduleWithFixedDelay(pollTask, 0L, 2L, TimeUnit.MILLISECONDS);
+                this.pollTaskFutures.add(future);
             }
         }
     }
@@ -417,16 +408,20 @@ public class UdpManager {
     }
 
     private void generateTasks() throws IOException {
-        for (int i = 0; i < POOL_SIZE; i++) {
+        for (int i = 0; i < ServiceScheduler.POOL_SIZE; i++) {
             this.selectors.add(SelectorProvider.provider().openSelector());
             PollTask pollTask = new PollTask(this.selectors.get(i));
             this.pollTasks.add(pollTask);
-            this.executor.scheduleAtFixedRate(pollTask, 0L, 2L, TimeUnit.MILLISECONDS);
+            ScheduledFuture<?> future = this.scheduler.scheduleWithFixedDelay(pollTask, 0L, 2L, TimeUnit.MILLISECONDS);
+            this.pollTaskFutures.add(future);
         }
     }
 
     private void stopTasks() {
-        this.executor.shutdown();
+        for (Future<?> future : this.pollTaskFutures) {
+            future.cancel(false);
+        }
+        this.pollTaskFutures.clear();
     }
 
     private void closeSelectors() {

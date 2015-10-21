@@ -97,14 +97,6 @@ public interface Scheduler {
     void stop();
 
     /**
-     * Stops the scheduler.
-     * <p>
-     * The scheduler will cancel queued tasks and will <b>attempt</b> to interrupt executing tasks.
-     * </p>
-     */
-    void stopNow();
-
-    /**
      * Blocks until all tasks have completed execution after a shutdown request, or the timeout occurs, or the current thread is
      * interrupted, whichever happens first.
      *

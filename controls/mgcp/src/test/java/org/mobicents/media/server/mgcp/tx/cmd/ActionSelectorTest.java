@@ -7,17 +7,22 @@ package org.mobicents.media.server.mgcp.tx.cmd;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.tx.Action;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.utils.Text;
@@ -29,7 +34,8 @@ import org.mobicents.media.server.utils.Text;
 public class ActionSelectorTest {
     
     private WallClock clock;
-    private PriorityQueueScheduler scheduler;
+    private PriorityQueueScheduler mediaScheduler;
+    private final Scheduler scheduler = new ServiceScheduler();
     
     private ActionSelector selector;
     private MgcpProvider mgcpProvider;
@@ -52,24 +58,26 @@ public class ActionSelectorTest {
     public void setUp() throws IOException {
         clock = new WallClock();
         
-        scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+        mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
         
-        udpInterface = new UdpManager();
+        udpInterface = new UdpManager(scheduler);
         udpInterface.setBindAddress("localhost");
+        scheduler.start();
         udpInterface.start();
         
-        mgcpProvider = new MgcpProvider(udpInterface, 1024, scheduler);
+        mgcpProvider = new MgcpProvider(udpInterface, 1024, mediaScheduler);
         address = new InetSocketAddress("localhost", 2425);
         
-        selector = new ActionSelector(scheduler);
+        selector = new ActionSelector(mediaScheduler);
     }
     
     @After
     public void tearDown() {
         mgcpProvider.shutdown();
         scheduler.stop();
+        mediaScheduler.stop();
     }
 
     /**

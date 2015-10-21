@@ -42,6 +42,8 @@ import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -58,7 +60,8 @@ public class LocalEventTest implements DtmfDetectorListener {
 
     //clock and scheduler
     private Clock clock;
-    private PriorityQueueScheduler scheduler;
+    private PriorityQueueScheduler mediaScheduler;
+    private final Scheduler scheduler;
 
     private UdpManager udpManager;
 
@@ -78,6 +81,7 @@ public class LocalEventTest implements DtmfDetectorListener {
     private int count=0;
     
     public LocalEventTest() {
+        scheduler = new ServiceScheduler();
     }
 
     @Before
@@ -86,17 +90,18 @@ public class LocalEventTest implements DtmfDetectorListener {
         clock = new WallClock();
 
         //create single thread scheduler
-        scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+        mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
 
-        udpManager = new UdpManager();
+        udpManager = new UdpManager(scheduler);
+        scheduler.start();
         udpManager.start();
         
         channelsManager = new ChannelsManager(udpManager);
-        channelsManager.setScheduler(scheduler);
+        channelsManager.setScheduler(mediaScheduler);
         
-        detector = new DetectorImpl("dtmf", scheduler);
+        detector = new DetectorImpl("dtmf", mediaScheduler);
         detector.setVolume(-35);
         detector.setDuration(40);
         detector.addListener(this);
@@ -105,8 +110,8 @@ public class LocalEventTest implements DtmfDetectorListener {
         channel2 = channelsManager.getLocalChannel();
         channel1.join(channel2);
         
-        oobSplitter1=new OOBSplitter(scheduler);
-        oobSplitter2=new OOBSplitter(scheduler);
+        oobSplitter1=new OOBSplitter(mediaScheduler);
+        oobSplitter2=new OOBSplitter(mediaScheduler);
         
         sender = new Sender();                
 
@@ -131,7 +136,8 @@ public class LocalEventTest implements DtmfDetectorListener {
     	oobSplitter2.stop();
     	sender.deactivate();
         udpManager.stop();
-        scheduler.stop();        
+        mediaScheduler.stop();
+        scheduler.stop();
     }
 
     @Test
@@ -184,7 +190,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         };
         
         public Sender() throws SocketException {
-        	super("oob generator", scheduler, PriorityQueueScheduler.INPUT_QUEUE);            
+        	super("oob generator", mediaScheduler, PriorityQueueScheduler.INPUT_QUEUE);            
         	
         	index=0;
         	this.oobInput=new OOBInput(ComponentType.DTMF_GENERATOR.getType());
