@@ -32,7 +32,7 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.tone.ToneDetectorListener;
@@ -60,7 +60,7 @@ public class Continuity2 extends Signal implements ToneDetectorListener {
     public static final Text[] toneOptions={new Text("co1"),new Text("co2")};
     public static final int[] toneValues={2010,1780};
     
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 	
     public Continuity2(String name) {
         super(name);                   
@@ -228,7 +228,7 @@ public class Continuity2 extends Signal implements ToneDetectorListener {
         
         public int getQueueNumber()
         {
-        	return Scheduler.HEARTBEAT_QUEUE;
+        	return PriorityQueueScheduler.HEARTBEAT_QUEUE;
         }     
         
         public void setTtl(int value)

@@ -25,7 +25,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.impl.AbstractSource;
 
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 
 /**
@@ -55,7 +55,7 @@ public class PhoneSignalGenerator extends AbstractSource  {
     
     private AudioInput input;
     
-    public PhoneSignalGenerator(String name,Scheduler scheduler) {
+    public PhoneSignalGenerator(String name,PriorityQueueScheduler scheduler) {
         super(name,scheduler,scheduler.INPUT_QUEUE);
         init();
         

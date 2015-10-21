@@ -31,7 +31,7 @@ import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.mgcp.params.LocalConnectionOptions;
 import org.mobicents.media.server.mgcp.tx.Action;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
@@ -66,7 +66,7 @@ public class ModifyConnectionCmd extends Action {
     
     private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);    
     
-    public ModifyConnectionCmd(Scheduler scheduler) {
+    public ModifyConnectionCmd(PriorityQueueScheduler scheduler) {
     	handler = new TaskChain(1,scheduler);
         
         Modifier modifier = new Modifier();
@@ -87,7 +87,7 @@ public class ModifyConnectionCmd extends Action {
 
         public int getQueueNumber()
         {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -184,7 +184,7 @@ public class ModifyConnectionCmd extends Action {
         
         @Override
         public int getQueueNumber() {
-        	return Scheduler.MANAGEMENT_QUEUE;
+        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override

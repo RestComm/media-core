@@ -39,7 +39,7 @@ import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 
 /**
  * 
@@ -83,7 +83,7 @@ public class RtcpHandlerTest {
 
 	@Before
 	public void before() {
-		wallClock = new DefaultClock();
+		wallClock = new WallClock();
 		rtpClock = new RtpClock(wallClock);
 		statistics = new RtpStatistics(rtpClock);
 		handler = new RtcpHandler(statistics);

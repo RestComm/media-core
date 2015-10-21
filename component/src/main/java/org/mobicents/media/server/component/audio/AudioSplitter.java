@@ -25,7 +25,7 @@ package org.mobicents.media.server.component.audio;
 import java.util.Iterator;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -38,7 +38,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 public class AudioSplitter {
 
 	// scheduler for mixer job scheduling
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
 
 	// the format of the output stream.
 	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR",
@@ -66,7 +66,7 @@ public class AudioSplitter {
 	// gain value
 	private double gain = 1.0;
 
-	public AudioSplitter(Scheduler scheduler) {
+	public AudioSplitter(PriorityQueueScheduler scheduler) {
 		this.scheduler = scheduler;
 		this.insideMixer = new InsideMixTask();
 		this.outsideMixer = new OutsideMixTask();
@@ -115,8 +115,8 @@ public class AudioSplitter {
 	public void start() {
 		mixCount = 0;
 		started = true;
-		scheduler.submit(insideMixer, Scheduler.MIXER_MIX_QUEUE);
-		scheduler.submit(outsideMixer, Scheduler.MIXER_MIX_QUEUE);
+		scheduler.submit(insideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+		scheduler.submit(outsideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 	}
 
 	public void stop() {
@@ -140,7 +140,7 @@ public class AudioSplitter {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MIXER_MIX_QUEUE;
+			return PriorityQueueScheduler.MIXER_MIX_QUEUE;
 		}
 
 		@Override
@@ -166,7 +166,7 @@ public class AudioSplitter {
 			}
 
 			if (first) {
-				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 				mixCount++;
 				return 0;
 			}
@@ -205,7 +205,7 @@ public class AudioSplitter {
 				component.offer(total);
 			}
 
-			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 			mixCount++;
 			return 0;
 		}
@@ -226,7 +226,7 @@ public class AudioSplitter {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MIXER_MIX_QUEUE;
+			return PriorityQueueScheduler.MIXER_MIX_QUEUE;
 		}
 
 		@Override
@@ -252,7 +252,7 @@ public class AudioSplitter {
 			}
 
 			if (first) {
-				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 				mixCount++;
 				return 0;
 			}
@@ -288,7 +288,7 @@ public class AudioSplitter {
 				component.offer(total);
 			}
 
-			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 			mixCount++;
 			return 0;
 		}

@@ -26,7 +26,7 @@ import java.io.IOException;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -42,7 +42,7 @@ public class OOBReceiver extends AbstractSink {
 
 	private OOBOutput output;
 
-	public OOBReceiver(String name, Scheduler scheduler) {
+	public OOBReceiver(String name, PriorityQueueScheduler scheduler) {
 		super(name);
 		output = new OOBOutput(scheduler, ComponentType.SPECTRA_ANALYZER.getType());
 		output.join(this);

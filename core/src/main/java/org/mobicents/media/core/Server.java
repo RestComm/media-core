@@ -32,7 +32,7 @@ import org.mobicents.media.core.endpoints.VirtualEndpointInstaller;
 import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -50,7 +50,7 @@ public class Server implements MediaServer {
     private Clock clock;
 
     //job scheduler
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     //resources pool
     private ResourcesPool resourcesPool;
@@ -89,7 +89,7 @@ public class Server implements MediaServer {
         this.clock = clock;
     }
 
-    public void setScheduler(Scheduler scheduler) {
+    public void setScheduler(PriorityQueueScheduler scheduler) {
         this.scheduler = scheduler;
     }
     
@@ -286,7 +286,7 @@ public class Server implements MediaServer {
         @Override
         public int getQueueNumber()
         {
-        	return Scheduler.HEARTBEAT_QUEUE;
+        	return PriorityQueueScheduler.HEARTBEAT_QUEUE;
         }   
         
         public void restart()

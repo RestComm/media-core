@@ -32,7 +32,7 @@ import org.mobicents.media.server.component.audio.AudioOutput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.component.audio.GoertzelFilter;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
@@ -109,7 +109,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     private Listeners<DtmfDetectorListener> listeners = new Listeners<DtmfDetectorListener>();
 
     private EventSender eventSender;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
         
     private AudioOutput output;
     private OOBOutput oobOutput;
@@ -120,7 +120,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector {
     /**
      * Creates new instance of Detector.
      */
-    public DetectorImpl(String name, Scheduler scheduler) {
+    public DetectorImpl(String name, PriorityQueueScheduler scheduler) {
         super(name);
         
         this.scheduler = scheduler;

@@ -44,8 +44,8 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -61,7 +61,7 @@ public class LocalJoiningTest {
 
     //clock and scheduler
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     //endpoint and connection
     private MyTestEndpoint endpoint1;
@@ -92,10 +92,10 @@ public class LocalJoiningTest {
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
     	//use default clock
-        clock = new DefaultClock();
+        clock = new WallClock();
 
         //create single thread scheduler
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 

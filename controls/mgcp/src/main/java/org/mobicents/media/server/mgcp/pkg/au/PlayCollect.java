@@ -33,7 +33,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -90,7 +90,7 @@ public class PlayCollect extends Signal {
 	private PlayerMode playerMode = PlayerMode.PROMPT;
 	private Text eventContent;
 
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
 
 	private Boolean dtmfListenerAdded = false;
 	private Boolean playerListenerAdded = false;
@@ -721,7 +721,7 @@ public class PlayCollect extends Signal {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.HEARTBEAT_QUEUE;
+			return PriorityQueueScheduler.HEARTBEAT_QUEUE;
 		}
 
 		public void setTtl(int value) {

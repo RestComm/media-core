@@ -30,7 +30,7 @@ import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.naming.UnknownEndpointException;
 import org.mobicents.media.server.mgcp.tx.cmd.ActionSelector;
 import org.mobicents.media.server.mgcp.tx.cmd.MgcpCommandException;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -72,7 +72,7 @@ public class Transaction implements ActionListener {
      * 
      * @return job scheduler.
      */
-    public Scheduler scheduler() {
+    public PriorityQueueScheduler scheduler() {
         return txManager.scheduler();
     }
     

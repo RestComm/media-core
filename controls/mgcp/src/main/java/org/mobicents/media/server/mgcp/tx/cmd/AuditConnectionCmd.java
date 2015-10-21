@@ -34,7 +34,7 @@ import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.mgcp.tx.Action;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -59,7 +59,7 @@ public class AuditConnectionCmd extends Action {
     private final static Text CONNECTION_NOT_READY= new Text("Connection not ready");
 
 	// Media Server internals
-	private final Scheduler scheduler;
+	private final PriorityQueueScheduler scheduler;
 	private TaskChain handler;
 	
 	// Endpoint identifier
@@ -110,7 +110,7 @@ public class AuditConnectionCmd extends Action {
 	private ConnectionParameters connectionParameters;
 	private boolean connectionAvailable;
 	
-	public AuditConnectionCmd(final Scheduler scheduler) {
+	public AuditConnectionCmd(final PriorityQueueScheduler scheduler) {
 		this.scheduler = scheduler;
 		this.handler = new TaskChain(2, this.scheduler);
 		this.handler.add(new Audit());
@@ -123,7 +123,7 @@ public class AuditConnectionCmd extends Action {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MANAGEMENT_QUEUE;
+			return PriorityQueueScheduler.MANAGEMENT_QUEUE;
 		}
 
 		@Override
@@ -225,7 +225,7 @@ public class AuditConnectionCmd extends Action {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MANAGEMENT_QUEUE;
+			return PriorityQueueScheduler.MANAGEMENT_QUEUE;
 		}
 
 		@Override
@@ -301,7 +301,7 @@ public class AuditConnectionCmd extends Action {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MANAGEMENT_QUEUE;
+			return PriorityQueueScheduler.MANAGEMENT_QUEUE;
 		}
 
 		@Override

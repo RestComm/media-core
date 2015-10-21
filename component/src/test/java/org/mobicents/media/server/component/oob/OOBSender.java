@@ -24,7 +24,7 @@ package org.mobicents.media.server.component.oob;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -45,8 +45,8 @@ public class OOBSender extends AbstractSource {
     private OOBInput input;
     private int currentIndex=0;
     
-    public OOBSender(Scheduler scheduler) {
-        super("oob.generator", scheduler,Scheduler.INPUT_QUEUE);
+    public OOBSender(PriorityQueueScheduler scheduler) {
+        super("oob.generator", scheduler,PriorityQueueScheduler.INPUT_QUEUE);
         
         this.input=new OOBInput(ComponentType.SINE.getType());
         this.connect(this.input); 

@@ -31,8 +31,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 /**
  *
@@ -44,7 +44,7 @@ public class AbstractComponentTest {
     private TestSink sink;
     
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     public AbstractComponentTest() {
     }
@@ -59,9 +59,9 @@ public class AbstractComponentTest {
 
     @Before
     public void setUp() throws Exception {
-    	clock = new DefaultClock();
+    	clock = new WallClock();
     	
-    	scheduler = new Scheduler();
+    	scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();    
         
@@ -86,8 +86,8 @@ public class AbstractComponentTest {
 
 		private static final long serialVersionUID = 3317111509574993827L;
 
-		public TestSource(String name,Scheduler scheduler) {
-            super(name, scheduler, Scheduler.OUTPUT_QUEUE);
+		public TestSource(String name,PriorityQueueScheduler scheduler) {
+            super(name, scheduler, PriorityQueueScheduler.OUTPUT_QUEUE);
         }
 
         @Override

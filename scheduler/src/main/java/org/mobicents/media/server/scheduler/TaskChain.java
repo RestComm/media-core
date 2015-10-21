@@ -41,13 +41,13 @@ public class TaskChain implements TaskListener {
     private int queueIndex;  
     private final Object LOCK = new Object();
     
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     /**
      * Creates new chain.
      * 
      * @param length the length of the chain.
      */
-    public TaskChain(int length,Scheduler scheduler) {
+    public TaskChain(int length,PriorityQueueScheduler scheduler) {
     	this.scheduler=scheduler;
         this.task = new Task[length];        
     }

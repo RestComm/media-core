@@ -28,7 +28,7 @@ import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.rtp.RTPDataChannel;
 import org.mobicents.media.server.impl.rtp.RtpTransmitter;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -50,14 +50,14 @@ public class DtmfOutput extends AbstractSink {
      * Creates new transmitter
      */
     @Deprecated
-    public DtmfOutput(Scheduler scheduler,RTPDataChannel channel) {
+    public DtmfOutput(PriorityQueueScheduler scheduler,RTPDataChannel channel) {
         super("Output");
         this.channel=channel;
         oobOutput=new OOBOutput(scheduler,1);
         oobOutput.join(this);        
     }
     
-    public DtmfOutput(final Scheduler scheduler,final RtpTransmitter transmitter) {
+    public DtmfOutput(final PriorityQueueScheduler scheduler,final RtpTransmitter transmitter) {
         super("Output");
         this.transmitter = transmitter;
         oobOutput=new OOBOutput(scheduler,1);

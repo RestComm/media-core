@@ -38,7 +38,7 @@ import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
@@ -68,7 +68,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 
     // Core elements
     private final UdpManager udpManager;
-    private final Scheduler scheduler;
+    private final PriorityQueueScheduler scheduler;
     private final RtpClock clock;
     private final RtpClock oobClock;
     private final int jitterBufferSize;
@@ -111,7 +111,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
     private RtpListener rtpListener;
 
     protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock,
-            Scheduler scheduler, UdpManager udpManager) {
+            PriorityQueueScheduler scheduler, UdpManager udpManager) {
         // Initialize MultiplexedChannel elements
         super();
 
@@ -538,7 +538,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
     private class HeartBeat extends Task {
 
         public int getQueueNumber() {
-            return Scheduler.HEARTBEAT_QUEUE;
+            return PriorityQueueScheduler.HEARTBEAT_QUEUE;
         }
 
         @Override

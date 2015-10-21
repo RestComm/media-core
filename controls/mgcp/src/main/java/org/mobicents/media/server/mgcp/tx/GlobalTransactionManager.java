@@ -28,7 +28,7 @@ import org.mobicents.media.server.concurrent.Lock;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
  * Implements pool of transactions.
@@ -47,7 +47,7 @@ public class GlobalTransactionManager
     protected MgcpProvider provider;
        
     //Scheduler
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     //Endpoint naming tree
     private NamingTree namingService;
@@ -56,7 +56,7 @@ public class GlobalTransactionManager
     
     private Lock lock=new Lock();
     
-    public GlobalTransactionManager(Scheduler scheduler) 
+    public GlobalTransactionManager(PriorityQueueScheduler scheduler) 
     {
         this.scheduler = scheduler;
     }
@@ -84,7 +84,7 @@ public class GlobalTransactionManager
      * 
      * @return job scheduler.
      */
-    public Scheduler scheduler() {
+    public PriorityQueueScheduler scheduler() {
         return scheduler;
     }
     

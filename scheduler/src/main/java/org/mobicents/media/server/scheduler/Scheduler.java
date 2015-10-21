@@ -1,8 +1,7 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2015, Telestax Inc and individual contributors
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,462 +21,98 @@
 
 package org.mobicents.media.server.scheduler;
 
-import java.lang.InterruptedException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
-
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
-import org.apache.log4j.Logger;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Implements scheduler with multi-level priority queue.
+ * A Scheduler allows users to submit tasks for executions.
+ * <p>
+ * Task executions can be scheduled to run immediately or given a certain delay or even at regular intervals.
+ * </p>
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
- * This scheduler implementation follows to uniprocessor model with "super" thread.
- * The "super" thread includes IO bound thread and one or more CPU bound threads
- * with equal priorities.
- *
- * The actual priority is assigned to task instead of process and can be
- * changed dynamically at runtime using the initial priority level, feedback
- * and other parameters.
- *
- *
- * @author Oifa Yulian
  */
-public class Scheduler  {
-	//SS7 QUEUES
-	public static final Integer RECEIVER_QUEUE=0;
-	public static final Integer SENDER_QUEUE=1;
-	
-	//MANAGEMENT QUEUE FOR CONTROL PROCESSING
-	public static final Integer MANAGEMENT_QUEUE=2;
-	
-	//UDP MANAGER QUEUE FOR POOLING CHANNELS
-	public static final Integer UDP_MANAGER_QUEUE=3;	
-	
-	//CORE QUEUES
-	public static final Integer INPUT_QUEUE=4;
-	public static final Integer MIXER_MIX_QUEUE=5;
-	public static final Integer OUTPUT_QUEUE=6;
-	
-	//HEARTBEAT QUEUE
-	public static final Integer HEARTBEAT_QUEUE=-1;
-	
-    //The clock for time measurement
-    private Clock clock;
-
-    //priority queue
-    protected OrderedTaskQueue[] taskQueues = new OrderedTaskQueue[7];
-
-    protected OrderedTaskQueue[] heartBeatQueue = new OrderedTaskQueue[5];
-    
-    //CPU bound threads
-    private CoreThread coreThread;
-    private CriticalThread criticalThread;
-    
-    //flag indicating state of the scheduler
-    private boolean isActive;
-
-    private Logger logger = Logger.getLogger(Scheduler.class) ;
-    
-    private ConcurrentCyclicFIFO<Task> waitingTasks=new ConcurrentCyclicFIFO<Task>();
-    private ConcurrentCyclicFIFO<Task> criticalTasks=new ConcurrentCyclicFIFO<Task>();
-    
-    private WorkerThread[] workerThreads;
-    private CriticalWorkerThread[] criticalWorkerThreads;
-    /**
-     * Creates new instance of scheduler.
-     */
-    public Scheduler() {
-    	for(int i=0;i<taskQueues.length;i++)
-    		taskQueues[i]=new OrderedTaskQueue();
-    	
-    	for(int i=0;i<heartBeatQueue.length;i++)
-    		heartBeatQueue[i]=new OrderedTaskQueue();
-    	
-    	coreThread = new CoreThread("scheduler-core");  
-    	criticalThread = new CriticalThread("scheduler-critical");
-    	
-        workerThreads=new WorkerThread[Runtime.getRuntime().availableProcessors()*2];
-        criticalWorkerThreads=new CriticalWorkerThread[Runtime.getRuntime().availableProcessors()*2];
-        for(int i=0;i<workerThreads.length;i++)
-            workerThreads[i] = new WorkerThread("scheduler-worker-" + i);
-        
-        for(int i=0;i<criticalWorkerThreads.length;i++)
-            criticalWorkerThreads[i] = new CriticalWorkerThread("scheduler-critical-worker-" + i);
-    }    
-
-    public int getPoolSize()
-    {
-    	return workerThreads.length;
-    }
-    
-    /**
-     * Sets clock.
-     *
-     * @param clock the clock used for time measurement.
-     */
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
+public interface Scheduler {
 
     /**
-     * Gets the clock used by this scheduler.
-     *
-     * @return the clock object.
-     */
-    public Clock getClock() {
-        return clock;
-    }
-
-    /**
-     * Queues task for execution according to its priority.
-     *
-     * @param task the task to be executed.
-     */
-    public void submit(Task task,Integer index) {
-        task.activate(false);
-        taskQueues[index].accept(task);
-    }
-    
-    /**
-     * Queues task for execution according to its priority.
-     *
-     * @param task the task to be executed.
-     */
-    public void submitHeatbeat(Task task) {
-        task.activate(true);
-        heartBeatQueue[coreThread.runIndex].accept(task);
-    }
-    
-    /**
-     * Queues chain of the tasks for execution.
+     * Gets the wall clock of the scheduler.
      * 
-     * @param taskChanin the chain of the tasks
+     * @return The wall clock
      */
-    public void submit(TaskChain taskChain) {    	
-        taskChain.start(MANAGEMENT_QUEUE);
-    }    
-    
-    /**
-     * Starts scheduler.
-     */
-    public void start() {
-    	if(this.isActive)
-    		return;
-    	
-        if (clock == null) {
-            throw new IllegalStateException("Clock is not set");
-        }
-
-        this.isActive = true;
-        
-        logger.info("Starting ");
-        
-        coreThread.activate();
-        criticalThread.activate();
-        for(int i=0;i<workerThreads.length;i++)
-        	workerThreads[i].activate();
-        
-        for(int i=0;i<criticalWorkerThreads.length;i++)
-        	criticalWorkerThreads[i].activate();        
-        
-        logger.info("Started ");
-    }
+    Clock getWallClock();
 
     /**
-     * Stops scheduler.
-     */
-    public void stop() {
-        if (!this.isActive) {
-            return;
-        }
-
-        coreThread.shutdown();
-        criticalThread.shutdown();
-        for(int i=0;i<workerThreads.length;i++)
-        	workerThreads[i].shutdown();
-        
-        for(int i=0;i<criticalWorkerThreads.length;i++)
-        	criticalWorkerThreads[i].shutdown();
-        
-        try
-        {
-        	Thread.sleep(40);
-        }
-        catch(InterruptedException e)
-		{                				
-		}
-        
-        for(int i=0;i<taskQueues.length;i++)
-        	taskQueues[i].clear();
-        
-        for(int i=0;i<heartBeatQueue.length;i++)
-        	heartBeatQueue[i].clear();
-    }
-
-    /**
-     * Shows the miss rate.
+     * Submits a task for immediate execution.
      * 
-     * @return the miss rate value;
+     * @param task The task to be executed
+     * @return A Future representing pending completion of the task
+     * @throws RejectedExecutionException if the task cannot be scheduled for execution
      */
-    public double getMissRate() {
-        return 0;
-    }
-
-    public long getWorstExecutionTime() {
-        return 0;
-    }
+    Future<?> submit(Runnable task) throws RejectedExecutionException;
 
     /**
-     * Executor thread.
+     * Schedules a task to be executed in a given time.
+     * 
+     * @param task The task to be executed.
+     * @param delay The initial amount of time to wait until task is executed.
+     * @param unit The time unit of the delay.
+     * @return a ScheduledFuture representing pending completion of the task and whose <tt>get()</tt> method will return
+     *         <tt>null</tt> upon completion
+     * @throws RejectedExecutionException if the task cannot be scheduled for execution
      */
-    private class CoreThread extends Thread {        
-        private volatile boolean active;
-        private int currQueue=UDP_MANAGER_QUEUE;        
-        private AtomicInteger activeTasksCount=new AtomicInteger();
-        private long cycleStart=0;
-        private int runIndex=0;
-        private Object LOCK=new Object();
-        
-        public CoreThread(String name) {
-            super(name);            
-        }
-        
-        public void activate() {        	        	
-        	this.active = true;
-        	this.start();
-        }
-        
-        public void notifyCompletion() {
-        	if(activeTasksCount.decrementAndGet()==0)
-        		LockSupport.unpark(coreThread); 	        	
-        }
-        
-        @Override
-        public void run() {        	
-        	long cycleDuration;
-        	
-        	cycleStart = clock.getTime();
-        	while(active)
-        	{
-        		long taskStart=cycleStart;
-        		currQueue=MANAGEMENT_QUEUE;
-        		while(currQueue<=OUTPUT_QUEUE)
-    			{    		
-        			executeQueue(taskQueues[currQueue]);
-					while(activeTasksCount.get()!=0)
-						LockSupport.park();
-					
-					currQueue++;															
-    			}				        		
-        		
-        		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
-        		while(activeTasksCount.get()!=0)
-					LockSupport.park();					
-        		
-        		runIndex=(runIndex+1)%5;        		
-    			executeQueue(heartBeatQueue[runIndex]);
-        		while(activeTasksCount.get()!=0)
-					LockSupport.park();
-        		
-        		executeQueue(taskQueues[MANAGEMENT_QUEUE]);
-        		while(activeTasksCount.get()!=0)
-					LockSupport.park();	
-        		
-        		//sleep till next cycle
-        		cycleDuration=clock.getTime() - cycleStart;
-        		if(cycleDuration<20000000L)
-        			try  {                                               
-        				sleep(20L-cycleDuration/1000000L,(int)((20000000L-cycleDuration)%1000000L));
-        			}
-                	catch(InterruptedException e)  {                                               
-                		//lets continue
-                	}
-        		
-        		//new cycle starts , updating cycle start time by 4ms
-                cycleStart = cycleStart + 20000000L;                                              
-        	}
-        }
-        
-        private void executeQueue(OrderedTaskQueue currQueue)
-        {
-        	Task t;        	
-        	currQueue.changePool();
-            t = currQueue.poll();
-            
-            //submit all tasks in current queue
-            while(t!=null)
-            {
-            	activeTasksCount.incrementAndGet();
-            	waitingTasks.offer(t);
-            	t = currQueue.poll();
-            }            
-        }
+    ScheduledFuture<?> schedule(Runnable task, long delay, TimeUnit unit) throws RejectedExecutionException;
 
-        /**
-         * Terminates thread.
-         */
-        private void shutdown() {
-            this.active = false;
-        }
-    }    
-    
     /**
-     * Executor thread.
+     * Schedules a task to be executed repeatedly, given a certain delay between executions.
+     * 
+     * @param command The task to be executed.
+     * @param initialDelay The time to delay first execution
+     * @param period the delay between the termination of one execution and the commencement of the next
+     * @param unit The time unit of the delay parameters.
+     * @return a ScheduledFuture representing pending completion of the task and whose <tt>get()</tt> method will return
+     *         <tt>null</tt> upon completion
+     * @throws IllegalArgumentException If period is equal or less than zero.
+     * @throws RejectedExecutionException if the task cannot be scheduled for execution
      */
-    private class CriticalThread extends Thread {        
-        private volatile boolean active;
-        private AtomicInteger activeTasksCount=new AtomicInteger();
-        private long cycleStart=0;
-        private Object LOCK=new Object();
-        
-        public CriticalThread(String name) {
-            super(name);            
-        }
-        
-        public void activate() {        	        	
-        	this.active = true;
-        	cycleStart = clock.getTime();
-        	this.start();
-        }
-        
-        public void notifyCompletion() {
-        	if(activeTasksCount.decrementAndGet()==0)
-        		LockSupport.unpark(criticalThread);        	        	
-        }
-        
-        @Override
-        public void run() {        	
-        	long cycleDuration;
-        	
-        	while(active)
-        	{
-        		executeQueue(taskQueues[RECEIVER_QUEUE]);
-        		while(activeTasksCount.get()!=0)
-					LockSupport.park();	
-        		
-        		executeQueue(taskQueues[SENDER_QUEUE]);
-        		while(activeTasksCount.get()!=0)
-					LockSupport.park();
-        		
-        		//sleep till next cycle
-        		cycleDuration=clock.getTime() - cycleStart;
-        		if(cycleDuration<4000000L)
-        			try  {                                               
-        				sleep(4L-cycleDuration/1000000L,(int)((4000000L-cycleDuration)%1000000L));
-        			}
-                	catch(InterruptedException e)  {                                               
-                		//lets continue
-                	}
-        		
-        		//new cycle starts , updating cycle start time by 4ms
-                cycleStart = cycleStart + 4000000L;                                              
-        	}
-        }
-        
-        private void executeQueue(OrderedTaskQueue currQueue)
-        {
-        	Task t;        	
-        	currQueue.changePool();
-            t = currQueue.poll();
-            
-            //submit all tasks in current queue
-            while(t!=null)
-            {
-            	activeTasksCount.incrementAndGet();
-            	criticalTasks.offer(t);
-            	t = currQueue.poll();
-            }            
-        }
+    ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, long initialDelay, long period, TimeUnit unit)
+            throws IllegalArgumentException, RejectedExecutionException;
 
-        /**
-         * Terminates thread.
-         */
-        private void shutdown() {
-            this.active = false;
-        }
-    }
-    
-    private class WorkerThread extends Thread {
-    	private volatile boolean active;
-    	private Task current;
-    	
-    	public WorkerThread(String name) {
-    	    super(name);
-        }
-    	
-    	public void run() {
-    		while(active)
-    		{
-    			current=null;
-    			while(current==null)
-    			{
-    				try
-    				{
-    					current=waitingTasks.take();
-    				}
-    				catch(Exception ex)
-    				{
-    					
-    				}    				
-    			}
-    			current.run();
-    			coreThread.notifyCompletion();    			
-    		}
-    	}
-    	
-    	public void activate() {        	        	
-        	this.active = true;
-        	this.start();
-        }
-    	
-    	/**
-         * Terminates thread.
-         */
-        private void shutdown() {
-            this.active = false;
-        }
-    }
-    
-    private class CriticalWorkerThread extends Thread {
-        
-    	private volatile boolean active;
-        private Task current;
-        
-        public CriticalWorkerThread(String name) {
-            super(name);
-        }
-        
-    	public void run() {
-    		while(active)
-    		{
-    			current=null;
-    			while(current==null)
-    			{
-    				try
-    				{
-    					current=criticalTasks.take();
-    				}
-    				catch(Exception ex)
-    				{
-    					
-    				}    				
-    			}
-    			current.run();
-    			criticalThread.notifyCompletion();
-    		}
-    	}
-    	
-    	public void activate() {        	        	
-        	this.active = true;
-        	this.start();
-        }
-    	
-    	/**
-         * Terminates thread.
-         */
-        private void shutdown() {
-            this.active = false;
-        }
-    }
+    /**
+     * Starts the scheduler.
+     * <p>
+     * Tasks can only be submited for executed once the Scheduler is running.
+     * </p>
+     */
+    void start();
+
+    /**
+     * Stops the scheduler.
+     * <p>
+     * Queued tasks will be canceled, but executing tasks will be given an opportunity to finish their execution.
+     * </p>
+     */
+    void stop();
+
+    /**
+     * Stops the scheduler.
+     * <p>
+     * The scheduler will cancel queued tasks and will <b>attempt</b> to interrupt executing tasks.
+     * </p>
+     */
+    void stopNow();
+
+    /**
+     * Blocks until all tasks have completed execution after a shutdown request, or the timeout occurs, or the current thread is
+     * interrupted, whichever happens first.
+     *
+     * @param timeout the maximum time to wait
+     * @param unit the time unit of the timeout argument
+     * @return <tt>true</tt> if this executor terminated and <tt>false</tt> if the timeout elapsed before termination
+     * @throws InterruptedException if interrupted while waiting
+     */
+    boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
+
 }

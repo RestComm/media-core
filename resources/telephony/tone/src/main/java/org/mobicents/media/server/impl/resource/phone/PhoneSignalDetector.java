@@ -24,7 +24,7 @@ import org.mobicents.media.MediaSource;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioOutput;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -70,7 +70,7 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
         
     private Listeners<ToneDetectorListener> listeners = new Listeners<ToneDetectorListener>();    
     
-    public PhoneSignalDetector(String name,Scheduler scheduler) {
+    public PhoneSignalDetector(String name,PriorityQueueScheduler scheduler) {
         super(name);
         signal = new double[N];  
 

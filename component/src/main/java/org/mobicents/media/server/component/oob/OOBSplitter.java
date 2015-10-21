@@ -25,7 +25,7 @@ package org.mobicents.media.server.component.oob;
 import java.util.Iterator;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -36,7 +36,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class OOBSplitter {
 	// scheduler for mixer job scheduling
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
 
 	// The pools of components
 	private ConcurrentMap<OOBComponent> insideComponents = new ConcurrentMap<OOBComponent>();
@@ -54,7 +54,7 @@ public class OOBSplitter {
 
 	protected long mixCount = 0;
 
-	public OOBSplitter(Scheduler scheduler) {
+	public OOBSplitter(PriorityQueueScheduler scheduler) {
 		this.scheduler = scheduler;
 		this.insideMixer = new InsideMixTask();
 		this.outsideMixer = new OutsideMixTask();
@@ -89,8 +89,8 @@ public class OOBSplitter {
 	public void start() {
 		mixCount = 0;
 		started = true;
-		scheduler.submit(insideMixer, Scheduler.MIXER_MIX_QUEUE);
-		scheduler.submit(outsideMixer, Scheduler.MIXER_MIX_QUEUE);
+		scheduler.submit(insideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+		scheduler.submit(outsideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 	}
 
 	public void stop() {
@@ -108,7 +108,7 @@ public class OOBSplitter {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MIXER_MIX_QUEUE;
+			return PriorityQueueScheduler.MIXER_MIX_QUEUE;
 		}
 
 		@Override
@@ -126,7 +126,7 @@ public class OOBSplitter {
 			}
 
 			if (current == null) {
-				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 				mixCount++;
 				return 0;
 			}
@@ -142,7 +142,7 @@ public class OOBSplitter {
 				}
 			}
 
-			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 			mixCount++;
 			return 0;
 		}
@@ -157,7 +157,7 @@ public class OOBSplitter {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MIXER_MIX_QUEUE;
+			return PriorityQueueScheduler.MIXER_MIX_QUEUE;
 		}
 
 		@Override
@@ -175,7 +175,7 @@ public class OOBSplitter {
 			}
 
 			if (current == null) {
-				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 				mixCount++;
 				return 0;
 			}
@@ -191,7 +191,7 @@ public class OOBSplitter {
 				}
 			}
 
-			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 			mixCount++;
 			return 0;
 		}

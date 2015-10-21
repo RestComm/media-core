@@ -34,7 +34,7 @@ import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.mgcp.tx.Transaction;
 import org.mobicents.media.server.mgcp.tx.GlobalTransactionManager;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.MediaServer;
@@ -58,7 +58,7 @@ public class Controller implements MgcpListener, ServerManager {
     //MGCP port number
     protected int port;
     
-    protected Scheduler scheduler;
+    protected PriorityQueueScheduler scheduler;
     
     //MGCP protocol provider
     protected MgcpProvider mgcpProvider;
@@ -119,7 +119,7 @@ public class Controller implements MgcpListener, ServerManager {
      * 
      * @param scheduler the scheduler instance.
      */
-    public void setScheduler(Scheduler scheduler) {
+    public void setScheduler(PriorityQueueScheduler scheduler) {
         logger.info("Set scheduler: " + scheduler);
         this.scheduler = scheduler;
     }

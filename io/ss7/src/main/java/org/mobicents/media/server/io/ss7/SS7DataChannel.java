@@ -35,7 +35,7 @@ import org.mobicents.media.hardware.dahdi.SelectorKeyImpl;
 import org.mobicents.media.hardware.dahdi.Channel;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
 import org.mobicents.media.server.spi.ConnectionMode;

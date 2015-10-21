@@ -25,7 +25,7 @@ package org.mobicents.media.server.component.oob;
 import java.util.Iterator;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.memory.Frame;
 
@@ -36,7 +36,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class OOBMixer {
 	// scheduler for mixer job scheduling
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
 
 	// The pool of components
 	private ConcurrentMap<OOBComponent> components = new ConcurrentMap<OOBComponent>();
@@ -51,7 +51,7 @@ public class OOBMixer {
 	// gain value
 	private double gain = 1.0;
 
-	public OOBMixer(Scheduler scheduler) {
+	public OOBMixer(PriorityQueueScheduler scheduler) {
 		this.scheduler = scheduler;
 		this.mixer = new MixTask();
 	}
@@ -73,7 +73,7 @@ public class OOBMixer {
 	public void start() {
 		mixCount = 0;
 		started = true;
-		scheduler.submit(mixer, Scheduler.MIXER_MIX_QUEUE);
+		scheduler.submit(mixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 	}
 
 	public void stop() {
@@ -91,7 +91,7 @@ public class OOBMixer {
 
 		@Override
 		public int getQueueNumber() {
-			return Scheduler.MIXER_MIX_QUEUE;
+			return PriorityQueueScheduler.MIXER_MIX_QUEUE;
 		}
 
 		@Override
@@ -109,7 +109,7 @@ public class OOBMixer {
 			}
 
 			if (current == null) {
-				scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+				scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 				mixCount++;
 				return 0;
 			}
@@ -124,7 +124,7 @@ public class OOBMixer {
 			}
 
 			current.recycle();
-			scheduler.submit(this, Scheduler.MIXER_MIX_QUEUE);
+			scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 			mixCount++;
 			return 0;
 		}

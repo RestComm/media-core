@@ -30,7 +30,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -60,7 +60,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	protected ResourcesPool resourcesPool;
 
 	// job scheduler
-	private Scheduler scheduler;
+	private PriorityQueueScheduler scheduler;
 
 	// logger instance
 	private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
@@ -78,12 +78,12 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	}
 
 	@Override
-	public void setScheduler(Scheduler scheduler) {
+	public void setScheduler(PriorityQueueScheduler scheduler) {
 		this.scheduler = scheduler;
 	}
 
 	@Override
-	public Scheduler getScheduler() {
+	public PriorityQueueScheduler getScheduler() {
 		return scheduler;
 	}
 

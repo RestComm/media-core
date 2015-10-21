@@ -33,8 +33,8 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
  * Local and RTP channels storage
@@ -49,11 +49,11 @@ public class ChannelsManager {
 	//ss7 manager
 	private SS7Manager ss7Manager;
 	
-    private Clock clock = new DefaultClock();
+    private Clock clock = new WallClock();
 
     private boolean isControlEnabled=false;
 
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     private int jitterBufferSize=50;
     
@@ -88,11 +88,11 @@ public class ChannelsManager {
     	return udpManager.getPortManager();
     }
 
-    public void setScheduler(Scheduler scheduler) {
+    public void setScheduler(PriorityQueueScheduler scheduler) {
         this.scheduler = scheduler;
     }
 
-    public Scheduler getScheduler() {
+    public PriorityQueueScheduler getScheduler() {
         return this.scheduler;
     }
     

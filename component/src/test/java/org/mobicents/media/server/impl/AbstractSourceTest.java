@@ -14,8 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
@@ -35,7 +35,7 @@ public class AbstractSourceTest {
     }
     
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     private MyTestSource source;
     private MyTestSink sink;
@@ -58,9 +58,9 @@ public class AbstractSourceTest {
     
     @Before
     public void setUp() {
-        clock = new DefaultClock();
+        clock = new WallClock();
 
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
         
@@ -163,8 +163,8 @@ public class AbstractSourceTest {
 
 		private long seq = 0;
         
-        public MyTestSource(Scheduler scheduler) {
-            super("", scheduler, Scheduler.OUTPUT_QUEUE);
+        public MyTestSource(PriorityQueueScheduler scheduler) {
+            super("", scheduler, PriorityQueueScheduler.OUTPUT_QUEUE);
         }
 
         @Override

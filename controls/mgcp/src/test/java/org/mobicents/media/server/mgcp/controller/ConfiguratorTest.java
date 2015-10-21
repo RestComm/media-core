@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -31,7 +31,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 public class ConfiguratorTest {
     
     private Configurator configurator;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     private Clock clock;
     MyEndpoint endpoint;
     
@@ -45,9 +45,9 @@ public class ConfiguratorTest {
     
     @Before
     public void setUp() throws Exception {
-    	clock = new DefaultClock();
+    	clock = new WallClock();
     	
-    	scheduler = new Scheduler();
+    	scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();  
         
@@ -71,9 +71,9 @@ public class ConfiguratorTest {
     private class MyEndpoint implements Endpoint {
 
         private String name;
-        private Scheduler scheduler;
+        private PriorityQueueScheduler scheduler;
         
-        public MyEndpoint(String name,Scheduler scheduler) {
+        public MyEndpoint(String name,PriorityQueueScheduler scheduler) {
             this.name = name;
             this.scheduler=scheduler;
         }
@@ -84,12 +84,12 @@ public class ConfiguratorTest {
         }
 
         @Override
-        public void setScheduler(Scheduler scheduler) {
+        public void setScheduler(PriorityQueueScheduler scheduler) {
         	throw new UnsupportedOperationException("Not supported yet.");
         }
         
         @Override
-        public Scheduler getScheduler() {
+        public PriorityQueueScheduler getScheduler() {
             return scheduler;
         }
         

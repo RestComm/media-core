@@ -48,8 +48,8 @@ import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
@@ -65,7 +65,7 @@ public class RTPEventTest implements DtmfDetectorListener {
 
     //clock and scheduler
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     private ChannelsManager channelsManager;
     private UdpManager udpManager;
@@ -112,10 +112,10 @@ public class RTPEventTest implements DtmfDetectorListener {
         dsp22 = dspFactory.newProcessor();
         
         //use default clock
-        clock = new DefaultClock();
+        clock = new WallClock();
 
         //create single thread scheduler
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 

@@ -32,7 +32,7 @@ import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
  * Handles incoming RTP packets.
@@ -66,7 +66,7 @@ public class RtpHandler implements PacketHandler {
 	private boolean secure;
 	private DtlsHandler dtlsHandler;
 	
-	public RtpHandler(Scheduler scheduler, RtpClock clock, RtpClock oobClock, int jitterBufferSize, RtpStatistics statistics) {
+	public RtpHandler(PriorityQueueScheduler scheduler, RtpClock clock, RtpClock oobClock, int jitterBufferSize, RtpStatistics statistics) {
 		this.pipelinePriority = 0;
 		
 		this.rtpClock = clock;

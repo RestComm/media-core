@@ -14,8 +14,8 @@ import static org.junit.Assert.*;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.DefaultClock;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.tone.ToneDetectorListener;
 import org.mobicents.media.server.spi.tone.ToneEvent;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
@@ -27,7 +27,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 public class ToneTest implements ToneDetectorListener {
     
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
     
     private PhoneSignalDetector detector;
     private PhoneSignalGenerator generator;
@@ -51,9 +51,9 @@ public class ToneTest implements ToneDetectorListener {
     
     @Before
     public void setUp() throws TooManyListenersException {
-    	clock = new DefaultClock();
+    	clock = new WallClock();
 
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
         

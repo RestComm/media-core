@@ -32,7 +32,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
 import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -69,7 +69,7 @@ public class RtpTransmitter {
 	private long dtmfTimestamp;
 	private int sequenceNumber;
 
-	public RtpTransmitter(final Scheduler scheduler, final RtpClock clock, final RtpStatistics statistics) {
+	public RtpTransmitter(final PriorityQueueScheduler scheduler, final RtpClock clock, final RtpStatistics statistics) {
 		this.rtpClock = clock;
 		this.statistics = statistics;
 		this.dtmfSupported = false;

@@ -38,9 +38,9 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
-import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.junit.After;
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class RTPDataChannelTest {
 
     //clock and scheduler
     private Clock clock;
-    private Scheduler scheduler;
+    private PriorityQueueScheduler scheduler;
 
     private ChannelsManager channelsManager;
     private UdpManager udpManager;
@@ -99,10 +99,10 @@ public class RTPDataChannelTest {
         dsp22 = dspFactory.newProcessor();
         
         //use default clock
-        clock = new DefaultClock();
+        clock = new WallClock();
 
         //create single thread scheduler
-        scheduler = new Scheduler();
+        scheduler = new PriorityQueueScheduler();
         scheduler.setClock(clock);
         scheduler.start();
 

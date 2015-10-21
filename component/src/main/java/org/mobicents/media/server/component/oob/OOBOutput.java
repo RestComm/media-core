@@ -25,7 +25,7 @@ package org.mobicents.media.server.component.oob;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.impl.AbstractSource;
-import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**
@@ -43,8 +43,8 @@ public class OOBOutput extends AbstractSource {
     /**
      * Creates new instance with default name.
      */
-    public OOBOutput(Scheduler scheduler,int outputId) {
-        super("compound.output", scheduler, Scheduler.OUTPUT_QUEUE);
+    public OOBOutput(PriorityQueueScheduler scheduler,int outputId) {
+        super("compound.output", scheduler, PriorityQueueScheduler.OUTPUT_QUEUE);
         this.outputId=outputId;
     }
 
