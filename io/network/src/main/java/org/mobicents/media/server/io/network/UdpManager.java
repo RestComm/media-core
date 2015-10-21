@@ -108,6 +108,10 @@ public class UdpManager {
         this.pollTaskFutures = new ArrayList<Future<?>>(ServiceScheduler.POOL_SIZE);
         this.currSelectorIndex = new AtomicInteger(0);
     }
+    
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
 
     /**
      * Modify bind address.

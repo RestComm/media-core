@@ -481,7 +481,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 
         // initialize handler if necessary
         if (enable && this.rtcpHandler == null) {
-            this.rtcpHandler = new RtcpHandler(this.statistics);
+            this.rtcpHandler = new RtcpHandler(this.udpManager.getScheduler(), this.statistics);
         }
     }
 
