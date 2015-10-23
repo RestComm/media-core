@@ -201,9 +201,9 @@ public class MgcpEndpoint {
     	}
 
     	//remove activity from list and terminate
+    	Connection connection = mgcpConnection.connection;
     	mgcpConnection.release();
-
-    	endpoint.deleteConnection(mgcpConnection.connection);
+    	endpoint.deleteConnection(connection);
         
     	//return object to pool
     	connections.offer(mgcpConnection);
