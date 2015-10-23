@@ -222,7 +222,7 @@ public class WavTrackImpl implements Track {
     private int readPacket(byte[] packet, int offset, int psize) throws IOException {
         int length = 0;
         try {
-            while (length < psize) {
+            while (length < psize && inStream.available() > 0) {
                 int len = inStream.read(packet, offset + length, psize - length);
                 if (len == -1) {
                     return length;

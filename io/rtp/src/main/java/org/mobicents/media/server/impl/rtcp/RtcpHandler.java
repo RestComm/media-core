@@ -189,8 +189,13 @@ public class RtcpHandler implements PacketHandler {
             // long t = this.statistics.rtcpInterval(initial);
             // this.tn = resolveDelay(t);
             // this.scheduleRtcp(this.tn, RtcpPacketType.RTCP_BYE);
+            
+            // cancel scheduler ssrc tasks
+            if(this.ssrcTaskFuture != null) {
+                this.ssrcTaskFuture.cancel(false);
+            }
 
-            // cancel scheduled task and schedule BYE now
+            // cancel scheduled report task and schedule BYE now
             if(this.reportTaskFuture != null) {
                 this.reportTaskFuture.cancel(true);
             }

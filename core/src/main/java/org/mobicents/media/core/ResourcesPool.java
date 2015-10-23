@@ -228,83 +228,97 @@ public class ResourcesPool implements ComponentFactory {
 		
 		switch (componentType) {
 		case DTMF_DETECTOR:
-			result = this.dtmfDetectors.poll();
-			if (result == null) {
-				result = new DetectorImpl("detector", this.scheduler);
-				((DetectorImpl) result).setVolume(this.dtmfDetectorDbi);
-				this.dtmfDetectorsCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new dtmf detector, pool size:" + dtmfDetectorsCount.get() + ", free:" + dtmfDetectors.size());
-			}
-			break;
+//			result = this.dtmfDetectors.poll();
+//			if (result == null) {
+//				result = new DetectorImpl("detector", this.scheduler);
+//				((DetectorImpl) result).setVolume(this.dtmfDetectorDbi);
+//				this.dtmfDetectorsCount.incrementAndGet();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new dtmf detector, pool size:" + dtmfDetectorsCount.get() + ", free:" + dtmfDetectors.size());
+//			}
+                result = new DetectorImpl("detector", this.scheduler);
+                ((DetectorImpl) result).setVolume(this.dtmfDetectorDbi);
+                break;
 
 		case DTMF_GENERATOR:
-			result = this.dtmfGenerators.poll();
-			if (result == null) {
-				result = new GeneratorImpl("generator", this.scheduler);
-				((GeneratorImpl) result).setToneDuration(80);
-				((GeneratorImpl) result).setVolume(-20);
-				this.dtmfGeneratorsCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new dtmf generator, pool size:" + dtmfGeneratorsCount.get() + ", free:" + dtmfDetectors.size());
-			}
+//			result = this.dtmfGenerators.poll();
+//			if (result == null) {
+//				result = new GeneratorImpl("generator", this.scheduler);
+//				((GeneratorImpl) result).setToneDuration(80);
+//				((GeneratorImpl) result).setVolume(-20);
+//				this.dtmfGeneratorsCount.incrementAndGet();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new dtmf generator, pool size:" + dtmfGeneratorsCount.get() + ", free:" + dtmfDetectors.size());
+//			}
+            result = new GeneratorImpl("generator", this.scheduler);
+            ((GeneratorImpl) result).setToneDuration(80);
+            ((GeneratorImpl) result).setVolume(-20);
 			break;
 
 		case PLAYER:
 			result = this.players.poll();
-			if (result == null) {
-				result = new AudioPlayerImpl("player", this.scheduler);
-				try {
-					((AudioPlayerImpl) result).setDsp(this.dspFactory.newProcessor());
-				} catch (Exception ex) {
-					logger.warn(ex.getMessage(), ex);
-				}
-				this.playersCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new player, pool size:" + playersCount.get() + ", free:" + players.size());
-			}
+//			if (result == null) {
+//				result = new AudioPlayerImpl("player", this.scheduler);
+//				try {
+//					((AudioPlayerImpl) result).setDsp(this.dspFactory.newProcessor());
+//				} catch (Exception ex) {
+//					logger.warn(ex.getMessage(), ex);
+//				}
+//				this.playersCount.incrementAndGet();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new player, pool size:" + playersCount.get() + ", free:" + players.size());
+//			}
+            result = new AudioPlayerImpl("player", this.scheduler);
+            try {
+                ((AudioPlayerImpl) result).setDsp(this.dspFactory.newProcessor());
+            } catch (Exception ex) {
+                logger.warn(ex.getMessage(), ex);
+            }
 			break;
 
 		case RECORDER:
-			result = this.recorders.poll();
-			if (result == null) {
-				result = new AudioRecorderImpl(this.scheduler);
-				this.recordersCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new recorder, pool size:" + recordersCount.get() + ", free:" + recorders.size());
-			}
+//			result = this.recorders.poll();
+//			if (result == null) {
+//				result = new AudioRecorderImpl(this.scheduler);
+//				this.recordersCount.incrementAndGet();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new recorder, pool size:" + recordersCount.get() + ", free:" + recorders.size());
+//			}
+		    result = new AudioRecorderImpl(this.scheduler);
 			break;
 
 		case SIGNAL_DETECTOR:
-			result = this.signalDetectors.poll();
-			if (result == null) {
-				result = new PhoneSignalDetector("signal detector", this.scheduler);
-				this.signalDetectorsCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new signal detector, pool size:" + signalDetectorsCount.get() + ", free:" + signalDetectors.size());
-			}
+//			result = this.signalDetectors.poll();
+//			if (result == null) {
+//				result = new PhoneSignalDetector("signal detector", this.scheduler);
+//				this.signalDetectorsCount.incrementAndGet();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new signal detector, pool size:" + signalDetectorsCount.get() + ", free:" + signalDetectors.size());
+//			}
+		    result = new PhoneSignalDetector("signal detector", this.scheduler);
 			break;
 
 		case SIGNAL_GENERATOR:
-			result = this.signalGenerators.poll();
-			if (result == null) {
-				result = new PhoneSignalGenerator("signal generator", this.scheduler);
-				this.signalGeneratorsCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new signal generator, pool size:" + signalGeneratorsCount.get() + ", free:" + signalGenerators.size());
-			}
+//			result = this.signalGenerators.poll();
+//			if (result == null) {
+//				result = new PhoneSignalGenerator("signal generator", this.scheduler);
+//				this.signalGeneratorsCount.incrementAndGet();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new signal generator, pool size:" + signalGeneratorsCount.get() + ", free:" + signalGenerators.size());
+//			}
+		    result = new PhoneSignalGenerator("signal generator", this.scheduler);
 			break;
 			
 		default:
@@ -318,51 +332,51 @@ public class ResourcesPool implements ComponentFactory {
 	public void releaseAudioComponent(Component component, ComponentType componentType) {
 		switch (componentType) {
 		case DTMF_DETECTOR:
-			this.dtmfDetectors.offer(component);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released dtmf detector,pool size:" + dtmfDetectorsCount.get() + ",free:" + dtmfDetectors.size());
-			}
+//			this.dtmfDetectors.offer(component);
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released dtmf detector,pool size:" + dtmfDetectorsCount.get() + ",free:" + dtmfDetectors.size());
+//			}
 			break;
 
 		case DTMF_GENERATOR:
-			this.dtmfGenerators.offer(component);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released dtmf generator,pool size:" + dtmfGeneratorsCount.get() + ",free:" + dtmfGenerators.size());
-			}
-			break;
+//			this.dtmfGenerators.offer(component);
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released dtmf generator,pool size:" + dtmfGeneratorsCount.get() + ",free:" + dtmfGenerators.size());
+//			}
+//			break;
 
 		case PLAYER:
-			this.players.offer(component);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released player,pool size:" + playersCount.get() + ",free:" + players.size());
-			}
+//			this.players.offer(component);
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released player,pool size:" + playersCount.get() + ",free:" + players.size());
+//			}
 			break;
 
 		case RECORDER:
-			this.recorders.offer(component);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released recorder,pool size:" + recordersCount.get() + ",free:" + recorders.size());
-			}
+//			this.recorders.offer(component);
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released recorder,pool size:" + recordersCount.get() + ",free:" + recorders.size());
+//			}
 			break;
 
 		case SIGNAL_DETECTOR:
-			this.signalDetectors.offer(component);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released signal detector,pool size:" + signalDetectorsCount.get() + ",free:" + signalDetectors.size());
-			}
+//			this.signalDetectors.offer(component);
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released signal detector,pool size:" + signalDetectorsCount.get() + ",free:" + signalDetectors.size());
+//			}
 			break;
 
 		case SIGNAL_GENERATOR:
-			this.signalGenerators.offer(component);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released signal generator,pool size:" + signalGeneratorsCount.get() + ",free:" + signalGenerators.size());
-			}
+//			this.signalGenerators.offer(component);
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released signal generator,pool size:" + signalGeneratorsCount.get() + ",free:" + signalGenerators.size());
+//			}
 			break;
 			
 		default:
@@ -374,27 +388,29 @@ public class ResourcesPool implements ComponentFactory {
 	public Connection newConnection(boolean isLocal) {
 		Connection result = null;
 		if (isLocal) {
-			result = this.localConnections.poll();
-			if (result == null) {
-				result = new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager);
-				this.localConnectionsCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new local connection, pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
-			}
+//			result = this.localConnections.poll();
+//			if (result == null) {
+//				result = new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager);
+//				this.localConnectionsCount.incrementAndGet();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new local connection, pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
+//			}
+		    result = new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager);
 		} else {
-			result = this.remoteConnections.poll();
-			if (result == null) {
-				result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
-				this.rtpConnectionsCount.incrementAndGet();
-			} else {
-				result.generateCname();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new rtp connection " + result.getCname() + ", pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.size());
-			}
+//			result = this.remoteConnections.poll();
+//			if (result == null) {
+//				result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
+//				this.rtpConnectionsCount.incrementAndGet();
+//			} else {
+//				result.generateCname();
+//			}
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Allocated new rtp connection " + result.getCname() + ", pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.size());
+//			}
+		    result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
 		}
 		return result;
 	}
@@ -402,17 +418,17 @@ public class ResourcesPool implements ComponentFactory {
 	@Override
 	public void releaseConnection(Connection connection, boolean isLocal) {
 		if (isLocal) {
-			this.localConnections.offer(connection);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released local connection,pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
-			}
+//			this.localConnections.offer(connection);
+//
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released local connection,pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
+//			}
 		} else {
-			this.remoteConnections.offer(connection);
-			
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released rtp connection,pool size:" + rtpConnectionsCount.get() + ",free:" + remoteConnections.size());
-			}
+//			this.remoteConnections.offer(connection);
+//			
+//			if (logger.isDebugEnabled()) {
+//				logger.debug("Released rtp connection,pool size:" + rtpConnectionsCount.get() + ",free:" + remoteConnections.size());
+//			}
 		}
 	}
 }
