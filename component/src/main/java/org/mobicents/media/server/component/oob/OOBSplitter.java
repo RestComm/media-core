@@ -86,6 +86,10 @@ public class OOBSplitter {
 		outsideComponents.remove(component.getComponentId());
 	}
 
+    public boolean isStarted() {
+        return started;
+    }
+
 	public void start() {
 		mixCount = 0;
 		started = true;

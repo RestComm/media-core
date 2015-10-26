@@ -206,10 +206,8 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
      * @see org.mobicents.media.MediaSource#stop().
      */
     public void stop() {
-        if (started) {
-            stopped();
-        }
         started = false;
+
         if (worker != null) {
             worker.cancel();
         }
@@ -219,6 +217,10 @@ public abstract class AbstractSource extends BaseComponent implements MediaSourc
         }
         	
         timestamp = 0;
+        
+        if (started) {
+            stopped();
+        }
     }
 
     public void activate()

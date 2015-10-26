@@ -69,6 +69,10 @@ public class OOBMixer {
 	public void release(OOBComponent component) {
 		components.remove(component.getComponentId());
 	}
+	
+	public boolean isStarted() {
+        return started;
+    }
 
 	public void start() {
 		mixCount = 0;

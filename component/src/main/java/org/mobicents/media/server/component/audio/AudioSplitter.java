@@ -112,6 +112,10 @@ public class AudioSplitter {
 		this.gain = gain > 0 ? gain * 1.26 : gain == 0 ? 1 : 1 / (gain * 1.26);
 	}
 
+    public boolean isStarted() {
+        return started;
+    }
+
 	public void start() {
 		mixCount = 0;
 		started = true;
