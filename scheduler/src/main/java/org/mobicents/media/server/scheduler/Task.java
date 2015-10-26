@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 public abstract class Task implements Runnable {
 	private static AtomicInteger id=new AtomicInteger(0);
 	
-    private volatile boolean isActive = true;
+    private volatile boolean isActive = false;
     private volatile boolean isHeartbeat = true;
     //error handler instance
     protected TaskListener listener;

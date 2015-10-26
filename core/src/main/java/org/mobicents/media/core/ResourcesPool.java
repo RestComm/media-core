@@ -316,6 +316,9 @@ public class ResourcesPool implements ComponentFactory {
 
 	@Override
 	public void releaseAudioComponent(Component component, ComponentType componentType) {
+	    component.deactivate();
+	    component.reset();
+	    
 		switch (componentType) {
 		case DTMF_DETECTOR:
 			this.dtmfDetectors.offer(component);

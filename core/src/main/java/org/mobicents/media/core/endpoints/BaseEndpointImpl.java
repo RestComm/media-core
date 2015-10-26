@@ -67,9 +67,12 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
 	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
 	private Iterator<Connection> connectionsIterator;
+	
+	private volatile boolean started;
 
 	public BaseEndpointImpl(String localName) {
 		this.localName = localName;
+		this.started = false;
 	}
 
 	@Override
@@ -121,28 +124,34 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		this.state = state;
 	}
 
+    @Override
+    public void start() throws ResourceUnavailableException {
+        if (!started) {
+            // do checks before start
+            if (scheduler == null) {
+                throw new ResourceUnavailableException("Scheduler is not available");
+            }
+
+            if (resourcesPool == null) {
+                throw new ResourceUnavailableException("Resources pool is not available");
+            }
+
+            this.started = true;
+            // create connections subsystem
+            mediaGroup = new MediaGroup(resourcesPool, this);
+        }
+    }
+
 	@Override
-	public void start() throws ResourceUnavailableException {
-		// do checks before start
-		if (scheduler == null) {
-			throw new ResourceUnavailableException("Scheduler is not available");
-		}
-
-		if (resourcesPool == null) {
-			throw new ResourceUnavailableException("Resources pool is not available");
-		}
-
-		// create connections subsystem
-		mediaGroup = new MediaGroup(resourcesPool, this);
-	}
-
-	@Override
-	public void stop() {
-		mediaGroup.releaseAll();
-		deleteAllConnections();
-		// TODO: unregister at scheduler level
-		logger.info("Stopped " + localName);
-	}
+    public void stop() {
+        if (this.started) {
+            this.started = false;
+            mediaGroup.releaseAll();
+            deleteAllConnections();
+            // TODO: unregister at scheduler level
+            logger.info("Stopped " + localName);
+        }
+    }
 
 	@Override
 	public Connection createConnection(ConnectionType type, Boolean isLocal)
@@ -169,6 +178,11 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
 		connection.setEndpoint(this);
 		connections.put(connection.getId(), connection);
+		
+		if(!started) {
+		    this.start();
+		}
+		
 		return connection;
 	}
 
@@ -191,7 +205,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		}
 
 		if (connections.size() == 0) {
-			mediaGroup.releaseAll();
+		    this.stop();
 		}
 	}
 

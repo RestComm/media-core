@@ -22,8 +22,6 @@
 
 package org.mobicents.media.core.endpoints;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBSplitter;
@@ -40,114 +38,84 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  */
 public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 
-	protected AudioSplitter audioSplitter;
-	protected OOBSplitter oobSplitter;
+    protected AudioSplitter audioSplitter;
+    protected OOBSplitter oobSplitter;
 
-	private AtomicInteger loopbackCount = new AtomicInteger(0);
-	private AtomicInteger readCount = new AtomicInteger(0);
-	private AtomicInteger writeCount = new AtomicInteger(0);
+    private ConnectionMode mode;
 
-	public BaseSplitterEndpointImpl(String localName) {
-		super(localName);
-	}
+    public BaseSplitterEndpointImpl(String localName) {
+        super(localName);
+        this.mode = ConnectionMode.INACTIVE;
+    }
 
-	@Override
-	public void start() throws ResourceUnavailableException {
-		super.start();
-		audioSplitter = new AudioSplitter(getScheduler());
-		oobSplitter = new OOBSplitter(getScheduler());
-	}
+    @Override
+    public void start() throws ResourceUnavailableException {
+        super.start();
+        audioSplitter = new AudioSplitter(getScheduler());
+        oobSplitter = new OOBSplitter(getScheduler());
+    }
 
-	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal)
-			throws ResourceUnavailableException {
-		Connection connection = super.createConnection(type, isLocal);
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        Connection connection = super.createConnection(type, isLocal);
 
-		switch (type) {
-		case RTP:
-			audioSplitter.addOutsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.addOutsideComponent(((BaseConnection) connection).getOOBComponent());
-			break;
-		case LOCAL:
-			audioSplitter.addInsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.addInsideComponent(((BaseConnection) connection).getOOBComponent());
-			break;
-		}
-		return connection;
-	}
+        switch (type) {
+            case RTP:
+                audioSplitter.addOutsideComponent(((BaseConnection) connection).getAudioComponent());
+                oobSplitter.addOutsideComponent(((BaseConnection) connection).getOOBComponent());
+                break;
+            case LOCAL:
+                audioSplitter.addInsideComponent(((BaseConnection) connection).getAudioComponent());
+                oobSplitter.addInsideComponent(((BaseConnection) connection).getOOBComponent());
+                break;
+        }
+        return connection;
+    }
 
-	@Override
-	public void deleteConnection(Connection connection, ConnectionType connectionType) {
-		super.deleteConnection(connection, connectionType);
+    @Override
+    public void deleteConnection(Connection connection, ConnectionType connectionType) {
+        super.deleteConnection(connection, connectionType);
 
-		switch (connectionType) {
-		case RTP:
-			audioSplitter.releaseOutsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.releaseOutsideComponent(((BaseConnection) connection).getOOBComponent());
-			break;
-		case LOCAL:
-			audioSplitter.releaseInsideComponent(((BaseConnection) connection).getAudioComponent());
-			oobSplitter.releaseInsideComponent(((BaseConnection) connection).getOOBComponent());
-			break;
-		}
-	}
+        switch (connectionType) {
+            case RTP:
+                audioSplitter.releaseOutsideComponent(((BaseConnection) connection).getAudioComponent());
+                oobSplitter.releaseOutsideComponent(((BaseConnection) connection).getOOBComponent());
+                break;
+            case LOCAL:
+                audioSplitter.releaseInsideComponent(((BaseConnection) connection).getAudioComponent());
+                oobSplitter.releaseInsideComponent(((BaseConnection) connection).getOOBComponent());
+                break;
+        }
+    }
 
-	@Override
-	public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
-		int readCount = 0, loopbackCount = 0, writeCount = 0;
-		switch (oldMode) {
-		case RECV_ONLY:
-			readCount -= 1;
-			break;
-		case SEND_ONLY:
-			writeCount -= 1;
-			break;
-		case SEND_RECV:
-		case CONFERENCE:
-			readCount -= 1;
-			writeCount -= 1;
-			break;
-		case NETWORK_LOOPBACK:
-			loopbackCount -= 1;
-			break;
-		default:
-			// XXX handle default case
-			break;
-		}
+    @Override
+    public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
+        if (!this.mode.equals(newMode)) {
+            switch (newMode) {
+                case RECV_ONLY:
+                case SEND_ONLY:
+                case SEND_RECV:
+                case CONFERENCE:
+                    if (!this.audioSplitter.isStarted()) {
+                        this.audioSplitter.start();
+                    }
 
-		switch (newMode) {
-		case RECV_ONLY:
-			readCount += 1;
-			break;
-		case SEND_ONLY:
-			writeCount += 1;
-			break;
-		case SEND_RECV:
-		case CONFERENCE:
-			readCount += 1;
-			writeCount += 1;
-			break;
-		case NETWORK_LOOPBACK:
-			loopbackCount += 1;
-			break;
-		default:
-			// XXX handle default case
-			break;
-		}
+                    if (!this.oobSplitter.isStarted()) {
+                        this.oobSplitter.start();
+                    }
+                    break;
 
-		if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
-			// something changed
-			loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
-			readCount = this.readCount.addAndGet(readCount);
-			writeCount = this.writeCount.addAndGet(writeCount);
+                default:
+                    if (this.audioSplitter.isStarted()) {
+                        this.audioSplitter.stop();
+                    }
 
-			if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
-				audioSplitter.stop();
-				oobSplitter.stop();
-			} else {
-				audioSplitter.start();
-				oobSplitter.start();
-			}
-		}
-	}
+                    if (this.oobSplitter.isStarted()) {
+                        this.oobSplitter.stop();
+                    }
+                    break;
+            }
+            this.mode = newMode;
+        }
+    }
 }
