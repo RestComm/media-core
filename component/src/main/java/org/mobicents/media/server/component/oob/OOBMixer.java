@@ -35,98 +35,100 @@ import org.mobicents.media.server.spi.memory.Frame;
  * @author Yulian Oifa
  */
 public class OOBMixer {
-	// scheduler for mixer job scheduling
-	private PriorityQueueScheduler scheduler;
 
-	// The pool of components
-	private ConcurrentMap<OOBComponent> components = new ConcurrentMap<OOBComponent>();
+    // The pool of components
+    private final ConcurrentMap<OOBComponent> components = new ConcurrentMap<OOBComponent>();
+    Iterator<OOBComponent> activeComponents;
 
-	Iterator<OOBComponent> activeComponents;
+    // Audio mixing task
+    private final PriorityQueueScheduler scheduler;
+    private final MixTask mixer;
 
-	private MixTask mixer;
-	private volatile boolean started = false;
+    // Mixer properties
+    private volatile boolean started;
+    public long mixCount;
 
-	public long mixCount = 0;
+    public OOBMixer(PriorityQueueScheduler scheduler) {
+        this.scheduler = scheduler;
+        this.mixer = new MixTask();
+        this.started = false;
+        this.mixCount = 0L;
+    }
 
-	// gain value
-	private double gain = 1.0;
+    public void addComponent(OOBComponent component) {
+        components.put(component.getComponentId(), component);
+    }
 
-	public OOBMixer(PriorityQueueScheduler scheduler) {
-		this.scheduler = scheduler;
-		this.mixer = new MixTask();
-	}
+    /**
+     * Releases unused input stream
+     * 
+     * @param input the input stream previously created
+     */
+    public void release(OOBComponent component) {
+        components.remove(component.getComponentId());
+    }
 
-	public void addComponent(OOBComponent component) {
-		components.put(component.getComponentId(), component);
-	}
+    public void start() {
+        if (!started) {
+            started = true;
+            mixCount = 0;
+            scheduler.submit(mixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+        }
+    }
 
-	/**
-	 * Releases unused input stream
-	 * 
-	 * @param input
-	 *            the input stream previously created
-	 */
-	public void release(OOBComponent component) {
-		components.remove(component.getComponentId());
-	}
+    public void stop() {
+        if (started) {
+            started = false;
+            mixer.cancel();
+        }
+    }
 
-	public void start() {
-		mixCount = 0;
-		started = true;
-		scheduler.submit(mixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
-	}
+    private class MixTask extends Task {
+        int sourceComponent = 0;
+        private Frame current;
 
-	public void stop() {
-		started = false;
-		mixer.cancel();
-	}
+        public MixTask() {
+            super();
+        }
 
-	private class MixTask extends Task {
-		int sourceComponent = 0;
-		private Frame current;
+        @Override
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.MIXER_MIX_QUEUE;
+        }
 
-		public MixTask() {
-			super();
-		}
+        @Override
+        public long perform() {
+            // summarize all
+            activeComponents = components.valuesIterator();
+            while (activeComponents.hasNext()) {
+                OOBComponent component = activeComponents.next();
+                component.perform();
+                current = component.getData();
+                if (current != null) {
+                    sourceComponent = component.getComponentId();
+                    break;
+                }
+            }
 
-		@Override
-		public int getQueueNumber() {
-			return PriorityQueueScheduler.MIXER_MIX_QUEUE;
-		}
+            if (current == null) {
+                scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+                mixCount++;
+                return 0;
+            }
 
-		@Override
-		public long perform() {
-			// summarize all
-			activeComponents = components.valuesIterator();
-			while (activeComponents.hasNext()) {
-				OOBComponent component = activeComponents.next();
-				component.perform();
-				current = component.getData();
-				if (current != null) {
-					sourceComponent = component.getComponentId();
-					break;
-				}
-			}
+            // get data for each component
+            activeComponents = components.valuesIterator();
+            while (activeComponents.hasNext()) {
+                OOBComponent component = activeComponents.next();
+                if (component.getComponentId() != sourceComponent) {
+                    component.offer(current.clone());
+                }
+            }
 
-			if (current == null) {
-				scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
-				mixCount++;
-				return 0;
-			}
-
-			// get data for each component
-			activeComponents = components.valuesIterator();
-			while (activeComponents.hasNext()) {
-				OOBComponent component = activeComponents.next();
-				if (component.getComponentId() != sourceComponent) {
-					component.offer(current.clone());
-				}
-			}
-
-			current.recycle();
-			scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
-			mixCount++;
-			return 0;
-		}
-	}
+            current.recycle();
+            scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+            mixCount++;
+            return 0;
+        }
+    }
 }
