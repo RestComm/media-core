@@ -32,56 +32,53 @@ import org.apache.log4j.Logger;
  * @author Oifa Yulian
  */
 public abstract class Task implements Runnable {
-	private static AtomicInteger id=new AtomicInteger(0);
-	
-    private volatile boolean isActive = true;
-    private volatile boolean isHeartbeat = true;
-    //error handler instance
-    protected TaskListener listener;
-    
-    private final Object LOCK = new Object();    
-        
-    private AtomicBoolean inQueue0=new AtomicBoolean(false);
-    private AtomicBoolean inQueue1=new AtomicBoolean(false);
-    
+
     private Logger logger = Logger.getLogger(Task.class);
-    
+
+    private static final AtomicInteger UNIQUE_ID = new AtomicInteger(0);
+
     protected int taskId;
-    
+    private volatile boolean active = false;
+    private volatile boolean heartbeat = false;
+
+    private AtomicBoolean inQueue0;
+    private AtomicBoolean inQueue1;
+
+    // error handler instance
+    protected TaskListener listener;
+
     public Task() {
-    	taskId=id.incrementAndGet();
+        this.taskId = UNIQUE_ID.incrementAndGet();
+        this.active = false;
+        this.heartbeat = false;
+        this.inQueue0 = new AtomicBoolean(false);
+        this.inQueue1 = new AtomicBoolean(false);
     }
 
-    public void storedInQueue0()
-    {
-    	inQueue0.set(true);
+    public void storedInQueue0() {
+        inQueue0.set(true);
     }
-    
-    public void storedInQueue1()
-    {
-    	inQueue1.set(true);
+
+    public void storedInQueue1() {
+        inQueue1.set(true);
     }
-    
-    public void removeFromQueue0()
-    {
-    	inQueue0.set(false);
+
+    public void removeFromQueue0() {
+        inQueue0.set(false);
     }
-    
-    public void removeFromQueue1()
-    {
-    	inQueue1.set(false);
+
+    public void removeFromQueue1() {
+        inQueue1.set(false);
     }
-   
-    public Boolean isInQueue0()
-    {
-    	return inQueue0.get();
+
+    public Boolean isInQueue0() {
+        return inQueue0.get();
     }
-    
-    public Boolean isInQueue1()
-    {
-    	return inQueue1.get();
+
+    public Boolean isInQueue1() {
+        return inQueue1.get();
     }
-    
+
     /**
      * Modifies task listener.
      * 
@@ -90,15 +87,32 @@ public abstract class Task implements Runnable {
     public void setListener(TaskListener listener) {
         this.listener = listener;
     }
-    
+
     /**
      * Current queue of this task.
      * 
      * @return the value of queue
      */
-    public abstract int getQueueNumber();    
-    
-    
+    public abstract int getQueueNumber();
+
+    /**
+     * Gets whether the task is active or not.
+     * 
+     * @return True if task is active, False otherwise.
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * Gets whether the task is a heart beat or not.
+     * 
+     * @return True if task is heart beat, False otherwise.
+     */
+    public boolean isHeartbeat() {
+        return heartbeat;
+    }
+
     /**
      * Executes task.
      * 
@@ -106,39 +120,38 @@ public abstract class Task implements Runnable {
      */
     public abstract long perform();
 
+    protected void activate(Boolean isHeartbeat) {
+        this.active = true;
+        this.heartbeat = isHeartbeat;
+    }
+
     /**
      * Cancels task execution
      */
     public void cancel() {
-    	synchronized(LOCK) {
-    		this.isActive = false;    		
-    	}
+        this.active = false;
     }
 
-    //call should not be synchronized since can run only once in queue cycle
+    // call should not be synchronized since can run only once in queue cycle
+    @Override
     public void run() {
-    		if (this.isActive)  {
-    			try {
-    				perform();                
-                
-    				//notify listener                
-    				if (this.listener != null) {
-    					this.listener.onTerminate();
-    				}
-    				
-    			} catch (Exception e) {
-    				if (this.listener != null) 
-    					listener.handlerError(e);
-    				else
-    					logger.error(e.getMessage(), e);
-    			}
-    		}      		    		    	
-    }
+        if (this.active) {
+            try {
+                // execute task
+                perform();
 
-    protected void activate(Boolean isHeartbeat) {
-    	synchronized(LOCK) {
-    		this.isActive = true;
-    		this.isHeartbeat=isHeartbeat;
-    	}
-    }    
+                // notify listener
+                if (this.listener != null) {
+                    this.listener.onTerminate();
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+
+                // notify listener
+                if (this.listener != null) {
+                    listener.handlerError(e);
+                }
+            }
+        }
+    }
 }
