@@ -46,6 +46,8 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author amit bhayani
  */
 public abstract class BaseEndpointImpl implements Endpoint {
+    
+    private static final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
 
 	// local name of this endpoint
 	private String localName;
@@ -62,14 +64,14 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	// job scheduler
 	private PriorityQueueScheduler scheduler;
 
-	// logger instance
-	private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
-
 	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
 	private Iterator<Connection> connectionsIterator;
+	
+	private volatile boolean started;
 
 	public BaseEndpointImpl(String localName) {
 		this.localName = localName;
+		this.started = false;
 	}
 
 	@Override
@@ -120,29 +122,41 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	public void setState(EndpointState state) {
 		this.state = state;
 	}
+	
+	public boolean isStarted() {
+        return started;
+    }
 
-	@Override
-	public void start() throws ResourceUnavailableException {
-		// do checks before start
-		if (scheduler == null) {
-			throw new ResourceUnavailableException("Scheduler is not available");
-		}
+    @Override
+    public void start() throws ResourceUnavailableException {
+        if (!started) {
+            // do checks before start
+            if (scheduler == null) {
+                throw new ResourceUnavailableException("Scheduler is not available");
+            }
 
-		if (resourcesPool == null) {
-			throw new ResourceUnavailableException("Resources pool is not available");
-		}
+            if (resourcesPool == null) {
+                throw new ResourceUnavailableException("Resources pool is not available");
+            }
 
-		// create connections subsystem
-		mediaGroup = new MediaGroup(resourcesPool, this);
-	}
+            this.started = true;
+            
+            // create connections subsystem
+            mediaGroup = new MediaGroup(resourcesPool, this);
+            logger.info("Started " + localName);
+        }
+    }
 
-	@Override
-	public void stop() {
-		mediaGroup.releaseAll();
-		deleteAllConnections();
-		// TODO: unregister at scheduler level
-		logger.info("Stopped " + localName);
-	}
+    @Override
+    public void stop() {
+        if (started) {
+            this.started = false;
+            mediaGroup.releaseAll();
+            deleteAllConnections();
+            // TODO: unregister at scheduler level
+            logger.info("Stopped " + localName);
+        }
+    }
 
 	@Override
 	public Connection createConnection(ConnectionType type, Boolean isLocal)
@@ -163,12 +177,18 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		try {
 			((BaseConnection) connection).bind();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Could not bind connection.", e);
 			throw new ResourceUnavailableException(e.getMessage());
 		}
 
 		connection.setEndpoint(this);
 		connections.put(connection.getId(), connection);
+		
+		// We have at least one connection so we can activate the endpoint
+		if(!started) {
+		    start();
+		}
+		
 		return connection;
 	}
 
@@ -191,7 +211,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		}
 
 		if (connections.size() == 0) {
-			mediaGroup.releaseAll();
+		    stop();
 		}
 	}
 

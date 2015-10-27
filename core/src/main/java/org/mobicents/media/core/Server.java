@@ -159,14 +159,6 @@ public class Server implements MediaServer {
 
         logger.info("Installing " + endpoint.getLocalName());
 
-        //starting endpoint
-        try {
-            endpoint.start();
-        } catch (Exception e) {
-            logger.error("Couldn't start endpoint " + endpoint.getLocalName(), e);
-            return;
-        }
-
         //register endpoint with naming service
         try {
             namingService.register(endpoint);

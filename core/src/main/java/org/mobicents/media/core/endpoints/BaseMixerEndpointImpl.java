@@ -47,16 +47,16 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
 	private AtomicInteger readCount = new AtomicInteger(0);
 	private AtomicInteger writeCount = new AtomicInteger(0);
 
-	public BaseMixerEndpointImpl(String localName) {
-		super(localName);
-	}
-
-	@Override
-	public void start() throws ResourceUnavailableException {
-		super.start();
-		audioMixer = new AudioMixer(getScheduler());
-		oobMixer = new OOBMixer(getScheduler());
-	}
+    public BaseMixerEndpointImpl(String localName) {
+        super(localName);
+    }
+    
+    @Override
+    public void start() throws ResourceUnavailableException {
+        super.start();
+        this.audioMixer = new AudioMixer(getScheduler());
+        this.oobMixer = new OOBMixer(getScheduler());
+    }
 
 	@Override
 	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
