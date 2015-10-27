@@ -173,4 +173,9 @@ public class LocalConnectionOptions {
     public boolean isWebRTC() {
         return this.isValid && this.webrtc.equals(TRUE);
     }
+    
+    public void reset() {
+        this.isLocal = false;
+        this.isValid = false;
+    }
 }

@@ -37,109 +37,101 @@ import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 import org.apache.log4j.Logger;
+
 /**
  * Modify connection command.
  * 
  * @author Oifa Yulian
  */
 public class ModifyConnectionCmd extends Action {
-    //response strings
+
+    private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);
+
+    // Response Messages
     private final static Text CALLID_MISSING = new Text("Missing call identifier");
     private final static Text UNKNOWN_CALL_IDENTIFIER = new Text("Could not find this call with specified identifier");
+    private final static Text UNKNOWN_CONNECTION_IDENTIFIER = new Text("Unknown connection identifier, probably it was deleted");
     private final static Text CONNECTIONID_EXPECTED = new Text("Connection identifier was not specified");
     private final static Text SDP_NEGOTIATION_FAILED = new Text("SDP_NEGOTIATION_FAILED");
+    private final static Text SUCCESS = new Text("Success");
 
-    private final static Text SUCCESS= new Text("Success");
-    
-    private MgcpRequest request;
-    
+    // Task handler
+    private final TaskChain handler;
+
+    // Temporary data
     private Parameter connectionID;
-    private TaskChain handler;
 
-    //error code and message
-    private int code;
-    private Text message;
-    
-    private MgcpConnection mgcpConnection = null;    
-    //local connection options
-    private LocalConnectionOptions lcOptions = new LocalConnectionOptions();
-    
-    private final static Logger logger = Logger.getLogger(ModifyConnectionCmd.class);    
-    
     public ModifyConnectionCmd(PriorityQueueScheduler scheduler) {
-    	handler = new TaskChain(1,scheduler);
-        
-        Modifier modifier = new Modifier();
-        
-        handler.add(modifier);
-        
-        ErrorHandler errorHandler = new ErrorHandler();
-        
-        this.setActionHandler(handler);
-        this.setRollbackHandler(errorHandler);        
+        this.handler = new TaskChain(1, scheduler);
+        this.handler.add(new Modifier());
+        setActionHandler(handler);
+        setRollbackHandler(new ErrorHandler());
     }
-    
+
     private class Modifier extends Task {
-        
+
         public Modifier() {
             super();
         }
 
-        public int getQueueNumber()
-        {
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
+        @Override
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
         public long perform() {
-        	request = (MgcpRequest) getEvent().getMessage();
-            
+            MgcpRequest request = (MgcpRequest) getEvent().getMessage();
+
             Parameter callID = request.getParameter(Parameter.CALL_ID);
             if (callID == null) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, CALLID_MISSING);
             }
-            
-            //modify local connection options
+
+            // modify local connection options
+            LocalConnectionOptions lcOptions = new LocalConnectionOptions();
             Parameter l = request.getParameter(Parameter.LOCAL_CONNECTION_OPTIONS);
             if (l != null) {
                 lcOptions.setValue(l.getValue());
             } else {
                 lcOptions.setValue(null);
             }
-            
-            //getting call
+
+            // getting call
             MgcpCall call = transaction().getCall(callID.getValue().hexToInteger(), false);
             if (call == null) {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID, UNKNOWN_CALL_IDENTIFIER);
             }
-            
+
             connectionID = request.getParameter(Parameter.CONNECTION_ID);
             if (connectionID == null) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, CONNECTIONID_EXPECTED);
             }
-            
+
+            MgcpConnection mgcpConnection = null;
             try {
                 mgcpConnection = call.getMgcpConnection(connectionID.getValue().hexToInteger());
             } catch (Exception e) {
-                throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connectionidentifier, probably it was deleted"));
+                throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, UNKNOWN_CONNECTION_IDENTIFIER);
             }
-            
-            if(mgcpConnection==null)
-            	throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connectionidentifier, probably it was deleted"));
-            
-            //set SDP if requested
+
+            if (mgcpConnection == null) {
+                throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, UNKNOWN_CONNECTION_IDENTIFIER);
+            }
+
+            // set SDP if requested
             Parameter sdp = request.getParameter(Parameter.SDP);
             Parameter mode = request.getParameter(Parameter.MODE);
-            
+
             if (sdp != null) {
                 try {
                     mgcpConnection.setOtherParty(sdp.getValue());
                 } catch (IOException e) {
-                	logger.error("Could not set remote peer", e);
+                    logger.error("Could not set remote peer", e);
                     throw new MgcpCommandException(MgcpResponseCode.UNSUPPORTED_SDP, SDP_NEGOTIATION_FAILED);
                 }
             }
-            
+
             if (mode != null) {
                 try {
                     mgcpConnection.setMode(mode.getValue());
@@ -147,9 +139,9 @@ public class ModifyConnectionCmd extends Action {
                     throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("problem with mode"));
                 }
             }
-            
+
             mgcpConnection.setDtmfClamp(lcOptions.getDtmfClamp());
-            
+
             MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
             MgcpResponse response = (MgcpResponse) evt.getMessage();
             response.setResponseCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED);
@@ -160,42 +152,39 @@ public class ModifyConnectionCmd extends Action {
                 response.setParameter(Parameter.CONNECTION_ID, connectionID.getValue());
             }
 
-            Text descriptor=mgcpConnection.getDescriptor();
-            if(descriptor!=null)
-            	response.setParameter(Parameter.SDP, mgcpConnection.getDescriptor());
-            
+            Text descriptor = mgcpConnection.getDescriptor();
+            if (descriptor != null)
+                response.setParameter(Parameter.SDP, mgcpConnection.getDescriptor());
+
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
-            	logger.error(e);
+                logger.error(e);
             } finally {
                 evt.recycle();
             }
-            
+
             return 0;
         }
-    }    
+    }
 
     private class ErrorHandler extends Task {
 
         public ErrorHandler() {
             super();
         }
-        
+
         @Override
         public int getQueueNumber() {
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
+            return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
         public long perform() {
-            code = ((MgcpCommandException)transaction().getLastError()).getCode();
-            message = ((MgcpCommandException)transaction().getLastError()).getErrorMessage();
-            
             MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
             MgcpResponse response = (MgcpResponse) evt.getMessage();
-            response.setResponseCode(code);
-            response.setResponseString(message);
+            response.setResponseCode(((MgcpCommandException) transaction().getLastError()).getCode());
+            response.setResponseString(((MgcpCommandException) transaction().getLastError()).getErrorMessage());
             response.setTxID(transaction().getId());
 
             if (connectionID != null) {
@@ -205,14 +194,14 @@ public class ModifyConnectionCmd extends Action {
             try {
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
-            	logger.error(e);
+                logger.error(e);
             } finally {
                 evt.recycle();
-            } 
-            
+            }
+
             return 0;
         }
-        
+
     }
-    
+
 }
