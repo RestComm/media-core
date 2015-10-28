@@ -65,7 +65,6 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	private PriorityQueueScheduler scheduler;
 
 	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
-	private Iterator<Connection> connectionsIterator;
 	
 	private volatile boolean started;
 
@@ -217,7 +216,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
 	@Override
 	public void deleteAllConnections() {
-		connectionsIterator = connections.valuesIterator();
+	    Iterator<Connection> connectionsIterator = connections.valuesIterator();
 		while (connectionsIterator.hasNext()) {
 			((BaseConnection) connectionsIterator.next()).close();
 		}

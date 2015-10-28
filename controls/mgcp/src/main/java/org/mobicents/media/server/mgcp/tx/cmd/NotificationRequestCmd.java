@@ -40,71 +40,67 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.utils.Text;
+
 /**
  *
  * @author yulian oifa
  */
 public class NotificationRequestCmd extends Action {
-	private final static Text SUCCESS= new Text("Success");
-	private final static Text eventsSplit= new Text("),");
-	
-    private MgcpRequest request;
 
-    private MgcpEndpoint endpoint;
+    private final static Logger logger = Logger.getLogger(NotificationRequestCmd.class);
+
+    // Messages
+    private final static Text SUCCESS = new Text("Success");
+    private final static Text eventsSplit = new Text("),");
+
+    // Task handler
+    private final TaskChain handler;
+
+    // Temporary Data
+    private MgcpRequest request;
     private MgcpEndpoint[] endpoints = new MgcpEndpoint[1];
 
-    private TaskChain handler;
-    private ErrorHandler errorHandler;
-    
-    //error code and message
-    private int code;
-    private Text message;
-    
-    private final static Logger logger = Logger.getLogger(NotificationRequestCmd.class);    
-          
     public NotificationRequestCmd(PriorityQueueScheduler scheduler) {
-        handler = new TaskChain(3,scheduler);
-        
-        Request req = new Request();
-        Responder responder = new Responder();
-        Executor executor = new Executor();
-        
-        errorHandler = new ErrorHandler();
-        
-        handler.add(req);
-        handler.add(responder);
-        handler.add(executor);
-        
-        this.setActionHandler(handler);
-        this.setRollbackHandler(errorHandler);
+        this.handler = new TaskChain(3, scheduler);
+        this.handler.add(new Request());
+        this.handler.add(new Executor());
+        this.handler.add(new Responder());
+        setActionHandler(handler);
+        setRollbackHandler(new ErrorHandler());
     }
-    
+
+    @Override
+    protected void reset() {
+        this.request = null;
+        this.endpoints[0] = null;
+    }
+
     private class Request extends Task {
-        
+
         public Request() {
             super();
         }
 
         @Override
-        public int getQueueNumber()
-        {
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
         public long perform() {
             request = (MgcpRequest) getEvent().getMessage();
-            //getting the endpoint name
+            // getting the endpoint name
             Text localName = new Text();
             Text domainName = new Text();
-            
-            //read endpoint name from request and break into parts
-            Text[] endpointName = new Text[]{localName, domainName};                
+
+            // read endpoint name from request and break into parts
+            Text[] endpointName = new Text[] { localName, domainName };
             request.getEndpoint().divide('@', endpointName);
-            
-            //checking the local name:
+
+            // checking the local name:
             if (localName.contains('*')) {
-                throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED, new Text("Wildcard all is not allowed here"));
+                throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED, new Text(
+                        "Wildcard all is not allowed here"));
             }
 
             try {
@@ -115,105 +111,102 @@ public class NotificationRequestCmd extends Action {
             } catch (UnknownEndpointException e) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN, new Text("Endpoint not available"));
             }
-            
-            endpoint = endpoints[0];
-            endpoint.getRequest().cancel();
-            
+
+            endpoints[0].getRequest().cancel();
+
             Parameter reqID = request.getParameter(Parameter.REQUEST_ID);
             if (reqID == null) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, new Text("Request identifier is missing"));
             }
-            
+
             Text callAgent = null;
             Parameter p = request.getParameter(Parameter.NOTIFIED_ENTITY);
             if (p != null) {
                 callAgent = p.getValue();
             }
-            
+
             Parameter pe = request.getParameter(Parameter.REQUESTED_EVENTS);
             Parameter ps = request.getParameter(Parameter.REQUESTED_SIGNALS);
-            
+
             Collection<Text> events = null;
             Collection<Text> signals = null;
-            
+
             if (pe != null) {
                 events = pe.getValue().split(eventsSplit);
             }
-            
+
             if (ps != null) {
                 signals = ps.getValue().split(eventsSplit);
             }
-            
+
             if (pe != null || ps != null) {
                 try {
-                	endpoint.getRequest().accept(reqID.getValue(), callAgent, events, signals);                    
+                    endpoints[0].getRequest().accept(reqID.getValue(), callAgent, events, signals);
                 } catch (UnknownEventException e1) {
-                	throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_DETECT_EVENT, new Text(e1.getMessage()));
+                    throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_DETECT_EVENT, new Text(e1.getMessage()));
                 } catch (UnknownSignalException e2) {
-                	throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_GENERATE_SIGNAL, new Text(e2.getMessage()));
+                    throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_GENERATE_SIGNAL, new Text(e2.getMessage()));
                 } catch (UnknownPackageException e) {
-                	throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_DETECT_EVENT, new Text(e.getMessage()));
+                    throw new MgcpCommandException(MgcpResponseCode.CAN_NOT_DETECT_EVENT, new Text(e.getMessage()));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Could not process RQNT", e);
                     throw new MgcpCommandException(MgcpResponseCode.TRANSIENT_ERROR, new Text(e.getMessage()));
                 }
-                
-            }            
+
+            }
             return 0;
         }
-        
+
     }
-    
+
     private class Responder extends Task {
 
         public Responder() {
             super();
         }
-        
+
         @Override
-        public int getQueueNumber()
-        {
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
-        public long perform() {        	
-        	MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
-        	MgcpResponse response = (MgcpResponse) evt.getMessage();
-        	response.setResponseCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED);
-        	response.setResponseString(SUCCESS);
-        	response.setTxID(transaction().getId());        	
-        	try {
-        		transaction().getProvider().send(evt);
-        	} catch (IOException e) {
-        		logger.error(e);
-        	} finally {
-        		evt.recycle();
-        	}        	
-        	
-        	return 0;
+        public long perform() {
+            MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
+            MgcpResponse response = (MgcpResponse) evt.getMessage();
+            response.setResponseCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED);
+            response.setResponseString(SUCCESS);
+            response.setTxID(transaction().getId());
+            try {
+                transaction().getProvider().send(evt);
+            } catch (IOException e) {
+                logger.error(e);
+            } finally {
+                evt.recycle();
+            }
+
+            return 0;
         }
-        
+
     }
-    
+
     private class Executor extends Task {
 
         public Executor() {
             super();
         }
-        
+
         @Override
-        public int getQueueNumber()
-        {        	
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
         public long perform() {
-        	endpoint.getRequest().execute();        	
-        	return 0;
+            endpoints[0].getRequest().execute();
+            return 0;
         }
-        
+
     }
 
     private class ErrorHandler extends Task {
@@ -221,36 +214,32 @@ public class NotificationRequestCmd extends Action {
         public ErrorHandler() {
             super();
         }
-        
+
         @Override
-        public int getQueueNumber()
-        {
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
         public long perform() {
             MgcpEvent evt = null;
-            try {                
-                code = ((MgcpCommandException) transaction().getLastError()).getCode();
-                message = ((MgcpCommandException) transaction().getLastError()).getErrorMessage();
-
+            try {
                 evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
                 MgcpResponse response = (MgcpResponse) evt.getMessage();
-                response.setResponseCode(code);
-                response.setResponseString(message);
+                response.setResponseCode(((MgcpCommandException) transaction().getLastError()).getCode());
+                response.setResponseString(((MgcpCommandException) transaction().getLastError()).getErrorMessage());
                 response.setTxID(transaction().getId());
 
                 transaction().getProvider().send(evt);
             } catch (IOException e) {
-            	logger.error(e);
+                logger.error(e);
             } finally {
                 evt.recycle();
             }
 
             return 0;
         }
-        
+
     }
-    
+
 }

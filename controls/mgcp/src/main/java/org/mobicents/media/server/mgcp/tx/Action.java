@@ -34,7 +34,8 @@ import org.mobicents.media.server.scheduler.TaskListener;
  * 
  * @author kulikov
  */
-public class Action implements TaskChainListener {
+public abstract class Action implements TaskChainListener {
+
     //action listener instance
     protected ActionListener listener;
     
@@ -45,6 +46,7 @@ public class Action implements TaskChainListener {
     private MgcpEvent event;
     
     private RollbackListener rollbackListener = new RollbackListener();
+    
     /**
      * Creates new instance of the action.
      */
@@ -121,6 +123,7 @@ public class Action implements TaskChainListener {
         if (listener != null) {
             listener.onComplete();
         }
+        reset();
     }
 
     @Override
@@ -128,7 +131,10 @@ public class Action implements TaskChainListener {
         if (listener != null) {
             listener.onFailure(e);
         }
+        reset();
     }
+    
+    protected abstract void reset();
     
     protected Transaction transaction() {
         return tx;

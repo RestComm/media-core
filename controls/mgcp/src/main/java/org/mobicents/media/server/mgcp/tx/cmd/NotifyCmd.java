@@ -34,26 +34,31 @@ import org.apache.log4j.Logger;
  * @author Yulian Oifa
  */
 public class NotifyCmd extends Action {
-    
-    private TaskChain handler;
-    
-    private final static Logger logger = Logger.getLogger(NotifyCmd.class);    
-    
+
+    private final static Logger logger = Logger.getLogger(NotifyCmd.class);
+
+    private final TaskChain handler;
+
     public NotifyCmd(PriorityQueueScheduler scheduler) {
-        handler = new TaskChain(1,scheduler);
-        handler.add(new Sender());
-        this.setActionHandler(handler);
+        this.handler = new TaskChain(1, scheduler);
+        this.handler.add(new Sender());
+        setActionHandler(handler);
     }
-    
+
+    @Override
+    protected void reset() {
+        // nothing to clean
+    }
+
     private class Sender extends Task {
-        
+
         public Sender() {
             super();
         }
 
         @Override
         public int getQueueNumber() {
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
+            return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
         @Override
@@ -61,10 +66,10 @@ public class NotifyCmd extends Action {
             try {
                 transaction().getProvider().send(getEvent());
             } catch (IOException e) {
-            	logger.error(e);
-            } 
+                logger.error(e);
+            }
             return 0;
         }
-        
+
     }
 }

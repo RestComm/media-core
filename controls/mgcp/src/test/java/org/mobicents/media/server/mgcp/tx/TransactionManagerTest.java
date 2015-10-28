@@ -68,7 +68,7 @@ public class TransactionManagerTest {
         txManager = new TransactionManager(scheduler, 3);
         txManager.start();
         
-        action = new Action();
+        action = new MockAction();
         
         TaskChain actionHandler = new TaskChain(2,scheduler);
         actionHandler.add(new MyTask());
@@ -164,5 +164,19 @@ public class TransactionManagerTest {
 			return 0;
 		}
 
+	}
+	
+	private class MockAction extends Action {
+	    
+	    public MockAction() {
+	        super();
+        }
+	    
+	    @Override
+	    protected void reset() {
+	        // TODO Auto-generated method stub
+	        
+	    }
+	    
 	}
 }

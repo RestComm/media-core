@@ -67,6 +67,11 @@ public class ModifyConnectionCmd extends Action {
         setActionHandler(handler);
         setRollbackHandler(new ErrorHandler());
     }
+    
+    @Override
+    protected void reset() {
+        connectionID = null;
+    }
 
     private class Modifier extends Task {
 
@@ -198,7 +203,6 @@ public class ModifyConnectionCmd extends Action {
             } finally {
                 evt.recycle();
             }
-
             return 0;
         }
 
