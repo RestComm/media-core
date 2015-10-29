@@ -94,27 +94,21 @@ public class HarvestManager {
 	}
 
 	public void harvest(IceMediaStream mediaStream, PortManager portManager, Selector selector) throws HarvestException, NoCandidatesGatheredException {
-		// Safe copy of currently registered harvesters
-		Map<CandidateType, CandidateHarvester> copy;
-		synchronized (this.harvesters) {
-			copy = new HashMap<CandidateType, CandidateHarvester>(this.harvesters);
-		}
-
 		// Ask each harvester to gather candidates for the media stream
 		// HOST candidates take precedence and are mandatory
-		CandidateHarvester hostHarvester = copy.get(CandidateType.HOST);
+		CandidateHarvester hostHarvester = harvesters.get(CandidateType.HOST);
 		if (hostHarvester != null) {
 			hostHarvester.harvest(portManager, mediaStream, selector);
 		} else {
 			throw new HarvestException("No HOST harvester registered!");
 		}
 		// Then comes the SRFLX, which depends on HOST candidates
-		CandidateHarvester srflxHarvester = copy.get(CandidateType.SRFLX);
+		CandidateHarvester srflxHarvester = harvesters.get(CandidateType.SRFLX);
 		if (srflxHarvester != null) {
 			srflxHarvester.harvest(portManager, mediaStream, selector);
 		}
 		// RELAY candidates come last
-		CandidateHarvester relayHarvester = copy.get(CandidateType.RELAY);
+		CandidateHarvester relayHarvester = harvesters.get(CandidateType.RELAY);
 		if (relayHarvester != null) {
 			relayHarvester.harvest(portManager, mediaStream, selector);
 		}
