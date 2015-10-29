@@ -23,6 +23,8 @@
 package org.mobicents.media.server.spi;
 
 import java.io.IOException;
+
+import org.mobicents.media.server.concurrent.pooling.PoolResource;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -31,7 +33,7 @@ import org.mobicents.media.server.utils.Text;
  * @author amit bhayani
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public interface Connection {
+public interface Connection extends PoolResource {
 	/**
 	 * Gets the identifier of this connection.
 	 *
@@ -45,6 +47,13 @@ public interface Connection {
 	 * @return hex view of the integer.
 	 */
 	public String getTextualId();
+
+    /**
+     * Gets the connection type
+     * 
+     * @return The type of the connection
+     */
+    public ConnectionType getType();
 
 	/**
 	 * Gets whether connection should be bound to local or remote interface ,
@@ -228,17 +237,4 @@ public interface Connection {
 	 * @return whether connection is available
 	 */
 	public boolean isAvailable();
-
-	/**
-	 * Generates a unique CNAME for the connection and its channels.<br>
-	 * Only applicable to RTP connections!
-	 */
-	public void generateCname();
-
-	/**
-	 * Gets the CNAME of the connection. Only applicable to RTP connections!
-	 * 
-	 * @return The unique CNAME that identifies the connection and its channels.
-	 */
-	public String getCname();
 }

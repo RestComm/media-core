@@ -49,88 +49,66 @@ public class MyTestConnection extends BaseConnection {
 
     private AudioComponent audioComponent;
     private OOBComponent oobComponent;
-    public MyTestConnection(int id,PriorityQueueScheduler scheduler) throws Exception {
+
+    public MyTestConnection(int id, PriorityQueueScheduler scheduler) throws Exception {
         super(id, scheduler);
-        audioComponent=new AudioComponent(-1);
-        oobComponent=new OOBComponent(-1);
-    }
-    
-    @Override
-    public void generateCname() {
-    	throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
-    public String getCname() {
-    	throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    public void generateOffer(boolean webrtc) throws IOException {
-    	throw new UnsupportedOperationException("Not supported yet.");
+        audioComponent = new AudioComponent(-1);
+        oobComponent = new OOBComponent(-1);
     }
 
-    public AudioComponent getAudioComponent()
-    {
-    	return audioComponent;
+    @Override
+    public void generateOffer(boolean webrtc) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    public OOBComponent getOOBComponent()
-    {
-    	return oobComponent;
+
+    @Override
+    public AudioComponent getAudioComponent() {
+        return audioComponent;
     }
-    
+
+    @Override
+    public OOBComponent getOOBComponent() {
+        return oobComponent;
+    }
+
+    @Override
     public void setOtherParty(Connection other) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void setOtherParty(byte[] descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public long getPacketsReceived(MediaType media) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    @Override
     public long getPacketsReceived() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    public long getBytesReceived(MediaType media) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
+    @Override
     public long getBytesReceived() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public long getPacketsTransmitted(MediaType media) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    @Override
     public long getPacketsTransmitted() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    public long getBytesTransmitted(MediaType media) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
+    @Override
     public long getBytesTransmitted() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public double getJitter(MediaType media) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    @Override
     public double getJitter() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
-    public void setConnectionFailureListener(ConnectionFailureListener connectionListener)
-    {
-    	//currently used only in RTP Connection
+    public void setConnectionFailureListener(ConnectionFailureListener connectionListener) {
+        // currently used only in RTP Connection
     }
 
     @Override
@@ -145,7 +123,6 @@ public class MyTestConnection extends BaseConnection {
     @Override
     protected void onFailed() {
     }
-
 
     @Override
     protected void onOpened() throws Exception {
@@ -165,11 +142,13 @@ public class MyTestConnection extends BaseConnection {
         return this.closed;
     }
 
+    @Override
     public void setOtherParty(Text descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-	public boolean isAvailable() {
-		return true;
-	}
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
 }

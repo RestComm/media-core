@@ -34,7 +34,7 @@ public class GenericPoolTest {
     @Test
     public void testResourceLifecycle() {
         // Given
-        final GenericPool<PoolResourceMock> pool = new GenericPool<PoolResourceMock>();
+        final ConcurrentResourcePool<PoolResourceMock> pool = new ConcurrentResourcePool<PoolResourceMock>();
         PoolResourceMock resource1 = new PoolResourceMock();
         
         // When
@@ -55,7 +55,7 @@ public class GenericPoolTest {
     @Test
     public void testOfferAndPoll() {
         // Given
-        final GenericPool<PoolResourceMock> pool = new GenericPool<PoolResourceMock>();
+        final ConcurrentResourcePool<PoolResourceMock> pool = new ConcurrentResourcePool<PoolResourceMock>();
         PoolResourceMock resource1 = new PoolResourceMock();
         PoolResourceMock resource2 = new PoolResourceMock();
         PoolResourceMock resource3 = new PoolResourceMock();

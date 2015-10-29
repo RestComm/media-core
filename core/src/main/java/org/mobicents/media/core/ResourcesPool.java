@@ -31,6 +31,8 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.connections.LocalConnectionImpl;
 import org.mobicents.media.core.connections.RtpConnectionImpl;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.mobicents.media.server.concurrent.pooling.ConcurrentResourcePool;
+import org.mobicents.media.server.concurrent.pooling.ResourcePool;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
@@ -82,7 +84,7 @@ public class ResourcesPool implements ComponentFactory {
 
 	// Connection resources
 	private final ConcurrentCyclicFIFO<Connection> localConnections;
-	private final ConcurrentCyclicFIFO<Connection> remoteConnections;
+	private final ResourcePool<Connection> remoteConnections;
 
 	private int defaultLocalConnections;
 	private int defaultRemoteConnections;
@@ -104,7 +106,7 @@ public class ResourcesPool implements ComponentFactory {
 		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.signalGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.localConnections = new ConcurrentCyclicFIFO<Connection>();
-		this.remoteConnections = new ConcurrentCyclicFIFO<Connection>();
+		this.remoteConnections = new ConcurrentResourcePool<Connection>();
 		
 		this.dtmfDetectorDbi = -35;
 		
@@ -369,34 +371,42 @@ public class ResourcesPool implements ComponentFactory {
 			break;
 		}
 	}
+	
+	public Connection pollLocalConnection() {
+	    // Try to pull object from pool
+	    Connection connection = this.localConnections.poll();
+	    
+	    // IF pool is empty, then produce a new object
+	    if(connection == null) {
+	        connection = new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager);
+	        this.localConnectionsCount.incrementAndGet();
+	        
+	           if (logger.isDebugEnabled()) {
+	                logger.debug("Allocated new local connection, pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
+	            }
+	    }
+	    return connection;
+	}
+
+	public Connection pollRtpConnection() {
+	    // Try to pull object from pool
+	    Connection connection = this.remoteConnections.poll();
+	    
+	    // IF pool is empty, then produce a new object
+	    if(connection == null) {
+	        connection = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
+	        this.localConnectionsCount.incrementAndGet();
+	        
+	        if (logger.isDebugEnabled()) {
+                logger.debug("Allocated new rtp connection, pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.size());
+            }
+	    }
+	    return connection;
+	}
 
 	@Override
-	public Connection newConnection(boolean isLocal) {
-		Connection result = null;
-		if (isLocal) {
-			result = this.localConnections.poll();
-			if (result == null) {
-				result = new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager);
-				this.localConnectionsCount.incrementAndGet();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new local connection, pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
-			}
-		} else {
-			result = this.remoteConnections.poll();
-			if (result == null) {
-				result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
-				this.rtpConnectionsCount.incrementAndGet();
-			} else {
-				result.generateCname();
-			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new rtp connection " + result.getCname() + ", pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.size());
-			}
-		}
-		return result;
+	public Connection newConnection(boolean local) {
+	    return local ? pollLocalConnection() : pollRtpConnection();
 	}
 
 	@Override

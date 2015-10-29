@@ -39,22 +39,15 @@ public interface PoolResource {
      * Must be invoked when the pulled from the pool to ensure the object is ready to be used.
      * </p>
      */
-    void initialize();
+    void checkOut();
 
     /**
-     * Closes the resource and its dependencies.
+     * Closes the resource and resets its state.
      * <p>
-     * Must be invoked before putting the object into the pool, to ensure the object will not use system resources when idle.
+     * Must be invoked before putting the object into the pool, to ensure the object will not use system resources when idle AND
+     * that its state is pristine when polled for reusal.
      * </p>
      */
-    void close();
-
-    /**
-     * Resets the state of the resource.
-     * <p>
-     * Must be invoked before putting the object into the pool, to ensure the object state is pristine and can be reused.
-     * </p>
-     */
-    void reset();
+    void checkIn();
 
 }

@@ -27,19 +27,18 @@ import javolution.util.FastTable;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class GenericPool<E extends PoolResource> implements ResourcePool<E> {
+public class ConcurrentResourcePool<E extends PoolResource> implements ResourcePool<E> {
 
     private final FastTable<E> collection;
 
-    public GenericPool() {
+    public ConcurrentResourcePool() {
         this.collection = new FastTable<E>().shared();
     }
 
     @Override
     public void offer(E resource) {
         // Reset state of the resource
-        resource.close();
-        resource.reset();
+        resource.checkIn();
 
         // Offer object to the pool
         this.collection.add(resource);
@@ -52,7 +51,7 @@ public class GenericPool<E extends PoolResource> implements ResourcePool<E> {
 
         // Initialize object for correct use
         if (resource != null) {
-            resource.initialize();
+            resource.checkOut();
         }
         return resource;
     }

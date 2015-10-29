@@ -22,8 +22,6 @@
 
 package org.mobicents.media.core.connections;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -40,7 +38,6 @@ import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.utils.Text;
 
 /**
  * Implements connection's FSM.
@@ -298,66 +295,17 @@ public abstract class BaseConnection implements Connection {
 	 */
 	protected abstract void onFailed();
 
-	/**
-	 * Joins endpoint wich executes this connection with other party.
-	 * 
-	 * @param other
-	 *            the connection executed by other party endpoint.
-	 * @throws IOException
-	 */
-	@Override
-	public abstract void setOtherParty(Connection other) throws IOException;
-
-	/**
-	 * Joins endpoint which executes this connection with other party.
-	 * 
-	 * @param descriptor
-	 *            the SDP descriptor of the other party.
-	 * @throws IOException
-	 */
-	@Override
-	public abstract void setOtherParty(byte[] descriptor) throws IOException;
-
-	/**
-	 * Joins endpoint which executes this connection with other party.
-	 * 
-	 * @param descriptor
-	 *            the SDP descriptor of the other party.
-	 * @throws IOException
-	 */
-	@Override
-	public abstract void setOtherParty(Text descriptor) throws IOException;
-
-	/**
-	 * Gets whether connection should be bound to local or remote interface.
-	 * <p>
-	 * <b>Supported only for RTP connections.</b>
-	 * </p>
-	 * 
-	 * @return boolean value
-	 */
-	@Override
-	public boolean getIsLocal() {
-		return false;
-	}
-
-	/**
-	 * Sets whether connection should be bound to local or remote interface.
-	 * <p>
-	 * <b>Supported only for RTP connections.</b>
-	 * </p>
-	 */
-	@Override
-	public void setIsLocal(boolean isLocal) {
-		// do nothing
-	}
-	
 	protected void releaseConnection(ConnectionType connectionType) {
 		if (this.activeEndpoint != null) {
 			this.activeEndpoint.deleteConnection(this, connectionType);
 		}
 		this.activeEndpoint = null;
 	}
+	
+    @Override
+    public String toString() {
+        return getType() + "-connection-" + this.id;
+    }
 
 	private class HeartBeat extends Task {
 
@@ -365,6 +313,7 @@ public abstract class BaseConnection implements Connection {
 			super();
 		}
 
+		@Override
 		public int getQueueNumber() {
 			return PriorityQueueScheduler.HEARTBEAT_QUEUE;
 		}

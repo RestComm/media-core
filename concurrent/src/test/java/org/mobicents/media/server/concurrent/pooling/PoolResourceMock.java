@@ -52,18 +52,13 @@ public class PoolResourceMock implements PoolResource {
     }
 
     @Override
-    public void initialize() {
+    public void checkOut() {
         this.initialized = true;
     }
 
     @Override
-    public void close() {
+    public void checkIn() {
         this.closed = true;
-    }
-
-    @Override
-    public void reset() {
-        this.reset = true;
     }
 
 }

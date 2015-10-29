@@ -58,8 +58,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
-	private static final Logger logger = Logger
-			.getLogger(RtpConnectionImpl.class);
+    private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
 
 	// Core elements
 	private final ChannelsManager channelsManager;
@@ -117,17 +116,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 	}
 
-	@Override
-	public void generateCname() {
+	private void generateCname() {
 		this.cname = CnameGenerator.generateCname();
 		if (this.audioChannel != null) {
 			this.audioChannel.setCname(this.cname);
 		}
-	}
-
-	@Override
-	public String getCname() {
-		return this.cname;
 	}
 
 	@Override
@@ -138,6 +131,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	@Override
 	public OOBComponent getOOBComponent() {
 		return this.audioChannel.getAudioOobComponent();
+	}
+	
+	@Override
+	public ConnectionType getType() {
+	    return ConnectionType.RTP;
 	}
 
 	@Override
@@ -491,11 +489,17 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	public boolean isAvailable() {
 		return this.audioChannel.isAvailable();
 	}
-
-	@Override
-	public String toString() {
-		return "RTP Connection [" + getEndpoint().getLocalName() + "]";
-	}
+	
+    private void reset() {
+        this.cname = "";
+        this.outbound = false;
+        this.localSdp = null;
+        this.remoteSdp = null;
+        
+        if(this.audioChannel != null) {
+            this.audioChannel.reset();
+        }
+    }
 
 	/**
 	 * Closes any active resources (like media channels) associated with the
@@ -505,16 +509,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		if (this.audioChannel.isOpen()) {
 			this.audioChannel.close();
 		}
-	}
-
-	/**
-	 * Resets the state of the connection.
-	 */
-	private void reset() {
-		// Reset SDP
-		this.outbound = false;
-		this.localSdp = null;
-		this.remoteSdp = null;
 	}
 
 	@Override
@@ -591,4 +585,20 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		this.connectionFailureListener = null;
 	}
 
+	/*
+	 * POOLED RESOURCE
+	 */
+	
+	@Override
+	public void checkOut() {
+	    generateCname();
+	}
+	
+	@Override
+	public void checkIn() {
+	    super.close();
+	    reset();
+	    
+	}
+	
 }
