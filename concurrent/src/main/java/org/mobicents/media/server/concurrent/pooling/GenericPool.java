@@ -18,8 +18,8 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.mobicents.media.core.resources;
+
+package org.mobicents.media.server.concurrent.pooling;
 
 import javolution.util.FastTable;
 
@@ -28,11 +28,11 @@ import javolution.util.FastTable;
  *
  */
 public class GenericPool<E extends PoolResource> implements ResourcePool<E> {
-    
+
     private final FastTable<E> collection;
-    
-    public GenericPool(int capacity) {
-        this.collection = new FastTable<E>().atomic();
+
+    public GenericPool() {
+        this.collection = new FastTable<E>().shared();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class GenericPool<E extends PoolResource> implements ResourcePool<E> {
         // Reset state of the resource
         resource.close();
         resource.reset();
-        
+
         // Offer object to the pool
         this.collection.add(resource);
     }
@@ -48,10 +48,10 @@ public class GenericPool<E extends PoolResource> implements ResourcePool<E> {
     @Override
     public E poll() {
         // Poll any object from collection
-        E resource = this.collection.remove();
-        
+        E resource = this.collection.isEmpty() ? null : this.collection.remove();
+
         // Initialize object for correct use
-        if(resource != null) {
+        if (resource != null) {
             resource.initialize();
         }
         return resource;

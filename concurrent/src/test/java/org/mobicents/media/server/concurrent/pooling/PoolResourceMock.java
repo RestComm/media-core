@@ -19,24 +19,51 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.resources;
+package org.mobicents.media.server.concurrent.pooling;
 
 /**
- * Represents an object that can be pooled.
- * <p>
- * The methods exposed by this interface are meant to represent the object's lifecycle, ensuring that its state is pristine
- * whenever it's retrieved from the pool.
- * </p>
+ * Mock representation of a pooled object that help tests lifecycle of pooled resources.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface PoolResource {
+public class PoolResourceMock implements PoolResource {
 
-    void initialize();
+    private boolean initialized;
+    private boolean closed;
+    private boolean reset;
 
-    void close();
+    public PoolResourceMock() {
+        this.initialized = false;
+        this.closed = false;
+        this.reset = false;
+    }
 
-    void reset();
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public boolean isReset() {
+        return reset;
+    }
+
+    @Override
+    public void initialize() {
+        this.initialized = true;
+    }
+
+    @Override
+    public void close() {
+        this.closed = true;
+    }
+
+    @Override
+    public void reset() {
+        this.reset = true;
+    }
 
 }
