@@ -21,7 +21,8 @@
 
 package org.mobicents.media.server.concurrent.pooling;
 
-import javolution.util.FastTable;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -29,10 +30,10 @@ import javolution.util.FastTable;
  */
 public class ConcurrentResourcePool<E extends PoolResource> implements ResourcePool<E> {
 
-    private final FastTable<E> collection;
+    private final Queue<E> collection;
 
     public ConcurrentResourcePool() {
-        this.collection = new FastTable<E>().shared();
+        this.collection = new ConcurrentLinkedQueue<E>();
     }
 
     @Override
