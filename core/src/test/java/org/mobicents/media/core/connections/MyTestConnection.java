@@ -28,13 +28,13 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.utils.Text;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
+import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.utils.Text;
 
 /**
  *
@@ -150,5 +150,31 @@ public class MyTestConnection extends BaseConnection {
     @Override
     public boolean isAvailable() {
         return true;
+    }
+
+    @Override
+    public ConnectionType getType() {
+        return ConnectionType.LOCAL;
+    }
+
+    @Override
+    public boolean getIsLocal() {
+        return false;
+    }
+
+    @Override
+    public void setIsLocal(boolean isLocal) {
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
     }
 }

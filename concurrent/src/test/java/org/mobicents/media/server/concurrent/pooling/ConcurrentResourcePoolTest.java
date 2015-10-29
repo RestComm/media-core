@@ -29,7 +29,7 @@ import org.junit.Test;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class GenericPoolTest {
+public class ConcurrentResourcePoolTest {
 
     @Test
     public void testResourceLifecycle() {

@@ -59,6 +59,7 @@ public class PoolResourceMock implements PoolResource {
     @Override
     public void checkIn() {
         this.closed = true;
+        this.reset = true;
     }
 
 }

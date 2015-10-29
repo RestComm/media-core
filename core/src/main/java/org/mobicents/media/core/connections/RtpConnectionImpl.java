@@ -88,8 +88,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * @param dspFactory
 	 *            The DSP provider
 	 */
-	public RtpConnectionImpl(int id, ChannelsManager channelsManager,
-			DspFactory dspFactory) {
+    public RtpConnectionImpl(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
 		// Core elements
 		super(id, channelsManager.getScheduler());
 		this.channelsManager = channelsManager;
@@ -106,13 +105,10 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		try {
 			this.audioChannel.setInputDsp(dspFactory.newProcessor());
 			this.audioChannel.setOutputDsp(dspFactory.newProcessor());
-		} catch (InstantiationException | ClassNotFoundException
-				| IllegalAccessException e) {
-			// exception may happen only if invalid classes have been set in
-			// configuration
-			throw new RuntimeException(
-					"There are invalid classes specified in the configuration.",
-					e);
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+            // exception may happen only if invalid classes have been set in
+            // configuration
+            throw new RuntimeException("There are invalid classes specified in the configuration.", e);
 		}
 	}
 
@@ -598,7 +594,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	public void checkIn() {
 	    super.close();
 	    reset();
-	    
 	}
 	
 }

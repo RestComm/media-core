@@ -184,4 +184,17 @@ public class LocalConnectionImpl extends BaseConnection {
         return true;
     }
 
+    /*
+     * POOL RESOURCE
+     */
+    @Override
+    public void checkIn() {
+        close();
+    }
+    
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
 }

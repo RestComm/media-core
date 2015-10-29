@@ -293,7 +293,7 @@ public abstract class MediaChannel {
 	 * Should be invoked whenever there is intention of reusing the same channel
 	 * for different calls.
 	 */
-	private void reset() {
+	public void reset() {
 		// Reset codecs
 		resetFormats();
 		
