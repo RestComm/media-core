@@ -492,6 +492,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
         this.localSdp = null;
         this.remoteSdp = null;
         
+        this.connectionFailureListener = null;
+
         if(this.audioChannel != null) {
             this.audioChannel.reset();
         }
@@ -592,7 +594,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	@Override
 	public void checkIn() {
-	    super.close();
+	    closeResources();
 	    reset();
 	}
 	
