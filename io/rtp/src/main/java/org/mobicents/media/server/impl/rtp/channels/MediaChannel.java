@@ -327,7 +327,7 @@ public abstract class MediaChannel {
 	public boolean isOpen() {
 		return open;
 	}
-
+	
 	/**
 	 * Indicates whether the channel is available (ready to use).
 	 * 
@@ -972,6 +972,14 @@ public abstract class MediaChannel {
 				CandidatePair rtcpCandidate = agent.getSelectedRtcpCandidate(mediaType);
 				if (rtcpCandidate != null) {
 					rtcpChannel.bind(rtcpCandidate.getChannel());
+				}
+				
+				// For outbound calls only
+				if(!rtpChannel.isConnected()) {
+				    rtpChannel.setRemotePeer(new InetSocketAddress(rtpCandidate.getRemoteAddress(), rtpCandidate.getRemotePort()));
+				    if(rtcpCandidate != null) {
+				        rtcpChannel.setRemotePeer(new InetSocketAddress(rtcpCandidate.getRemoteAddress(), rtcpCandidate.getRemotePort()));
+				    }
 				}
 			} catch (IOException e) {
 				// Warn RTP listener a failure happened and connection must be closed
