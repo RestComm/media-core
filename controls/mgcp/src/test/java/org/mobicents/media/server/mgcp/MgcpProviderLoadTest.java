@@ -97,8 +97,8 @@ public class MgcpProviderLoadTest {
         scheduler.start();
         udpInterface.start();
         
-        provider1 = new MgcpProvider("provider1", udpInterface, 1024, mediaScheduler);
-        provider2 = new MgcpProvider("provider2", udpInterface, 1025, mediaScheduler);
+        provider1 = new MgcpProvider("provider1", udpInterface, 1024);
+        provider2 = new MgcpProvider("provider2", udpInterface, 1025);
         
         provider1.activate();
         provider2.activate();
