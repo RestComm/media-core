@@ -24,7 +24,9 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.endpoints.BaseSplitterEndpointImpl;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.MediaType;
 
 /**
@@ -45,8 +47,8 @@ import org.mobicents.media.server.spi.MediaType;
  */
 public class BridgeEndpoint extends BaseSplitterEndpointImpl {
 
-	public BridgeEndpoint(String localName) {
-		super(localName);
+	public BridgeEndpoint(String localName, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+		super(localName, scheduler, resourcesPool);
 	}
 
 	@Override

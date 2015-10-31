@@ -411,11 +411,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		super.setMode(mode);
 	}
 
-	@Override
-	public String getDescriptor() {
-		return (this.localSdp == null) ? "" : this.localSdp.toString();
-	}
-
     @Override
     public void generateOffer(boolean webrtc) throws IOException {
         // Only open and bind a new channel if not currently configured
@@ -555,7 +550,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	@Override
 	protected void onCreated() throws Exception {
 		// Reset components so they can be re-used in new calls
-		reset();
+        // reset();
 	}
 
 	@Override

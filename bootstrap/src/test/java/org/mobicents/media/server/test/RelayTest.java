@@ -33,7 +33,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
@@ -42,9 +41,9 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -118,21 +117,14 @@ public class RelayTest {
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         
         //assign scheduler to the endpoint
-        ivr = new IvrEndpoint("test-1");
-        ivr.setScheduler(scheduler);
-        ivr.setResourcesPool(resourcesPool);
+        ivr = new IvrEndpoint("test-1", scheduler, resourcesPool);
         ivr.start();
 
-        soundcard = new SoundSystem("test-2");
-        soundcard.setScheduler(scheduler);
-        soundcard.setResourcesPool(resourcesPool);
+        soundcard = new SoundSystem("test-2", scheduler, resourcesPool);
         soundcard.start();
 
-        cnfBridge = new ConferenceEndpoint("test-3");
-        cnfBridge.setScheduler(scheduler);
-        cnfBridge.setResourcesPool(resourcesPool);
+        cnfBridge = new ConferenceEndpoint("test-3", scheduler, resourcesPool);
         cnfBridge.start();
-
     }
 
     @After
@@ -160,17 +152,15 @@ public class RelayTest {
      */
 //    @Test
     public void testTransmission() throws Exception {
-        long s = System.nanoTime();
-        
         //create client
         Connection connection2 = soundcard.createConnection(ConnectionType.RTP,false);        
-        Text sd2 = new Text(connection2.getDescriptor());
+        Text sd2 = new Text(connection2.getLocalDescriptor());
         connection2.setMode(ConnectionMode.SEND_RECV);
         Thread.sleep(50);
         
         //create server with known sdp in cnf mode
         Connection connection02 = cnfBridge.createConnection(ConnectionType.RTP,false);        
-        Text sd1 = new Text(connection02.getDescriptor());
+        Text sd1 = new Text(connection02.getLocalDescriptor());
         
         connection02.setOtherParty(sd2);
         connection02.setMode(ConnectionMode.CONFERENCE);
@@ -207,19 +197,6 @@ public class RelayTest {
         ivr.deleteConnection(connection1);
         soundcard.deleteConnection(connection2);
         cnfBridge.deleteAllConnections();
-    }
-
-    @Test
-    public void testNothing() {
-        
-    }
-    
-    private void printSpectra(String title, int[]s) {
-        System.out.println(title);
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
     }
     
 }

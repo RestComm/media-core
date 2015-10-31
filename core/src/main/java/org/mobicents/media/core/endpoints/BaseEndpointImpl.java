@@ -44,104 +44,72 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * 
  * @author yulian oifa
  * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public abstract class BaseEndpointImpl implements Endpoint {
-    
+
     private static final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
 
-	// local name of this endpoint
-	private String localName;
+    // Task Scheduler
+    private final PriorityQueueScheduler scheduler;
 
-	// current state of this endpoint
-	private EndpointState state = EndpointState.READY;
+    // Resources Pool
+    protected final ResourcesPool resourcesPool;
+    protected final MediaGroup mediaGroup;
 
-	// media group
-	protected MediaGroup mediaGroup;
+    // Endpoint Properties
+    private final String localName;
+    private EndpointState state;
+    private final ConcurrentMap<Connection> connections;
+    private volatile boolean started;
 
-	// resources pool
-	protected ResourcesPool resourcesPool;
+    public BaseEndpointImpl(String localName, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+        // Task Scheduler
+        this.scheduler = scheduler;
 
-	// job scheduler
-	private PriorityQueueScheduler scheduler;
+        // Resources Pool
+        this.resourcesPool = resourcesPool;
+        this.mediaGroup = new MediaGroup(resourcesPool, this);
 
-	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
-	
-	private volatile boolean started;
+        // Endpoint Properties
+        this.localName = localName;
+        this.state = EndpointState.READY;
+        this.connections = new ConcurrentMap<Connection>();
+        this.started = false;
+    }
 
-	public BaseEndpointImpl(String localName) {
-		this.localName = localName;
-		this.started = false;
-	}
+    @Override
+    public String getLocalName() {
+        return localName;
+    }
 
-	@Override
-	public String getLocalName() {
-		return localName;
-	}
+    @Override
+    public PriorityQueueScheduler getScheduler() {
+        return scheduler;
+    }
 
-	@Override
-	public void setScheduler(PriorityQueueScheduler scheduler) {
-		this.scheduler = scheduler;
-	}
+    @Override
+    public EndpointState getState() {
+        return state;
+    }
 
-	@Override
-	public PriorityQueueScheduler getScheduler() {
-		return scheduler;
-	}
+    /**
+     * Modifies state indicator.
+     * 
+     * @param state the new value of the state indicator.
+     */
+    public void setState(EndpointState state) {
+        this.state = state;
+    }
 
-	/**
-	 * Assigns resources pool.
-	 * 
-	 * @param resourcesPool
-	 *            the resources pool instance.
-	 */
-	public void setResourcesPool(ResourcesPool resourcesPool) {
-		this.resourcesPool = resourcesPool;
-	}
-
-	/**
-	 * Provides access to the resources pool.
-	 * 
-	 * @return scheduler instance.
-	 */
-	public ResourcesPool getResourcesPool() {
-		return resourcesPool;
-	}
-
-	@Override
-	public EndpointState getState() {
-		return state;
-	}
-
-	/**
-	 * Modifies state indicator.
-	 * 
-	 * @param state
-	 *            the new value of the state indicator.
-	 */
-	public void setState(EndpointState state) {
-		this.state = state;
-	}
-	
-	public boolean isStarted() {
+    public boolean isStarted() {
         return started;
     }
 
     @Override
     public void start() throws ResourceUnavailableException {
         if (!started) {
-            // do checks before start
-            if (scheduler == null) {
-                throw new ResourceUnavailableException("Scheduler is not available");
-            }
-
-            if (resourcesPool == null) {
-                throw new ResourceUnavailableException("Resources pool is not available");
-            }
-
             this.started = true;
-            
-            // create connections subsystem
-            mediaGroup = new MediaGroup(resourcesPool, this);
             logger.info("Started " + localName);
         }
     }
@@ -157,165 +125,163 @@ public abstract class BaseEndpointImpl implements Endpoint {
         }
     }
 
-	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal)
-			throws ResourceUnavailableException {
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+        Connection connection = null;
+        switch (type) {
+            case RTP:
+                connection = resourcesPool.newConnection(false);
+                break;
+            case LOCAL:
+                connection = resourcesPool.newConnection(true);
+                break;
+        }
 
-		Connection connection = null;
-		switch (type) {
-		case RTP:
-			connection = resourcesPool.newConnection(false);
-			break;
-		case LOCAL:
-			connection = resourcesPool.newConnection(true);
-			break;
-		}
+        connection.setIsLocal(isLocal);
 
-		connection.setIsLocal(isLocal);
+        try {
+            ((BaseConnection) connection).bind();
+        } catch (Exception e) {
+            logger.error("Could not bind connection.", e);
+            throw new ResourceUnavailableException(e.getMessage());
+        }
 
-		try {
-			((BaseConnection) connection).bind();
-		} catch (Exception e) {
-			logger.error("Could not bind connection.", e);
-			throw new ResourceUnavailableException(e.getMessage());
-		}
+        connection.setEndpoint(this);
+        connections.put(connection.getId(), connection);
 
-		connection.setEndpoint(this);
-		connections.put(connection.getId(), connection);
-		
-		// We have at least one connection so we can activate the endpoint
-		if(!started) {
-		    start();
-		}
-		
-		return connection;
-	}
+        // We have at least one connection so we can activate the endpoint
+        if (!started) {
+            start();
+        }
 
-	@Override
-	public void deleteConnection(Connection connection) {
-		((BaseConnection) connection).close();
-	}
+        return connection;
+    }
 
-	@Override
-	public void deleteConnection(Connection connection, ConnectionType connectionType) {
-		connections.remove(connection.getId());
+    @Override
+    public void deleteConnection(Connection connection) {
+        ((BaseConnection) connection).close();
+    }
 
-		switch (connectionType) {
-		case RTP:
-			resourcesPool.releaseConnection(connection, false);
-			break;
-		case LOCAL:
-			resourcesPool.releaseConnection(connection, true);
-			break;
-		}
+    @Override
+    public void deleteConnection(Connection connection, ConnectionType connectionType) {
+        connections.remove(connection.getId());
 
-		if (connections.size() == 0) {
-		    stop();
-		}
-	}
+        switch (connectionType) {
+            case RTP:
+                resourcesPool.releaseConnection(connection, false);
+                break;
+            case LOCAL:
+                resourcesPool.releaseConnection(connection, true);
+                break;
+        }
 
-	@Override
-	public void deleteAllConnections() {
-	    Iterator<Connection> connectionsIterator = connections.valuesIterator();
-		while (connectionsIterator.hasNext()) {
-			((BaseConnection) connectionsIterator.next()).close();
-		}
-	}
+        if (connections.size() == 0) {
+            stop();
+        }
+    }
 
-	public Connection getConnection(int connectionID) {
-		return connections.get(connectionID);
-	}
+    @Override
+    public void deleteAllConnections() {
+        Iterator<Connection> connectionsIterator = connections.valuesIterator();
+        while (connectionsIterator.hasNext()) {
+            ((BaseConnection) connectionsIterator.next()).close();
+        }
+    }
 
-	@Override
-	public int getActiveConnectionsCount() {
-		return connections.size();
-	}
+    public Connection getConnection(int connectionID) {
+        return connections.get(connectionID);
+    }
 
-	@Override
-	public void configure(boolean isALaw) {
-	}
+    @Override
+    public int getActiveConnectionsCount() {
+        return connections.size();
+    }
 
-	@Override
-	public Component getResource(MediaType mediaType, ComponentType componentType) {
-		switch (mediaType) {
-		case AUDIO:
-			switch (componentType) {
-			case PLAYER:
-				return mediaGroup.getPlayer();
-			case RECORDER:
-				return mediaGroup.getRecorder();
-			case DTMF_DETECTOR:
-				return mediaGroup.getDtmfDetector();
-			case DTMF_GENERATOR:
-				return mediaGroup.getDtmfGenerator();
-			case SIGNAL_DETECTOR:
-				return mediaGroup.getSignalDetector();
-			case SIGNAL_GENERATOR:
-				return mediaGroup.getSignalGenerator();
-			default:
-				break;
-			}
-			break;
-		default:
-			break;
-		}
-		return null;
-	}
+    @Override
+    public void configure(boolean isALaw) {
+    }
 
-	@Override
-	public boolean hasResource(MediaType mediaType, ComponentType componentType) {
-		switch (mediaType) {
-		case AUDIO:
-			switch (componentType) {
-			case PLAYER:
-				return mediaGroup.hasPlayer();
-			case RECORDER:
-				return mediaGroup.hasRecorder();
-			case DTMF_DETECTOR:
-				return mediaGroup.hasDtmfDetector();
-			case DTMF_GENERATOR:
-				return mediaGroup.hasDtmfGenerator();
-			case SIGNAL_DETECTOR:
-				return mediaGroup.hasSignalDetector();
-			case SIGNAL_GENERATOR:
-				return mediaGroup.hasSignalGenerator();
-			default:
-				break;
-			}
-			break;
-		default:
-			break;
-		}
-		return false;
-	}
+    @Override
+    public Component getResource(MediaType mediaType, ComponentType componentType) {
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case PLAYER:
+                        return mediaGroup.getPlayer();
+                    case RECORDER:
+                        return mediaGroup.getRecorder();
+                    case DTMF_DETECTOR:
+                        return mediaGroup.getDtmfDetector();
+                    case DTMF_GENERATOR:
+                        return mediaGroup.getDtmfGenerator();
+                    case SIGNAL_DETECTOR:
+                        return mediaGroup.getSignalDetector();
+                    case SIGNAL_GENERATOR:
+                        return mediaGroup.getSignalGenerator();
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        return null;
+    }
 
-	@Override
-	public void releaseResource(MediaType mediaType, ComponentType componentType) {
-		switch (mediaType) {
-		case AUDIO:
-			switch (componentType) {
-			case PLAYER:
-				mediaGroup.releasePlayer();
-			case RECORDER:
-				mediaGroup.releaseRecorder();
-			case DTMF_DETECTOR:
-				mediaGroup.releaseDtmfDetector();
-			case DTMF_GENERATOR:
-				mediaGroup.releaseDtmfGenerator();
-			case SIGNAL_DETECTOR:
-				mediaGroup.releaseSignalDetector();
-			case SIGNAL_GENERATOR:
-				mediaGroup.releaseSignalGenerator();
-			default:
-				break;
-			}
-			break;
-		default:
-			break;
-		}
-	}
+    @Override
+    public boolean hasResource(MediaType mediaType, ComponentType componentType) {
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case PLAYER:
+                        return mediaGroup.hasPlayer();
+                    case RECORDER:
+                        return mediaGroup.hasRecorder();
+                    case DTMF_DETECTOR:
+                        return mediaGroup.hasDtmfDetector();
+                    case DTMF_GENERATOR:
+                        return mediaGroup.hasDtmfGenerator();
+                    case SIGNAL_DETECTOR:
+                        return mediaGroup.hasSignalDetector();
+                    case SIGNAL_GENERATOR:
+                        return mediaGroup.hasSignalGenerator();
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        return false;
+    }
 
-	@Override
-	public abstract void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
+    @Override
+    public void releaseResource(MediaType mediaType, ComponentType componentType) {
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case PLAYER:
+                        mediaGroup.releasePlayer();
+                    case RECORDER:
+                        mediaGroup.releaseRecorder();
+                    case DTMF_DETECTOR:
+                        mediaGroup.releaseDtmfDetector();
+                    case DTMF_GENERATOR:
+                        mediaGroup.releaseDtmfGenerator();
+                    case SIGNAL_DETECTOR:
+                        mediaGroup.releaseSignalDetector();
+                    case SIGNAL_GENERATOR:
+                        mediaGroup.releaseSignalGenerator();
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public abstract void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
 
 }

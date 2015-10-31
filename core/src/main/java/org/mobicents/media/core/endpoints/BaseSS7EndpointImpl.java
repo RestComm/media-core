@@ -24,11 +24,13 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -55,8 +57,8 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
 
 	private ChannelsManager channelsManager;
 
-	public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
-		super(localName);
+	public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+		super(localName, scheduler, resourcesPool);
 		this.isALaw = isALaw;
 		this.channelID = channelID;
 		this.channelsManager = channelsManager;

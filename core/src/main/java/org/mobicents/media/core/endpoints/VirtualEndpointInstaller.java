@@ -25,8 +25,10 @@ package org.mobicents.media.core.endpoints;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 
@@ -44,7 +46,9 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 	private String endpointClass;
 	protected Integer initialSize;
 
-	protected EndpointNameGenerator nameParser;
+	protected final EndpointNameGenerator nameParser;
+	protected final PriorityQueueScheduler scheduler;
+	protected final ResourcesPool resourcesPool;
 	protected Server server;
 
 	protected AtomicInteger lastEndpointID = new AtomicInteger(1);
@@ -52,8 +56,10 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 	/**
 	 * Creates new endpoint installer.
 	 */
-	public VirtualEndpointInstaller() {
-		nameParser = new EndpointNameGenerator();
+	public VirtualEndpointInstaller(PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+		this.nameParser = new EndpointNameGenerator();
+		this.scheduler = scheduler;
+		this.resourcesPool = resourcesPool;
 	}
 
 	/**
@@ -135,8 +141,8 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 		ClassLoader loader = Server.class.getClassLoader();
 		nameParser.setPattern(namePattern);
 		try {
-			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
-			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
+			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class, PriorityQueueScheduler.class, ResourcesPool.class);
+			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement(), scheduler, resourcesPool);
 			server.install(endpoint, this);
 		} catch (Exception e) {
 			server.logger.error("Couldn't instantiate endpoint", e);

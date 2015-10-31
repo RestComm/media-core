@@ -109,13 +109,6 @@ public interface Connection extends PoolResource {
 	public Endpoint getEndpoint();
 
 	/**
-	 * Gets the descriptor of this connection in SDP format.
-	 * 
-	 * @return SDP descriptor as text string.
-	 */
-	public String getDescriptor();
-
-	/**
 	 * Gets the local descriptor of this connection in SDP format
 	 * 
 	 * @return The local SDP descriptor. Returns an empty string if not

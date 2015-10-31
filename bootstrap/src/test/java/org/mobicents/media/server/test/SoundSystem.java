@@ -29,13 +29,13 @@ package org.mobicents.media.server.test;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.MediaSink;
-import org.mobicents.media.MediaSource;
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SoundCard;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -52,8 +52,8 @@ public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
 
     private AudioComponent audioComponent;
     
-    public SoundSystem(String localName) {
-        super(localName);
+    public SoundSystem(String localName, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+        super(localName, scheduler, resourcesPool);
         audioComponent=new AudioComponent(-1);
     }
 
@@ -78,18 +78,20 @@ public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
     }    
 
     public Component getResource(MediaType mediaType, ComponentType componentType) {
-        switch(mediaType)
-        {
-        	case AUDIO:
-        		switch(componentType)
-        		{
-        			case SINE:
-        				return sine;
-        			case SOUND_CARD:
-        				return soundcard;        				
-        		}
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case SINE:
+                        return sine;
+                    case SOUND_CARD:
+                        return soundcard;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
         }
-        
         return null;
     }
 

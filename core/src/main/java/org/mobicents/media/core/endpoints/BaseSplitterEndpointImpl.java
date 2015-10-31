@@ -24,9 +24,11 @@ package org.mobicents.media.core.endpoints;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBSplitter;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -47,8 +49,8 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 	private AtomicInteger readCount = new AtomicInteger(0);
 	private AtomicInteger writeCount = new AtomicInteger(0);
 
-	public BaseSplitterEndpointImpl(String localName) {
-		super(localName);
+	public BaseSplitterEndpointImpl(String localName, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+		super(localName, scheduler, resourcesPool);
 	}
 
 	@Override

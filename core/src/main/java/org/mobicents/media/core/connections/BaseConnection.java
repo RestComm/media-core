@@ -145,21 +145,6 @@ public abstract class BaseConnection implements Connection {
 	}
 
 	@Override
-	public String getDescriptor() {
-		return null;
-	}
-
-	@Override
-	public String getLocalDescriptor() {
-		return null;
-	}
-
-	@Override
-	public String getRemoteDescriptor() {
-		return null;
-	}
-
-	@Override
 	public void setEndpoint(Endpoint endpoint) {
 		this.activeEndpoint = endpoint;
 	}

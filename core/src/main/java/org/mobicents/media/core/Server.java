@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.endpoints.BaseEndpointImpl;
 import org.mobicents.media.core.endpoints.VirtualEndpointInstaller;
 import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -52,9 +51,6 @@ public class Server implements MediaServer {
     //job scheduler
     private PriorityQueueScheduler scheduler;
 
-    //resources pool
-    private ResourcesPool resourcesPool;
-    
     //udp manager
     private UdpManager udpManager;
     
@@ -95,10 +91,6 @@ public class Server implements MediaServer {
     
     public void setUdpManager(UdpManager udpManager) {
         this.udpManager=udpManager;
-    }
-    
-    public void setResourcesPool(ResourcesPool resourcesPool) {
-        this.resourcesPool=resourcesPool;
     }
     
     /**
@@ -142,20 +134,6 @@ public class Server implements MediaServer {
             logger.error("Unknown endpoint");
             return;
         }
-
-        //The endpoint implementation must extend BaseEndpointImpl class
-        BaseEndpointImpl baseEndpoint = null;
-        try {
-            baseEndpoint = (BaseEndpointImpl) endpoint;
-        } catch (ClassCastException e) {
-            logger.error("Unsupported endpoint implementation " + endpoint.getLocalName());
-            return;
-        }
-
-
-        //assign scheduler to the endpoint
-        baseEndpoint.setScheduler(scheduler);
-        baseEndpoint.setResourcesPool(resourcesPool);
 
         logger.info("Installing " + endpoint.getLocalName());
 

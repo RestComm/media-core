@@ -24,8 +24,10 @@ package org.mobicents.media.core.endpoints;
 
 import java.lang.reflect.Constructor;
 
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.Server;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
@@ -43,7 +45,8 @@ public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
     /**
      * Creates new endpoint installer.
      */
-    public VirtualSS7EndpointInstaller() {        
+    public VirtualSS7EndpointInstaller(PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {  
+        super(scheduler, resourcesPool);
     }
 
     /**
@@ -107,7 +110,6 @@ public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
      */
     @Override
     public void install() {
-        ClassLoader loader = Server.class.getClassLoader();
         int index=startChannelID;
         for(int i=0;i<initialSize;i++) {
         	newEndpoint(index++);                    
@@ -123,7 +125,7 @@ public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
     {
     	ClassLoader loader = Server.class.getClassLoader();
         try {
-            Constructor constructor = loader.loadClass(getEndpointClass()).getConstructor(String.class,ChannelsManager.class,int.class,boolean.class);
+            Constructor<?> constructor = loader.loadClass(getEndpointClass()).getConstructor(String.class,ChannelsManager.class,int.class,boolean.class);
             BaseSS7EndpointImpl endpoint = (BaseSS7EndpointImpl) constructor.newInstance(getNamePattern() + lastEndpointID.getAndIncrement(),channelsManager,index,isALaw);
             server.install(endpoint,this);
         } catch (Exception e) {

@@ -103,9 +103,7 @@ public class BaseConnectionTest implements ConnectionListener {
 
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         //assign scheduler to the endpoint
-        endpoint = new MyTestEndpoint("test");
-        endpoint.setScheduler(scheduler);
-        endpoint.setResourcesPool(resourcesPool);
+        endpoint = new MyTestEndpoint("test", scheduler, resourcesPool);
         endpoint.start();
 
         connection = (BaseConnection) endpoint.createConnection(ConnectionType.LOCAL,false);

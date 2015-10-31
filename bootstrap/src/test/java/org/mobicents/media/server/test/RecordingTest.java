@@ -31,7 +31,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.Server;
@@ -41,9 +40,9 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -117,7 +116,6 @@ public class RecordingTest {
         server.setClock(clock);
         server.setScheduler(scheduler);
         server.setUdpManager(udpManager);
-        server.setResourcesPool(resourcesPool);        
         
         controller=new Controller();
         controller.setUdpInterface(udpManager);
@@ -128,8 +126,8 @@ public class RecordingTest {
         
         controller.start();
         
-        user = new IvrEndpoint("/mobicents/ivr/1");
-        ivr = new IvrEndpoint("/mobicents/ivr/2");
+        user = new IvrEndpoint("/mobicents/ivr/1", scheduler, resourcesPool);
+        ivr = new IvrEndpoint("/mobicents/ivr/2", scheduler, resourcesPool);
         
         server.install(user,null);
         server.install(ivr,null);      	
@@ -155,17 +153,15 @@ public class RecordingTest {
      */
 //    @Test
     public void testRecording() throws Exception {
-        long s = System.nanoTime();
-        
         //create user connection
         Connection userConnection = user.createConnection(ConnectionType.RTP,false);        
-        Text sd2 = new Text(userConnection.getDescriptor());
+        Text sd2 = new Text(userConnection.getLocalDescriptor());
         userConnection.setMode(ConnectionMode.INACTIVE);
         Thread.sleep(50);
         
         //create server connection
         Connection ivrConnection = ivr.createConnection(ConnectionType.RTP,false);        
-        Text sd1 = new Text(ivrConnection.getDescriptor());
+        Text sd1 = new Text(ivrConnection.getLocalDescriptor());
         
         ivrConnection.setOtherParty(sd2);
         ivrConnection.setMode(ConnectionMode.SEND_RECV);
@@ -191,19 +187,6 @@ public class RecordingTest {
         
         user.deleteConnection(userConnection);
         ivr.deleteConnection(ivrConnection);
-    }
-
-    @Test
-    public void testNothing() {
-        
-    }
-    
-    private void printSpectra(String title, int[]s) {
-        System.out.println(title);
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
     }
     
 }

@@ -107,27 +107,19 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		resourcesPool = new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
 
 		// assign scheduler to the end points
-		endpointRTP1 = new MyTestEndpoint("test-ep-RTP1");
-		endpointRTP1.setScheduler(mediaScheduler);
-		endpointRTP1.setResourcesPool(resourcesPool);
+		endpointRTP1 = new MyTestEndpoint("test-ep-RTP1", mediaScheduler, resourcesPool);
 		endpointRTP1.setFreq(80);
 		endpointRTP1.start();
 
-		endpointLocal1 = new MyTestEndpoint("test-ep-Local1");
-		endpointLocal1.setScheduler(mediaScheduler);
-		endpointLocal1.setResourcesPool(resourcesPool);
+		endpointLocal1 = new MyTestEndpoint("test-ep-Local1", mediaScheduler, resourcesPool);
 		endpointLocal1.setFreq(150);
 		endpointLocal1.start();
 
-		endpointLocal2 = new MyTestEndpoint("test-ep-Local2");
-		endpointLocal2.setScheduler(mediaScheduler);
-		endpointLocal2.setResourcesPool(resourcesPool);
+		endpointLocal2 = new MyTestEndpoint("test-ep-Local2", mediaScheduler, resourcesPool);
 		endpointLocal2.setFreq(250);
 		endpointLocal2.start();
 
-		bridgeEndpoint = new BridgeEndpoint("test-ep-bridge");
-		bridgeEndpoint.setResourcesPool(resourcesPool);
-		bridgeEndpoint.setScheduler(mediaScheduler);
+		bridgeEndpoint = new BridgeEndpoint("test-ep-bridge", mediaScheduler, resourcesPool);
 		bridgeEndpoint.start();
 
 		sineRTP1 = endpointRTP1.getResource(MediaType.AUDIO, ComponentType.SINE);

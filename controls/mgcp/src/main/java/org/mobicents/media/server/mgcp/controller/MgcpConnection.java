@@ -106,13 +106,9 @@ public class MgcpConnection implements ConnectionFailureListener {
     }
     
     public Text getDescriptor() {
-    	if(connection.getDescriptor()!=null)
-    	{	
-    		descriptor.strain(connection.getDescriptor().getBytes(), 0, connection.getDescriptor().length());
-    		return descriptor;
-    	}        
-    	
-    	return null;
+        String sdp = connection.getLocalDescriptor();
+        descriptor.strain(sdp.getBytes(), 0, sdp.length());
+        return descriptor;
     }
     
     /**

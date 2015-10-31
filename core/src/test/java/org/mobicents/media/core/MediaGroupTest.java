@@ -104,15 +104,11 @@ public class MediaGroupTest {
         resourcesPool = new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
 
         // assign scheduler to the endpoint
-        endpoint1 = new IvrEndpoint("test");
-        endpoint1.setScheduler(mediaScheduler);
-        endpoint1.setResourcesPool(resourcesPool);
+        endpoint1 = new IvrEndpoint("test", mediaScheduler, resourcesPool);
         endpoint1.start();
         Thread.sleep(1000);
 
-        endpoint2 = new IvrEndpoint("test 2");
-        endpoint2.setScheduler(mediaScheduler);
-        endpoint2.setResourcesPool(resourcesPool);
+        endpoint2 = new IvrEndpoint("test 2", mediaScheduler, resourcesPool);
         endpoint2.start();
         Thread.sleep(1000);
     }

@@ -36,6 +36,7 @@ import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -55,8 +56,8 @@ public class MyTestEndpoint extends BaseMixerEndpointImpl {
 	private AudioComponent audioComponent;
 	private OOBComponent oobComponent;
 
-	public MyTestEndpoint(String localName) {
-		super(localName);
+	public MyTestEndpoint(String localName, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+		super(localName, scheduler, resourcesPool);
 		audioComponent = new AudioComponent(1);
 		oobComponent = new OOBComponent(-1);
 	}

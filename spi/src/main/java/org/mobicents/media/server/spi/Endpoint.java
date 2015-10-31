@@ -116,11 +116,6 @@ public interface Endpoint {
     public PriorityQueueScheduler getScheduler();
     
     /**
-     * Sets the scheduler
-     */
-    public void setScheduler(PriorityQueueScheduler scheduler);
-    
-    /**
      * Provides access to the specific resource of the endpoint.
      * 
      * @param component type of the requested resource

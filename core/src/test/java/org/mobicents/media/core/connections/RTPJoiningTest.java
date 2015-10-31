@@ -69,21 +69,15 @@ public class RTPJoiningTest extends RTPEnvironment {
     	resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
         
     	//assign scheduler to the endpoint
-        endpoint1 = new MyTestEndpoint("test-1");
-        endpoint1.setScheduler(mediaScheduler);
-        endpoint1.setResourcesPool(resourcesPool);
+        endpoint1 = new MyTestEndpoint("test-1", mediaScheduler, resourcesPool);
         endpoint1.setFreq(400);
         endpoint1.start();
 
-        endpoint2 = new MyTestEndpoint("test-2");
-        endpoint2.setScheduler(mediaScheduler);
-        endpoint2.setResourcesPool(resourcesPool);
+        endpoint2 = new MyTestEndpoint("test-2", mediaScheduler, resourcesPool);
         endpoint2.setFreq(200);
         endpoint2.start();
 
-        endpoint3 = new MyTestEndpoint("test-3");
-        endpoint3.setScheduler(mediaScheduler);
-        endpoint3.setResourcesPool(resourcesPool);
+        endpoint3 = new MyTestEndpoint("test-3", mediaScheduler, resourcesPool);
         endpoint3.setFreq(600);
         endpoint3.start();
     	
@@ -387,8 +381,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         connection3.generateOffer(false);
         connection4.generateOffer(false);
         
-        Text sd3 = new Text(connection3.getDescriptor());
-        Text sd4 = new Text(connection4.getDescriptor());
+        Text sd3 = new Text(connection3.getLocalDescriptor());
+        Text sd4 = new Text(connection4.getLocalDescriptor());
 
         connection3.setOtherParty(sd4);
         connection4.setOtherParty(sd3);

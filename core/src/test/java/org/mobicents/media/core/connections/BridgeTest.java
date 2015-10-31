@@ -69,27 +69,19 @@ public class BridgeTest extends RTPEnvironment {
         
         resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
         //assign scheduler to the endpoint
-        endpoint1 = new MyTestEndpoint("test-1");
-        endpoint1.setScheduler(mediaScheduler);
-        endpoint1.setResourcesPool(resourcesPool);
+        endpoint1 = new MyTestEndpoint("test-1", mediaScheduler, resourcesPool);
         endpoint1.setFreq(400);
         endpoint1.start();
 
-        endpoint2 = new MyTestEndpoint("test-2");
-        endpoint2.setScheduler(mediaScheduler);
-        endpoint2.setResourcesPool(resourcesPool);
+        endpoint2 = new MyTestEndpoint("test-2", mediaScheduler, resourcesPool);
         endpoint2.setFreq(200);
         endpoint2.start();
 
-        endpoint3 = new MyTestEndpoint("test-3");
-        endpoint3.setScheduler(mediaScheduler);
-        endpoint3.setResourcesPool(resourcesPool);
+        endpoint3 = new MyTestEndpoint("test-3", mediaScheduler, resourcesPool);
         endpoint3.setFreq(600);
         endpoint3.start();
 
-        endpoint4 = new MyTestEndpoint("test-4");
-        endpoint4.setScheduler(mediaScheduler);
-        endpoint4.setResourcesPool(resourcesPool);
+        endpoint4 = new MyTestEndpoint("test-4", mediaScheduler, resourcesPool);
         endpoint4.setFreq(800);
         endpoint4.start();
         

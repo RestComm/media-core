@@ -24,7 +24,9 @@ package org.mobicents.media.core.endpoints.impl;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
@@ -35,8 +37,8 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  */
 public class AnnouncementEndpoint extends BaseMixerEndpointImpl {
 
-	public AnnouncementEndpoint(String localName) {
-		super(localName);
+	public AnnouncementEndpoint(String localName, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
+		super(localName, scheduler, resourcesPool);
 	}
 
 	@Override

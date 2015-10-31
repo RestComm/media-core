@@ -177,4 +177,14 @@ public class MyTestConnection extends BaseConnection {
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public String getLocalDescriptor() {
+        return "";
+    }
+
+    @Override
+    public String getRemoteDescriptor() {
+        return "";
+    }
 }

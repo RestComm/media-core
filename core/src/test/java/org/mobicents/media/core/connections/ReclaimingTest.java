@@ -91,15 +91,11 @@ public class ReclaimingTest {
 
         resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
         //assign scheduler to the endpoint
-        endpoint1 = new MyTestEndpoint("test-1");
-        endpoint1.setScheduler(scheduler);
-        endpoint1.setResourcesPool(resourcesPool);
+        endpoint1 = new MyTestEndpoint("test-1", scheduler, resourcesPool);
         endpoint1.setFreq(200);
         endpoint1.start();
 
-        endpoint2 = new MyTestEndpoint("test-2");
-        endpoint2.setScheduler(scheduler);
-        endpoint2.setResourcesPool(resourcesPool);
+        endpoint2 = new MyTestEndpoint("test-2", scheduler, resourcesPool);
         endpoint2.setFreq(200);
         endpoint2.start();
 

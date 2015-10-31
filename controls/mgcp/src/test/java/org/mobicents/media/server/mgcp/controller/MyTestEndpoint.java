@@ -67,11 +67,6 @@ public class MyTestEndpoint implements Endpoint {
     }
     
     @Override
-    public void setScheduler(PriorityQueueScheduler scheduler) {
-    	throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
     public PriorityQueueScheduler getScheduler() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
