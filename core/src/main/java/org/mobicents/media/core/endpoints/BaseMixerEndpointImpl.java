@@ -69,8 +69,8 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
 	}
 
 	@Override
-	public void deleteConnection(Connection connection, ConnectionType connectionType) {
-		super.deleteConnection(connection, connectionType);
+	public void releaseConnection(Connection connection) {
+		super.releaseConnection(connection);
 		audioMixer.release(((BaseConnection) connection).getAudioComponent());
 		oobMixer.release(((BaseConnection) connection).getOOBComponent());
 	}

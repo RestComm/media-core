@@ -120,7 +120,7 @@ public class ConfiguratorTest {
         }
         
         @Override
-        public void deleteConnection(Connection connection,ConnectionType type) {
+        public void releaseConnection(Connection connection) {
         }
 
         @Override

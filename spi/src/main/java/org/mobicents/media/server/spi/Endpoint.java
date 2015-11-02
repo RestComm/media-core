@@ -86,7 +86,7 @@ public interface Endpoint {
      *
      * @param connection the connection to be deleted.
      */
-    public void deleteConnection(Connection connection,ConnectionType type);
+    public void releaseConnection(Connection connection);
     
     /**
      * Notifies that mode has been update on one of connections

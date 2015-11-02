@@ -100,7 +100,7 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     @Override
-    public void deleteConnection(Connection connection,ConnectionType type) {
+    public void releaseConnection(Connection connection) {
         
     }
 
