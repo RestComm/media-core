@@ -282,7 +282,7 @@ public abstract class BaseConnection implements Connection {
 
 	protected void releaseConnection(ConnectionType connectionType) {
 		if (this.activeEndpoint != null) {
-			this.activeEndpoint.releaseConnection(this);
+			this.activeEndpoint.releaseConnection(this.id);
 		}
 		this.activeEndpoint = null;
 	}

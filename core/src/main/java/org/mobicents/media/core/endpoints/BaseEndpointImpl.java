@@ -32,7 +32,6 @@ import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
@@ -60,7 +59,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
     // Endpoint Properties
     private final String localName;
     private EndpointState state;
-    private final ConcurrentMap<Connection> connections;
+    protected final ConcurrentMap<Connection> connections;
     private volatile boolean started;
 
     public BaseEndpointImpl(String localName, PriorityQueueScheduler scheduler, ResourcesPool resourcesPool) {
@@ -161,22 +160,21 @@ public abstract class BaseEndpointImpl implements Endpoint {
     public void deleteConnection(Connection connection) {
         ((BaseConnection) connection).close();
     }
-
-    @Override
-    public void releaseConnection(Connection connection) {
-        connections.remove(connection.getId());
-
-        switch (connection.getType()) {
-            case RTP:
-                resourcesPool.releaseConnection(connection, false);
-                break;
-            case LOCAL:
-                resourcesPool.releaseConnection(connection, true);
-                break;
-        }
-
-        if (connections.size() == 0) {
-            stop();
+    
+    protected void releaseConnection(Connection connection) {
+        if(connection != null) {
+            switch (connection.getType()) {
+                case RTP:
+                    resourcesPool.releaseConnection(connection, false);
+                    break;
+                case LOCAL:
+                    resourcesPool.releaseConnection(connection, true);
+                    break;
+            }
+            
+            if (connections.isEmpty()) {
+                stop();
+            }
         }
     }
 
@@ -280,8 +278,5 @@ public abstract class BaseEndpointImpl implements Endpoint {
                 break;
         }
     }
-
-    @Override
-    public abstract void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
 
 }

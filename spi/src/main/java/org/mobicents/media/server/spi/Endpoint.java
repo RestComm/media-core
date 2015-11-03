@@ -39,6 +39,7 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
  *
  * @author Yulian Oifa
  * @author amit.bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface Endpoint {
     
@@ -82,11 +83,14 @@ public interface Endpoint {
     public void deleteConnection(Connection connection);
 
     /**
-     * Deletes specified connection.
+     * Deletes a specified connection.
+     * <p>
+     * The connection is closed and released from the endpoint.
+     * </p>
      *
-     * @param connection the connection to be deleted.
+     * @param connectionId the identifier of the.
      */
-    public void releaseConnection(Connection connection);
+    public void releaseConnection(int connectionId);
     
     /**
      * Notifies that mode has been update on one of connections
