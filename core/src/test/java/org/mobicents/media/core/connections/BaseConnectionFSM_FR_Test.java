@@ -102,7 +102,7 @@ public class BaseConnectionFSM_FR_Test {
             Thread.sleep(10000);
         } catch (Exception e) {
         }
-        endpoint.deleteAllConnections();
+        endpoint.releaseConnections();
         endpoint.stop();
         scheduler.stop();
         

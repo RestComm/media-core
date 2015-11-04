@@ -100,7 +100,7 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     @Override
-    public void deleteAllConnections() {
+    public void releaseConnections() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -95,7 +95,7 @@ public interface Endpoint {
     /**
      * Deletes all connection associated with this Endpoint.
      */
-    public void deleteAllConnections();
+    public void releaseConnections();
     
     /**
      * Gets number of active connections associated with this Endpoint.

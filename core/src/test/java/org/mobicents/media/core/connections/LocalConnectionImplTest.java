@@ -98,7 +98,7 @@ public class LocalConnectionImplTest {
 
     @After
     public void tearDown() {
-    	endpoint.deleteAllConnections();
+    	endpoint.releaseConnections();
         endpoint.stop();
         scheduler.stop();
     }

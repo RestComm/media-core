@@ -102,7 +102,7 @@ public class RtpConnectionImplTest {
     public void tearDown() {
     	try
     	{
-        endpoint.deleteAllConnections();
+        endpoint.releaseConnections();
         endpoint.stop();
         scheduler.stop();
     	}

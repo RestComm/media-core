@@ -116,9 +116,9 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
 
     @After
     public void tearDown() {
-        endpoint1.deleteAllConnections();
-        endpoint2.deleteAllConnections();
-        endpoint3.deleteAllConnections();
+        endpoint1.releaseConnections();
+        endpoint2.releaseConnections();
+        endpoint3.releaseConnections();
         endpoint1.releaseResource(MediaType.AUDIO,ComponentType.DTMF_GENERATOR);
         endpoint2.releaseResource(MediaType.AUDIO,ComponentType.DTMF_DETECTOR);
         endpoint1.stop();
