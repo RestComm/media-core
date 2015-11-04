@@ -41,7 +41,6 @@ import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
@@ -74,9 +73,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	// Session Description
 	private SessionDescription localSdp;
 	private SessionDescription remoteSdp;
-
-	// Listeners
-	private ConnectionFailureListener connectionFailureListener;
 
 	/**
 	 * Constructs a new RTP connection with one audio channel.
@@ -111,6 +107,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
             throw new RuntimeException("There are invalid classes specified in the configuration.", e);
 		}
 	}
+    
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
 
 	private void generateCname() {
 		this.cname = CnameGenerator.generateCname();
@@ -256,7 +257,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
 		// Change the state of this RTP connection from HALF_OPEN to OPEN
 		try {
-			this.join();
+			this.open();
 		} catch (Exception e) {
 			// exception is possible here when already joined
 			logger.warn("Could not set connection state to OPEN", e);
@@ -287,7 +288,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
         // Change the state of this RTP connection from HALF_OPEN to OPEN
         try {
-            this.join();
+            this.open();
         } catch (Exception e) {
             // exception is possible here when already joined
             logger.warn("Could not set connection state to OPEN", e);
@@ -498,7 +499,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * Closes any active resources (like media channels) associated with the
 	 * connection.
 	 */
-	private void closeResources() {
+	private void closeChannels() {
 		if (this.audioChannel.isOpen()) {
 			this.audioChannel.close();
 		}
@@ -542,46 +543,32 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	}
 
 	@Override
-	public void setConnectionFailureListener(
-			ConnectionFailureListener connectionFailureListener) {
-		this.connectionFailureListener = connectionFailureListener;
-	}
-
-	@Override
-	protected void onCreated() throws Exception {
-		// Reset components so they can be re-used in new calls
-        // reset();
-	}
-
-	@Override
 	protected void onFailed() {
-		closeResources();
-		if (this.connectionFailureListener != null) {
-			this.connectionFailureListener.onFailure();
-		}
-	}
-
-	@Override
-	protected void onOpened() throws Exception {
-		// TODO not implemented
+        try {
+            setMode(ConnectionMode.INACTIVE);
+        } catch (ModeNotSupportedException e) {
+            logger.warn("Could not set connection mode to INACTIVE.", e);
+        }
+        closeChannels();
+        if (this.connectionFailureListener != null) {
+            this.connectionFailureListener.onFailure();
+        }
 	}
 
 	@Override
 	protected void onClosed() {
-		closeResources();
 		try {
 			setMode(ConnectionMode.INACTIVE);
 		} catch (ModeNotSupportedException e) {
 			logger.warn("Could not set connection mode to INACTIVE.", e);
 		}
-		releaseConnection(ConnectionType.RTP);
+		closeChannels();
 		this.connectionFailureListener = null;
 	}
 
 	/*
 	 * POOLED RESOURCE
 	 */
-	
 	@Override
 	public void checkOut() {
 	    generateCname();
@@ -589,7 +576,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	
 	@Override
 	public void checkIn() {
-	    closeResources();
+	    closeChannels();
 	    reset();
 	}
 	

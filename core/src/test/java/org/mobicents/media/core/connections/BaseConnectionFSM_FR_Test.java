@@ -163,7 +163,7 @@ public class BaseConnectionFSM_FR_Test {
     private void doTestOpen() throws Exception {
         //step #1: shift to OPEN state
 //        System.out.println("Opening connection");
-        connection.join();
+        connection.open();
         Thread.sleep(1000);
 
         //step #2: check state

@@ -282,8 +282,8 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		s1 = a1.getSpectra();
 		s2 = a2.getSpectra();
 		
-		endpointRTP1.deleteConnection(connectionRTP1);
-		endpointLocal1.deleteConnection(connectionEPLocal1);
+		endpointRTP1.releaseConnection(connectionRTP1.getId());
+		endpointLocal1.releaseConnection(connectionEPLocal1.getId());
 		bridgeEndpoint.deleteAllConnections();
 
 		assertEquals(1, s1.length);
@@ -386,9 +386,9 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		int[] sLocal1 = aLocal1.getSpectra();
 		int[] sLocal2 = aLocal2.getSpectra();
 
-		endpointRTP1.deleteConnection(connectionRTP1);
-		endpointLocal1.deleteConnection(connectionEPLocal1);
-		endpointLocal2.deleteConnection(connectionEPLocal1);
+		endpointRTP1.releaseConnection(connectionRTP1.getId());
+		endpointLocal1.releaseConnection(connectionEPLocal1.getId());
+		endpointLocal2.releaseConnection(connectionEPLocal2.getId());
 		bridgeEndpoint.deleteAllConnections();
 
 		// test that the RTP connection received mixed audio from both Local connections
@@ -480,9 +480,9 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		int[] sLocal1 = aLocal1.getSpectra();
 		int[] sLocal2 = aLocal2.getSpectra();
 
-		endpointRTP1.deleteConnection(connectionRTP1);
-		endpointLocal1.deleteConnection(connectionEPLocal1);
-		endpointLocal2.deleteConnection(connectionEPLocal1);
+		endpointRTP1.releaseConnection(connectionRTP1.getId());
+		endpointLocal1.releaseConnection(connectionEPLocal1.getId());
+		endpointLocal2.releaseConnection(connectionEPLocal2.getId());
 		bridgeEndpoint.deleteAllConnections();
 
 		// test that the RTP connection received mixed audio from both Local connections
@@ -554,9 +554,9 @@ public class BridgeEndpointTest extends RTPEnvironment {
 
 		Thread.sleep(3000);
 
-		endpointRTP1.deleteConnection(connectionRTP1);
-		endpointLocal1.deleteConnection(connectionEPLocal1);
-		endpointLocal2.deleteConnection(connectionEPLocal1);
+		endpointRTP1.releaseConnection(connectionRTP1.getId());
+		endpointLocal1.releaseConnection(connectionEPLocal1.getId());
+		endpointLocal2.releaseConnection(connectionEPLocal2.getId());
 		bridgeEndpoint.deleteAllConnections();
 
 		dtmfDetectorRTP1.deactivate();

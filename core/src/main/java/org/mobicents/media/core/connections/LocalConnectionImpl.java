@@ -24,12 +24,12 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
@@ -40,12 +40,19 @@ import org.mobicents.media.server.utils.Text;
  * @author yulian oifa
  */
 public class LocalConnectionImpl extends BaseConnection {
+    
+    private static final Logger LOGGER = Logger.getLogger(LocalConnectionImpl.class);
 
     private final LocalDataChannel localAudioChannel;
 
     public LocalConnectionImpl(int id, ChannelsManager channelsManager) {
         super(id, channelsManager.getScheduler());
         this.localAudioChannel = channelsManager.getLocalChannel();
+    }
+    
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
     @Override
@@ -93,8 +100,8 @@ public class LocalConnectionImpl extends BaseConnection {
         this.localAudioChannel.join(((LocalConnectionImpl) other).localAudioChannel);
 
         try {
-            join();
-            ((LocalConnectionImpl) other).join();
+            open();
+            ((LocalConnectionImpl) other).open();
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -112,49 +119,27 @@ public class LocalConnectionImpl extends BaseConnection {
 
     @Override
     public long getPacketsReceived() {
-        return 0;
+        return 0L;
     }
 
     @Override
     public long getBytesReceived() {
-        return 0;
+        return 0L;
     }
 
     @Override
     public long getPacketsTransmitted() {
-        return 0;
+        return 0L;
     }
 
     @Override
     public long getBytesTransmitted() {
-        return 0;
+        return 0L;
     }
 
     @Override
     public double getJitter() {
-        return 0;
-    }
-
-    @Override
-    public void setConnectionFailureListener(ConnectionFailureListener connectionListener) {
-        // currently used only in RTP Connection
-    }
-
-    @Override
-    protected void onCreated() throws Exception {
-        // descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
-    }
-
-    @Override
-    protected void onFailed() {
-        try {
-            setMode(ConnectionMode.INACTIVE);
-        } catch (ModeNotSupportedException e) {
-        }
-
-        this.localAudioChannel.unjoin();
-        // release connection
-        releaseConnection(ConnectionType.LOCAL);
+        return 0.0;
     }
 
     @Override
@@ -162,9 +147,19 @@ public class LocalConnectionImpl extends BaseConnection {
         localAudioChannel.updateMode(mode);
         super.setMode(mode);
     }
-
+    
     @Override
-    protected void onOpened() throws Exception {
+    protected void onFailed() {
+        try {
+            setMode(ConnectionMode.INACTIVE);
+        } catch (ModeNotSupportedException e) {
+            LOGGER.error("Cannot set connection " + this.id + " state to INACTIVE", e);
+        }
+        this.localAudioChannel.unjoin();
+        
+        if (this.connectionFailureListener != null) {
+            this.connectionFailureListener.onFailure();
+        }
     }
 
     @Override
@@ -172,11 +167,9 @@ public class LocalConnectionImpl extends BaseConnection {
         try {
             setMode(ConnectionMode.INACTIVE);
         } catch (ModeNotSupportedException e) {
+            LOGGER.error("Cannot set connection " + this.id + " state to INACTIVE", e);
         }
-
         this.localAudioChannel.unjoin();
-        // release connection
-        releaseConnection(ConnectionType.LOCAL);
     }
 
     public boolean isAvailable() {

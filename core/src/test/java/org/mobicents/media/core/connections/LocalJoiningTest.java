@@ -170,8 +170,8 @@ public class LocalJoiningTest {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint1.deleteConnection(connection1);
-        endpoint2.deleteConnection(connection2);
+        endpoint1.releaseConnection(connection1.getId());
+        endpoint2.releaseConnection(connection2.getId());
 
         for (int i = 0; i < s2.length; i++) {
             System.out.println(i + " " + s2[i]);
@@ -215,8 +215,8 @@ public class LocalJoiningTest {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint1.deleteConnection(connection1);
-        endpoint2.deleteConnection(connection2);
+        endpoint1.releaseConnection(connection1.getId());
+        endpoint2.releaseConnection(connection2.getId());
 
         for (int i = 0; i < s2.length; i++) {
             System.out.println(i + " " + s2[i]);

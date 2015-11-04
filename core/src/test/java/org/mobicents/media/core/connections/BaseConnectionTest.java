@@ -176,7 +176,7 @@ public class BaseConnectionTest implements ConnectionListener {
         connection.bind();
         Thread.sleep(500);
         
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());
@@ -193,7 +193,7 @@ public class BaseConnectionTest implements ConnectionListener {
         connection.bind();
         Thread.sleep(500);
 
-        connection.join();
+        connection.open();
         Thread.sleep(500);
         
         connection.close();

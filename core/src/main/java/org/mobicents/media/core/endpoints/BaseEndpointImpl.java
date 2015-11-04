@@ -155,26 +155,24 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
         return connection;
     }
-
-    @Override
-    public void deleteConnection(Connection connection) {
-        ((BaseConnection) connection).close();
-    }
     
     protected void releaseConnection(Connection connection) {
-        if(connection != null) {
-            switch (connection.getType()) {
-                case RTP:
-                    resourcesPool.releaseConnection(connection, false);
-                    break;
-                case LOCAL:
-                    resourcesPool.releaseConnection(connection, true);
-                    break;
-            }
-            
-            if (connections.isEmpty()) {
-                stop();
-            }
+        // Close the connection
+        connection.close();
+
+        // Put back the connection in the pool
+        switch (connection.getType()) {
+            case RTP:
+                resourcesPool.releaseConnection(connection, false);
+                break;
+            case LOCAL:
+                resourcesPool.releaseConnection(connection, true);
+                break;
+        }
+
+        // Stop the endpoint if there are no active connections
+        if (connections.isEmpty()) {
+            stop();
         }
     }
 
@@ -182,7 +180,8 @@ public abstract class BaseEndpointImpl implements Endpoint {
     public void deleteAllConnections() {
         Iterator<Connection> connectionsIterator = connections.valuesIterator();
         while (connectionsIterator.hasNext()) {
-            ((BaseConnection) connectionsIterator.next()).close();
+            Connection connection = connectionsIterator.next();
+            releaseConnection(connection.getId());
         }
     }
 

@@ -141,7 +141,7 @@ public class BaseConnectionFSMTest1 {
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
 
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());
@@ -155,7 +155,7 @@ public class BaseConnectionFSMTest1 {
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
 
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());
@@ -185,7 +185,7 @@ public class BaseConnectionFSMTest1 {
         Thread.sleep(1000);
         assertEquals(ConnectionState.HALF_OPEN, connection.getState());
 
-        connection.join();
+        connection.open();
 
         Thread.sleep(1000);
         assertEquals(ConnectionState.OPEN, connection.getState());

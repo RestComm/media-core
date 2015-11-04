@@ -119,12 +119,12 @@ public class ReclaimingTest {
      */
     public void testForLocalConnections() throws Exception {
         Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
-        endpoint1.deleteConnection(connection1);
+        endpoint1.releaseConnection(connection1.getId());
     }
 
     public void testForRTPConnections() throws Exception {
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
-        endpoint1.deleteConnection(connection1);
+        endpoint1.releaseConnection(connection1.getId());
     }
     
 //    @Test

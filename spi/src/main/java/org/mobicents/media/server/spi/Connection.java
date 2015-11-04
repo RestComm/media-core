@@ -34,6 +34,7 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface Connection extends PoolResource {
+
 	/**
 	 * Gets the identifier of this connection.
 	 *
@@ -93,13 +94,12 @@ public interface Connection extends PoolResource {
 	 */
 	public void setMode(ConnectionMode mode) throws ModeNotSupportedException;
 
-	/**
-	 * Sets the endpoint which executes this connection.
-	 *
-	 * @param the
-	 *            endpoint object.
-	 */
-	public void setEndpoint(Endpoint endpoint);
+    /**
+     * Sets the endpoint which executes this connection.
+     *
+     * @param endpoint the endpoint object.
+     */
+    public void setEndpoint(Endpoint endpoint);
 
 	/**
 	 * Gets the endpoint which executes this connection.
@@ -230,4 +230,25 @@ public interface Connection extends PoolResource {
 	 * @return whether connection is available
 	 */
 	public boolean isAvailable();
+	
+    /**
+     * Initiates transition from NULL to HALF_OPEN state.
+     * 
+     * @throws IllegalStateException If connection is already bound (not closed).
+     */
+    public void bind() throws IllegalStateException;
+
+    /**
+     * Initiates transition from HALF_OPEN to OPEN state.
+     * 
+     * @throws IllegalStateException If connection is not bound or if it is already open.
+     */
+    public void open() throws IllegalStateException;
+
+    /**
+     * Initiate transition from HALF_OPEN or OPEN to NULL.
+     * 
+     * @throws IllegalStateException If connection is already closed.
+     */
+    public void close() throws IllegalStateException;
 }

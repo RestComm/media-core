@@ -203,7 +203,7 @@ public class MgcpEndpoint {
     	//remove activity from list and terminate
     	mgcpConnection.release();
 
-    	endpoint.deleteConnection(mgcpConnection.connection);
+    	endpoint.releaseConnection(mgcpConnection.connection.getId());
         
     	//return object to pool
     	connections.offer(mgcpConnection);
@@ -211,8 +211,9 @@ public class MgcpEndpoint {
     	//update state    	
     	if (activeConnections.isEmpty()) {
     		int oldValue=this.state.getAndSet(STATE_FREE);
-    		if(oldValue!=STATE_FREE && this.stateListener!=null)
-    				this.stateListener.onFreed(this);    		
+    		if(oldValue!=STATE_FREE && this.stateListener!=null) {
+    				this.stateListener.onFreed(this);
+    		}
     	}
     	
     	this.request.cancel();    	    	   
@@ -272,7 +273,7 @@ public class MgcpEndpoint {
         //reclaim
         mgcpConnection.release();
         
-        endpoint.deleteConnection(mgcpConnection.connection);
+        endpoint.releaseConnection(mgcpConnection.connection.getId());
         
         //back to pool
         connections.offer(mgcpConnection);

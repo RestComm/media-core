@@ -33,7 +33,6 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionState;
-import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.listener.Listeners;
@@ -46,32 +45,28 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  */
 public abstract class BaseConnection implements Connection {
 
-	private int id;
+    // Task Scheduling
+    private final PriorityQueueScheduler scheduler;
 
-	// Identifier of this connection
-	private String textualId;
+    // Connection Properties
+    protected final int id;
+	protected final String textualId;
+	protected ConnectionMode connectionMode;
+	protected Endpoint endpoint;
 
-	// scheduler instance
-	private PriorityQueueScheduler scheduler;
+	// FSM current state
+	private volatile ConnectionState state;
+	private final Object stateMonitor;
 
-	/** FSM current state */
-	private volatile ConnectionState state = ConnectionState.NULL;
-	private final Object stateMonitor = new Integer(0);
-
-	// connection event listeners
-	private Listeners<ConnectionListener> listeners = new Listeners<ConnectionListener>();
-
-	// events
+	// Connection Event Listeners
+	private final Listeners<ConnectionListener> listeners;
 	private ConnectionEvent stateEvent;
+	protected ConnectionFailureListener connectionFailureListener; 
 
-	/** Remaining time to live in current state */
+	// Remaining time to live in current state
 	private volatile long ttl;
-	private HeartBeat heartBeat;
+	private final HeartBeat heartBeat;
 
-	private Endpoint activeEndpoint;
-
-	private ConnectionMode connectionMode = ConnectionMode.INACTIVE;
-	private static final Logger logger = Logger.getLogger(BaseConnection.class);
 
 	/**
 	 * Creates basic connection implementation.
@@ -82,16 +77,27 @@ public abstract class BaseConnection implements Connection {
 	 *            the endpoint owner of this connection.
 	 */
 	public BaseConnection(int id, PriorityQueueScheduler scheduler) {
-		this.id = id;
+	    // Task Scheduling
+	    this.scheduler = scheduler;
+
+	    // Connection properties
+	    this.id = id;
 		this.textualId = Integer.toHexString(id);
+		this.connectionMode = ConnectionMode.INACTIVE;
+		
+		// FSM current state
+		this.state = ConnectionState.NULL;
+		this.stateMonitor = new Integer(0);
 
-		this.scheduler = scheduler;
+		// Keep alive mechanism
+		this.heartBeat = new HeartBeat();
 
-		heartBeat = new HeartBeat();
-
-		// initialize event objects
+		// Connection Event Listeners
+		this.listeners = new Listeners<ConnectionListener>();
 		this.stateEvent = new ConnectionEventImpl(ConnectionEvent.STATE_CHANGE, this);
 	}
+	
+	protected abstract Logger getLogger();
 
 	public abstract AudioComponent getAudioComponent();
 
@@ -140,26 +146,31 @@ public abstract class BaseConnection implements Connection {
 		try {
 			listeners.dispatch(stateEvent);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			getLogger().error(e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public void setEndpoint(Endpoint endpoint) {
-		this.activeEndpoint = endpoint;
+		this.endpoint = endpoint;
 	}
 
 	@Override
 	public Endpoint getEndpoint() {
-		return this.activeEndpoint;
+		return this.endpoint;
 	}
+	
+    @Override
+    public void setConnectionFailureListener(ConnectionFailureListener listener) {
+        this.connectionFailureListener = listener;
+    }
 
 	@Override
 	public void addListener(ConnectionListener listener) {
 		try {
 			listeners.add(listener);
 		} catch (TooManyListenersException e) {
-			logger.error(e.getMessage(), e);
+		    getLogger().error(e.getMessage(), e);
 		}
 	}
 
@@ -168,18 +179,13 @@ public abstract class BaseConnection implements Connection {
 		listeners.remove(listener);
 	}
 
-	/**
-	 * Initiates transition from NULL to HALF_OPEN state.
-	 */
-	public void bind() throws Exception {
+	@Override
+	public void bind() throws IllegalStateException {
 		synchronized (stateMonitor) {
 			// check current state
 			if (this.state != ConnectionState.NULL) {
 				throw new IllegalStateException("Connection already bound");
 			}
-
-			// execute call back
-			this.onCreated();
 
 			// update state
 			setState(ConnectionState.HALF_OPEN);
@@ -189,7 +195,7 @@ public abstract class BaseConnection implements Connection {
 	/**
 	 * Initiates transition from HALF_OPEN to OPEN state.
 	 */
-	public void join() throws Exception {
+	public void open() throws IllegalStateException {
 		synchronized (stateMonitor) {
 			if (this.state == ConnectionState.NULL) {
 				throw new IllegalStateException("Connection not bound yet");
@@ -199,22 +205,18 @@ public abstract class BaseConnection implements Connection {
 				throw new IllegalStateException("Connection opened already");
 			}
 
-			// execute callback
-			this.onOpened();
-
 			// update state
 			setState(ConnectionState.OPEN);
 		}
 	}
 
-	/**
-	 * Initiates transition from any state to state NULL.
-	 */
-	public void close() {
+	@Override
+	public void close() throws IllegalStateException {
 		synchronized (stateMonitor) {
 			if (this.state != ConnectionState.NULL) {
 				this.onClosed();
 				setState(ConnectionState.NULL);
+				this.endpoint = null;
 			}
 		}
 	}
@@ -222,6 +224,7 @@ public abstract class BaseConnection implements Connection {
 	private void fail() {
 		synchronized (stateMonitor) {
 			if (this.state != ConnectionState.NULL) {
+			    getLogger().warn("Connection " + this.id + " failed.");
 				this.onFailed();
 				setState(ConnectionState.NULL);
 			}
@@ -246,29 +249,11 @@ public abstract class BaseConnection implements Connection {
 	 */
 	@Override
 	public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
-		if (this.activeEndpoint != null) {
-			this.activeEndpoint.modeUpdated(connectionMode, mode);
+		if (this.endpoint != null) {
+			this.endpoint.modeUpdated(connectionMode, mode);
 		}
 		this.connectionMode = mode;
 	}
-
-	/**
-	 * Sets connection failure listener.
-	 */
-	@Override
-	public abstract void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener);
-
-	/**
-	 * Called when connection created.
-	 */
-	protected abstract void onCreated() throws Exception;
-
-	/**
-	 * Called when connected moved to OPEN state.
-	 * 
-	 * @throws Exception
-	 */
-	protected abstract void onOpened() throws Exception;
 
 	/**
 	 * Called when connection is moving from OPEN state to NULL state.
@@ -279,13 +264,6 @@ public abstract class BaseConnection implements Connection {
 	 * Called if failure has bean detected during transition.
 	 */
 	protected abstract void onFailed();
-
-	protected void releaseConnection(ConnectionType connectionType) {
-		if (this.activeEndpoint != null) {
-			this.activeEndpoint.releaseConnection(this.id);
-		}
-		this.activeEndpoint = null;
-	}
 	
     @Override
     public String toString() {

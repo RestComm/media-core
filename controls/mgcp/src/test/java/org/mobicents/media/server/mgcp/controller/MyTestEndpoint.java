@@ -95,11 +95,6 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     @Override
-    public void deleteConnection(Connection connection) {
-        
-    }
-
-    @Override
     public void releaseConnection(int connectionId) {
         
     }

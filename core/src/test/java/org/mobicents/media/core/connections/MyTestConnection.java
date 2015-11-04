@@ -28,6 +28,7 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -41,6 +42,8 @@ import org.mobicents.media.server.utils.Text;
  * @author yulian oifa
  */
 public class MyTestConnection extends BaseConnection {
+    
+    private static final Logger LOGGER = Logger.getLogger(MyTestConnection.class);
 
     private volatile boolean created;
     private volatile boolean opened;
@@ -50,10 +53,15 @@ public class MyTestConnection extends BaseConnection {
     private AudioComponent audioComponent;
     private OOBComponent oobComponent;
 
-    public MyTestConnection(int id, PriorityQueueScheduler scheduler) throws Exception {
+    public MyTestConnection(int id, PriorityQueueScheduler scheduler) {
         super(id, scheduler);
         audioComponent = new AudioComponent(-1);
         oobComponent = new OOBComponent(-1);
+    }
+    
+    @Override
+    protected Logger getLogger() {
+        return LOGGER;
     }
 
     @Override
@@ -111,24 +119,25 @@ public class MyTestConnection extends BaseConnection {
         // currently used only in RTP Connection
     }
 
-    @Override
-    protected void onCreated() throws Exception {
-        this.created = true;
-    }
-
     public boolean isCreated() {
         return this.created;
     }
 
     @Override
     protected void onFailed() {
+        this.failed = true;
+    }
+    
+    public boolean isFailed() {
+        return failed;
     }
 
     @Override
-    protected void onOpened() throws Exception {
+    public void open() throws IllegalStateException {
+        super.open();
         this.opened = true;
     }
-
+    
     public boolean isOpened() {
         return this.opened;
     }

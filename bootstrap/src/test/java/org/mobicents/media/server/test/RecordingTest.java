@@ -185,8 +185,8 @@ public class RecordingTest {
         player.deactivate();
         recorder.deactivate();
         
-        user.deleteConnection(userConnection);
-        ivr.deleteConnection(ivrConnection);
+        user.releaseConnection(userConnection.getId());
+        ivr.releaseConnection(ivrConnection.getId());
     }
     
 }

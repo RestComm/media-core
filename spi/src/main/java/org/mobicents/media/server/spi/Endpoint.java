@@ -76,13 +76,6 @@ public interface Endpoint {
             throws ResourceUnavailableException;
 
     /**
-     * Deletes specified connection.
-     *
-     * @param connection the connection to be deleted.
-     */
-    public void deleteConnection(Connection connection);
-
-    /**
      * Deletes a specified connection.
      * <p>
      * The connection is closed and released from the endpoint.
