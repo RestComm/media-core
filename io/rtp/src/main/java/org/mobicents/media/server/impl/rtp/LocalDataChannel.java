@@ -31,7 +31,6 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.FormatFactory;
 
@@ -97,6 +96,10 @@ public class LocalDataChannel {
 	public OOBComponent getOOBComponent() {
 		return this.oobComponent;
 	}
+	
+	public boolean isJoined() {
+	    return this.otherChannel != null;
+	}
 
 	public void join(LocalDataChannel otherChannel) throws IOException {
 		if (this.otherChannel != null) {
@@ -120,13 +123,12 @@ public class LocalDataChannel {
 		this.oobOutput.deactivate();
 		output.unjoin();
 		oobOutput.unjoin();
-
 		this.otherChannel = null;
 	}
 
-	public void updateMode(ConnectionMode connectionMode) throws ModeNotSupportedException {
+	public void updateMode(ConnectionMode connectionMode) throws IllegalStateException {
 		if (this.otherChannel == null) {
-			throw new ModeNotSupportedException("You should join channel first");
+			throw new IllegalStateException("You should join channel first");
 		}
 
 		switch (connectionMode) {
@@ -156,7 +158,7 @@ public class LocalDataChannel {
 			oobOutput.activate();
 			break;
 		case NETWORK_LOOPBACK:
-			throw new ModeNotSupportedException("Loopback not supported on local channel");
+                // throw new ModeNotSupportedException("Loopback not supported on local channel");
 		default:
 			// XXX handle default case
 			break;

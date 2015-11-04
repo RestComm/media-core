@@ -83,7 +83,7 @@ public class ResourcesPool implements ComponentFactory {
 	private AtomicInteger signalGeneratorsCount;
 
 	// Connection resources
-	private final ConcurrentCyclicFIFO<Connection> localConnections;
+	private final ResourcePool<Connection> localConnections;
 	private final ResourcePool<Connection> remoteConnections;
 
 	private int defaultLocalConnections;
@@ -105,7 +105,7 @@ public class ResourcesPool implements ComponentFactory {
 		this.dtmfGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.signalGenerators = new ConcurrentCyclicFIFO<Component>();
-		this.localConnections = new ConcurrentCyclicFIFO<Connection>();
+		this.localConnections = new ConcurrentResourcePool<Connection>();
 		this.remoteConnections = new ConcurrentResourcePool<Connection>();
 		
 		this.dtmfDetectorDbi = -35;
@@ -385,7 +385,7 @@ public class ResourcesPool implements ComponentFactory {
 	                logger.debug("Allocated new local connection, pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
 	            }
 	    }
-	    // TODO checkout connection
+	    connection.checkOut();
 	    return connection;
 	}
 
@@ -413,20 +413,19 @@ public class ResourcesPool implements ComponentFactory {
 
 	@Override
 	public void releaseConnection(Connection connection, boolean isLocal) {
-		if (isLocal) {
-		    // TODO checkin connection
-			this.localConnections.offer(connection);
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released local connection,pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
-			}
+	    connection.checkIn();
+        if (isLocal) {
+            this.localConnections.offer(connection);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Released local connection, pooled:" + localConnectionsCount.get() + ", free:"
+                        + localConnections.size());
+            }
 		} else {
-		    connection.checkIn();
-			this.remoteConnections.offer(connection);
-			
-			if (logger.isDebugEnabled()) {
-				logger.debug("Released rtp connection,pool size:" + rtpConnectionsCount.get() + ",free:" + remoteConnections.size());
-			}
+            this.remoteConnections.offer(connection);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Released rtp connection, pooled:" + rtpConnectionsCount.get() + ", free:"
+                        + remoteConnections.size());
+            }
 		}
 	}
 }

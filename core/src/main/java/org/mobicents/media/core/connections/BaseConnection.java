@@ -34,7 +34,6 @@ import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 
@@ -216,7 +215,6 @@ public abstract class BaseConnection implements Connection {
 			if (this.state != ConnectionState.NULL) {
 				this.onClosed();
 				setState(ConnectionState.NULL);
-				this.endpoint = null;
 			}
 		}
 	}
@@ -229,6 +227,24 @@ public abstract class BaseConnection implements Connection {
 				setState(ConnectionState.NULL);
 			}
 		}
+	}
+	
+	protected void reset() {
+	    // Reset connection mode
+	    if(!ConnectionMode.INACTIVE.equals(this.connectionMode)) {
+	        setMode(ConnectionMode.INACTIVE);
+	    }
+	    
+	    // Reset state
+	    if(!ConnectionState.NULL.equals(this.state)) {
+	        close();
+	    }
+	    
+	    // Reset properties
+        this.endpoint = null;
+        this.listeners.clear();
+        this.stateEvent = null;
+        this.connectionFailureListener = null;
 	}
 
 	/**
@@ -248,7 +264,7 @@ public abstract class BaseConnection implements Connection {
 	 *            the new mode of the connection.
 	 */
 	@Override
-	public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
+	public void setMode(ConnectionMode mode) {
 		if (this.endpoint != null) {
 			this.endpoint.modeUpdated(connectionMode, mode);
 		}

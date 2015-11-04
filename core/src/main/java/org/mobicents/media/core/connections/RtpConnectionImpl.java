@@ -43,7 +43,6 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.utils.Text;
 
@@ -407,7 +406,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	}
 
 	@Override
-	public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
+	public void setMode(ConnectionMode mode) {
 		this.audioChannel.setConnectionMode(mode);
 		super.setMode(mode);
 	}
@@ -482,17 +481,17 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		return this.audioChannel.isAvailable();
 	}
 	
-    private void reset() {
+    protected void reset() {
         this.cname = "";
         this.outbound = false;
         this.localSdp = null;
         this.remoteSdp = null;
         
-        this.connectionFailureListener = null;
-
         if(this.audioChannel != null) {
             this.audioChannel.reset();
         }
+        
+        super.reset();
     }
 
 	/**
@@ -544,24 +543,17 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
 	@Override
 	protected void onFailed() {
-        try {
-            setMode(ConnectionMode.INACTIVE);
-        } catch (ModeNotSupportedException e) {
-            logger.warn("Could not set connection mode to INACTIVE.", e);
-        }
+	    setMode(ConnectionMode.INACTIVE);
         closeChannels();
         if (this.connectionFailureListener != null) {
             this.connectionFailureListener.onFailure();
         }
+        this.connectionFailureListener = null;
 	}
 
 	@Override
 	protected void onClosed() {
-		try {
-			setMode(ConnectionMode.INACTIVE);
-		} catch (ModeNotSupportedException e) {
-			logger.warn("Could not set connection mode to INACTIVE.", e);
-		}
+		setMode(ConnectionMode.INACTIVE);
 		closeChannels();
 		this.connectionFailureListener = null;
 	}

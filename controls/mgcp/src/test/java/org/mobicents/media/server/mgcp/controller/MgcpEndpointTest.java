@@ -19,7 +19,6 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -161,7 +160,7 @@ public class MgcpEndpointTest {
         }
 
         @Override
-        public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
+        public void setMode(ConnectionMode mode) {
             // TODO Auto-generated method stub
             
         }

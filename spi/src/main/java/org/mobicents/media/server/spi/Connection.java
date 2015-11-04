@@ -92,7 +92,7 @@ public interface Connection extends PoolResource {
 	 * @param mode
 	 *            the new mode of the connection.
 	 */
-	public void setMode(ConnectionMode mode) throws ModeNotSupportedException;
+	public void setMode(ConnectionMode mode);
 
     /**
      * Sets the endpoint which executes this connection.

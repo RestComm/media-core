@@ -32,7 +32,6 @@ import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -143,33 +142,29 @@ public class LocalConnectionImpl extends BaseConnection {
     }
 
     @Override
-    public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
-        localAudioChannel.updateMode(mode);
+    public void setMode(ConnectionMode mode) {
+        if (this.localAudioChannel.isJoined()) {
+            localAudioChannel.updateMode(mode);
+        }
         super.setMode(mode);
     }
     
     @Override
     protected void onFailed() {
-        try {
-            setMode(ConnectionMode.INACTIVE);
-        } catch (ModeNotSupportedException e) {
-            LOGGER.error("Cannot set connection " + this.id + " state to INACTIVE", e);
-        }
+        setMode(ConnectionMode.INACTIVE);
         this.localAudioChannel.unjoin();
         
         if (this.connectionFailureListener != null) {
             this.connectionFailureListener.onFailure();
         }
+        this.connectionFailureListener = null;
     }
 
     @Override
     protected void onClosed() {
-        try {
-            setMode(ConnectionMode.INACTIVE);
-        } catch (ModeNotSupportedException e) {
-            LOGGER.error("Cannot set connection " + this.id + " state to INACTIVE", e);
-        }
+        setMode(ConnectionMode.INACTIVE);
         this.localAudioChannel.unjoin();
+        this.connectionFailureListener = null;
     }
 
     public boolean isAvailable() {
@@ -183,6 +178,7 @@ public class LocalConnectionImpl extends BaseConnection {
     @Override
     public void checkIn() {
         close();
+        reset();
     }
     
     @Override
