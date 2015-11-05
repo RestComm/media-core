@@ -385,7 +385,6 @@ public class ResourcesPool implements ComponentFactory {
 	                logger.debug("Allocated new local connection, pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
 	            }
 	    }
-	    connection.checkOut();
 	    return connection;
 	}
 
@@ -402,7 +401,6 @@ public class ResourcesPool implements ComponentFactory {
                 logger.debug("Allocated new rtp connection, pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.size());
             }
 	    }
-	    connection.checkOut();
 	    return connection;
 	}
 
@@ -413,7 +411,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	@Override
 	public void releaseConnection(Connection connection, boolean isLocal) {
-	    connection.checkIn();
         if (isLocal) {
             this.localConnections.offer(connection);
             if (logger.isDebugEnabled()) {

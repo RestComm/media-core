@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
+import org.mobicents.media.server.concurrent.pooling.PoolResource;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
@@ -38,38 +40,61 @@ import org.mobicents.media.server.utils.Text;
  * Represents the connection activity.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class MgcpConnection implements ConnectionFailureListener {
-	public static AtomicInteger connectionID=new AtomicInteger(1);
+public class MgcpConnection implements ConnectionFailureListener, PoolResource {
     
-	public final static Text REASON_CODE = new Text("902 Loss of lower layer connectivity");
-	protected Integer id;
-    protected Text textualId;
-    protected MgcpCall call;
-    protected MgcpEndpoint mgcpEndpoint;
-    protected Connection connection;
+    private static final Logger LOGGER = Logger.getLogger(MgcpConnection.class);
+    
+    // Messages
+    private static final Text REASON_CODE = new Text("902 Loss of lower layer connectivity");
+    private static final Text DLCX = new Text("DLCX");
+    
+    // Unique ID Generator
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(1);
+    
+    // MGCP Connection Properties
+	protected final int id;
+    protected final Text hexadecimalId;
+    private final MgcpEndpoint mgcpEndpoint;
+    
+    // Runtime properties
+    private MgcpCall call;
+    private Connection connection;
     private SocketAddress callAgent;
-    private Text descriptor = new Text();    
-    public MgcpConnection() 
-    {
-        id = connectionID.getAndIncrement();
-        textualId=new Text(Integer.toHexString(id));
+    private Text descriptor = new Text();
+    
+    public MgcpConnection(MgcpEndpoint endpoint) {
+        // MGCP Connection Properties
+        this.id = ID_GENERATOR.getAndIncrement();
+        this.hexadecimalId = new Text(Integer.toHexString(id));
+        this.mgcpEndpoint = endpoint;
     }
     
-    public int getID() {
+    public int getId() {
         return id;
     }
 
-    public Text getTextualID() {
-        return textualId;
+    public Text getHexadecimalId() {
+        return hexadecimalId;
     }
     
     public int getCallId() {
-    	if(call == null) {
-    		return 0;
-    	}
-		return call.id;
+        return (call == null) ? 0 : call.id;
 	}
+    
+    protected MgcpEndpoint getEndpoint() {
+        return this.mgcpEndpoint;
+    }
+    
+    // TODO Restrict visibility to protect connection
+    public Connection getConnection() {
+        return this.connection;
+    }
+    
+    public int getConnectionId() {
+        return this.connection == null ? -1 : this.connection.getId();
+    }
     
     /**
      * Assigns call object to which this connection belongs.
@@ -78,6 +103,7 @@ public class MgcpConnection implements ConnectionFailureListener {
      */
     protected void setCall(MgcpCall call) {
         this.call = call;
+        // TODO call should be responsible to do this!!
         call.connections.put(this.id,this);
     }
     
@@ -85,12 +111,13 @@ public class MgcpConnection implements ConnectionFailureListener {
     	this.callAgent=callAgent;
     }
     
-    public void wrap(MgcpEndpoint mgcpEndpoint, MgcpCall call, Connection connection) {
-    	this.mgcpEndpoint=mgcpEndpoint;
+    public void wrap(MgcpCall call, Connection connection) {
         this.call = call;
         this.connection = connection;
-        this.connection.setConnectionFailureListener(this);        
-        call.connections.put(this.id,this);
+        // TODO connection should be responsible to do this!!
+        this.connection.setConnectionFailureListener(this);
+        // TODO call should be responsible to do this!!
+        call.connections.put(this.id, this);
     }
     
     public void setMode(Text mode) throws ModeNotSupportedException {
@@ -128,36 +155,63 @@ public class MgcpConnection implements ConnectionFailureListener {
         this.connection.setOtherParty(other.connection);
     }
     
-    public Connection getConnection() {
-		return this.connection;
-	}
-    
     /**
      * Terminates this activity and deletes connection.
      */
     public void release() {
-        //notify call about this activity termination
-    	call.exclude(this);    	       
+        if (call != null) {
+            // notify call about this activity termination
+            call.exclude(this);
+        }
     }
     
-    public int getPacketsTransmitted() {
-        return (int) connection.getPacketsTransmitted();
+    public long getPacketsTransmitted() {
+        return connection == null ? 0L : connection.getPacketsTransmitted();
     }
     
-    public int getPacketsReceived() {
-        return (int) connection.getPacketsReceived();
+    public long getPacketsReceived() {
+        return connection == null ? 0L : connection.getPacketsReceived();
     }
-    
+
+    @Override
     public void onFailure() {
-    	mgcpEndpoint.offer(this);
-    	
-    	MgcpEvent evt = (MgcpEvent) mgcpEndpoint.mgcpProvider.createEvent(MgcpEvent.REQUEST, callAgent);
-		MgcpRequest msg = (MgcpRequest) evt.getMessage();        
-		msg.setCommand(new Text("DLCX"));
-		msg.setEndpoint(mgcpEndpoint.fullName);
-		msg.setParameter(Parameter.CONNECTION_ID, textualId);
-		msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
-		msg.setParameter(Parameter.REASON_CODE, MgcpConnection.REASON_CODE);
-		mgcpEndpoint.send(evt, callAgent);		
+        if(LOGGER.isDebugEnabled()) {
+            LOGGER.debug("The MGCP connection " + this.id + "failed. Releasing connection now.");
+        }
+        
+        // Send request to delete failed connection from its endpoint
+        MgcpEvent evt = (MgcpEvent) mgcpEndpoint.mgcpProvider.createEvent(MgcpEvent.REQUEST, callAgent);
+        MgcpRequest msg = (MgcpRequest) evt.getMessage();
+        msg.setCommand(DLCX);
+        msg.setEndpoint(mgcpEndpoint.fullName);
+        msg.setParameter(Parameter.CONNECTION_ID, hexadecimalId);
+        msg.setTxID(MgcpEndpoint.txID.incrementAndGet());
+        msg.setParameter(Parameter.REASON_CODE, MgcpConnection.REASON_CODE);
+        mgcpEndpoint.send(evt, callAgent);
+
+        // Release the MGCP connection
+        mgcpEndpoint.offer(this);
+    }
+
+    private void reset() {
+        this.call = null;
+        // XXX Cannot erase call agent, this value is needed in case a connection fails due to heartbeat failure
+        // this.callAgent = null;
+        this.connection = null;
+        this.descriptor.strain(new byte[0], 0, 0);
+    }
+
+    /*
+     * Pooled Resource API
+     */
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkIn() {
+        reset();
     }
 }

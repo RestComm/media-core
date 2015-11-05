@@ -32,14 +32,15 @@ import java.util.Iterator;
  */
 public class MgcpCall {
 
-    private CallManager callManager;
-    protected int id;
-    protected ConcurrentMap<MgcpConnection> connections=new ConcurrentMap<MgcpConnection>();
-    private Iterator<Integer> keyIterator;
+    private final CallManager callManager;
+    
+    protected final int id;
+    protected final ConcurrentMap<MgcpConnection> connections;
         
     protected MgcpCall(CallManager callManager, int id) {
-        this.id=id;        
         this.callManager = callManager;
+        this.id=id;
+        this.connections=new ConcurrentMap<MgcpConnection>();
     }
 
     public MgcpConnection getMgcpConnection(Integer id) {
@@ -74,13 +75,11 @@ public class MgcpCall {
     }
     
     public void deleteConnections() {     	
-    	MgcpConnection currConnection;
-    	keyIterator = connections.keysIterator();
-    	while(keyIterator.hasNext())
-    	{
-    		currConnection=connections.remove(keyIterator.next());
-    		currConnection.mgcpEndpoint.deleteConnection(currConnection.getID());        
-    	}
+    	Iterator<Integer> keyIterator = connections.keysIterator();
+        while (keyIterator.hasNext()) {
+            MgcpConnection currConnection = connections.remove(keyIterator.next());
+            currConnection.getEndpoint().deleteConnection(currConnection.getId());
+        }
     	
     	if (connections.isEmpty()) {
             callManager.terminate(this);
@@ -89,6 +88,6 @@ public class MgcpCall {
     
     @Override
     public String toString() {
-        return "call[" + id + "]";
+        return "call-" + id;
     }
 }

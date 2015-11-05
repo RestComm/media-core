@@ -171,8 +171,8 @@ public class DeleteConnectionCmd extends Action {
             MgcpConnection connection = endpoints[0].getConnection(connectionID.getValue().hexToInteger());
 
             if (connection != null) {
-                rx = connection.getPacketsReceived();
-                tx = connection.getPacketsTransmitted();
+                rx = (int) connection.getPacketsReceived();
+                tx = (int) connection.getPacketsTransmitted();
 
                 endpoints[0].deleteConnection(connectionID.getValue().hexToInteger());
             }

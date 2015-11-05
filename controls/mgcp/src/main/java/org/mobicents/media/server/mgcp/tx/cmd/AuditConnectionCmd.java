@@ -223,8 +223,8 @@ public class AuditConnectionCmd extends Action {
 
         private void auditConnectionParameters(MgcpConnection connection) {
             connectionParameters = new ConnectionParameters();
-            connectionParameters.packetsSent = connection.getPacketsTransmitted();
-            connectionParameters.packetsReceived = connection.getPacketsReceived();
+            connectionParameters.packetsSent = (int) connection.getPacketsTransmitted();
+            connectionParameters.packetsReceived = (int) connection.getPacketsReceived();
             connectionParameters.jitter = (int) connection.getConnection().getJitter();
             // TODO hrosa - get transmitted octets from MGCP connection
             // TODO hrosa - get received octets from MGCP connection

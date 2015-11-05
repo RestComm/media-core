@@ -325,7 +325,7 @@ public class CreateConnectionCmd extends Action {
                 response.setResponseString(SUCCESS);
 
                 // set parameters
-                response.setParameter(Parameter.CONNECTION_ID, connections[0].getTextualID());
+                response.setParameter(Parameter.CONNECTION_ID, connections[0].getHexadecimalId());
                 response.setParameter(Parameter.ENDPOINT_ID, endpoint.getFullName());
 
                 if (endpoint2 == null) {
@@ -339,7 +339,7 @@ public class CreateConnectionCmd extends Action {
                 }
 
                 if (connections[1] != null) {
-                    response.setParameter(Parameter.CONNECTION_ID2, connections[1].getTextualID());
+                    response.setParameter(Parameter.CONNECTION_ID2, connections[1].getHexadecimalId());
                 }
 
                 transaction().getProvider().send(evt);
@@ -370,14 +370,14 @@ public class CreateConnectionCmd extends Action {
             if (endpoint != null) {
                 endpoint.share();
                 if (connections[0] != null) {
-                    endpoint.deleteConnection(connections[0].getID());
+                    endpoint.deleteConnection(connections[0].getId());
                 }
             }
 
             if (endpoint2 != null) {
                 endpoint2.share();
                 if (connections[1] != null) {
-                    endpoint2.deleteConnection(connections[1].getID());
+                    endpoint2.deleteConnection(connections[1].getId());
                 }
             }
 

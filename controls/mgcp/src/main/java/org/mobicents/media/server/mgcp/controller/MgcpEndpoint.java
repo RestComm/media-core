@@ -26,8 +26,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
+import org.mobicents.media.server.concurrent.pooling.ConcurrentResourcePool;
+import org.mobicents.media.server.concurrent.pooling.ResourcePool;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
@@ -43,54 +45,62 @@ import org.mobicents.media.server.utils.Text;
  * Represents media endpoint on MGCP controller side.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class MgcpEndpoint {
-	public static AtomicInteger txID = new AtomicInteger(1);
     
-    //The size of the connection's pool
+    private static final Logger LOGGER = Logger.getLogger(MgcpEndpoint.class);
+    
+    // Transaction ID generator
+	public static final AtomicInteger txID = new AtomicInteger(1);
+    
+    // Default size of the connection pool
     private final static int N = 15;
     
+    // List of possible states
     public final static int STATE_LOCKED = 1;
     public final static int STATE_FREE = 2;
     public final static int STATE_BUSY = 3;
     
-    //native endpoint
-    private Endpoint endpoint;
-    protected Text fullName;
+    // Endpoint Properties
+    protected final MgcpProvider mgcpProvider;
+    private final Endpoint endpoint;
+    protected final Text fullName;
+    private AtomicInteger state;
     
-    //the state of this activity
-    private AtomicInteger state = new AtomicInteger(STATE_FREE);
-    
-    //Request executor associated with endpoint
-    Request request;
-    
-    //pool of connection activities, limited to 15
-    private ConcurrentCyclicFIFO<MgcpConnection> connections = new ConcurrentCyclicFIFO<MgcpConnection>();
-    
-    //list of active connections
-    private ConcurrentMap<MgcpConnection> activeConnections=new ConcurrentMap<MgcpConnection>();
-    private Iterator<Integer> keyIterator;
-    
-    protected MgcpProvider mgcpProvider;
-    
-    private MgcpListener listener;
+    // Listeners
     private MgcpEndpointStateListener stateListener;
+    private MgcpListener listener;
+    
+    // Connection Pool
+    private final ResourcePool<MgcpConnection> connectionPool;
+    private final ConcurrentMap<MgcpConnection> activeConnections;
+
+    // Request executor associated with endpoint
+    private final Request request;
+    
     /**
      * Constructs new endpoint activity.
      * 
      * @param endpoint native endpoint.
      */
     public MgcpEndpoint(Endpoint endpoint, MgcpProvider mgcpProvider, String domainName, int port, Collection<MgcpPackage> packages) {
+        // Endpoint properties
         this.endpoint = endpoint;
         this.mgcpProvider = mgcpProvider;
         this.fullName = new Text(endpoint.getLocalName() + "@" + domainName + ":" + port);
+        this.state = new AtomicInteger(STATE_FREE);
         
-        //create request executor
-        request=new Request(this, packages);        
+        // Connection pool
+        this.connectionPool = new MgcpConnectionPool();
+        this.activeConnections=new ConcurrentMap<MgcpConnection>();
 
         for (int i = 0; i < N; i++) {
-            connections.offer(new MgcpConnection());
+            this.connectionPool.offer(new MgcpConnection(this));
         }
+        
+        // Request Executor
+        this.request = new Request(this, packages);        
     }
 
     /**
@@ -154,8 +164,9 @@ public class MgcpEndpoint {
     public void share() {
         if (this.state.get() == STATE_LOCKED) {
             this.state.set(STATE_FREE);
-            if(this.stateListener!=null)
+            if(this.stateListener!=null) {
             	this.stateListener.onFreed(this);
+            }
         }
     }
 
@@ -167,22 +178,14 @@ public class MgcpEndpoint {
      * @return connection activity.
      */
     public MgcpConnection createConnection(MgcpCall call, ConnectionType type,boolean isLocal) throws TooManyConnectionsException, ResourceUnavailableException {
-    	//create connection
-    	Connection connection = endpoint.createConnection(type,isLocal);
-    	//wrap connection with relative activity
-    	MgcpConnection mgcpConnection = connections.poll();
-    	if(mgcpConnection==null)
-    		mgcpConnection=new MgcpConnection();
-    	
-    	mgcpConnection.wrap(this, call, connection);
+    	//create connection and wrap it in the MGCP activity
+    	Connection connection = this.endpoint.createConnection(type,isLocal);
+    	MgcpConnection mgcpConnection = this.connectionPool.poll();
+    	mgcpConnection.wrap(call, connection);
 
     	//put connection activity into active list
-    	activeConnections.put(mgcpConnection.id,mgcpConnection);
-
-    	//change state to BUSY what means that this connection has at least one
-    	//connection
+        this.activeConnections.put(mgcpConnection.id, mgcpConnection);
     	this.state.set(STATE_BUSY);
-        
     	return mgcpConnection;    	
     }
 
@@ -191,46 +194,49 @@ public class MgcpEndpoint {
      * 
      * @param id the identifier of the relative connection activity.
      */
-    public void deleteConnection(Integer id) {
+    public void deleteConnection(int id) {
+        // Remove connection from active list
     	MgcpConnection mgcpConnection=activeConnections.remove(id);
 
-    	//connection not found?
     	if (mgcpConnection == null) {
+    	    LOGGER.warn("Connection id="+ id + " not found on endpoint " + this.endpoint.getLocalName());
     		//TODO: throw exception
     		return;
     	}
 
-    	//remove activity from list and terminate
+    	// Release connection
     	mgcpConnection.release();
+    	endpoint.releaseConnection(mgcpConnection.getConnectionId());
+    	this.connectionPool.offer(mgcpConnection);
 
-    	endpoint.releaseConnection(mgcpConnection.connection.getId());
-        
-    	//return object to pool
-    	connections.offer(mgcpConnection);
-
-    	//update state    	
-    	if (activeConnections.isEmpty()) {
-    		int oldValue=this.state.getAndSet(STATE_FREE);
-    		if(oldValue!=STATE_FREE && this.stateListener!=null) {
-    				this.stateListener.onFreed(this);
-    		}
-    	}
-    	
+    	// Free the endpoint   	
+        if (this.activeConnections.isEmpty()) {
+            int oldValue = this.state.getAndSet(STATE_FREE);
+            if (oldValue != STATE_FREE && this.stateListener != null) {
+                this.stateListener.onFreed(this);
+            }
+        }
     	this.request.cancel();    	    	   
     }
 
     public void deleteAllConnections() {
-    	keyIterator = activeConnections.keysIterator();
-    	while(keyIterator.hasNext())
-    		connections.offer(activeConnections.remove(keyIterator.next()));        
+        // Release all connections locally
+    	Iterator<Integer> keyIterator = activeConnections.keysIterator();
+    	while(keyIterator.hasNext()) {
+    	    int connectionId = keyIterator.next();
+    	    MgcpConnection mgcpConnection = activeConnections.remove(connectionId);
+    	    mgcpConnection.release();
+    		this.connectionPool.offer(mgcpConnection);        
+    	}
     	
+    	// Release all connections in the endpoint
         endpoint.releaseConnections();
         
+        // Free the endpoint
         int oldValue=this.state.getAndSet(STATE_FREE);
-        
-        if(oldValue!=STATE_FREE && this.stateListener!=null)
+        if(oldValue!=STATE_FREE && this.stateListener!=null) {
         	this.stateListener.onFreed(this);
-        
+        }
         this.request.cancel();
     }
     
@@ -250,10 +256,7 @@ public class MgcpEndpoint {
      */
     protected MgcpConnection poll(MgcpCall call) {
     	//take first from pool and put into list of active    	
-        MgcpConnection mgcpConnection = connections.poll();
-        if(mgcpConnection==null)
-    		mgcpConnection=new MgcpConnection();
-        
+        MgcpConnection mgcpConnection = connectionPool.poll();
         activeConnections.put(mgcpConnection.id,mgcpConnection);
         
         //assign call
@@ -267,26 +270,61 @@ public class MgcpEndpoint {
      * @param connection the object to be reclaimed
      */
     protected void offer(MgcpConnection mgcpConnection) {
-    	//remove from active list
-    	activeConnections.remove(mgcpConnection.id);
-    	
-        //reclaim
+        // remove from active list
+        this.activeConnections.remove(mgcpConnection.id);
+
+        // reclaim
         mgcpConnection.release();
-        
-        endpoint.releaseConnection(mgcpConnection.connection.getId());
-        
-        //back to pool
-        connections.offer(mgcpConnection);
-        
+
+        endpoint.releaseConnection(mgcpConnection.getConnectionId());
+
+        // back to pool
+        connectionPool.offer(mgcpConnection);
+
         if (activeConnections.isEmpty()) {
-    		int oldValue=this.state.getAndSet(STATE_FREE);
-    		if(oldValue!=STATE_FREE && this.stateListener!=null)
-    				this.stateListener.onFreed(this);    		
-    	}
+            int oldValue = this.state.getAndSet(STATE_FREE);
+            if (oldValue != STATE_FREE && this.stateListener != null) {
+                this.stateListener.onFreed(this);
+            }
+        }
+    }
+
+    public void configure(boolean isALaw) {
+        endpoint.configure(isALaw);
     }
     
-    public void configure(boolean isALaw)
-    {
-    	endpoint.configure(isALaw);
+    private class MgcpConnectionPool extends ConcurrentResourcePool<MgcpConnection> {
+
+        private final AtomicInteger count = new AtomicInteger(N);
+
+        @Override
+        public MgcpConnection poll() {
+            // Attempt to retrieve pooled connection
+            MgcpConnection connection = super.poll();
+
+            if (connection == null) {
+                // Create new connection in case pool is empty
+                connection = new MgcpConnection(MgcpEndpoint.this);
+                int newSize = this.count.incrementAndGet();
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Allocated new MGCP connection in " + endpoint.getLocalName() + ", pooled=" + newSize
+                            + ", free=" + this.size());
+                }
+            }
+
+            return connection;
+
+        }
+
+        @Override
+        public void offer(MgcpConnection resource) {
+            super.offer(resource);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Released MGCP connection in " + endpoint.getLocalName() + ", pooled=" + this.count.get()
+                        + ", free=" + this.size());
+            }
+        }
+
     }
 }
