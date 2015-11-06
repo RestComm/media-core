@@ -90,7 +90,7 @@ public class MgcpEndpointTest {
     	MgcpCall call = callManager.getCall(1, true);
         for (int i = 0; i < 1000; i++) {
             MgcpConnection mgcpConnection = mgcpEndpoint.poll(call);
-            mgcpConnection.wrap(call, new ConnectionMock(1));
+            mgcpConnection.wrap(call, null, new ConnectionMock(1));
             assertEquals(1, call.size());
             
             mgcpEndpoint.offer(mgcpConnection);

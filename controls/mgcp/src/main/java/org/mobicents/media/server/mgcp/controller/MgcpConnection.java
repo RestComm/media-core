@@ -56,7 +56,7 @@ public class MgcpConnection implements ConnectionFailureListener, PoolResource {
     // MGCP Connection Properties
 	protected final int id;
     protected final Text hexadecimalId;
-    private final MgcpEndpoint mgcpEndpoint;
+    private MgcpEndpoint mgcpEndpoint;
     
     // Runtime properties
     private MgcpCall call;
@@ -64,11 +64,10 @@ public class MgcpConnection implements ConnectionFailureListener, PoolResource {
     private SocketAddress callAgent;
     private Text descriptor = new Text();
     
-    public MgcpConnection(MgcpEndpoint endpoint) {
+    public MgcpConnection() {
         // MGCP Connection Properties
         this.id = ID_GENERATOR.getAndIncrement();
         this.hexadecimalId = new Text(Integer.toHexString(id));
-        this.mgcpEndpoint = endpoint;
     }
     
     public int getId() {
@@ -111,8 +110,9 @@ public class MgcpConnection implements ConnectionFailureListener, PoolResource {
     	this.callAgent=callAgent;
     }
     
-    public void wrap(MgcpCall call, Connection connection) {
+    public void wrap(MgcpCall call, MgcpEndpoint endpoint, Connection connection) {
         this.call = call;
+        this.mgcpEndpoint = endpoint;
         this.connection = connection;
         // TODO connection should be responsible to do this!!
         this.connection.setConnectionFailureListener(this);
