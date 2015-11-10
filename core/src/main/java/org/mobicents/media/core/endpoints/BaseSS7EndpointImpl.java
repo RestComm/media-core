@@ -113,10 +113,11 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
 	}
 
 	@Override
-	public void releaseConnection(Connection connection) {
-		super.releaseConnection(connection);
+	public void releaseConnection(int connectionId) {
+	    Connection connection = this.connections.remove(connectionId);
 		audioSplitter.releaseOutsideComponent(((BaseConnection) connection).getAudioComponent());
 		oobSplitter.releaseOutsideComponent(((BaseConnection) connection).getOOBComponent());
+		super.releaseConnection(connection);
 
 		if (getActiveConnectionsCount() == 0) {
 			ss7DataChannel.close();

@@ -90,7 +90,7 @@ public interface Endpoint {
      *
      * @param connection the connection to be deleted.
      */
-    public void releaseConnection(Connection connection);
+    public void releaseConnection(int connection);
     
     /**
      * Notifies that mode has been update on one of connections

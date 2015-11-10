@@ -64,7 +64,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	// logger instance
 	private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
 
-	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
+	protected ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
 
 	public BaseEndpointImpl(String localName) {
 		this.localName = localName;
@@ -178,10 +178,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
         }
     }
 
-	@Override
-	public void releaseConnection(Connection connection) {
-		connections.remove(connection.getId());
-
+	protected void releaseConnection(Connection connection) {
 		switch (connection.getType()) {
 		case RTP:
 			resourcesPool.releaseConnection(connection, false);
