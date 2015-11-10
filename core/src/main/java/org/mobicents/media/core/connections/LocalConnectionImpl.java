@@ -49,6 +49,11 @@ public class LocalConnectionImpl extends BaseConnection {
     }
     
     @Override
+    public ConnectionType getType() {
+        return ConnectionType.LOCAL;
+    }
+    
+    @Override
     public void generateCname() {
     	throw new UnsupportedOperationException("Not supported!");
     }

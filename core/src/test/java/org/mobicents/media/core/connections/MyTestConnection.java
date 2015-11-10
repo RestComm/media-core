@@ -32,6 +32,7 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.utils.Text;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
@@ -54,6 +55,11 @@ public class MyTestConnection extends BaseConnection {
         audioComponent=new AudioComponent(-1);
         oobComponent=new OOBComponent(-1);
         this.created = true;
+    }
+    
+    @Override
+    public ConnectionType getType() {
+        return ConnectionType.LOCAL;
     }
     
     @Override

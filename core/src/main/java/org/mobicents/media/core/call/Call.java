@@ -54,8 +54,8 @@ public class Call {
         return this.endpoints.size();
     }
 
-    public Endpoint getEndpoint(int id) {
-        return this.endpoints.get(id);
+    public Endpoint getEndpoint(String endpointName) {
+        return this.endpoints.get(endpointName);
     }
 
     public void addEndpoint(Endpoint endpoint) {
@@ -64,7 +64,7 @@ public class Call {
 
     public void deleteEndpoint(String endpointName) {
         Endpoint endpoint = this.endpoints.remove(endpointName);
-        endpoint.stop();
+        // TODO delete connections from endpoint
     }
 
     public void deleteEndpoints() {

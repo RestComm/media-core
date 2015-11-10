@@ -116,6 +116,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 					e);
 		}
 	}
+	
+    @Override
+    public ConnectionType getType() {
+        return ConnectionType.RTP;
+    }
 
 	@Override
 	public void generateCname() {

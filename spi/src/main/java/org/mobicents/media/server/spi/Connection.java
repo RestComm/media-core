@@ -45,6 +45,13 @@ public interface Connection {
 	 * @return hex view of the integer.
 	 */
 	public String getTextualId();
+	
+    /**
+     * Gets the type of the connection.
+     * 
+     * @return The type of the connection.
+     */
+    public ConnectionType getType();
 
 	/**
 	 * Gets whether connection should be bound to local or remote interface ,

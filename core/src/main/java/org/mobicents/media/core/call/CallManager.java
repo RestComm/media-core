@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.core.call;
 
 import java.util.Iterator;
@@ -30,12 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CallManager {
 
+    private static final CallManager INSTANCE = new CallManager();
+
     private final ConcurrentHashMap<Integer, Call> calls;
-    
-    public CallManager() {
+
+    private CallManager() {
         this.calls = new ConcurrentHashMap<Integer, Call>();
     }
-    
+
     public Call getCall(int callId) {
         return this.calls.get(callId);
     }
@@ -45,21 +47,24 @@ public class CallManager {
         Call result = this.calls.putIfAbsent(callId, call);
         return result == null ? call : result;
     }
-    
+
     public void deleteCall(int callId) {
         Call call = this.calls.remove(callId);
-        if(call != null) {
+        if (call != null) {
             call.deleteEndpoints();
         }
     }
-    
+
     public void deleteCalls() {
         Iterator<Integer> iterator = this.calls.keySet().iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             Integer callId = iterator.next();
             deleteCall(callId);
         }
     }
-    
-    
+
+    public static CallManager getInstance() {
+        return INSTANCE;
+    }
+
 }
