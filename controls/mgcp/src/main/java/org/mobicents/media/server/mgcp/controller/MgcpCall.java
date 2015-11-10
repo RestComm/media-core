@@ -21,6 +21,7 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
+import org.mobicents.media.core.call.Call;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 
 import java.util.Iterator;
@@ -29,7 +30,10 @@ import java.util.Iterator;
  * MGCP call.
  * 
  * @author yulian oifa
+ * 
+ * @deprecated Use {@link Call}
  */
+@Deprecated
 public class MgcpCall {
 
     private CallManager callManager;

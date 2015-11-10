@@ -27,7 +27,10 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
  * Maintains MGCP calls.
  * 
  * @author yulian oifa
+ * 
+ * @deprecated Use {@link org.mobicents.media.core.call.CallManager} instead.
  */
+@Deprecated
 public class CallManager {
 	// list of active calls
 	private ConcurrentMap<MgcpCall> calls = new ConcurrentMap<MgcpCall>();
