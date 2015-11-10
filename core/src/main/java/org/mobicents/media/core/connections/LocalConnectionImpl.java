@@ -143,7 +143,7 @@ public class LocalConnectionImpl extends BaseConnection {
         
         this.localAudioChannel.unjoin();
         //release connection
-        releaseConnection(ConnectionType.LOCAL);        
+        releaseConnection();        
     }
 
     @Override
@@ -161,7 +161,7 @@ public class LocalConnectionImpl extends BaseConnection {
         
         this.localAudioChannel.unjoin();
         //release connection
-        releaseConnection(ConnectionType.LOCAL);        
+        releaseConnection();        
     }
 
 	public boolean isAvailable() {

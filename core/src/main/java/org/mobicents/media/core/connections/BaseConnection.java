@@ -35,7 +35,6 @@ import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionState;
-import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.listener.Listeners;
@@ -334,9 +333,9 @@ public abstract class BaseConnection implements Connection {
 		// do nothing
 	}
 	
-	protected void releaseConnection(ConnectionType connectionType) {
+	protected void releaseConnection() {
 		if (this.activeEndpoint != null) {
-			this.activeEndpoint.releaseConnection(this, connectionType);
+			this.activeEndpoint.releaseConnection(this);
 		}
 		this.activeEndpoint = null;
 	}

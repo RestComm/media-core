@@ -583,7 +583,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		} catch (ModeNotSupportedException e) {
 			logger.warn("Could not set connection mode to INACTIVE.", e);
 		}
-		releaseConnection(ConnectionType.RTP);
+		releaseConnection();
 		this.connectionFailureListener = null;
 	}
 

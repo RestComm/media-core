@@ -172,10 +172,10 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	}
 
 	@Override
-	public void releaseConnection(Connection connection, ConnectionType connectionType) {
+	public void releaseConnection(Connection connection) {
 		connections.remove(connection.getId());
 
-		switch (connectionType) {
+		switch (connection.getType()) {
 		case RTP:
 			resourcesPool.releaseConnection(connection, false);
 			break;

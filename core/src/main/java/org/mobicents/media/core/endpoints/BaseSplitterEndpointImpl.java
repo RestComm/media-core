@@ -76,10 +76,10 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 	}
 
 	@Override
-	public void releaseConnection(Connection connection, ConnectionType connectionType) {
-		super.releaseConnection(connection, connectionType);
+	public void releaseConnection(Connection connection) {
+		super.releaseConnection(connection);
 
-		switch (connectionType) {
+		switch (connection.getType()) {
 		case RTP:
 			audioSplitter.releaseOutsideComponent(((BaseConnection) connection).getAudioComponent());
 			oobSplitter.releaseOutsideComponent(((BaseConnection) connection).getOOBComponent());

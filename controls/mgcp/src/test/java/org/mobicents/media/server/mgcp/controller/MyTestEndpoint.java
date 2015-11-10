@@ -105,7 +105,7 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     @Override
-    public void releaseConnection(Connection connection,ConnectionType type) {
+    public void releaseConnection(Connection connection) {
         
     }
 

@@ -125,7 +125,7 @@ public class ConfiguratorTest {
         }
         
         @Override
-        public void releaseConnection(Connection connection,ConnectionType type) {
+        public void releaseConnection(Connection connection) {
         }
 
         @Override
