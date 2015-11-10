@@ -561,27 +561,18 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	}
 
 	@Override
-	protected void onCreated() throws Exception {
-		// Reset components so they can be re-used in new calls
-		reset();
-	}
-
-	@Override
 	protected void onFailed() {
 		closeResources();
+		reset();
 		if (this.connectionFailureListener != null) {
 			this.connectionFailureListener.onFailure();
 		}
 	}
 
 	@Override
-	protected void onOpened() throws Exception {
-		// TODO not implemented
-	}
-
-	@Override
 	protected void onClosed() {
 		closeResources();
+		reset();
 		try {
 			setMode(ConnectionMode.INACTIVE);
 		} catch (ModeNotSupportedException e) {

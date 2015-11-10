@@ -53,6 +53,7 @@ public class MyTestConnection extends BaseConnection {
         super(id, scheduler);
         audioComponent=new AudioComponent(-1);
         oobComponent=new OOBComponent(-1);
+        this.created = true;
     }
     
     @Override
@@ -133,23 +134,12 @@ public class MyTestConnection extends BaseConnection {
     	//currently used only in RTP Connection
     }
 
-    @Override
-    protected void onCreated() throws Exception {
-        this.created = true;
-    }
-
     public boolean isCreated() {
         return this.created;
     }
 
     @Override
     protected void onFailed() {
-    }
-
-
-    @Override
-    protected void onOpened() throws Exception {
-        this.opened = true;
     }
 
     public boolean isOpened() {
@@ -172,4 +162,5 @@ public class MyTestConnection extends BaseConnection {
 	public boolean isAvailable() {
 		return true;
 	}
+
 }

@@ -145,8 +145,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	}
 
 	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal)
-			throws ResourceUnavailableException {
+	public Connection createConnection(ConnectionType type, Boolean isLocal) {
 
 		Connection connection = null;
 		switch (type) {
@@ -160,12 +159,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
 		connection.setIsLocal(isLocal);
 
-		try {
-			((BaseConnection) connection).bind();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ResourceUnavailableException(e.getMessage());
-		}
+		((BaseConnection) connection).bind();
 
 		connection.setEndpoint(this);
 		connections.put(connection.getId(), connection);

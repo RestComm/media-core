@@ -98,7 +98,7 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
 	}
 
 	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+	public Connection createConnection(ConnectionType type, Boolean isLocal) {
 		Connection connection = super.createConnection(type, isLocal);
 		audioSplitter.addOutsideComponent(((BaseConnection) connection).getAudioComponent());
 		oobSplitter.addOutsideComponent(((BaseConnection) connection).getOOBComponent());

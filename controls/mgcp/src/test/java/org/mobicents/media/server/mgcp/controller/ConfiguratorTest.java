@@ -115,7 +115,7 @@ public class ConfiguratorTest {
         }
 
         @Override
-        public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
+        public Connection createConnection(ConnectionType type,Boolean isLocal) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 

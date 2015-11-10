@@ -128,11 +128,6 @@ public class LocalConnectionImpl extends BaseConnection {
     {
     	//currently used only in RTP Connection
     }
-    
-    @Override
-    protected void onCreated() throws Exception {
-        //descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
-    }
 
     @Override
     protected void onFailed() {
@@ -150,10 +145,6 @@ public class LocalConnectionImpl extends BaseConnection {
     public void setMode(ConnectionMode mode) throws ModeNotSupportedException  {    	
     	localAudioChannel.updateMode(mode);    	
     	super.setMode(mode);
-    }
-    
-    @Override
-    protected void onOpened() throws Exception {
     }
 
     @Override

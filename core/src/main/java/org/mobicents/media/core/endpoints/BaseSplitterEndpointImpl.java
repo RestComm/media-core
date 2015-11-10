@@ -59,8 +59,7 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 	}
 
 	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal)
-			throws ResourceUnavailableException {
+	public Connection createConnection(ConnectionType type, Boolean isLocal) {
 		Connection connection = super.createConnection(type, isLocal);
 
 		switch (type) {

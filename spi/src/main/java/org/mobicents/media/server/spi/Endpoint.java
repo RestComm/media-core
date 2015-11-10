@@ -71,8 +71,7 @@ public interface Endpoint {
      *
      * @param type transport type
      */
-    public Connection createConnection(ConnectionType type,Boolean isLocal)
-            throws ResourceUnavailableException;
+    public Connection createConnection(ConnectionType type,Boolean isLocal);
 
     /**
      * Deletes specified connection.

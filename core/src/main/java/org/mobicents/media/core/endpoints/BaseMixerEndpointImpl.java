@@ -59,7 +59,7 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
 	}
 
 	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
+	public Connection createConnection(ConnectionType type, Boolean isLocal) {
 		Connection connection = super.createConnection(type, isLocal);
 		audioMixer.addComponent(((BaseConnection) connection).getAudioComponent());
 		oobMixer.addComponent(((BaseConnection) connection).getOOBComponent());

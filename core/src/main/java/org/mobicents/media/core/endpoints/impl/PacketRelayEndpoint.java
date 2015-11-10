@@ -28,7 +28,6 @@ import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
  * Packet Relay Endpoint Implementation
@@ -41,15 +40,16 @@ public class PacketRelayEndpoint extends BaseMixerEndpointImpl {
     	super(localName);              
     }
 
-	@Override
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
-    	switch(type) {
-    		case RTP:
-    			return super.createConnection(type,isLocal);    			
-    		case LOCAL:
-    			throw new ResourceUnavailableException("Local connection is not available on packet relay");    			
-    	}
-    	return null;
+    @Override
+    public Connection createConnection(ConnectionType type, Boolean isLocal) {
+        switch (type) {
+            case RTP:
+                return super.createConnection(type, isLocal);
+            case LOCAL:
+            default:
+                return null;
+                // throw new ResourceUnavailableException("Local connection is not available on packet relay");
+        }
     }
 
 	@Override

@@ -189,15 +189,12 @@ public abstract class BaseConnection implements Connection {
 	/**
 	 * Initiates transition from NULL to HALF_OPEN state.
 	 */
-	public void bind() throws Exception {
+	public void bind() throws IllegalStateException {
 		synchronized (stateMonitor) {
 			// check current state
 			if (this.state != ConnectionState.NULL) {
 				throw new IllegalStateException("Connection already bound");
 			}
-
-			// execute call back
-			this.onCreated();
 
 			// update state
 			setState(ConnectionState.HALF_OPEN);
@@ -216,9 +213,6 @@ public abstract class BaseConnection implements Connection {
 			if (this.state == ConnectionState.OPEN) {
 				throw new IllegalStateException("Connection opened already");
 			}
-
-			// execute callback
-			this.onOpened();
 
 			// update state
 			setState(ConnectionState.OPEN);
@@ -275,18 +269,6 @@ public abstract class BaseConnection implements Connection {
 	 */
 	@Override
 	public abstract void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener);
-
-	/**
-	 * Called when connection created.
-	 */
-	protected abstract void onCreated() throws Exception;
-
-	/**
-	 * Called when connected moved to OPEN state.
-	 * 
-	 * @throws Exception
-	 */
-	protected abstract void onOpened() throws Exception;
 
 	/**
 	 * Called when connection is moving from OPEN state to NULL state.
