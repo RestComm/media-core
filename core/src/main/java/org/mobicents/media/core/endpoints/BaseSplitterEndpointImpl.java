@@ -76,8 +76,8 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 	}
 
 	@Override
-	public void deleteConnection(Connection connection, ConnectionType connectionType) {
-		super.deleteConnection(connection, connectionType);
+	public void releaseConnection(Connection connection, ConnectionType connectionType) {
+		super.releaseConnection(connection, connectionType);
 
 		switch (connectionType) {
 		case RTP:

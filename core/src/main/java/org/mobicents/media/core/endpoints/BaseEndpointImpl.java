@@ -172,7 +172,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	}
 
 	@Override
-	public void deleteConnection(Connection connection, ConnectionType connectionType) {
+	public void releaseConnection(Connection connection, ConnectionType connectionType) {
 		connections.remove(connection.getId());
 
 		switch (connectionType) {
