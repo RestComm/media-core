@@ -32,7 +32,6 @@ import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
@@ -66,7 +65,6 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
 
 	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
-	private Iterator<Connection> connectionsIterator;
 
 	public BaseEndpointImpl(String localName) {
 		this.localName = localName;
@@ -171,6 +169,15 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		((BaseConnection) connection).close();
 	}
 
+    @Override
+    public void deleteConnections() {
+        Iterator<Connection> iterator = this.connections.values().iterator();
+        while (iterator.hasNext()) {
+            Connection connection = iterator.next();
+            deleteConnection(connection);
+        }
+    }
+
 	@Override
 	public void releaseConnection(Connection connection) {
 		connections.remove(connection.getId());
@@ -187,15 +194,6 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		if (connections.size() == 0) {
 			mediaGroup.releaseAll();
 		}
-	}
-
-	@Override
-	public void deleteConnections() {
-	    Iterator<Connection> iterator = this.connections.values().iterator();
-	    while(iterator.hasNext()) {
-	        Connection connection = iterator.next();
-	        deleteConnection(connection);
-	    }
 	}
 
 	public Connection getConnection(int connectionID) {
@@ -290,8 +288,5 @@ public abstract class BaseEndpointImpl implements Endpoint {
 			break;
 		}
 	}
-
-	@Override
-	public abstract void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
 
 }
