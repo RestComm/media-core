@@ -100,7 +100,7 @@ public class LocalConnectionImplTest {
 
     @After
     public void tearDown() {
-    	endpoint.deleteAllConnections();
+    	endpoint.deleteConnections();
         endpoint.stop();
         scheduler.stop();
     }

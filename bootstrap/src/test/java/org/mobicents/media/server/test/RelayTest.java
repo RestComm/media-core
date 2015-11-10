@@ -206,7 +206,7 @@ public class RelayTest {
         Thread.sleep(10000);
         ivr.deleteConnection(connection1);
         soundcard.deleteConnection(connection2);
-        cnfBridge.deleteAllConnections();
+        cnfBridge.deleteConnections();
     }
 
     @Test

@@ -419,7 +419,7 @@ public class RTPJoiningTest extends RTPEnvironment {
         
         try
         {
-        	endpoint3.deleteAllConnections();
+        	endpoint3.deleteConnections();
         }
         catch(Exception e)
         {

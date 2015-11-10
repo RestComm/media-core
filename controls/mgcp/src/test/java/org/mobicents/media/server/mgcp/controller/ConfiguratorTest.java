@@ -129,7 +129,7 @@ public class ConfiguratorTest {
         }
 
         @Override
-        public void deleteAllConnections() {
+        public void deleteConnections() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 

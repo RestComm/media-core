@@ -110,7 +110,7 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     @Override
-    public void deleteAllConnections() {
+    public void deleteConnections() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

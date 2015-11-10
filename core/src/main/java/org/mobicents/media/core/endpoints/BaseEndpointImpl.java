@@ -139,7 +139,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	@Override
 	public void stop() {
 		mediaGroup.releaseAll();
-		deleteAllConnections();
+		deleteConnections();
 		// TODO: unregister at scheduler level
 		logger.info("Stopped " + localName);
 	}
@@ -190,11 +190,12 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	}
 
 	@Override
-	public void deleteAllConnections() {
-		connectionsIterator = connections.valuesIterator();
-		while (connectionsIterator.hasNext()) {
-			((BaseConnection) connectionsIterator.next()).close();
-		}
+	public void deleteConnections() {
+	    Iterator<Connection> iterator = this.connections.values().iterator();
+	    while(iterator.hasNext()) {
+	        Connection connection = iterator.next();
+	        deleteConnection(connection);
+	    }
 	}
 
 	public Connection getConnection(int connectionID) {

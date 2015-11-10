@@ -292,7 +292,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		
 		endpointRTP1.deleteConnection(connectionRTP1);
 		endpointLocal1.deleteConnection(connectionEPLocal1);
-		bridgeEndpoint.deleteAllConnections();
+		bridgeEndpoint.deleteConnections();
 
 		assertEquals(1, s1.length);
 		assertEquals(1, s2.length);
@@ -397,7 +397,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		endpointRTP1.deleteConnection(connectionRTP1);
 		endpointLocal1.deleteConnection(connectionEPLocal1);
 		endpointLocal2.deleteConnection(connectionEPLocal1);
-		bridgeEndpoint.deleteAllConnections();
+		bridgeEndpoint.deleteConnections();
 
 		// test that the RTP connection received mixed audio from both Local connections
 		assertEquals(2, sRTP1.length);
@@ -491,7 +491,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		endpointRTP1.deleteConnection(connectionRTP1);
 		endpointLocal1.deleteConnection(connectionEPLocal1);
 		endpointLocal2.deleteConnection(connectionEPLocal1);
-		bridgeEndpoint.deleteAllConnections();
+		bridgeEndpoint.deleteConnections();
 
 		// test that the RTP connection received mixed audio from both Local connections
 		assertEquals(2, sRTP1.length);
@@ -565,7 +565,7 @@ public class BridgeEndpointTest extends RTPEnvironment {
 		endpointRTP1.deleteConnection(connectionRTP1);
 		endpointLocal1.deleteConnection(connectionEPLocal1);
 		endpointLocal2.deleteConnection(connectionEPLocal1);
-		bridgeEndpoint.deleteAllConnections();
+		bridgeEndpoint.deleteConnections();
 
 		dtmfDetectorRTP1.deactivate();
 		dtmfDetectorLocal1.deactivate();

@@ -119,8 +119,8 @@ public class MediaGroupTest {
 
     @After
     public void tearDown() {
-        endpoint1.deleteAllConnections();
-        endpoint2.deleteAllConnections();
+        endpoint1.deleteConnections();
+        endpoint2.deleteConnections();
         endpoint1.releaseResource(MediaType.AUDIO, ComponentType.DTMF_GENERATOR);
         endpoint2.releaseResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
         endpoint1.stop();

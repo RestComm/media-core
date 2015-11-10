@@ -79,6 +79,11 @@ public interface Endpoint {
      * @param connection the connection to be deleted.
      */
     public void deleteConnection(Connection connection);
+    
+    /**
+     * Deletes all connection associated with this Endpoint.
+     */
+    public void deleteConnections();
 
     /**
      * Deletes specified connection.
@@ -93,11 +98,6 @@ public interface Endpoint {
      * @param connection the connection to be deleted.
      */
     public void modeUpdated(ConnectionMode oldMode,ConnectionMode newMode);
-    
-    /**
-     * Deletes all connection associated with this Endpoint.
-     */
-    public void deleteAllConnections();
     
     /**
      * Gets number of active connections associated with this Endpoint.

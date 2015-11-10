@@ -223,7 +223,7 @@ public class MgcpEndpoint {
     	while(keyIterator.hasNext())
     		connections.offer(activeConnections.remove(keyIterator.next()));        
     	
-        endpoint.deleteAllConnections();
+        endpoint.deleteConnections();
         
         int oldValue=this.state.getAndSet(STATE_FREE);
         
