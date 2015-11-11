@@ -22,34 +22,30 @@
 package org.mobicents.media.core.pooling;
 
 /**
- * Represents an object that is managed by a pool.
- * <p>
- * This interface exposes the methods necessary to implement a proper lifecycle for the pooled objects:
- * <ul>
- * <li>guarantees that the objects are properly initialized when polled from the pool.</li>
- * <li>guarantees that the objects are properly closed and reset when pushed into the pool.</li>
- * </ul>
- * </p>
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface PooledObject {
+public class PooledObjectMock implements PooledObject {
+    
+    private boolean checkedId = false;
+    private boolean checkedOut = false;
 
-    /**
-     * Closes and resets the state of the object.
-     * <p>
-     * Must be invoked before pushing object into the pool.
-     * </p>
-     */
-    void checkIn();
+    public boolean isCheckedId() {
+        return checkedId;
+    }
+    
+    public boolean isCheckedOut() {
+        return checkedOut;
+    }
+    
+    @Override
+    public void checkIn() {
+        this.checkedId = true;
+    }
 
-    /**
-     * Initializes the object.
-     * <p>
-     * Must be invoked when polling an object from the pool.
-     * </p>
-     */
-    void checkOut();
+    @Override
+    public void checkOut() {
+        this.checkedOut = true;
+    }
 
 }

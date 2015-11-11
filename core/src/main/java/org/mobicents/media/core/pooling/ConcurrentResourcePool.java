@@ -21,35 +21,46 @@
 
 package org.mobicents.media.core.pooling;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /**
- * Represents an object that is managed by a pool.
- * <p>
- * This interface exposes the methods necessary to implement a proper lifecycle for the pooled objects:
- * <ul>
- * <li>guarantees that the objects are properly initialized when polled from the pool.</li>
- * <li>guarantees that the objects are properly closed and reset when pushed into the pool.</li>
- * </ul>
- * </p>
+ * Concurrent implementation of a {@link ResourcePool} that is thread safe.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface PooledObject {
+public class ConcurrentResourcePool<T extends PooledObject> implements ResourcePool<T> {
 
-    /**
-     * Closes and resets the state of the object.
-     * <p>
-     * Must be invoked before pushing object into the pool.
-     * </p>
-     */
-    void checkIn();
+    private final Queue<T> resources;
 
-    /**
-     * Initializes the object.
-     * <p>
-     * Must be invoked when polling an object from the pool.
-     * </p>
-     */
-    void checkOut();
+    public ConcurrentResourcePool() {
+        this.resources = new ConcurrentLinkedQueue<T>();
+    }
+
+    @Override
+    public void offer(T resource) {
+        resource.checkIn();
+        this.resources.add(resource);
+    }
+
+    @Override
+    public T poll() {
+        T resource = this.resources.poll();
+        if (resource != null) {
+            resource.checkOut();
+        }
+        return resource;
+    }
+
+    @Override
+    public int size() {
+        return resources.size();
+    }
+
+    @Override
+    public void clear() {
+        this.resources.clear();
+    }
 
 }

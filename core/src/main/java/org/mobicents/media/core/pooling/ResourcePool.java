@@ -22,6 +22,15 @@
 package org.mobicents.media.core.pooling;
 
 /**
+ * Resource pool for object storage.
+ * <p>
+ * <b>The pool is responsible for resetting the objects, not the clients</b>. This is an important rule to avoid turning the
+ * resources pool into a cesspool.<br>
+ * For this reason, all resources managed by the pool must implement the {@link PooledObject} interface.
+ * </p>
+ * 
+ * @param <T> The type of resources managed by the pool.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -55,6 +64,6 @@ public interface ResourcePool<T extends PooledObject> {
     /**
      * Clears all elements from the pool.
      */
-    void clean();
+    void clear();
 
 }
