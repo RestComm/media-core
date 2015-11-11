@@ -203,7 +203,7 @@ public class MgcpEndpoint {
     	//remove activity from list and terminate
     	mgcpConnection.release();
 
-    	endpoint.deleteConnection(mgcpConnection.connection);
+    	endpoint.deleteConnection(mgcpConnection.connection.getId());
         
     	//return object to pool
     	connections.offer(mgcpConnection);
@@ -272,7 +272,7 @@ public class MgcpEndpoint {
         //reclaim
         mgcpConnection.release();
         
-        endpoint.deleteConnection(mgcpConnection.connection);
+        endpoint.deleteConnection(mgcpConnection.connection.getId());
         
         //back to pool
         connections.offer(mgcpConnection);

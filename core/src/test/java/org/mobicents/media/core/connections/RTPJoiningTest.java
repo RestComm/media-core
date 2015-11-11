@@ -153,8 +153,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint2.deleteConnection(connection2);
-        endpoint1.deleteConnection(connection1);
+        endpoint2.deleteConnection(connection2.getId());
+        endpoint1.deleteConnection(connection1.getId());
 
         assertEquals(1, s1.length);
         assertEquals(1, s2.length);
@@ -200,8 +200,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint2.deleteConnection(connection2);
-        endpoint1.deleteConnection(connection1);
+        endpoint2.deleteConnection(connection2.getId());
+        endpoint1.deleteConnection(connection1.getId());
 
         assertEquals(0, s1.length);
         assertEquals(1, s2.length);
@@ -245,8 +245,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint2.deleteConnection(connection2);
-        endpoint1.deleteConnection(connection1);
+        endpoint2.deleteConnection(connection2.getId());
+        endpoint1.deleteConnection(connection1.getId());
 
         assertEquals(0, s1.length);
         assertEquals(1, s2.length);
@@ -290,8 +290,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint2.deleteConnection(connection2);
-        endpoint1.deleteConnection(connection1);
+        endpoint2.deleteConnection(connection2.getId());
+        endpoint1.deleteConnection(connection1.getId());
         
         System.out.println("s1.length=" + s1.length);
         System.out.println("s2.length=" + s2.length);
@@ -345,8 +345,8 @@ public class RTPJoiningTest extends RTPEnvironment {
     	analyzer1.deactivate();
     	analyzer2.deactivate();
     	
-    	endpoint2.deleteConnection(connection2);
-        endpoint1.deleteConnection(connection1);
+    	endpoint2.deleteConnection(connection2.getId());
+        endpoint1.deleteConnection(connection1.getId());
 
         s1 = a1.getSpectra();
         s2 = a2.getSpectra();
@@ -414,8 +414,8 @@ public class RTPJoiningTest extends RTPEnvironment {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint2.deleteConnection(connection3);
-        endpoint1.deleteConnection(connection1);
+        endpoint2.deleteConnection(connection3.getId());
+        endpoint1.deleteConnection(connection1.getId());
         
         try
         {

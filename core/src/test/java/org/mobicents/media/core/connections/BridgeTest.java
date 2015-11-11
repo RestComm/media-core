@@ -199,15 +199,15 @@ public class BridgeTest extends RTPEnvironment {
         int[] s3 = a3.getSpectra();
         int[] s4 = a4.getSpectra();
 
-        endpoint1.deleteConnection(connection1);
-        endpoint1.deleteConnection(connection12);
+        endpoint1.deleteConnection(connection1.getId());
+        endpoint1.deleteConnection(connection12.getId());
         
-        endpoint2.deleteConnection(connection2);
+        endpoint2.deleteConnection(connection2.getId());
 
-        endpoint3.deleteConnection(connection3);
-        endpoint3.deleteConnection(connection34);
+        endpoint3.deleteConnection(connection3.getId());
+        endpoint3.deleteConnection(connection34.getId());
         
-        endpoint4.deleteConnection(connection4);
+        endpoint4.deleteConnection(connection4.getId());
         
         printSpectra("E1", s1);
         printSpectra("E2", s2);

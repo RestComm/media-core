@@ -50,7 +50,7 @@ public class MyTestConnection extends BaseConnection {
 
     private AudioComponent audioComponent;
     private OOBComponent oobComponent;
-    public MyTestConnection(int id,PriorityQueueScheduler scheduler) throws Exception {
+    public MyTestConnection(int id,PriorityQueueScheduler scheduler) {
         super(id, scheduler);
         audioComponent=new AudioComponent(-1);
         oobComponent=new OOBComponent(-1);

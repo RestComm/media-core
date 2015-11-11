@@ -66,8 +66,11 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
 	protected ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
 
+	private volatile boolean started;
+	
 	public BaseEndpointImpl(String localName) {
 		this.localName = localName;
+		this.started = false;
 	}
 
 	@Override
@@ -118,28 +121,39 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	public void setState(EndpointState state) {
 		this.state = state;
 	}
+	
+	public boolean isStarted() {
+        return started;
+    }
 
-	@Override
-	public void start() throws ResourceUnavailableException {
-		// do checks before start
-		if (scheduler == null) {
-			throw new ResourceUnavailableException("Scheduler is not available");
-		}
+    @Override
+    public void start() throws ResourceUnavailableException {
+        if (!started) {
+            // do checks before start
+            if (scheduler == null) {
+                throw new ResourceUnavailableException("Scheduler is not available");
+            }
 
-		if (resourcesPool == null) {
-			throw new ResourceUnavailableException("Resources pool is not available");
-		}
+            if (resourcesPool == null) {
+                throw new ResourceUnavailableException("Resources pool is not available");
+            }
 
-		// create connections subsystem
-		mediaGroup = new MediaGroup(resourcesPool, this);
-	}
+            this.started = true;
+
+            // create connections subsystem
+            mediaGroup = new MediaGroup(resourcesPool, this);
+        }
+    }
 
 	@Override
 	public void stop() {
-		mediaGroup.releaseAll();
-		deleteConnections();
-		// TODO: unregister at scheduler level
-		logger.info("Stopped " + localName);
+	    if(started) {
+	        this.started = false;
+	        mediaGroup.releaseAll();
+	        deleteConnections();
+	        // TODO: unregister at scheduler level
+	        logger.info("Stopped " + localName);
+	    }
 	}
 
 	@Override
@@ -161,12 +175,16 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
 		connection.setEndpoint(this);
 		connections.put(connection.getId(), connection);
+		
+		if(!started) {
+		    try {
+                start();
+            } catch (ResourceUnavailableException e) {
+                logger.error("Could not start endpoint " + localName, e);
+            }
+		}
+		
 		return connection;
-	}
-
-	@Override
-	public void deleteConnection(Connection connection) {
-		((BaseConnection) connection).close();
 	}
 
     @Override
@@ -174,11 +192,15 @@ public abstract class BaseEndpointImpl implements Endpoint {
         Iterator<Connection> iterator = this.connections.values().iterator();
         while (iterator.hasNext()) {
             Connection connection = iterator.next();
-            deleteConnection(connection);
+            deleteConnection(connection.getId());
         }
     }
 
 	protected void releaseConnection(Connection connection) {
+	    // Close connection
+	    ((BaseConnection) connection).close();
+	    
+	    // Release connection back to the pool
 		switch (connection.getType()) {
 		case RTP:
 			resourcesPool.releaseConnection(connection, false);
@@ -187,9 +209,9 @@ public abstract class BaseEndpointImpl implements Endpoint {
 			resourcesPool.releaseConnection(connection, true);
 			break;
 		}
-
-		if (connections.size() == 0) {
-			mediaGroup.releaseAll();
+		
+		if(connections.isEmpty()) {
+		    stop();
 		}
 	}
 

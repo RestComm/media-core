@@ -41,7 +41,6 @@ import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
@@ -58,8 +57,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
-	private static final Logger logger = Logger
-			.getLogger(RtpConnectionImpl.class);
+	private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
 
 	// Core elements
 	private final ChannelsManager channelsManager;
@@ -75,9 +73,6 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	// Session Description
 	private SessionDescription localSdp;
 	private SessionDescription remoteSdp;
-
-	// Listeners
-	private ConnectionFailureListener connectionFailureListener;
 
 	/**
 	 * Constructs a new RTP connection with one audio channel.
@@ -559,32 +554,39 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		onRtcpFailure(message);
 	}
 
-	@Override
-	public void setConnectionFailureListener(
-			ConnectionFailureListener connectionFailureListener) {
-		this.connectionFailureListener = connectionFailureListener;
-	}
+    @Override
+    protected void onFailed() {
+        // Set connection mode to inactive, stopping the media components
+        try {
+            setMode(ConnectionMode.INACTIVE);
+        } catch (ModeNotSupportedException e) {
+            logger.warn("Could not set connection mode to INACTIVE.", e);
+        }
+        
+        // Close channels and reset state
+        closeResources();
+        reset();
+        
+        // Warn the MGCP stack that this connection failed
+        // so it can delete the parent endpoint
+        if (this.connectionFailureListener != null) {
+            this.connectionFailureListener.onFailure();
+        }
+    }
 
-	@Override
-	protected void onFailed() {
-		closeResources();
-		reset();
-		if (this.connectionFailureListener != null) {
-			this.connectionFailureListener.onFailure();
-		}
-	}
+    @Override
+    protected void onClosed() {
+        // Set connection mode to inactive, stopping the media components
+        try {
+            setMode(ConnectionMode.INACTIVE);
+        } catch (ModeNotSupportedException e) {
+            logger.warn("Could not set connection mode to INACTIVE.", e);
+        }
 
-	@Override
-	protected void onClosed() {
-		closeResources();
-		reset();
-		try {
-			setMode(ConnectionMode.INACTIVE);
-		} catch (ModeNotSupportedException e) {
-			logger.warn("Could not set connection mode to INACTIVE.", e);
-		}
-		releaseConnection();
-		this.connectionFailureListener = null;
-	}
+        // Close channels and reset state
+        closeResources();
+        reset();
+        this.connectionFailureListener = null;
+    }
 
 }

@@ -57,14 +57,6 @@ public class MyTestEndpoint implements Endpoint {
     {
     	return 0;
     }
-
-    public void setRtpConnections(int rtpConnections)
-    {        	
-    }
-    
-    public void setLocalConnections(int localConnections)
-    {        	
-    }
     
     @Override
     public void setScheduler(PriorityQueueScheduler scheduler) {
@@ -100,12 +92,7 @@ public class MyTestEndpoint implements Endpoint {
     }
 
     @Override
-    public void deleteConnection(Connection connection) {
-        
-    }
-
-    @Override
-    public void releaseConnection(int connectionId) {
+    public void deleteConnection(int connectionId) {
         
     }
 

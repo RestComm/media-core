@@ -27,28 +27,25 @@
 
 package org.mobicents.media.core.connections;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -74,22 +71,12 @@ public class LocalJoiningTest {
     
     private ChannelsManager channelsManager;
     
-    private int count;
-
     Component sine1,sine2;
     Component analyzer1,analyzer2;
     
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     public LocalJoiningTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
     }
 
     @Before
@@ -176,8 +163,8 @@ public class LocalJoiningTest {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint1.deleteConnection(connection1);
-        endpoint2.deleteConnection(connection2);
+        endpoint1.deleteConnection(connection1.getId());
+        endpoint2.deleteConnection(connection2.getId());
 
         for (int i = 0; i < s2.length; i++) {
             System.out.println(i + " " + s2[i]);
@@ -221,8 +208,8 @@ public class LocalJoiningTest {
         int[] s1 = a1.getSpectra();
         int[] s2 = a2.getSpectra();
 
-        endpoint1.deleteConnection(connection1);
-        endpoint2.deleteConnection(connection2);
+        endpoint1.deleteConnection(connection1.getId());
+        endpoint2.deleteConnection(connection2.getId());
 
         for (int i = 0; i < s2.length; i++) {
             System.out.println(i + " " + s2[i]);

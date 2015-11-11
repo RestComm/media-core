@@ -6,6 +6,7 @@ package org.mobicents.media.server.mgcp.controller;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.junit.After;
@@ -13,7 +14,14 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.core.connections.BaseConnection;
+import org.mobicents.media.core.connections.MyTestConnection;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.mgcp.controller.signal.MgcpPackage;
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.utils.Text;
 
 /**
  *
@@ -99,13 +107,125 @@ public class MgcpEndpointTest {
     @Test
     public void testPollAndOffer() {
     	MgcpCall call = callManager.getCall(1, true);
+    	MockConnection connection = new MockConnection(1);
         for (int i = 0; i < 1000; i++) {
-            MgcpConnection mgcpConnection = mgcpEndpoint.poll(call);            
+            MgcpConnection mgcpConnection = mgcpEndpoint.poll(call);  
+            mgcpConnection.connection = connection;
             assertEquals(1, call.size());
             
             mgcpEndpoint.offer(mgcpConnection);
             assertEquals(0, call.size());            
         }    	
+    }
+    
+    private class MockConnection extends BaseConnection {
+        
+        public MockConnection(int id) {
+            super(id, null);
+        }
+
+        @Override
+        public ConnectionType getType() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void generateOffer(boolean webrtc) throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOtherParty(Connection other) throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOtherParty(byte[] descriptor) throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public void setOtherParty(Text descriptor) throws IOException {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public long getPacketsReceived() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public long getBytesReceived() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public long getPacketsTransmitted() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public long getBytesTransmitted() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public double getJitter() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public boolean isAvailable() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void generateCname() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public String getCname() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public AudioComponent getAudioComponent() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public OOBComponent getOOBComponent() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        protected void onClosed() {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        protected void onFailed() {
+            // TODO Auto-generated method stub
+            
+        }
+        
     }
 
 }

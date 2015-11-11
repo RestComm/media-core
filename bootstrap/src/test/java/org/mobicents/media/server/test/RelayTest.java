@@ -33,7 +33,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
@@ -42,9 +41,9 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -160,8 +159,6 @@ public class RelayTest {
      */
 //    @Test
     public void testTransmission() throws Exception {
-        long s = System.nanoTime();
-        
         //create client
         Connection connection2 = soundcard.createConnection(ConnectionType.RTP,false);        
         Text sd2 = new Text(connection2.getDescriptor());
@@ -204,22 +201,9 @@ public class RelayTest {
         player.start();
         
         Thread.sleep(10000);
-        ivr.deleteConnection(connection1);
-        soundcard.deleteConnection(connection2);
+        ivr.deleteConnection(connection1.getId());
+        soundcard.deleteConnection(connection2.getId());
         cnfBridge.deleteConnections();
     }
 
-    @Test
-    public void testNothing() {
-        
-    }
-    
-    private void printSpectra(String title, int[]s) {
-        System.out.println(title);
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
-    }
-    
 }

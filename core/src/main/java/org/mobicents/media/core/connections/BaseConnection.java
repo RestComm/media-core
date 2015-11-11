@@ -22,8 +22,6 @@
 
 package org.mobicents.media.core.connections;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -39,7 +37,6 @@ import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-import org.mobicents.media.server.utils.Text;
 
 /**
  * Implements connection's FSM.
@@ -74,6 +71,9 @@ public abstract class BaseConnection implements Connection {
 
 	private ConnectionMode connectionMode = ConnectionMode.INACTIVE;
 	private static final Logger logger = Logger.getLogger(BaseConnection.class);
+	
+	// Listeners
+	protected ConnectionFailureListener connectionFailureListener;
 
 	/**
 	 * Creates basic connection implementation.
@@ -226,6 +226,7 @@ public abstract class BaseConnection implements Connection {
 			if (this.state != ConnectionState.NULL) {
 				this.onClosed();
 				setState(ConnectionState.NULL);
+				this.activeEndpoint = null;
 			}
 		}
 	}
@@ -235,6 +236,7 @@ public abstract class BaseConnection implements Connection {
 			if (this.state != ConnectionState.NULL) {
 				this.onFailed();
 				setState(ConnectionState.NULL);
+				this.activeEndpoint = null;
 			}
 		}
 	}
@@ -267,7 +269,9 @@ public abstract class BaseConnection implements Connection {
 	 * Sets connection failure listener.
 	 */
 	@Override
-	public abstract void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener);
+	public void setConnectionFailureListener(ConnectionFailureListener connectionFailureListener) {
+	    this.connectionFailureListener = connectionFailureListener;
+	}
 
 	/**
 	 * Called when connection is moving from OPEN state to NULL state.
@@ -279,35 +283,6 @@ public abstract class BaseConnection implements Connection {
 	 */
 	protected abstract void onFailed();
 
-	/**
-	 * Joins endpoint wich executes this connection with other party.
-	 * 
-	 * @param other
-	 *            the connection executed by other party endpoint.
-	 * @throws IOException
-	 */
-	@Override
-	public abstract void setOtherParty(Connection other) throws IOException;
-
-	/**
-	 * Joins endpoint which executes this connection with other party.
-	 * 
-	 * @param descriptor
-	 *            the SDP descriptor of the other party.
-	 * @throws IOException
-	 */
-	@Override
-	public abstract void setOtherParty(byte[] descriptor) throws IOException;
-
-	/**
-	 * Joins endpoint which executes this connection with other party.
-	 * 
-	 * @param descriptor
-	 *            the SDP descriptor of the other party.
-	 * @throws IOException
-	 */
-	@Override
-	public abstract void setOtherParty(Text descriptor) throws IOException;
 
 	/**
 	 * Gets whether connection should be bound to local or remote interface.
@@ -335,7 +310,7 @@ public abstract class BaseConnection implements Connection {
 	
 	protected void releaseConnection() {
 		if (this.activeEndpoint != null) {
-			this.activeEndpoint.releaseConnection(this.id);
+			this.activeEndpoint.deleteConnection(this.id);
 		}
 		this.activeEndpoint = null;
 	}
@@ -346,6 +321,7 @@ public abstract class BaseConnection implements Connection {
 			super();
 		}
 
+		@Override
 		public int getQueueNumber() {
 			return PriorityQueueScheduler.HEARTBEAT_QUEUE;
 		}

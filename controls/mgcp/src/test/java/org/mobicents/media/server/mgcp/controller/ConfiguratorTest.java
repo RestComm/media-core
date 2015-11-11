@@ -118,14 +118,9 @@ public class ConfiguratorTest {
         public Connection createConnection(ConnectionType type,Boolean isLocal) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-
-        @Override
-        public void deleteConnection(Connection connection) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
         
         @Override
-        public void releaseConnection(int connectionId) {
+        public void deleteConnection(int connectionId) {
         }
 
         @Override

@@ -24,12 +24,12 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
@@ -40,6 +40,8 @@ import org.mobicents.media.server.utils.Text;
  * @author yulian oifa
  */
 public class LocalConnectionImpl extends BaseConnection {
+    
+    private static final Logger logger = Logger.getLogger(LocalConnectionImpl.class);
 
     private LocalDataChannel localAudioChannel;
     
@@ -63,13 +65,12 @@ public class LocalConnectionImpl extends BaseConnection {
     	throw new UnsupportedOperationException("Not supported!");
     }
     
-    public AudioComponent getAudioComponent()
-    {
+    @Override
+    public AudioComponent getAudioComponent() {
     	return this.localAudioChannel.getAudioComponent();
     }
     
-    public OOBComponent getOOBComponent()
-    {
+    public OOBComponent getOOBComponent() {
     	return this.localAudioChannel.getOOBComponent();
     }
     
@@ -94,44 +95,39 @@ public class LocalConnectionImpl extends BaseConnection {
         }
     }
 
+    @Override
     public void setOtherParty(Text descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void setOtherParty(byte[] descriptor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    
+    @Override
     public long getPacketsReceived() {
-        return 0;
-    }
-
-    public long getBytesReceived() {
-        return 0;
-    }
-    
-    public long getPacketsTransmitted() {
-        return 0;
-    }
-
-    public long getBytesTransmitted() {
-        return 0;
-    }
-    
-    public String toString() {
-        return "Local Connection [" + getId() + "]";
-    }
-
-    
-    public double getJitter() {
-        return 0;
+        return 0L;
     }
 
     @Override
-    public void setConnectionFailureListener(ConnectionFailureListener connectionListener)
-    {
-    	//currently used only in RTP Connection
+    public long getBytesReceived() {
+        return 0L;
+    }
+
+    @Override
+    public long getPacketsTransmitted() {
+        return 0L;
+    }
+
+    @Override
+    public long getBytesTransmitted() {
+        return 0L;
+    }
+
+    @Override
+    public double getJitter() {
+        return 0.0;
     }
 
     @Override
@@ -139,11 +135,16 @@ public class LocalConnectionImpl extends BaseConnection {
     	try {
             setMode(ConnectionMode.INACTIVE);
         } catch (ModeNotSupportedException e) {
+            logger.error(toString() + " - Cannot set local connection state to INACTIVE", e);
         }
         
         this.localAudioChannel.unjoin();
-        //release connection
-        releaseConnection();        
+        
+        // Warn the MGCP stack that this connection failed
+        // so it can delete the parent endpoint
+        if (this.connectionFailureListener != null) {
+            this.connectionFailureListener.onFailure();
+        }     
     }
 
     @Override
@@ -160,13 +161,15 @@ public class LocalConnectionImpl extends BaseConnection {
         }
         
         this.localAudioChannel.unjoin();
-        //release connection
-        releaseConnection();        
     }
 
 	public boolean isAvailable() {
-		// TODO What is criteria for this type of channel to be available
 		return true;
 	}
+	
+    @Override
+    public String toString() {
+        return "Local Connection " + getId();
+    }
 
 }

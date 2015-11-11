@@ -30,9 +30,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
@@ -40,9 +38,9 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -67,14 +65,6 @@ public class ReclaimingTest {
     private ChannelsManager channelsManager;
 
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
-    
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
@@ -123,12 +113,12 @@ public class ReclaimingTest {
      */
     public void testForLocalConnections() throws Exception {
         Connection connection1 = endpoint1.createConnection(ConnectionType.LOCAL,false);
-        endpoint1.deleteConnection(connection1);
+        endpoint1.deleteConnection(connection1.getId());
     }
 
     public void testForRTPConnections() throws Exception {
         Connection connection1 = endpoint1.createConnection(ConnectionType.RTP,false);
-        endpoint1.deleteConnection(connection1);
+        endpoint1.deleteConnection(connection1.getId());
     }
     
 //    @Test
