@@ -215,6 +215,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		}
 	}
 
+	@Override
 	public Connection getConnection(int connectionID) {
 		return connections.get(connectionID);
 	}

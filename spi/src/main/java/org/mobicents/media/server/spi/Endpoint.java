@@ -67,6 +67,14 @@ public interface Endpoint {
     public void stop();
     
     /**
+     * Gets a connection by identifier.
+     * 
+     * @param connectionId the identifier of the connection.
+     * @return The connection with the specified identifier. Returns null if no connection matches the identifier.
+     */
+    public Connection getConnection(int connectionId);
+    
+    /**
      * Creates new connection with specified mode.
      *
      * @param type transport type
