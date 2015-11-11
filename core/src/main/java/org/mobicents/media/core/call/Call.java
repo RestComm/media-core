@@ -62,9 +62,12 @@ public class Call {
         this.endpoints.putIfAbsent(endpoint.getLocalName(), endpoint);
     }
 
-    public void deleteEndpoint(String endpointName) {
+    public Endpoint deleteEndpoint(String endpointName) {
         Endpoint endpoint = this.endpoints.remove(endpointName);
-        // TODO delete connections from endpoint
+        if (endpoint != null) {
+            endpoint.deleteConnections();
+        }
+        return endpoint;
     }
 
     public void deleteEndpoints() {

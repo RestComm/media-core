@@ -34,7 +34,7 @@ public class CallManager {
 
     private final ConcurrentHashMap<Integer, Call> calls;
 
-    private CallManager() {
+    CallManager() {
         this.calls = new ConcurrentHashMap<Integer, Call>();
     }
 
@@ -61,6 +61,10 @@ public class CallManager {
             Integer callId = iterator.next();
             deleteCall(callId);
         }
+    }
+    
+    public int countCalls() {
+        return this.calls.size();
     }
 
     public static CallManager getInstance() {
