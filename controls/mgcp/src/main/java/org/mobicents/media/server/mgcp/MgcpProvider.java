@@ -37,7 +37,6 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.message.MgcpMessage;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 
@@ -47,12 +46,10 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  */
 public class MgcpProvider {
     
-    private String name;
-    
     //event listeners
     private Listeners<MgcpListener> listeners = new Listeners<MgcpListener>();
     
-    //Underlying network interface\
+    //Underlying network interface
     private UdpManager transport;
     
     //datagram channel
@@ -60,9 +57,6 @@ public class MgcpProvider {
     
     //MGCP port number
     private int port;
-    
-    //Job scheduler
-    private PriorityQueueScheduler scheduler;
     
     //transmission buffer
     private ConcurrentCyclicFIFO<ByteBuffer> txBuffer = new ConcurrentCyclicFIFO<ByteBuffer>();
@@ -81,33 +75,9 @@ public class MgcpProvider {
      * @param port port number to bind
      * @param scheduler job scheduler
      */
-    public MgcpProvider(UdpManager transport, int port, PriorityQueueScheduler scheduler) {
+    public MgcpProvider(UdpManager transport, int port) {
         this.transport = transport;
         this.port = port;
-        this.scheduler = scheduler;
-        
-        //prepare event pool
-        for (int i = 0; i < 100; i++) {
-            events.offer(new MgcpEventImpl(this));
-        }
-        
-        for(int i=0;i<100;i++)
-        	txBuffer.offer(ByteBuffer.allocate(8192));
-    }
-
-    /**
-     * Creates new provider instance.
-     * Used for tests
-     * 
-     * @param transport the UDP interface instance.
-     * @param port port number to bind
-     * @param scheduler job scheduler
-     */
-    protected MgcpProvider(String name, UdpManager transport, int port, PriorityQueueScheduler scheduler) {
-        this.name = name;
-        this.transport = transport;
-        this.port = port;
-        this.scheduler = scheduler;
         
         //prepare event pool
         for (int i = 0; i < 100; i++) {
@@ -298,16 +268,12 @@ public class MgcpProvider {
      * Receiver of the MGCP packets.
      */
     private class Receiver {
+
         private SocketAddress address;
         
         public Receiver() {
             super();
         }        
-
-        public int getQueueNumber()
-        {
-        	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
-        }
         
         public long perform() {
             rxBuffer.clear();

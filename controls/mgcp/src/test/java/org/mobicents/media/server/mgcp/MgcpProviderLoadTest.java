@@ -36,19 +36,17 @@ import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
 
@@ -66,24 +64,11 @@ public class MgcpProviderLoadTest {
 
     private MgcpProvider provider1, provider2;
     
-    private Server server;
-    
     private ConcurrentMap<Client> clients = new ConcurrentMap<Client>();
     private ClientListener demux;
     
     private volatile int errorCount;
     private AtomicInteger txID = new AtomicInteger(1);
-    
-    public MgcpProviderLoadTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
     
     @Before
     public void setUp() throws IOException, TooManyListenersException {
@@ -97,13 +82,11 @@ public class MgcpProviderLoadTest {
         scheduler.start();
         udpInterface.start();
         
-        provider1 = new MgcpProvider("provider1", udpInterface, 1024, mediaScheduler);
-        provider2 = new MgcpProvider("provider2", udpInterface, 1025, mediaScheduler);
+        provider1 = new MgcpProvider(udpInterface, 1024);
+        provider2 = new MgcpProvider(udpInterface, 1025);
         
         provider1.activate();
         provider2.activate();
-        
-        server = new Server(provider1);
         
         demux = new ClientListener();
         provider2.addListener(demux);    	
