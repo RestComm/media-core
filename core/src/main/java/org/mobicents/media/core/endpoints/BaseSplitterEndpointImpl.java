@@ -38,7 +38,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author yulian oifa
  * @author amit bhayani
  */
-public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
+public abstract class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 
 	protected AudioSplitter audioSplitter;
 	protected OOBSplitter oobSplitter;

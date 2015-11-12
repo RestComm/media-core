@@ -35,6 +35,7 @@ import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SoundCard;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
+import org.mobicents.media.server.spi.EndpointType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
@@ -93,5 +94,22 @@ public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
 
     public void releaseResource(MediaType mediaType, ComponentType componentType) {
     	throw new UnsupportedOperationException("Not supported yet.");	
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public EndpointType getType() {
+        return EndpointType.BRIDGE;
     }    
 }

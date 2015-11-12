@@ -22,6 +22,7 @@
 package org.mobicents.media.core.pooling;
 
 import org.junit.Test;
+import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import junit.framework.Assert;
 

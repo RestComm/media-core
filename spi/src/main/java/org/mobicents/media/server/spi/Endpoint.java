@@ -25,6 +25,7 @@ package org.mobicents.media.server.spi;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.pooling.PooledObject;
 
 /**
  * The basic implementation of the endpoint.
@@ -40,7 +41,9 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
  * @author Yulian Oifa
  * @author amit.bhayani
  */
-public interface Endpoint {
+public interface Endpoint extends PooledObject {
+    
+    public EndpointType getType();
     
     /**
      * Gets the local name attribute.

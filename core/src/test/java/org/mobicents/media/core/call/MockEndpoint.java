@@ -28,6 +28,7 @@ import org.mobicents.media.core.endpoints.BaseEndpointImpl;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.EndpointType;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -56,6 +57,24 @@ public class MockEndpoint extends BaseEndpointImpl {
 
     @Override
     public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public EndpointType getType() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
         // TODO Auto-generated method stub
         
     }

@@ -37,6 +37,7 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.EndpointType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
@@ -122,4 +123,22 @@ public class MyTestEndpoint extends BaseMixerEndpointImpl {
 	public void releaseResource(MediaType mediaType, ComponentType componentType) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+
+    @Override
+    public EndpointType getType() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
 }

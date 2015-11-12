@@ -19,37 +19,35 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.pooling;
+package org.mobicents.media.server.spi;
 
 /**
- * Represents an object that is managed by a pool.
- * <p>
- * This interface exposes the methods necessary to implement a proper lifecycle for the pooled objects:
- * <ul>
- * <li>guarantees that the objects are properly initialized when polled from the pool.</li>
- * <li>guarantees that the objects are properly closed and reset when pushed into the pool.</li>
- * </ul>
- * </p>
+ * Enumeration of possible types of endpoints.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface PooledObject {
+public enum EndpointType {
 
-    /**
-     * Closes and resets the state of the object.
-     * <p>
-     * Must be invoked before pushing object into the pool.
-     * </p>
-     */
-    void checkIn();
+    ANNOUNCEMENT("ann"), BRIDGE("bridge"), CONFERENCE("cnf"), DS0("ds0"), IVR("ivr"), RELAY("relay");
 
-    /**
-     * Initializes the object.
-     * <p>
-     * Must be invoked when polling an object from the pool.
-     * </p>
-     */
-    void checkOut();
+    private final String code;
+
+    private EndpointType(String code) {
+        this.code = code;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public static EndpointType fromCode(String code) {
+        for (EndpointType type : values()) {
+            if (type.getCode().equals(code)) {
+                return type;
+            }
+        }
+        return null;
+    }
 
 }

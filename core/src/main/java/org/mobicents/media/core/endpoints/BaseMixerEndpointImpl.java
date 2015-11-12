@@ -38,7 +38,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * @author yulian oifa
  * @author amit bhayani
  */
-public class BaseMixerEndpointImpl extends BaseEndpointImpl {
+public abstract class BaseMixerEndpointImpl extends BaseEndpointImpl {
 
 	protected AudioMixer audioMixer;
 	protected OOBMixer oobMixer;
@@ -132,4 +132,5 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
 			}
 		}
 	}
+
 }

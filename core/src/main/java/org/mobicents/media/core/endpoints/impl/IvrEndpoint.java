@@ -27,6 +27,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
+import org.mobicents.media.server.spi.EndpointType;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
@@ -87,4 +88,21 @@ public class IvrEndpoint extends BaseMixerEndpointImpl {
 		}
 		return null;
 	}
+
+    @Override
+    public EndpointType getType() {
+        return EndpointType.IVR;
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
 }

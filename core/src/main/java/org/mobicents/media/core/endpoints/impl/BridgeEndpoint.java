@@ -25,6 +25,7 @@ package org.mobicents.media.core.endpoints.impl;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.BaseSplitterEndpointImpl;
+import org.mobicents.media.server.spi.EndpointType;
 import org.mobicents.media.server.spi.MediaType;
 
 /**
@@ -53,4 +54,21 @@ public class BridgeEndpoint extends BaseSplitterEndpointImpl {
 	public Component getResource(MediaType mediaType, ComponentType componentType) {
 		return null;
 	}
+
+    @Override
+    public EndpointType getType() {
+        return EndpointType.BRIDGE;
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
 }

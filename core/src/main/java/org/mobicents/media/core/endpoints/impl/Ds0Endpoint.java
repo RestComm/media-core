@@ -26,6 +26,7 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.spi.EndpointType;
 import org.mobicents.media.server.spi.MediaType;
 
 /**
@@ -58,4 +59,21 @@ public class Ds0Endpoint extends BaseSS7EndpointImpl {
 		}
 		return null;
 	}
+
+    @Override
+    public EndpointType getType() {
+        return EndpointType.DS0;
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
 }

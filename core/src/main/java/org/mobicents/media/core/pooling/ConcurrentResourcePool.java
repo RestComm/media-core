@@ -24,6 +24,9 @@ package org.mobicents.media.core.pooling;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.mobicents.media.server.spi.pooling.PooledObject;
+import org.mobicents.media.server.spi.pooling.ResourcePool;
+
 /**
  * Concurrent implementation of a {@link ResourcePool} that is thread safe.
  * 
