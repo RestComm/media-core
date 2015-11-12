@@ -62,7 +62,7 @@ public class EndpointPool {
 
             case IVR:
                 endpoint = ivrEndpoints.poll();
-
+                break;
             default:
                 throw new IllegalArgumentException("Unsupported endpoint type: " + endpointType.name());
         }
@@ -92,6 +92,22 @@ public class EndpointPool {
                 
             default:
                 throw new IllegalArgumentException("Unsupported endpoint type: " + endpointType.name());
+        }
+    }
+    
+    public int countEndpoints(EndpointType endpointType) {
+        switch (endpointType) {
+            case CONFERENCE:
+                return this.conferenceEndpoints.size();
+                
+            case BRIDGE:
+                return this.bridgeEndpoints.size();
+                
+            case IVR:
+                return this.ivrEndpoints.size();
+                
+            default:
+                return 0;
         }
     }
 
