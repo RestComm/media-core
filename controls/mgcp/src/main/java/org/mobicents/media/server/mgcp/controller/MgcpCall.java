@@ -21,78 +21,69 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
-import org.mobicents.media.core.call.Call;
-import org.mobicents.media.server.concurrent.ConcurrentMap;
-
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * MGCP call.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
- * @deprecated Use {@link Call}
  */
-@Deprecated
 public class MgcpCall {
 
-    private CallManager callManager;
-    protected int id;
-    protected ConcurrentMap<MgcpConnection> connections=new ConcurrentMap<MgcpConnection>();
-    private Iterator<Integer> keyIterator;
-        
+    private final CallManager callManager;
+
+    private final int id;
+    private final ConcurrentHashMap<String, MgcpEndpoint> endpoints;
+
     protected MgcpCall(CallManager callManager, int id) {
-        this.id=id;        
         this.callManager = callManager;
+        this.id = id;
+        this.endpoints = new ConcurrentHashMap<String, MgcpEndpoint>();
     }
 
-    public MgcpConnection getMgcpConnection(Integer id) {
-    	return connections.get(id);    	    
-    }
-    
     public int getId() {
-		return id;
-	}
-    
-    /**
-     * Excludes connection activity from this call.
-     * 
-     * @param activity the activity to be excluded.
-     */
-    public void exclude(MgcpConnection activity) {
-    	connections.remove(activity.id);
+        return id;
+    }
 
-        //if no more connections terminate the entire call
-        if (connections.isEmpty()) {
-           callManager.terminate(this);
+    public MgcpEndpoint getMgcpEndpoint(String endpointName) {
+        return this.endpoints.get(endpointName);
+    }
+
+    public void addEndpoint(MgcpEndpoint endpoint) {
+        this.endpoints.putIfAbsent(endpoint.getName(), endpoint);
+    }
+
+    public MgcpEndpoint removeEndpoint(String endpointName) {
+        MgcpEndpoint endpoint = this.endpoints.remove(endpointName);
+        if (endpoint != null) {
+            // Cascade delete connections from the endpoint
+            endpoint.deleteAllConnections();
+
+            // Terminate call if there are no endpoints left
+            if (this.endpoints.isEmpty()) {
+                this.callManager.terminate(this.id);
+            }
+        }
+        return endpoint;
+    }
+
+    public void removeEndpoints() {
+        Iterator<String> keys = this.endpoints.keySet().iterator();
+        while(keys.hasNext()) {
+            String endpointName = keys.next();
+            removeEndpoint(endpointName);
         }
     }
     
-    /**
-     * The amount of connections related to this call.
-     * 
-     * @return the amount.
-     */
-    public int size() {
-        return connections.size();
+    public int countEndpoints() {
+        return this.endpoints.size();
     }
-    
-    public void deleteConnections() {     	
-    	MgcpConnection currConnection;
-    	keyIterator = connections.keysIterator();
-    	while(keyIterator.hasNext())
-    	{
-    		currConnection=connections.remove(keyIterator.next());
-    		currConnection.mgcpEndpoint.deleteConnection(currConnection.getID());        
-    	}
-    	
-    	if (connections.isEmpty()) {
-            callManager.terminate(this);
-        }
-    }
-    
+
     @Override
     public String toString() {
-        return "call[" + id + "]";
+        return "call-" + id;
     }
 }

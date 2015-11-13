@@ -72,7 +72,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		this.localName = localName;
 		this.started = false;
 	}
-
+	
 	@Override
 	public String getLocalName() {
 		return localName;
@@ -186,7 +186,26 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		
 		return connection;
 	}
+	
+    public void addConnection(Connection connection) {
+        ((BaseConnection) connection).bind();
+        connection.setEndpoint(this);
+        Connection oldConnection = this.connections.putIfAbsent(connection.getId(), connection);
 
+        if (oldConnection != null) {
+            throw new IllegalArgumentException("Connection with duplicate ID=" + connection.getId() + " in endpoint "
+                    + localName);
+        }
+
+        if (!started) {
+            try {
+                start();
+            } catch (ResourceUnavailableException e) {
+                logger.error("Could not start endpoint " + localName, e);
+            }
+        }
+    }
+	
     @Override
     public void deleteConnections() {
         Iterator<Connection> iterator = this.connections.values().iterator();

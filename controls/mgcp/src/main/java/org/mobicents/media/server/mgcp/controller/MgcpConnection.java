@@ -22,7 +22,6 @@
 
 package org.mobicents.media.server.mgcp.controller;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,29 +30,29 @@ import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
-import org.mobicents.media.server.spi.ConnectionMode;
-import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
+
 /**
  * Represents the connection activity.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class MgcpConnection implements ConnectionFailureListener {
-	public static AtomicInteger connectionID=new AtomicInteger(1);
+
+	private static final AtomicInteger connectionID=new AtomicInteger(1);
     
-	public final static Text REASON_CODE = new Text("902 Loss of lower layer connectivity");
-	protected Integer id;
-    protected Text textualId;
-    protected MgcpCall call;
+	private final static Text REASON_CODE = new Text("902 Loss of lower layer connectivity");
+	
+	protected final Integer id;
+    protected final Text textualId;
     protected MgcpEndpoint mgcpEndpoint;
     protected Connection connection;
     private SocketAddress callAgent;
-    private Text descriptor = new Text();    
-    public MgcpConnection() 
-    {
-        id = connectionID.getAndIncrement();
-        textualId=new Text(Integer.toHexString(id));
+    
+    public MgcpConnection() {
+        this.id = connectionID.getAndIncrement();
+        this.textualId = new Text(Integer.toHexString(id));
     }
     
     public int getID() {
@@ -64,94 +63,21 @@ public class MgcpConnection implements ConnectionFailureListener {
         return textualId;
     }
     
-    public int getCallId() {
-    	if(call == null) {
-    		return 0;
-    	}
-		return call.id;
-	}
-    
-    /**
-     * Assigns call object to which this connection belongs.
-     * 
-     * @param call the call object.
-     */
-    protected void setCall(MgcpCall call) {
-        this.call = call;
-        call.connections.put(this.id,this);
-    }
-    
     public void setCallAgent(SocketAddress callAgent) {
     	this.callAgent=callAgent;
     }
     
-    public void wrap(MgcpEndpoint mgcpEndpoint, MgcpCall call, Connection connection) {
+    public void wrap(MgcpEndpoint mgcpEndpoint, Connection connection) {
     	this.mgcpEndpoint=mgcpEndpoint;
-        this.call = call;
         this.connection = connection;
         this.connection.setConnectionFailureListener(this);        
-        call.connections.put(this.id,this);
-    }
-    
-    public void setMode(Text mode) throws ModeNotSupportedException {
-    	connection.setMode(ConnectionMode.valueOf(mode));
-    }
-
-    public void setMode(ConnectionMode mode) throws ModeNotSupportedException {
-        connection.setMode(mode);
-    }
-    
-    public void setDtmfClamp(boolean dtmfClamp) {
-        //connection.setDtmfClamp(dtmfClamp);
-    }
-    
-    public Text getDescriptor() {
-    	if(connection.getDescriptor()!=null)
-    	{	
-    		descriptor.strain(connection.getDescriptor().getBytes(), 0, connection.getDescriptor().length());
-    		return descriptor;
-    	}        
-    	
-    	return null;
-    }
-    
-    /**
-	 * Generates the local connection descriptor.
-	 * 
-	 * @throws IOException
-	 */
-    public void generateLocalDescriptor(boolean webrtc) throws IOException {
-    	connection.generateOffer(webrtc);
-    }
-
-    public void setOtherParty(Text sdp) throws IOException {
-        connection.setOtherParty(sdp);
-    }
-    
-    public void setOtherParty(MgcpConnection other) throws IOException {
-        this.connection.setOtherParty(other.connection);
     }
     
     public Connection getConnection() {
 		return this.connection;
 	}
-    
-    /**
-     * Terminates this activity and deletes connection.
-     */
-    public void release() {
-        //notify call about this activity termination
-    	call.exclude(this);    	       
-    }
-    
-    public int getPacketsTransmitted() {
-        return (int) connection.getPacketsTransmitted();
-    }
-    
-    public int getPacketsReceived() {
-        return (int) connection.getPacketsReceived();
-    }
-    
+   
+    @Override
     public void onFailure() {
     	mgcpEndpoint.offer(this);
     	

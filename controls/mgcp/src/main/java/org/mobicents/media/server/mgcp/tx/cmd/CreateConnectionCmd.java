@@ -253,7 +253,7 @@ public class CreateConnectionCmd extends Action {
                 
                 
                 try {
-                    connections[0].setOtherParty(connections[1]);
+                    connections[0].getConnection().setOtherParty(connections[1].getConnection());
                 } catch (Exception e) {
                 	logger.error("Could not set remote peer", e);
                     throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Problem with joining"));
@@ -266,13 +266,14 @@ public class CreateConnectionCmd extends Action {
                 ConnectionMode m = ConnectionMode.valueOf(mode.getValue());
                 
                 try {
-                    connections[0].setMode(m);
+                    connections[0].getConnection().setMode(m);
                     //connections[1].setMode(ConnectionMode.SEND_RECV);
                 } catch (Exception e) {
                     throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Unsupported mode"));
                 }
                 
-                connections[0].setDtmfClamp(lcOptions.getDtmfClamp());                
+                // XXX DTMF clamp is not implemented
+                // connections[0].setDtmfClamp(lcOptions.getDtmfClamp());                
             } else {            	
                 //create one RTP connection            	                             
             	try {
@@ -284,26 +285,28 @@ public class CreateConnectionCmd extends Action {
                 
                 if (sdp != null) {
                     try {
-                        connections[0].setOtherParty(sdp.getValue());
+                        connections[0].getConnection().setOtherParty(sdp.getValue());
                     } catch (IOException e) {
                     	logger.error("Could not set remote peer", e);
                     	throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
                     }
                 } else {
                 	try {
-						connections[0].generateLocalDescriptor(lcOptions.isWebRTC());
+						connections[0].getConnection().generateOffer(lcOptions.isWebRTC());
 					} catch (IOException e) {
 						throw new MgcpCommandException(MgcpResponseCode.INTERNAL_INCONSISTENCY_IN_LOCAL_SDP, new Text("Could not generate local connection descriptor."));
 					}
                 }
                 
                 try {
-                    connections[0].setMode(mode.getValue());
+                    ConnectionMode m = ConnectionMode.valueOf(mode.getValue());
+                    connections[0].getConnection().setMode(m);
                 } catch (ModeNotSupportedException e) {
                     throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Not supported mode"));
                 }
                 
-                connections[0].setDtmfClamp(lcOptions.getDtmfClamp());                
+                // XXX DTMF clamp is not implemented
+                // connections[0].setDtmfClamp(lcOptions.getDtmfClamp());                
             }
             return 0;
         }        
@@ -333,7 +336,7 @@ public class CreateConnectionCmd extends Action {
                 response.setParameter(Parameter.ENDPOINT_ID, endpoint.getFullName());
 
                 if (endpoint2 == null) {
-                    response.setParameter(Parameter.SDP, connections[0].getDescriptor());
+                    response.setParameter(Parameter.SDP, new Text(connections[0].getConnection().getLocalDescriptor()));
                 }
 
                 response.setTxID(transaction().getId());
@@ -405,20 +408,6 @@ public class CreateConnectionCmd extends Action {
             return 0;
         }
         
-    }
-    
-    /**
-     * Converts mode in case of unidirectional transmission.
-     * 
-     * @param mode the original mode value
-     * @return mode with opposite transmission mode. 
-     */
-    private ConnectionMode invert(ConnectionMode mode) {
-        switch (mode) {
-            case SEND_ONLY : return ConnectionMode.RECV_ONLY;
-            case RECV_ONLY : return ConnectionMode.SEND_ONLY;
-            default : return mode;    
-        }
     }
     
 }

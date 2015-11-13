@@ -146,6 +146,11 @@ public class MyTestConnection extends BaseConnection {
 
     @Override
     protected void onFailed() {
+        this.failed = true;
+    }
+    
+    public boolean isFailed() {
+        return failed;
     }
 
     public boolean isOpened() {

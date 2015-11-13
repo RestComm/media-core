@@ -22,9 +22,12 @@
 package org.mobicents.media.server.mgcp.tx.cmd;
 
 import java.io.IOException;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.controller.MgcpCall;
 import org.mobicents.media.server.mgcp.controller.MgcpConnection;
+import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
@@ -34,9 +37,9 @@ import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
+import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
-import org.apache.log4j.Logger;
 /**
  * Modify connection command.
  * 
@@ -47,6 +50,7 @@ public class ModifyConnectionCmd extends Action {
     private final static Text CALLID_MISSING = new Text("Missing call identifier");
     private final static Text UNKNOWN_CALL_IDENTIFIER = new Text("Could not find this call with specified identifier");
     private final static Text CONNECTIONID_EXPECTED = new Text("Connection identifier was not specified");
+    private final static Text ENDPOINT_UNAVAILABLE = new Text("Endpoint not available");
     private final static Text SDP_NEGOTIATION_FAILED = new Text("SDP_NEGOTIATION_FAILED");
 
     private final static Text SUCCESS= new Text("Success");
@@ -55,6 +59,13 @@ public class ModifyConnectionCmd extends Action {
     
     private Parameter connectionID;
     private TaskChain handler;
+    
+    // local and domain name parts of the endpoint identifier
+    private Text localName = new Text();
+    private Text domainName = new Text();
+
+    // layout local and domain names into endpoint identifier
+    private Text[] endpointName = new Text[] { localName, domainName };
 
     //error code and message
     private int code;
@@ -85,8 +96,8 @@ public class ModifyConnectionCmd extends Action {
             super();
         }
 
-        public int getQueueNumber()
-        {
+        @Override
+        public int getQueueNumber() {
         	return PriorityQueueScheduler.MANAGEMENT_QUEUE;
         }
 
@@ -113,13 +124,22 @@ public class ModifyConnectionCmd extends Action {
                 throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID, UNKNOWN_CALL_IDENTIFIER);
             }
             
+            // getting endpoint
+            request.getEndpoint().divide('@', endpointName);
+            MgcpEndpoint mgcpEndpoint = call.getMgcpEndpoint(localName.toString());
+            
+            if(mgcpEndpoint == null) {
+                logger.warn("Call " + call.getId() +" does not own endpoint " + localName.toString());
+                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, ENDPOINT_UNAVAILABLE);
+            }
+            
             connectionID = request.getParameter(Parameter.CONNECTION_ID);
             if (connectionID == null) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, CONNECTIONID_EXPECTED);
             }
             
             try {
-                mgcpConnection = call.getMgcpConnection(connectionID.getValue().hexToInteger());
+                mgcpConnection = mgcpEndpoint.getConnection(connectionID.getValue().hexToInteger());
             } catch (Exception e) {
                 throw new MgcpCommandException(MgcpResponseCode.CONNECTION_WAS_DELETED, new Text("Unknown connectionidentifier, probably it was deleted"));
             }
@@ -133,7 +153,7 @@ public class ModifyConnectionCmd extends Action {
             
             if (sdp != null) {
                 try {
-                    mgcpConnection.setOtherParty(sdp.getValue());
+                    mgcpConnection.getConnection().setOtherParty(sdp.getValue());
                 } catch (IOException e) {
                 	logger.error("Could not set remote peer", e);
                     throw new MgcpCommandException(MgcpResponseCode.UNSUPPORTED_SDP, SDP_NEGOTIATION_FAILED);
@@ -142,13 +162,15 @@ public class ModifyConnectionCmd extends Action {
             
             if (mode != null) {
                 try {
-                    mgcpConnection.setMode(mode.getValue());
+                    ConnectionMode m = ConnectionMode.valueOf(mode.getValue());
+                    mgcpConnection.getConnection().setMode(m);
                 } catch (ModeNotSupportedException e) {
                     throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("problem with mode"));
                 }
             }
             
-            mgcpConnection.setDtmfClamp(lcOptions.getDtmfClamp());
+            // XXX DTMF clamp not implemented
+            // mgcpConnection.setDtmfClamp(lcOptions.getDtmfClamp());
             
             MgcpEvent evt = transaction().getProvider().createEvent(MgcpEvent.RESPONSE, getEvent().getAddress());
             MgcpResponse response = (MgcpResponse) evt.getMessage();
@@ -160,9 +182,10 @@ public class ModifyConnectionCmd extends Action {
                 response.setParameter(Parameter.CONNECTION_ID, connectionID.getValue());
             }
 
-            Text descriptor=mgcpConnection.getDescriptor();
-            if(descriptor!=null)
-            	response.setParameter(Parameter.SDP, mgcpConnection.getDescriptor());
+            Text descriptor=new Text(mgcpConnection.getConnection().getLocalDescriptor());
+            if(descriptor!=null) {
+            	response.setParameter(Parameter.SDP, descriptor);
+            }
             
             try {
                 transaction().getProvider().send(evt);

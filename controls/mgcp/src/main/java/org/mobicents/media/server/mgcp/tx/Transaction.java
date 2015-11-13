@@ -51,10 +51,10 @@ public class Transaction implements ActionListener {
     private ActionSelector selector;
     
     private Action action;    
-    private Exception lastError;
+    private MgcpCommandException lastError;
         
     //Logger instance
-    private final static Logger logger = Logger.getLogger("MGCP");
+    private final static Logger logger = Logger.getLogger(Transaction.class);
     
     /**
      * Create new transaction executor.
@@ -90,7 +90,10 @@ public class Transaction implements ActionListener {
     }
 
     public MgcpCall getCall(Integer id, boolean isNew) {
-        return txManager.callManager.getCall(id, isNew);
+        if(isNew) {
+            return txManager.callManager.createCall(id);
+        }
+        return txManager.callManager.getCall(id);
     }
     
     
@@ -167,10 +170,10 @@ public class Transaction implements ActionListener {
     }
 
     public void onFailure(Exception e) {
-        logger.error("tx=" + id + " Failed", e);
         
         if (e != null && e instanceof MgcpCommandException) {
-            this.lastError = e;
+            this.lastError = (MgcpCommandException) e;
+            logger.error("tx=" + id + " failed: " + lastError.getErrorMessage().toString(), e);
         } else {
             Text msg = e.getMessage() != null ? new Text(e.getMessage()) : new Text("Unknown");
             this.lastError = new MgcpCommandException(ReturnCode.TRANSIENT_ERROR, msg);

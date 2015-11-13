@@ -21,47 +21,45 @@
  */
 package org.mobicents.media.server.mgcp.controller;
 
-import org.mobicents.media.server.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Maintains MGCP calls.
+ * Maintains a list of active MGCP calls.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
- * @deprecated Use {@link org.mobicents.media.core.call.CallManager} instead.
  */
-@Deprecated
 public class CallManager {
-	// list of active calls
-	private ConcurrentMap<MgcpCall> calls = new ConcurrentMap<MgcpCall>();
 
-	public MgcpCall getCall(int id, boolean allowNew) {
-		MgcpCall result = calls.get(id);
+    private final ConcurrentHashMap<Integer, MgcpCall> calls;
 
-		if (result != null) {
-			return result;
-		}
+    public CallManager() {
+        this.calls = new ConcurrentHashMap<Integer, MgcpCall>();
+    }
 
-		if (!allowNew) {
-			return null;
-		}
+    public MgcpCall createCall(int id) {
+        MgcpCall call = new MgcpCall(this, id);
+        MgcpCall oldValue = this.calls.putIfAbsent(id, call);
 
-		MgcpCall call = new MgcpCall(this, id);
-		result = calls.putIfAbsent(id, call);
-		if (result != null) {
-			return result;
-		}
-		return call;
-	}
+        if (oldValue == null) {
+            return call;
+        } else {
+            throw new IllegalArgumentException("Call with ID=" + id + " already exists");
+        }
+    }
 
-	/**
-	 * Terminates specified call.
-	 * 
-	 * @param call
-	 *            the call to be terminated
-	 */
-	protected void terminate(MgcpCall call) {
-		calls.remove(call.id);
-	}
+    public MgcpCall getCall(int id) {
+        return this.calls.get(id);
+    }
+
+    /**
+     * Terminates specified call.
+     * 
+     * @param call the call to be terminated
+     */
+    protected void terminate(int callId) {
+        calls.remove(callId);
+    }
 
 }

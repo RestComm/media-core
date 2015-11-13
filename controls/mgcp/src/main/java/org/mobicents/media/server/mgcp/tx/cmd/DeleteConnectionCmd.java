@@ -135,7 +135,8 @@ public class DeleteConnectionCmd extends Action {
 						UNKNOWN_CALL_IDENTIFIER);
 			}
 
-			call.deleteConnections();
+			// Delete all endpoints from the call which will cascade delete the connections
+			call.removeEndpoints();
 		}
 
 		@Override
@@ -196,54 +197,11 @@ public class DeleteConnectionCmd extends Action {
 					.getValue().hexToInteger());
 
 			if (connection != null) {
-				rx = connection.getPacketsReceived();
-				tx = connection.getPacketsTransmitted();
-
-				endpoint.deleteConnection(connectionID.getValue()
-						.hexToInteger());
+				rx = (int) connection.getConnection().getPacketsReceived();
+				tx = (int) connection.getConnection().getPacketsTransmitted();
+				endpoint.deleteConnection(connectionID.getValue().hexToInteger());
 			}
 
-			return 0;
-		}
-
-	}
-
-	/**
-	 * Searches endpoint specified in message.
-	 * 
-	 * The result will be stored into variable endpoint.
-	 */
-	private class EndpointLocator extends Task {
-
-		public EndpointLocator() {
-			super();
-		}
-
-		@Override
-		public int getQueueNumber() {
-			return PriorityQueueScheduler.MANAGEMENT_QUEUE;
-		}
-
-		@Override
-		public long perform() {
-			try {
-				// searching endpoint
-				int n = transaction().find(localName, endpoints);
-
-				if (n == 0) {
-					throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
-				}
-
-				// extract found endpoint
-				endpoint = endpoints[0];
-
-				// checking endpoint's state
-				if (endpoint.getState() == MgcpEndpoint.STATE_BUSY) {
-					throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
-				}
-			} catch (Exception e) {
-				throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE, new Text("Endpoint not available"));
-			}
 			return 0;
 		}
 

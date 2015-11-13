@@ -58,7 +58,7 @@ public final class Version {
 	 * 
 	 * @return
 	 */
-	public Map getProperties() {
+	public Map<Object, Object> getProperties() {
 		return Collections.unmodifiableMap(props);
 	}
 

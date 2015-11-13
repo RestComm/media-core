@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.MgcpEvent;
@@ -45,6 +46,9 @@ import org.mobicents.media.server.utils.Text;
  * @author yulian oifa
  */
 public class MgcpEndpoint {
+    
+    private static final Logger LOGGER = Logger.getLogger(MgcpEndpoint.class);
+    
 	public static AtomicInteger txID = new AtomicInteger(1);
     
     //The size of the connection's pool
@@ -69,7 +73,6 @@ public class MgcpEndpoint {
     
     //list of active connections
     private ConcurrentMap<MgcpConnection> activeConnections=new ConcurrentMap<MgcpConnection>();
-    private Iterator<Integer> keyIterator;
     
     protected MgcpProvider mgcpProvider;
     
@@ -174,7 +177,7 @@ public class MgcpEndpoint {
     	if(mgcpConnection==null)
     		mgcpConnection=new MgcpConnection();
     	
-    	mgcpConnection.wrap(this, call, connection);
+    	mgcpConnection.wrap(this, connection);
 
     	//put connection activity into active list
     	activeConnections.put(mgcpConnection.id,mgcpConnection);
@@ -196,12 +199,9 @@ public class MgcpEndpoint {
 
     	//connection not found?
     	if (mgcpConnection == null) {
-    		//TODO: throw exception
+    		LOGGER.warn("Connection " + id + " is not present in endpoint " + getName());
     		return;
     	}
-
-    	//remove activity from list and terminate
-    	mgcpConnection.release();
 
     	endpoint.deleteConnection(mgcpConnection.connection.getId());
         
@@ -219,9 +219,11 @@ public class MgcpEndpoint {
     }
 
     public void deleteAllConnections() {
-    	keyIterator = activeConnections.keysIterator();
-    	while(keyIterator.hasNext())
-    		connections.offer(activeConnections.remove(keyIterator.next()));        
+    	Iterator<Integer> keyIterator = activeConnections.keySet().iterator();
+    	while(keyIterator.hasNext()) {
+    	    Integer connectionId = keyIterator.next();
+    		connections.offer(activeConnections.remove(connectionId));        
+    	}
     	
         endpoint.deleteConnections();
         
@@ -247,7 +249,7 @@ public class MgcpEndpoint {
      * @param call the call to which connection belongs
      * @return MgcpConnection object.
      */
-    protected MgcpConnection poll(MgcpCall call) {
+    protected MgcpConnection poll() {
     	//take first from pool and put into list of active    	
         MgcpConnection mgcpConnection = connections.poll();
         if(mgcpConnection==null)
@@ -256,7 +258,6 @@ public class MgcpEndpoint {
         activeConnections.put(mgcpConnection.id,mgcpConnection);
         
         //assign call
-        mgcpConnection.setCall(call);        
         return mgcpConnection;
     }
     
@@ -269,8 +270,8 @@ public class MgcpEndpoint {
     	//remove from active list
     	activeConnections.remove(mgcpConnection.id);
     	
-        //reclaim
-        mgcpConnection.release();
+        //TODO reclaim 
+//        mgcpConnection.release();
         
         endpoint.deleteConnection(mgcpConnection.connection.getId());
         
@@ -284,8 +285,11 @@ public class MgcpEndpoint {
     	}
     }
     
-    public void configure(boolean isALaw)
-    {
+    public int countConnections() {
+        return this.activeConnections.size();
+    }
+    
+    public void configure(boolean isALaw) {
     	endpoint.configure(isALaw);
     }
 }

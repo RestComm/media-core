@@ -37,6 +37,7 @@ import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
+import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.utils.Text;
 
@@ -183,7 +184,7 @@ public class AuditConnectionCmd extends Action {
 			for (Text param : requestedParams) {
 				if (param.equals(Parameter.CALL_ID)) {
 					queryCallId = true;
-					callId = connection.getCallId();
+//					callId = connection.getCallId();
 				} else if (param.equals(Parameter.NOTIFIED_ENTITY)) {
 					queryNotifiedEntity = true;
 					notifiedEntity = endpoint.getRequest().getCallAgent();
@@ -204,16 +205,16 @@ public class AuditConnectionCmd extends Action {
 					localConnectionDes = localSdp == null ? new Text("v=0") : new Text(localSdp);
 				} else if (param.equals(Parameter.CONNECTION_PARAMETERS)) {
 					queryConnectionParams = true;
-					auditConnectionParameters(connection);
+					auditConnectionParameters(connection.getConnection());
 				}
 			}
 		}
 		
-		private void auditConnectionParameters(MgcpConnection connection) {
+		private void auditConnectionParameters(Connection connection) {
 			connectionParameters = new ConnectionParameters();
-			connectionParameters.packetsSent = connection.getPacketsTransmitted();
-			connectionParameters.packetsReceived = connection.getPacketsReceived();
-			connectionParameters.jitter = (int) connection.getConnection().getJitter();
+			connectionParameters.packetsSent = (int) connection.getPacketsTransmitted();
+			connectionParameters.packetsReceived = (int) connection.getPacketsReceived();
+			connectionParameters.jitter = (int) connection.getJitter();
 			// TODO hrosa - get transmitted octets from MGCP connection
 			// TODO hrosa - get received octets from MGCP connection
 			// TODO hrosa - get latency from MGCP connection
