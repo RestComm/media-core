@@ -212,29 +212,62 @@ public class MgcpProvider {
         }        
     }
     
-    private void recycleEvent(MgcpEventImpl event) {
-    	if (event.inQueue.getAndSet(true))
-    		logger.warn("====================== ALARM ALARM ALARM==============");
-    	else
-    	{
-    		event.response.clean();
-        	event.request.clean();
-        	events.offer(event);
-    	}
-    }
-    
     /**
      * MGCP message handler asynchronous implementation.
      * 
      */
     private class MGCPHandler implements ProtocolHandler {
         
-        //mgcp message receiver.
-        private Receiver receiver = new Receiver();
+        private SocketAddress address;
         
         @Override
         public void receive(DatagramChannel channel) {
-        	receiver.perform();
+            rxBuffer.clear();
+            try {
+                while ((address = channel.receive(rxBuffer)) != null) {
+                    rxBuffer.flip();
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Receive  message " + rxBuffer.limit() + " bytes length");
+                    }
+
+                    if (rxBuffer.limit() == 0) {
+                        continue;
+                    }
+
+                    byte b = rxBuffer.get();
+                    rxBuffer.rewind();
+
+                    // update event ID.
+                    int msgType = -1;
+                    if (b >= 48 && b <= 57) {
+                        msgType = MgcpEvent.RESPONSE;
+                    } else {
+                        msgType = MgcpEvent.REQUEST;
+                    }
+
+                    MgcpEvent evt = createEvent(msgType, address);
+
+                    // parse message
+                    if (logger.isDebugEnabled()) {
+                        final byte[] data = rxBuffer.array();
+                        logger.debug("Parsing message: " + new String(data, 0, rxBuffer.limit()));
+                    }
+                    MgcpMessage msg = evt.getMessage();
+                    msg.read(rxBuffer);
+
+                    // deliver event to listeners
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Dispatching message");
+                    }
+                    listeners.dispatch(evt);
+
+                    // clean buffer for next reading
+                    rxBuffer.clear();
+                }
+            } catch (Exception e) {
+                logger.error("Could not process message", e);
+            }
         }
 
         @Override
@@ -262,69 +295,6 @@ public class MgcpProvider {
         	shutdown();
         	activate();
         }
-    }
-    
-    /**
-     * Receiver of the MGCP packets.
-     */
-    private class Receiver {
-
-        private SocketAddress address;
-        
-        public Receiver() {
-            super();
-        }        
-        
-        public long perform() {
-            rxBuffer.clear();
-            try {
-                while ((address = channel.receive(rxBuffer)) != null) {
-                    rxBuffer.flip();
-                    
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Receive  message " + rxBuffer.limit() + " bytes length");
-                    }
-                    
-                    if (rxBuffer.limit() == 0) {
-                        continue;
-                    }
-                    
-                    byte b = rxBuffer.get();
-                    rxBuffer.rewind();
-
-                    
-                    //update event ID.
-                    int msgType = -1;
-                    if (b >= 48 && b <= 57) {
-                        msgType = MgcpEvent.RESPONSE;
-                    } else {
-                        msgType = MgcpEvent.REQUEST;
-                    }
-                    
-                    MgcpEvent evt = createEvent(msgType, address);
-                    
-                    //parse message
-                    if (logger.isDebugEnabled()) {
-                    	final byte[] data = rxBuffer.array();
-                    	logger.debug("Parsing message: " + new String(data,0,rxBuffer.limit()));
-                    }
-                    MgcpMessage msg = evt.getMessage();
-                    msg.read(rxBuffer);
-                    
-                    //deliver event to listeners
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Dispatching message");
-                    }
-                    listeners.dispatch(evt);
-                    
-                    //clean buffer for next reading
-                    rxBuffer.clear();
-                }
-            } catch (Exception e) {
-                logger.error("Could not process message", e);
-            }
-            return 0;
-        }       
     }
 
     /**
@@ -382,7 +352,13 @@ public class MgcpProvider {
         
         @Override
         public void recycle() {
-        	recycleEvent(this);
+            if (inQueue.getAndSet(true))
+                logger.warn("====================== ALARM ALARM ALARM==============");
+            else {
+                response.clean();
+                request.clean();
+                provider.events.offer(this);
+            }
         }
 
         @Override
