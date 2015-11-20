@@ -288,7 +288,7 @@ public class CreateConnectionCmd extends Action {
                         connections[0].getConnection().setOtherParty(sdp.getValue());
                     } catch (IOException e) {
                     	logger.error("Could not set remote peer", e);
-                    	throw new MgcpCommandException(MgcpResponseCode.MISSING_REMOTE_CONNECTION_DESCRIPTOR, SDP_NEGOTIATION_FAILED);
+                    	throw new MgcpCommandException(MgcpResponseCode.MISSING_SDP_OFFER, SDP_NEGOTIATION_FAILED);
                     }
                 } else {
                 	try {

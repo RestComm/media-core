@@ -23,6 +23,7 @@
 package org.mobicents.media.server.mgcp.tx;
 
 import jain.protocol.ip.mgcp.message.parms.ReturnCode;
+
 import org.mobicents.media.server.mgcp.controller.*;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.MgcpEvent;
@@ -90,10 +91,11 @@ public class Transaction implements ActionListener {
     }
 
     public MgcpCall getCall(Integer id, boolean isNew) {
-        if(isNew) {
-            return txManager.callManager.createCall(id);
+        MgcpCall mgcpCall = txManager.callManager.getCall(id);
+        if(mgcpCall == null && isNew) {
+            mgcpCall = txManager.callManager.createCall(id);
         }
-        return txManager.callManager.getCall(id);
+        return mgcpCall; 
     }
     
     

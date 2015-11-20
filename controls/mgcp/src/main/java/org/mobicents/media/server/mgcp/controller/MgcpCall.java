@@ -51,7 +51,7 @@ public class MgcpCall {
     public MgcpEndpoint getMgcpEndpoint(String endpointName) {
         return this.endpoints.get(endpointName);
     }
-
+    
     public void addEndpoint(MgcpEndpoint endpoint) {
         this.endpoints.putIfAbsent(endpoint.getName(), endpoint);
     }
