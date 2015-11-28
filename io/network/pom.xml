@@ -1,42 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>jar</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>jar</packaging>
 
-    <parent>
-        <groupId>org.mobicents.media.io</groupId>
-        <artifactId>io</artifactId>
-        <version>3.0.3-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<groupId>org.mobicents.media.io</groupId>
+		<artifactId>io</artifactId>
+		<version>3.0.3-SNAPSHOT</version>
+	</parent>
 
-    <artifactId>network</artifactId>
-    <name>Network</name>
-    
-    <dependencies>
-        <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>spi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>scheduler</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+	<artifactId>network</artifactId>
+	<name>Network</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-        </plugins>
-        <finalName>mobicents-localbus-${project.version}</finalName>
-    </build>
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>spi</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>scheduler</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.0.33.Final</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+		<finalName>mobicents-localbus-${project.version}</finalName>
+	</build>
 
 </project>
