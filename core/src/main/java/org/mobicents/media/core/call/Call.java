@@ -24,7 +24,9 @@ package org.mobicents.media.core.call;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.mobicents.media.core.endpoints.EndpointFactory;
 import org.mobicents.media.server.spi.Endpoint;
+import org.mobicents.media.server.spi.EndpointType;
 
 /**
  * Entity that manages a group of endpoints and connections that are created by the call agent during a call.
@@ -56,6 +58,12 @@ public class Call {
 
     public Endpoint getEndpoint(String endpointName) {
         return this.endpoints.get(endpointName);
+    }
+    
+    public Endpoint createEndpoint(EndpointType type) {
+        Endpoint endpoint = EndpointFactory.createEndpoint(type);
+        addEndpoint(endpoint);
+        return endpoint;
     }
 
     public void addEndpoint(Endpoint endpoint) {

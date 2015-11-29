@@ -15,6 +15,7 @@
     
     <modules>
         <module>mgcp</module>
+        <module>mgcp2</module>
     </modules>
 	
 

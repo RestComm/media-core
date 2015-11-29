@@ -63,7 +63,7 @@
         <module>core</module>
 	<module>client</module>
         <module>controls</module>
-        <module>media-server-docs</module>
+        <!-- module>media-server-docs</module -->
         <module>bootstrap</module>
     </modules>
 
@@ -122,7 +122,7 @@
 		<module>core</module>
 		<module>controls</module>
 		<module>client</module>
-		<module>media-server-docs</module>
+		<!-- module>media-server-docs</module -->
 		<module>bootstrap</module>
 	    </modules>
             <build>

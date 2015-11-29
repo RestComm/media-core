@@ -41,20 +41,22 @@ import org.mobicents.media.server.utils.Text;
  */
 public enum ConnectionMode {	
     
-		INACTIVE(new Text("inactive")), 
-        SEND_ONLY(new Text("sendonly")),
-        RECV_ONLY(new Text("recvonly")),
-        SEND_RECV(new Text("sendrecv")),
-        CONFERENCE(new Text("confrnce")),
-        NETWORK_LOOPBACK(new Text("netwloop")),
-        LOOPBACK(new Text("loopback")),
-        CONTINUITY_TEST(new Text("conttest")),
-        NETWORK_CONTINUITY_TEST(new Text("netwtest"));
+		INACTIVE(new Text("inactive"), "inactive"), 
+        SEND_ONLY(new Text("sendonly"), "sendonly"),
+        RECV_ONLY(new Text("recvonly"), "recvonly"),
+        SEND_RECV(new Text("sendrecv"), "sendrecv"),
+        CONFERENCE(new Text("confrnce"), "confrnce"),
+        NETWORK_LOOPBACK(new Text("netwloop"), "netwloop"),
+        LOOPBACK(new Text("loopback"), "loopback"),
+        CONTINUITY_TEST(new Text("conttest"), "conttest"),
+        NETWORK_CONTINUITY_TEST(new Text("netwtest"), "netwtest");
 		
-		private Text description;
+		private final Text description;
+		private final String descriptionString;
 		
-		private ConnectionMode(Text value) {
+		private ConnectionMode(Text value, String valueString) {
 			this.description = value;
+			this.descriptionString = valueString;
 		}
 		
 		public Text getDescription() {
@@ -82,6 +84,15 @@ public enum ConnectionMode {
                 return NETWORK_CONTINUITY_TEST;
             }
             
+            return null;
+        }
+        
+        public static ConnectionMode fromDescription(String description) {
+            for (ConnectionMode value : values()) {
+                if(value.descriptionString.equals(description)) {
+                    return value;
+                }
+            }
             return null;
         }
         
