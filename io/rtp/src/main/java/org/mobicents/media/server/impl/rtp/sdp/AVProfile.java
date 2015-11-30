@@ -89,4 +89,18 @@ public class AVProfile {
     	}
     	return res;
     }
+    
+    public static boolean isDtmf(RTPFormat format) {
+        if(format == null) {
+            return false;
+        }
+        return dtmf.getID() == format.getID() || dtmf126.getID() == format.getID();
+    }
+
+    public static boolean isDefaultDtmf(RTPFormat format) {
+        if(format == null) {
+            return false;
+        }
+        return dtmf.getID() == format.getID();
+    }
 }

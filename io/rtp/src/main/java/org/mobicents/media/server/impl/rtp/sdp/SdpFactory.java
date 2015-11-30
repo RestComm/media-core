@@ -182,6 +182,10 @@ public class SdpFactory {
 		negotiatedFormats.rewind();
 		while (negotiatedFormats.hasMore()) {
 			RTPFormat f = negotiatedFormats.next();
+			// Fixes #61 - MMS SDP offer should offer only 101 telephone-event
+			if(offer && AVProfile.isDtmf(f) && !AVProfile.isDefaultDtmf(f)) {
+			    continue;
+			}
 			RtpMapAttribute rtpMap = new RtpMapAttribute();
 			rtpMap.setPayloadType(f.getID());
 			rtpMap.setCodec(f.getFormat().getName().toString());
