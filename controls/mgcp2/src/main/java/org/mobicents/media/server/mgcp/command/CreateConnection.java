@@ -25,9 +25,11 @@ import java.io.IOException;
 
 import org.mobicents.media.core.call.Call;
 import org.mobicents.media.core.call.CallManager;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.mgcp.MgcpCommand;
 import org.mobicents.media.server.mgcp.MgcpParameterType;
 import org.mobicents.media.server.mgcp.MgcpRequest;
+import org.mobicents.media.server.mgcp.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.exception.MgcpCommandException;
 import org.mobicents.media.server.mgcp.naming.EndpointNamingWizard;
 import org.mobicents.media.server.spi.Connection;
@@ -36,6 +38,7 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -57,6 +60,10 @@ public class CreateConnection extends MgcpCommand implements Runnable {
     private static final String SDP_OFFER_FAILED = "Could not generate SDP offer";
     private static final String MODE_UNSUPPORTED = "Connection Mode (M) parameter unsupported ";
 
+    // Core elements
+    private final ChannelsManager channelsManager;
+    private final DspFactory dspFactory;
+    
     // MGCP request and parameters
     private final MgcpRequest mgcpRequest;
 
@@ -64,8 +71,10 @@ public class CreateConnection extends MgcpCommand implements Runnable {
     private Endpoint primaryEndpoint, secondaryEndpoint;
     private Connection primaryConnection, secondaryConnection;
 
-    public CreateConnection(MgcpRequest request) {
+    public CreateConnection(MgcpRequest request, ChannelsManager channelsManager, DspFactory dspFactory) {
         this.mgcpRequest = request;
+        this.channelsManager = channelsManager;
+        this.dspFactory = dspFactory;
     }
     
     public String getPrimaryEndpointId() {
