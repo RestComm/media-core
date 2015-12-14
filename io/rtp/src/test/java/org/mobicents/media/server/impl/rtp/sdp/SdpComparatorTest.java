@@ -28,11 +28,14 @@
 package org.mobicents.media.server.impl.rtp.sdp;
 
 import java.text.ParseException;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
+
 import static org.junit.Assert.*;
 
 /**

@@ -1,0 +1,8 @@
+v=0
+o=sbc-SMART-01a 1450021652720 1450021652720 IN IP4 203.87.254.164
+s=sip call
+c=IN IP4 203.87.254.172
+t=0 0
+m=audio 38832 RTP/AVP 8 18
+a=ptime:20
+a=fmtp:18 annexb=no

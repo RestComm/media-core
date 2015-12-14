@@ -35,6 +35,8 @@ import org.mobicents.media.server.io.sdp.fields.OriginField;
 import org.mobicents.media.server.io.sdp.fields.SessionNameField;
 import org.mobicents.media.server.io.sdp.fields.TimingField;
 import org.mobicents.media.server.io.sdp.fields.VersionField;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mobicents.media.server.io.sdp.format.RTPFormat;
 import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
@@ -152,7 +154,19 @@ public class SessionDescriptionParser {
 			break;
 
 		case FormatParameterAttribute.ATTRIBUTE_TYPE:
-			info.format.setParameters((FormatParameterAttribute) attribute);
+		    FormatParameterAttribute fmtp = (FormatParameterAttribute) attribute;
+		    
+		    if(info.format == null) {
+		        // Format unspecified on SDP. Load it manually
+		        RTPFormat format = AVProfile.getFormat(fmtp.getFormat());
+		        if(format == null) {
+		            // Unsupported codec. Drop it.
+		            break;
+		        } else {
+		            info.format = new RtpMapAttribute(format.getID(), format.getFormat().getName().toString(), format.getClockRate(), RtpMapAttribute.DEFAULT_CODEC_PARAMS);
+		        }
+		    }
+		    info.format.setParameters((FormatParameterAttribute) attribute);
 			break;
 
 		case PacketTimeAttribute.ATTRIBUTE_TYPE:

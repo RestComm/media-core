@@ -23,10 +23,10 @@
 package org.mobicents.media.core;
 
 import org.mobicents.media.server.impl.rtp.sdp.MediaDescriptorField;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
+import org.mobicents.media.server.io.sdp.format.RTPFormat;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.spi.format.AudioFormat;
 
 /**

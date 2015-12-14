@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
+import org.mobicents.media.server.io.sdp.format.RTPFormat;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
 

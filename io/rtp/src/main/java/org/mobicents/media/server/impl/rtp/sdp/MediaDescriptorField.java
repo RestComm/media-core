@@ -28,6 +28,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mobicents.media.server.io.sdp.format.RTPFormat;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.spi.format.ApplicationFormat;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.EncodingName;

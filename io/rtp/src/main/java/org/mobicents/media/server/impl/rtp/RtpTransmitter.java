@@ -27,11 +27,11 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormat;
-import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mobicents.media.server.io.sdp.format.RTPFormat;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.memory.Frame;
 

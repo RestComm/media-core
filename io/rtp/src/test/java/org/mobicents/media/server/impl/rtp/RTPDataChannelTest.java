@@ -32,7 +32,6 @@ import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.Dsp;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 
 import java.net.InetSocketAddress;
 
@@ -42,6 +41,7 @@ import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;

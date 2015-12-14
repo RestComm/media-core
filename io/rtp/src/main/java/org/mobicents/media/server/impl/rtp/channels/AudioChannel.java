@@ -23,7 +23,7 @@ package org.mobicents.media.server.impl.rtp.channels;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.scheduler.Clock;
 
 /**

@@ -23,6 +23,7 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.util.Random;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -31,7 +32,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.spi.memory.Frame;
 
 /**

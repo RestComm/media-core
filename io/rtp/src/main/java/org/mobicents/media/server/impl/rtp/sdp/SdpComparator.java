@@ -24,6 +24,7 @@ package org.mobicents.media.server.impl.rtp.sdp;
 
 import java.util.Collection;
 
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.utils.Text;
 
 /**
