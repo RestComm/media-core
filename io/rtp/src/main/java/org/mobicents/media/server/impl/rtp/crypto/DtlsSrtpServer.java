@@ -115,7 +115,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     }
 
     protected ProtocolVersion getMaximumVersion() {
-        return ProtocolVersion.DTLSv12;
+        return ProtocolVersion.DTLSv10;
     }
 
     protected ProtocolVersion getMinimumVersion() {
