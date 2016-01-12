@@ -1,8 +1,10 @@
-*MMS* (RestComm Multimedia Server) is a Java based Real Time Media server that offers streaming, conferencing, recording, playback, IVR, Text To Speech and other rich media features. 
-MMS alsosupports and is compliant with [WebRTC](http://www.webrtc.org/)
+*RMS* (RestComm Multimedia Server) is a Java based Real Time Media server that offers streaming, conferencing, recording, playback, IVR, Text To Speech and other rich media features.
+
+RMS also supports and is compliant with [WebRTC](http://www.webrtc.org/)
+
 It can be accessed programmatically via MGCP or a Media Control (JSR 309) driver that runs in Java EE, SIP Servlets and JSLEE containers.
 
-MMS is lead by [http://www.telestax.com TeleStax, Inc.] and developed collaboratively by a community of individual and enterprise contributors.
+RMS is lead by [http://www.telestax.com TeleStax, Inc.] and developed collaboratively by a community of individual and enterprise contributors.
 
 WebRTC Demo
 ========
