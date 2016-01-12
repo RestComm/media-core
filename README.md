@@ -1,4 +1,4 @@
-*MMS* (Mobicents Multimedia Server) is a Java based Real Time Media server that offers streaming, conferencing, recording, playback, IVR, Text To Speech and other rich media features. 
+*MMS* (RestComm Multimedia Server) is a Java based Real Time Media server that offers streaming, conferencing, recording, playback, IVR, Text To Speech and other rich media features. 
 MMS alsosupports and is compliant with [WebRTC](http://www.webrtc.org/)
 It can be accessed programmatically via MGCP or a Media Control (JSR 309) driver that runs in Java EE, SIP Servlets and JSLEE containers.
 
@@ -6,36 +6,36 @@ MMS is lead by [http://www.telestax.com TeleStax, Inc.] and developed collaborat
 
 WebRTC Demo
 ========
-[RestComm](https://github.com/Mobicents/RestComm) which uses Mobicents Media Server allows you to make video calls from/to any Web Browser supporting [WebRTC](http://webrtc.org), (only Google Chrome, Firefox and Opera supports it so far but some plugins exists to enable it on IE and Safari).
+[RestComm](https://github.com/RestComm/RestComm-Core) which uses RestComm Media Server allows you to make video calls from/to any Web Browser supporting [WebRTC](http://webrtc.org), (only Google Chrome, Firefox and Opera supports it so far but some plugins exists to enable it on IE and Safari).
 
 ![](http://telestax.wpengine.netdna-cdn.com/wp-content/uploads/2014/06/alice_and_bob_video_call.jpg)
 
 Downloads
 ========
-[Get the latest release!](https://github.com/Mobicents/mediaserver/releases). It only takes a few minutes to set it up and running.
+[Get the latest release!](https://github.com/RestComm/mediaserver/releases). It only takes a few minutes to set it up and running.
 
 Want to Contribute ? 
 ========
-[See our Contributors Guide](https://github.com/Mobicents/restcomm/wiki/Contribute-to-RestComm)
+[See our Contributors Guide](https://github.com/RestComm/restcomm/wiki/Contribute-to-RestComm)
 
 Issue Tracking and Roadmap
 ========
-[Issue Tracker](https://github.com/Mobicents/mediaserver/issues)
+[Issue Tracker](https://github.com/RestComm/mediaserver/issues)
 
 Questions ?
 ========
-Please ask your question on [StackOverflow](http://stackoverflow.com/search?q=mobicents) or the Google [public forum](http://groups.google.com/group/mobicents-public)
+Please ask your question on [StackOverflow](stackoverflow.com/questions/tagged/restcomm) or the Google [public forum](http://groups.google.com/group/restcomm)
 
 License
 ========
 
-Mobicents Media Server is lead by [TeleStax](http://www.telestax.com/), Inc. and developed collaboratively by a community of individual and enterprise contributors.
+RestComm Media Server is lead by [TeleStax](http://www.telestax.com/), Inc. and developed collaboratively by a community of individual and enterprise contributors.
 
-Mobicents Media Server is licensed under dual license policy. The default license is the Free Open Source GNU Affero GPL v3.0. Alternatively a commercial license can be obtained from Telestax ([contact form](http://www.telestax.com/contactus/#InquiryForm))
+RestComm Media Server is licensed under dual license policy. The default license is the Free Open Source GNU Affero GPL v3.0. Alternatively a commercial license can be obtained from Telestax ([contact form](http://www.telestax.com/contactus/#InquiryForm))
 
 Continuous Integration and Delivery
 ========
-[![Mobicents Media Server Continuous Job](http://www.cloudbees.com/sites/default/files/Button-Built-on-CB-1.png)](https://mobicents.ci.cloudbees.com/job/Mobicents-MediaServer-2.x/)
+[![RestComm Media Server Continuous Job](http://www.cloudbees.com/sites/default/files/Button-Built-on-CB-1.png)](https://mobicents.ci.cloudbees.com/job/Mobicents-MediaServer-2.x/)
 
 Acknowledgements
 ========
