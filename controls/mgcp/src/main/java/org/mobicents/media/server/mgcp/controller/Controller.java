@@ -176,7 +176,7 @@ public class Controller implements MgcpListener, ServerManager {
     }
     
     public void createProvider() {
-    	mgcpProvider = new MgcpProvider(udpInterface, port, scheduler);
+    	mgcpProvider = new MgcpProvider(this.udpInterface.getBindAddress(), port);
     }
     
     public void createGlobalTransactionManager() {

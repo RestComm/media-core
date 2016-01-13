@@ -63,12 +63,12 @@ public class ActionSelectorTest {
         mediaScheduler.start();
         
         udpInterface = new UdpManager(scheduler);
-        udpInterface.setBindAddress("localhost");
+        udpInterface.setBindAddress("127.0.0.1");
         scheduler.start();
         udpInterface.start();
         
-        mgcpProvider = new MgcpProvider(udpInterface, 1024, mediaScheduler);
-        address = new InetSocketAddress("localhost", 2425);
+        mgcpProvider = new MgcpProvider(udpInterface.getBindAddress(), 1024);
+        address = new InetSocketAddress("127.0.0.1", 2425);
         
         selector = new ActionSelector(mediaScheduler);
     }
