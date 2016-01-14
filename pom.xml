@@ -27,13 +27,15 @@
         <release.name>
 			${release.name.prefix}${parent.version}${release.name.suffix}
         </release.name>
+        
+        <maven.repo>dev</maven.repo>
 	
-	<version.junit>4.4</version.junit>	
-	<version.xerces>2.9.1</version.xerces>
-	<log4j.version>1.2.12</log4j.version>
-	<concurrent.version>1.3.4</concurrent.version>
-	<version.freetts>1.2.2</version.freetts>
-	<version.jboss.microcontainer>2.2.0.M2</version.jboss.microcontainer>
+		<version.junit>4.4</version.junit>	
+		<version.xerces>2.9.1</version.xerces>
+		<log4j.version>1.2.12</log4j.version>
+		<concurrent.version>1.3.4</concurrent.version>
+		<version.freetts>1.2.2</version.freetts>
+		<version.jboss.microcontainer>2.2.0.M2</version.jboss.microcontainer>
 
         <!--mobicents.tools.mavenplugin.eclipse.version>
 			1.0.0.BETA2
@@ -218,6 +220,14 @@
                 </configuration>
             </plugin>
         </plugins>
+		<extensions>
+			<extension>
+				<groupId>org.springframework.build</groupId>
+				<artifactId>aws-maven</artifactId>
+				<version>5.0.0.RELEASE</version>
+			</extension>
+		</extensions>
+    
     </build>
 
 
@@ -260,6 +270,10 @@
         	<name>jboss-deprecated</name>
         	<url>http://repository.jboss.org/nexus/content/repositories/deprecated</url>
         </repository>
+		<repository>
+			<id>pgi-nexus-repo</id>
+			<url>http://maven.bobdev.pgi.com:9090/nexus/content/groups/public</url>
+		</repository>
     </repositories>
 
     <pluginRepositories>
@@ -279,5 +293,30 @@
         </pluginRepository>
     </pluginRepositories>
 
-	
+	<distributionManagement>
+ 
+		<repository>
+			<id>deployment</id>
+			<name>Internal Releases</name>
+			<url>http://maven.bobdev.pgi.com:9090/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>deployment</id>
+			<name>Internal Releases</name>
+			<url>http://maven.bobdev.pgi.com:9090/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+		
+<!-- 		<repository>
+			<id>aws-release-${maven.repo}</id>
+			<name>AWS Release Repository</name>
+			<url>s3://bob-maven-repo-${maven.repo}/release</url>
+		</repository>
+		<snapshotRepository>
+			<id>aws-snapshot-${maven.repo}</id>
+			<name>AWS Snapshot Repository</name>
+			<url>s3://bob-maven-repo-${maven.repo}/snapshot</url>
+		</snapshotRepository>
+ -->    		
+	</distributionManagement>
+		
 </project>
