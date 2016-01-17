@@ -68,8 +68,8 @@ public class ActionSelectorTest {
         udpInterface.start();
         
         mgcpProvider = new MgcpProvider(udpInterface.getBindAddress(), 1024);
+        mgcpProvider.activate();
         address = new InetSocketAddress("127.0.0.1", 2425);
-        
         selector = new ActionSelector(mediaScheduler);
     }
     
