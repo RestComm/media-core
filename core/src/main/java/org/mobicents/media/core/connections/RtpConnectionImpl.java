@@ -355,8 +355,8 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		}
 
 		// Check whether SRTP should be active
-		if (remoteAudio.containsDtls()) {
-			FingerprintAttribute fingerprint = remoteAudio.getFingerprint();
+		if (this.remoteSdp.containsDtls()) {
+			FingerprintAttribute fingerprint = this.remoteSdp.getFingerprint(audioChannel.getMediaType());
 			this.audioChannel.enableDTLS(fingerprint.getHashFunction(),
 					fingerprint.getFingerprint());
 		}
