@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.resources</groupId>
         <artifactId>resources</artifactId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>recorder</artifactId>
@@ -51,7 +51,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mobicents-recorder-${project.version}</finalName>
+        <finalName>restcomm-mediaserver-recorder-${project.version}</finalName>
     </build>
 
 </project>

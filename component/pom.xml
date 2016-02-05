@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media</groupId>
         <artifactId>server</artifactId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>components</artifactId>
@@ -47,7 +47,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mobicents-component-${project.version}</finalName>
+        <finalName>restcomm-mediaserver-component-${project.version}</finalName>
     </build>
 
 </project>

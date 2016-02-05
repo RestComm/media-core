@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.io</groupId>
         <artifactId>io</artifactId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ss7</artifactId>
@@ -55,7 +55,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mobicents-localbus-${project.version}</finalName>
+        <finalName>restcomm-mediaserver-ss7-${project.version}</finalName>
     </build>
 
 </project>

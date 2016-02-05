@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.io</groupId>
         <artifactId>io</artifactId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>stun</artifactId>
@@ -36,7 +36,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mobicents-stun-${project.version}</finalName>
+        <finalName>restcomm-mediaserver-stun-${project.version}</finalName>
     </build>
 
 </project>

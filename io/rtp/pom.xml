@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mobicents.media.io</groupId>
 		<artifactId>io</artifactId>
-		<version>3.0.3-SNAPSHOT</version>
+		<version>4.1.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>rtp</artifactId>
@@ -76,7 +76,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>mobicents-rtp-${project.version}</finalName>
+		<finalName>restcomm-mediaserver-rtp-${project.version}</finalName>
 	</build>
 
 </project>

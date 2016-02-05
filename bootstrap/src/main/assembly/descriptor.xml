@@ -1,5 +1,5 @@
 <assembly>
-	<id>server</id>
+	<id>media-server</id>
 	<formats>
 		<format>dir</format>
 	</formats>

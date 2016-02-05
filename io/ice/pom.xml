@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.io</groupId>
         <artifactId>io</artifactId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ice</artifactId>
@@ -46,7 +46,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mobicents-ice-${project.version}</finalName>
+        <finalName>restcomm-mediaserver-ice-${project.version}</finalName>
     </build>
 
 </project>

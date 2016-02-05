@@ -10,16 +10,16 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>3.0.3-SNAPSHOT</version>
+    <version>4.1.0-SNAPSHOT</version>
 
-    <name>Mobicents Media Server</name>
-    <url>http://code.google.com/p/mediaserver/</url>
+    <name>RestComm Media Server</name>
+    <url>https://github.com/RestComm/mediaserver</url>
     <organization>
         <name>TeleStax, Inc.</name>
  	<url>http://www.telestax.com</url>
     </organization>
     <issueManagement>
-	<url>http://code.google.com/p/mediaserver/issues/list</url>
+	<url>https://github.com/RestComm/mediaserver/issues</url>
     </issueManagement>
 
     <properties>
@@ -198,9 +198,9 @@
     </profiles>
 
     <scm>
-      <connection>scm:git:git@github.com:Mobicents/mediaserver.git</connection>
-      <developerConnection>scm:git:git@github.com:Mobicents/mediaserver.git</developerConnection>
-      <url>scm:git:git@github.com:Mobicents/mediaserver.git/</url>
+      <connection>scm:git:git@github.com:RestComm/mediaserver.git</connection>
+      <developerConnection>scm:git:git@github.com:RestComm/mediaserver.git</developerConnection>
+      <url>scm:git:git@github.com:RestComm/mediaserver.git/</url>
       <tag>HEAD</tag>
   </scm>
 
@@ -224,7 +224,7 @@
 				true
                     </resolveTransitiveDependencies>
                     <eclipseProjectName>
-				mobicents-media-server
+				restcomm-media-server
                     </eclipseProjectName>
                 </configuration>
             </plugin>
