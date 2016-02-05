@@ -253,6 +253,7 @@ public abstract class MediaChannel {
 	public void open() {
 		// generate a new unique identifier for the channel
 		this.ssrc = SsrcGenerator.generateSsrc();
+		this.statistics.setSsrc(this.ssrc);
 		this.open = true;
 		
 		if(logger.isDebugEnabled()) {
