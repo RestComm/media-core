@@ -10,7 +10,7 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>3.0.3-SNAPSHOT</version>
+    <version>4.0.0.28-m4.1.0</version>
 
     <name>Mobicents Media Server</name>
     <url>http://code.google.com/p/mediaserver/</url>
