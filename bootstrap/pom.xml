@@ -20,8 +20,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.media.io</groupId>
-            <artifactId>rtp</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.rtp</artifactId>
             <version>${project.version}</version>
         </dependency>
 	      <!--<dependency>

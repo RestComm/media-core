@@ -14,7 +14,6 @@
     <name>IO</name>
     
     <modules>
-        <module>rtp</module>
       	<module>ss7</module>
       	<module>stun</module>
       	<module>ice</module>

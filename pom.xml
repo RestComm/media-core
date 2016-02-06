@@ -60,6 +60,7 @@
         <module>component</module>
         <module>io</module>
         <module>mediaserver.network</module>
+        <module>mediaserver.rtp</module>
         <module>mediaserver.sdp</module>
         <module>resources</module>
         <module>core</module>
