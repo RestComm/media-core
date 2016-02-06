@@ -59,11 +59,12 @@
         <module>codecs</module>
         <module>component</module>
         <module>io</module>
+        <module>mediaserver.network</module>
         <module>resources</module>
         <module>core</module>
 	<module>client</module>
         <module>controls</module>
-        <module>media-server-docs</module>
+        <!-- module>media-server-docs</module -->
         <module>bootstrap</module>
     </modules>
 

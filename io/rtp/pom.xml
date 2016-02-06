@@ -14,8 +14,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
-			<artifactId>network</artifactId>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>mediaserver.network</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
