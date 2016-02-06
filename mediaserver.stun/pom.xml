@@ -4,13 +4,13 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.mobicents.media.io</groupId>
-        <artifactId>io</artifactId>
+        <groupId>org.mobicents.media</groupId>
+        <artifactId>server</artifactId>
         <version>4.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>stun</artifactId>
-    <name>STUN</name>
+    <artifactId>mediaserver.stun</artifactId>
+    <name>mediaserver.stun</name>
     
     <dependencies>
         <dependency>

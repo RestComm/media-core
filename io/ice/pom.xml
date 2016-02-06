@@ -24,8 +24,8 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
-			<artifactId>stun</artifactId>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>mediaserver.stun</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- Resources -->
