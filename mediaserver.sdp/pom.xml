@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.mobicents.media.io</groupId>
-		<artifactId>io</artifactId>
+		<groupId>org.mobicents.media</groupId>
+		<artifactId>server</artifactId>
 		<version>4.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>sdp</artifactId>
-	<name>SDP</name>
+	<artifactId>mediaserver.sdp</artifactId>
+	<name>mediaserver.sdp</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

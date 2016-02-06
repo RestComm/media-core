@@ -19,8 +19,8 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.io</groupId>
-			<artifactId>sdp</artifactId>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>mediaserver.sdp</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

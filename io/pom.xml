@@ -18,7 +18,6 @@
       	<module>ss7</module>
       	<module>stun</module>
       	<module>ice</module>
-    <module>sdp</module>
   </modules>
 	
 
