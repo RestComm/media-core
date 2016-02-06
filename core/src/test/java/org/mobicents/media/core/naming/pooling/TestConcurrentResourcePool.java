@@ -74,26 +74,7 @@ public class TestConcurrentResourcePool {
     }
 
     @Test
-    public void testPoll() {
-        // given
-        final int initialSize = 1;
-        final PooledObjectMock objMock1 = mock(PooledObjectMock.class);
-        final ResourcePool<PooledObjectMock> pool = new ConcurrentResourcePoolMock(initialSize);
-
-        final ResourcePool<PooledObjectMock> poolSpy = spy(pool);
-        doReturn(objMock1).when(poolSpy).poll();
-
-        // when
-        PooledObjectMock obj1 = pool.poll();
-
-        // then
-        Assert.assertNotNull(obj1);
-        Assert.assertTrue(pool.isEmpty());
-        verify(objMock1, times(1)).checkIn();
-    }
-
-    @Test
-    public void testOffer() {
+    public void testOfferPoll() {
         // given
         final int initialSize = 0;
         final ResourcePool<PooledObjectMock> pool = new ConcurrentResourcePoolMock(initialSize);
@@ -105,13 +86,21 @@ public class TestConcurrentResourcePool {
         // then
         Assert.assertEquals(1, pool.count());
         verify(obj1, times(1)).checkIn();
+        
+        // when
+        PooledObjectMock polledObj = pool.poll();
+
+        // then
+        Assert.assertNotNull(polledObj);
+        Assert.assertTrue(pool.isEmpty());
+        verify(polledObj, times(1)).checkOut();
     }
 
     @Test
     public void testConcurrentPollOffer() {
         // given
         final int numClients = 5000;
-        final int initialCapacity = 100;
+        final int initialCapacity = 10;
         final ResourcePool<PooledObjectMock> resourcePool = new ConcurrentResourcePoolMock(initialCapacity);
         final ExecutorService scheduler = Executors.newFixedThreadPool(5);
 
