@@ -14,7 +14,6 @@
     <name>Codecs</name>
     
     <modules>
-        <module>g711</module>
         <module>gsm</module>
         <module>g729</module>
 	<module>l16</module>
