@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mgcp>
+    <!-- Implemented packages -->
+    <packages>
+        <package name="A">
+            <signal name="ann" handler="org.mobicents.media.server.mgcp.pkg.ann.Play"/>
+        </package>        
+        
+        <package name="AU">
+            <signal name="pa" handler="org.mobicents.media.server.mgcp.pkg.au.Play"/>
+            <signal name="aupa" handler="org.mobicents.media.server.mgcp.pkg.au.Play"/>
+            <signal name="pc" handler="org.mobicents.media.server.mgcp.pkg.au.PlayCollect"/>
+            <signal name="aupc" handler="org.mobicents.media.server.mgcp.pkg.au.PlayCollect"/>
+            <signal name="pr" handler="org.mobicents.media.server.mgcp.pkg.au.PlayRecord"/>
+            <signal name="aupr" handler="org.mobicents.media.server.mgcp.pkg.au.PlayRecord"/>
+	    	<signal name="es" handler="org.mobicents.media.server.mgcp.pkg.au.EndSignal"/>
+            <signal name="aues" handler="org.mobicents.media.server.mgcp.pkg.au.EndSignal"/>
+        </package>        
+        
+        <package name="T">
+            <signal name="co1" handler="org.mobicents.media.server.mgcp.pkg.trunk.Continuity1"/>
+            <signal name="co2" handler="org.mobicents.media.server.mgcp.pkg.trunk.Continuity2"/>
+            <signal name="lp" handler="org.mobicents.media.server.mgcp.pkg.trunk.Loopback"/>
+            <signal name="ct" handler="org.mobicents.media.server.mgcp.pkg.trunk.ContinuityTransporder"/>
+        </package>
+        
+        <package name="D">
+            <signal name="0" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf0"/>
+            <signal name="1" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf1"/>
+            <signal name="2" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf2"/>
+            <signal name="3" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf3"/>
+            <signal name="4" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf4"/>
+            <signal name="5" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf5"/>
+            <signal name="6" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf6"/>
+            <signal name="7" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf7"/>
+            <signal name="8" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf8"/>
+            <signal name="9" handler="org.mobicents.media.server.mgcp.pkg.dtmf.Dtmf9"/>
+            <signal name="A" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfA"/>
+            <signal name="B" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfB"/>
+            <signal name="C" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfC"/>
+            <signal name="D" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfD"/>
+            <signal name="#" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfHash"/>
+            <signal name="*" handler="org.mobicents.media.server.mgcp.pkg.dtmf.DtmfStar"/>
+        </package>
+        
+        <package name="SL">
+                <signal name="s" handler="org.mobicents.media.server.mgcp.pkg.sl.SignalRequest"/>
+        </package>
+        
+    </packages>
+
+    <!-- Mapping packages to endpoints -->
+    <endpoints>
+        <endpoint local-name="mobicents/aap/$" packages="A"/>
+        <endpoint local-name="mobicents/ivr/$" packages="A,AU,D,SL"/>
+        <endpoint local-name="mobicents/ds0/$" packages="T"/>
+    </endpoints>
+</mgcp>
+    

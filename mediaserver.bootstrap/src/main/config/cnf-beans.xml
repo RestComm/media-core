@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+
+	<bean name="cnf.bridge" class="org.mobicents.media.server.impl.resource.cnf.CnfBridgeFactory">
+		<property name="name">cnf.bridge</property>
+	</bean>
+
+
+        <!-- Conference local bridge  -->
+	<bean name="CnfEndpoint" class="org.mobicents.media.server.EndpointFactoryImpl">
+		<property name="localName">/mobicents/media/cnf/[1..3]	</property>
+        <property name="groupFactory"><inject bean="cnf.bridge" /></property>
+		<property name="connectionFactory"><inject bean="default-connection" /></property>
+		<property name="connectionPoolSize">3</property>
+	</bean>
+
+</deployment>

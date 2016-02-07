@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+	<bean name="Signal.Dtmf0"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf0</property>
+		<property name="digit">0</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf1"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf1</property>
+		<property name="digit">1</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf2"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf2</property>
+		<property name="digit">2</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf3"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf3</property>
+		<property name="digit">3</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf4"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf4</property>
+		<property name="digit">4</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf5"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf5</property>
+		<property name="digit">5</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf6"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf6</property>
+		<property name="digit">6</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf7"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf7</property>
+		<property name="digit">7</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf8"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf8</property>
+		<property name="digit">8</property>
+		
+	</bean>
+
+	<bean name="Signal.Dtmf9"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf9</property>
+		<property name="digit">9</property>
+		
+	</bean>
+
+	<bean name="Signal.DtmfA"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfA</property>
+		<property name="digit">A</property>
+		
+	</bean>
+
+	<bean name="Signal.DtmfB"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfB</property>
+		<property name="digit">B</property>
+		
+	</bean>
+
+	<bean name="Signal.DtmfC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfC</property>
+		<property name="digit">C</property>
+		
+	</bean>
+
+	<bean name="Signal.DtmfD"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfD</property>
+		<property name="digit">D</property>
+		
+	</bean>
+
+	<bean name="Signal.DtmfHash"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfHash</property>
+		<property name="digit">#</property>
+		
+	</bean>
+
+	<bean name="Signal.DtmfStar"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfStar</property>
+		<property name="digit">*</property>
+		
+	</bean>
+
+</deployment>

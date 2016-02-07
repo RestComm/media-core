@@ -1,0 +1,48 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+            <!-- local defintiion, custom deployer does nto support deps in many files... -->
+	 <bean name="MediaType.audio_dtmf" class="org.mobicents.media.server.spi.MediaType">
+    	<constructor factoryClass="org.mobicents.media.server.spi.MediaType" factoryMethod="getInstance">
+        	<parameter>audio</parameter>
+    	</constructor>
+    </bean>                
+	     
+    <bean name="Package.Dtmf"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+        <property name="name">D</property>
+        <property name="generators">
+            <list>
+                <inject bean="Signal.Dtmf0" />
+                <inject bean="Signal.Dtmf1" />
+            </list>
+        </property>
+        <property name="detectors">
+            <list>
+                <inject bean="Event.Dtmf0" />
+                <inject bean="Event.Dtmf1" />
+                <inject bean="Event.Dtmf2" />
+                <inject bean="Event.Dtmf3" />
+                <inject bean="Event.Dtmf4" />
+                <inject bean="Event.Dtmf5" />
+                <inject bean="Event.Dtmf6" />
+                <inject bean="Event.Dtmf7" />
+                <inject bean="Event.Dtmf8" />
+                <inject bean="Event.Dtmf9" />
+                <inject bean="Event.DtmfA" />
+                <inject bean="Event.DtmfB" />
+                <inject bean="Event.DtmfC" />
+                <inject bean="Event.DtmfD" />
+                <inject bean="Event.DtmfStar" />
+                <inject bean="Event.DtmfHash" />
+            </list>
+        </property>
+        <property name="detectorInterface">org.mobicents.media.server.spi.resource.DtmfDetector</property>
+        <property name="mediaType" >
+        	<inject bean="MediaType.audio_dtmf"/>
+        </property>
+        <depends>MediaType.audio_dtmf</depends>
+    </bean>
+</deployment>

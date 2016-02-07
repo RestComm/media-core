@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+
+	<bean name="rtsp-connection-channel"
+		class="org.mobicents.media.server.resource.ChannelFactory" />
+	<bean name="rtsp-connection"
+		class="org.mobicents.media.server.ConnectionFactory">
+		<property name="txChannelFactory">
+			<map class="java.util.Hashtable" keyClass="java.lang.String"
+				valueClass="org.mobicents.media.server.resource.ChannelFactory">
+				<entry>
+					<key>audio</key>
+					<value>
+						<inject bean="rtsp-connection-channel" />
+					</value>
+				</entry>
+				<entry>
+					<key>video</key>
+					<value>
+						<inject bean="rtsp-connection-channel" />
+					</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<!-- Endpoint definition -->
+	<bean name="RtspEndpoint"
+		class="org.mobicents.media.server.EndpointImpl">
+		<property name="localName">
+			/mobicents/media/rtsp/[1..10]
+		</property>
+		<property name="timer">
+			<inject bean="Timer" />
+		</property>
+		<property name="sourceFactory">
+			<map class="java.util.Hashtable" keyClass="java.lang.String"
+				valueClass="org.mobicents.media.ComponentFactory">
+				<entry>
+					<key>*</key>
+					<value>
+						<inject bean="media.player" />
+					</value>
+				</entry>
+			</map>
+		</property>
+		<property name="rtpFactory">
+			<inject bean="RTPFactory" />
+		</property>
+		<property name="connectionFactory">
+			<inject bean="rtsp-connection" />
+		</property>
+	</bean>
+</deployment>

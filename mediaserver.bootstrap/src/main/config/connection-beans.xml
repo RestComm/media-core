@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+	
+    <!-- Connetion definition -->    
+    <bean name="tx-pipe-1"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="outlet">audio.mixer</property>
+        <property name="valve"><inject bean="Valve.open"></inject></property>
+    </bean>
+    
+    <bean name="tx-pipe-2"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">media.player</property>
+        <property name="outlet">audio.mixer</property>
+        <property name="valve"><inject bean="Valve.close"></inject></property>
+    </bean>
+
+    <bean name="tx-pipe-3"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">dtmf.generator</property>
+        <property name="outlet">audio.mixer</property>
+        <property name="valve"><inject bean="Valve.close"></inject></property>
+    </bean>
+    
+    <bean name="tx-pipe-4"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">audio.mixer</property>
+        <property name="valve"><inject bean="Valve.open"></inject></property>
+    </bean>
+    
+    
+    <bean name="tx-channel" class="org.mobicents.media.server.resource.ChannelFactory">
+        <property name="components">
+            <list>
+                <inject bean="audio.mixer" />
+                <inject bean="media.player" />
+                <inject bean="dtmf.generator" />
+            </list>
+        </property>
+        
+        <property name="pipes">
+            <list>
+                <inject bean="tx-pipe-1" />
+                <inject bean="tx-pipe-2" />
+                <inject bean="tx-pipe-3" />
+                <inject bean="tx-pipe-4" />
+            </list>
+        </property>
+    </bean>
+
+
+    <!-- Endpoint inner audio rx channel -->
+    <bean name="rx-pipe-1"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="outlet">audio.splitter</property>
+        <property name="valve"><inject bean="Valve.open"></inject></property>
+    </bean>
+    
+    <bean name="rx-pipe-2"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">audio.splitter</property>
+        <property name="outlet">audio.recorder</property>
+        <property name="valve"><inject bean="Valve.close"></inject></property>
+    </bean>
+
+    <bean name="rx-pipe-3"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">audio.splitter</property>
+        <property name="outlet">dtmf.detector</property>
+        <property name="valve"><inject bean="Valve.close"></inject></property>
+    </bean>
+    
+    <bean name="rx-pipe-4"
+		class="org.mobicents.media.server.resource.PipeFactory">
+        <property name="inlet">audio.splitter</property>
+        <property name="valve"><inject bean="Valve.open"></inject></property>
+    </bean>
+    
+    
+    <bean name="rx-channel" class="org.mobicents.media.server.resource.ChannelFactory">
+        <property name="components">
+            <list>
+                <inject bean="audio.splitter" />
+                <inject bean="audio.recorder" />
+                <inject bean="dtmf.detector" />
+            </list>
+        </property>
+        
+        <property name="pipes">
+            <list>
+                <inject bean="rx-pipe-1" />
+                <inject bean="rx-pipe-2" />
+                <inject bean="rx-pipe-3" />
+                <inject bean="rx-pipe-4" />
+            </list>
+        </property>
+    </bean>
+
+    <bean name="default-connection" class="org.mobicents.media.server.ConnectionFactory">
+            <property name="txChannelFactory">
+                <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                    <entry><key>audio</key><value><inject bean="tx-channel"/></value></entry>
+                </map>
+            </property>
+            <property name="rxChannelFactory">
+                <map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="org.mobicents.media.server.resource.ChannelFactory">
+                    <entry><key>audio</key><value><inject bean="rx-channel"/></value></entry>
+                </map>
+            </property>
+	    <property name="connectionStateManager"><inject bean="ConnectionStateManager"/></property>	
+    </bean>    
+
+</deployment>

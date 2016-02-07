@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+    <bean name="MediaType.audio" class="org.mobicents.media.server.spi.MediaType">
+        <constructor factoryClass="org.mobicents.media.server.spi.MediaType" factoryMethod="getInstance">
+            <parameter>audio</parameter>
+        </constructor>
+    </bean>
+
+    <bean name="MediaType.Video" class="org.mobicents.media.server.spi.MediaType">
+        <constructor factoryClass="org.mobicents.media.server.spi.MediaType" factoryMethod="getInstance">
+            <parameter>video</parameter>
+        </constructor>
+    </bean>
+
+    <bean name="G711.ulaw.encoder"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.ulaw.EncoderFactory" />
+    <bean name="G711.ulaw.decoder"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.ulaw.DecoderFactory" />
+    <bean name="G711.alaw.encoder"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.alaw.EncoderFactory" />
+    <bean name="G711.alaw.decoder"
+		class="org.mobicents.media.server.impl.dsp.audio.g711.alaw.DecoderFactory" />
+    <bean name="G729.encoder"
+		class="org.mobicents.media.server.impl.dsp.audio.g729.EncoderFactory" />
+    <bean name="G729.decoder"
+		class="org.mobicents.media.server.impl.dsp.audio.g729.DecoderFactory" />
+    <bean name="GSM.encoder"
+		class="org.mobicents.media.server.impl.dsp.audio.gsm.EncoderFactory" />
+    <bean name="GSM.decoder"
+		class="org.mobicents.media.server.impl.dsp.audio.gsm.DecoderFactory" />
+                
+    <bean name="DSP"
+		class="org.mobicents.media.server.impl.dsp.DspFactory">
+        <property name="name">dsp</property>
+        <property name="codecFactories">
+            <list>
+                <inject bean="G711.ulaw.encoder" />
+                <inject bean="G711.ulaw.decoder" />
+                <inject bean="G711.alaw.encoder" />
+                <inject bean="G711.alaw.decoder" />
+                <inject bean="Speex.encoder" />
+                <inject bean="Speex.decoder" />
+                <inject bean="GSM.encoder" />
+                <inject bean="GSM.decoder" />
+                <inject bean="G729.encoder" />
+                <inject bean="G729.decoder" />
+            </list>
+        </property>
+    </bean>
+    
+    <bean name="soundcard" class="org.mobicents.media.server.impl.resource.audio.soundcard.PlayerFactory">
+        <property name="name">soundcard</property>
+    </bean>
+    
+    <bean name="audio.mixer"
+		class="org.mobicents.media.server.impl.resource.cnf.AudioMixerFactory">
+        <property name="name">audio.mixer</property>
+    </bean>
+
+    <bean name="audio.splitter"
+		class="org.mobicents.media.server.impl.resource.cnf.SplitterFactory">
+        <property name="name">audio.splitter</property>
+    </bean>
+    
+    <bean name="media.video" class="org.mobicents.media.server.impl.resource.mediaplayer.video.VideoPlayerFactory">
+        <property name="name">media.player</property>
+        <property name="videoMediaDirectory">${mms.media.dir}</property>
+    </bean>
+    
+    <bean name="media.audio" class="org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory">
+        <property name="name">media.player</property>
+        <property name="audioMediaDirectory">${mms.media.dir}</property>
+ 
+        <property name="voices">
+       			<map class="java.util.Hashtable" keyClass="java.lang.String" valueClass="java.lang.Integer">
+       			
+                    <entry>
+                    	<key>alan</key>
+                    	<value>1</value>
+                    </entry>
+                    <entry>
+                    	<key>kevin16</key>
+                    	<value>1</value>
+                    </entry>
+                    <entry>
+                    	<key>kevin</key>
+                    	<value>1</value>
+                    </entry>
+                    <entry>
+                    	<key>mbrola_us3</key>
+                    	<value>1</value>
+                    </entry>
+                    <entry>
+                    	<key>mbrola_us2</key>
+                    	<value>1</value>
+                    </entry>
+                    <entry>
+                    	<key>mbrola_us1</key>
+                    	<value>1</value>
+                    </entry>
+                 
+               </map>
+        </property>
+
+    </bean>
+    
+    
+    <bean name="media.player" class="org.mobicents.media.server.impl.resource.mediaplayer.MediaPlayerFactory">
+        <property name="name">media.player</property>
+        <property name="audioPlayerFactory"><inject bean="media.audio" /></property>
+        <property name="videoPlayerFactory"><inject bean="media.video" /></property>
+    </bean>
+    
+    <bean name="audio.recorder" class="org.mobicents.media.server.impl.resource.audio.RecorderFactory">
+        <property name="name">audio.recorder</property>
+        <property name="recordDir">${mms.media.dir}</property>
+    </bean>
+
+    <bean name="dtmf.detector" class="org.mobicents.media.server.impl.resource.dtmf.DetectorFactory">
+        <property name="name">dtmf.detector</property>
+        <property name="duration">40</property>
+        <property name="interdigitInterval">150</property>
+    </bean>
+    
+    <bean name="dtmf.generator" class="org.mobicents.media.server.impl.resource.dtmf.GeneratorFactory">
+        <property name="name">dtmf.generator</property>
+        <property name="duration">40</property>
+    </bean>
+
+    <!-- bean name="attenuator" class="org.mobicents.media.server.impl.dsp.AttenuatorFactory">
+        <property name="name">attenuator</property>
+    </bean -->
+    
+    <bean name="Valve.open" class="org.mobicents.media.server.spi.Valve">
+	<constructor factoryClass="org.mobicents.media.server.spi.Valve" factoryMethod="getInstance">
+		<parameter>open</parameter>
+	</constructor>
+    </bean>
+
+    <bean name="Valve.close" class="org.mobicents.media.server.spi.Valve">
+	<constructor factoryClass="org.mobicents.media.server.spi.Valve" factoryMethod="getInstance">
+		<parameter>close</parameter>
+	</constructor>
+    </bean>
+
+</deployment>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+	
+    <bean name="ConnectionState.NULL" class="org.mobicents.media.server.spi.ConnectionState">
+    	<constructor factoryClass="org.mobicents.media.server.spi.ConnectionState" factoryMethod="getInstance">
+        	<parameter>NULL</parameter>
+    	</constructor>
+    </bean>
+    
+    <bean name="ConnectionState.IDLE" class="org.mobicents.media.server.spi.ConnectionState">
+    	<constructor factoryClass="org.mobicents.media.server.spi.ConnectionState" factoryMethod="getInstance">
+        	<parameter>IDLE</parameter>
+    	</constructor>
+    </bean>
+    
+    <bean name="ConnectionState.HALF_OPEN" class="org.mobicents.media.server.spi.ConnectionState">
+    	<constructor factoryClass="org.mobicents.media.server.spi.ConnectionState" factoryMethod="getInstance">
+        	<parameter>HALF_OPEN</parameter>
+    	</constructor>
+    </bean> 
+    
+    <bean name="ConnectionState.OPEN" class="org.mobicents.media.server.spi.ConnectionState">
+    	<constructor factoryClass="org.mobicents.media.server.spi.ConnectionState" factoryMethod="getInstance">
+        	<parameter>OPEN</parameter>
+    	</constructor>
+    </bean>
+    
+    <bean name="ConnectionState.CLOSED" class="org.mobicents.media.server.spi.ConnectionState">
+    	<constructor factoryClass="org.mobicents.media.server.spi.ConnectionState" factoryMethod="getInstance">
+        	<parameter>CLOSED</parameter>
+    	</constructor>
+    </bean>
+    
+    <bean name="ConnectionStateManager" class="org.mobicents.media.server.ConnectionStateManager">
+      <constructor>
+		<parameter>
+            <map class="java.util.Hashtable" keyClass="org.mobicents.media.server.spi.ConnectionState" valueClass="java.lang.Integer">
+                <entry>
+                    <key><inject bean="ConnectionState.NULL"></inject></key>
+                    <value>0</value>
+                </entry>
+                <entry>
+                    <key><inject bean="ConnectionState.IDLE"></inject></key>
+                    <value>30000</value>
+                </entry>
+                <entry>
+                    <key><inject bean="ConnectionState.HALF_OPEN"></inject></key>
+                    <value>3600000</value>
+                </entry>
+                <entry>
+                    <key><inject bean="ConnectionState.OPEN"></inject></key>
+                    <value>3600000</value>
+                </entry>
+                <entry>
+                    <key><inject bean="ConnectionState.CLOSED"></inject></key>
+                    <value>0</value>
+                </entry>
+            </map>
+		</parameter>	
+      </constructor>
+   </bean>
+</deployment>

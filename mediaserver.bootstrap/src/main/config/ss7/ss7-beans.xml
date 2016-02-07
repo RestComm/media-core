@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
+	xmlns="urn:jboss:bean-deployer:2.0">
+
+	<bean name="LinksetFactoryFactory"
+		class="org.mobicents.ss7.linkset.oam.LinksetFactoryFactory">
+		<incallback method="addFactory" />
+		<uncallback method="removeFactory" />
+	</bean>
+
+	<bean name="DahdiLinksetFactory"
+		class="org.mobicents.ss7.hardware.dahdi.oam.DahdiLinksetFactory">
+	</bean>
+
+
+	<bean name="LinksetManager"
+		class="org.mobicents.ss7.linkset.oam.LinksetManager">
+
+		<property name="linksetFactoryFactory">
+			<inject bean="LinksetFactoryFactory" />
+		</property>
+	</bean>
+	
+	
+	<bean name="ShellExecutor"
+		class="org.mobicents.media.server.impl.resource.ss7.ShellExecutor">
+		<property name="address">${mms.bind.address}</property>
+		<property name="port">3435</property>
+		<property name="linksetManager"><inject bean="LinksetManager" /></property>
+	</bean>	
+	
+	<bean name="M3UALayer4"
+		class="org.mobicents.media.server.impl.resource.ss7.M3UALayer4">
+		<property name="address">${mms.bind.address}</property>
+		<property name="port">3434</property>
+		<property name="linksetManager">
+			<inject bean="LinksetManager" />
+		</property>
+	</bean>		
+	
+
+	<bean name="MTP"
+		class="org.mobicents.media.server.impl.resource.ss7.MtpManagement">
+
+		<property name="shellExecutor">
+			<inject bean="ShellExecutor" />
+		</property>
+		
+		<property name="m3UALayer4">
+			<inject bean="M3UALayer4" />
+		</property>		
+
+	</bean>
+
+</deployment>
