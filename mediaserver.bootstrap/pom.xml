@@ -55,8 +55,8 @@
             <version>${project.version}</version>
         </dependency>
 	<dependency>
-            <groupId>org.mobicents.media.controls</groupId>
-            <artifactId>mgcp</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.control.mgcp</artifactId>
             <version>${project.version}</version>
         </dependency>
 

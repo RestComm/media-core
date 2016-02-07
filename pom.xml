@@ -58,6 +58,7 @@
         <module>mediaserver.bootstrap</module>
         <module>mediaserver.components</module>
 	<module>mediaserver.concurrent</module>
+        <module>mediaserver.control.mgcp</module>
         <module>mediaserver.core</module>
         <module>mediaserver.ice</module>
         <module>mediaserver.network</module>
@@ -68,7 +69,6 @@
         <module>mediaserver.stun</module>
         <module>resources</module>
 	<module>client</module>
-        <module>controls</module>
         <!-- module>media-server-docs</module -->
     </modules>
 

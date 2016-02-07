@@ -1,0 +1,331 @@
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+	<!-- Resource type definition -->
+	<bean name="MgcpController"
+		class="org.mobicents.media.server.ctrl.mgcp.MgcpController">
+		<property name="namingService">
+			<inject bean="MediaServer" />
+		</property>
+		<property name="defaultNotifiedEntity">
+			client@localhost
+		</property>
+		<property name="bindAddress">${jboss.bind.address}</property>
+		<property name="port">2427</property>
+		<incallback method="addPackage" />
+		<uncallback method="removePackage" />
+	</bean>
+
+	<bean name="PlayAnnouncement"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.ann.PlayAnnouncementFactory">
+		<property name="eventName">ann</property>
+		<property name="resourceName">audio.player</property>
+	</bean>
+
+	<bean name="AdvancedAnnouncement"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.ann.AnnSignalFactory">
+		<property name="eventName">pa</property>
+		<property name="resourceName">advanced.audio.player</property>
+	</bean>
+
+	<bean name="Announcement.OC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">oc</property>
+		<property name="resourceName">audio.player</property>
+		<property name="eventID">20000</property>
+	</bean>
+
+	<bean name="Announcement.OF"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">of</property>
+		<property name="resourceName">audio.player</property>
+		<property name="eventID">10001</property>
+	</bean>
+
+	<bean name="Package.Announcement"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+		<property name="name">A</property>
+		<property name="generators">
+			<list>
+				<inject bean="PlayAnnouncement" />
+			</list>
+		</property>
+		<property name="detectors">
+			<list>
+				<inject bean="Announcement.OC" />
+				<inject bean="Announcement.OF" />
+			</list>
+		</property>
+	</bean>
+
+
+	<bean name="PlayRecord"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.ivr.RecorderFactory">
+		<property name="eventName">aupr</property>
+		<property name="resourceName">audio.recorder</property>
+	</bean>
+
+	<bean name="Package.AdvanceAudio"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+		<property name="name">AU</property>
+		<property name="generators">
+			<list>
+				<inject bean="PlayRecord" />
+				<inject bean="AdvancedAnnouncement" />
+			</list>
+		</property>
+	</bean>
+
+	<bean name="Signal.Dtmf0"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf0</property>
+		<property name="digit">0</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf1"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf1</property>
+		<property name="digit">1</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf2"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf2</property>
+		<property name="digit">2</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf3"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf3</property>
+		<property name="digit">3</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf4"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf4</property>
+		<property name="digit">4</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf5"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf5</property>
+		<property name="digit">5</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf6"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf6</property>
+		<property name="digit">6</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf7"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf7</property>
+		<property name="digit">7</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf8"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf8</property>
+		<property name="digit">8</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.Dtmf9"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmf9</property>
+		<property name="digit">9</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.DtmfA"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfA</property>
+		<property name="digit">A</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.DtmfB"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfB</property>
+		<property name="digit">B</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.DtmfC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfC</property>
+		<property name="digit">C</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.DtmfD"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfD</property>
+		<property name="digit">D</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.DtmfHash"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfHash</property>
+		<property name="digit">#</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Signal.DtmfStar"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.dtmf.DtmfGeneratorFactory">
+		<property name="eventName">dtmfStar</property>
+		<property name="digit">*</property>
+		<property name="resourceName">Rfc2833GeneratorFactory</property>
+	</bean>
+
+	<bean name="Event.Dtmf0"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf0</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">0</property>
+	</bean>
+
+	<bean name="Event.Dtmf1"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf1</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">1</property>
+	</bean>
+
+	<bean name="Event.Dtmf2"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf2</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">2</property>
+	</bean>
+
+	<bean name="Event.Dtmf3"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf3</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">3</property>
+	</bean>
+
+	<bean name="Event.Dtmf4"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf4</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">4</property>
+	</bean>
+
+	<bean name="Event.Dtmf5"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf5</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">5</property>
+	</bean>
+
+	<bean name="Event.Dtmf6"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf6</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">6</property>
+	</bean>
+
+	<bean name="Event.Dtmf7"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf7</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">7</property>
+	</bean>
+
+	<bean name="Event.Dtmf8"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf8</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">8</property>
+	</bean>
+
+	<bean name="Event.Dtmf9"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmf9</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">9</property>
+	</bean>
+
+	<bean name="Event.DtmfA"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmfA</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">10</property>
+	</bean>
+
+	<bean name="Event.DtmfB"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmfB</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">11</property>
+	</bean>
+
+	<bean name="Event.DtmfC"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmfC</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">12</property>
+	</bean>
+
+	<bean name="Event.DtmfD"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmfD</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">13</property>
+	</bean>
+	<bean name="Event.DtmfHash"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmfHash</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">14</property>
+	</bean>
+
+	<bean name="Event.DtmfStar"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.DefaultDetectorFactory">
+		<property name="eventName">dtmfStar</property>
+		<property name="resourceName">Rfc2833DetectorFactory</property>
+		<property name="eventID">15</property>
+	</bean>
+
+	<bean name="Package.Dtmf"
+		class="org.mobicents.media.server.ctrl.mgcp.evt.MgcpPackage">
+		<property name="name">D</property>
+		<property name="generators">
+			<list>
+				<inject bean="Signal.Dtmf0" />
+				<inject bean="Signal.Dtmf1" />
+			</list>
+		</property>
+		<property name="detectors">
+			<list>
+				<inject bean="Event.Dtmf0" />
+				<inject bean="Event.Dtmf1" />
+				<inject bean="Event.Dtmf2" />
+				<inject bean="Event.Dtmf3" />
+				<inject bean="Event.Dtmf4" />
+				<inject bean="Event.Dtmf5" />
+				<inject bean="Event.Dtmf6" />
+				<inject bean="Event.Dtmf7" />
+				<inject bean="Event.Dtmf8" />
+				<inject bean="Event.Dtmf9" />
+				<inject bean="Event.DtmfA" />
+				<inject bean="Event.DtmfB" />
+				<inject bean="Event.DtmfC" />
+				<inject bean="Event.DtmfD" />
+				<inject bean="Event.DtmfStar" />
+				<inject bean="Event.DtmfHash" />
+			</list>
+		</property>
+	</bean>
+
+</deployment>
