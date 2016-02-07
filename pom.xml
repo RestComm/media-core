@@ -54,11 +54,11 @@
     <modules>
 	<module>hardware</module>
         <module>spi</module>
-        <module>codecs</module>
         <module>mediaserver.bootstrap</module>
         <module>mediaserver.codec.g711</module>
         <module>mediaserver.codec.g729</module>
         <module>mediaserver.codec.gsm</module>
+        <module>mediaserver.codec.ilbc</module>
         <module>mediaserver.codec.l16</module>
         <module>mediaserver.components</module>
 	<module>mediaserver.concurrent</module>

@@ -82,8 +82,8 @@
             <version>${project.version}</version>
         </dependency>
 	<dependency>
-            <groupId>org.mobicents.media.codecs</groupId>
-            <artifactId>ilbc</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.codec.ilbc</artifactId>
             <version>${project.version}</version>
         </dependency>
 
