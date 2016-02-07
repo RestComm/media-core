@@ -57,6 +57,7 @@
         <module>codecs</module>
         <module>mediaserver.bootstrap</module>
         <module>mediaserver.codec.g711</module>
+        <module>mediaserver.codec.g729</module>
         <module>mediaserver.components</module>
 	<module>mediaserver.concurrent</module>
         <module>mediaserver.control.mgcp</module>

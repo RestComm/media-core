@@ -15,7 +15,6 @@
     
     <modules>
         <module>gsm</module>
-        <module>g729</module>
 	<module>l16</module>
 	<module>ilbc</module>
     </modules>
