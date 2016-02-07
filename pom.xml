@@ -59,6 +59,7 @@
         <module>codecs</module>
         <module>component</module>
         <module>io</module>
+        <module>mediaserver.ice</module>
         <module>mediaserver.network</module>
         <module>mediaserver.rtp</module>
         <module>mediaserver.sdp</module>

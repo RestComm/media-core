@@ -15,7 +15,6 @@
     
     <modules>
       	<module>ss7</module>
-      	<module>ice</module>
   </modules>
 	
 

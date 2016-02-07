@@ -39,8 +39,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.media.io</groupId>
-            <artifactId>ice</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.ice</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
