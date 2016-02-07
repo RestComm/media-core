@@ -14,7 +14,6 @@
     <name>Telephony</name>
     
     <modules>
-        <module>dtmf</module>
         <module>tone</module>
     </modules>
 	

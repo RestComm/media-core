@@ -44,8 +44,8 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.media.resources</groupId>
-			<artifactId>dtmf</artifactId>
+			<groupId>org.mobicents.media</groupId>
+			<artifactId>mediaserver.resource.dtmf</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
