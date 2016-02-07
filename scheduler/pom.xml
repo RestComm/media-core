@@ -15,11 +15,11 @@
     <dependencies>
 	<dependency>
             <groupId>org.mobicents.media</groupId>
-            <artifactId>concurrent</artifactId>
+            <artifactId>mediaserver.concurrent</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-	<!--  -->
+
     <build>
         <plugins>
             <plugin>
