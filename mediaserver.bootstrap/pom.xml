@@ -72,8 +72,8 @@
             <version>${project.version}</version>
         </dependency>
 	<dependency>
-            <groupId>org.mobicents.media.codecs</groupId>
-            <artifactId>gsm</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.codec.gsm</artifactId>
             <version>${project.version}</version>
         </dependency>
 	<dependency>

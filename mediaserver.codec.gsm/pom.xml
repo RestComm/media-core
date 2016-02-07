@@ -4,13 +4,13 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.mobicents.media.codecs</groupId>
-        <artifactId>codecs</artifactId>
+        <groupId>org.mobicents.media</groupId>
+        <artifactId>server</artifactId>
         <version>4.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>gsm</artifactId>
-    <name>GSM</name>
+    <artifactId>mediaserver.codec.gsm</artifactId>
+    <name>mediaserver.codec.gsm</name>
     
     <dependencies>
         <dependency>
@@ -32,7 +32,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>restcomm-mediaserver-codecs-gsm-${project.version}</finalName>
+        <finalName>restcomm-mediaserver-codec-gsm-${project.version}</finalName>
     </build>
 
 </project>
