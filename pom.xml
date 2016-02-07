@@ -54,7 +54,6 @@
     <modules>
 	<module>hardware</module>
         <module>spi</module>
-        <module>scheduler</module>
         <module>codecs</module>
         <module>component</module>
 	<module>mediaserver.concurrent</module>
@@ -62,6 +61,7 @@
         <module>mediaserver.ice</module>
         <module>mediaserver.network</module>
         <module>mediaserver.rtp</module>
+        <module>mediaserver.scheduler</module>
         <module>mediaserver.sdp</module>
         <module>mediaserver.ss7</module>
         <module>mediaserver.stun</module>

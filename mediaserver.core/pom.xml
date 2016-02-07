@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.mobicents.media</groupId>
-            <artifactId>scheduler</artifactId>
+            <artifactId>mediaserver.scheduler</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
