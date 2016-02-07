@@ -53,7 +53,6 @@
 
     <modules>
 	<module>hardware</module>
-        <module>spi</module>
         <module>mediaserver.bootstrap</module>
         <module>mediaserver.codec.g711</module>
         <module>mediaserver.codec.g729</module>
@@ -73,6 +72,7 @@
         <module>mediaserver.rtp</module>
         <module>mediaserver.scheduler</module>
         <module>mediaserver.sdp</module>
+        <module>mediaserver.spi</module>
         <module>mediaserver.ss7</module>
         <module>mediaserver.stun</module>
 	<module>client</module>

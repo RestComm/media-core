@@ -35,7 +35,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.media</groupId>
-			<artifactId>spi</artifactId>
+			<artifactId>mediaserver.spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
