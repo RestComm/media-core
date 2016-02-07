@@ -62,8 +62,8 @@
 
 	<!-- codecs -->
 	<dependency>
-            <groupId>org.mobicents.media.codecs</groupId>
-            <artifactId>l16</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.codec.l16</artifactId>
             <version>${project.version}</version>
         </dependency>
 	<dependency>

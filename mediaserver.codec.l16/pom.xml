@@ -4,13 +4,13 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.mobicents.media.codecs</groupId>
-        <artifactId>codecs</artifactId>
+        <groupId>org.mobicents.media</groupId>
+        <artifactId>server</artifactId>
         <version>4.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>l16</artifactId>
-    <name>L16</name>
+    <artifactId>mediaserver.codec.l16</artifactId>
+    <name>mediaserver.codec.l16</name>
     
     <dependencies>
         <dependency>
