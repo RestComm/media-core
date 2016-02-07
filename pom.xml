@@ -55,8 +55,8 @@
 	<module>hardware</module>
         <module>spi</module>
         <module>codecs</module>
-        <module>component</module>
         <module>mediaserver.bootstrap</module>
+        <module>mediaserver.components</module>
 	<module>mediaserver.concurrent</module>
         <module>mediaserver.core</module>
         <module>mediaserver.ice</module>

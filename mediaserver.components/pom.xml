@@ -4,14 +4,14 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.mobicents.media.controls</groupId>
-        <artifactId>controls</artifactId>
+        <groupId>org.mobicents.media</groupId>
+        <artifactId>server</artifactId>
         <version>4.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>mgcp</artifactId>
-    <name>MGCP</name>
-    
+    <artifactId>mediaserver.components</artifactId>
+    <name>mediaserver.components</name>
+
     <dependencies>
     	<dependency>
             <groupId>org.mobicents.media</groupId>
@@ -24,38 +24,18 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>mediaserver.components</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-	<dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>mediaserver.core</artifactId>
+            <groupId>org.mobicents.media.codecs</groupId>
+            <artifactId>g711</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.media.resources</groupId>
-            <artifactId>tones</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-	<dependency>
-            <groupId>org.mobicents.media.client</groupId>
-            <artifactId>mgcp-driver</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>jain</groupId>
-            <artifactId>jain-mgcp-ri</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.mobicents.media</groupId>
-            <artifactId>mediaserver.network</artifactId>
+            <artifactId>mediaserver.scheduler</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 
+	<!--  -->
     <build>
         <plugins>
             <plugin>
@@ -67,7 +47,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>restcomm-mediaserver-mgcp-${project.version}</finalName>
+        <finalName>restcomm-mediaserver-component-${project.version}</finalName>
     </build>
 
 </project>

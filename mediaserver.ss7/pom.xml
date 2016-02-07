@@ -29,7 +29,7 @@
     	</dependency>
 		<dependency>
             <groupId>org.mobicents.media</groupId>
-            <artifactId>components</artifactId>
+            <artifactId>mediaserver.components</artifactId>
             <version>${project.version}</version>
         </dependency>        
         <dependency>
