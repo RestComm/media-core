@@ -15,7 +15,6 @@
     
     <modules>
         <module>telephony</module>
-        <module>mediaplayer</module>
         <module>recorder</module>
     </modules>
 	
