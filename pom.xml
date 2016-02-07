@@ -65,12 +65,12 @@
         <module>mediaserver.resource.dtmf</module>
         <module>mediaserver.resource.player</module>
         <module>mediaserver.resource.recorder</module>
+        <module>mediaserver.resource.tones</module>
         <module>mediaserver.rtp</module>
         <module>mediaserver.scheduler</module>
         <module>mediaserver.sdp</module>
         <module>mediaserver.ss7</module>
         <module>mediaserver.stun</module>
-        <module>resources</module>
 	<module>client</module>
         <!-- module>media-server-docs</module -->
     </modules>

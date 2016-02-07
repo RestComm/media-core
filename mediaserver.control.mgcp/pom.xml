@@ -34,8 +34,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.media.resources</groupId>
-            <artifactId>tones</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.resource.tones</artifactId>
             <version>${project.version}</version>
         </dependency>
 	<dependency>

@@ -67,15 +67,10 @@
             <version>${project.version}</version>
         </dependency>
 	<dependency>
-            <groupId>org.mobicents.media.resources</groupId>
-            <artifactId>tones</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.resource.tones</artifactId>
             <version>${project.version}</version>
-	        </dependency>
-	<!-- dependency>
-		<groupId>org.ice4j</groupId>
-		<artifactId>ice4j</artifactId>
-		<version>1.0.0</version>
-	</dependency -->
+	</dependency>
 	<dependency>
 		<groupId>org.bitlet</groupId>
 		<artifactId>weupnp</artifactId>
