@@ -58,6 +58,7 @@
         <module>scheduler</module>
         <module>codecs</module>
         <module>component</module>
+        <module>mediaserver.core</module>
         <module>mediaserver.ice</module>
         <module>mediaserver.network</module>
         <module>mediaserver.rtp</module>
@@ -65,7 +66,6 @@
         <module>mediaserver.ss7</module>
         <module>mediaserver.stun</module>
         <module>resources</module>
-        <module>core</module>
 	<module>client</module>
         <module>controls</module>
         <!-- module>media-server-docs</module -->

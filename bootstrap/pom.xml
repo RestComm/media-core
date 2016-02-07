@@ -21,6 +21,11 @@
         </dependency>
         <dependency>
             <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.media</groupId>
             <artifactId>mediaserver.rtp</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -87,12 +92,6 @@
             <groupId>urbanophile</groupId>
             <artifactId>java-getopt</artifactId>
             <version>1.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mobicents.media</groupId>
-            <artifactId>core</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>

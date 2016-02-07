@@ -30,7 +30,7 @@
         </dependency>
 	<dependency>
             <groupId>org.mobicents.media</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>mediaserver.core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
