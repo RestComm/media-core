@@ -63,6 +63,7 @@
         <module>mediaserver.ice</module>
         <module>mediaserver.network</module>
         <module>mediaserver.resource.player</module>
+        <module>mediaserver.resource.recorder</module>
         <module>mediaserver.rtp</module>
         <module>mediaserver.scheduler</module>
         <module>mediaserver.sdp</module>

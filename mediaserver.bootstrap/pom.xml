@@ -50,8 +50,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.mobicents.media.resources</groupId>
-            <artifactId>recorder</artifactId>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>mediaserver.resource.recorder</artifactId>
             <version>${project.version}</version>
         </dependency>
 	<dependency>
