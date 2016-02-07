@@ -58,11 +58,11 @@
         <module>scheduler</module>
         <module>codecs</module>
         <module>component</module>
-        <module>io</module>
         <module>mediaserver.ice</module>
         <module>mediaserver.network</module>
         <module>mediaserver.rtp</module>
         <module>mediaserver.sdp</module>
+        <module>mediaserver.ss7</module>
         <module>mediaserver.stun</module>
         <module>resources</module>
         <module>core</module>
