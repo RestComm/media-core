@@ -55,7 +55,6 @@ public class ConnectivityCheckServer extends NioServer {
 
 		@Override
 		public void onBinding(BindingSuccessEvent event) {
-			
 			// Tell the ICE agent to select a candidate for the correct media
 			// stream and component
 			this.agent.selectCandidatePair(ConnectivityCheckServer.this.currentChannel);

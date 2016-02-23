@@ -436,10 +436,10 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
             this.audioChannel.open();
             if (webrtc) {
                 try {
-                    this.audioChannel.enableDTLS();
                     this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), true);
                     this.audioChannel.gatherIceCandidates(this.channelsManager.getPortManager());
                     this.audioChannel.startIceAgent();
+                    this.audioChannel.enableDTLS();
                 } catch (HarvestException | IllegalStateException e) {
                     throw new IOException("Cannot harvest ICE candidates", e);
                 }

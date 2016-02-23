@@ -91,14 +91,9 @@ public class StunHandler implements PacketHandler {
 		}
 	}
 	
-	private void fireStunBindingEvent(InetSocketAddress localPeer, InetSocketAddress remotePeer) {
-		StunListener[] listenersCopy;
-		synchronized (this.listeners) {
-			listenersCopy = this.listeners.toArray(new StunListener[this.listeners.size()]);
-		}
-		
+	private void fireStunBindingEvent(InetSocketAddress localPeer, InetSocketAddress remotePeer) {		
 		BindingSuccessEvent event = new BindingSuccessEvent(this, localPeer, remotePeer);
-		for (StunListener listener : listenersCopy) {
+		for (StunListener listener : listeners) {
 			listener.onBinding(event);
 		}
 	}
