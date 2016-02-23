@@ -384,31 +384,34 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// connect to remote peer - RTP
 		String remoteRtpAddress = remoteAudio.getConnection().getAddress();
 		int remoteRtpPort = remoteAudio.getPort();
-		this.audioChannel.connectRtp(remoteRtpAddress, remoteRtpPort);
-
-		// connect to remote peer - RTCP
-		boolean remoteRtcpMux = remoteAudio.isRtcpMux();
-		if (remoteRtcpMux) {
-			this.audioChannel.connectRtcp(remoteRtpAddress, remoteRtpPort);
-		} else {
-			RtcpAttribute remoteRtcp = remoteAudio.getRtcp();
-			if (remoteRtcp == null) {
-				// No specific RTCP port, so default is RTP port + 1
-				this.audioChannel.connectRtcp(remoteRtpAddress,
-						remoteRtpPort + 1);
-			} else {
-				// Specific RTCP address and port contained in SDP
-				String remoteRtcpAddress = remoteRtcp.getAddress();
-				if (remoteRtcpAddress == null) {
-					// address is optional in rtcp attribute
-					// will match RTP address if not defined
-					remoteRtcpAddress = remoteRtpAddress;
-				}
-				int remoteRtcpPort = remoteRtcp.getPort();
-				this.audioChannel
-						.connectRtcp(remoteRtcpAddress, remoteRtcpPort);
-			}
-		}
+		
+		// only connect is calls are plain old SIP
+		// For WebRTC cases, the ICE Agent must connect upon candidate selection
+		boolean connectNow = !(this.outbound && audioChannel.isIceEnabled());
+        if (connectNow) {
+            this.audioChannel.connectRtp(remoteRtpAddress, remoteRtpPort);
+            // connect to remote peer - RTCP
+            boolean remoteRtcpMux = remoteAudio.isRtcpMux();
+            if (remoteRtcpMux) {
+                this.audioChannel.connectRtcp(remoteRtpAddress, remoteRtpPort);
+            } else {
+                RtcpAttribute remoteRtcp = remoteAudio.getRtcp();
+                if (remoteRtcp == null) {
+                    // No specific RTCP port, so default is RTP port + 1
+                    this.audioChannel.connectRtcp(remoteRtpAddress, remoteRtpPort + 1);
+                } else {
+                    // Specific RTCP address and port contained in SDP
+                    String remoteRtcpAddress = remoteRtcp.getAddress();
+                    if (remoteRtcpAddress == null) {
+                        // address is optional in rtcp attribute
+                        // will match RTP address if not defined
+                        remoteRtcpAddress = remoteRtpAddress;
+                    }
+                    int remoteRtcpPort = remoteRtcp.getPort();
+                    this.audioChannel.connectRtcp(remoteRtcpAddress, remoteRtcpPort);
+                }
+            }
+        }
 	}
 
 	@Override

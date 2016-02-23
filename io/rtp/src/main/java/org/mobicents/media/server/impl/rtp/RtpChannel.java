@@ -340,6 +340,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
     public boolean isBound() {
         return this.bound;
     }
+    
+    public boolean isConnected() {
+        return this.dataChannel != null && this.dataChannel.isConnected();
+    }
 
     public boolean isAvailable() {
         // The channel is available is is connected
