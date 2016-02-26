@@ -92,7 +92,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 		Vector<SignatureAndHashAlgorithm> serverSigAlgs = null;
 		if (org.bouncycastle.crypto.tls.TlsUtils.isSignatureAlgorithmsExtensionAllowed(serverVersion)) {
 			short[] hashAlgorithms = new short[] { HashAlgorithm.sha512, HashAlgorithm.sha384, HashAlgorithm.sha256, HashAlgorithm.sha224, HashAlgorithm.sha1 };
-			short[] signatureAlgorithms = new short[] { SignatureAlgorithm.rsa };
+			short[] signatureAlgorithms = new short[] { SignatureAlgorithm.rsa, SignatureAlgorithm.ecdsa };
 
 			serverSigAlgs = new Vector<SignatureAndHashAlgorithm>();
 			for (int i = 0; i < hashAlgorithms.length; ++i) {
@@ -115,7 +115,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     }
 
     protected ProtocolVersion getMaximumVersion() {
-        return ProtocolVersion.DTLSv10;
+        return ProtocolVersion.DTLSv12;
     }
 
     protected ProtocolVersion getMinimumVersion() {
