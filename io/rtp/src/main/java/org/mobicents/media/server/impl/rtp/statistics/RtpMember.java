@@ -359,7 +359,9 @@ public class RtpMember {
     	long receiptNtpTime = NtpUtils.calculateLastSrTimestamp(receiptNtp.getSeconds(), receiptNtp.getFraction());
     	long delay = receiptNtpTime - lastSR - delaySinceSR;
     	this.roundTripDelay = (delay > 4294967L) ? RTP_SEQ_MOD : (int) ((delay * 1000L) >> 16);
-		logger.info("rtt=" + receiptNtpTime + " - " + lastSR + " - " + delaySinceSR + " = " + delay + " => " + this.roundTripDelay + "ms");
+    	if(logger.isDebugEnabled()) {
+    	    logger.debug("rtt=" + receiptNtpTime + " - " + lastSR + " - " + delaySinceSR + " = " + delay + " => " + this.roundTripDelay + "ms");
+    	}
     }
     
     private void initSequence(int sequence) {

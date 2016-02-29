@@ -39,7 +39,7 @@ import org.apache.log4j.Logger;
  */
 public class MultiplexedChannel implements Channel {
 	
-	private static final Logger logger = Logger.getLogger(Channel.class);
+	private static final Logger logger = Logger.getLogger(MultiplexedChannel.class);
 	
 	// Data channel where data will be received and transmitted
 	protected SelectionKey selectionKey;
@@ -205,7 +205,9 @@ public class MultiplexedChannel implements Channel {
 					logger.error("Could not handle incoming packet: " + e.getMessage());
 				}
 			} else {
-				logger.warn("No protocol handler was found to process an incoming packet. Packet will be dropped.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No protocol handler was found to process an incoming packet. Packet will be dropped.");
+                }
 			}
 		}
 	}

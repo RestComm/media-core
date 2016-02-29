@@ -298,7 +298,6 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
         if (this.secure) {
             this.dtlsHandler.setChannel(this.dataChannel);
             this.dtlsHandler.addListener(this);
-            logger.info("Adding stun handler to pipeline. Null? " + (stunHandler == null));
             this.handlers.addHandler(this.stunHandler);
 
             // Start DTLS handshake
