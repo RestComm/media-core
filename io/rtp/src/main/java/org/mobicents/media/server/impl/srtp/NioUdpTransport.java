@@ -106,10 +106,10 @@ public class NioUdpTransport implements DatagramTransport {
 		            return bytesRead;
 		        } else if(bytesRead ==  -1) {
 		            // abort handshake if channel has been closed 
-		            throw new IllegalStateException("Channel was closed during handshake.");
+		            throw new IllegalStateException("Channel reached end-of-stream.");
 		        }
 		    } while(System.currentTimeMillis() - entered < waitMillis);
-		    return -1;
+		    return 0;
 		} else {
 		    throw new IllegalStateException("Channel is closed or disconnected.");
 		}
