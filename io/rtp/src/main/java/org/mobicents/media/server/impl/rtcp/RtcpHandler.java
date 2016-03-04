@@ -503,7 +503,7 @@ public class RtcpHandler implements PacketHandler {
             try {
                 onExpire();
             } catch (IOException e) {
-                logger.error("An error occurred while executing a scheduled task. Stopping handler.", e);
+                logger.error("An error occurred while executing a scheduled task: "+ e.getMessage() +". Stopping handler.");
                 reset();
             }
         }

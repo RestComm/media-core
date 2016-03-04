@@ -23,6 +23,7 @@ package org.mobicents.media.server.impl.srtp;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.security.SecureRandom;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
@@ -49,6 +51,8 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
  *
  */
 public class NioDtlsHandler implements PacketHandler, DatagramTransport {
+
+    private static final AtomicLong THREAD_COUNTER = new AtomicLong(0);
 
     private static final Logger logger = Logger.getLogger(NioDtlsHandler.class);
 
@@ -282,7 +286,8 @@ public class NioDtlsHandler implements PacketHandler, DatagramTransport {
     public void handshake() {
         if (!handshaking && !handshakeComplete) {
             this.handshaking = true;
-            this.worker = new Thread(new HandshakeWorker());
+            this.startTime = System.currentTimeMillis();
+            this.worker = new Thread(new HandshakeWorker(), "DTLS-Server-" + THREAD_COUNTER.incrementAndGet());
             this.worker.start();
         }
     }
@@ -319,6 +324,7 @@ public class NioDtlsHandler implements PacketHandler, DatagramTransport {
         this.handshakeComplete = false;
         this.handshakeFailed = false;
         this.handshaking = false;
+        this.startTime = 0L;
     }
 
     @Override
@@ -375,10 +381,6 @@ public class NioDtlsHandler implements PacketHandler, DatagramTransport {
 
     @Override
     public int receive(byte[] buf, int off, int len, int waitMillis) throws IOException {
-        if (this.startTime == 0L) {
-            this.startTime = System.currentTimeMillis();
-        }
-
         // MEDIA-48: DTLS handshake thread does not terminate
         // https://telestax.atlassian.net/browse/MEDIA-48
         if (this.hasTimeout()) {
@@ -394,8 +396,9 @@ public class NioDtlsHandler implements PacketHandler, DatagramTransport {
                 return data.limit();
             }
         } while (System.currentTimeMillis() - enteredAt >= waitMillis);
-        logger.warn("No data was read. Attempting retransmission.");
-        return 0;
+        
+        // Throw IO exception if no data was received in this interval. Restarts outbound flight.
+        throw new SocketTimeoutException("Could not receive DTLS packet in " + waitMillis);
     }
 
     @Override
@@ -449,7 +452,7 @@ public class NioDtlsHandler implements PacketHandler, DatagramTransport {
                 // Warn listeners handshake completed
                 fireHandshakeComplete();
             } catch (Exception e) {
-                logger.error("DTLS handshake failed: " + e.getMessage(), e);
+                logger.error("DTLS handshake failed. Reason:", e);
 
                 // Declare handshake as failed
                 handshakeComplete = false;
