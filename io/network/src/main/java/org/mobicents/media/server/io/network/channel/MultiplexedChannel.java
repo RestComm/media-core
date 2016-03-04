@@ -221,7 +221,11 @@ public class MultiplexedChannel implements Channel {
 			this.pendingDataBuffer.flip();
 			
 			// Send data over the channel
-			this.dataChannel.send(this.pendingDataBuffer, this.dataChannel.getRemoteAddress());
+            if (dataChannel.isOpen() && dataChannel.isConnected()) {
+                this.dataChannel.send(this.pendingDataBuffer, this.dataChannel.getRemoteAddress());
+            } else {
+                logger.warn("Canceling data transmission because channel has been closed.");
+            }
 
 			if (this.pendingDataBuffer.remaining() > 0) {
 				// Channel buffer is full

@@ -44,7 +44,7 @@ public class NioUdpTransport implements DatagramTransport {
 	private final static int MIN_IP_OVERHEAD = 20;
 	private final static int MAX_IP_OVERHEAD = MIN_IP_OVERHEAD + 64;
 	private final static int UDP_OVERHEAD = 8;
-	public final static int MAX_DELAY = 10000;
+	public final static int MAX_DELAY = 15000;
 
 	private final DatagramChannel channel;
 	private int mtu;
@@ -87,14 +87,32 @@ public class NioUdpTransport implements DatagramTransport {
 	}
 
 	@Override
-	public int receive(byte[] buf, int off, int len, int waitMillis) throws IOException {
+    public int receive(byte[] buf, int off, int len, int waitMillis) throws IOException {
 		// MEDIA-48: DTLS handshake thread does not terminate
 		// https://telestax.atlassian.net/browse/MEDIA-48
 		if (this.hasTimeout()) {
 			throw new IllegalStateException("Handshake is taking too long! (>" + MAX_DELAY + "ms");
 		}
-		ByteBuffer buffer = ByteBuffer.wrap(buf, off, len);
-		return this.channel.read(buffer);
+		
+		if(channel.isOpen() && channel.isConnected()) {
+		    long entered = System.currentTimeMillis();
+		    do {
+		        // do read operation if within <waitMillis> interval
+		        ByteBuffer buffer = ByteBuffer.wrap(buf, off, len);
+		        int bytesRead = this.channel.read(buffer);
+		        
+		        if(bytesRead > 0) {
+		            // return if read operation retrieved data
+		            return bytesRead;
+		        } else if(bytesRead ==  -1) {
+		            // abort handshake if channel has been closed 
+		            throw new IllegalStateException("Channel was closed during handshake.");
+		        }
+		    } while(System.currentTimeMillis() - entered < waitMillis);
+		    return -1;
+		} else {
+		    throw new IllegalStateException("Channel is closed or disconnected.");
+		}
 	}
 
 	@Override
@@ -105,7 +123,7 @@ public class NioUdpTransport implements DatagramTransport {
 			 * larger than the MTU, the DTLS implementation SHOULD generate an
 			 * error, thus avoiding sending a packet which will be fragmented."
 			 */
-			// TODO Exception
+            throw new IOException("Trying to send " + len + " bytes when maximum limit is " + this.sendLimit);
 		}
 		// MEDIA-48: DTLS handshake thread does not terminate
 		// https://telestax.atlassian.net/browse/MEDIA-48
@@ -113,8 +131,12 @@ public class NioUdpTransport implements DatagramTransport {
 			throw new IllegalStateException("Handshake is taking too long! (>" + MAX_DELAY + "ms");
 		}
 		
-		ByteBuffer buffer = ByteBuffer.wrap(buf, off, len);
-		this.channel.send(buffer, this.channel.getRemoteAddress());
+        if (channel.isOpen() && channel.isConnected()) {
+            ByteBuffer buffer = ByteBuffer.wrap(buf, off, len);
+            this.channel.send(buffer, this.channel.getRemoteAddress());
+        } else {
+            throw new IllegalStateException("Channel is closed or disconnected.");
+        }
 	}
 
 	@Override
