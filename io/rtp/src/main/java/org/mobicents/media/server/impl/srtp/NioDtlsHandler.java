@@ -390,7 +390,7 @@ public class NioDtlsHandler implements PacketHandler, DatagramTransport {
         do {
             ByteBuffer data = this.rxQueue.poll();
             if (data != null) {
-                data.get(buf, off, len);
+                data.get(buf, off, data.limit());
                 return data.limit();
             }
         } while (System.currentTimeMillis() - enteredAt >= waitMillis);

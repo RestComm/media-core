@@ -31,8 +31,8 @@ import org.mobicents.media.io.ice.IceAuthenticator;
 import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
-import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
+import org.mobicents.media.server.impl.srtp.NioDtlsHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.utils.Text;
@@ -55,11 +55,12 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	private boolean bound;
 
 	// Protocol handler pipeline
-	private static final int STUN_PRIORITY = 2; // a packet each 400ms
-	private static final int RTCP_PRIORITY = 1; // a packet each 5s
+	private static final int STUN_PRIORITY = 3; // a packet each 400ms
+	private static final int RTCP_PRIORITY = 2; // a packet each 5s
+	private static final int DTLS_PRIORITY = 1; // only for a handshake
 	
 	private RtcpHandler rtcpHandler;
-	private DtlsHandler dtlsHandler;
+	private NioDtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
 	
 	// WebRTC
@@ -137,6 +138,8 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		this.handlers.addHandler(this.rtcpHandler);
 
 		if(this.secure) {
+		    this.dtlsHandler.setPipelinePriority(DTLS_PRIORITY);
+		    this.handlers.addHandler(this.dtlsHandler);
 			this.dtlsHandler.setChannel(this.dataChannel);
 			this.dtlsHandler.addListener(this);
 			this.handlers.addHandler(this.stunHandler);
@@ -209,7 +212,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		
 		// setup the DTLS handler
 		if(this.dtlsHandler == null) {
-			this.dtlsHandler = new DtlsHandler(this.dataChannel);
+			this.dtlsHandler = new NioDtlsHandler();
 		}
 		this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
 		
@@ -230,7 +233,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	    
 	    // setup the DTLS handler
 	    if(this.dtlsHandler == null) {
-	        this.dtlsHandler = new DtlsHandler(this.dataChannel);
+	        this.dtlsHandler = new NioDtlsHandler();
 	    }
 	    
 	    // setup the SRTCP handler
@@ -268,7 +271,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	
 	public Text getDtlsLocalFingerprint() {
 		if(this.secure) {
-			return this.dtlsHandler.getLocalFingerprint();
+			return new Text(this.dtlsHandler.getLocalFingerprint());
 		}
 		return new Text("");
 	}

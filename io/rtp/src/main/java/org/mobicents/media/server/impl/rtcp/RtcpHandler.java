@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.RtpPacket;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
-import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.impl.srtp.NioDtlsHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -78,7 +78,7 @@ public class RtcpHandler implements PacketHandler {
     private boolean secure;
 
     /** Handles the DTLS handshake and encodes/decodes secured packets. For WebRTC calls only. */
-    private DtlsHandler dtlsHandler;
+    private NioDtlsHandler dtlsHandler;
 
     public RtcpHandler(final Scheduler scheduler, final RtpStatistics statistics) {
         // Scheduler
@@ -265,7 +265,7 @@ public class RtcpHandler implements PacketHandler {
      * 
      * @param remotePeerFingerprint The DTLS fingerprint of the remote peer. Use to setup DTLS keying material.
      */
-    public void enableSRTCP(DtlsHandler dtlsHandler) {
+    public void enableSRTCP(NioDtlsHandler dtlsHandler) {
         this.dtlsHandler = dtlsHandler;
         this.secure = true;
     }

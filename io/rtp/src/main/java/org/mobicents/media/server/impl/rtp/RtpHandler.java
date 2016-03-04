@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtcp.RtcpHeader;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
-import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.impl.srtp.NioDtlsHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
@@ -64,7 +64,7 @@ public class RtpHandler implements PacketHandler {
 	
 	// SRTP
 	private boolean secure;
-	private DtlsHandler dtlsHandler;
+	private NioDtlsHandler dtlsHandler;
 	
 	public RtpHandler(PriorityQueueScheduler scheduler, RtpClock clock, RtpClock oobClock, int jitterBufferSize, RtpStatistics statistics) {
 		this.pipelinePriority = 0;
@@ -139,7 +139,7 @@ public class RtpHandler implements PacketHandler {
 		return this.rtpFormats;
 	}
 	
-	public void enableSrtp(final DtlsHandler handler) {
+	public void enableSrtp(final NioDtlsHandler handler) {
 		this.secure = true;
 		this.dtlsHandler = handler;
 	}
