@@ -32,7 +32,7 @@ import org.mobicents.media.io.ice.network.stun.StunHandler;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
-import org.mobicents.media.server.impl.srtp.NioDtlsHandler;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.utils.Text;
@@ -60,7 +60,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	private static final int DTLS_PRIORITY = 1; // only for a handshake
 	
 	private RtcpHandler rtcpHandler;
-	private NioDtlsHandler dtlsHandler;
+	private DtlsHandler dtlsHandler;
 	private StunHandler stunHandler;
 	
 	// WebRTC
@@ -212,7 +212,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		
 		// setup the DTLS handler
 		if(this.dtlsHandler == null) {
-			this.dtlsHandler = new NioDtlsHandler();
+			this.dtlsHandler = new DtlsHandler();
 		}
 		this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
 		
@@ -233,7 +233,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	    
 	    // setup the DTLS handler
 	    if(this.dtlsHandler == null) {
-	        this.dtlsHandler = new NioDtlsHandler();
+	        this.dtlsHandler = new DtlsHandler();
 	    }
 	    
 	    // setup the SRTCP handler

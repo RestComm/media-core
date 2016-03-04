@@ -57,7 +57,7 @@ public class DtlsHandlerTest {
     @Test
     public void testCanHandle() {
         // given
-        NioDtlsHandler dtlsHandler = new NioDtlsHandler();
+        DtlsHandler dtlsHandler = new DtlsHandler();
 
         // when
         boolean canHandleHelloClient = dtlsHandler.canHandle(HELLO_CLIENT);

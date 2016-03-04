@@ -34,7 +34,7 @@ import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
-import org.mobicents.media.server.impl.srtp.NioDtlsHandler;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
@@ -89,7 +89,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
     private static final int DTLS_PRIORITY = 1; // only for handshake
 
     private RtpHandler rtpHandler;
-    private NioDtlsHandler dtlsHandler;
+    private DtlsHandler dtlsHandler;
     private StunHandler stunHandler;
     private RtcpHandler rtcpHandler; // only used when rtcp-mux is enabled
 
@@ -407,7 +407,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 
         // setup the DTLS handler
         if (this.dtlsHandler == null) {
-            this.dtlsHandler = new NioDtlsHandler();
+            this.dtlsHandler = new DtlsHandler();
         }
         this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
         this.handlers.addHandler(this.dtlsHandler);
@@ -432,7 +432,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener {
 
         // setup the DTLS handler
         if (this.dtlsHandler == null) {
-            this.dtlsHandler = new NioDtlsHandler();
+            this.dtlsHandler = new DtlsHandler();
         }
         this.handlers.addHandler(this.dtlsHandler);
 

@@ -28,7 +28,7 @@ import java.nio.channels.DatagramChannel;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
-import org.mobicents.media.server.impl.srtp.NioDtlsHandler;
+import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
@@ -59,7 +59,7 @@ public class RtpTransmitter {
 	private final RtpPacket oobPacket = new RtpPacket(RtpPacket.RTP_PACKET_MAX_SIZE, true);
 	
 	// WebRTC
-	private NioDtlsHandler dtlsHandler;
+	private DtlsHandler dtlsHandler;
 	private boolean secure;
 
 	// Details of a transmitted packet
@@ -95,7 +95,7 @@ public class RtpTransmitter {
 		return dtmfOutput;
 	}
 	
-	public void enableSrtp(final NioDtlsHandler handler) {
+	public void enableSrtp(final DtlsHandler handler) {
 		this.secure = true;
 		this.dtlsHandler = handler;
 	}

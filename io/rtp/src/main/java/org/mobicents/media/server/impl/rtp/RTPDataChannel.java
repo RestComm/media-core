@@ -837,7 +837,7 @@ public class RTPDataChannel {
 	
 	public Text getWebRtcLocalFingerprint() {
 		if(this.webRtcHandler != null) {
-			return this.webRtcHandler.getLocalFingerprint();
+			return new Text(this.webRtcHandler.getLocalFingerprint());
 		}
 		return new Text();
 	}
