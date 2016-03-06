@@ -195,48 +195,49 @@ public class RtpHandler implements PacketHandler {
 	     * The version defined by RFC3550 specification is two.
 		 */
 		// Packet must be equal or greater than an RTP Packet Header
-		if(dataLength >= RtpPacket.FIXED_HEADER_SIZE) {
-			// The most significant 2 bits of every RTP message correspond to the version.
-			// Currently supported version is 2 according to RFC3550
-			byte b0 = packet[offset];
-			int version = (b0 & 0xC0) >> 6;
-			
-			if(RtpPacket.VERSION == version) {
-				/*
-				 * When RTP and RTCP packets are multiplexed onto a single port,
-				 * the RTCP packet type field occupies the same position in the
-				 * packet as the combination of the RTP marker (M) bit and the
-				 * RTP payload type (PT). This field can be used to distinguish
-				 * RTP and RTCP packets when two restrictions are observed:
-				 * 
-				 * 1) the RTP payload type values used are distinct from the
-				 * RTCP packet types used.
-				 * 
-				 * 2) for each RTP payload type (PT), PT+128 is distinct from
-				 * the RTCP packet types used. The first constraint precludes a
-				 * direct conflict between RTP payload type and RTCP packet
-				 * type; the second constraint precludes a conflict between an
-				 * RTP data packet with the marker bit set and an RTCP packet.
-				 */
-				int type = packet[offset + 1] & 0xff & 0x7f;
-				int rtcpType = type + 128;
-				
-				// RTP payload types 72-76 conflict with the RTCP SR, RR, SDES, BYE,
-			    // and APP packets defined in the RTP specification
-				switch (rtcpType) {
-				case RtcpHeader.RTCP_SR:
-				case RtcpHeader.RTCP_RR:
-				case RtcpHeader.RTCP_SDES:
-				case RtcpHeader.RTCP_BYE:
-				case RtcpHeader.RTCP_APP:
-					return false;
-				default:
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+        if (dataLength >= RtpPacket.FIXED_HEADER_SIZE) {
+            // The most significant 2 bits of every RTP message correspond to the version.
+            // Currently supported version is 2 according to RFC3550
+            byte b0 = packet[offset];
+            int b0Int = b0 & 0xff;
+
+            // Differentiate between RTP, STUN and DTLS packets in the pipeline
+            // https://tools.ietf.org/html/rfc5764#section-5.1.2
+            if (b0Int > 127 && b0Int < 192) {
+                int version = (b0 & 0xC0) >> 6;
+
+                if (RtpPacket.VERSION == version) {
+                    /*
+                     * When RTP and RTCP packets are multiplexed onto a single port, the RTCP packet type field occupies the
+                     * same position in the packet as the combination of the RTP marker (M) bit and the RTP payload type (PT).
+                     * This field can be used to distinguish RTP and RTCP packets when two restrictions are observed:
+                     * 
+                     * 1) the RTP payload type values used are distinct from the RTCP packet types used.
+                     * 
+                     * 2) for each RTP payload type (PT), PT+128 is distinct from the RTCP packet types used. The first
+                     * constraint precludes a direct conflict between RTP payload type and RTCP packet type; the second
+                     * constraint precludes a conflict between an RTP data packet with the marker bit set and an RTCP packet.
+                     */
+                    int type = packet[offset + 1] & 0xff & 0x7f;
+                    int rtcpType = type + 128;
+
+                    // RTP payload types 72-76 conflict with the RTCP SR, RR, SDES, BYE,
+                    // and APP packets defined in the RTP specification
+                    switch (rtcpType) {
+                        case RtcpHeader.RTCP_SR:
+                        case RtcpHeader.RTCP_RR:
+                        case RtcpHeader.RTCP_SDES:
+                        case RtcpHeader.RTCP_BYE:
+                        case RtcpHeader.RTCP_APP:
+                            return false;
+                        default:
+                            return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 	
 	public byte[] handle(byte[] packet, InetSocketAddress localPeer, InetSocketAddress remotePeer) throws PacketHandlerException {
 		return this.handle(packet, packet.length, 0, localPeer, remotePeer);

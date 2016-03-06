@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.net.SocketException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.io.ice.harvest.HarvestException;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -58,8 +57,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
-	private static final Logger logger = Logger
-			.getLogger(RtpConnectionImpl.class);
+	private static final Logger logger = Logger.getLogger(RtpConnectionImpl.class);
 
 	// Core elements
 	private final ChannelsManager channelsManager;
@@ -89,8 +87,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * @param dspFactory
 	 *            The DSP provider
 	 */
-	public RtpConnectionImpl(int id, ChannelsManager channelsManager,
-			DspFactory dspFactory) {
+	public RtpConnectionImpl(int id, ChannelsManager channelsManager, DspFactory dspFactory) {
 		// Core elements
 		super(id, channelsManager.getScheduler());
 		this.channelsManager = channelsManager;
@@ -103,17 +100,12 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 		// Audio Channel
 		this.audioChannel = this.channelsManager.getAudioChannel();
 		this.audioChannel.setCname(this.cname);
-		this.audioChannel.setRtpListener(this);
 		try {
 			this.audioChannel.setInputDsp(dspFactory.newProcessor());
 			this.audioChannel.setOutputDsp(dspFactory.newProcessor());
-		} catch (InstantiationException | ClassNotFoundException
-				| IllegalAccessException e) {
-			// exception may happen only if invalid classes have been set in
-			// configuration
-			throw new RuntimeException(
-					"There are invalid classes specified in the configuration.",
-					e);
+		} catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+			// exception may happen only if invalid classes have been set in configuration
+			throw new RuntimeException("There are invalid classes specified in the configuration.", e);
 		}
 	}
 
@@ -319,48 +311,33 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 	 * @throws SocketException
 	 *             When binding the audio data channel. Non-WebRTC calls only.
 	 */
-	private void setupAudioChannelInbound(MediaDescriptionField remoteAudio)
-			throws IOException {
-		// Negotiate audio codecs
-		this.audioChannel.negotiateFormats(remoteAudio);
-		if (!this.audioChannel.containsNegotiatedFormats()) {
-			throw new IOException("Audio codecs were not supported");
-		}
+    private void setupAudioChannelInbound(MediaDescriptionField remoteAudio) throws IOException {
+        // Negotiate audio codecs
+        this.audioChannel.negotiateFormats(remoteAudio);
+        if (!this.audioChannel.containsNegotiatedFormats()) {
+            throw new IOException("Audio codecs were not supported");
+        }
 
-		boolean rtcpMux = remoteAudio.isRtcpMux();
-		if (remoteAudio.containsIce()) {
-			/*
-			 * Operate media channel in ICE mode.
-			 * 
-			 * Candidates will be gathered and chosen via STUN handshake. The
-			 * underlying datagram channel of the selected candidate will be set
-			 * directly in the MediaChannel.
-			 */
-			try {
-				this.audioChannel.enableICE(
-						this.channelsManager.getExternalAddress(), rtcpMux);
-				this.audioChannel.gatherIceCandidates(this.channelsManager
-						.getPortManager());
-				this.audioChannel.startIceAgent();
-			} catch (HarvestException | IllegalStateException e) {
-				throw new IOException("Cannot harvest ICE candidates", e);
-			}
-		} else {
-			// ICE is not active. Bind RTP and RTCP channels right now.
-			String remoteAddr = remoteAudio.getConnection().getAddress();
-			this.audioChannel.bind(this.local, rtcpMux);
-			this.audioChannel.connectRtp(remoteAddr, remoteAudio.getPort());
-			this.audioChannel
-					.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
-		}
+        // Bind audio channel to an address provided by UdpManager
+        this.audioChannel.bind(this.local, remoteAudio.isRtcpMux());
 
-		// Check whether SRTP should be active
-		if (this.remoteSdp.containsDtls()) {
-			FingerprintAttribute fingerprint = this.remoteSdp.getFingerprint(audioChannel.getMediaType());
-			this.audioChannel.enableDTLS(fingerprint.getHashFunction(),
-					fingerprint.getFingerprint());
-		}
-	}
+        boolean enableIce = remoteAudio.containsIce();
+        if (enableIce) {
+            // Enable ICE. Wait for ICE handshake to finish before connecting RTP/RTCP channels
+            this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), remoteAudio.isRtcpMux());
+        } else {
+            String remoteAddr = remoteAudio.getConnection().getAddress();
+            this.audioChannel.connectRtp(remoteAddr, remoteAudio.getPort());
+            this.audioChannel.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
+        }
+
+        // Enable DTLS according to remote SDP description
+        boolean enableDtls = this.remoteSdp.containsDtls();
+        if (enableDtls) {
+            FingerprintAttribute fingerprint = this.remoteSdp.getFingerprint(audioChannel.getMediaType());
+            this.audioChannel.enableDTLS(fingerprint.getHashFunction(), fingerprint.getFingerprint());
+        }
+    }
 
 	/**
 	 * Reads the remote SDP answer and sets up the proper media channels.
@@ -434,17 +411,11 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
             // setup audio channel
             this.audioChannel.open();
+            this.audioChannel.bind(this.local, false);
+
             if (webrtc) {
-                try {
-                    this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), true);
-                    this.audioChannel.gatherIceCandidates(this.channelsManager.getPortManager());
-                    this.audioChannel.startIceAgent();
-                    this.audioChannel.enableDTLS();
-                } catch (HarvestException | IllegalStateException e) {
-                    throw new IOException("Cannot harvest ICE candidates", e);
-                }
-            } else {
-                this.audioChannel.bind(this.local, false);
+                this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), true);
+                this.audioChannel.enableDTLS();
             }
 
             // generate SDP offer based on audio channel

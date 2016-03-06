@@ -28,11 +28,14 @@ import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.io.ice.IceAuthenticator;
-import org.mobicents.media.io.ice.network.stun.StunHandler;
+import org.mobicents.media.io.ice.IceComponent;
+import org.mobicents.media.io.ice.IceHandler;
+import org.mobicents.media.io.ice.events.IceEventListener;
+import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.server.impl.rtp.RtpListener;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
-import org.mobicents.media.server.impl.srtp.DtlsListener;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
+import org.mobicents.media.server.impl.srtp.DtlsListener;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.utils.Text;
@@ -43,7 +46,7 @@ import org.mobicents.media.server.utils.Text;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
+public class RtcpChannel extends MultiplexedChannel implements DtlsListener, IceEventListener {
 
 	private static final Logger logger = Logger.getLogger(RtcpChannel.class);
 
@@ -61,9 +64,10 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 	
 	private RtcpHandler rtcpHandler;
 	private DtlsHandler dtlsHandler;
-	private StunHandler stunHandler;
+	private IceHandler stunHandler;
 	
 	// WebRTC
+	private boolean ice;
 	private boolean secure;
 	
 	// Listeners
@@ -82,6 +86,8 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 
 		// Protocol Handler pipeline
 		this.rtcpHandler = new RtcpHandler(udpManager.getScheduler(), statistics);
+		this.dtlsHandler = new DtlsHandler();
+        this.stunHandler = new IceHandler(IceComponent.RTCP_ID, this);
 		
 		// WebRTC
 		this.secure = false;
@@ -207,67 +213,66 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		return secure;
 	}
 	
-	public void enableSRTCP(String hashFunction, String remotePeerFingerprint, IceAuthenticator authenticator) {
-		this.secure = true;
-		
-		// setup the DTLS handler
-		if(this.dtlsHandler == null) {
-			this.dtlsHandler = new DtlsHandler();
-		}
-		this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
-		
-		// setup the SRTCP handler
-		this.rtcpHandler.enableSRTCP(this.dtlsHandler);
-
-		// setup the STUN handler
-		if (this.stunHandler == null) {
-			this.stunHandler = new StunHandler(authenticator);
-		} else {
-			this.stunHandler.setIceAuthenticator(authenticator);
-		}
-		this.handlers.addHandler(stunHandler);
+	public void enableIce(IceAuthenticator authenticator) {
+	    if(!this.ice) {
+	        this.ice = true;
+	        this.stunHandler.setAuthenticator(authenticator);
+	        this.handlers.addHandler(this.stunHandler);
+	    }
 	}
+	
+    public void disableIce() {
+        if(this.ice) {
+            this.ice = false;
+            this.handlers.removeHandler(this.stunHandler);
+        }
+    }
+	
+    public void enableSRTCP(String hashFunction, String remotePeerFingerprint) {
+        if (!this.secure) {
+            this.secure = true;
+            this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
 
-	public void enableSRTCP(IceAuthenticator authenticator) {
-	    this.secure = true;
-	    
-	    // setup the DTLS handler
-	    if(this.dtlsHandler == null) {
-	        this.dtlsHandler = new DtlsHandler();
-	    }
-	    
-	    // setup the SRTCP handler
-	    this.rtcpHandler.enableSRTCP(this.dtlsHandler);
-	    
-	    // setup the STUN handler
-	    if (this.stunHandler == null) {
-	        this.stunHandler = new StunHandler(authenticator);
-	    } else {
-	        this.stunHandler.setIceAuthenticator(authenticator);
-	    }
-	    this.handlers.addHandler(stunHandler);
+            // setup the SRTCP handler
+            this.rtcpHandler.enableSRTCP(this.dtlsHandler);
+
+            // Add handler to pipeline to handle incoming DTLS packets
+            this.dtlsHandler.setChannel(this.dataChannel);
+            this.handlers.addHandler(this.dtlsHandler);
+        }
+    }
+
+	public void enableSRTCP() {
+        if (!this.secure) {
+            this.secure = true;
+
+            // setup the SRTCP handler
+            this.rtcpHandler.enableSRTCP(this.dtlsHandler);
+
+            // Add handler to pipeline to handle incoming DTLS packets
+            this.dtlsHandler.setChannel(this.dataChannel);
+            this.handlers.addHandler(this.dtlsHandler);
+        }
 	}
 	
     public void setRemoteFingerprint(String hashFunction, String fingerprint) {
         this.dtlsHandler.setRemoteFingerprint(hashFunction, fingerprint);
     }
 
-	public void disableSRTCP() {
-		this.secure = false;
-		
-		// setup the DTLS handler
-		if(this.dtlsHandler != null) {
-			this.dtlsHandler.setRemoteFingerprint("", "");
-		}
-		
-		// setup the SRTCP handler
-		this.rtcpHandler.disableSRTCP();
-		
-		// setup the STUN handler
-		if (this.stunHandler != null) {
-			this.handlers.removeHandler(this.stunHandler);
-		}
-	}
+    public void disableSRTCP() {
+        if (this.secure) {
+            this.secure = false;
+
+            // setup the DTLS handler
+            if (this.dtlsHandler != null) {
+                this.dtlsHandler.setRemoteFingerprint("", "");
+            }
+            this.dtlsHandler.resetLocalFingerprint();
+
+            // setup the SRTCP handler
+            this.rtcpHandler.disableSRTCP();
+        }
+    }
 	
 	public Text getDtlsLocalFingerprint() {
 		if(this.secure) {
@@ -289,11 +294,19 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 		this.rtcpHandler.leaveRtpSession();
 		this.bound = false;
 		super.close();
+		reset();
 	}
 	
 	public void reset() {
 		this.rtcpHandler.reset();
+		
+		if(this.ice) {
+		    disableIce();
+		    this.stunHandler.reset();
+		}
+		
 		if(this.secure) {
+		    disableSRTCP();
 			this.dtlsHandler.reset();
 		}
 	}
@@ -309,5 +322,20 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener {
 			this.rtpListener.onRtcpFailure(e);
 		}
 	}
+
+    @Override
+    public void onSelectedCandidates(SelectedCandidatesEvent event) {
+        try {
+            // Connect channel to start receiving traffic from remote peer
+            this.connect(event.getRemotePeer());
+
+            if (this.secure) {
+                // Start DTLS handshake
+                this.dtlsHandler.handshake();
+            }
+        } catch (IOException e) {
+            this.rtpListener.onRtcpFailure(e);
+        }
+    }
 	
 }

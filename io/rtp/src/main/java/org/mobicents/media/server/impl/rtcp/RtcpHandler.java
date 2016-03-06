@@ -285,24 +285,31 @@ public class RtcpHandler implements PacketHandler {
 
     @Override
     public boolean canHandle(byte[] packet, int dataLength, int offset) {
-        // RTP version field must equal 2
-        int version = (packet[offset] & 0xC0) >> 6;
-        if (version == RtpPacket.VERSION) {
-            // The payload type field of the first RTCP packet in a compound
-            // packet must be equal to SR or RR.
-            int type = packet[offset + 1] & 0x000000FF;
-            if (type == RtcpHeader.RTCP_SR || type == RtcpHeader.RTCP_RR) {
-                /*
-                 * The padding bit (P) should be zero for the first packet of a compound RTCP packet because padding should only
-                 * be applied, if it is needed, to the last packet.
-                 */
-                int padding = (packet[offset] & 0x20) >> 5;
-                if (padding == 0) {
+        byte b0 = packet[offset];
+        int b0Int = b0 & 0xff;
+
+        // Differentiate between RTP, STUN and DTLS packets in the pipeline
+        // https://tools.ietf.org/html/rfc5764#section-5.1.2
+        if (b0Int > 127 && b0Int < 192) {
+            // RTP version field must equal 2
+            int version = (b0 & 0xC0) >> 6;
+            if (version == RtpPacket.VERSION) {
+                // The payload type field of the first RTCP packet in a compound
+                // packet must be equal to SR or RR.
+                int type = packet[offset + 1] & 0x000000FF;
+                if (type == RtcpHeader.RTCP_SR || type == RtcpHeader.RTCP_RR) {
                     /*
-                     * TODO The length fields of the individual RTCP packets must add up to the overall length of the compound
-                     * RTCP packet as received. This is a fairly strong check.
+                     * The padding bit (P) should be zero for the first packet of a compound RTCP packet because padding should
+                     * only be applied, if it is needed, to the last packet.
                      */
-                    return true;
+                    int padding = (packet[offset] & 0x20) >> 5;
+                    if (padding == 0) {
+                        /*
+                         * TODO The length fields of the individual RTCP packets must add up to the overall length of the
+                         * compound RTCP packet as received. This is a fairly strong check.
+                         */
+                        return true;
+                    }
                 }
             }
         }

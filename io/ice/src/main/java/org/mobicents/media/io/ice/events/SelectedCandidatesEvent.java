@@ -20,25 +20,39 @@
 
 package org.mobicents.media.io.ice.events;
 
+import java.net.SocketAddress;
+
 import org.mobicents.media.io.ice.IceAgent;
 
 /**
- * Event that must be fired when an ICE Agent finishes selecting all candidate
- * pairs.
+ * Event that must be fired when an ICE Agent finishes selecting all candidate pairs.
  * 
  * @author Henrique Rosa
  * 
  */
 public class SelectedCandidatesEvent {
 
-	private final IceAgent source;
+    @Deprecated
+    private IceAgent source;
 
-	public SelectedCandidatesEvent(IceAgent source) {
-		this.source = source;
-	}
+    private SocketAddress remotePeer;
 
-	public IceAgent getSource() {
-		return source;
-	}
+    public SelectedCandidatesEvent(SocketAddress remotePeer) {
+        this.remotePeer = remotePeer;
+    }
+
+    @Deprecated
+    public SelectedCandidatesEvent(IceAgent source) {
+        this.source = source;
+    }
+
+    @Deprecated
+    public IceAgent getSource() {
+        return source;
+    }
+
+    public SocketAddress getRemotePeer() {
+        return remotePeer;
+    }
 
 }
