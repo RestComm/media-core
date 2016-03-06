@@ -388,7 +388,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
             throw new IllegalStateException("Handshake is taking too long! (>" + MAX_DELAY + "ms");
         }
 
-        int attempts = 5;
+        int attempts = 20;
         do {
             ByteBuffer data = this.rxQueue.poll();
             if (data != null) {
@@ -397,7 +397,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
             }
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 logger.warn("Could not sleep thread to receive DTLS data.");
             } finally {
