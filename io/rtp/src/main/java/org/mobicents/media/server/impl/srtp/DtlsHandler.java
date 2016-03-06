@@ -325,6 +325,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
         this.handshakeFailed = false;
         this.handshaking = false;
         this.startTime = 0L;
+        this.listeners.clear();
     }
 
     @Override

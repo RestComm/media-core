@@ -145,8 +145,8 @@ public class RtpChannelTest {
         channel2.setOutputFormats(fmts);
         channel2.setInputDsp(dsp22);        
         
-        channel1.bind(false);
-        channel2.bind(false);
+        channel1.bind(false, false);
+        channel2.bind(false, false);
 
         channel1.setRemotePeer(new InetSocketAddress("127.0.0.1", channel2.getLocalPort()));
         channel2.setRemotePeer(new InetSocketAddress("127.0.0.1", channel1.getLocalPort()));

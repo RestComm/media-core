@@ -296,7 +296,6 @@ public abstract class MediaChannel {
 		// Reset channels
 		if (this.rtcpMux) {
 			this.rtcpMux = false;
-			this.rtpChannel.enableRtcpMux(false);
 		}
 
 		// Reset ICE
@@ -442,7 +441,7 @@ public abstract class MediaChannel {
 	 *             When channel cannot be bound to an address.
 	 */
 	public void bind(boolean isLocal, boolean rtcpMux) throws IOException, IllegalStateException {
-		this.rtpChannel.bind(isLocal);
+		this.rtpChannel.bind(isLocal, rtcpMux);
 		if(!rtcpMux) {
 			this.rtcpChannel.bind(isLocal, this.rtpChannel.getLocalPort() + 1);
 		}

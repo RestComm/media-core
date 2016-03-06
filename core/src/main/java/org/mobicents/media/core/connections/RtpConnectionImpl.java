@@ -411,7 +411,7 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener {
 
             // setup audio channel
             this.audioChannel.open();
-            this.audioChannel.bind(this.local, false);
+            this.audioChannel.bind(this.local, webrtc);
 
             if (webrtc) {
                 this.audioChannel.enableICE(this.channelsManager.getExternalAddress(), true);

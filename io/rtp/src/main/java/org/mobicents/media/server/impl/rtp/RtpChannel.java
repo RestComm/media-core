@@ -301,10 +301,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
         this.rtpHandler.useJitterBuffer(useJitterBuffer);
         this.handlers.addHandler(this.rtpHandler);
 
-//        if (this.rtcpMux) {
-//            this.rtcpHandler.setChannel(this.dataChannel);
-//            this.handlers.addHandler(this.rtcpHandler);
-//        }
+        if (this.rtcpMux) {
+            this.rtcpHandler.setChannel(this.dataChannel);
+            this.handlers.addHandler(this.rtcpHandler);
+        }
 //
 //        if (this.secure) {
 //            this.dtlsHandler.setPipelinePriority(DTLS_PRIORITY);
@@ -317,17 +317,19 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
 //        }
     }
 
-    public void bind(boolean isLocal) throws IOException {
+    public void bind(boolean isLocal, boolean rtcpMux) throws IOException {
         // Open this channel with UDP Manager on first available address
         this.selectionKey = udpManager.open(this);
         this.dataChannel = (DatagramChannel) this.selectionKey.channel();
 
-        // activate media elements
-        onBinding(!isLocal);
-
         // bind data channel
         this.udpManager.bind(this.dataChannel, PORT_ANY, isLocal);
+
+        this.rtcpMux = true;
         this.bound = true;
+
+        // activate media elements
+        onBinding(!isLocal);
     }
 
     @Deprecated
@@ -432,6 +434,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
         if (!this.secure) {
             this.secure = true;
             this.dtlsHandler.setRemoteFingerprint(hashFunction, remotePeerFingerprint);
+            this.dtlsHandler.addListener(this);
 
             // Setup the RTP handler
             this.transmitter.enableSrtp(this.dtlsHandler);
@@ -463,6 +466,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
             
             // Add handler to pipeline to handle incoming DTLS packets
             this.dtlsHandler.setChannel(this.dataChannel);
+            this.dtlsHandler.addListener(this);
             this.handlers.addHandler(this.dtlsHandler);
         }
     }
@@ -491,15 +495,6 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
         }
     }
 
-    /**
-     * Configures whether rtcp-mux is active in this channel or not.
-     * 
-     * @param enable decides whether rtcp-mux is to be enabled
-     */
-    public void enableRtcpMux(boolean enable) {
-        this.rtcpMux = enable;
-    }
-
     public Text getWebRtcLocalFingerprint() {
         if (this.secure) {
             return new Text(this.dtlsHandler.getLocalFingerprint());
@@ -523,11 +518,13 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
         heartBeat.cancel();
 
         // RTP reset
+        this.handlers.removeHandler(this.rtpHandler);
         this.rtpHandler.reset();
         this.transmitter.reset();
 
         // RTCP reset
         if (this.rtcpMux) {
+            this.handlers.removeHandler(this.rtcpHandler);
             this.rtcpHandler.reset();
         }
         
