@@ -181,8 +181,8 @@ public class NioServer {
 									if(response != null && key.isWritable()) {
 										send(currentChannel, response, buffer);
 									}
-								} catch (PacketHandlerException e) {
-									logger.error("Could not process incoming packet. Packet will be dropped.");
+								} catch (Exception e) {
+									logger.error("An error occurred processing incoming packet.", e);
 								}
 							} else {
 								logger.warn("No handler found to process incoming packet. Packet will be dropped.");
