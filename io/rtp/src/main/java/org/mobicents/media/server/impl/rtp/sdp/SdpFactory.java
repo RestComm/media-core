@@ -19,12 +19,8 @@
  */
 package org.mobicents.media.server.impl.rtp.sdp;
 
-import java.util.List;
-
-import org.mobicents.media.io.ice.CandidateType;
 import org.mobicents.media.io.ice.IceCandidate;
 import org.mobicents.media.io.ice.IceComponent;
-import org.mobicents.media.io.ice.LocalCandidateWrapper;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannel;
 import org.mobicents.media.server.io.sdp.MediaProfile;
@@ -305,14 +301,16 @@ public class SdpFactory {
 	private static CandidateAttribute processSrflxCandidate(MediaChannel candidate, short componentId) {
 	    CandidateAttribute candidateSdp = processHostCandidate(candidate, componentId);
 	    candidateSdp.setCandidateType(CandidateAttribute.TYP_SRFLX);
-        candidateSdp.setRelatedAddress(candidate.getExternalAddress());
+        candidateSdp.setAddress(candidate.getExternalAddress());
         
         switch (componentId) {
             case IceComponent.RTP_ID:
+                candidateSdp.setRelatedAddress(candidate.getRtpAddress());
                 candidateSdp.setRelatedPort(candidate.getRtpPort());
                 break;
                 
             case IceComponent.RTCP_ID:
+                candidateSdp.setRelatedPort(candidate.getRtcpPort());
                 candidateSdp.setRelatedPort(candidate.getRtcpPort());
                 break;
 
