@@ -510,7 +510,7 @@ public class RtcpHandler implements PacketHandler {
             try {
                 onExpire();
             } catch (IOException e) {
-                logger.error("An error occurred while executing a scheduled task: "+ e.getMessage() +". Stopping handler.");
+                logger.error("Cannot send scheduled RTCP report. Stopping handler.");
                 reset();
             }
         }

@@ -142,21 +142,23 @@ public class MultiplexedChannel implements Channel {
 		}
 	}
 	
-	protected void flush() {
-		if(this.dataChannel != null && this.dataChannel.isOpen()) {
-			try {
-				// lets clear the receiver
-				SocketAddress currAddress;
-				this.receiveBuffer.clear();
-				do {
-					currAddress = this.dataChannel.receive(this.receiveBuffer);
-					this.receiveBuffer.clear();
-				} while(currAddress != null);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+    protected void flush() {
+        try {
+            this.receiveBuffer.clear();
+            // lets clear the receiver
+            SocketAddress currAddress = null;
+            do {
+                if (this.dataChannel != null && this.dataChannel.isOpen()) {
+                    currAddress = this.dataChannel.receive(this.receiveBuffer);
+                    this.receiveBuffer.clear();
+                } else {
+                    currAddress = null;
+                }
+            } while (currAddress != null);
+        } catch (Exception e) {
+            logger.warn("Stopped flushing the channel abruptly: " + e.getMessage());
+        }
+    }
 	
 	@Override
 	public void receive() throws IOException {
