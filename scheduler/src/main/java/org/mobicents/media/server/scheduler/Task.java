@@ -127,10 +127,9 @@ public abstract class Task implements Runnable {
     				}
     				
     			} catch (Exception e) {
+    			    logger.error("An error occurred while executing a scheduled task: " + e.getMessage());
     				if (this.listener != null) 
     					listener.handlerError(e);
-    				else
-    					logger.error(e.getMessage(), e);
     			}
     		}      		    		    	
     }

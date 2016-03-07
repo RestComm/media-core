@@ -296,10 +296,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
      * @throws IOException 
      */
     private void writeToWaveFile() throws IOException {
-    	if(getEndpoint()==null)
-    		logger.info("!!!!!!!!!! Writting to file......................");
-    	else
-    		logger.info("(" + getEndpoint().getLocalName() + ") !!!!!!!!!! Writting to file......................");
+        String endpointName = getEndpoint() == null ? "" : getEndpoint().getLocalName();
+        logger.info(endpointName + " !!!!!!!!!! Writting to file......................");
     	
         //stop called on inactive recorder
         if (fout == null) {
@@ -313,10 +311,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         fout = new FileOutputStream(file);
         
         int size = fin.available();
-        if(getEndpoint()==null)
-        	logger.info("!!!!!!!!!! Size=" + size);
-        else
-        	logger.info("(" + getEndpoint().getLocalName() + ") !!!!!!!!!! Size=" + size);
+        logger.info(endpointName + " !!!!!!!!!! Size=" + size);
         
 		headerBuffer.clear();		
         //RIFF
@@ -401,10 +396,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         //lets write data
         FileChannel inChannel=fin.getChannel();
         outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());
-        if(getEndpoint()==null)
-        	logger.info("Was copied " + inChannel.size()  + " bytes");
-        else
-        	logger.info("(" + getEndpoint().getLocalName() + ") Was copied " + inChannel.size()  + " bytes");        
+        logger.info(endpointName + " !!!!!!!!!! Was copied " + inChannel.size()  + " bytes");        
         
         
         fout.flush();
