@@ -40,7 +40,6 @@ import org.mobicents.media.server.io.sdp.fields.TimingField;
 import org.mobicents.media.server.io.sdp.fields.VersionField;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
-import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.io.sdp.ice.attributes.CandidateAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IceLiteAttribute;
 import org.mobicents.media.server.io.sdp.ice.attributes.IcePwdAttribute;
@@ -203,10 +202,9 @@ public class SdpFactory {
 		}
 
 		// Media formats
-		RTPFormats negotiatedFormats = channel.getFormats();
-		negotiatedFormats.rewind();
-		while (negotiatedFormats.hasMore()) {
-			RTPFormat f = negotiatedFormats.next();
+		RTPFormat[] negotiatedFormats = channel.getFormats().toArray();
+		for (int index = 0; index < negotiatedFormats.length; index++) {
+			RTPFormat f = negotiatedFormats[index];
 			// Fixes #61 - MMS SDP offer should offer only 101 telephone-event
 			if(offer && AVProfile.isDtmf(f) && !AVProfile.isDefaultDtmf(f)) {
 			    continue;
