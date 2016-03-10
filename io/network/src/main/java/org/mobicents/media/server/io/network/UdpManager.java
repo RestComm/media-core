@@ -316,6 +316,7 @@ public class UdpManager {
         return key;
     }
 
+    @Deprecated
     public SelectionKey open(DatagramChannel dataChannel, Channel channel) throws IOException {
         // Get a selector
         int index = currSelectorIndex.getAndIncrement();
@@ -339,7 +340,7 @@ public class UdpManager {
         handler.setKey(key);
     }
 
-    public void bind(DatagramChannel channel, int port, boolean local) throws SocketException {
+    public void bind(DatagramChannel channel, int port, boolean local) throws IOException {
         if (local) {
             bindLocal(channel, port);
         } else {
@@ -352,22 +353,22 @@ public class UdpManager {
      * 
      * @param channel the channel
      * @param port the port to bind to
-     * @throws SocketException
+     * @throws IOException
      */
-    public void bind(DatagramChannel channel, int port) throws SocketException {
+    public void bind(DatagramChannel channel, int port) throws IOException {
         // select port if wildcarded
         if (port == PORT_ANY) {
             port = portManager.next();
         }
 
         // try bind
-        SocketException ex = null;
+        IOException ex = null;
         for (int q = 0; q < 100; q++) {
             try {
-                channel.socket().bind(new InetSocketAddress(bindAddress, port));
+                channel.bind(new InetSocketAddress(bindAddress, port));
                 ex = null;
                 break;
-            } catch (SocketException e) {
+            } catch (IOException e) {
                 ex = e;
                 logger.info("Failed trying to bind " + bindAddress + ":" + port);
                 port = portManager.next();
@@ -384,22 +385,22 @@ public class UdpManager {
      * 
      * @param channel the channel
      * @param port the port to bind to
-     * @throws SocketException
+     * @throws IOException
      */
-    public void bindLocal(DatagramChannel channel, int port) throws SocketException {
+    public void bindLocal(DatagramChannel channel, int port) throws IOException {
         // select port if wildcarded
         if (port == PORT_ANY) {
             port = localPortManager.next();
         }
 
         // try bind
-        SocketException ex = null;
+        IOException ex = null;
         for (int q = 0; q < 100; q++) {
             try {
-                channel.socket().bind(new InetSocketAddress(localBindAddress, port));
+                channel.bind(new InetSocketAddress(localBindAddress, port));
                 ex = null;
                 break;
-            } catch (SocketException e) {
+            } catch (IOException e) {
                 ex = e;
                 logger.info("Failed trying to bind " + localBindAddress + ":" + port);
                 port = localPortManager.next();
@@ -497,7 +498,11 @@ public class UdpManager {
             if (active) {
                 // select channels ready for IO and ignore error
                 try {
-                    localSelector.selectNow();
+                    int selected = localSelector.selectNow();
+                    if(selected == 0) {
+                        return;
+                    }
+                    
                     Iterator<SelectionKey> it = localSelector.selectedKeys().iterator();
                     while (it.hasNext() && active) {
                         SelectionKey key = it.next();
@@ -542,7 +547,7 @@ public class UdpManager {
                         }
                     }
                     localSelector.selectedKeys().clear();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     logger.error("Error while reading from channel", e);
                 }
             }

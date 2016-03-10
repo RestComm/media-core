@@ -127,10 +127,10 @@ public abstract class Task implements Runnable {
     				}
     				
     			} catch (Exception e) {
-    				if (this.listener != null) 
+    			    logger.error("Could not execute task " + this.taskId + ": "+ e.getMessage(), e);
+    				if (this.listener != null) {
     					listener.handlerError(e);
-    				else
-    					logger.error(e.getMessage(), e);
+    				} 
     			}
     		}      		    		    	
     }

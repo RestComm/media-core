@@ -418,7 +418,7 @@ public class PriorityQueueScheduler  {
     				}
     				catch(Exception ex)
     				{
-    					
+    					logger.warn("Could not poll waiting task in timely fashion. Will keep trying.");
     				}    				
     			}
     			current.run();

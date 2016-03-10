@@ -165,10 +165,10 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener, Ice
 	 * @param port
 	 *            The RTCP port. Usually the RTP channel gets the even port and
 	 *            RTCP channel get the next port.
-	 * @throws SocketException
+	 * @throws IOException
 	 *             When the channel cannot be openend or bound
 	 */
-	public void bind(boolean isLocal, int port) throws SocketException {
+	public void bind(boolean isLocal, int port) throws IOException {
 		try {
 			// Open this channel with UDP Manager on first available address
 			this.selectionKey = udpManager.open(this);
@@ -185,6 +185,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener, Ice
 		this.bound = true;
 	}
 
+	@Deprecated
 	public void bind(DatagramChannel channel) throws SocketException {
 		// External channel must be bound already
 		if (!channel.socket().isBound()) {
