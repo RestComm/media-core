@@ -24,7 +24,8 @@ package org.mobicents.media.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.endpoints.BaseEndpointImpl;
@@ -64,7 +65,7 @@ public class Server implements MediaServer {
     private ArrayList<EndpointInstaller> installers = new ArrayList<EndpointInstaller>();
     
     //endpoints
-    private HashMap<String, Endpoint> endpoints = new HashMap<String, Endpoint>();
+    private Map<String, Endpoint> endpoints = new ConcurrentHashMap<>();
     
     //managers
     private ArrayList<ServerManager> managers = new ArrayList<ServerManager>();
