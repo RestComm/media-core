@@ -25,13 +25,14 @@ package org.mobicents.media.core.endpoints;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 
 /**
- * Endpoint installer is used for automatic creation and instalation of
+ * Endpoint installer is used for automatic creation and installation of
  * endpoints.
  * 
  * It uses three parameters: the name pattern, class name and configuration
@@ -39,12 +40,14 @@ import org.mobicents.media.server.spi.EndpointInstaller;
  * @author yulian oifa
  */
 public class VirtualEndpointInstaller implements EndpointInstaller {
+    
+    private static final Logger logger = Logger.getLogger(VirtualEndpointInstaller.class);
 
 	private String namePattern;
 	private String endpointClass;
 	protected Integer initialSize;
 
-	protected EndpointNameGenerator nameParser;
+	protected final EndpointNameGenerator nameParser;
 	protected Server server;
 
 	protected AtomicInteger lastEndpointID = new AtomicInteger(1);
@@ -125,7 +128,6 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 
 	@Override
 	public void install() {
-		ClassLoader loader = Server.class.getClassLoader();
 		for (int i = 0; i < initialSize; i++) {
 			newEndpoint();
 		}
@@ -136,11 +138,11 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 		ClassLoader loader = Server.class.getClassLoader();
 		nameParser.setPattern(namePattern);
 		try {
-			Constructor constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
+			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
 			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
 			server.install(endpoint, this);
 		} catch (Exception e) {
-			server.logger.error("Couldn't instantiate endpoint", e);
+			logger.error("Couldn't instantiate endpoint", e);
 		}
 	}
 
