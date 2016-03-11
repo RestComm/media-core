@@ -505,11 +505,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
     public void close() {
         if (rtcpMux) {
             this.rtcpHandler.leaveRtpSession();
-            reset();
-        } else {
-            super.close();
-            reset();
         }
+
+        super.close();
+        reset();
         this.bound = false;
     }
 

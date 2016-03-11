@@ -195,7 +195,12 @@ public class RtcpHandler implements PacketHandler {
             if(this.reportTaskFuture != null) {
                 this.reportTaskFuture.cancel(true);
             }
-            scheduleNow(RtcpPacketType.RTCP_BYE);
+            
+            // Send BYE
+            // Do not run in separate thread so channel can be properly closed by the owner of this handler
+            this.statistics.setRtcpPacketType(RtcpPacketType.RTCP_BYE);
+            this.scheduledTask = new TxTask(RtcpPacketType.RTCP_BYE);
+            this.scheduledTask.run();
         }
     }
 
@@ -578,23 +583,15 @@ public class RtcpHandler implements PacketHandler {
                     t = 0;
                     tn = tp + t;
 
-//                    if (tn <= tc) {
-                        // Send BYE and stop scheduling further packets
-                        RtcpPacket bye = RtcpPacketFactory.buildBye(statistics);
+                    // Send BYE and stop scheduling further packets
+                    RtcpPacket bye = RtcpPacketFactory.buildBye(statistics);
 
-                        // Set the avg_packet_size to the size of the compound BYE packet
-                        statistics.setRtcpAvgSize(bye.getSize());
+                    // Set the avg_packet_size to the size of the compound BYE packet
+                    statistics.setRtcpAvgSize(bye.getSize());
 
-                        // Send the BYE and close channel
-                        sendRtcpPacket(bye);
-                        closeChannel();
-                        reset();
-                        return;
-//                    } else {
-                        // Delay BYE
-//                        scheduleRtcp(tn, RtcpPacketType.RTCP_BYE);
-//                    }
-//                    break;
+                    // Send the BYE and close channel
+                    sendRtcpPacket(bye);
+                    break;
 
                 default:
                     logger.warn("Unkown scheduled event type!");
