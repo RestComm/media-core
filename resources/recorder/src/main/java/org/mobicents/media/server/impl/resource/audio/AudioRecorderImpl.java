@@ -167,34 +167,31 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
             return;
         }
 
-        output.stop();
-        oobOutput.stop();
-        this.maxRecordTime = -1;
-        this.lastPacketData = 0;
-        this.startTime = 0;
-
-        this.heartbeat.cancel();
-
         try {
+            output.stop();
+            oobOutput.stop();
+            this.maxRecordTime = -1;
+            this.lastPacketData = 0;
+            this.startTime = 0;
+
+            this.heartbeat.cancel();
+
             writeToWaveFile();
-        } catch (IOException e) {
-            if (getEndpoint() == null) {
-                logger.error(e);
-            } else {
-                logger.error("(" + getEndpoint().getLocalName() + ")", e);
-            }
+        } catch (Exception e) {
+            String endpointName = getEndpoint() == null ? "" : getEndpoint().getLocalName();
+            logger.error(endpointName + " !!!!!! Error writing to file", e);
+        } finally {
+            // send event
+            recorderStopped.setQualifier(qualifier);
+            fireEvent(recorderStopped);
+
+            // clean qualifier
+            this.qualifier = 0;
+            this.maxRecordTime = -1L;
+            this.postSpeechTimer = -1L;
+            this.preSpeechTimer = -1L;
+            this.speechDetected = false;
         }
-
-        // send event
-        recorderStopped.setQualifier(qualifier);
-        fireEvent(recorderStopped);
-
-        // clean qualifier
-        this.qualifier = 0;
-        this.maxRecordTime = -1L;
-        this.postSpeechTimer = -1L;
-        this.preSpeechTimer = -1L;
-        this.speechDetected = false;
     }
 
     @Override
