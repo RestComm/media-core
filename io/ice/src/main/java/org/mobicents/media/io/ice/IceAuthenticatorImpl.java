@@ -37,12 +37,16 @@ public class IceAuthenticatorImpl implements IceAuthenticator {
     protected String remoteUfrag;
     protected String remotePassword;
 
+    private final StringBuilder builder;
+
     public IceAuthenticatorImpl() {
         this.random = new SecureRandom();
         this.ufrag = "";
         this.password = "";
         this.remoteUfrag = "";
         this.remotePassword = "";
+
+        this.builder = new StringBuilder();
     }
 
     public String getUfrag() {
@@ -70,8 +74,24 @@ public class IceAuthenticatorImpl implements IceAuthenticator {
     }
 
     public void generateIceCredentials() {
-        this.ufrag = new BigInteger(24, this.random).toString(32);
-        this.password = new BigInteger(128, this.random).toString(32);
+        this.ufrag = generateIceCredential(24, 4, 256);
+        this.password = generateIceCredential(128, 22, 256);
+    }
+    
+    private String generateIceCredential(int numBits, int min, int max) {
+        // Clean string builder
+        this.builder.setLength(0);
+        
+        // Generate random strings until minimum size is satisfied
+        do {
+            this.builder.append(new BigInteger(numBits, this.random).toString(32));
+        } while(this.builder.length() < min);
+        
+        // Trim string if it surpasses maximum size
+        if(builder.length() > max) {
+            builder.setLength(max);
+        }
+        return this.builder.toString();
     }
 
     @Override
