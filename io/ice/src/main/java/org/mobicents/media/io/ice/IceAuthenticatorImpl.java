@@ -73,22 +73,37 @@ public class IceAuthenticatorImpl implements IceAuthenticator {
         this.remotePassword = remotePassword;
     }
 
+    /**
+     * The ice-ufrag and ice-pwd attributes MUST be chosen randomly at the beginning of a session.
+     * 
+     * <p>
+     * The ice-ufrag attribute MUST contain at least 24 bits of randomness, and the ice-pwd attribute MUST contain at least 128
+     * bits of randomness.<br>
+     * This means that the ice-ufrag attribute will be at least 4 characters long, and the ice-pwd at least 22 characters long,
+     * since the grammar for these attributes allows for 6 bits of randomness per character. <br>
+     * The attributes MAY be longer than 4 and 22 characters, respectively, of course, up to 256 characters. The upper limit
+     * allows for buffer sizing in implementations. Its large upper limit allows for increased amounts of randomness to be added
+     * over time.
+     * </p>
+     * 
+     * @see <a href="https://tools.ietf.org/html/rfc5245#section-15.4">RFC 5245</a>
+     */
     public void generateIceCredentials() {
         this.ufrag = generateIceCredential(24, 4, 256);
         this.password = generateIceCredential(128, 22, 256);
     }
-    
+
     private String generateIceCredential(int numBits, int min, int max) {
         // Clean string builder
         this.builder.setLength(0);
-        
+
         // Generate random strings until minimum size is satisfied
         do {
             this.builder.append(new BigInteger(numBits, this.random).toString(32));
-        } while(this.builder.length() < min);
-        
+        } while (this.builder.length() < min);
+
         // Trim string if it surpasses maximum size
-        if(builder.length() > max) {
+        if (builder.length() > max) {
             builder.setLength(max);
         }
         return this.builder.toString();
