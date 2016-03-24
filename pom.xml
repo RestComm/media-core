@@ -10,7 +10,7 @@
 
     <groupId>org.mobicents.media</groupId>
     <artifactId>server</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>4.1.0.58-master</version>
 
     <name>RestComm Media Server</name>
     <url>https://github.com/RestComm/mediaserver</url>
