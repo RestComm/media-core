@@ -1,0 +1,109 @@
+[[_msep_ms_event_packages]]
+= RMS: Event Packages
+
+Announcement Package(A): `org.mobicents.media.server.mgcp.pkg.ann` 
+
+.Announcement Package(A): 
+[cols="1,1", frame="all", options="header"]
+|===
+| Signal Name | Description
+| Ann | Play Announcement
+| oc | Operation Completed
+| of | Operation Failed
+|===
+
+For more information please see: https://tools.ietf.org/html/rfc3660#section-2.12	
+
+`Advanced Audio Package(AU): org.mobicents.media.server.mgcp.pkg.au`		
+
+.Advanced Audio Package(AU): 
+[cols="1,1", frame="all", options="header"]
+|===
+| Signal Name | Description
+| pa | Play Announcement
+| pc | Play Collect
+| pr | Play Record
+| es | End Signal
+| oc | Operation Completed
+| of | Operation Failed
+|===
+
+For more information please see: https://tools.ietf.org/html/rfc2897  
+
+`Trunk Package(T): org.mobicents.media.server.mgcp.pkg.trunk`		
+
+.Trunk Package(T): 
+[cols="1,1", frame="all", options="header"]
+|===
+| Signal Name | Description
+| co1 | Continuity 1
+| co2 | Continuity 2
+| lp | Loopback
+| ct | Continuity Transpoder
+| oc | Operation Completed
+| of | Operation Failed
+|===
+
+For more information please see: https://tools.ietf.org/html/rfc3660#section-2.3	
+
+Dtmf Package(D): `org.mobicents.media.server.mgcp.pkg.dtmf`		
+
+.Dtmf Package(D): 
+[cols="1,1", frame="all", options="header"]
+|===
+| Signal Name | Description
+| 0 | Tone 0
+| 1 | Tone 1
+| 2 | Tone 2
+| 3 | Tone 3
+| 4 | Tone 4
+| 5 | Tone 5
+| 6 | Tone 6
+| 7 | Tone 7
+| 8 | Tone 8
+| 9 | Tone 9
+| * | Tone *
+| # | Tone #
+| A | Tone A
+| B | Tone B
+| C | Tone C
+| D | Tone D
+| oc | Tone Operation Completed
+| oc | Operation Failed
+|===
+
+For more information please see: https://tools.ietf.org/html/rfc3660#section-2.2 
+
+
+
+`Signal List Package (SL): org.mobicents.media.server.mgcp.pkg.sl `		
+
+.Signal List Package (SL): 
+[cols="1,1", frame="all", options="header"]
+|===
+| Signal Name | Description
+| s | List of signals to be generated
+| oc | Operation Completed
+| of | Operation Failed
+|===
+
+For more information please see: https://tools.ietf.org/html/rfc3660#section-2.8
+
+
+== List of supported packages per Endpoint
+
+Configuration of supported packages and events can be done through the mgcp-conf.xml configuration file that is located in the [path]_conf_ directory. 
+
+The table belows shows supported packages and the related enabled endpoints 
+
+.List of Supported Packages per Endpoint
+[cols="1,1", frame="all", options="header"]
+|===
+| Package name | Endpoints
+| Ann | Play announcement
+| Announcement | IVR, Announcements
+| Advanced Audio | IVR
+| Trunk | DSO
+| Dtmf | IVR
+| Signal List | IVR
+|===
