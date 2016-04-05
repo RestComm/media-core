@@ -53,31 +53,27 @@ public class MgcpProvider extends MultiplexedChannel {
 
     private final static Logger logger = Logger.getLogger(MgcpProvider.class);
 
-    // event listeners
-    private Listeners<MgcpListener> listeners = new Listeners<MgcpListener>();
-
-    // Underlying network interface
     private final UdpManager transport;
-
-    // MGCP port number
+    private final MGCPHandler mgcpHandler;
     private final int port;
 
-    // transmission buffer
     private final ConcurrentLinkedQueue<ByteBuffer> txBuffer = new ConcurrentLinkedQueue<ByteBuffer>();
-
-    // pool of events
     private final ConcurrentLinkedQueue<MgcpEventImpl> events = new ConcurrentLinkedQueue<MgcpEventImpl>();
-
+    private final Listeners<MgcpListener> listeners = new Listeners<MgcpListener>();
 
     /**
-     * Creates new provider instance. Used for tests
+     * Creates new provider instance.
      * 
      * @param transport the UDP interface instance.
      * @param port port number to bind
      */
     public MgcpProvider(UdpManager transport, int port) {
         this.transport = transport;
+        this.mgcpHandler = new MGCPHandler();
         this.port = port;
+
+        // Setup packet handlers
+        this.handlers.addHandler(this.mgcpHandler);
 
         // prepare event pool
         for (int i = 0; i < 100; i++) {
@@ -96,34 +92,15 @@ public class MgcpProvider extends MultiplexedChannel {
      * @return event object.
      */
     public MgcpEvent createEvent(int eventID, SocketAddress address) {
-
         MgcpEventImpl evt = events.poll();
-        if (evt == null)
+        if (evt == null) {
             evt = new MgcpEventImpl(this);
+        }
 
         evt.inQueue.set(false);
         evt.setEventID(eventID);
         evt.setAddress(address);
         return evt;
-    }
-    
-    /**
-     * Sends message.
-     * 
-     * @param message the message to send.
-     * @param destination the IP address of the destination.
-     */
-    public void send(MgcpEvent event, SocketAddress destination) throws IOException {
-        MgcpMessage msg = event.getMessage();
-        ByteBuffer currBuffer = txBuffer.poll();
-        if (currBuffer == null)
-            currBuffer = ByteBuffer.allocate(8192);
-
-        msg.write(currBuffer);
-        channel.send(currBuffer, destination);
-
-        currBuffer.clear();
-        txBuffer.offer(currBuffer);
     }
 
     /**
@@ -183,35 +160,32 @@ public class MgcpProvider extends MultiplexedChannel {
 
     public void activate() {
         try {
-            logger.info("Opening channel");
-            channel = transport.open(new MGCPHandler());
-        } catch (IOException e) {
-            logger.info("Could not open UDP channel: " + e.getMessage());
+            if(logger.isInfoEnabled()) {
+                logger.info("Opening MGCP channel");
+            }
+            this.selectionKey = this.transport.open(this);
+            this.dataChannel = (DatagramChannel) this.selectionKey.channel();
+        } catch (Exception e) {
+            logger.error("Could not open MGCP channel", e);
             return;
         }
-
+        
         try {
-            logger.info("Binding channel to " + transport.getLocalBindAddress() + ":" + port);
-            transport.bindLocal(channel, port);
-        } catch (IOException e) {
-            try {
-                channel.close();
-            } catch (IOException ex) {
-                logger.warn("Could not close MGCP Provider channel", e);
+            if(logger.isInfoEnabled()) {
+                logger.info("Binding channel to " + transport.getLocalBindAddress() + ":" + port);
             }
-            logger.info("Could not open UDP channel: " + e.getMessage());
-            return;
+            transport.bindLocal(this.dataChannel, this.port);
+        } catch (Exception e) {
+            logger.error("Could not bind MGCP channel. Closing the channel.", e);
+            close();
         }
     }
 
     public void shutdown() {
-        if (channel != null) {
-            try {
-                channel.close();
-            } catch (IOException e) {
-                logger.error("Could not shutdown MGCP Provider", e);
-            }
+        if(logger.isInfoEnabled()) {
+            logger.info("Closing the MGCP channel.");
         }
+        close();
     }
 
     private void recycleEvent(MgcpEventImpl event) {

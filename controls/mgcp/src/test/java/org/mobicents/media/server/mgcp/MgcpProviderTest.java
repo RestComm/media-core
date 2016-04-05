@@ -132,7 +132,7 @@ public class MgcpProviderTest {
         req.setEndpoint(new Text("test@127.0.0.1"));
         req.setParameter(new Text("c"), new Text("abcd"));
         
-        provider1.send(evt, destination);
+        provider1.send(evt);
         
         Thread.sleep(100);        
         assertTrue("Problems", reqTester.success);
@@ -180,7 +180,7 @@ public class MgcpProviderTest {
         resp.setTxID(1);
         resp.setResponseString(new Text("Success"));
         
-        provider3.send(evt, destination2);
+        provider3.send(evt);
         
         Thread.sleep(100);
         
