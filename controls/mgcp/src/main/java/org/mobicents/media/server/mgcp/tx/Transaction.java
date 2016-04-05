@@ -54,7 +54,7 @@ public class Transaction implements ActionListener {
     private Exception lastError;
         
     //Logger instance
-    private final static Logger logger = Logger.getLogger("MgcpTransaction");
+    private final static Logger logger = Logger.getLogger(Transaction.class);
     
     /**
      * Create new transaction executor.

@@ -48,7 +48,7 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  */
 public class MgcpProvider extends MultiplexedChannel {
 
-    private final static Logger logger = Logger.getLogger(MgcpProvider.class);
+    private final static Logger log = Logger.getLogger(MgcpProvider.class);
 
     private final UdpManager transport;
     private final MGCPHandler mgcpHandler;
@@ -140,37 +140,37 @@ public class MgcpProvider extends MultiplexedChannel {
 
     public void activate() {
         try {
-            if (logger.isInfoEnabled()) {
-                logger.info("Opening MGCP channel");
+            if (log.isInfoEnabled()) {
+                log.info("Opening MGCP channel");
             }
             this.selectionKey = this.transport.open(this);
             this.dataChannel = (DatagramChannel) this.selectionKey.channel();
         } catch (Exception e) {
-            logger.error("Could not open MGCP channel", e);
+            log.error("Could not open MGCP channel", e);
             return;
         }
 
         try {
-            if (logger.isInfoEnabled()) {
-                logger.info("Binding channel to " + transport.getLocalBindAddress() + ":" + port);
+            if (log.isInfoEnabled()) {
+                log.info("Binding channel to " + transport.getLocalBindAddress() + ":" + port);
             }
             transport.bindLocal(this.dataChannel, this.port);
         } catch (Exception e) {
-            logger.error("Could not bind MGCP channel. Closing the channel.", e);
+            log.error("Could not bind MGCP channel. Closing the channel.", e);
             close();
         }
     }
 
     public void shutdown() {
-        if (logger.isInfoEnabled()) {
-            logger.info("Closing the MGCP channel.");
+        if (log.isInfoEnabled()) {
+            log.info("Closing the MGCP channel.");
         }
         close();
     }
 
     private void recycleEvent(MgcpEventImpl event) {
         if (event.inQueue.getAndSet(true))
-            logger.warn("====================== ALARM ALARM ALARM==============");
+            log.warn("====================== ALARM ALARM ALARM==============");
         else {
             event.response.clean();
             event.request.clean();
@@ -218,8 +218,8 @@ public class MgcpProvider extends MultiplexedChannel {
                 MgcpEvent evt = createEvent(msgType, remotePeer);
 
                 // Parse message
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Parsing message: " + new String(packet, offset, dataLength));
+                if (log.isDebugEnabled()) {
+                    log.debug("Parsing message: " + new String(packet, offset, dataLength));
                 }
                 evt.getMessage().parse(packet, offset, dataLength);
 
@@ -233,7 +233,6 @@ public class MgcpProvider extends MultiplexedChannel {
 
         @Override
         public int getPipelinePriority() {
-            // TODO Auto-generated method stub
             return 0;
         }
     }

@@ -25,6 +25,7 @@ package org.mobicents.media.server.mgcp.tx;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.MgcpProvider;
@@ -37,36 +38,29 @@ import org.mobicents.media.server.scheduler.Task;
  * Implements pool of transactions.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class TransactionManager {
-    //transaction identifier generator
-    private static java.util.concurrent.atomic.AtomicInteger ID = new AtomicInteger(1);
     
-    //pool of transaction objects
-	private ConcurrentCyclicFIFO<Transaction> pool = new ConcurrentCyclicFIFO<Transaction>();
+    private static final Logger log = Logger.getLogger(TransactionManager.class);
     
-    //cache size in 100ms units    
-	private static final int cacheSize = 5;
-	private ConcurrentCyclicFIFO<Transaction>[] cache = new ConcurrentCyclicFIFO[cacheSize];
-	private int cleanIndex = 0;
-    
-    //currently active transactions.
-    private ConcurrentMap<Transaction> active;
-    
-    //scheduler instance
-    private PriorityQueueScheduler scheduler;
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(1);
+    private static final int CACHE_SIZE = 5;
 
-    //access to MGCP protocol provider
+    // core elements
+    private final PriorityQueueScheduler scheduler;
+    protected CallManager callManager;
     protected MgcpProvider provider;
-    
-    //access to naming service
     protected NamingTree namingService;
     
-    //call manager
-    protected CallManager callManager;
+    // transactions
+	private final ConcurrentCyclicFIFO<Transaction> transactionPool;
+	private final ConcurrentMap<Transaction> activeTransactions;
     
-    //cache heartbeat
-    private Heartbeat cacheHeartbeat;
+    // cache size in 100ms units    
+	private ConcurrentCyclicFIFO<Transaction>[] cache = new ConcurrentCyclicFIFO[CACHE_SIZE];
+	private Heartbeat cacheHeartbeat;
+	private int cleanIndex = 0;
     
     /**
      * Creates new transaction's pool.
@@ -75,18 +69,22 @@ public class TransactionManager {
      * @param size the size of the pool.
      */
     public TransactionManager(PriorityQueueScheduler scheduler, int size) {
+        // core elements
         this.scheduler = scheduler;
-        
-        active = new ConcurrentMap<Transaction>();
-        
+
+        // transactions
+        this.transactionPool = new ConcurrentCyclicFIFO<Transaction>();
+        this.activeTransactions = new ConcurrentMap<Transaction>();
+
         for (int i = 0; i < size; i++) {
-        	pool.offer(new Transaction(this));            
-        }      
-        
-        for(int i=0;i<cache.length;i++) {
-        	cache[i]=new ConcurrentCyclicFIFO<Transaction>();
+            this.transactionPool.offer(new Transaction(this));
         }
-        cacheHeartbeat = new Heartbeat();        
+
+        // cache
+        for (int i = 0; i < CACHE_SIZE; i++) {
+            this.cache[i] = new ConcurrentCyclicFIFO<Transaction>();
+        }
+        this.cacheHeartbeat = new Heartbeat();
     }
     
     public void start() {
@@ -140,7 +138,7 @@ public class TransactionManager {
      * @return transaction object or null if does not exist.
      */
     public Transaction find(int id) {    
-    	Transaction currTransaction=active.get(id);
+    	Transaction currTransaction=activeTransactions.get(id);
     	return currTransaction;    	  
     }
     
@@ -155,7 +153,7 @@ public class TransactionManager {
 	 * @author hrosa
 	 */
 	public Transaction findByTransactionNumber(int transactionNumber) {
-		Iterator<Transaction> transactions = this.active.valuesIterator();
+		Iterator<Transaction> transactions = this.activeTransactions.valuesIterator();
 		while (transactions.hasNext()) {
 			Transaction transaction = transactions.next();
 			if (transaction.getId() == transactionNumber) {
@@ -166,7 +164,7 @@ public class TransactionManager {
 	}
     
     public Transaction allocateNew(int id) {
-    	Transaction t=begin(ID.getAndIncrement());
+    	Transaction t=begin(ID_GENERATOR.getAndIncrement());
     	if(t!=null) {
     		t.id=id;
     	}
@@ -180,12 +178,12 @@ public class TransactionManager {
      * @return the object which represents transaction.
      */
     private Transaction begin(int id) {
-        Transaction t = pool.poll();
+        Transaction t = transactionPool.poll();
         if (t == null) {
         	t=new Transaction(this);
         }
         t.uniqueId = id;
-        active.put(t.uniqueId,t);        
+        activeTransactions.put(t.uniqueId,t);        
         return t;
     }
 
@@ -204,7 +202,7 @@ public class TransactionManager {
      * @return unique integer identifier.
      */
     protected int nextID() {
-        return ID.incrementAndGet();
+        return ID_GENERATOR.incrementAndGet();
     }
     
     /**
@@ -214,7 +212,7 @@ public class TransactionManager {
      * @return the number of available transaction objects.
      */
     protected int remainder() {
-    	return pool.size();        
+    	return transactionPool.size();        
     }
     
     private class Heartbeat extends Task {
@@ -226,19 +224,19 @@ public class TransactionManager {
 
         @Override
         public long perform() {
-        	queueToClean=(cleanIndex+1)%cacheSize;
+        	queueToClean=(cleanIndex+1)%CACHE_SIZE;
         	Transaction current=cache[queueToClean].poll();
             while(current!=null)
             {
-            	active.remove(current.uniqueId);
+            	activeTransactions.remove(current.uniqueId);
             	current.id = 0;
             	current.uniqueId=0;
             	current.completed=false;
-            	pool.offer(current);
+            	transactionPool.offer(current);
             	current=cache[queueToClean].poll();
             }
             
-            cleanIndex=(cleanIndex+1)%cacheSize;
+            cleanIndex=(cleanIndex+1)%CACHE_SIZE;
             scheduler.submitHeatbeat(this);
             return 0;
         }
