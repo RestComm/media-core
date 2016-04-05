@@ -34,6 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.io.network.channel.PacketHandler;
+import org.mobicents.media.server.io.network.channel.PacketHandlerException;
+import org.mobicents.media.server.mgcp.exception.MgcpDecodeException;
 import org.mobicents.media.server.mgcp.message.MgcpMessage;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
@@ -239,102 +242,65 @@ public class MgcpProvider {
 
     /**
      * MGCP message handler asynchronous implementation.
-     * 
      */
-    private class MGCPHandler implements ProtocolHandler {
+    private class MGCPHandler implements PacketHandler {
 
-        // mgcp message receiver.
-        private Receiver receiver = new Receiver();
-
-        @Override
-        public void receive(DatagramChannel channel) {
-            receiver.perform();
-        }
-
-        @Override
-        public void send(DatagramChannel channel) {
-        }
-
-        @Override
-        public boolean isReadable() {
-            return false;
-        }
-
-        @Override
-        public boolean isWriteable() {
-            return false;
-        }
-
-        @Override
-        public void setKey(SelectionKey key) {
-        }
-
-        @Override
+        // TODO [MgcpHandler] Close MgpcProvider when UdpManager does
         public void onClosed() {
             // try to reopen mgcp port
             shutdown();
             activate();
         }
-    }
 
-    /**
-     * Receiver of the MGCP packets.
-     */
-    private class Receiver {
-        private SocketAddress address;
-
-        public Receiver() {
-            super();
+        @Override
+        public int compareTo(PacketHandler o) {
+            // TODO Auto-generated method stub
+            return 0;
         }
 
-        public long perform() {
-            rxBuffer.clear();
-            try {
-                if ((address = channel.receive(rxBuffer)) != null) {
-                    rxBuffer.flip();
+        @Override
+        public boolean canHandle(byte[] packet) {
+            return canHandle(packet, packet.length, 0);
+        }
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Receive  message " + rxBuffer.limit() + " bytes length");
-                    }
+        @Override
+        public boolean canHandle(byte[] packet, int dataLength, int offset) {
+            // TODO Auto-generated method stub
+            return false;
+        }
 
-                    if (rxBuffer.limit() == 0) {
-//                        continue;
-                        return 0L;
-                    }
+        @Override
+        public byte[] handle(byte[] packet, InetSocketAddress localPeer, InetSocketAddress remotePeer)
+                throws PacketHandlerException {
+            return handle(packet, packet.length, 0, localPeer, remotePeer);
+        }
 
-                    byte b = rxBuffer.get();
-                    rxBuffer.rewind();
-
-                    // update event ID.
-                    int msgType = -1;
-                    if (b >= 48 && b <= 57) {
-                        msgType = MgcpEvent.RESPONSE;
-                    } else {
-                        msgType = MgcpEvent.REQUEST;
-                    }
-
-                    MgcpEvent evt = createEvent(msgType, address);
-
-                    // parse message
-                    if (logger.isDebugEnabled()) {
-                        final byte[] data = rxBuffer.array();
-                        logger.debug("Parsing message: " + new String(data, 0, rxBuffer.limit()));
-                    }
-                    MgcpMessage msg = evt.getMessage();
-                    msg.read(rxBuffer);
-
-                    // deliver event to listeners
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Dispatching message");
-                    }
-                    listeners.dispatch(evt);
-
-                    // clean buffer for next reading
-                    rxBuffer.clear();
-                }
-            } catch (Exception e) {
-                logger.error("Could not process message", e);
+        @Override
+        public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
+                InetSocketAddress remotePeer) throws PacketHandlerException {
+            // Create event
+            byte b = packet[0];
+            int msgType = (b >= 48 && b <= 57) ? MgcpEvent.RESPONSE: MgcpEvent.REQUEST;
+            MgcpEvent evt = createEvent(msgType, remotePeer);
+            
+            // Parse message
+            if (logger.isDebugEnabled()) {
+                logger.debug("Parsing message: " + new String(packet, offset, dataLength));
             }
+            try {
+                evt.getMessage().read(packet, offset, dataLength);
+            } catch (MgcpDecodeException e) {
+                throw new PacketHandlerException(e.getCause());
+            }
+            
+            // Dispatch message
+            listeners.dispatch(evt);
+            return null;
+        }
+
+        @Override
+        public int getPipelinePriority() {
+            // TODO Auto-generated method stub
             return 0;
         }
     }

@@ -24,12 +24,15 @@ package org.mobicents.media.server.mgcp.message;
 
 import java.nio.ByteBuffer;
 
+import org.mobicents.media.server.mgcp.exception.MgcpDecodeException;
+
 /**
  * Represents MGCP message.
  * 
  * @author yulian oifa
  */
 public abstract class MgcpMessage {
+    
     public final static int CREATE_CONNECTION = 1;
     public final static int MODIFY_CONNECTION = 2;
     public final static int DELETE_CONNECTION = 3;
@@ -37,7 +40,6 @@ public abstract class MgcpMessage {
     public final static int AUDIT_CONNECTION = 5;
     public final static int AUDIT_ENDPOINT = 6;
     public final static int NOTIFY = 7;
-    
     
     //backing data buffer;
     private byte[] buff = new byte[8192];
@@ -56,12 +58,18 @@ public abstract class MgcpMessage {
         parse(buff, 0, buffer.limit());
     }
     
-    protected abstract void parse(byte[] buff, int offset, int len);
-    
-    public void write(ByteBuffer buffer) {
-        
+    public void read(byte[] data, int offset, int length) throws MgcpDecodeException {
+        try {
+            System.arraycopy(data, offset, buff, 0, length);
+        } catch (Exception e) {
+            throw new MgcpDecodeException("Cannot decode MGCP message into local buffer");
+        }
     }
     
+    protected abstract void parse(byte[] buff, int offset, int len);
+    
+    public abstract void write(ByteBuffer buffer);
+
     /**
      * Clean parameters
      */
