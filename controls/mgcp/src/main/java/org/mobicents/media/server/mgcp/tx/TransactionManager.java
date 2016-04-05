@@ -23,6 +23,8 @@
 package org.mobicents.media.server.mgcp.tx;
 
 import java.util.Iterator;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -31,8 +33,8 @@ import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  * Implements pool of transactions.
@@ -48,7 +50,8 @@ public class TransactionManager {
     private static final int CACHE_SIZE = 5;
 
     // core elements
-    private final PriorityQueueScheduler scheduler;
+    private final Clock clock;
+    private final Scheduler scheduler;
     protected CallManager callManager;
     protected MgcpProvider provider;
     protected NamingTree namingService;
@@ -59,17 +62,21 @@ public class TransactionManager {
     
     // cache size in 100ms units    
 	private ConcurrentCyclicFIFO<Transaction>[] cache = new ConcurrentCyclicFIFO[CACHE_SIZE];
-	private Heartbeat cacheHeartbeat;
+	private final Heartbeat cacheHeartbeat;
+	private ScheduledFuture<?> cacheHeartbeatFuture;
+	
 	private int cleanIndex = 0;
     
     /**
      * Creates new transaction's pool.
      * 
-     * @param scheduler the job scheduler
-     * @param size the size of the pool.
+     * @param clock The wall clock of the server.
+     * @param scheduler The job scheduler
+     * @param size The size of the pool.
      */
-    public TransactionManager(PriorityQueueScheduler scheduler, int size) {
+    public TransactionManager(Clock clock, Scheduler scheduler, int size) {
         // core elements
+        this.clock = clock;
         this.scheduler = scheduler;
 
         // transactions
@@ -88,7 +95,8 @@ public class TransactionManager {
     }
     
     public void start() {
-    	scheduler.submitHeatbeat(cacheHeartbeat);
+        // Schedule heart beat task with delays of 20ms between executions
+        this.cacheHeartbeatFuture = scheduler.scheduleWithFixedDelay(this.cacheHeartbeat, 20, 20, TimeUnit.MILLISECONDS);
     }
     
     /**
@@ -105,7 +113,7 @@ public class TransactionManager {
      * 
      * @return job scheduler.
      */
-    public PriorityQueueScheduler scheduler() {
+    public Scheduler scheduler() {
         return scheduler;
     }
     
@@ -115,7 +123,7 @@ public class TransactionManager {
      * @return time measured by wall clock.
      */
     public long getTime() {
-        return scheduler.getClock().getTime();
+        return this.clock.getTime();
     }
     
     public void setCallManager(CallManager callManager) {
@@ -215,35 +223,31 @@ public class TransactionManager {
     	return transactionPool.size();        
     }
     
-    private class Heartbeat extends Task {
-    	int queueToClean;
-    	
-    	public Heartbeat() {
+    private class Heartbeat implements Runnable {
+
+        private int queueToClean;
+
+        public Heartbeat() {
             super();
-        }        
+        }
 
         @Override
-        public long perform() {
-        	queueToClean=(cleanIndex+1)%CACHE_SIZE;
-        	Transaction current=cache[queueToClean].poll();
-            while(current!=null)
-            {
-            	activeTransactions.remove(current.uniqueId);
-            	current.id = 0;
-            	current.uniqueId=0;
-            	current.completed=false;
-            	transactionPool.offer(current);
-            	current=cache[queueToClean].poll();
+        public void run() {
+            this.queueToClean = (cleanIndex + 1) % CACHE_SIZE;
+            Transaction current = cache[queueToClean].poll();
+
+            while (current != null) {
+                activeTransactions.remove(current.uniqueId);
+                current.id = 0;
+                current.uniqueId = 0;
+                current.completed = false;
+                transactionPool.offer(current);
+                current = cache[queueToClean].poll();
             }
-            
-            cleanIndex=(cleanIndex+1)%CACHE_SIZE;
-            scheduler.submitHeatbeat(this);
-            return 0;
+
+            cleanIndex = (cleanIndex + 1) % CACHE_SIZE;
         }
 
-        @Override
-        public int getQueueNumber() {
-            return PriorityQueueScheduler.HEARTBEAT_QUEUE;
-        }
     }
+
 }
