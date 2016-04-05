@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 import org.mobicents.media.server.mgcp.exception.MgcpDecodeException;
@@ -46,10 +47,11 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
 /**
  *
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class MgcpProvider {
+public class MgcpProvider extends MultiplexedChannel {
 
-    private String name;
+    private final static Logger logger = Logger.getLogger(MgcpProvider.class);
 
     // event listeners
     private Listeners<MgcpListener> listeners = new Listeners<MgcpListener>();
@@ -57,32 +59,15 @@ public class MgcpProvider {
     // Underlying network interface
     private final UdpManager transport;
 
-    // datagram channel
-    private DatagramChannel channel;
-
     // MGCP port number
     private final int port;
 
     // transmission buffer
     private final ConcurrentLinkedQueue<ByteBuffer> txBuffer = new ConcurrentLinkedQueue<ByteBuffer>();
 
-    // receiver buffer
-    private final ByteBuffer rxBuffer = ByteBuffer.allocate(8192);
-
     // pool of events
     private final ConcurrentLinkedQueue<MgcpEventImpl> events = new ConcurrentLinkedQueue<MgcpEventImpl>();
 
-    private final static Logger logger = Logger.getLogger(MgcpProvider.class);
-
-    /**
-     * Creates new provider instance.
-     * 
-     * @param transport the UDP interface instance.
-     * @param port port number to bind
-     */
-    public MgcpProvider(UdpManager transport, int port) {
-        this("", transport, port);
-    }
 
     /**
      * Creates new provider instance. Used for tests
@@ -90,8 +75,7 @@ public class MgcpProvider {
      * @param transport the UDP interface instance.
      * @param port port number to bind
      */
-    protected MgcpProvider(String name, UdpManager transport, int port) {
-        this.name = name;
+    public MgcpProvider(UdpManager transport, int port) {
         this.transport = transport;
         this.port = port;
 
@@ -122,7 +106,7 @@ public class MgcpProvider {
         evt.setAddress(address);
         return evt;
     }
-
+    
     /**
      * Sends message.
      * 
@@ -245,13 +229,6 @@ public class MgcpProvider {
      */
     private class MGCPHandler implements PacketHandler {
 
-        // TODO [MgcpHandler] Close MgpcProvider when UdpManager does
-        public void onClosed() {
-            // try to reopen mgcp port
-            shutdown();
-            activate();
-        }
-
         @Override
         public int compareTo(PacketHandler o) {
             // TODO Auto-generated method stub
@@ -265,8 +242,8 @@ public class MgcpProvider {
 
         @Override
         public boolean canHandle(byte[] packet, int dataLength, int offset) {
-            // TODO Auto-generated method stub
-            return false;
+            // TODO [MGCPHandler] Check if packet can be handled
+            return true;
         }
 
         @Override

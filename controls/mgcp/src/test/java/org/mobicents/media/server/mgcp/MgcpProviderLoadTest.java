@@ -45,10 +45,10 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.utils.Text;
 
@@ -97,8 +97,8 @@ public class MgcpProviderLoadTest {
         scheduler.start();
         udpInterface.start();
         
-        provider1 = new MgcpProvider("provider1", udpInterface, 1024);
-        provider2 = new MgcpProvider("provider2", udpInterface, 1025);
+        provider1 = new MgcpProvider(udpInterface, 1024);
+        provider2 = new MgcpProvider(udpInterface, 1025);
         
         provider1.activate();
         provider2.activate();
