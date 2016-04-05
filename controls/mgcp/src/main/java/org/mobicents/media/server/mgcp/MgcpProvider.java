@@ -35,7 +35,6 @@ import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
-import org.mobicents.media.server.mgcp.exception.MgcpDecodeException;
 import org.mobicents.media.server.mgcp.message.MgcpMessage;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
@@ -141,7 +140,7 @@ public class MgcpProvider extends MultiplexedChannel {
 
     public void activate() {
         try {
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Opening MGCP channel");
             }
             this.selectionKey = this.transport.open(this);
@@ -150,9 +149,9 @@ public class MgcpProvider extends MultiplexedChannel {
             logger.error("Could not open MGCP channel", e);
             return;
         }
-        
+
         try {
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Binding channel to " + transport.getLocalBindAddress() + ":" + port);
             }
             transport.bindLocal(this.dataChannel, this.port);
@@ -163,7 +162,7 @@ public class MgcpProvider extends MultiplexedChannel {
     }
 
     public void shutdown() {
-        if(logger.isInfoEnabled()) {
+        if (logger.isInfoEnabled()) {
             logger.info("Closing the MGCP channel.");
         }
         close();
@@ -186,8 +185,10 @@ public class MgcpProvider extends MultiplexedChannel {
 
         @Override
         public int compareTo(PacketHandler o) {
-            // TODO Auto-generated method stub
-            return 0;
+            if (o == null) {
+                return 1;
+            }
+            return this.getPipelinePriority() - o.getPipelinePriority();
         }
 
         @Override
@@ -210,23 +211,23 @@ public class MgcpProvider extends MultiplexedChannel {
         @Override
         public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
                 InetSocketAddress remotePeer) throws PacketHandlerException {
-            // Create event
-            byte b = packet[0];
-            int msgType = (b >= 48 && b <= 57) ? MgcpEvent.RESPONSE: MgcpEvent.REQUEST;
-            MgcpEvent evt = createEvent(msgType, remotePeer);
-            
-            // Parse message
-            if (logger.isDebugEnabled()) {
-                logger.debug("Parsing message: " + new String(packet, offset, dataLength));
-            }
             try {
-                evt.getMessage().read(packet, offset, dataLength);
-            } catch (MgcpDecodeException e) {
-                throw new PacketHandlerException(e.getCause());
+                // Create event
+                byte b = packet[0];
+                int msgType = (b >= 48 && b <= 57) ? MgcpEvent.RESPONSE : MgcpEvent.REQUEST;
+                MgcpEvent evt = createEvent(msgType, remotePeer);
+
+                // Parse message
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Parsing message: " + new String(packet, offset, dataLength));
+                }
+                evt.getMessage().parse(packet, offset, dataLength);
+
+                // Dispatch message
+                listeners.dispatch(evt);
+            } catch (Exception e) {
+                throw new PacketHandlerException(e);
             }
-            
-            // Dispatch message
-            listeners.dispatch(evt);
             return null;
         }
 

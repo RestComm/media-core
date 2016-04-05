@@ -169,7 +169,7 @@ public class MgcpResponse extends MgcpMessage {
     }
 
     @Override
-    protected void parse(byte[] buff, int offset, int len) {
+    public void parse(byte[] buff, int offset, int len) {
         try {
             this.strain(buff, offset, len);
         } catch (Exception e) {

@@ -24,7 +24,6 @@ package org.mobicents.media.server.io.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -518,24 +517,8 @@ public class UdpManager {
 
                     if (attachment == null) {
                         continue;
-                    }
-
-                    try {
-                        if (attachment instanceof ProtocolHandler) {
-                            // Legacy - MGCP channel
-                            ProtocolHandler handler = (ProtocolHandler) key.attachment();
-
-                            if (!udpChannel.isOpen()) {
-                                handler.onClosed();
-                                continue;
-                            }
-
-                            // do read
-                            if (key.isReadable()) {
-                                handler.receive(udpChannel);
-                            }
-
-                        } else if (attachment instanceof Channel) {
+                    } else if (attachment instanceof Channel) {
+                        try {
                             Channel channel = (Channel) attachment;
 
                             // Perform an operation only if channel is open and key is valid
@@ -551,9 +534,9 @@ public class UdpManager {
                                 // Close data channel if datagram channel is closed
                                 channel.close();
                             }
+                        } catch (Exception e) {
+                            logger.error("An unexpected problem occurred while reading from channel.", e);
                         }
-                    } catch (Exception e) {
-                        logger.error("An unexpected problem occurred while reading from channel.", e);
                     }
                 }
                 localSelector.selectedKeys().clear();
