@@ -27,12 +27,10 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.network.ProtocolHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
@@ -111,29 +109,12 @@ public class MgcpProvider extends MultiplexedChannel {
     public void send(MgcpEvent event) throws IOException {
         MgcpMessage msg = event.getMessage();
         ByteBuffer currBuffer = txBuffer.poll();
-        if (currBuffer == null)
+        if (currBuffer == null) {
             currBuffer = ByteBuffer.allocate(8192);
+        }
 
         msg.write(currBuffer);
-        channel.send(currBuffer, event.getAddress());
-
-        currBuffer.clear();
-        txBuffer.offer(currBuffer);
-    }
-
-    /**
-     * Sends message.
-     * 
-     * @param message the message to send.
-     * @param destination the IP address of the destination.
-     */
-    public void send(MgcpMessage message, SocketAddress destination) throws IOException {
-        ByteBuffer currBuffer = txBuffer.poll();
-        if (currBuffer == null)
-            currBuffer = ByteBuffer.allocate(8192);
-
-        message.write(currBuffer);
-        channel.send(currBuffer, destination);
+        this.dataChannel.send(currBuffer, event.getAddress());
 
         currBuffer.clear();
         txBuffer.offer(currBuffer);
@@ -258,7 +239,6 @@ public class MgcpProvider extends MultiplexedChannel {
 
     /**
      * MGCP event object implementation.
-     * 
      */
     private class MgcpEventImpl implements MgcpEvent {
 
