@@ -48,6 +48,7 @@ import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.spi.format.FormatFactory;
 
@@ -58,6 +59,7 @@ import static org.junit.Assert.*;
  * @author oifa yulian
  */
 @Deprecated
+@Ignore
 public class RTPDataChannelTest {
 
     //clock and scheduler

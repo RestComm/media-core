@@ -107,7 +107,7 @@ public class UdpManager {
         this.pollTaskFutures = new ArrayList<Future<?>>(ServiceScheduler.POOL_SIZE);
         this.currSelectorIndex = new AtomicInteger(0);
     }
-    
+
     public Scheduler getScheduler() {
         return scheduler;
     }
@@ -491,7 +491,7 @@ public class UdpManager {
         public PollTask(Selector selector) {
             this.localSelector = selector;
         }
-        
+
         @Override
         public void run() {
             if (active) {
@@ -517,8 +517,24 @@ public class UdpManager {
 
                     if (attachment == null) {
                         continue;
-                    } else if (attachment instanceof Channel) {
-                        try {
+                    }
+
+                    try {
+                        if (attachment instanceof ProtocolHandler) {
+                            // Legacy - MGCP channel
+                            ProtocolHandler handler = (ProtocolHandler) key.attachment();
+
+                            if (!udpChannel.isOpen()) {
+                                handler.onClosed();
+                                continue;
+                            }
+
+                            // do read
+                            if (key.isReadable()) {
+                                handler.receive(udpChannel);
+                            }
+
+                        } else if (attachment instanceof Channel) {
                             Channel channel = (Channel) attachment;
 
                             // Perform an operation only if channel is open and key is valid
@@ -534,9 +550,9 @@ public class UdpManager {
                                 // Close data channel if datagram channel is closed
                                 channel.close();
                             }
-                        } catch (Exception e) {
-                            logger.error("An unexpected problem occurred while reading from channel.", e);
                         }
+                    } catch (Exception e) {
+                        logger.error("An unexpected problem occurred while reading from channel.", e);
                     }
                 }
                 localSelector.selectedKeys().clear();
