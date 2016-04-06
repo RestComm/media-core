@@ -105,12 +105,10 @@ public class Action implements TaskChainListener {
     
     /**
      * Rollback previously made changes.
-     * 
      */
     public void rollback() {
         if (rollbackHandler != null) {
-            //rollbackHandler.setDeadLine(tx.getTime() + 1000000L);
-            tx.scheduler().submit(rollbackHandler, PriorityQueueScheduler.MANAGEMENT_QUEUE);        
+            tx.scheduler().submit(rollbackHandler);        
         } else {
             tx.onRollback();
         }

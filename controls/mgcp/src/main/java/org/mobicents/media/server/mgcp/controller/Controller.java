@@ -36,6 +36,7 @@ import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
 import org.mobicents.media.server.mgcp.tx.GlobalTransactionManager;
 import org.mobicents.media.server.mgcp.tx.Transaction;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.MediaServer;
@@ -52,7 +53,7 @@ public class Controller implements MgcpListener, ServerManager {
 
 	private final static String HOME_DIR = "MMS_HOME";
 	
-    private static final Logger logger = Logger.getLogger("MGCP");
+    private static final Logger logger = Logger.getLogger(Controller.class);
     
     //network interface
     protected UdpManager udpInterface;
@@ -60,7 +61,8 @@ public class Controller implements MgcpListener, ServerManager {
     //MGCP port number
     protected int port;
     
-    protected PriorityQueueScheduler scheduler;
+    protected PriorityQueueScheduler mediaScheduler;
+    protected Scheduler taskScheduler;
     
     //MGCP protocol provider
     protected MgcpProvider mgcpProvider;
@@ -112,7 +114,6 @@ public class Controller implements MgcpListener, ServerManager {
      * @param server the server instance.
      */
     public void setServer(MediaServer server) {
-        logger.info("Set server");
         this.server = server;
         server.addManager(this);        
     }
@@ -122,9 +123,12 @@ public class Controller implements MgcpListener, ServerManager {
      * 
      * @param scheduler the scheduler instance.
      */
-    public void setScheduler(PriorityQueueScheduler scheduler) {
-        logger.info("Set scheduler: " + scheduler);
-        this.scheduler = scheduler;
+    public void setMediaScheduler(PriorityQueueScheduler scheduler) {
+        this.mediaScheduler = scheduler;
+    }
+    
+    public void setTaskScheduler(Scheduler taskScheduler) {
+        this.taskScheduler = taskScheduler;
     }
     
     /**
@@ -183,7 +187,7 @@ public class Controller implements MgcpListener, ServerManager {
     }
     
     public void createGlobalTransactionManager() {
-    	txManager = new GlobalTransactionManager(scheduler);
+    	txManager = new GlobalTransactionManager(taskScheduler, mediaScheduler.getClock());
     	txManager.setPoolSize(poolSize);
         txManager.setNamingService(endpoints);        
         txManager.setMgcpProvider(mgcpProvider);

@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.apache.log4j.Logger;
@@ -39,7 +40,7 @@ public class NotifyCmd extends Action {
     
     private final static Logger logger = Logger.getLogger(NotifyCmd.class);    
     
-    public NotifyCmd(PriorityQueueScheduler scheduler) {
+    public NotifyCmd(Scheduler scheduler) {
         handler = new TaskChain(1,scheduler);
         handler.add(new Sender());
         this.setActionHandler(handler);

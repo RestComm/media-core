@@ -34,6 +34,7 @@ import org.mobicents.media.server.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.mgcp.message.Parameter;
 import org.mobicents.media.server.mgcp.tx.Action;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.utils.Text;
@@ -78,7 +79,7 @@ public class DeleteConnectionCmd extends Action {
 
 	private final static Logger logger = Logger.getLogger(DeleteConnectionCmd.class);
 
-	public DeleteConnectionCmd(PriorityQueueScheduler scheduler) {
+	public DeleteConnectionCmd(Scheduler scheduler) {
 		handler = new TaskChain(2, scheduler);
 
 		Delete delete = new Delete();
