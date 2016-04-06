@@ -81,7 +81,7 @@ public class TaskChain implements TaskListener {
     /**
      * Starts the chain
      */
-    protected void start() {
+    public void start() {
         //reset index
         i = 0;
         //submit first task

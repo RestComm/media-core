@@ -23,7 +23,6 @@
 package org.mobicents.media.server.mgcp.tx;
 
 import org.mobicents.media.server.mgcp.MgcpEvent;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.scheduler.TaskChainListener;
@@ -100,7 +99,7 @@ public class Action implements TaskChainListener {
         this.tx = tx;
         
         actionHandler.setListener(this);        
-        tx.scheduler().submit(actionHandler);
+        actionHandler.start();
     }
     
     /**
