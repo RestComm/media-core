@@ -57,6 +57,13 @@ public interface ResourcePool<T extends PooledObject> {
     int count();
 
     /**
+     * Gets the maximum size of the pool.
+     * 
+     * @return The pool size
+     */
+    int size();
+
+    /**
      * Checks whether the pool contains at least one element.
      * 
      * @return Returns <code>true</code> is empty, <code>false</code> otherwise.

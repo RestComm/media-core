@@ -95,9 +95,6 @@ public class ResourcesPool implements ComponentFactory {
 	private final RtpConnectionFactory rtpConnectionFactory;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	private AtomicInteger localConnectionsCount;
-	private AtomicInteger rtpConnectionsCount;
-
 	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory) {
 		this.scheduler = scheduler;
 		this.dspFactory = dspFactory;
@@ -116,9 +113,6 @@ public class ResourcesPool implements ComponentFactory {
 		
 		this.dtmfDetectorDbi = -35;
 		
-		this.localConnectionsCount = new AtomicInteger(0);
-		this.rtpConnectionsCount = new AtomicInteger(0);
-
 		this.playersCount = new AtomicInteger(0);
 		this.recordersCount = new AtomicInteger(0);
 		this.dtmfDetectorsCount = new AtomicInteger(0);
@@ -219,13 +213,11 @@ public class ResourcesPool implements ComponentFactory {
 		for (int i = 0; i < this.defaultLocalConnections; i++) {
 			this.localConnections.offer(this.localConnectionFactory.produce());
 		}
-		this.localConnectionsCount.set(this.defaultLocalConnections);
 
 		// Setup remote connections
 		for (int i = 0; i < defaultRemoteConnections; i++) {
 			this.remoteConnections.offer(this.rtpConnectionFactory.produce());
 		}
-		this.rtpConnectionsCount.set(this.defaultRemoteConnections);
 	}
 
 	@Override
@@ -381,23 +373,13 @@ public class ResourcesPool implements ComponentFactory {
 		Connection result = null;
 		if (isLocal) {
 			result = this.localConnections.poll();
-			if (result == null) {
-				result = this.localConnectionFactory.produce();
-				this.localConnectionsCount.incrementAndGet();
-			}
-
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new local connection, pool size:" + localConnectionsCount.get() + ", free:" + localConnections.count());
+				logger.debug("Allocated local connection [pool size:" + localConnections.size() + ", free:" + localConnections.count() +"]");
 			}
 		} else {
 			result = this.remoteConnections.poll();
-			if (result == null) {
-				result = this.rtpConnectionFactory.produce();
-				this.rtpConnectionsCount.incrementAndGet();
-			}
-
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new rtp connection " + result.getCname() + ", pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.count());
+				logger.debug("Allocated remote connection " + result.getCname() + " [pool size:" + remoteConnections.size() + ", free:" + remoteConnections.count());
 			}
 		}
 		return result;
@@ -407,15 +389,13 @@ public class ResourcesPool implements ComponentFactory {
 	public void releaseConnection(Connection connection, boolean isLocal) {
 		if (isLocal) {
 			this.localConnections.offer((LocalConnectionImpl) connection);
-
 			if (logger.isDebugEnabled()) {
-				logger.debug("Released local connection,pool size:" + localConnectionsCount.get() + ", free:" + localConnections.count());
+				logger.debug("Released local connection [pool size:" + localConnections.size() + ", free:" + localConnections.count() +"]");
 			}
 		} else {
 			this.remoteConnections.offer((RtpConnectionImpl) connection);
-			
 			if (logger.isDebugEnabled()) {
-				logger.debug("Released rtp connection,pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.count());
+				logger.debug("Released remote connection [pool size:" + remoteConnections.size() + ", free:" + remoteConnections.count()+"]");
 			}
 		}
 	}

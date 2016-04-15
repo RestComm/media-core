@@ -22,6 +22,7 @@
 package org.mobicents.media.core.pooling;
 
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Abstraction of a {@link ResourcePool} that relies on an internal queue to maintain the collection of resources.
@@ -33,10 +34,12 @@ public abstract class AbstractResourcePool<T extends PooledObject> implements Re
 
     private final Queue<T> resources;
     private int initialCapacity;
+    private final AtomicInteger size;
 
     protected AbstractResourcePool(Queue<T> resources, int initialCapacity) {
         this.resources = resources;
         this.initialCapacity = initialCapacity;
+        this.size = new AtomicInteger(initialCapacity);
     }
 
     /**
@@ -58,6 +61,7 @@ public abstract class AbstractResourcePool<T extends PooledObject> implements Re
         T resource = resources.poll();
         if (resource == null) {
             resource = createResource();
+            this.size.incrementAndGet();
         }
 
         // Initialize state of the resource
@@ -84,6 +88,11 @@ public abstract class AbstractResourcePool<T extends PooledObject> implements Re
     @Override
     public int count() {
         return this.resources.size();
+    }
+    
+    @Override
+    public int size() {
+        return this.size.get();
     }
 
     @Override
