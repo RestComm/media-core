@@ -21,8 +21,8 @@
 
 package org.mobicents.media.core.connections;
 
-import org.mobicents.media.core.pooling.AbstractConcurrentResourcePool;
-import org.mobicents.media.core.pooling.PooledObjectFactory;
+import org.mobicents.media.server.spi.pooling.AbstractConcurrentResourcePool;
+import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
  * Thread-safe pool for local connections.

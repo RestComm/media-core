@@ -32,7 +32,6 @@ import org.mobicents.media.core.connections.LocalConnectionImpl;
 import org.mobicents.media.core.connections.LocalConnectionPool;
 import org.mobicents.media.core.connections.RtpConnectionImpl;
 import org.mobicents.media.core.connections.RtpConnectionPool;
-import org.mobicents.media.core.pooling.ResourcePool;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
@@ -44,6 +43,7 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 /**
  * Implements connection's FSM.

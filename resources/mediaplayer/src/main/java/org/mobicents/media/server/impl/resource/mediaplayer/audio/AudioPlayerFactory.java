@@ -19,26 +19,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.pooling;
+package org.mobicents.media.server.impl.resource.mediaplayer.audio;
 
 /**
- * Represents an object that is managed by a resource pool.<br>
- * The pool is responsible for
- * 
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface PooledObject {
-
-    /**
-     * Check-in the object in the pool, resetting its internal state.
-     */
-    void checkIn();
-
-    /**
-     * Check-out the object in the pool, initializing its internal state.
-     */
-    void checkOut();
+public class AudioPlayerFactory {
 
 }

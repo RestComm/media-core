@@ -19,37 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.connections;
-
-import org.mobicents.media.server.spi.pooling.AbstractConcurrentResourcePool;
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+package org.mobicents.media.server.spi.pooling;
 
 /**
- * Thread-safe pool for RTP connections.
+ * Represents an object that is managed by a resource pool.<br>
+ * The pool is responsible for
+ * 
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionPool extends AbstractConcurrentResourcePool<RtpConnectionImpl> {
+public interface PooledObject {
 
-    private final PooledObjectFactory<RtpConnectionImpl> factory;
-    
     /**
-     * Create a new pool.
-     * 
-     * @param initialCapacity The initial capacity of the pool
-     * @param connectionFactory Factory that produces new connections
-     * @param dspFactory Factory that produces new DSP
+     * Check-in the object in the pool, resetting its internal state.
      */
-    public RtpConnectionPool(int initialCapacity, PooledObjectFactory<RtpConnectionImpl> factory) {
-        super(initialCapacity);
-        this.factory = factory;
-        populate();
-    }
+    void checkIn();
 
-    @Override
-    protected RtpConnectionImpl createResource() {
-        return this.factory.produce();
-    }
+    /**
+     * Check-out the object in the pool, initializing its internal state.
+     */
+    void checkOut();
 
 }

@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.pooling;
+package org.mobicents.media.server.spi.pooling;
 
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;

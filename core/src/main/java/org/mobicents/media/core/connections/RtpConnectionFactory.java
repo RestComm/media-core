@@ -21,9 +21,9 @@
 
 package org.mobicents.media.core.connections;
 
-import org.mobicents.media.core.pooling.PooledObjectFactory;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
  * Factory that produces RTP connections.

@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.net.SocketException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.pooling.PooledObject;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -46,6 +45,7 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.utils.Text;
 
 /**

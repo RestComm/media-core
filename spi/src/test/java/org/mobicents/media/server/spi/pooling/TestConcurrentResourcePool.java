@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.naming.pooling;
+package org.mobicents.media.server.spi.pooling;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.mobicents.media.core.pooling.ResourcePool;
+import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import junit.framework.Assert;
 
