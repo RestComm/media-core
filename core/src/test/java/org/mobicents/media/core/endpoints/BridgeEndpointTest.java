@@ -34,7 +34,11 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
+import org.mobicents.media.core.connections.LocalConnectionFactory;
+import org.mobicents.media.core.connections.LocalConnectionPool;
 import org.mobicents.media.core.connections.RTPEnvironment;
+import org.mobicents.media.core.connections.RtpConnectionFactory;
+import org.mobicents.media.core.connections.RtpConnectionPool;
 import org.mobicents.media.core.endpoints.impl.BridgeEndpoint;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.spi.Connection;
@@ -83,8 +87,13 @@ public class BridgeEndpointTest extends RTPEnvironment {
 	DtmfDetector dtmfDetectorRTP1, dtmfDetectorLocal1, dtmfDetectorLocal2;
 	ConcurrentLinkedQueue<String> tonesReceivedAtRTP1, tonesReceivedAtLocal1, tonesReceivedAtLocal2;
 
-	private ResourcesPool resourcesPool;
-
+    // Resources
+    private ResourcesPool resourcesPool;
+    private RtpConnectionFactory rtpConnectionFactory;
+    private RtpConnectionPool rtpConnectionPool;
+    private LocalConnectionFactory localConnectionFactory;
+    private LocalConnectionPool localConnectionPool;
+    
 	class ADtmfDetectorListener implements DtmfDetectorListener {
 		
 		Queue<String> tones;
@@ -104,7 +113,12 @@ public class BridgeEndpointTest extends RTPEnvironment {
 	public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException, TooManyListenersException {
 		super.setup();
 
-		resourcesPool = new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
+        // Resource
+        this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
+        this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
+        this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
+        this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
 
 		// assign scheduler to the end points
 		endpointRTP1 = new MyTestEndpoint("test-ep-RTP1");

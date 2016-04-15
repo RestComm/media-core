@@ -35,6 +35,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.connections.LocalConnectionFactory;
+import org.mobicents.media.core.connections.LocalConnectionPool;
+import org.mobicents.media.core.connections.RtpConnectionFactory;
+import org.mobicents.media.core.connections.RtpConnectionPool;
 import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -70,12 +74,17 @@ public class MediaGroupTest {
 
     // RTP
     private ChannelsManager channelsManager;
-
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
+    
+    // Resources
+    private ResourcesPool resourcesPool;
+    private RtpConnectionFactory rtpConnectionFactory;
+    private RtpConnectionPool rtpConnectionPool;
+    private LocalConnectionFactory localConnectionFactory;
+    private LocalConnectionPool localConnectionPool;
 
     // endpoint and connection
     private BaseMixerEndpointImpl endpoint1, endpoint2;
-    private ResourcesPool resourcesPool;
     protected UdpManager udpManager;
 
     private String tone;
@@ -101,7 +110,12 @@ public class MediaGroupTest {
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
 
-        resourcesPool = new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
+        // Resource
+        this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
+        this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
+        this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
+        this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
 
         // assign scheduler to the endpoint
         endpoint1 = new IvrEndpoint("test");

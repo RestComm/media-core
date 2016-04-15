@@ -68,19 +68,47 @@
 			</list>
 		</property>
 	</bean>
+	
+	<!-- Resource Factories -->
+	<bean name="remoteConnectionFactory" class="org.mobicents.media.core.connections.RtpConnectionFactory">
+		<constructor>
+			<parameter><inject bean="channelsManager" /></parameter>
+			<parameter><inject bean="DSP" /></parameter>
+		</constructor>
+	</bean>
 
-	<!-- Resources pool definition -->
+	<bean name="localConnectionFactory" class="org.mobicents.media.core.connections.LocalConnectionFactory">
+		<constructor>
+			<parameter><inject bean="channelsManager" /></parameter>
+		</constructor>
+	</bean>
+
+	<!-- Resource Pools -->
+	<bean name="remoteConnectionPool" class="org.mobicents.media.core.connections.RtpConnectionPool">
+		<constructor>
+			<parameter>50</parameter>
+			<parameter>
+				<inject bean="remoteConnectionFactory" />
+			</parameter>
+		</constructor>
+	</bean>
+
+	<bean name="localConnectionPool" class="org.mobicents.media.core.connections.LocalConnectionPool">
+		<constructor>
+			<parameter>100</parameter>
+			<parameter>
+				<inject bean="localConnectionFactory" />
+			</parameter>
+		</constructor>
+	</bean>
+	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
-			<parameter>
-				<inject bean="Scheduler" />
-			</parameter>
-			<parameter>
-				<inject bean="channelsManager" />
-			</parameter>
-			<parameter>
-				<inject bean="DSP" />
-			</parameter>
+			<parameter><inject bean="Scheduler" /></parameter>
+			<parameter><inject bean="channelsManager" /></parameter>
+			<parameter><inject bean="DSP" /></parameter>
+			<parameter><inject bean="remoteConnectionPool" /></parameter>
+			<parameter><inject bean="localConnectionPool" /></parameter>
 		</constructor>
 		<property name="defaultPlayers">50</property>
 		<property name="defaultRecorders">50</property>
@@ -88,8 +116,6 @@
 		<property name="defaultDtmfGenerators">0</property>
 		<property name="defaultSignalDetectors">0</property>
 		<property name="defaultSignalGenerators">0</property>
-		<property name="defaultLocalConnections">100</property>
-		<property name="defaultRemoteConnections">50</property>
 		<property name="dtmfDetectorDbi">0</property>
 	</bean>
 

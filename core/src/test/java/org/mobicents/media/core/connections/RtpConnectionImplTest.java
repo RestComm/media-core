@@ -30,9 +30,7 @@ package org.mobicents.media.core.connections;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
@@ -41,15 +39,15 @@ import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 
 /**
- *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class RtpConnectionImplTest {
 
@@ -59,25 +57,19 @@ public class RtpConnectionImplTest {
 
     //RTP
     private ChannelsManager channelsManager;
-
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
+
+    // Resources
+    private ResourcesPool resourcesPool;
+    private RtpConnectionFactory rtpConnectionFactory;
+    private RtpConnectionPool rtpConnectionPool;
+    private LocalConnectionFactory localConnectionFactory;
+    private LocalConnectionPool localConnectionPool;
     
     //endpoint and connection
     private RtpConnectionImpl connection;
     private MyTestEndpoint endpoint;
-    private ResourcesPool resourcesPool;
     
-    public RtpConnectionImplTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     @Before
     public void setUp() throws ResourceUnavailableException, IOException {
         //use default clock
@@ -91,7 +83,13 @@ public class RtpConnectionImplTest {
         channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()));
         channelsManager.setScheduler(scheduler);        
 
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
+        // Resource
+        this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
+        this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
+        this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
+        this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
+
         //assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test");
         endpoint.setScheduler(scheduler);

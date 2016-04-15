@@ -27,26 +27,23 @@
 
 package org.mobicents.media.core.connections;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.Random;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
-
-import static org.junit.Assert.*;
-
 import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.component.DspFactoryImpl;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -65,27 +62,20 @@ public class BaseConnectionFSM_FR_Test {
     private BaseConnection connection;
     private MyTestEndpoint endpoint;
 
-    //RTP
+    // Resources
     private ResourcesPool resourcesPool;
-    
+    private RtpConnectionFactory rtpConnectionFactory;
+    private RtpConnectionPool rtpConnectionPool;
+    private LocalConnectionFactory localConnectionFactory;
+    private LocalConnectionPool localConnectionPool;
+        
+    //RTP
     private ChannelsManager channelsManager;
-    
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
         
     private volatile int failureRate;
 
     private Random rnd = new Random();
-
-    public BaseConnectionFSM_FR_Test() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws ResourceUnavailableException, IOException {    	
@@ -103,7 +93,12 @@ public class BaseConnectionFSM_FR_Test {
         channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()));
         channelsManager.setScheduler(scheduler);
         
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
+        // Resource
+        this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
+        this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
+        this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
+        this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
         
         //assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test");

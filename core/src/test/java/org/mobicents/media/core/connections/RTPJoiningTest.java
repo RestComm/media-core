@@ -60,13 +60,23 @@ public class RTPJoiningTest extends RTPEnvironment {
     Component sine1,sine2,sine3;
     Component analyzer1,analyzer2,analyzer3;
     
+    // Resources
     private ResourcesPool resourcesPool;
+    private RtpConnectionFactory rtpConnectionFactory;
+    private RtpConnectionPool rtpConnectionPool;
+    private LocalConnectionFactory localConnectionFactory;
+    private LocalConnectionPool localConnectionPool;
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
     	super.setup();
         
-    	resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
+        // Resource
+        this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
+        this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
+        this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
+        this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
         
     	//assign scheduler to the endpoint
         endpoint1 = new MyTestEndpoint("test-1");

@@ -28,10 +28,8 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentFactory;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.connections.LocalConnectionFactory;
 import org.mobicents.media.core.connections.LocalConnectionImpl;
 import org.mobicents.media.core.connections.LocalConnectionPool;
-import org.mobicents.media.core.connections.RtpConnectionFactory;
 import org.mobicents.media.core.connections.RtpConnectionImpl;
 import org.mobicents.media.core.connections.RtpConnectionPool;
 import org.mobicents.media.core.pooling.ResourcePool;
@@ -85,31 +83,22 @@ public class ResourcesPool implements ComponentFactory {
 	private AtomicInteger signalDetectorsCount;
 	private AtomicInteger signalGeneratorsCount;
 
-	// Local Connections
-	private int defaultLocalConnections;
-	private final LocalConnectionFactory localConnectionFactory;
+	// Connections
 	private final ResourcePool<LocalConnectionImpl> localConnections;
-
-	// Remote connections
-	private int defaultRemoteConnections;
-	private final RtpConnectionFactory rtpConnectionFactory;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory) {
+	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections) {
 		this.scheduler = scheduler;
 		this.dspFactory = dspFactory;
 
-		// TODO pre-populate pools
 		this.players = new ConcurrentCyclicFIFO<Component>();
 		this.recorders = new ConcurrentCyclicFIFO<Component>();
 		this.dtmfDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.dtmfGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.signalGenerators = new ConcurrentCyclicFIFO<Component>();
-		this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
-		this.localConnections = new LocalConnectionPool(0, localConnectionFactory);
-		this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
-		this.remoteConnections = new RtpConnectionPool(0, rtpConnectionFactory);
+		this.localConnections = localConnections;
+		this.remoteConnections = rtpConnections;
 		
 		this.dtmfDetectorDbi = -35;
 		
@@ -147,14 +136,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	public void setDefaultSignalGenerators(int value) {
 		this.defaultSignalGenerators = value;
-	}
-
-	public void setDefaultLocalConnections(int value) {
-		this.defaultLocalConnections = value;
-	}
-
-	public void setDefaultRemoteConnections(int value) {
-		this.defaultRemoteConnections = value;
 	}
 
 	public void setDtmfDetectorDbi(int value) {
@@ -208,16 +189,6 @@ public class ResourcesPool implements ComponentFactory {
 			this.signalGenerators.offer(new PhoneSignalGenerator("signal generator", this.scheduler));
 		}
 		this.signalGeneratorsCount.set(defaultSignalGenerators);
-
-		// Setup local connections
-		for (int i = 0; i < this.defaultLocalConnections; i++) {
-			this.localConnections.offer(this.localConnectionFactory.produce());
-		}
-
-		// Setup remote connections
-		for (int i = 0; i < defaultRemoteConnections; i++) {
-			this.remoteConnections.offer(this.rtpConnectionFactory.produce());
-		}
 	}
 
 	@Override

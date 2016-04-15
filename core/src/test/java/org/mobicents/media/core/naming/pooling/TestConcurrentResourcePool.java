@@ -21,9 +21,7 @@
 
 package org.mobicents.media.core.naming.pooling;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -33,11 +31,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.mobicents.media.core.pooling.ResourcePool;
+
+import junit.framework.Assert;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

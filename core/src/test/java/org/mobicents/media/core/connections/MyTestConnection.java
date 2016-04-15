@@ -37,7 +37,6 @@ import org.mobicents.media.server.utils.Text;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 
 /**
- *
  * @author yulian oifa
  */
 public class MyTestConnection extends BaseConnection {
@@ -45,7 +44,6 @@ public class MyTestConnection extends BaseConnection {
     private volatile boolean created;
     private volatile boolean opened;
     private volatile boolean closed;
-    private volatile boolean failed;
 
     private AudioComponent audioComponent;
     private OOBComponent oobComponent;

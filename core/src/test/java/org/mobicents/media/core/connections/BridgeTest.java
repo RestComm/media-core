@@ -48,8 +48,8 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.utils.Text;
 
 /**
- *
  * @author oifa yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class BridgeTest extends RTPEnvironment {
 
@@ -58,8 +58,13 @@ public class BridgeTest extends RTPEnvironment {
     private MyTestEndpoint endpoint3;
     private MyTestEndpoint endpoint4;
 
+    // Resources
     private ResourcesPool resourcesPool;
-
+    private RtpConnectionFactory rtpConnectionFactory;
+    private RtpConnectionPool rtpConnectionPool;
+    private LocalConnectionFactory localConnectionFactory;
+    private LocalConnectionPool localConnectionPool;
+    
     Component sine1,sine2,sine3,sine4;
     Component analyzer1,analyzer2,analyzer3,analyzer4;
 
@@ -67,7 +72,13 @@ public class BridgeTest extends RTPEnvironment {
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
         super.setup();
         
-        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory);
+        // Resource
+        this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
+        this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
+        this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
+        this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
+
         //assign scheduler to the endpoint
         endpoint1 = new MyTestEndpoint("test-1");
         endpoint1.setScheduler(mediaScheduler);

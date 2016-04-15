@@ -115,7 +115,7 @@ public class RelayTest {
         channelsManager = new ChannelsManager(udpManager);
         channelsManager.setScheduler(scheduler);
         
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, null, null);
         
         //assign scheduler to the endpoint
         ivr = new IvrEndpoint("test-1");
