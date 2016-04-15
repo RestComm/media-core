@@ -19,24 +19,38 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.naming.pooling;
+package org.mobicents.media.core.connections;
 
-import org.mobicents.media.core.pooling.AbstractConcurrentResourcePool;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.mobicents.media.core.pooling.PooledObjectFactory;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
+ * Factory that produces RTP connections.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ConcurrentResourcePoolMock extends AbstractConcurrentResourcePool<PooledObjectMock> {
+public class RtpConnectionFactory implements PooledObjectFactory<RtpConnectionImpl> {
 
-    protected ConcurrentResourcePoolMock(int initialCapacity) {
-        super(initialCapacity);
-        populate();
+    /**
+     * Global ID generator for RTP connections
+     */
+    private static final AtomicInteger ID = new AtomicInteger(1);
+
+    private final ChannelsManager connectionFactory;
+    private final DspFactory dspFactory;
+
+    public RtpConnectionFactory(ChannelsManager connectionFactory, DspFactory dspFactory) {
+        this.connectionFactory = connectionFactory;
+        this.dspFactory = dspFactory;
     }
 
     @Override
-    protected PooledObjectMock createResource() {
-        return new PooledObjectMock();
+    public RtpConnectionImpl produce() {
+        return new RtpConnectionImpl(ID.getAndIncrement(), connectionFactory, dspFactory);
     }
 
 }

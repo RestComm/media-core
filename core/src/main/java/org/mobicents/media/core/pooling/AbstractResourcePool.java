@@ -32,10 +32,22 @@ import java.util.Queue;
 public abstract class AbstractResourcePool<T extends PooledObject> implements ResourcePool<T> {
 
     private final Queue<T> resources;
+    private int initialCapacity;
 
     protected AbstractResourcePool(Queue<T> resources, int initialCapacity) {
         this.resources = resources;
-        for(int index=0; index < initialCapacity; index++) {
+        this.initialCapacity = initialCapacity;
+    }
+
+    /**
+     * Populates the pool with new objects until the initial capacity is reached.
+     * <p>
+     * IMPORTANT: This method should be manually invoked by the constructor of each implementation.<br>
+     * The reason is that some more complex objects require dependencies or factories.
+     * </p>
+     */
+    protected void populate() {
+        for (int index = 0; index < this.initialCapacity; index++) {
             this.resources.offer(createResource());
         }
     }
@@ -68,12 +80,12 @@ public abstract class AbstractResourcePool<T extends PooledObject> implements Re
     public void release() {
         this.resources.clear();
     }
-    
+
     @Override
     public int count() {
         return this.resources.size();
     }
-    
+
     @Override
     public boolean isEmpty() {
         return this.resources.isEmpty();

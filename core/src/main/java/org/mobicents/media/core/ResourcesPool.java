@@ -29,7 +29,10 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentFactory;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.connections.LocalConnectionImpl;
+import org.mobicents.media.core.connections.RtpConnectionFactory;
 import org.mobicents.media.core.connections.RtpConnectionImpl;
+import org.mobicents.media.core.connections.RtpConnectionPool;
+import org.mobicents.media.core.pooling.ResourcePool;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
@@ -82,7 +85,7 @@ public class ResourcesPool implements ComponentFactory {
 
 	// Connection resources
 	private final ConcurrentCyclicFIFO<Connection> localConnections;
-	private final ConcurrentCyclicFIFO<Connection> remoteConnections;
+	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
 	private int defaultLocalConnections;
 	private int defaultRemoteConnections;
@@ -104,7 +107,8 @@ public class ResourcesPool implements ComponentFactory {
 		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.signalGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.localConnections = new ConcurrentCyclicFIFO<Connection>();
-		this.remoteConnections = new ConcurrentCyclicFIFO<Connection>();
+		// TODO populate pool here
+		this.remoteConnections = new RtpConnectionPool(0, new RtpConnectionFactory(channelsManager, dspFactory));
 		
 		this.dtmfDetectorDbi = -35;
 		
@@ -388,12 +392,10 @@ public class ResourcesPool implements ComponentFactory {
 			if (result == null) {
 				result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
 				this.rtpConnectionsCount.incrementAndGet();
-			} else {
-				result.generateCname();
 			}
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new rtp connection " + result.getCname() + ", pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.size());
+				logger.debug("Allocated new rtp connection " + result.getCname() + ", pool size:" + rtpConnectionsCount.get() + ", free:" + remoteConnections.count());
 			}
 		}
 		return result;
@@ -408,10 +410,10 @@ public class ResourcesPool implements ComponentFactory {
 				logger.debug("Released local connection,pool size:" + localConnectionsCount.get() + ",free:" + localConnections.size());
 			}
 		} else {
-			this.remoteConnections.offer(connection);
+			this.remoteConnections.offer((RtpConnectionImpl) connection);
 			
 			if (logger.isDebugEnabled()) {
-				logger.debug("Released rtp connection,pool size:" + rtpConnectionsCount.get() + ",free:" + remoteConnections.size());
+				logger.debug("Released rtp connection,pool size:" + rtpConnectionsCount.get() + ",free:" + remoteConnections.count());
 			}
 		}
 	}

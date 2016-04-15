@@ -19,24 +19,18 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.naming.pooling;
-
-import org.mobicents.media.core.pooling.AbstractConcurrentResourcePool;
+package org.mobicents.media.core.pooling;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
  */
-public class ConcurrentResourcePoolMock extends AbstractConcurrentResourcePool<PooledObjectMock> {
+public interface PooledObjectFactory<T extends PooledObject> {
 
-    protected ConcurrentResourcePoolMock(int initialCapacity) {
-        super(initialCapacity);
-        populate();
-    }
-
-    @Override
-    protected PooledObjectMock createResource() {
-        return new PooledObjectMock();
-    }
+    /**
+     * Produces a new object.
+     * 
+     * @return The new resource
+     */
+    T produce();
 
 }
