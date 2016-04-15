@@ -51,6 +51,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
  * Implements connection's FSM.
  * 
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class ResourcesPool implements ComponentFactory {
 	
@@ -58,7 +59,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	// Core components
 	private final PriorityQueueScheduler scheduler;
-	private final ChannelsManager channelsManager;
 	private final DspFactory dspFactory;
 
 	// Media resources
@@ -85,21 +85,21 @@ public class ResourcesPool implements ComponentFactory {
 	private AtomicInteger signalDetectorsCount;
 	private AtomicInteger signalGeneratorsCount;
 
-	// Connection resources
-	private final ResourcePool<LocalConnectionImpl> localConnections;
-	private final ResourcePool<RtpConnectionImpl> remoteConnections;
-
+	// Local Connections
 	private int defaultLocalConnections;
-	private int defaultRemoteConnections;
+	private final LocalConnectionFactory localConnectionFactory;
+	private final ResourcePool<LocalConnectionImpl> localConnections;
 
-	private AtomicInteger connectionId;
+	// Remote connections
+	private int defaultRemoteConnections;
+	private final RtpConnectionFactory rtpConnectionFactory;
+	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
 	private AtomicInteger localConnectionsCount;
 	private AtomicInteger rtpConnectionsCount;
 
 	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory) {
 		this.scheduler = scheduler;
-		this.channelsManager = channelsManager;
 		this.dspFactory = dspFactory;
 
 		// TODO pre-populate pools
@@ -109,12 +109,12 @@ public class ResourcesPool implements ComponentFactory {
 		this.dtmfGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.signalGenerators = new ConcurrentCyclicFIFO<Component>();
-		this.localConnections = new LocalConnectionPool(0, new LocalConnectionFactory(channelsManager));
-		this.remoteConnections = new RtpConnectionPool(0, new RtpConnectionFactory(channelsManager, dspFactory));
+		this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
+		this.localConnections = new LocalConnectionPool(0, localConnectionFactory);
+		this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
+		this.remoteConnections = new RtpConnectionPool(0, rtpConnectionFactory);
 		
 		this.dtmfDetectorDbi = -35;
-		
-		this.connectionId = new AtomicInteger(1);
 		
 		this.localConnectionsCount = new AtomicInteger(0);
 		this.rtpConnectionsCount = new AtomicInteger(0);
@@ -217,13 +217,13 @@ public class ResourcesPool implements ComponentFactory {
 
 		// Setup local connections
 		for (int i = 0; i < this.defaultLocalConnections; i++) {
-			this.localConnections.offer(new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager));
+			this.localConnections.offer(this.localConnectionFactory.produce());
 		}
 		this.localConnectionsCount.set(this.defaultLocalConnections);
 
 		// Setup remote connections
 		for (int i = 0; i < defaultRemoteConnections; i++) {
-			this.remoteConnections.offer(new RtpConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager, this.dspFactory));
+			this.remoteConnections.offer(this.rtpConnectionFactory.produce());
 		}
 		this.rtpConnectionsCount.set(this.defaultRemoteConnections);
 	}
@@ -382,7 +382,7 @@ public class ResourcesPool implements ComponentFactory {
 		if (isLocal) {
 			result = this.localConnections.poll();
 			if (result == null) {
-				result = new LocalConnectionImpl(this.connectionId.incrementAndGet(), this.channelsManager);
+				result = this.localConnectionFactory.produce();
 				this.localConnectionsCount.incrementAndGet();
 			}
 
@@ -392,7 +392,7 @@ public class ResourcesPool implements ComponentFactory {
 		} else {
 			result = this.remoteConnections.poll();
 			if (result == null) {
-				result = new RtpConnectionImpl(connectionId.incrementAndGet(), channelsManager, dspFactory);
+				result = this.rtpConnectionFactory.produce();
 				this.rtpConnectionsCount.incrementAndGet();
 			}
 
