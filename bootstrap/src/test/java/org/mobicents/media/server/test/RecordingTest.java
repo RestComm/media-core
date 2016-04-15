@@ -122,7 +122,7 @@ public class RecordingTest {
         controller=new Controller();
         controller.setUdpInterface(udpManager);
         controller.setPort(2427);
-        controller.setScheduler(scheduler); 
+        controller.setMediaScheduler(scheduler); 
         controller.setServer(server);        
         controller.setConfigurationByURL(this.getClass().getResource("/mgcp-conf.xml"));
         

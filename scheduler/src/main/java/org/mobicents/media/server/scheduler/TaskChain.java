@@ -38,18 +38,18 @@ public class TaskChain implements TaskListener {
     
     //event listener
     private TaskChainListener listener;
-    private int queueIndex;  
     private final Object LOCK = new Object();
     
-    private PriorityQueueScheduler scheduler;
+    private final Scheduler scheduler;
+
     /**
      * Creates new chain.
      * 
      * @param length the length of the chain.
      */
-    public TaskChain(int length,PriorityQueueScheduler scheduler) {
-    	this.scheduler=scheduler;
-        this.task = new Task[length];        
+    public TaskChain(int length, Scheduler scheduler) {
+        this.scheduler = scheduler;
+        this.task = new Task[length];
     }
     
     /**
@@ -81,12 +81,11 @@ public class TaskChain implements TaskListener {
     /**
      * Starts the chain
      */
-    protected void start(int queueIndex) {
+    public void start() {
         //reset index
         i = 0;
         //submit first task
-        this.queueIndex=queueIndex;
-        scheduler.submit(task[0],queueIndex);
+        scheduler.submit(task[0]);
     }
     
     /**
@@ -98,17 +97,13 @@ public class TaskChain implements TaskListener {
         
         //submit next if the end of the chain not reached yet
         if (i < task.length && task[i] != null) {
-        	scheduler.submit(task[i],queueIndex);            
+        	scheduler.submit(task[i]);            
         } else if (listener != null) {
             listener.onTermination();
         }
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.server.scheduler.TaskErrorHandler#handlerError(java.lang.Exception) 
-     */
+    @Override
     public void handlerError(Exception e) {
         if (listener != null) {
             listener.onException(e);
@@ -131,6 +126,7 @@ public class TaskChain implements TaskListener {
         wi = 0;
     }
 
+    @Override
     public void onTerminate() {
     	continueExecution();
     }

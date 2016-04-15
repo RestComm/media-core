@@ -99,8 +99,11 @@
 			<inject bean="localhost" />
 		</property>
 		<property name="port">2427</property>
-		<property name="scheduler">
+		<property name="mediaScheduler">
 			<inject bean="Scheduler" />
+		</property>
+		<property name="taskScheduler">
+			<inject bean="ServiceScheduler" />
 		</property>
 		<property name="server">
 			<inject bean="MediaServer" />

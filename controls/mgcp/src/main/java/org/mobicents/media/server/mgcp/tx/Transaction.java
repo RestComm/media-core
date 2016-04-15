@@ -22,21 +22,24 @@
 
 package org.mobicents.media.server.mgcp.tx;
 
-import jain.protocol.ip.mgcp.message.parms.ReturnCode;
-import org.mobicents.media.server.mgcp.controller.*;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpProvider;
+import org.mobicents.media.server.mgcp.controller.MgcpCall;
+import org.mobicents.media.server.mgcp.controller.MgcpEndpoint;
 import org.mobicents.media.server.mgcp.controller.naming.UnknownEndpointException;
 import org.mobicents.media.server.mgcp.tx.cmd.ActionSelector;
 import org.mobicents.media.server.mgcp.tx.cmd.MgcpCommandException;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.utils.Text;
+
+import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 
 /**
  * Represents transaction.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class Transaction implements ActionListener {
     //unique identifier of this transaction
@@ -54,7 +57,7 @@ public class Transaction implements ActionListener {
     private Exception lastError;
         
     //Logger instance
-    private final static Logger logger = Logger.getLogger("MgcpTransaction");
+    private final static Logger logger = Logger.getLogger(Transaction.class);
     
     /**
      * Create new transaction executor.
@@ -64,7 +67,7 @@ public class Transaction implements ActionListener {
      */
     protected Transaction(TransactionManager txManager) {
         this.txManager = txManager;
-        selector = new ActionSelector(txManager.scheduler());
+        this.selector = new ActionSelector(txManager.scheduler());
     }
     
     /**
@@ -72,7 +75,7 @@ public class Transaction implements ActionListener {
      * 
      * @return job scheduler.
      */
-    public PriorityQueueScheduler scheduler() {
+    public Scheduler scheduler() {
         return txManager.scheduler();
     }
     

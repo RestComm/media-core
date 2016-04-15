@@ -155,7 +155,7 @@ public class PriorityQueueScheduler  {
      * @param taskChanin the chain of the tasks
      */
     public void submit(TaskChain taskChain) {    	
-        taskChain.start(MANAGEMENT_QUEUE);
+        taskChain.start();
     }    
     
     /**

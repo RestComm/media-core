@@ -187,7 +187,7 @@ public class MgcpRequest extends MgcpMessage {
     }
 
     @Override
-    protected void parse(byte[] buff, int offset, int len) {
+    public void parse(byte[] buff, int offset, int len) {
         this.strain(buff, offset, len);
     }
     
