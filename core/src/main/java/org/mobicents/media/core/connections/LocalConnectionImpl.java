@@ -24,6 +24,7 @@ package org.mobicents.media.core.connections;
 
 import java.io.IOException;
 
+import org.mobicents.media.core.pooling.PooledObject;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -36,10 +37,12 @@ import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.utils.Text;
 
 /**
- *
+ * Represents a local connection between two endpoints.
+ * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class LocalConnectionImpl extends BaseConnection {
+public class LocalConnectionImpl extends BaseConnection implements PooledObject {
 
     private LocalDataChannel localAudioChannel;
     
@@ -136,14 +139,7 @@ public class LocalConnectionImpl extends BaseConnection {
 
     @Override
     protected void onFailed() {
-    	try {
-            setMode(ConnectionMode.INACTIVE);
-        } catch (ModeNotSupportedException e) {
-        }
-        
-        this.localAudioChannel.unjoin();
-        //release connection
-        releaseConnection(ConnectionType.LOCAL);        
+        disconnect();
     }
 
     @Override
@@ -158,19 +154,35 @@ public class LocalConnectionImpl extends BaseConnection {
 
     @Override
     protected void onClosed() {
+        disconnect();      
+    }
+    
+    private void disconnect() {
         try {
             setMode(ConnectionMode.INACTIVE);
         } catch (ModeNotSupportedException e) {
         }
-        
+
         this.localAudioChannel.unjoin();
-        //release connection
-        releaseConnection(ConnectionType.LOCAL);        
+        // release connection
+        releaseConnection(ConnectionType.LOCAL);
     }
 
 	public boolean isAvailable() {
 		// TODO What is criteria for this type of channel to be available
 		return true;
 	}
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

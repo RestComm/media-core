@@ -21,29 +21,28 @@
 
 package org.mobicents.media.core.connections;
 
+import org.mobicents.media.core.pooling.AbstractConcurrentResourcePool;
 import org.mobicents.media.core.pooling.PooledObjectFactory;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
- * Factory that produces RTP connections.
+ * Thread-safe pool for local connections.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFactory implements PooledObjectFactory<RtpConnectionImpl> {
+public class LocalConnectionPool extends AbstractConcurrentResourcePool<LocalConnectionImpl> {
 
-    private final ChannelsManager connectionFactory;
-    private final DspFactory dspFactory;
+    private final PooledObjectFactory<LocalConnectionImpl> connectionFactory;
 
-    public RtpConnectionFactory(ChannelsManager connectionFactory, DspFactory dspFactory) {
+    public LocalConnectionPool(int initialCapacity, PooledObjectFactory<LocalConnectionImpl> connectionFactory) {
+        super(initialCapacity);
         this.connectionFactory = connectionFactory;
-        this.dspFactory = dspFactory;
+        populate();
     }
 
     @Override
-    public RtpConnectionImpl produce() {
-        return new RtpConnectionImpl(ConnectionIdGenerator.ID.getAndIncrement(), connectionFactory, dspFactory);
+    protected LocalConnectionImpl createResource() {
+        return this.connectionFactory.produce();
     }
 
 }

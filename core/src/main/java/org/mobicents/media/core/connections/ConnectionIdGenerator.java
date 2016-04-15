@@ -21,29 +21,16 @@
 
 package org.mobicents.media.core.connections;
 
-import org.mobicents.media.core.pooling.PooledObjectFactory;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.spi.dsp.DspFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Factory that produces RTP connections.
+ * Utility class that holds a ID generator to be used by connection factories.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFactory implements PooledObjectFactory<RtpConnectionImpl> {
+public class ConnectionIdGenerator {
 
-    private final ChannelsManager connectionFactory;
-    private final DspFactory dspFactory;
-
-    public RtpConnectionFactory(ChannelsManager connectionFactory, DspFactory dspFactory) {
-        this.connectionFactory = connectionFactory;
-        this.dspFactory = dspFactory;
-    }
-
-    @Override
-    public RtpConnectionImpl produce() {
-        return new RtpConnectionImpl(ConnectionIdGenerator.ID.getAndIncrement(), connectionFactory, dspFactory);
-    }
+    static final AtomicInteger ID = new AtomicInteger(1);
 
 }

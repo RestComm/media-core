@@ -23,27 +23,24 @@ package org.mobicents.media.core.connections;
 
 import org.mobicents.media.core.pooling.PooledObjectFactory;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
- * Factory that produces RTP connections.
+ * Factory that produces local connections.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionFactory implements PooledObjectFactory<RtpConnectionImpl> {
+public class LocalConnectionFactory implements PooledObjectFactory<LocalConnectionImpl> {
 
-    private final ChannelsManager connectionFactory;
-    private final DspFactory dspFactory;
+    private final ChannelsManager channelFactory;
 
-    public RtpConnectionFactory(ChannelsManager connectionFactory, DspFactory dspFactory) {
-        this.connectionFactory = connectionFactory;
-        this.dspFactory = dspFactory;
+    public LocalConnectionFactory(ChannelsManager channelFactory) {
+        this.channelFactory = channelFactory;
     }
 
     @Override
-    public RtpConnectionImpl produce() {
-        return new RtpConnectionImpl(ConnectionIdGenerator.ID.getAndIncrement(), connectionFactory, dspFactory);
+    public LocalConnectionImpl produce() {
+        return new LocalConnectionImpl(ConnectionIdGenerator.ID.getAndIncrement(), this.channelFactory);
     }
 
 }
