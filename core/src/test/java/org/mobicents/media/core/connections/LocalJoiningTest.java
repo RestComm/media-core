@@ -40,6 +40,8 @@ import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -61,7 +63,7 @@ public class LocalJoiningTest {
 
     //clock and scheduler
     private Clock clock;
-    private PriorityQueueScheduler scheduler;
+    private PriorityQueueScheduler mediaScheduler;
 
     //endpoint and connection
     private MyTestEndpoint endpoint1;
@@ -73,7 +75,9 @@ public class LocalJoiningTest {
     private RtpConnectionFactory rtpConnectionFactory;
     private RtpConnectionPool rtpConnectionPool;
     private LocalConnectionFactory localConnectionFactory;
-    private LocalConnectionPool localConnectionPool;    
+    private LocalConnectionPool localConnectionPool;
+    private AudioPlayerFactory playerFactory;
+    private AudioPlayerPool playerPool;  
     
     Component sine1,sine2;
     Component analyzer1,analyzer2;
@@ -86,29 +90,31 @@ public class LocalJoiningTest {
         clock = new WallClock();
 
         //create single thread scheduler
-        scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
-        scheduler.start();
+        mediaScheduler = new PriorityQueueScheduler();
+        mediaScheduler.setClock(clock);
+        mediaScheduler.start();
 
         channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()));
-        channelsManager.setScheduler(scheduler);
+        channelsManager.setScheduler(mediaScheduler);
         
         // Resource
         this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
         this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
         this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
+        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory);
+        this.playerPool = new AudioPlayerPool(0, playerFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool);
         
         //assign scheduler to the endpoint
         endpoint1 = new MyTestEndpoint("test-1");
-        endpoint1.setScheduler(scheduler);
+        endpoint1.setScheduler(mediaScheduler);
         endpoint1.setResourcesPool(resourcesPool);
         endpoint1.setFreq(200);
         endpoint1.start();
 
         endpoint2 = new MyTestEndpoint("test-2");
-        endpoint2.setScheduler(scheduler);
+        endpoint2.setScheduler(mediaScheduler);
         endpoint2.setResourcesPool(resourcesPool);
         endpoint2.setFreq(200);
         endpoint2.start();
@@ -130,7 +136,7 @@ public class LocalJoiningTest {
             endpoint2.stop();
         }
 
-        scheduler.stop();
+        mediaScheduler.stop();
     }
 
     /**

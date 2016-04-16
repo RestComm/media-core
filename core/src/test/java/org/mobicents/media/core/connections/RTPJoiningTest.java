@@ -39,6 +39,8 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -66,6 +68,8 @@ public class RTPJoiningTest extends RTPEnvironment {
     private RtpConnectionPool rtpConnectionPool;
     private LocalConnectionFactory localConnectionFactory;
     private LocalConnectionPool localConnectionPool;
+    private AudioPlayerFactory playerFactory;
+    private AudioPlayerPool playerPool;
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
@@ -76,7 +80,9 @@ public class RTPJoiningTest extends RTPEnvironment {
         this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
         this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
-        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool);
+        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory);
+        this.playerPool = new AudioPlayerPool(0, playerFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool);
         
     	//assign scheduler to the endpoint
         endpoint1 = new MyTestEndpoint("test-1");

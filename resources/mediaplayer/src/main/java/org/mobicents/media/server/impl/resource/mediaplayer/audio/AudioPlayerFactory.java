@@ -23,7 +23,9 @@ package org.mobicents.media.server.impl.resource.mediaplayer.audio;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
@@ -32,19 +34,29 @@ import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class AudioPlayerFactory implements PooledObjectFactory<AudioPlayerImpl> {
+    
+    private static final Logger log = Logger.getLogger(AudioPlayerImpl.class);
 
     /** Global ID generator for audio players **/
     private final static AtomicInteger ID = new AtomicInteger(1);
 
     private final PriorityQueueScheduler scheduler;
+    private final DspFactory dspFactory;
 
-    public AudioPlayerFactory(PriorityQueueScheduler scheduler) {
+    public AudioPlayerFactory(PriorityQueueScheduler scheduler, DspFactory dspFactory) {
         this.scheduler = scheduler;
+        this.dspFactory = dspFactory;
     }
 
     @Override
     public AudioPlayerImpl produce() {
-        return new AudioPlayerImpl("player-" + ID.getAndIncrement(), scheduler);
+        AudioPlayerImpl player = new AudioPlayerImpl("player-" + ID.getAndIncrement(), scheduler);
+        try {
+            player.setDsp(this.dspFactory.newProcessor());
+        } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {
+            log.error("Could not set DSP for Audio Player", e);
+        }
+        return player;
     }
 
 }

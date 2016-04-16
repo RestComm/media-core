@@ -37,6 +37,7 @@ import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -60,14 +61,13 @@ public class ResourcesPool implements ComponentFactory {
 	private final DspFactory dspFactory;
 
 	// Media resources
-	private final ConcurrentCyclicFIFO<Component> players;
+	private final ResourcePool<AudioPlayerImpl> players;
 	private final ConcurrentCyclicFIFO<Component> recorders;
 	private final ConcurrentCyclicFIFO<Component> dtmfDetectors;
 	private final ConcurrentCyclicFIFO<Component> dtmfGenerators;
 	private final ConcurrentCyclicFIFO<Component> signalDetectors;
 	private final ConcurrentCyclicFIFO<Component> signalGenerators;
 
-	private int defaultPlayers;
 	private int defaultRecorders;
 	private int defaultDtmfDetectors;
 	private int defaultDtmfGenerators;
@@ -76,7 +76,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	private int dtmfDetectorDbi;
 	
-	private AtomicInteger playersCount;
 	private AtomicInteger recordersCount;
 	private AtomicInteger dtmfDetectorsCount;
 	private AtomicInteger dtmfGeneratorsCount;
@@ -87,11 +86,11 @@ public class ResourcesPool implements ComponentFactory {
 	private final ResourcePool<LocalConnectionImpl> localConnections;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections) {
+	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players) {
 		this.scheduler = scheduler;
 		this.dspFactory = dspFactory;
 
-		this.players = new ConcurrentCyclicFIFO<Component>();
+		this.players = players;
 		this.recorders = new ConcurrentCyclicFIFO<Component>();
 		this.dtmfDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.dtmfGenerators = new ConcurrentCyclicFIFO<Component>();
@@ -102,7 +101,6 @@ public class ResourcesPool implements ComponentFactory {
 		
 		this.dtmfDetectorDbi = -35;
 		
-		this.playersCount = new AtomicInteger(0);
 		this.recordersCount = new AtomicInteger(0);
 		this.dtmfDetectorsCount = new AtomicInteger(0);
 		this.dtmfGeneratorsCount = new AtomicInteger(0);
@@ -112,10 +110,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	public DspFactory getDspFactory() {
 		return dspFactory;
-	}
-
-	public void setDefaultPlayers(int value) {
-		this.defaultPlayers = value;
 	}
 
 	public void setDefaultRecorders(int value) {
@@ -143,18 +137,6 @@ public class ResourcesPool implements ComponentFactory {
 	}
 
 	public void start() {
-		// Setup audio players
-		for (int i = 0; i < this.defaultPlayers; i++) {
-			AudioPlayerImpl player = new AudioPlayerImpl("player", this.scheduler);
-			try {
-				player.setDsp(dspFactory.newProcessor());
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
-			}
-			this.players.offer(player);
-		}
-		this.playersCount.set(this.defaultPlayers);
-
 		// Setup recorders
 		for (int i = 0; i < this.defaultRecorders; i++) {
 			this.recorders.offer(new AudioRecorderImpl(this.scheduler));
@@ -225,18 +207,8 @@ public class ResourcesPool implements ComponentFactory {
 
 		case PLAYER:
 			result = this.players.poll();
-			if (result == null) {
-				result = new AudioPlayerImpl("player", this.scheduler);
-				try {
-					((AudioPlayerImpl) result).setDsp(this.dspFactory.newProcessor());
-				} catch (Exception ex) {
-					logger.warn(ex.getMessage(), ex);
-				}
-				this.playersCount.incrementAndGet();
-			}
-
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new player, pool size:" + playersCount.get() + ", free:" + players.size());
+				logger.debug("Allocated new player [pool size:" + players.size() + ", free:" + players.count() +"]");
 			}
 			break;
 
@@ -303,10 +275,9 @@ public class ResourcesPool implements ComponentFactory {
 			break;
 
 		case PLAYER:
-			this.players.offer(component);
-
+			this.players.offer((AudioPlayerImpl) component);
 			if (logger.isDebugEnabled()) {
-				logger.debug("Released player,pool size:" + playersCount.get() + ",free:" + players.size());
+				logger.debug("Released player [pool size:" + players.size() + ", free:" + players.count()+"]");
 			}
 			break;
 
@@ -350,7 +321,7 @@ public class ResourcesPool implements ComponentFactory {
 		} else {
 			result = this.remoteConnections.poll();
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated remote connection " + result.getCname() + " [pool size:" + remoteConnections.size() + ", free:" + remoteConnections.count());
+				logger.debug("Allocated remote connection [pool size:" + remoteConnections.size() + ", free:" + remoteConnections.count()+"]");
 			}
 		}
 		return result;

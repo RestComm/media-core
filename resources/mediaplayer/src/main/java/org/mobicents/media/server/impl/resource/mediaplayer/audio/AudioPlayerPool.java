@@ -34,7 +34,7 @@ public class AudioPlayerPool extends AbstractConcurrentResourcePool<AudioPlayerI
 
     private final PooledObjectFactory<AudioPlayerImpl> factory;
 
-    protected AudioPlayerPool(int initialCapacity, PooledObjectFactory<AudioPlayerImpl> factory) {
+    public AudioPlayerPool(int initialCapacity, PooledObjectFactory<AudioPlayerImpl> factory) {
         super(initialCapacity);
         this.factory = factory;
         populate();

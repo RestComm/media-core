@@ -28,9 +28,7 @@
 package org.mobicents.media.server.test;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.ResourcesPool;
@@ -41,9 +39,9 @@ import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -53,8 +51,8 @@ import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.utils.Text;
 
 /**
- *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class RecordingTest {
 
@@ -75,17 +73,6 @@ public class RecordingTest {
     private IvrEndpoint user, ivr;    
     
     private Server server;
-    
-    public RecordingTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -111,7 +98,7 @@ public class RecordingTest {
         channelsManager = new ChannelsManager(udpManager);
         channelsManager.setScheduler(scheduler);
         
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, null, null);
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, null, null, null);
         
         server=new Server();
         server.setClock(clock);
@@ -155,8 +142,6 @@ public class RecordingTest {
      */
 //    @Test
     public void testRecording() throws Exception {
-        long s = System.nanoTime();
-        
         //create user connection
         Connection userConnection = user.createConnection(ConnectionType.RTP,false);        
         Text sd2 = new Text(userConnection.getDescriptor());
@@ -198,12 +183,12 @@ public class RecordingTest {
         
     }
     
-    private void printSpectra(String title, int[]s) {
-        System.out.println(title);
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
-    }
+//    private void printSpectra(String title, int[]s) {
+//        System.out.println(title);
+//        for (int i = 0; i < s.length; i++) {
+//            System.out.print(s[i] + " ");
+//        }
+//        System.out.println();
+//    }
     
 }
