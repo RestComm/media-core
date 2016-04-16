@@ -21,30 +21,28 @@
 
 package org.mobicents.media.server.impl.resource.mediaplayer.audio;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.pooling.AbstractConcurrentResourcePool;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
- * Factory that produces Audio Players.
+ * Thread-safe pool for Audio Players.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
  */
-public class AudioPlayerFactory implements PooledObjectFactory<AudioPlayerImpl> {
+public class AudioPlayerPool extends AbstractConcurrentResourcePool<AudioPlayerImpl> {
 
-    /** Global ID generator for audio players **/
-    private final static AtomicInteger ID = new AtomicInteger(1);
+    private final PooledObjectFactory<AudioPlayerImpl> factory;
 
-    private final PriorityQueueScheduler scheduler;
-
-    public AudioPlayerFactory(PriorityQueueScheduler scheduler) {
-        this.scheduler = scheduler;
+    protected AudioPlayerPool(int initialCapacity, PooledObjectFactory<AudioPlayerImpl> factory) {
+        super(initialCapacity);
+        this.factory = factory;
+        populate();
     }
 
     @Override
-    public AudioPlayerImpl produce() {
-        return new AudioPlayerImpl("player-" + ID.getAndIncrement(), scheduler);
+    protected AudioPlayerImpl createResource() {
+        return this.factory.produce();
     }
 
 }
