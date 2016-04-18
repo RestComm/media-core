@@ -103,6 +103,14 @@
 		</constructor>
 	</bean>
 
+	<bean name="dtmfGeneratorFactory" class="org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory">
+		<constructor>
+			<parameter><inject bean="Scheduler" /></parameter>
+			<parameter>-20</parameter>
+			<parameter>80</parameter>
+		</constructor>
+	</bean>
+
 	<!-- Resource Pools -->
 	<bean name="remoteConnectionPool" class="org.mobicents.media.core.connections.RtpConnectionPool">
 		<constructor>
@@ -148,6 +156,15 @@
 			</parameter>
 		</constructor>
 	</bean>
+
+	<bean name="dtmfGeneratorPool" class="org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool">
+		<constructor>
+			<parameter>50</parameter>
+			<parameter>
+				<inject bean="dtmfGeneratorFactory" />
+			</parameter>
+		</constructor>
+	</bean>
 	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
@@ -159,8 +176,8 @@
 			<parameter><inject bean="playerPool" /></parameter>
 			<parameter><inject bean="recorderPool" /></parameter>
 			<parameter><inject bean="dtmfDetectorPool" /></parameter>
+			<parameter><inject bean="dtmfGeneratorPool" /></parameter>
 		</constructor>
-		<property name="defaultDtmfGenerators">0</property>
 		<property name="defaultSignalDetectors">0</property>
 		<property name="defaultSignalGenerators">0</property>
 	</bean>
