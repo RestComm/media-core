@@ -43,6 +43,8 @@ import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -85,6 +87,8 @@ public class ReclaimingTest {
     private DtmfDetectorPool dtmfDetectorPool;
     private DtmfGeneratorFactory dtmfGeneratorFactory;
     private DtmfGeneratorPool dtmfGeneratorPool;
+    private PhoneSignalDetectorFactory signalDetectorFactory;
+    private PhoneSignalDetectorPool signalDetectorPool;
     
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
@@ -112,7 +116,9 @@ public class ReclaimingTest {
         this.dtmfDetectorPool = new DtmfDetectorPool(0, dtmfDetectorFactory);
         this.dtmfGeneratorFactory = new DtmfGeneratorFactory(mediaScheduler);
         this.dtmfGeneratorPool = new DtmfGeneratorPool(0, dtmfGeneratorFactory);
-        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool);
+        this.signalDetectorFactory = new PhoneSignalDetectorFactory(mediaScheduler);
+        this.signalDetectorPool = new PhoneSignalDetectorPool(0, signalDetectorFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool, signalDetectorPool);
 
         //assign scheduler to the endpoint
         endpoint1 = new MyTestEndpoint("test-1");

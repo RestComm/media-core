@@ -42,6 +42,7 @@ import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -68,20 +69,18 @@ public class ResourcesPool implements ComponentFactory {
 	private final ResourcePool<AudioRecorderImpl> recorders;
 	private final ResourcePool<DetectorImpl> dtmfDetectors;
 	private final ResourcePool<GeneratorImpl> dtmfGenerators;
-	private final ConcurrentCyclicFIFO<Component> signalDetectors;
+	private final ResourcePool<PhoneSignalDetector> signalDetectors;
 	private final ConcurrentCyclicFIFO<Component> signalGenerators;
 
-	private int defaultSignalDetectors;
 	private int defaultSignalGenerators;
 
-	private AtomicInteger signalDetectorsCount;
 	private AtomicInteger signalGeneratorsCount;
 
 	// Connections
 	private final ResourcePool<LocalConnectionImpl> localConnections;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders, DtmfDetectorPool dtmfDetectors, DtmfGeneratorPool dtmfGenerators) {
+	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders, DtmfDetectorPool dtmfDetectors, DtmfGeneratorPool dtmfGenerators, PhoneSignalDetectorPool signalDetectors) {
 		this.scheduler = scheduler;
 		this.dspFactory = dspFactory;
 
@@ -89,12 +88,11 @@ public class ResourcesPool implements ComponentFactory {
 		this.recorders = recorders;
 		this.dtmfDetectors = dtmfDetectors;
 		this.dtmfGenerators = dtmfGenerators;
-		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
+		this.signalDetectors = signalDetectors;
 		this.signalGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.localConnections = localConnections;
 		this.remoteConnections = rtpConnections;
 		
-		this.signalDetectorsCount = new AtomicInteger(0);
 		this.signalGeneratorsCount = new AtomicInteger(0);
 	}
 
@@ -102,21 +100,11 @@ public class ResourcesPool implements ComponentFactory {
 		return dspFactory;
 	}
 
-	public void setDefaultSignalDetectors(int value) {
-		this.defaultSignalDetectors = value;
-	}
-
 	public void setDefaultSignalGenerators(int value) {
 		this.defaultSignalGenerators = value;
 	}
 
 	public void start() {
-		// Setup signal detectors
-		for (int i = 0; i < this.defaultSignalDetectors; i++) {
-			this.signalDetectors.offer(new PhoneSignalDetector("signal detector", this.scheduler));
-		}
-		this.signalDetectorsCount.set(this.defaultSignalDetectors);
-
 		// Setup signal generators
 		for (int i = 0; i < this.defaultSignalGenerators; i++) {
 			this.signalGenerators.offer(new PhoneSignalGenerator("signal generator", this.scheduler));
@@ -159,13 +147,8 @@ public class ResourcesPool implements ComponentFactory {
 
 		case SIGNAL_DETECTOR:
 			result = this.signalDetectors.poll();
-			if (result == null) {
-				result = new PhoneSignalDetector("signal detector", this.scheduler);
-				this.signalDetectorsCount.incrementAndGet();
-			}
-
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new signal detector, pool size:" + signalDetectorsCount.get() + ", free:" + signalDetectors.size());
+				logger.debug("Allocated signal detector [pool size:" + signalDetectors.size() + ", free:" + signalDetectors.count() + "]");
 			}
 			break;
 
@@ -221,10 +204,9 @@ public class ResourcesPool implements ComponentFactory {
 			break;
 
 		case SIGNAL_DETECTOR:
-			this.signalDetectors.offer(component);
-
+			this.signalDetectors.offer((PhoneSignalDetector) component);
 			if (logger.isDebugEnabled()) {
-				logger.debug("Released signal detector,pool size:" + signalDetectorsCount.get() + ",free:" + signalDetectors.size());
+				logger.debug("Released signal detector [pool size:" + signalDetectors.size() + ", free:" + signalDetectors.count() + "]");
 			}
 			break;
 

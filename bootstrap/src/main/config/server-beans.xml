@@ -111,6 +111,12 @@
 		</constructor>
 	</bean>
 
+	<bean name="signalDetectorFactory" class="org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory">
+		<constructor>
+			<parameter><inject bean="Scheduler" /></parameter>
+		</constructor>
+	</bean>
+
 	<!-- Resource Pools -->
 	<bean name="remoteConnectionPool" class="org.mobicents.media.core.connections.RtpConnectionPool">
 		<constructor>
@@ -165,6 +171,15 @@
 			</parameter>
 		</constructor>
 	</bean>
+
+	<bean name="signalDetectorPool" class="org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool">
+		<constructor>
+			<parameter>50</parameter>
+			<parameter>
+				<inject bean="signalDetectorFactory" />
+			</parameter>
+		</constructor>
+	</bean>
 	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
@@ -177,8 +192,8 @@
 			<parameter><inject bean="recorderPool" /></parameter>
 			<parameter><inject bean="dtmfDetectorPool" /></parameter>
 			<parameter><inject bean="dtmfGeneratorPool" /></parameter>
+			<parameter><inject bean="signalDetectorPool" /></parameter>
 		</constructor>
-		<property name="defaultSignalDetectors">0</property>
 		<property name="defaultSignalGenerators">0</property>
 	</bean>
 
