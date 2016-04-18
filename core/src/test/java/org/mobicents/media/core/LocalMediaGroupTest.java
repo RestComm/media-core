@@ -43,6 +43,8 @@ import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.core.endpoints.impl.BridgeEndpoint;
 import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
@@ -86,6 +88,8 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
     private LocalConnectionPool localConnectionPool;
     private AudioPlayerFactory playerFactory;
     private AudioPlayerPool playerPool;
+    private AudioRecorderFactory recorderFactory;
+    private AudioRecorderPool recorderPool;
     
     //endpoint and connection
     private BaseMixerEndpointImpl endpoint1,endpoint2;
@@ -122,7 +126,9 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
         this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory);
         this.playerPool = new AudioPlayerPool(0, playerFactory);
-        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool);
+        this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
+        this.recorderPool = new AudioRecorderPool(0, recorderFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool);
 
         //assign scheduler to the endpoint
         endpoint1 = new IvrEndpoint("test");

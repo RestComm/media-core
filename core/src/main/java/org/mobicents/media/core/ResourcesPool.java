@@ -34,6 +34,7 @@ import org.mobicents.media.core.connections.RtpConnectionImpl;
 import org.mobicents.media.core.connections.RtpConnectionPool;
 import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
@@ -62,13 +63,12 @@ public class ResourcesPool implements ComponentFactory {
 
 	// Media resources
 	private final ResourcePool<AudioPlayerImpl> players;
-	private final ConcurrentCyclicFIFO<Component> recorders;
+	private final ResourcePool<AudioRecorderImpl> recorders;
 	private final ConcurrentCyclicFIFO<Component> dtmfDetectors;
 	private final ConcurrentCyclicFIFO<Component> dtmfGenerators;
 	private final ConcurrentCyclicFIFO<Component> signalDetectors;
 	private final ConcurrentCyclicFIFO<Component> signalGenerators;
 
-	private int defaultRecorders;
 	private int defaultDtmfDetectors;
 	private int defaultDtmfGenerators;
 	private int defaultSignalDetectors;
@@ -76,7 +76,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	private int dtmfDetectorDbi;
 	
-	private AtomicInteger recordersCount;
 	private AtomicInteger dtmfDetectorsCount;
 	private AtomicInteger dtmfGeneratorsCount;
 	private AtomicInteger signalDetectorsCount;
@@ -86,12 +85,12 @@ public class ResourcesPool implements ComponentFactory {
 	private final ResourcePool<LocalConnectionImpl> localConnections;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players) {
+	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders) {
 		this.scheduler = scheduler;
 		this.dspFactory = dspFactory;
 
 		this.players = players;
-		this.recorders = new ConcurrentCyclicFIFO<Component>();
+		this.recorders = recorders;
 		this.dtmfDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.dtmfGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
@@ -101,7 +100,6 @@ public class ResourcesPool implements ComponentFactory {
 		
 		this.dtmfDetectorDbi = -35;
 		
-		this.recordersCount = new AtomicInteger(0);
 		this.dtmfDetectorsCount = new AtomicInteger(0);
 		this.dtmfGeneratorsCount = new AtomicInteger(0);
 		this.signalDetectorsCount = new AtomicInteger(0);
@@ -110,10 +108,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	public DspFactory getDspFactory() {
 		return dspFactory;
-	}
-
-	public void setDefaultRecorders(int value) {
-		this.defaultRecorders = value;
 	}
 
 	public void setDefaultDtmfDetectors(int value) {
@@ -137,12 +131,6 @@ public class ResourcesPool implements ComponentFactory {
 	}
 
 	public void start() {
-		// Setup recorders
-		for (int i = 0; i < this.defaultRecorders; i++) {
-			this.recorders.offer(new AudioRecorderImpl(this.scheduler));
-		}
-		recordersCount.set(this.defaultRecorders);
-
 		// Setup DTMF recognizers
 		for (int i = 0; i < defaultDtmfDetectors; i++) {
 			DetectorImpl detector = new DetectorImpl("detector", this.scheduler);
@@ -214,13 +202,8 @@ public class ResourcesPool implements ComponentFactory {
 
 		case RECORDER:
 			result = this.recorders.poll();
-			if (result == null) {
-				result = new AudioRecorderImpl(this.scheduler);
-				this.recordersCount.incrementAndGet();
-			}
-
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new recorder, pool size:" + recordersCount.get() + ", free:" + recorders.size());
+				logger.debug("Allocated new recorder [pool size:" + recorders.size() + ", free:" + recorders.count()+"]");
 			}
 			break;
 
@@ -282,10 +265,9 @@ public class ResourcesPool implements ComponentFactory {
 			break;
 
 		case RECORDER:
-			this.recorders.offer(component);
-
+			this.recorders.offer((AudioRecorderImpl) component);
 			if (logger.isDebugEnabled()) {
-				logger.debug("Released recorder,pool size:" + recordersCount.get() + ",free:" + recorders.size());
+				logger.debug("Released recorder [pool size:" + recorders.size() + ", free:" + recorders.count()+"]");
 			}
 			break;
 

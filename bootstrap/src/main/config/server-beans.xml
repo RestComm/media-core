@@ -90,6 +90,12 @@
 		</constructor>
 	</bean>
 
+	<bean name="recorderFactory" class="org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory">
+		<constructor>
+			<parameter><inject bean="Scheduler" /></parameter>
+		</constructor>
+	</bean>
+
 	<!-- Resource Pools -->
 	<bean name="remoteConnectionPool" class="org.mobicents.media.core.connections.RtpConnectionPool">
 		<constructor>
@@ -117,6 +123,15 @@
 			</parameter>
 		</constructor>
 	</bean>
+
+	<bean name="recorderPool" class="org.mobicents.media.server.impl.resource.audio.AudioRecorderPool">
+		<constructor>
+			<parameter>50</parameter>
+			<parameter>
+				<inject bean="recorderFactory" />
+			</parameter>
+		</constructor>
+	</bean>
 	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
@@ -126,8 +141,8 @@
 			<parameter><inject bean="remoteConnectionPool" /></parameter>
 			<parameter><inject bean="localConnectionPool" /></parameter>
 			<parameter><inject bean="playerPool" /></parameter>
+			<parameter><inject bean="recorderPool" /></parameter>
 		</constructor>
-		<property name="defaultRecorders">50</property>
 		<property name="defaultDtmfDetectors">50</property>
 		<property name="defaultDtmfGenerators">0</property>
 		<property name="defaultSignalDetectors">0</property>

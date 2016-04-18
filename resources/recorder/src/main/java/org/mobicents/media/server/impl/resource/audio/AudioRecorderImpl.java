@@ -43,15 +43,16 @@ import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
 
 /**
- *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AudioRecorderImpl extends AbstractSink implements Recorder {
+public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledObject {
 
     private static final long serialVersionUID = -5290778284867189598L;
 
@@ -452,6 +453,57 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     @Override
     public void clearAllListeners() {
         listeners.clear();
+    }
+    
+    @Override
+    public void checkIn() {
+        // clear listeners
+        clearAllListeners();
+        
+        // close stream
+        if(fout != null) {
+            try {
+                fout.flush();
+                fout.close();
+            } catch (IOException e) {
+                logger.warn("Could not flush or close the recording stream.");
+            } finally {
+                fout = null;
+            }
+        }
+        
+        // clean temp file 
+        if(file != null) {
+            file = null;
+        }
+        if(temp != null) {
+            if(temp.exists()) {
+                temp.delete();
+            }
+            temp = null;
+        }
+        
+        // clean buffers
+        this.byteBuffer.clear();
+        this.headerBuffer.clear();
+        this.data = null;
+        this.offset = 0;
+        this.len = 0;
+        
+        // reset internal state
+        this.recordDir = "";
+        this.postSpeechTimer = -1L;
+        this.preSpeechTimer = -1L;
+        this.lastPacketData = 0L;
+        this.startTime = 0L;
+        this.maxRecordTime = -1L;
+        this.qualifier = 0;
+        this.speechDetected = false;
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
     }
 
     /**

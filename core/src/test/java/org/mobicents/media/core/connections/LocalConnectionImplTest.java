@@ -34,6 +34,8 @@ import org.junit.Test;
 import org.mobicents.media.core.MyTestEndpoint;
 import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.server.component.DspFactoryImpl;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -67,6 +69,8 @@ public class LocalConnectionImplTest {
     private LocalConnectionPool localConnectionPool;
     private AudioPlayerFactory playerFactory;
     private AudioPlayerPool playerPool;
+    private AudioRecorderFactory recorderFactory;
+    private AudioRecorderPool recorderPool;
     
     private ChannelsManager channelsManager;
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
@@ -91,7 +95,9 @@ public class LocalConnectionImplTest {
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
         this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory);
         this.playerPool = new AudioPlayerPool(0, playerFactory);
-        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool);
+        this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
+        this.recorderPool = new AudioRecorderPool(0, recorderFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool);
 
         //assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test");
