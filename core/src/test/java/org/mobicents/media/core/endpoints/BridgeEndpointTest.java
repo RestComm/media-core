@@ -45,6 +45,8 @@ import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
+import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
+import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.spi.Connection;
@@ -105,6 +107,8 @@ public class BridgeEndpointTest extends RTPEnvironment {
     private AudioRecorderPool recorderPool;
     private DtmfDetectorFactory dtmfDetectorFactory;
     private DtmfDetectorPool dtmfDetectorPool;
+    private DtmfGeneratorFactory dtmfGeneratorFactory;
+    private DtmfGeneratorPool dtmfGeneratorPool;
     
 	class ADtmfDetectorListener implements DtmfDetectorListener {
 		
@@ -136,7 +140,9 @@ public class BridgeEndpointTest extends RTPEnvironment {
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);
         this.dtmfDetectorFactory = new DtmfDetectorFactory(mediaScheduler);
         this.dtmfDetectorPool = new DtmfDetectorPool(0, dtmfDetectorFactory);
-        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool);
+        this.dtmfGeneratorFactory = new DtmfGeneratorFactory(mediaScheduler);
+        this.dtmfGeneratorPool = new DtmfGeneratorPool(0, dtmfGeneratorFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool);
 
 		// assign scheduler to the end points
 		endpointRTP1 = new MyTestEndpoint("test-ep-RTP1");
