@@ -98,7 +98,7 @@ public class RecordingTest {
         channelsManager = new ChannelsManager(udpManager);
         channelsManager.setScheduler(scheduler);
         
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, null, null, null, null);
+        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory, null, null, null, null, null);
         
         server=new Server();
         server.setClock(clock);

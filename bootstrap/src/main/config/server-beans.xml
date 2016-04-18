@@ -96,6 +96,13 @@
 		</constructor>
 	</bean>
 
+	<bean name="dtmfDetectorFactory" class="org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory">
+		<constructor>
+			<parameter><inject bean="Scheduler" /></parameter>
+			<parameter>-35</parameter>
+		</constructor>
+	</bean>
+
 	<!-- Resource Pools -->
 	<bean name="remoteConnectionPool" class="org.mobicents.media.core.connections.RtpConnectionPool">
 		<constructor>
@@ -132,6 +139,15 @@
 			</parameter>
 		</constructor>
 	</bean>
+
+	<bean name="dtmfDetectorPool" class="org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool">
+		<constructor>
+			<parameter>50</parameter>
+			<parameter>
+				<inject bean="dtmfDetectorFactory" />
+			</parameter>
+		</constructor>
+	</bean>
 	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
@@ -142,12 +158,11 @@
 			<parameter><inject bean="localConnectionPool" /></parameter>
 			<parameter><inject bean="playerPool" /></parameter>
 			<parameter><inject bean="recorderPool" /></parameter>
+			<parameter><inject bean="dtmfDetectorPool" /></parameter>
 		</constructor>
-		<property name="defaultDtmfDetectors">50</property>
 		<property name="defaultDtmfGenerators">0</property>
 		<property name="defaultSignalDetectors">0</property>
 		<property name="defaultSignalGenerators">0</property>
-		<property name="dtmfDetectorDbi">0</property>
 	</bean>
 
 	<!-- MGCP Controller definition -->

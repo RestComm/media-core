@@ -36,6 +36,7 @@ import org.mobicents.media.server.concurrent.ConcurrentCyclicFIFO;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
@@ -64,19 +65,15 @@ public class ResourcesPool implements ComponentFactory {
 	// Media resources
 	private final ResourcePool<AudioPlayerImpl> players;
 	private final ResourcePool<AudioRecorderImpl> recorders;
-	private final ConcurrentCyclicFIFO<Component> dtmfDetectors;
+	private final ResourcePool<DetectorImpl> dtmfDetectors;
 	private final ConcurrentCyclicFIFO<Component> dtmfGenerators;
 	private final ConcurrentCyclicFIFO<Component> signalDetectors;
 	private final ConcurrentCyclicFIFO<Component> signalGenerators;
 
-	private int defaultDtmfDetectors;
 	private int defaultDtmfGenerators;
 	private int defaultSignalDetectors;
 	private int defaultSignalGenerators;
 
-	private int dtmfDetectorDbi;
-	
-	private AtomicInteger dtmfDetectorsCount;
 	private AtomicInteger dtmfGeneratorsCount;
 	private AtomicInteger signalDetectorsCount;
 	private AtomicInteger signalGeneratorsCount;
@@ -85,22 +82,19 @@ public class ResourcesPool implements ComponentFactory {
 	private final ResourcePool<LocalConnectionImpl> localConnections;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders) {
+	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders, DtmfDetectorPool dtmfDetectors) {
 		this.scheduler = scheduler;
 		this.dspFactory = dspFactory;
 
 		this.players = players;
 		this.recorders = recorders;
-		this.dtmfDetectors = new ConcurrentCyclicFIFO<Component>();
+		this.dtmfDetectors = dtmfDetectors;
 		this.dtmfGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.signalDetectors = new ConcurrentCyclicFIFO<Component>();
 		this.signalGenerators = new ConcurrentCyclicFIFO<Component>();
 		this.localConnections = localConnections;
 		this.remoteConnections = rtpConnections;
 		
-		this.dtmfDetectorDbi = -35;
-		
-		this.dtmfDetectorsCount = new AtomicInteger(0);
 		this.dtmfGeneratorsCount = new AtomicInteger(0);
 		this.signalDetectorsCount = new AtomicInteger(0);
 		this.signalGeneratorsCount = new AtomicInteger(0);
@@ -108,10 +102,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	public DspFactory getDspFactory() {
 		return dspFactory;
-	}
-
-	public void setDefaultDtmfDetectors(int value) {
-		this.defaultDtmfDetectors = value;
 	}
 
 	public void setDefaultDtmfGenerators(int value) {
@@ -126,19 +116,7 @@ public class ResourcesPool implements ComponentFactory {
 		this.defaultSignalGenerators = value;
 	}
 
-	public void setDtmfDetectorDbi(int value) {
-		this.dtmfDetectorDbi = value;
-	}
-
 	public void start() {
-		// Setup DTMF recognizers
-		for (int i = 0; i < defaultDtmfDetectors; i++) {
-			DetectorImpl detector = new DetectorImpl("detector", this.scheduler);
-			detector.setVolume(this.dtmfDetectorDbi);
-			this.dtmfDetectors.offer(detector);
-		}
-		this.dtmfDetectorsCount.set(this.defaultDtmfDetectors);
-
 		// Setup DTMF generators
 		for (int i = 0; i < this.defaultDtmfGenerators; i++) {
 			GeneratorImpl generator = new GeneratorImpl("generator", this.scheduler);
@@ -168,14 +146,8 @@ public class ResourcesPool implements ComponentFactory {
 		switch (componentType) {
 		case DTMF_DETECTOR:
 			result = this.dtmfDetectors.poll();
-			if (result == null) {
-				result = new DetectorImpl("detector", this.scheduler);
-				((DetectorImpl) result).setVolume(this.dtmfDetectorDbi);
-				this.dtmfDetectorsCount.incrementAndGet();
-			}
-
 			if (logger.isDebugEnabled()) {
-				logger.debug("Allocated new dtmf detector, pool size:" + dtmfDetectorsCount.get() + ", free:" + dtmfDetectors.size());
+				logger.debug("Allocated new DTMF Detector [pool size:" + dtmfDetectors.size() + ", free:" + dtmfDetectors.count()+"]");
 			}
 			break;
 
@@ -242,10 +214,9 @@ public class ResourcesPool implements ComponentFactory {
 	public void releaseAudioComponent(Component component, ComponentType componentType) {
 		switch (componentType) {
 		case DTMF_DETECTOR:
-			this.dtmfDetectors.offer(component);
-
+			this.dtmfDetectors.offer((DetectorImpl) component);
 			if (logger.isDebugEnabled()) {
-				logger.debug("Released dtmf detector,pool size:" + dtmfDetectorsCount.get() + ",free:" + dtmfDetectors.size());
+				logger.debug("Released DTMF Detector [pool size:" + dtmfDetectors.size() + ", free:" + dtmfDetectors.size() + "]");
 			}
 			break;
 
