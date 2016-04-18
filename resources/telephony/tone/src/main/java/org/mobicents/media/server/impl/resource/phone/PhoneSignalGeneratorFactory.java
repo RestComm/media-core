@@ -27,25 +27,25 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
- * Factory that produces Phone Signal Detectors.
+ * Factory that produces Phone Signal Generators.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PhoneSignalDetectorFactory implements PooledObjectFactory<PhoneSignalDetector> {
+public class PhoneSignalGeneratorFactory implements PooledObjectFactory<PhoneSignalGenerator> {
 
-    /** Global ID generator for signal detectors **/
+    /** Global ID generator for produced resources */
     private static final AtomicInteger ID = new AtomicInteger(1);
 
     private final PriorityQueueScheduler mediaScheduler;
 
-    public PhoneSignalDetectorFactory(PriorityQueueScheduler mediaScheduler) {
+    public PhoneSignalGeneratorFactory(PriorityQueueScheduler mediaScheduler) {
         this.mediaScheduler = mediaScheduler;
     }
 
     @Override
-    public PhoneSignalDetector produce() {
-        return new PhoneSignalDetector("signal-detector-" + ID.getAndIncrement(), mediaScheduler);
+    public PhoneSignalGenerator produce() {
+        return new PhoneSignalGenerator("signal-generator-" + ID.getAndIncrement(), mediaScheduler);
     }
 
 }

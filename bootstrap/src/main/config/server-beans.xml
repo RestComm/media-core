@@ -117,6 +117,12 @@
 		</constructor>
 	</bean>
 
+	<bean name="signalGeneratorFactory" class="org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory">
+		<constructor>
+			<parameter><inject bean="Scheduler" /></parameter>
+		</constructor>
+	</bean>
+
 	<!-- Resource Pools -->
 	<bean name="remoteConnectionPool" class="org.mobicents.media.core.connections.RtpConnectionPool">
 		<constructor>
@@ -180,6 +186,15 @@
 			</parameter>
 		</constructor>
 	</bean>
+
+	<bean name="signalGeneratorPool" class="org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool">
+		<constructor>
+			<parameter>50</parameter>
+			<parameter>
+				<inject bean="signalGeneratorFactory" />
+			</parameter>
+		</constructor>
+	</bean>
 	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
@@ -193,8 +208,8 @@
 			<parameter><inject bean="dtmfDetectorPool" /></parameter>
 			<parameter><inject bean="dtmfGeneratorPool" /></parameter>
 			<parameter><inject bean="signalDetectorPool" /></parameter>
+			<parameter><inject bean="signalGeneratorPool" /></parameter>
 		</constructor>
-		<property name="defaultSignalGenerators">0</property>
 	</bean>
 
 	<!-- MGCP Controller definition -->

@@ -19,23 +19,23 @@ package org.mobicents.media.server.impl.resource.phone;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioInput;
+import org.mobicents.media.server.impl.AbstractSource;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-import org.mobicents.media.server.spi.format.FormatFactory;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.impl.AbstractSource;
-
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.pooling.PooledObject;
 
 /**
- * Generates sine wave signal with specified Amplitude and frequence.
+ * Generates sine wave signal with specified Amplitude and frequency.
  *
  * The format of output signal is Linear, 16bit, 8kHz.
  * 
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class PhoneSignalGenerator extends AbstractSource  {
+public class PhoneSignalGenerator extends AbstractSource implements PooledObject  {
 	private AudioFormat LINEAR_AUDIO = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);    
 	int frameSize = (int)(20.0f*LINEAR_AUDIO.getSampleRate()/1000.0);
 	
@@ -150,5 +150,17 @@ public class PhoneSignalGenerator extends AbstractSource  {
     		time += ((double)20)/1000.0;
     		
     		return currFrame;
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
     }    
 }

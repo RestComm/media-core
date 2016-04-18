@@ -46,6 +46,8 @@ import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFac
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -85,6 +87,8 @@ public class RtpConnectionImplTest {
     private DtmfGeneratorPool dtmfGeneratorPool;
     private PhoneSignalDetectorFactory signalDetectorFactory;
     private PhoneSignalDetectorPool signalDetectorPool;
+    private PhoneSignalGeneratorFactory signalGeneratorFactory;
+    private PhoneSignalGeneratorPool signalGeneratorPool;
     
     //endpoint and connection
     private RtpConnectionImpl connection;
@@ -118,7 +122,9 @@ public class RtpConnectionImplTest {
         this.dtmfGeneratorPool = new DtmfGeneratorPool(0, dtmfGeneratorFactory);
         this.signalDetectorFactory = new PhoneSignalDetectorFactory(mediaScheduler);
         this.signalDetectorPool = new PhoneSignalDetectorPool(0, signalDetectorFactory);
-        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool, signalDetectorPool);
+        this.signalGeneratorFactory = new PhoneSignalGeneratorFactory(mediaScheduler);
+        this.signalGeneratorPool = new PhoneSignalGeneratorPool(0, signalGeneratorFactory);
+        resourcesPool=new ResourcesPool(mediaScheduler, channelsManager, dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool, signalDetectorPool, signalGeneratorPool);
 
         //assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test");

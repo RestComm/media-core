@@ -18,34 +18,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.mobicents.media.server.impl.resource.phone;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.pooling.AbstractConcurrentResourcePool;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 /**
- * Factory that produces Phone Signal Detectors.
+ * Thread-safe pool for Signal Generators.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PhoneSignalDetectorFactory implements PooledObjectFactory<PhoneSignalDetector> {
+public class PhoneSignalGeneratorPool extends AbstractConcurrentResourcePool<PhoneSignalGenerator> {
 
-    /** Global ID generator for signal detectors **/
-    private static final AtomicInteger ID = new AtomicInteger(1);
-
-    private final PriorityQueueScheduler mediaScheduler;
-
-    public PhoneSignalDetectorFactory(PriorityQueueScheduler mediaScheduler) {
-        this.mediaScheduler = mediaScheduler;
+    private final PooledObjectFactory<PhoneSignalGenerator> factory;
+    
+    public PhoneSignalGeneratorPool(int initialCapacity, PooledObjectFactory<PhoneSignalGenerator> factory) {
+        super(initialCapacity);
+        this.factory = factory;
+        populate();
     }
 
     @Override
-    public PhoneSignalDetector produce() {
-        return new PhoneSignalDetector("signal-detector-" + ID.getAndIncrement(), mediaScheduler);
+    protected PhoneSignalGenerator createResource() {
+        return this.factory.produce();
     }
 
 }
