@@ -42,8 +42,6 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
@@ -73,7 +71,7 @@ public class ResourcesPool implements ComponentFactory {
 	private final ResourcePool<LocalConnectionImpl> localConnections;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	public ResourcesPool(PriorityQueueScheduler scheduler, ChannelsManager channelsManager, DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders, DtmfDetectorPool dtmfDetectors, DtmfGeneratorPool dtmfGenerators, PhoneSignalDetectorPool signalDetectors, PhoneSignalGeneratorPool signalGenerators) {
+	public ResourcesPool(DspFactory dspFactory, RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders, DtmfDetectorPool dtmfDetectors, DtmfGeneratorPool dtmfGenerators, PhoneSignalDetectorPool signalDetectors, PhoneSignalGeneratorPool signalGenerators) {
 		// Core components
 		this.dspFactory = dspFactory;
 
@@ -92,9 +90,6 @@ public class ResourcesPool implements ComponentFactory {
 
 	public DspFactory getDspFactory() {
 		return dspFactory;
-	}
-
-	public void start() {
 	}
 
 	@Override

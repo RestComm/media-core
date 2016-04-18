@@ -198,8 +198,6 @@
 	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
-			<parameter><inject bean="Scheduler" /></parameter>
-			<parameter><inject bean="channelsManager" /></parameter>
 			<parameter><inject bean="DSP" /></parameter>
 			<parameter><inject bean="remoteConnectionPool" /></parameter>
 			<parameter><inject bean="localConnectionPool" /></parameter>
