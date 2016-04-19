@@ -58,7 +58,7 @@ public final class Version {
 	 * 
 	 * @return
 	 */
-	public Map getProperties() {
+	public Map<Object, Object> getProperties() {
 		return Collections.unmodifiableMap(props);
 	}
 
@@ -78,6 +78,7 @@ public final class Version {
 	 * 
 	 * @return Basic information as a string.
 	 */
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("Mobicents Media Server: ");
 		boolean first = true;

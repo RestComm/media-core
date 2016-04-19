@@ -91,6 +91,11 @@ public class BaseSplitterEndpointImpl extends BaseEndpointImpl {
 			break;
 		}
 	}
+	
+	@Override
+	public void configure(boolean isALaw) {
+	    
+	}
 
 	@Override
 	public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {

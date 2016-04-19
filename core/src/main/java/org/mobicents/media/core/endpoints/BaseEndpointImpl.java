@@ -32,7 +32,6 @@ import org.mobicents.media.core.connections.BaseConnection;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
@@ -44,32 +43,25 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
  * 
  * @author yulian oifa
  * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public abstract class BaseEndpointImpl implements Endpoint {
 
-	// local name of this endpoint
-	private String localName;
+    private static final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
 
-	// current state of this endpoint
+    // Core Components
+    private PriorityQueueScheduler scheduler;
+    protected ResourcesPool resourcesPool;
+    
+    // Endpoint state
+	private final String localName;
 	private EndpointState state = EndpointState.READY;
-
-	// media group
 	protected MediaGroup mediaGroup;
-
-	// resources pool
-	protected ResourcesPool resourcesPool;
-
-	// job scheduler
-	private PriorityQueueScheduler scheduler;
-
-	// logger instance
-	private final Logger logger = Logger.getLogger(BaseEndpointImpl.class);
-
-	private ConcurrentMap<Connection> connections = new ConcurrentMap<Connection>();
-	private Iterator<Connection> connectionsIterator;
+	private final ConcurrentMap<Connection> connections;
 
 	public BaseEndpointImpl(String localName) {
 		this.localName = localName;
+		this.connections = new ConcurrentMap<Connection>();
 	}
 
 	@Override
@@ -141,13 +133,13 @@ public abstract class BaseEndpointImpl implements Endpoint {
 		mediaGroup.releaseAll();
 		deleteAllConnections();
 		// TODO: unregister at scheduler level
-		logger.info("Stopped " + localName);
+        if (logger.isInfoEnabled()) {
+            logger.info("Stopped endpoint " + localName);
+        }
 	}
 
 	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal)
-			throws ResourceUnavailableException {
-
+	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
 		Connection connection = null;
 		switch (type) {
 		case RTP:
@@ -197,7 +189,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
 
 	@Override
 	public void deleteAllConnections() {
-		connectionsIterator = connections.valuesIterator();
+	    Iterator<Connection> connectionsIterator = connections.valuesIterator();
 		while (connectionsIterator.hasNext()) {
 			((BaseConnection) connectionsIterator.next()).close();
 		}
@@ -210,10 +202,6 @@ public abstract class BaseEndpointImpl implements Endpoint {
 	@Override
 	public int getActiveConnectionsCount() {
 		return connections.size();
-	}
-
-	@Override
-	public void configure(boolean isALaw) {
 	}
 
 	@Override
@@ -295,8 +283,5 @@ public abstract class BaseEndpointImpl implements Endpoint {
 			break;
 		}
 	}
-
-	@Override
-	public abstract void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode);
 
 }

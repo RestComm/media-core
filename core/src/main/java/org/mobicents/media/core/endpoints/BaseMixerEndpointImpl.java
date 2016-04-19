@@ -72,6 +72,11 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
 		audioMixer.release(((BaseConnection) connection).getAudioComponent());
 		oobMixer.release(((BaseConnection) connection).getOOBComponent());
 	}
+	
+	@Override
+	public void configure(boolean isALaw) {
+	    
+	}
 
 	@Override
 	public void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
