@@ -27,6 +27,7 @@ import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * Ds0 Endpoint Implementation
@@ -35,8 +36,8 @@ import org.mobicents.media.server.spi.MediaType;
  */
 public class Ds0Endpoint extends BaseSS7EndpointImpl {
 
-	public Ds0Endpoint(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
-		super(localName, channelsManager, channelID, isALaw);
+	public Ds0Endpoint(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw, DspFactory dsp) {
+		super(localName, channelsManager, channelID, isALaw, dsp);
 	}
 
 	@Override

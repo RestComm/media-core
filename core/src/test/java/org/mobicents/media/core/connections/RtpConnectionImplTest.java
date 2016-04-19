@@ -124,7 +124,7 @@ public class RtpConnectionImplTest {
         this.signalDetectorPool = new PhoneSignalDetectorPool(0, signalDetectorFactory);
         this.signalGeneratorFactory = new PhoneSignalGeneratorFactory(mediaScheduler);
         this.signalGeneratorPool = new PhoneSignalGeneratorPool(0, signalGeneratorFactory);
-        resourcesPool=new ResourcesPool(dspFactory, rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool, signalDetectorPool, signalGeneratorPool);
+        resourcesPool=new ResourcesPool(rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool, signalDetectorPool, signalGeneratorPool);
 
         //assign scheduler to the endpoint
         endpoint = new MyTestEndpoint("test");

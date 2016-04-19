@@ -198,7 +198,6 @@
 	
 	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
 		<constructor>
-			<parameter><inject bean="DSP" /></parameter>
 			<parameter><inject bean="remoteConnectionPool" /></parameter>
 			<parameter><inject bean="localConnectionPool" /></parameter>
 			<parameter><inject bean="playerPool" /></parameter>
@@ -301,6 +300,7 @@
 		<property name="startChannelID">125</property>
 		<property name="initialSize">15</property>
 		<property name="isALaw">true</property>
+		<property name="dsp"><inject bean="DSP" /></property>
 	</bean>
 	-->
 </deployment>

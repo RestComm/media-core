@@ -33,6 +33,7 @@ import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
  * Basic implementation of the endpoint.
@@ -54,12 +55,14 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
 	private boolean isALaw;
 
 	private ChannelsManager channelsManager;
+	private DspFactory dsp;
 
-	public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw) {
+	public BaseSS7EndpointImpl(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw, DspFactory dsp) {
 		super(localName);
 		this.isALaw = isALaw;
 		this.channelID = channelID;
 		this.channelsManager = channelsManager;
+		this.dsp = dsp;
 	}
 
 	@Override
@@ -78,8 +81,8 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
 		}
 
 		try {
-			ss7DataChannel.setInputDsp(resourcesPool.getDspFactory().newProcessor());
-			ss7DataChannel.setOutputDsp(resourcesPool.getDspFactory().newProcessor());
+			ss7DataChannel.setInputDsp(dsp.newProcessor());
+			ss7DataChannel.setOutputDsp(dsp.newProcessor());
 		} catch (Exception e) {
 			// exception may happen only if invalid classes have been set in config
 		}
