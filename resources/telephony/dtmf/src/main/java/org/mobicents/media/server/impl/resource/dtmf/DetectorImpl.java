@@ -379,17 +379,13 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
                 // try to deliver or queue to buffer if not delivered
                 if (!listeners.dispatch(evt)) {
                     dtmfBuffer.queue(evt);
-                    if (getEndpoint() == null)
+                    if (logger.isInfoEnabled()) {
                         logger.info(String.format("(%s) Buffered '%s' tone", getName(), evt.getTone()));
-                    else
-                        logger.info(String.format("(" + getEndpoint().getLocalName() + ") (%s) Buffered '%s' tone", getName(),
-                                evt.getTone()));
+                    }
                 } else {
-                    if (getEndpoint() == null)
+                    if (logger.isInfoEnabled()) {
                         logger.info(String.format("(%s) Delivered '%s' tone", getName(), evt.getTone()));
-                    else
-                        logger.info(String.format("(" + getEndpoint().getLocalName() + ") (%s) Delivered '%s' tone", getName(),
-                                evt.getTone()));
+                    }
                 }
             }
             events.clear();
