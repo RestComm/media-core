@@ -150,19 +150,9 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
             } else if (ext.matches(Extension.MOV) || ext.matches(Extension.MP4) || ext.matches(Extension.THREE_GP)) {
                 track = new AMRTrackImpl(targetURL);
             } else {
-                if (getEndpoint() == null)
-                    log.info("unknown extension:" + passedURI);
-                else
-                    log.info("(" + getEndpoint().getLocalName() + ") unknown extension:" + passedURI);
-
                 throw new ResourceUnavailableException("Unknown extension: " + passedURI);
             }
         } catch (Exception e) {
-            if (getEndpoint() == null)
-                log.error("error occured", e);
-            else
-                log.error("(" + getEndpoint().getLocalName() + ") error occured", e);
-
             throw new ResourceUnavailableException(e);
         }
 
@@ -216,10 +206,9 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
             frame.setTimestamp(timestamp);
 
             if (frame.isEOM()) {
-                if (getEndpoint() == null)
+                if(log.isInfoEnabled()) {
                     log.info("End of file reached");
-                else
-                    log.info("(" + getEndpoint().getLocalName() + ") End of file reached");
+                }
             }
 
             // do the transcoding job
@@ -228,10 +217,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
                     frame = dsp.process(frame, frame.getFormat(), LINEAR);
                 } catch (Exception e) {
                     // transcoding error , print error and try to move to next frame
-                    if (getEndpoint() == null)
-                        log.error(e);
-                    else
-                        log.error("(" + getEndpoint().getLocalName() + ")", e);
+                    log.error(e);
                 }
             }
 
@@ -240,11 +226,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
             }
             return frame;
         } catch (IOException e) {
-            if (getEndpoint() == null)
-                log.error(e);
-            else
-                log.error("(" + getEndpoint().getLocalName() + ")", e);
-
+            log.error(e);
             if (track != null) {
                 track.close();
             }
