@@ -77,13 +77,11 @@ public class MyTestEndpoint extends BaseMixerEndpointImpl {
 		audioComponent.addInput(sine.getAudioInput());
 		audioComponent.addOutput(analyzer.getAudioOutput());
 		this.dtmfDetector = resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
-		this.dtmfDetector.setEndpoint(this);
 
 		audioComponent.addOutput(((DetectorImpl) this.dtmfDetector).getAudioOutput());
 		oobComponent.addOutput(((DetectorImpl) this.dtmfDetector).getOOBOutput());
 
 		this.dtmfGenerator = resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
-		this.dtmfGenerator.setEndpoint(this);
 
 		audioComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getAudioInput());
 		oobComponent.addInput(((GeneratorImpl) this.dtmfGenerator).getOOBInput());

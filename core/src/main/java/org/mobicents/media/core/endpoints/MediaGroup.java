@@ -101,7 +101,6 @@ public class MediaGroup {
 			if(this.player==null)
 			{
 				this.player=resourcesPool.newAudioComponent(ComponentType.PLAYER);
-				this.player.setEndpoint(endpoint);
 				audioComponent.addInput(((AudioPlayerImpl)this.player).getAudioInput());
 				readComponents++;
 				audioComponent.updateMode(true,writeComponents!=0);
@@ -136,7 +135,6 @@ public class MediaGroup {
 				readComponents--;
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
 				updateEndpoint(-1,0);
-				this.player.clearEndpoint();
 				((AudioPlayerImpl)this.player).clearAllListeners();
 				this.player.deactivate();			
 				resourcesPool.releaseAudioComponent(this.player,ComponentType.PLAYER);
@@ -170,7 +168,6 @@ public class MediaGroup {
 			if(this.recorder==null)		
 			{
 				this.recorder=resourcesPool.newAudioComponent(ComponentType.RECORDER);
-				this.recorder.setEndpoint(endpoint);
 				audioComponent.addOutput(((AudioRecorderImpl)this.recorder).getAudioOutput());
 				oobComponent.addOutput(((AudioRecorderImpl)this.recorder).getOOBOutput());
 				writeComponents++;
@@ -210,7 +207,6 @@ public class MediaGroup {
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
 				oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
 				updateEndpoint(0,-1);
-				this.recorder.clearEndpoint();
 				((AudioRecorderImpl)this.recorder).clearAllListeners();
 				this.recorder.deactivate();
 				resourcesPool.releaseAudioComponent(this.recorder,ComponentType.RECORDER);
@@ -244,7 +240,6 @@ public class MediaGroup {
 			if(this.dtmfDetector==null)			
 			{
 				this.dtmfDetector=resourcesPool.newAudioComponent(ComponentType.DTMF_DETECTOR);
-				this.dtmfDetector.setEndpoint(endpoint);
 				audioComponent.addOutput(((DetectorImpl)this.dtmfDetector).getAudioOutput());
 				oobComponent.addOutput(((DetectorImpl)this.dtmfDetector).getOOBOutput());
 				writeComponents++;
@@ -284,7 +279,6 @@ public class MediaGroup {
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
 				oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);
 				updateEndpoint(0,-1);
-				this.dtmfDetector.clearEndpoint();			
 				((DetectorImpl)this.dtmfDetector).clearAllListeners();
 				this.dtmfDetector.deactivate();
 				((DetectorImpl)this.dtmfDetector).clearBuffer();			
@@ -319,7 +313,6 @@ public class MediaGroup {
 			if(this.dtmfGenerator==null)
 			{
 				this.dtmfGenerator=resourcesPool.newAudioComponent(ComponentType.DTMF_GENERATOR);
-				this.dtmfGenerator.setEndpoint(endpoint);
 				audioComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getAudioInput());
 				oobComponent.addInput(((GeneratorImpl)this.dtmfGenerator).getOOBInput());
 				readComponents++;
@@ -359,7 +352,6 @@ public class MediaGroup {
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);
 				oobComponent.updateMode(readDtmfComponents!=0,writeDtmfComponents!=0);			
 				updateEndpoint(-1,0);
-				this.dtmfGenerator.clearEndpoint();			
 				this.dtmfGenerator.deactivate();
 				resourcesPool.releaseAudioComponent(this.dtmfGenerator,ComponentType.DTMF_GENERATOR);
 				this.dtmfGenerator=null;
@@ -392,7 +384,6 @@ public class MediaGroup {
 			if(this.signalDetector==null)
 			{
 				this.signalDetector=resourcesPool.newAudioComponent(ComponentType.SIGNAL_DETECTOR);
-				this.signalDetector.setEndpoint(endpoint);
 				audioComponent.addOutput(((PhoneSignalDetector)this.signalDetector).getAudioOutput());
 				writeComponents++;
 				audioComponent.updateMode(readComponents!=0,true);
@@ -426,7 +417,6 @@ public class MediaGroup {
 				writeComponents--;
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);			
 				updateEndpoint(0,-1);
-				this.signalDetector.clearEndpoint();			
 				((PhoneSignalDetector)this.signalDetector).clearAllListeners();
 				this.signalDetector.deactivate();
 				resourcesPool.releaseAudioComponent(this.signalDetector,ComponentType.SIGNAL_DETECTOR);
@@ -461,7 +451,6 @@ public class MediaGroup {
 			if(this.signalGenerator==null)
 			{
 				this.signalGenerator=resourcesPool.newAudioComponent(ComponentType.SIGNAL_GENERATOR);
-				this.signalGenerator.setEndpoint(endpoint);
 				audioComponent.addInput(((PhoneSignalGenerator)this.signalGenerator).getAudioInput());
 				readComponents++;
 				audioComponent.updateMode(true,writeComponents!=0);
@@ -495,7 +484,6 @@ public class MediaGroup {
 				readComponents--;
 				audioComponent.updateMode(readComponents!=0,writeComponents!=0);
 				updateEndpoint(-1,0);
-				this.signalGenerator.clearEndpoint();			
 				this.signalGenerator.deactivate();
 				resourcesPool.releaseAudioComponent(this.signalGenerator,ComponentType.SIGNAL_GENERATOR);
 				this.signalGenerator=null;

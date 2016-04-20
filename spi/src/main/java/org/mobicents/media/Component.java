@@ -23,55 +23,47 @@
 package org.mobicents.media;
 
 import java.io.Serializable;
-import org.mobicents.media.server.spi.Endpoint;
 
 /**
- * <i>Component</i> is an Object that is responsible for any media 
- * data processing. 
+ * <i>Component</i> is an Object that is responsible for any media data processing.
  * 
- * Examples of components are the audio player, recoder, 
- * DTMF detector, etc. The <code>Component</code> is a supper class for all 
- * media processing components.
+ * Examples of components are the audio player, recoder, DTMF detector, etc. The <code>Component</code> is a supper class for
+ * all media processing components.
  * 
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public interface Component extends Serializable {    		
+public interface Component extends Serializable {
+
     /**
      * Gets the unique identifier of this component.
      * 
      * @return
      */
     public String getId();
-    
+
     /**
-     * Gets the name of the component.
-     * The component of same type can share same name.
+     * Gets the name of the component. The component of same type can share same name.
      * 
      * @return name of this component;
      */
     public String getName();
-    
+
     /**
-     * Resets component to its original state.
-     * This methods cleans transmission statistics and any assigned formats
+     * Resets component to its original state. This methods cleans transmission statistics and any assigned formats
      */
-    public void reset();    
-    
+    public void reset();
+
     /**
      * Activates component
      * 
      */
     public void activate();
-    
+
     /**
      * Deactivates component
      * 
      */
     public void deactivate();
-    
-    public void setEndpoint(Endpoint endpoint);
-    
-    public void clearEndpoint();
-    
-    public Endpoint getEndpoint();
+
 }
