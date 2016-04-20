@@ -23,6 +23,7 @@ package org.mobicents.media.server.bootstrap;
 
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.log4j.Logger;
 
 /**
@@ -36,22 +37,22 @@ public class BootStrapper {
 
     private static final Logger log = Logger.getLogger(BootStrapper.class);
 
-    private final String filename;
+    private final String filepath;
     private final Configurations configurations;
     private XMLConfiguration configuration;
 
-    public BootStrapper() {
-        this.filename = "../conf/mediaserver.xml";
+    public BootStrapper(String filepath) {
+        this.filepath = filepath;
         this.configurations = new Configurations();
     }
 
     public void start() {
         try {
-            log.info("Started Bootstrapper");
-            this.configuration = this.configurations.xml(filename);
-            // access configuration properties
-        } catch (Exception e) {
-            log.error("Could not load configuration file");
+            log.info("Loading configuration file...");
+            this.configuration = this.configurations.xml(filepath);
+            log.info("... loaded configuration file successfully!");
+        } catch (ConfigurationException e) {
+            log.error("... failed to load configuration file!");
         }
     }
 

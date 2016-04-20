@@ -306,5 +306,8 @@
 	
 	<!-- BootStrapper -->
 	<bean name="bootstrapper" class="org.mobicents.media.server.bootstrap.BootStrapper">
+		<constructor>
+			<parameter>../conf/mediaserver.xml</parameter>
+		</constructor>
 	</bean>
 </deployment>
