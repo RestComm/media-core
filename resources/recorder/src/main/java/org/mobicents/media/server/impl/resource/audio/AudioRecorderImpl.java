@@ -179,8 +179,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
             writeToWaveFile();
         } catch (Exception e) {
-            String endpointName = getEndpoint() == null ? "" : getEndpoint().getLocalName();
-            logger.error(endpointName + " !!!!!! Error writing to file", e);
+            logger.error("Error writing to file", e);
         } finally {
             // send event
             recorderStopped.setQualifier(qualifier);
@@ -264,10 +263,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         // if append specified and file really exist copy data from the current
         // file to temp
         if (append && file.exists()) {
-            if (getEndpoint() == null)
+            if (logger.isInfoEnabled()) {
                 logger.info("..............>>>>>Copying samples from " + file);
-            else
-                logger.info("(" + getEndpoint().getLocalName() + ") ..............>>>>>Copying samples from " + file);
+            }
             copySamples(file, fout);
         }
     }
@@ -278,8 +276,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
      * @throws IOException
      */
     private void writeToWaveFile() throws IOException {
-        String endpointName = getEndpoint() == null ? "" : getEndpoint().getLocalName();
-        logger.info(endpointName + " !!!!!!!!!! Writting to file......................");
+        if (logger.isInfoEnabled()) {
+            logger.info("!!!!!!!!!! Writting to file......................");
+        }
 
         // stop called on inactive recorder
         if (fout == null) {
@@ -293,7 +292,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         fout = new FileOutputStream(file);
 
         int size = fin.available();
-        logger.info(endpointName + " !!!!!!!!!! Size=" + size);
+        if (logger.isInfoEnabled()) {
+            logger.info("!!!!!!!!!! Size=" + size);
+        }
 
         headerBuffer.clear();
         // RIFF
@@ -377,7 +378,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         // lets write data
         FileChannel inChannel = fin.getChannel();
         outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());
-        logger.info(endpointName + " !!!!!!!!!! Was copied " + inChannel.size() + " bytes");
+        if (logger.isInfoEnabled()) {
+            logger.info("!!!!!!!!!! Was copied " + inChannel.size() + " bytes");
+        }
 
         fout.flush();
         fout.close();
@@ -415,11 +418,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     private void copyData(FileChannel inChannel, int offset, FileChannel outChannel) throws IOException {
         long count = inChannel.size() - (long) offset;
         inChannel.transferTo(offset, count, outChannel);
-
-        if (getEndpoint() == null)
+        if (logger.isInfoEnabled()) {
             logger.info("Was copied " + count + " bytes");
-        else
-            logger.info("(" + getEndpoint().getLocalName() + ") Was copied " + count + " bytes");
+        }
     }
 
     /**
