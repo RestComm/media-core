@@ -303,4 +303,8 @@
 		<property name="dsp"><inject bean="DSP" /></property>
 	</bean>
 	-->
+	
+	<!-- BootStrapper -->
+	<bean name="bootstrapper" class="org.mobicents.media.server.bootstrap.BootStrapper">
+	</bean>
 </deployment>

@@ -12,6 +12,16 @@
     <artifactId>bootstrap</artifactId>
     <name>Bootstrap</name>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>1.9.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.mobicents.media</groupId>
@@ -115,10 +125,17 @@
 			<artifactId>jboss-aop-mc-int</artifactId>
 			<version>${version.jboss.microcontainer}</version>
 		</dependency>
+		
+		<!-- Apache Commons Configuration -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-configuration2</artifactId>
 			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	<!--  -->
