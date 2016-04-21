@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.nio.ByteBuffer; 
 import java.nio.channels.FileChannel;
 
 import org.apache.log4j.Logger;
@@ -176,8 +176,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
             this.startTime = 0;
 
             this.heartbeat.cancel();
-
-            writeToWaveFile();
         } catch (Exception e) {
             logger.error("Error writing to file", e);
         } finally {
@@ -462,15 +460,12 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         clearAllListeners();
         
         // close stream
-        if(fout != null) {
-            try {
-                fout.flush();
-                fout.close();
-            } catch (IOException e) {
-                logger.warn("Could not flush or close the recording stream.");
-            } finally {
-                fout = null;
-            }
+        try {
+            writeToWaveFile();
+        } catch (IOException e) {
+            logger.warn("Could not flush or close the recording stream.");
+        } finally {
+            fout = null;
         }
         
         // clean temp file 
