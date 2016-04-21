@@ -59,7 +59,9 @@ public class Bootstrapper {
 
     private void loadConfigurationFile() {
         try {
-            log.info("Loading configuration...");
+            if (log.isInfoEnabled()) {
+                log.info("Loading configuration...");
+            }
 
             // Read configuration from file
             XMLConfiguration xml = this.configurations.xml(filepath);
@@ -69,8 +71,10 @@ public class Bootstrapper {
             configureController(xml.configurationAt("controller"), this.configuration.getControllerConfiguration());
             configureMedia(xml.configurationAt("media"), this.configuration.getMediaConfiguration());
             configureResource(xml.configurationAt("resources"), this.configuration.getResourcesConfiguration());
-            log.info("... loaded configuration successfully!");
-        } catch (ConfigurationException e) {
+            if (log.isInfoEnabled()) {
+                log.info("... loaded configuration successfully!");
+            }
+        } catch (ConfigurationException | IllegalArgumentException e) {
             log.error("... failed to load configuration file! Using default values.");
         }
     }
@@ -131,7 +135,9 @@ public class Bootstrapper {
     }
 
     public void stop() {
-        log.info("Stopped Bootstrapper");
+        if (log.isInfoEnabled()) {
+            log.info("Stopped Bootstrapper");
+        }
     }
 
 }
