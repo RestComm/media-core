@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.config;
+package org.mobicents.media.core.configuration;
 
 /**
  * Configuration parameters of an MGCP Endpoint.

@@ -9,30 +9,30 @@
 	Lesser General Public License along with this software; if not, write to 
 	the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, 
 	MA 02110-1301 USA, or see the FSF site: http://www.fsf.org. -->
-<MediaServer>
-	<Network>
-		<BindAddress>127.0.0.1</BindAddress>
-		<ExternalAddress>127.0.0.1</ExternalAddress>
-		<Network>127.0.0.1</Network>
-		<Subnet>255.255.255.255</Subnet>
-		<Sbc>false</Sbc>
-	</Network>
+<mediaserver>
+	<network>
+		<bindAddress>127.0.0.1</bindAddress>
+		<externalAddress>127.0.0.1</externalAddress>
+		<network>127.0.0.1</network>
+		<subnet>255.255.255.255</subnet>
+		<sbc>false</sbc>
+	</network>
 
-	<Controller protocol="mgcp">
-		<Address>127.0.0.1</Address>
-		<Port>2427</Port>
-		<Endpoints>
-			<Endpoint name="mobicents/bridge" poolSize="50" />
-			<Endpoint name="mobicents/ivr" poolSize="50" />
-			<Endpoint name="mobicents/cnf" poolSize="50" />
-		</Endpoints>
-	</Controller>
+	<controller protocol="mgcp">
+		<address>127.0.0.1</address>
+		<port>2427</port>
+		<endpoints>
+			<endpoint name="mobicents/bridge" poolSize="50" />
+			<endpoint name="mobicents/ivr" poolSize="50" />
+			<endpoint name="mobicents/cnf" poolSize="50" />
+		</endpoints>
+	</controller>
 
-	<Media>
-		<Timeout>0</Timeout>
-		<LowPort>34534</LowPort>
-		<HighPort>65535</HighPort>
-		<JitterBuffer size="50" />
+	<media>
+		<timeout>0</timeout>
+		<lowPort>34534</lowPort>
+		<highPort>65534</highPort>
+		<jitterBuffer size="50" />
 		<codecs>
 			<codec name="l16" />
 			<codec name="pcmu" />
@@ -40,16 +40,16 @@
 			<codec name="gsm" />
 			<codec name="g729" />
 		</codecs>
-	</Media>
+	</media>
 
-	<Resources>
-		<LocalConnection poolSize="100" />
-		<RemoteConnection poolSize="50" />
-		<Player poolSize="50" />
-		<Recorder poolSize="50" />
-		<DtmfDetector poolSize="50" dbi="-35" />
-		<DtmfGenerator poolSize="50" toneVolume="-20" toneDuration="80" />
-		<SignalDetector poolSize="0" />
-		<SignalGenerator poolSize="0" />
-	</Resources>
-</MediaServer>
+	<resources>
+		<localConnection poolSize="100" />
+		<remoteConnection poolSize="50" />
+		<player poolSize="50" />
+		<recorder poolSize="50" />
+		<dtmfDetector poolSize="50" dbi="-35" />
+		<dtmfGenerator poolSize="50" toneVolume="-20" toneDuration="80" />
+		<signalDetector poolSize="0" />
+		<signalGenerator poolSize="0" />
+	</resources>
+</mediaserver>
