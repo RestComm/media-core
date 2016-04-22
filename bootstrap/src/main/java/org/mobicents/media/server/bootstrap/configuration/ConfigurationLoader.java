@@ -19,38 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap;
+package org.mobicents.media.server.bootstrap.configuration;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.bootstrap.configuration.ConfigurationLoader;
-import org.mobicents.media.server.bootstrap.configuration.XmlConfigurationLoader;
-import org.mobicents.media.server.bootstrap.main.RestCommMediaServer;
-import org.mobicents.media.server.spi.MediaServer;
 
 /**
- * Bootstrapper that reads from a configuration file and initializes the Media Server.
+ * Loads Media Server configuration from a specific source.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class Bootstrapper {
+public interface ConfigurationLoader {
 
-    private final String filepath;
-    private final ConfigurationLoader configurationLoader;
-    private MediaServer mediaServer;
-
-    public Bootstrapper(String filepath) {
-        this.filepath = filepath;
-        this.configurationLoader = new XmlConfigurationLoader();
-    }
-
-    public void start() {
-        MediaServerConfiguration conf = configurationLoader.load(this.filepath);
-        this.mediaServer = new RestCommMediaServer(conf);
-    }
-
-    public void stop() {
-
-    }
+    /**
+     * Loads the Media Server configuration from a file
+     * 
+     * @param filepath The file to be read
+     * @return The Media Server configuration
+     */
+    MediaServerConfiguration load(String filepath);
 
 }

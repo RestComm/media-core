@@ -106,6 +106,13 @@ public class MediaConfiguration {
         return this.codecs.iterator();
     }
     
+    public boolean hasCodec(String codec) {
+        if(codec == null || codec.isEmpty()) {
+            return false;
+        }
+        return this.codecs.contains(codec.toLowerCase());
+    }
+    
     public int countCodecs() {
         return this.codecs.size();
     }

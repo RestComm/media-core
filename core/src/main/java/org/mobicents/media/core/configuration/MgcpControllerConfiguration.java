@@ -94,6 +94,10 @@ public class MgcpControllerConfiguration {
     public Iterator<MgcpEndpointConfiguration> getEndpoints() {
         return this.endpoints.values().iterator();
     }
+    
+    public MgcpEndpointConfiguration getEndpoint(String type) {
+        return this.endpoints.get(type);
+    }
 
     public MgcpEndpointConfiguration addEndpoint(MgcpEndpointConfiguration endpoint) {
         return this.endpoints.put(endpoint.getName(), endpoint);
