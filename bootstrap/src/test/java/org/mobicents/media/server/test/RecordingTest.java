@@ -104,13 +104,13 @@ public class RecordingTest {
         server.setClock(clock);
         server.setScheduler(scheduler);
         server.setUdpManager(udpManager);
-        server.setResourcesPool(resourcesPool);        
+        server.setResourcesPool(resourcesPool);
         
         controller=new Controller();
         controller.setUdpInterface(udpManager);
         controller.setPort(2427);
         controller.setMediaScheduler(scheduler); 
-        controller.setServer(server);        
+        server.addManager(controller);
         controller.setConfigurationByURL(this.getClass().getResource("/mgcp-conf.xml"));
         
         controller.start();

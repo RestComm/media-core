@@ -23,7 +23,6 @@
 package org.mobicents.media.core;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,7 +37,6 @@ import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.MediaServer;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.ServerManager;
 
 /**
@@ -79,7 +77,6 @@ public class Server implements MediaServer {
     public Server() {
         namingService = new NamingService();
     }
-
    
     /**
      * Assigns clock instance.
@@ -249,33 +246,15 @@ public class Server implements MediaServer {
     }
 
     @Override
-    public Endpoint lookup(String name, boolean bussy) throws ResourceUnavailableException {
-        return null;//return namingService.lookup(name, bussy);
-    }
-    
-    @Override
-    public Endpoint[] lookupall(String endpointName) throws ResourceUnavailableException {
-    	return null;//return namingService.lookupall(endpointName);
-    }
-
-    @Override
-    public int getEndpointCount() {
-        return 0;//return namingService.getEndpointCount();
-    }
-    
-    @Override
-    public Collection<Endpoint> getEndpoints() {
-        return endpoints.values();
-    }
-
-    @Override
     public void addManager(ServerManager manager) {
         managers.add(manager);
+        logger.info(manager.toString());
     }
 
     @Override
     public void removeManager(ServerManager manager) {
         managers.remove(manager);
+        logger.info(manager.toString());
     }
     
     private class HeartBeat extends Task {

@@ -55,30 +55,23 @@ public class Controller implements MgcpListener, ServerManager {
 	
     private static final Logger logger = Logger.getLogger(Controller.class);
     
-    //network interface
-    protected UdpManager udpInterface;
-    
-    //MGCP port number
-    protected int port;
-    
-    protected PriorityQueueScheduler mediaScheduler;
-    protected Scheduler taskScheduler;
-    
-    //MGCP protocol provider
-    protected MgcpProvider mgcpProvider;
-       
-    //server under control
-    protected MediaServer server;
-    
-    //endpoints
-    protected NamingTree endpoints = new NamingTree();
+    // Core elements
+    private UdpManager udpInterface;
+    private PriorityQueueScheduler mediaScheduler;
+    private Scheduler taskScheduler;
 
-    //Endpoint configurator
+    // MGCP elements
+    private MgcpProvider mgcpProvider;
+    private NamingTree endpoints = new NamingTree();
     private Configurator configurator;
-    
     protected GlobalTransactionManager txManager;
-    
+
+    protected int port;
     protected int poolSize;
+    
+    public Controller() {
+        this.poolSize = 10;
+    }
     
     /**
      * Assigns UDP network interface.
@@ -87,7 +80,6 @@ public class Controller implements MgcpListener, ServerManager {
      */
     public void setUdpInterface(UdpManager udpInterface) {
         this.udpInterface = udpInterface;
-        this.poolSize = 10;
     }
     
     /**
@@ -106,16 +98,6 @@ public class Controller implements MgcpListener, ServerManager {
      */
     public void setPort(int port) {
         this.port = port;
-    }
-    
-    /**
-     * Set server to control.
-     * 
-     * @param server the server instance.
-     */
-    public void setServer(MediaServer server) {
-        this.server = server;
-        server.addManager(this);        
     }
     
     /**
@@ -257,5 +239,5 @@ public class Controller implements MgcpListener, ServerManager {
 
     public void onStopped(Endpoint endpoint) {
     }
-    
+
 }

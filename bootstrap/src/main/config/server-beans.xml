@@ -221,9 +221,6 @@
 		<property name="taskScheduler">
 			<inject bean="ServiceScheduler" />
 		</property>
-		<property name="server">
-			<inject bean="MediaServer" />
-		</property>
 		<property name="configuration">mgcp-conf.xml</property>
 		<property name="poolSize">25</property>
 	</bean>
@@ -243,7 +240,9 @@
 			<inject bean="resourcesPool" />
 		</property>
 		<property name="heartBeatTime">1</property>
+		<incallback method="addManager" />
 		<incallback method="addInstaller" />
+		<uncallback method="removeManager" />
 		<uncallback method="removeInstaller" />
 	</bean>
 

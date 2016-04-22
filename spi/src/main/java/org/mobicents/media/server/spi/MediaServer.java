@@ -22,31 +22,25 @@
 
 package org.mobicents.media.server.spi;
 
-import java.util.Collection;
-
-
 /**
  * @author amit bhayani
  * @author kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface MediaServer {
+
     /**
      * Registers given manager.
      * 
      * @param manager the manager instance.
      */
     public void addManager(ServerManager manager);
-    
+
     /**
      * Unregisters given manager.
      * 
      * @param manager the manager instance.
      */
     public void removeManager(ServerManager manager);
-    
-    public Collection<Endpoint> getEndpoints();
-    
-    public Endpoint lookup(String name, boolean bussy) throws ResourceUnavailableException;
-    public Endpoint[] lookupall(String endpointName) throws ResourceUnavailableException;
-    public int getEndpointCount();
+
 }
