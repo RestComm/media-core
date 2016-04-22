@@ -26,6 +26,8 @@
 			<endpoint name="mobicents/ivr" poolSize="50" />
 			<endpoint name="mobicents/cnf" poolSize="50" />
 		</endpoints>
+		<config>mgcp-conf.xml</config>
+		<poolSize>25</poolSize>
 	</controller>
 
 	<media>

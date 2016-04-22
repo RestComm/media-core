@@ -27,21 +27,13 @@ import org.mobicents.media.Component;
 import org.mobicents.media.ComponentFactory;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.core.connections.LocalConnectionImpl;
-import org.mobicents.media.core.connections.LocalConnectionPool;
 import org.mobicents.media.core.connections.RtpConnectionImpl;
-import org.mobicents.media.core.connections.RtpConnectionPool;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
 
@@ -67,19 +59,22 @@ public class ResourcesPool implements ComponentFactory {
 	private final ResourcePool<LocalConnectionImpl> localConnections;
 	private final ResourcePool<RtpConnectionImpl> remoteConnections;
 
-	public ResourcesPool(RtpConnectionPool rtpConnections, LocalConnectionPool localConnections, AudioPlayerPool players, AudioRecorderPool recorders, DtmfDetectorPool dtmfDetectors, DtmfGeneratorPool dtmfGenerators, PhoneSignalDetectorPool signalDetectors, PhoneSignalGeneratorPool signalGenerators) {
-		// Media Resources
-		this.players = players;
-		this.recorders = recorders;
-		this.dtmfDetectors = dtmfDetectors;
-		this.dtmfGenerators = dtmfGenerators;
-		this.signalDetectors = signalDetectors;
-		this.signalGenerators = signalGenerators;
-		
-		// Connections
-		this.localConnections = localConnections;
-		this.remoteConnections = rtpConnections;
-	}
+    public ResourcesPool(ResourcePool<RtpConnectionImpl> rtpConnections, ResourcePool<LocalConnectionImpl> localConnections,
+            ResourcePool<AudioPlayerImpl> players, ResourcePool<AudioRecorderImpl> recorders,
+            ResourcePool<DetectorImpl> dtmfDetectors, ResourcePool<GeneratorImpl> dtmfGenerators,
+            ResourcePool<PhoneSignalDetector> signalDetectors, ResourcePool<PhoneSignalGenerator> signalGenerators) {
+        // Media Resources
+        this.players = players;
+        this.recorders = recorders;
+        this.dtmfDetectors = dtmfDetectors;
+        this.dtmfGenerators = dtmfGenerators;
+        this.signalDetectors = signalDetectors;
+        this.signalGenerators = signalGenerators;
+
+        // Connections
+        this.localConnections = localConnections;
+        this.remoteConnections = rtpConnections;
+    }
 
 	@Override
 	public Component newAudioComponent(ComponentType componentType) {

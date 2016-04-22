@@ -248,22 +248,22 @@ public class Server implements MediaServer {
         logger.info("Stopped media server instance ");                
     }
 
-    @Override
+    @Deprecated
     public Endpoint lookup(String name, boolean bussy) throws ResourceUnavailableException {
         return null;//return namingService.lookup(name, bussy);
     }
     
-    @Override
+    @Deprecated
     public Endpoint[] lookupall(String endpointName) throws ResourceUnavailableException {
     	return null;//return namingService.lookupall(endpointName);
     }
 
-    @Override
+    @Deprecated
     public int getEndpointCount() {
         return 0;//return namingService.getEndpointCount();
     }
     
-    @Override
+    @Deprecated
     public Collection<Endpoint> getEndpoints() {
         return endpoints.values();
     }

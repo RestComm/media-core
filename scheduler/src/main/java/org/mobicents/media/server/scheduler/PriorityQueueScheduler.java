@@ -84,27 +84,38 @@ public class PriorityQueueScheduler  {
     
     private WorkerThread[] workerThreads;
     private CriticalWorkerThread[] criticalWorkerThreads;
+
     /**
      * Creates new instance of scheduler.
      */
-    public PriorityQueueScheduler() {
-    	for(int i=0;i<taskQueues.length;i++)
+    public PriorityQueueScheduler(Clock clock) {
+        this.clock = clock;
+
+    	for(int i=0;i<taskQueues.length;i++) {
     		taskQueues[i]=new OrderedTaskQueue();
+    	}
     	
-    	for(int i=0;i<heartBeatQueue.length;i++)
+    	for(int i=0;i<heartBeatQueue.length;i++) {
     		heartBeatQueue[i]=new OrderedTaskQueue();
+    	}
     	
     	coreThread = new CoreThread("scheduler-core");  
     	criticalThread = new CriticalThread("scheduler-critical");
     	
         workerThreads=new WorkerThread[Runtime.getRuntime().availableProcessors()*2];
         criticalWorkerThreads=new CriticalWorkerThread[Runtime.getRuntime().availableProcessors()*2];
-        for(int i=0;i<workerThreads.length;i++)
+        for(int i=0;i<workerThreads.length;i++) {
             workerThreads[i] = new WorkerThread("scheduler-worker-" + i);
+        }
         
-        for(int i=0;i<criticalWorkerThreads.length;i++)
+        for(int i=0;i<criticalWorkerThreads.length;i++) {
             criticalWorkerThreads[i] = new CriticalWorkerThread("scheduler-critical-worker-" + i);
-    }    
+        }
+    }
+    
+    public PriorityQueueScheduler() {
+        this(null);
+    }
 
     public int getPoolSize()
     {

@@ -105,6 +105,10 @@ public class MediaConfiguration {
     public Iterator<String> getCodecs() {
         return this.codecs.iterator();
     }
+    
+    public int countCodecs() {
+        return this.codecs.size();
+    }
 
     public void removeCodec(String codec) {
         this.codecs.remove(codec);

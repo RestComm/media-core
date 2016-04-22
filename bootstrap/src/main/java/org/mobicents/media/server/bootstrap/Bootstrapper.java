@@ -37,8 +37,7 @@ import org.mobicents.media.core.configuration.NetworkConfiguration;
 import org.mobicents.media.core.configuration.ResourcesConfiguration;
 
 /**
- * Bootstrapper that reads from a configuration file and initializes all beans necessary to the well functioning of the Media
- * Server.
+ * Bootstrapper that reads from a configuration file and initializes the Media Server.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -71,6 +70,7 @@ public class Bootstrapper {
             configureController(xml.configurationAt("controller"), this.configuration.getControllerConfiguration());
             configureMedia(xml.configurationAt("media"), this.configuration.getMediaConfiguration());
             configureResource(xml.configurationAt("resources"), this.configuration.getResourcesConfiguration());
+
             if (log.isInfoEnabled()) {
                 log.info("... loaded configuration successfully!");
             }
