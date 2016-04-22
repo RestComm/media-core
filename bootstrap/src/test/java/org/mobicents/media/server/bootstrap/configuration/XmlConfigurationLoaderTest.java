@@ -36,6 +36,9 @@ import org.mobicents.media.core.configuration.ResourcesConfiguration;
  */
 public class XmlConfigurationLoaderTest {
 
+    /**
+     * Test all information from a valid and complete configuration file is loaded properly into memory.
+     */
     @Test
     public void testLoadConfiguration() {
         // given
@@ -56,6 +59,8 @@ public class XmlConfigurationLoaderTest {
         MgcpControllerConfiguration controller = config.getControllerConfiguration();
         Assert.assertEquals("198.162.1.175", controller.getAddress());
         Assert.assertEquals(3437, controller.getPort());
+        Assert.assertEquals("mgcp-conf-test.xml", controller.getConfiguration());
+        Assert.assertEquals(5, controller.getPoolSize());
         MgcpEndpointConfiguration bridgeEndpoint = controller.getEndpoint("mobicents/bridge");
         Assert.assertNotNull(bridgeEndpoint);
         Assert.assertEquals(51, bridgeEndpoint.getPoolSize());
@@ -89,6 +94,99 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(-25, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(10, resources.getSignalDetectorCount());
         Assert.assertEquals(10, resources.getSignalGeneratorCount());
+    }
+
+    /**
+     * Test default configuration is loaded into memory after failing to locate a configuration file.
+     */
+    @Test
+    public void testFileNotFound() {
+        // given
+        String filepath = "not-found.xml";
+        XmlConfigurationLoader loader = new XmlConfigurationLoader();
+
+        // when
+        MediaServerConfiguration config = loader.load(filepath);
+
+        // then
+        NetworkConfiguration network = config.getNetworkConfiguration();
+        Assert.assertEquals(NetworkConfiguration.BIND_ADDRESS, network.getBindAddress());
+        Assert.assertEquals(NetworkConfiguration.EXTERNAL_ADDRESS, network.getExternalAddress());
+        Assert.assertEquals(NetworkConfiguration.NETWORK, network.getNetwork());
+        Assert.assertEquals(NetworkConfiguration.SUBNET, network.getSubnet());
+        Assert.assertEquals(NetworkConfiguration.SBC, network.isSbc());
+
+        MgcpControllerConfiguration controller = config.getControllerConfiguration();
+        Assert.assertEquals(MgcpControllerConfiguration.ADDRESS, controller.getAddress());
+        Assert.assertEquals(MgcpControllerConfiguration.PORT, controller.getPort());
+        Assert.assertEquals(MgcpControllerConfiguration.CONFIGURATION, controller.getConfiguration());
+        Assert.assertEquals(MgcpControllerConfiguration.POOL_SIZE, controller.getPoolSize());
+        Assert.assertFalse(controller.getEndpoints().hasNext());
+
+        MediaConfiguration media = config.getMediaConfiguration();
+        Assert.assertEquals(MediaConfiguration.TIMEOUT, media.getTimeout());
+        Assert.assertEquals(MediaConfiguration.LOW_PORT, media.getLowPort());
+        Assert.assertEquals(MediaConfiguration.HIGH_PORT, media.getHighPort());
+        Assert.assertEquals(MediaConfiguration.JITTER_BUFFER_SIZE, media.getJitterBufferSize());
+        Assert.assertEquals(0, media.countCodecs());
+
+        ResourcesConfiguration resources = config.getResourcesConfiguration();
+        Assert.assertEquals(ResourcesConfiguration.LOCAL_CONNECTION_COUNT, resources.getLocalConnectionCount());
+        Assert.assertEquals(ResourcesConfiguration.REMOTE_CONNECTION_COUNT, resources.getRemoteConnectionCount());
+        Assert.assertEquals(ResourcesConfiguration.PLAYER_COUNT, resources.getPlayerCount());
+        Assert.assertEquals(ResourcesConfiguration.RECORDER_COUNT, resources.getRecorderCount());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_COUNT, resources.getDtmfDetectorCount());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_DBI, resources.getDtmfDetectorDbi());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_COUNT, resources.getDtmfGeneratorCount());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION, resources.getDtmfGeneratorToneDuration());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
+        Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
+        Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
+    }
+
+    @Test
+    public void testFileNetworkMisconfigured() {
+        // given
+        String filepath = "media-server-network-misconfigured.xml";
+        XmlConfigurationLoader loader = new XmlConfigurationLoader();
+        
+        // when
+        MediaServerConfiguration config = loader.load(filepath);
+        
+        // then
+        NetworkConfiguration network = config.getNetworkConfiguration();
+        Assert.assertEquals(NetworkConfiguration.BIND_ADDRESS, network.getBindAddress());
+        Assert.assertEquals(NetworkConfiguration.EXTERNAL_ADDRESS, network.getExternalAddress());
+        Assert.assertEquals(NetworkConfiguration.NETWORK, network.getNetwork());
+        Assert.assertEquals(NetworkConfiguration.SUBNET, network.getSubnet());
+        Assert.assertEquals(NetworkConfiguration.SBC, network.isSbc());
+        
+        MgcpControllerConfiguration controller = config.getControllerConfiguration();
+        Assert.assertEquals(MgcpControllerConfiguration.ADDRESS, controller.getAddress());
+        Assert.assertEquals(MgcpControllerConfiguration.PORT, controller.getPort());
+        Assert.assertEquals(MgcpControllerConfiguration.CONFIGURATION, controller.getConfiguration());
+        Assert.assertEquals(MgcpControllerConfiguration.POOL_SIZE, controller.getPoolSize());
+        Assert.assertFalse(controller.getEndpoints().hasNext());
+        
+        MediaConfiguration media = config.getMediaConfiguration();
+        Assert.assertEquals(MediaConfiguration.TIMEOUT, media.getTimeout());
+        Assert.assertEquals(MediaConfiguration.LOW_PORT, media.getLowPort());
+        Assert.assertEquals(MediaConfiguration.HIGH_PORT, media.getHighPort());
+        Assert.assertEquals(MediaConfiguration.JITTER_BUFFER_SIZE, media.getJitterBufferSize());
+        Assert.assertEquals(0, media.countCodecs());
+        
+        ResourcesConfiguration resources = config.getResourcesConfiguration();
+        Assert.assertEquals(ResourcesConfiguration.LOCAL_CONNECTION_COUNT, resources.getLocalConnectionCount());
+        Assert.assertEquals(ResourcesConfiguration.REMOTE_CONNECTION_COUNT, resources.getRemoteConnectionCount());
+        Assert.assertEquals(ResourcesConfiguration.PLAYER_COUNT, resources.getPlayerCount());
+        Assert.assertEquals(ResourcesConfiguration.RECORDER_COUNT, resources.getRecorderCount());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_COUNT, resources.getDtmfDetectorCount());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_DETECTOR_DBI, resources.getDtmfDetectorDbi());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_COUNT, resources.getDtmfGeneratorCount());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION, resources.getDtmfGeneratorToneDuration());
+        Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
+        Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
+        Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
     }
 
 }

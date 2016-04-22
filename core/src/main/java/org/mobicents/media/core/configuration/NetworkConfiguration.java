@@ -28,6 +28,12 @@ package org.mobicents.media.core.configuration;
  *
  */
 public class NetworkConfiguration {
+    
+    public static final String BIND_ADDRESS = "127.0.0.1";
+    public static final String EXTERNAL_ADDRESS = "";
+    public static final String NETWORK = "127.0.0.1";
+    public static final String SUBNET = "255.255.255.255";
+    public static final boolean SBC = false;
 
     private String bindAddress;
     private String externalAddress;
@@ -36,11 +42,11 @@ public class NetworkConfiguration {
     private boolean sbc;
 
     public NetworkConfiguration() {
-        this.bindAddress = "127.0.0.1";
-        this.externalAddress = "";
-        this.network = "127.0.0.1";
-        this.subnet = "255.255.255.255";
-        this.sbc = false;
+        this.bindAddress = BIND_ADDRESS;
+        this.externalAddress = EXTERNAL_ADDRESS;
+        this.network = NETWORK;
+        this.subnet = SUBNET;
+        this.sbc = SBC;
     }
 
     public String getBindAddress() {

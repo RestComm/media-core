@@ -10,31 +10,26 @@
 	the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, 
 	MA 02110-1301 USA, or see the FSF site: http://www.fsf.org. -->
 <mediaserver>
-	<network>
-		<bindAddress>127.0.0.1</bindAddress>
-		<externalAddress>127.0.0.1</externalAddress>
-		<network>127.0.0.1</network>
-		<subnet>255.255.255.255</subnet>
-		<sbc>false</sbc>
-	</network>
+
+	<!-- Network is missing! -->
 
 	<controller protocol="mgcp">
-		<address>127.0.0.1</address>
-		<port>2427</port>
+		<address>198.162.1.175</address>
+		<port>3437</port>
 		<endpoints>
-			<endpoint name="mobicents/bridge" poolSize="50" />
-			<endpoint name="mobicents/ivr" poolSize="50" />
-			<endpoint name="mobicents/cnf" poolSize="50" />
+			<endpoint name="mobicents/bridge" poolSize="51" />
+			<endpoint name="mobicents/ivr" poolSize="52" />
+			<endpoint name="mobicents/cnf" poolSize="53" />
 		</endpoints>
-		<configuration>mgcp-conf.xml</configuration>
-		<poolSize>25</poolSize>
+		<configuration>mgcp-conf-test.xml</configuration>
+		<poolSize>5</poolSize>
 	</controller>
 
 	<media>
-		<timeout>0</timeout>
-		<lowPort>34534</lowPort>
-		<highPort>65534</highPort>
-		<jitterBuffer size="50" />
+		<timeout>5</timeout>
+		<lowPort>54534</lowPort>
+		<highPort>64534</highPort>
+		<jitterBuffer size="60" />
 		<codecs>
 			<codec name="l16" />
 			<codec name="pcmu" />
@@ -45,13 +40,13 @@
 	</media>
 
 	<resources>
-		<localConnection poolSize="100" />
-		<remoteConnection poolSize="50" />
-		<player poolSize="50" />
-		<recorder poolSize="50" />
-		<dtmfDetector poolSize="50" dbi="-35" />
-		<dtmfGenerator poolSize="50" toneVolume="-20" toneDuration="80" />
-		<signalDetector poolSize="0" />
-		<signalGenerator poolSize="0" />
+		<localConnection poolSize="200" />
+		<remoteConnection poolSize="100" />
+		<player poolSize="100" />
+		<recorder poolSize="100" />
+		<dtmfDetector poolSize="100" dbi="-25" />
+		<dtmfGenerator poolSize="100" toneVolume="-25" toneDuration="100" />
+		<signalDetector poolSize="10" />
+		<signalGenerator poolSize="10" />
 	</resources>
 </mediaserver>

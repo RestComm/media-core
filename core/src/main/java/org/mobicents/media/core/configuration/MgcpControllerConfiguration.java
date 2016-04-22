@@ -32,6 +32,11 @@ import java.util.Map;
  *
  */
 public class MgcpControllerConfiguration {
+    
+    public static final String ADDRESS = "127.0.0.1";
+    public static final int PORT = 2427;
+    public static final int POOL_SIZE = 25;
+    public static final String CONFIGURATION = "mgcp-conf.xml";
 
     private String address;
     private int port;
@@ -40,10 +45,10 @@ public class MgcpControllerConfiguration {
     private final Map<String, MgcpEndpointConfiguration> endpoints;
 
     public MgcpControllerConfiguration() {
-        this.address = "127.0.0.1";
-        this.port = 2427;
-        this.poolSize = 25;
-        this.configuration = "mgcp-conf.xml";
+        this.address = ADDRESS;
+        this.port = PORT;
+        this.poolSize = POOL_SIZE;
+        this.configuration = CONFIGURATION;
         this.endpoints = new HashMap<>(5);
     }
 

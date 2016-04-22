@@ -28,13 +28,15 @@ package org.mobicents.media.core.configuration;
  *
  */
 public class MgcpEndpointConfiguration {
+    
+    public static int POOL_SIZE = 0;
 
     private String name;
     private int poolSize;
 
     public MgcpEndpointConfiguration() {
-        this.name = "mobicents/bridge";
-        this.poolSize = 50;
+        this.name = "mobicents/unknown";
+        this.poolSize = POOL_SIZE;
     }
 
     public String getName() {

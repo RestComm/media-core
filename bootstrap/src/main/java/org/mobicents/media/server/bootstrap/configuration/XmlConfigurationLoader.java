@@ -74,34 +74,36 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
     }
 
     private static void configureNetwork(HierarchicalConfiguration<ImmutableNode> src, NetworkConfiguration dst) {
-        dst.setBindAddress(src.getString("bindAddress", "127.0.0.1"));
-        dst.setExternalAddress(src.getString("externalAddress", "127.0.0.1"));
-        dst.setNetwork(src.getString("network", "127.0.0.1"));
-        dst.setSubnet(src.getString("subnet", "255.255.255.255"));
-        dst.setSbc(src.getBoolean("sbc", false));
+        dst.setBindAddress(src.getString("bindAddress", NetworkConfiguration.BIND_ADDRESS));
+        dst.setExternalAddress(src.getString("externalAddress", NetworkConfiguration.EXTERNAL_ADDRESS));
+        dst.setNetwork(src.getString("network", NetworkConfiguration.NETWORK));
+        dst.setSubnet(src.getString("subnet", NetworkConfiguration.SUBNET));
+        dst.setSbc(src.getBoolean("sbc", NetworkConfiguration.SBC));
     }
 
     private static void configureController(HierarchicalConfiguration<ImmutableNode> src, MgcpControllerConfiguration dst) {
         // Basic Controller configuration
-        dst.setAddress(src.getString("address", "127.0.0.1"));
-        dst.setPort(src.getInt("port", 2427));
+        dst.setAddress(src.getString("address", MgcpControllerConfiguration.ADDRESS));
+        dst.setPort(src.getInt("port", MgcpControllerConfiguration.PORT));
+        dst.setPoolSize(src.getInt("poolSize", MgcpControllerConfiguration.POOL_SIZE));
+        dst.setConfiguration(src.getString("configuration", MgcpControllerConfiguration.CONFIGURATION));
 
         // Iterate over endpoint configuration
         List<HierarchicalConfiguration<ImmutableNode>> endpoints = src.childConfigurationsAt("endpoints");
         for (HierarchicalConfiguration<ImmutableNode> endpoint : endpoints) {
             MgcpEndpointConfiguration endpointConfig = new MgcpEndpointConfiguration();
             endpointConfig.setName(endpoint.getString("[@name]"));
-            endpointConfig.setPoolSize(endpoint.getInt("[@poolSize]", 50));
+            endpointConfig.setPoolSize(endpoint.getInt("[@poolSize]", MgcpEndpointConfiguration.POOL_SIZE));
             dst.addEndpoint(endpointConfig);
         }
     }
 
     private static void configureMedia(HierarchicalConfiguration<ImmutableNode> src, MediaConfiguration dst) {
         // Basic Media configuration
-        dst.setTimeout(src.getInt("timeout", 0));
-        dst.setLowPort(src.getInt("lowPort", 34534));
-        dst.setHighPort(src.getInt("highPort", 65534));
-        dst.setJitterBufferSize(src.getInt("jitterBuffer[@size]", 50));
+        dst.setTimeout(src.getInt("timeout", MediaConfiguration.TIMEOUT));
+        dst.setLowPort(src.getInt("lowPort", MediaConfiguration.LOW_PORT));
+        dst.setHighPort(src.getInt("highPort", MediaConfiguration.HIGH_PORT));
+        dst.setJitterBufferSize(src.getInt("jitterBuffer[@size]", MediaConfiguration.JITTER_BUFFER_SIZE));
 
         // Iterate over codec configuration
         List<HierarchicalConfiguration<ImmutableNode>> codecs = src.childConfigurationsAt("codecs");
@@ -111,17 +113,17 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
     }
 
     private static void configureResource(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
-        dst.setLocalConnectionCount(src.getInt("localConnection[@poolSize]", 100));
-        dst.setRemoteConnectionCount(src.getInt("remoteConnection[@poolSize]", 50));
-        dst.setPlayerCount(src.getInt("player[@poolSize]", 50));
-        dst.setRecorderCount(src.getInt("recorder[@poolSize]", 50));
-        dst.setDtmfDetectorCount(src.getInt("dtmfDetector[@poolSize]", 50));
-        dst.setDtmfDetectorDbi(src.getInt("dtmfDetector[@dbi]", -35));
-        dst.setDtmfGeneratorCount(src.getInt("dtmfGenerator[@poolSize]", 50));
-        dst.setDtmfGeneratorToneVolume(src.getInt("dtmfGenerator[@toneVolume]", -20));
-        dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", 80));
-        dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", 0));
-        dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", 0));
+        dst.setLocalConnectionCount(src.getInt("localConnection[@poolSize]", ResourcesConfiguration.LOCAL_CONNECTION_COUNT));
+        dst.setRemoteConnectionCount(src.getInt("remoteConnection[@poolSize]", ResourcesConfiguration.REMOTE_CONNECTION_COUNT));
+        dst.setPlayerCount(src.getInt("player[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
+        dst.setRecorderCount(src.getInt("recorder[@poolSize]", ResourcesConfiguration.RECORDER_COUNT));
+        dst.setDtmfDetectorCount(src.getInt("dtmfDetector[@poolSize]", ResourcesConfiguration.DTMF_DETECTOR_COUNT));
+        dst.setDtmfDetectorDbi(src.getInt("dtmfDetector[@dbi]", ResourcesConfiguration.DTMF_DETECTOR_DBI));
+        dst.setDtmfGeneratorCount(src.getInt("dtmfGenerator[@poolSize]", ResourcesConfiguration.DTMF_GENERATOR_COUNT));
+        dst.setDtmfGeneratorToneVolume(src.getInt("dtmfGenerator[@toneVolume]", ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME));
+        dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
+        dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
+        dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
     }
 
 }

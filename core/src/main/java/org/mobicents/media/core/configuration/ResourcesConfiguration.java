@@ -29,6 +29,18 @@ package org.mobicents.media.core.configuration;
  */
 public class ResourcesConfiguration {
 
+    public static final int LOCAL_CONNECTION_COUNT = 0;
+    public static final int REMOTE_CONNECTION_COUNT = 0;
+    public static final int PLAYER_COUNT = 0;
+    public static final int RECORDER_COUNT = 0;
+    public static final int DTMF_DETECTOR_COUNT = 0;
+    public static final int DTMF_DETECTOR_DBI = -35;
+    public static final int DTMF_GENERATOR_COUNT = 0;
+    public static final int DTMF_GENERATOR_TONE_VOLUME = -20;
+    public static final int DTMF_GENERATOR_TONE_DURATION = 80;
+    public static final int SIGNAL_DETECTOR_COUNT = 0;
+    public static final int SIGNAL_GENERATOR_COUNT = 0;
+
     private int localConnectionCount;
     private int remoteConnectionCount;
     private int playerCount;
@@ -42,17 +54,17 @@ public class ResourcesConfiguration {
     private int signalGeneratorCount;
 
     public ResourcesConfiguration() {
-        this.localConnectionCount = 100;
-        this.remoteConnectionCount = 50;
-        this.playerCount = 50;
-        this.recorderCount = 50;
-        this.dtmfDetectorCount = 50;
-        this.dtmfDetectorDbi = -35;
-        this.dtmfGeneratorCount = 50;
-        this.dtmfGeneratorToneVolume = -20;
-        this.dtmfGeneratorToneDuration = 80;
-        this.signalDetectorCount = 0;
-        this.signalGeneratorCount = 0;
+        this.localConnectionCount = LOCAL_CONNECTION_COUNT;
+        this.remoteConnectionCount = REMOTE_CONNECTION_COUNT;
+        this.playerCount = PLAYER_COUNT;
+        this.recorderCount = RECORDER_COUNT;
+        this.dtmfDetectorCount = DTMF_DETECTOR_COUNT;
+        this.dtmfDetectorDbi = DTMF_DETECTOR_DBI;
+        this.dtmfGeneratorCount = DTMF_GENERATOR_COUNT;
+        this.dtmfGeneratorToneVolume = DTMF_GENERATOR_TONE_VOLUME;
+        this.dtmfGeneratorToneDuration = DTMF_GENERATOR_TONE_DURATION;
+        this.signalDetectorCount = SIGNAL_DETECTOR_COUNT;
+        this.signalGeneratorCount = SIGNAL_GENERATOR_COUNT;
     }
 
     public int getLocalConnectionCount() {
