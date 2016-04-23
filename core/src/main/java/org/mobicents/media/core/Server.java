@@ -125,13 +125,11 @@ public class Server implements MediaServer {
     @Override
     public void addManager(ServerManager manager) {
         managers.add(manager);
-        logger.info(manager.toString());
     }
 
     @Override
     public void removeManager(ServerManager manager) {
         managers.remove(manager);
-        logger.info(manager.toString());
     }
     
     private class HeartBeat extends Task {

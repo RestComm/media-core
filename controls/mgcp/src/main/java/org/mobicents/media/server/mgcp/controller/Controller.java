@@ -31,15 +31,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.core.endpoints.BaseEndpointImpl;
-import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
-import org.mobicents.media.server.mgcp.endpoint.VirtualEndpointInstaller;
+import org.mobicents.media.server.mgcp.endpoint.BaseEndpointImpl;
+import org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller;
+import org.mobicents.media.server.mgcp.endpoint.naming.NamingService;
+import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.mgcp.tx.GlobalTransactionManager;
 import org.mobicents.media.server.mgcp.tx.Transaction;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -272,7 +272,8 @@ public class Controller implements MgcpListener, ServerManager {
             return txManager.find(remoteAddress, transactionId);
         }
     }
-     
+
+    @Override
     public void onStarted(Endpoint endpoint,EndpointInstaller installer) {
         try {
             MgcpEndpoint mgcpEndpoint = configurator.activate(endpoint, mgcpProvider, udpInterface.getLocalBindAddress(), port);
@@ -284,6 +285,7 @@ public class Controller implements MgcpListener, ServerManager {
         }
     }
 
+    @Override
     public void onStopped(Endpoint endpoint) {
         // TODO does nothing!
     }

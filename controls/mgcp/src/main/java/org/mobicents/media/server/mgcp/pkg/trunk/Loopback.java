@@ -22,10 +22,10 @@
 
 package org.mobicents.media.server.mgcp.pkg.trunk;
 
-import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
 import org.mobicents.media.server.mgcp.controller.signal.Event;
 import org.mobicents.media.server.mgcp.controller.signal.NotifyImmediately;
 import org.mobicents.media.server.mgcp.controller.signal.Signal;
+import org.mobicents.media.server.mgcp.endpoint.BaseSS7EndpointImpl;
 import org.mobicents.media.server.utils.Text;
 /**
  * Implements loopback signal.
