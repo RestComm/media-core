@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.endpoints;
+package org.mobicents.media.server.mgcp.endpoint;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.Server;
 import org.mobicents.media.core.naming.EndpointNameGenerator;
+import org.mobicents.media.server.mgcp.controller.Controller;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 
@@ -48,25 +49,16 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 	protected Integer initialSize;
 
 	protected final EndpointNameGenerator nameParser;
-	protected Server server;
 
 	protected AtomicInteger lastEndpointID = new AtomicInteger(1);
+	
+	protected Controller controller;
 
 	/**
 	 * Creates new endpoint installer.
 	 */
 	public VirtualEndpointInstaller() {
 		nameParser = new EndpointNameGenerator();
-	}
-
-	/**
-	 * Creates relation with server instance.
-	 * 
-	 * @param server
-	 *            the server instance.
-	 */
-	public void setServer(Server server) {
-		this.server = server;
 	}
 
 	/**
@@ -125,6 +117,10 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 	public void setInitialSize(Integer initialSize) {
 		this.initialSize = initialSize;
 	}
+	
+	public void setController(Controller controller) {
+        this.controller = controller;
+    }
 
 	@Override
 	public void install() {
@@ -140,7 +136,7 @@ public class VirtualEndpointInstaller implements EndpointInstaller {
 		try {
 			Constructor<?> constructor = loader.loadClass(this.endpointClass).getConstructor(String.class);
 			Endpoint endpoint = (Endpoint) constructor.newInstance(namePattern + lastEndpointID.getAndIncrement());
-			server.install(endpoint, this);
+			controller.install(endpoint, this);
 		} catch (Exception e) {
 			logger.error("Couldn't instantiate endpoint", e);
 		}

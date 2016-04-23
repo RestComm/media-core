@@ -20,12 +20,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.core.endpoints;
+package org.mobicents.media.server.mgcp.endpoint;
 
 import java.lang.reflect.Constructor;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.Server;
+import org.mobicents.media.core.endpoints.BaseSS7EndpointImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 
@@ -127,7 +128,7 @@ public class VirtualSS7EndpointInstaller extends VirtualEndpointInstaller {
         try {
             Constructor<?> constructor = loader.loadClass(getEndpointClass()).getConstructor(String.class,ChannelsManager.class,int.class,boolean.class);
             BaseSS7EndpointImpl endpoint = (BaseSS7EndpointImpl) constructor.newInstance(getNamePattern() + lastEndpointID.getAndIncrement(),channelsManager,index,isALaw, dsp);
-            server.install(endpoint,this);
+            controller.install(endpoint,this);
         } catch (Exception e) {
             logger.error("Couldn't instantiate endpoint", e);
         }                

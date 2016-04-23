@@ -23,25 +23,19 @@
 package org.mobicents.media.core;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.endpoints.BaseEndpointImpl;
-import org.mobicents.media.core.endpoints.VirtualEndpointInstaller;
-import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.MediaServer;
 import org.mobicents.media.server.spi.ServerManager;
 
 /**
  *
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class Server implements MediaServer {
 
@@ -51,19 +45,8 @@ public class Server implements MediaServer {
     //job scheduler
     private PriorityQueueScheduler scheduler;
 
-    //resources pool
-    private ResourcesPool resourcesPool;
-    
     //udp manager
     private UdpManager udpManager;
-    
-    private final NamingService namingService;
-    
-    //endpoint installers
-    private final ArrayList<EndpointInstaller> installers = new ArrayList<EndpointInstaller>();
-    
-    //endpoints
-    private final Map<String, Endpoint> endpoints = new ConcurrentHashMap<>();
     
     //managers
     private final ArrayList<ServerManager> managers = new ArrayList<ServerManager>();
@@ -75,9 +58,9 @@ public class Server implements MediaServer {
     private static final Logger logger = Logger.getLogger(Server.class);
     
     public Server() {
-        namingService = new NamingService();
+        super();
     }
-   
+    
     /**
      * Assigns clock instance.
      *
@@ -95,10 +78,6 @@ public class Server implements MediaServer {
         this.udpManager=udpManager;
     }
     
-    public void setResourcesPool(ResourcesPool resourcesPool) {
-        this.resourcesPool=resourcesPool;
-    }
-    
     /**
      * Assigns the heartbeat time in minutes
      *
@@ -106,108 +85,6 @@ public class Server implements MediaServer {
      */
     public void setHeartBeatTime(int heartbeatTime) {
         this.heartbeatTime = heartbeatTime;
-    }    
-
-    /**
-     * Installs endpoints defined by specified installer.
-     *
-     * @param installer the endpoints installer
-     */
-    public void addInstaller(EndpointInstaller installer) {
-    	((VirtualEndpointInstaller)installer).setServer(this);
-    	installers.add(installer);
-        installer.install();        
-    }
-
-    /**
-     * Uninstalls endpoint defined by specified endpoint installer.
-     *
-     * @param installer the endpoints installer.
-     */
-    public void removeInstaller(EndpointInstaller installer) {
-        installers.remove(installer);
-        installer.uninstall();
-    }
-
-    /**
-     * Installs the specified endpoint.
-     *
-     * @param endpoint the endpoint to installed.
-     */
-    public void install(Endpoint endpoint,EndpointInstaller installer) {
-        //check endpoint first
-        if (endpoint == null) {
-            logger.error("Unknown endpoint");
-            return;
-        }
-
-        //The endpoint implementation must extend BaseEndpointImpl class
-        BaseEndpointImpl baseEndpoint = null;
-        try {
-            baseEndpoint = (BaseEndpointImpl) endpoint;
-        } catch (ClassCastException e) {
-            logger.error("Unsupported endpoint implementation " + endpoint.getLocalName());
-            return;
-        }
-
-
-        //assign scheduler to the endpoint
-        baseEndpoint.setScheduler(scheduler);
-        baseEndpoint.setResourcesPool(resourcesPool);
-
-        logger.info("Installing " + endpoint.getLocalName());
-
-        //starting endpoint
-        try {
-            endpoint.start();
-        } catch (Exception e) {
-            logger.error("Couldn't start endpoint " + endpoint.getLocalName(), e);
-            return;
-        }
-
-        //register endpoint with naming service
-        try {
-            namingService.register(endpoint);
-        } catch (Exception e) {
-            endpoint.stop();
-            logger.error("Could not register endpoint " + endpoint.getLocalName(), e);
-        }
-        
-        //register endpoint localy
-        endpoints.put(endpoint.getLocalName(), endpoint);
-        
-        //send notification to manager
-        for (ServerManager manager : managers) {
-            manager.onStarted(endpoint,installer);
-        }
-    }
-
-
-    /**
-     * Uninstalls the endpoint.
-     *
-     * @param name the local name of the endpoint to be uninstalled
-     */
-    public void uninstalls(String name) {
-        //unregister localy
-        Endpoint endpoint = endpoints.remove(name);
-
-        //send notification to manager
-        for (ServerManager manager : managers) {
-            manager.onStopped(endpoint);
-        }
-        
-        try {
-            //TODO: lookup irrespective of endpoint usage
-            endpoint = namingService.lookup(name, true);
-            if (endpoint != null) {
-                endpoint.stop();
-                namingService.unregister(endpoint);
-            }
-        } catch (Exception e) {
-        	logger.error(e);
-        }
-        
     }
 
     /**

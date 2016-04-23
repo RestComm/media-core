@@ -104,12 +104,12 @@ public class RecordingTest {
         server.setClock(clock);
         server.setScheduler(scheduler);
         server.setUdpManager(udpManager);
-        server.setResourcesPool(resourcesPool);
         
         controller=new Controller();
         controller.setUdpInterface(udpManager);
         controller.setPort(2427);
         controller.setMediaScheduler(scheduler); 
+        controller.setResourcesPool(resourcesPool);
         server.addManager(controller);
         controller.setConfigurationByURL(this.getClass().getResource("/mgcp-conf.xml"));
         
@@ -118,8 +118,8 @@ public class RecordingTest {
         user = new IvrEndpoint("/mobicents/ivr/1");
         ivr = new IvrEndpoint("/mobicents/ivr/2");
         
-        server.install(user,null);
-        server.install(ivr,null);      	
+        controller.install(user,null);
+        controller.install(ivr,null);      	
     }
 
     @After
