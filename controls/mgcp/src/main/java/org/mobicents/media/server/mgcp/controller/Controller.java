@@ -44,6 +44,7 @@ import org.mobicents.media.server.mgcp.tx.GlobalTransactionManager;
 import org.mobicents.media.server.mgcp.tx.Transaction;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.ServerManager;
@@ -202,7 +203,6 @@ public class Controller implements MgcpListener, ServerManager {
     public void addInstaller(EndpointInstaller installer) {
         ((VirtualEndpointInstaller)installer).setController(this);
         installers.add(installer);
-        installer.install();        
     }
 
     /**
@@ -244,7 +244,9 @@ public class Controller implements MgcpListener, ServerManager {
      * Stops the controller.
      */
     public void stop() {
-        mgcpProvider.shutdown();
+        if(mgcpProvider != null) {
+            mgcpProvider.shutdown();
+        }
         if (logger.isInfoEnabled()) {
             logger.info("Controller stopped");
         }
@@ -361,6 +363,26 @@ public class Controller implements MgcpListener, ServerManager {
         } catch (Exception e) {
             logger.error(e);
         }
+    }
+    
+    @Override
+    public void activate() throws IllegalStateException {
+        for (EndpointInstaller installer : installers) {
+            installer.install();
+        }
+        
+    }
+    
+    @Override
+    public void deactivate() throws IllegalStateException {
+        for (EndpointInstaller installer : installers) {
+            installer.uninstall();
+        }
+    }
+    
+    @Override
+    public ControlProtocol getControlProtocol() {
+        return ControlProtocol.MGPC;
     }
 
 }

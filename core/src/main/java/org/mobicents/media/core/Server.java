@@ -22,18 +22,21 @@
 
 package org.mobicents.media.core;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.MediaServer;
 import org.mobicents.media.server.spi.ServerManager;
 
 /**
- *
+ * Implementation of a Media Server.
+ * 
  * @author Oifa Yulian
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
@@ -46,16 +49,19 @@ public class Server implements MediaServer {
     private PriorityQueueScheduler scheduler;
     private UdpManager udpManager;
 
-    // Media Server Controllers
-    private final ArrayList<ServerManager> managers = new ArrayList<ServerManager>();
-
     // Heart beat
     private HeartBeat heartbeat;
-    private int heartbeatTime = 0;
+    private int heartbeatTime;
     private volatile long ttl;
 
+    // Media Server State
+    private final Map<ControlProtocol, ServerManager> managers;
+    private boolean started;
+
     public Server() {
-        super();
+        this.managers = new HashMap<>(2);
+        this.started = false;
+        this.heartbeatTime = 0;
     }
 
     public void setClock(Clock clock) {
@@ -81,10 +87,20 @@ public class Server implements MediaServer {
 
     @Override
     public void start() throws IllegalStateException {
-        // check clock
+        if (this.started) {
+            throw new IllegalStateException("Media Server already started");
+        }
+
+        // Validate mandatory dependencies
         if (clock == null) {
             log.error("Timing clock is not defined");
             return;
+        }
+
+        // Start Media Server
+        this.started = true;
+        for (ServerManager controller : managers.values()) {
+            controller.activate();
         }
 
         if (heartbeatTime > 0) {
@@ -95,6 +111,10 @@ public class Server implements MediaServer {
 
     @Override
     public void stop() throws IllegalStateException {
+        if (!this.started) {
+            throw new IllegalStateException("Media Server already stopped");
+        }
+
         if (log.isInfoEnabled()) {
             log.info("Stopping UDP Manager");
         }
@@ -102,6 +122,10 @@ public class Server implements MediaServer {
 
         if (heartbeat != null) {
             heartbeat.cancel();
+        }
+
+        for (ServerManager controller : managers.values()) {
+            controller.deactivate();
         }
 
         if (log.isInfoEnabled()) {
@@ -115,7 +139,7 @@ public class Server implements MediaServer {
 
     @Override
     public void addManager(ServerManager manager) {
-        managers.add(manager);
+        managers.put(manager.getControlProtocol(), manager);
     }
 
     @Override

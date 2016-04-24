@@ -113,13 +113,13 @@ public class RecordingTest {
         server.addManager(controller);
         controller.setConfigurationByURL(this.getClass().getResource("/mgcp-conf.xml"));
         
-        controller.start();
+        server.start();
         
-        user = new IvrEndpoint("/mobicents/ivr/1");
-        ivr = new IvrEndpoint("/mobicents/ivr/2");
-        
-        controller.install(user,null);
-        controller.install(ivr,null);      	
+//        user = new IvrEndpoint("/mobicents/ivr/1");
+//        ivr = new IvrEndpoint("/mobicents/ivr/2");
+//        
+//        controller.install(user,null);
+//        controller.install(ivr,null);      	
     }
 
     @After
