@@ -75,19 +75,19 @@ public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
     }    
 
     public Component getResource(MediaType mediaType, ComponentType componentType) {
-        switch(mediaType)
-        {
-        	case AUDIO:
-        		switch(componentType)
-        		{
-        			case SINE:
-        				return sine;
-        			case SOUND_CARD:
-        				return soundcard;        				
-        		}
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case SINE:
+                        return sine;
+                    case SOUND_CARD:
+                        return soundcard;
+                    default:
+                        return null;
+                }
+            default:
+                return null;
         }
-        
-        return null;
     }
 
     public void releaseResource(MediaType mediaType, ComponentType componentType) {
