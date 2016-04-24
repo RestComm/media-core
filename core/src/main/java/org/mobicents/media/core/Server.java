@@ -39,33 +39,25 @@ import org.mobicents.media.server.spi.ServerManager;
  */
 public class Server implements MediaServer {
 
-    //timing clock
+    private static final Logger log = Logger.getLogger(Server.class);
+
+    // Core components
     private Clock clock;
-
-    //job scheduler
     private PriorityQueueScheduler scheduler;
-
-    //udp manager
     private UdpManager udpManager;
-    
-    //managers
+
+    // Media Server Controllers
     private final ArrayList<ServerManager> managers = new ArrayList<ServerManager>();
-    
+
+    // Heart beat
     private HeartBeat heartbeat;
-    private int heartbeatTime=0;
+    private int heartbeatTime = 0;
     private volatile long ttl;
-    
-    private static final Logger logger = Logger.getLogger(Server.class);
-    
+
     public Server() {
         super();
     }
-    
-    /**
-     * Assigns clock instance.
-     *
-     * @param clock
-     */
+
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -73,13 +65,13 @@ public class Server implements MediaServer {
     public void setScheduler(PriorityQueueScheduler scheduler) {
         this.scheduler = scheduler;
     }
-    
+
     public void setUdpManager(UdpManager udpManager) {
-        this.udpManager=udpManager;
+        this.udpManager = udpManager;
     }
-    
+
     /**
-     * Assigns the heartbeat time in minutes
+     * Assigns the heart beat time in minutes
      *
      * @param minutes
      */
@@ -87,39 +79,38 @@ public class Server implements MediaServer {
         this.heartbeatTime = heartbeatTime;
     }
 
-    /**
-     * Starts the server.
-     *
-     * @throws Exception
-     */
-    public void start() throws Exception {
-        //check clock
+    @Override
+    public void start() throws IllegalStateException {
+        // check clock
         if (clock == null) {
-            logger.error("Timing clock is not defined");
+            log.error("Timing clock is not defined");
             return;
         }
 
-        if(heartbeatTime>0)
-        {
-        	heartbeat=new HeartBeat();
-        	heartbeat.restart();
+        if (heartbeatTime > 0) {
+            heartbeat = new HeartBeat();
+            heartbeat.restart();
         }
     }
 
-    /**
-     * Stops the server.
-     *
-     */
-    public void stop() {
-        logger.info("Stopping UDP Manager");
+    @Override
+    public void stop() throws IllegalStateException {
+        if (log.isInfoEnabled()) {
+            log.info("Stopping UDP Manager");
+        }
         udpManager.stop();
 
-        if(heartbeat!=null)
-        	heartbeat.cancel();
-        
-        logger.info("Stopping scheduler");
+        if (heartbeat != null) {
+            heartbeat.cancel();
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("Stopping scheduler");
+        }
         scheduler.stop();
-        logger.info("Stopped media server instance ");                
+        if (log.isInfoEnabled()) {
+            log.info("Stopped media server instance ");
+        }
     }
 
     @Override
@@ -131,34 +122,32 @@ public class Server implements MediaServer {
     public void removeManager(ServerManager manager) {
         managers.remove(manager);
     }
-    
-    private class HeartBeat extends Task {
+
+    private final class HeartBeat extends Task {
 
         public HeartBeat() {
             super();
-        }        
+        }
 
         @Override
-        public int getQueueNumber()
-        {
-        	return PriorityQueueScheduler.HEARTBEAT_QUEUE;
-        }   
-        
-        public void restart()
-        {
-        	ttl=heartbeatTime*600;
-        	scheduler.submitHeatbeat(this);
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.HEARTBEAT_QUEUE;
         }
-        
+
+        public void restart() {
+            ttl = heartbeatTime * 600;
+            scheduler.submitHeatbeat(this);
+        }
+
         @Override
         public long perform() {
-        	ttl--;
+            ttl--;
             if (ttl == 0) {
-            	logger.info("Global hearbeat is still alive");
-            	restart();
+                log.info("Global hearbeat is still alive");
+                restart();
             } else {
                 scheduler.submitHeatbeat(this);
-            }            
+            }
             return 0;
         }
     }

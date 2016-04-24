@@ -34,13 +34,27 @@ public interface MediaServer {
      * 
      * @param manager the manager instance.
      */
-    public void addManager(ServerManager manager);
+    void addManager(ServerManager manager);
 
     /**
      * Unregisters given manager.
      * 
      * @param manager the manager instance.
      */
-    public void removeManager(ServerManager manager);
+    void removeManager(ServerManager manager);
+
+    /**
+     * Starts the Media Server.
+     * 
+     * @throws IllegalStateException If the server is already running.
+     */
+    void start() throws IllegalStateException;
+
+    /**
+     * Stops the Media Server.
+     * 
+     * @throws IllegalStateException If the server is already stopped.
+     */
+    void stop() throws IllegalStateException;
 
 }
