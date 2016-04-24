@@ -70,14 +70,14 @@
 	</bean>
 	
 	<!-- Resource Factories -->
-	<bean name="remoteConnectionFactory" class="org.mobicents.media.core.connections.RtpConnectionFactory">
+	<bean name="remoteConnectionFactory" class="org.mobicents.media.server.mgcp.connection.RtpConnectionFactory">
 		<constructor>
 			<parameter><inject bean="channelsManager" /></parameter>
 			<parameter><inject bean="DSP" /></parameter>
 		</constructor>
 	</bean>
 
-	<bean name="localConnectionFactory" class="org.mobicents.media.core.connections.LocalConnectionFactory">
+	<bean name="localConnectionFactory" class="org.mobicents.media.server.mgcp.connection.LocalConnectionFactory">
 		<constructor>
 			<parameter><inject bean="channelsManager" /></parameter>
 		</constructor>
@@ -124,7 +124,7 @@
 	</bean>
 
 	<!-- Resource Pools -->
-	<bean name="remoteConnectionPool" class="org.mobicents.media.core.connections.RtpConnectionPool">
+	<bean name="remoteConnectionPool" class="org.mobicents.media.server.mgcp.connection.RtpConnectionPool">
 		<constructor>
 			<parameter>50</parameter>
 			<parameter>
@@ -133,7 +133,7 @@
 		</constructor>
 	</bean>
 
-	<bean name="localConnectionPool" class="org.mobicents.media.core.connections.LocalConnectionPool">
+	<bean name="localConnectionPool" class="org.mobicents.media.server.mgcp.connection.LocalConnectionPool">
 		<constructor>
 			<parameter>100</parameter>
 			<parameter>
@@ -196,7 +196,7 @@
 		</constructor>
 	</bean>
 	
-	<bean name="resourcesPool" class="org.mobicents.media.core.ResourcesPool">
+	<bean name="resourcesPool" class="org.mobicents.media.server.mgcp.resources.ResourcesPool">
 		<constructor>
 			<parameter><inject bean="remoteConnectionPool" /></parameter>
 			<parameter><inject bean="localConnectionPool" /></parameter>
@@ -248,54 +248,51 @@
 
 	<!-- Endpoints -->
 	<!-- 
-	<bean name="Announcement"
-		class="org.mobicents.media.server.mgcp.endpoint.VirtualEndpointInstaller">
+	<bean name="Announcement" class="org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller">
 		<property name="namePattern">mobicents/aap/</property>
-		<property name="endpointClass">org.mobicents.media.core.endpoints.impl.AnnouncementEndpoint</property>
+		<property name="endpointClass">org.mobicents.media.server.mgcp.endpoint.AnnouncementEndpoint</property>
 		<property name="initialSize">1</property>
 	</bean>
 	 -->
 
 	<bean name="IVR"
-		class="org.mobicents.media.server.mgcp.endpoint.VirtualEndpointInstaller">
+		class="org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller">
 		<property name="namePattern">mobicents/ivr/</property>
-		<property name="endpointClass">org.mobicents.media.core.endpoints.impl.IvrEndpoint</property>
+		<property name="endpointClass">org.mobicents.media.server.mgcp.endpoint.IvrEndpoint</property>
 		<property name="initialSize">50</property>
 	</bean>
 
 	<bean name="CNF"
-		class="org.mobicents.media.server.mgcp.endpoint.VirtualEndpointInstaller">
+		class="org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller">
 		<property name="namePattern">mobicents/cnf/</property>
-		<property name="endpointClass">org.mobicents.media.core.endpoints.impl.ConferenceEndpoint</property>
+		<property name="endpointClass">org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint</property>
 		<property name="initialSize">50</property>
 	</bean>
 
 	<bean name="Bridge"
-		class="org.mobicents.media.server.mgcp.endpoint.VirtualEndpointInstaller">
+		class="org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller">
 		<property name="namePattern">mobicents/bridge/</property>
-		<property name="endpointClass">org.mobicents.media.core.endpoints.impl.BridgeEndpoint</property>
+		<property name="endpointClass">org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint</property>
 		<property name="initialSize">50</property>
 	</bean>
 
 	<!-- 
 	<bean name="Relay"
-		class="org.mobicents.media.server.mgcp.endpoint.VirtualEndpointInstaller">
+		class="org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller">
 		<property name="namePattern">mobicents/relay/</property>
-		<property name="endpointClass">org.mobicents.media.core.endpoints.impl.PacketRelayEndpoint</property>
+		<property name="endpointClass">org.mobicents.media.server.mgcp.endpoint.PacketRelayEndpoint</property>
 		<property name="initialSize">1</property>
 	</bean>
 	 -->
  
 	<!-- DS0 Endpoints configuration sample -->
 	<!-- 
-	<bean name="DS0"
-		class="org.mobicents.media.server.mgcp.endpoint.VirtualSS7EndpointInstaller">
+	<bean name="DS0" class="org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller">
 		<property name="namePattern">mobicents/ds0/</property>
 		<property name="channelsManager">
 			<inject bean="channelsManager" />
 		</property>
-		<property name="endpointClass">org.mobicents.media.core.endpoints.impl.Ds0Endpoint
-		</property>
+		<property name="endpointClass">org.mobicents.media.server.mgcp.endpoint.Ds0Endpoint</property>
 		<property name="startChannelID">125</property>
 		<property name="initialSize">15</property>
 		<property name="isALaw">true</property>
