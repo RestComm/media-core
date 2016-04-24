@@ -22,12 +22,6 @@
 package org.mobicents.media.server.bootstrap.main;
 
 import org.mobicents.media.core.configuration.ResourcesConfiguration;
-import org.mobicents.media.core.connections.LocalConnectionFactory;
-import org.mobicents.media.core.connections.LocalConnectionImpl;
-import org.mobicents.media.core.connections.LocalConnectionPool;
-import org.mobicents.media.core.connections.RtpConnectionFactory;
-import org.mobicents.media.core.connections.RtpConnectionImpl;
-import org.mobicents.media.core.connections.RtpConnectionPool;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
@@ -47,6 +41,12 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.mgcp.connection.LocalConnectionFactory;
+import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
+import org.mobicents.media.server.mgcp.connection.LocalConnectionPool;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionFactory;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionPool;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;

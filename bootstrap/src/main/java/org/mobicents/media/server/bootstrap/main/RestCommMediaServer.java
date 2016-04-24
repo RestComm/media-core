@@ -21,10 +21,7 @@
 
 package org.mobicents.media.server.bootstrap.main;
 
-import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.core.connections.LocalConnectionImpl;
-import org.mobicents.media.core.connections.RtpConnectionImpl;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
@@ -33,6 +30,9 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
+import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
@@ -100,6 +100,18 @@ public class RestCommMediaServer implements MediaServer {
     public void removeManager(ServerManager manager) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void start() throws IllegalStateException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void stop() throws IllegalStateException {
+        // TODO Auto-generated method stub
+        
     }
 
 }

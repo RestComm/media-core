@@ -36,7 +36,7 @@ import org.mobicents.media.server.spi.MediaServer;
  *
  */
 public class ControllerProvider {
-    
+
     private static final Logger log = Logger.getLogger(ControllerProvider.class);
 
     public static Controller buildMgcpController(MgcpControllerConfiguration config, UdpManager udpManager, PriorityQueueScheduler mediaScheduler, Scheduler taskScheduler, MediaServer mediaServer) {
@@ -44,7 +44,7 @@ public class ControllerProvider {
         obj.setUdpInterface(udpManager);
         obj.setMediaScheduler(mediaScheduler);
         obj.setTaskScheduler(taskScheduler);
-        obj.setServer(mediaServer);
+        // obj.setServer(mediaServer);
         obj.setPort(config.getPort());
         obj.setPoolSize(config.getPoolSize());
         try {

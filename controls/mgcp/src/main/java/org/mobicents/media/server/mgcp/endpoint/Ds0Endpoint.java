@@ -20,41 +20,42 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.spi;
+package org.mobicents.media.server.mgcp.endpoint;
+
+import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 /**
- * @author amit bhayani
- * @author kulikov
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * Ds0 Endpoint Implementation
+ * 
+ * @author yulian oifa
  */
-public interface MediaServer {
+public class Ds0Endpoint extends BaseSS7EndpointImpl {
 
-    /**
-     * Registers given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void addManager(ServerManager manager);
+	public Ds0Endpoint(String localName, ChannelsManager channelsManager, int channelID, boolean isALaw, DspFactory dsp) {
+		super(localName, channelsManager, channelID, isALaw, dsp);
+	}
 
-    /**
-     * Unregisters given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void removeManager(ServerManager manager);
-
-    /**
-     * Starts the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already running.
-     */
-    void start() throws IllegalStateException;
-
-    /**
-     * Stops the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already stopped.
-     */
-    void stop() throws IllegalStateException;
-
+	@Override
+	public Component getResource(MediaType mediaType,
+			ComponentType componentType) {
+		switch (mediaType) {
+		case AUDIO:
+			switch (componentType) {
+			case SIGNAL_DETECTOR:
+				return mediaGroup.getSignalDetector();
+			case SIGNAL_GENERATOR:
+				return mediaGroup.getSignalGenerator();
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		return null;
+	}
 }

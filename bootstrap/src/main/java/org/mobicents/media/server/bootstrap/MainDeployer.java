@@ -25,9 +25,7 @@ package org.mobicents.media.server.bootstrap;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jboss.kernel.Kernel;
@@ -49,7 +47,7 @@ import org.mobicents.media.server.impl.Version;
 public class MainDeployer {
 
     /** JBoss microconatiner kernel */
-    private Kernel kernel;
+    // private Kernel kernel;
     /** Basic deployer */
     private BasicXMLDeployer kernelDeployer;
     private KernelDeployment deployment;
@@ -117,7 +115,7 @@ public class MainDeployer {
      */
     public void start(Kernel kernel, BasicXMLDeployer kernelDeployer) throws Throwable {
         Version version = Version.instance;
-        this.kernel = kernel;
+        // this.kernel = kernel;
         this.kernelDeployer = kernelDeployer;
 
         try {

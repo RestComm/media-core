@@ -19,47 +19,51 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.mobicents.media.server.spi;
+
+package org.mobicents.media.server.mgcp.connection;
+
+import org.mobicents.media.server.spi.Connection;
+import org.mobicents.media.server.spi.ConnectionEvent;
 
 /**
- *
- * @author kulikov
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * Implementation for connection event.
+ * 
+ * @author yulian oifa
  */
-public interface ServerManager {
+public class ConnectionEventImpl implements ConnectionEvent {
+    //event identifier
+    private int id;
+
+    //event source
+    private Connection source;
 
     /**
-     * Gets the control protocol supported by the controller.
-     * 
-     * @return The control protocol
+     * Creates new event object.
+     *
+     * @param id event identifier
+     * @param source event source
      */
-    ControlProtocol getControlProtocol();
+    protected ConnectionEventImpl(int id, Connection source) {
+        this.id = id;
+        this.source = source;
+    }
 
     /**
-     * Activates the Media Server Controller.
-     * 
-     * @throws IllegalStateException If the controller is already active.
+     * (Non Java-doc.)
+     *
+     * @see org.mobicents.media.server.spi.ConnectionEvent#getId()
      */
-    void activate() throws IllegalStateException;
+    public int getId() {
+        return this.id;
+    }
 
     /**
-     * Deactivates the Media Server Controller.
-     * 
-     * @throws IllegalStateException If the controller is already inactive.
+     * (Non Java-doc.)
+     *
+     * @see org.mobicents.media.server.spi.ConnectionEvent#getSource()
      */
-    void deactivate() throws IllegalStateException;
+    public Connection getSource() {
+        return this.source;
+    }
 
-    /**
-     * Notifies manager that given endpoint has been started.
-     * 
-     * @param endpoint the started endpoint.
-     */
-    public void onStarted(Endpoint endpoint, EndpointInstaller installer);
-
-    /**
-     * Notifies manager that given endpoint has been stopped.
-     * 
-     * @param endpoint the started endpoint.
-     */
-    public void onStopped(Endpoint endpoint);
 }

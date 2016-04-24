@@ -26,6 +26,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -33,13 +36,17 @@ import org.mobicents.media.server.mgcp.MgcpEvent;
 import org.mobicents.media.server.mgcp.MgcpListener;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
+import org.mobicents.media.server.mgcp.endpoint.BaseEndpointImpl;
+import org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller;
+import org.mobicents.media.server.mgcp.endpoint.naming.NamingService;
+import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.mgcp.tx.GlobalTransactionManager;
 import org.mobicents.media.server.mgcp.tx.Transaction;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.spi.MediaServer;
 import org.mobicents.media.server.spi.ServerManager;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 
@@ -55,30 +62,32 @@ public class Controller implements MgcpListener, ServerManager {
 	
     private static final Logger logger = Logger.getLogger(Controller.class);
     
-    //network interface
-    protected UdpManager udpInterface;
-    
-    //MGCP port number
-    protected int port;
-    
-    protected PriorityQueueScheduler mediaScheduler;
-    protected Scheduler taskScheduler;
-    
-    //MGCP protocol provider
-    protected MgcpProvider mgcpProvider;
-       
-    //server under control
-    protected MediaServer server;
-    
-    //endpoints
-    protected NamingTree endpoints = new NamingTree();
+    // Core elements
+    private UdpManager udpInterface;
+    private PriorityQueueScheduler mediaScheduler;
+    private Scheduler taskScheduler;
+    private ResourcesPool resourcesPool;
 
-    //Endpoint configurator
+    // MGCP elements
+    private MgcpProvider mgcpProvider;
+    private NamingTree namingTree = new NamingTree();
     private Configurator configurator;
-    
     protected GlobalTransactionManager txManager;
     
+    // Ported from media server
+    private final NamingService namingService;
+    private final ArrayList<EndpointInstaller> installers;
+    private final Map<String, Endpoint> endpoints;
+
+    protected int port;
     protected int poolSize;
+    
+    public Controller() {
+        this.poolSize = 10;
+        this.namingService = new NamingService();
+        this.installers = new ArrayList<EndpointInstaller>(5);
+        this.endpoints = new ConcurrentHashMap<>();
+    }
     
     /**
      * Assigns UDP network interface.
@@ -87,7 +96,6 @@ public class Controller implements MgcpListener, ServerManager {
      */
     public void setUdpInterface(UdpManager udpInterface) {
         this.udpInterface = udpInterface;
-        this.poolSize = 10;
     }
     
     /**
@@ -109,16 +117,6 @@ public class Controller implements MgcpListener, ServerManager {
     }
     
     /**
-     * Set server to control.
-     * 
-     * @param server the server instance.
-     */
-    public void setServer(MediaServer server) {
-        this.server = server;
-        server.addManager(this);        
-    }
-    
-    /**
      * Sets job scheduler.
      * 
      * @param scheduler the scheduler instance.
@@ -129,6 +127,10 @@ public class Controller implements MgcpListener, ServerManager {
     
     public void setTaskScheduler(Scheduler taskScheduler) {
         this.taskScheduler = taskScheduler;
+    }
+    
+    public void setResourcesPool(ResourcesPool resourcesPool) {
+        this.resourcesPool = resourcesPool;
     }
     
     /**
@@ -189,15 +191,39 @@ public class Controller implements MgcpListener, ServerManager {
     public void createGlobalTransactionManager() {
     	txManager = new GlobalTransactionManager(taskScheduler, mediaScheduler.getClock());
     	txManager.setPoolSize(poolSize);
-        txManager.setNamingService(endpoints);        
+        txManager.setNamingService(namingTree);        
         txManager.setMgcpProvider(mgcpProvider);
     }
     
     /**
-     * Starts controller.
+     * Installs endpoints defined by specified installer.
+     *
+     * @param installer the endpoints installer
+     */
+    public void addInstaller(EndpointInstaller installer) {
+        ((VirtualEndpointInstaller)installer).setController(this);
+        installers.add(installer);
+        installer.install();
+    }
+
+    /**
+     * Uninstalls endpoint defined by specified endpoint installer.
+     *
+     * @param installer the endpoints installer.
+     */
+    public void removeInstaller(EndpointInstaller installer) {
+        installers.remove(installer);
+        installer.uninstall();
+    }
+    
+    /**
+     * Starts the controller.
      */
     public void start() {
-        logger.info("Starting MGCP provider");
+        if (logger.isInfoEnabled()) {
+            logger.info("Starting MGCP provider");
+        }
+
         createProvider();  
         mgcpProvider.activate();
         
@@ -210,15 +236,21 @@ public class Controller implements MgcpListener, ServerManager {
         //initialize transaction subsystem                
         createGlobalTransactionManager();
         
-        logger.info("Controller started");
+        if (logger.isInfoEnabled()) {
+            logger.info("Controller started");
+        }
     }
     
     /**
-     * Stops controller.
+     * Stops the controller.
      */
     public void stop() {
-        mgcpProvider.shutdown();
-        logger.info("Controller stopped");
+        if(mgcpProvider != null) {
+            mgcpProvider.shutdown();
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("Controller stopped");
+        }
     }
 
     @Override
@@ -243,19 +275,110 @@ public class Controller implements MgcpListener, ServerManager {
             return txManager.find(remoteAddress, transactionId);
         }
     }
-     
+
+    @Override
     public void onStarted(Endpoint endpoint,EndpointInstaller installer) {
         try {
             MgcpEndpoint mgcpEndpoint = configurator.activate(endpoint, mgcpProvider, udpInterface.getLocalBindAddress(), port);
             mgcpEndpoint.setMgcpListener(this);
-            endpoints.register(mgcpEndpoint,installer);
+            namingTree.register(mgcpEndpoint,installer);
             logger.info("Endpoint restarted: " + endpoint.getLocalName());
         } catch (Exception e) {
         	logger.error("Could not register endpoint: " + endpoint.getLocalName());
         }
     }
 
+    @Override
     public void onStopped(Endpoint endpoint) {
+        // TODO does nothing!
+    }
+
+    /**
+     * Installs the specified endpoint.
+     *
+     * @param endpoint the endpoint to installed.
+     */
+    public void install(Endpoint endpoint, EndpointInstaller installer) {
+        // check endpoint first
+        if (endpoint == null) {
+            logger.error("Unknown endpoint");
+            return;
+        }
+
+        // The endpoint implementation must extend BaseEndpointImpl class
+        BaseEndpointImpl baseEndpoint = null;
+        try {
+            baseEndpoint = (BaseEndpointImpl) endpoint;
+        } catch (ClassCastException e) {
+            logger.error("Unsupported endpoint implementation " + endpoint.getLocalName());
+            return;
+        }
+
+        // assign scheduler to the endpoint
+        baseEndpoint.setScheduler(mediaScheduler);
+        baseEndpoint.setResourcesPool(resourcesPool);
+
+        if (logger.isInfoEnabled()) {
+            logger.info("Installing " + endpoint.getLocalName());
+        }
+
+        // starting endpoint
+        try {
+            endpoint.start();
+        } catch (Exception e) {
+            logger.error("Couldn't start endpoint " + endpoint.getLocalName(), e);
+            return;
+        }
+
+        // register endpoint with naming service
+        try {
+            namingService.register(endpoint);
+        } catch (Exception e) {
+            endpoint.stop();
+            logger.error("Could not register endpoint " + endpoint.getLocalName(), e);
+        }
+
+        // register endpoint localy
+        endpoints.put(endpoint.getLocalName(), endpoint);
+
+        // send notification to manager
+        onStarted(endpoint, installer);
     }
     
+    /**
+     * Uninstalls the endpoint.
+     *
+     * @param name the local name of the endpoint to be uninstalled
+     */
+    public void uninstall(String name) {
+        // unregister locally
+        Endpoint endpoint = endpoints.remove(name);
+        onStopped(endpoint);
+        try {
+            // TODO: lookup irrespective of endpoint usage
+            endpoint = namingService.lookup(name, true);
+            if (endpoint != null) {
+                endpoint.stop();
+                namingService.unregister(endpoint);
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+    }
+    
+    @Override
+    public void activate() throws IllegalStateException {
+        // TODO implement this
+    }
+    
+    @Override
+    public void deactivate() throws IllegalStateException {
+     // TODO implement this
+    }
+    
+    @Override
+    public ControlProtocol getControlProtocol() {
+        return ControlProtocol.MGPC;
+    }
+
 }

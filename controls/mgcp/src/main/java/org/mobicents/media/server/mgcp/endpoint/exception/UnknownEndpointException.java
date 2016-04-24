@@ -20,41 +20,31 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.spi;
+package org.mobicents.media.server.mgcp.endpoint.exception;
 
 /**
- * @author amit bhayani
- * @author kulikov
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * 
+ * @author yulian oifa
  */
-public interface MediaServer {
+public class UnknownEndpointException extends Exception {
 
-    /**
-     * Registers given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void addManager(ServerManager manager);
+	private static final long serialVersionUID = -6007137638867952062L;
 
-    /**
-     * Unregisters given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void removeManager(ServerManager manager);
+	/**
+	 * Creates a new instance of <code>UnknownEndpointException</code> without
+	 * detail message.
+	 */
+	public UnknownEndpointException() {
+	}
 
-    /**
-     * Starts the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already running.
-     */
-    void start() throws IllegalStateException;
-
-    /**
-     * Stops the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already stopped.
-     */
-    void stop() throws IllegalStateException;
-
+	/**
+	 * Constructs an instance of <code>UnknownEndpointException</code> with the
+	 * specified detail message.
+	 * 
+	 * @param msg
+	 *            the detail message.
+	 */
+	public UnknownEndpointException(String msg) {
+		super(msg);
+	}
 }

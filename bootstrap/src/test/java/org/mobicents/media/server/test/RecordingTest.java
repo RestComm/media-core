@@ -31,13 +31,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.Server;
-import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.controller.Controller;
+import org.mobicents.media.server.mgcp.endpoint.IvrEndpoint;
+import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
@@ -104,22 +104,22 @@ public class RecordingTest {
         server.setClock(clock);
         server.setScheduler(scheduler);
         server.setUdpManager(udpManager);
-        server.setResourcesPool(resourcesPool);        
         
         controller=new Controller();
         controller.setUdpInterface(udpManager);
         controller.setPort(2427);
         controller.setMediaScheduler(scheduler); 
-        controller.setServer(server);        
+        controller.setResourcesPool(resourcesPool);
+        server.addManager(controller);
         controller.setConfigurationByURL(this.getClass().getResource("/mgcp-conf.xml"));
         
-        controller.start();
+        server.start();
         
-        user = new IvrEndpoint("/mobicents/ivr/1");
-        ivr = new IvrEndpoint("/mobicents/ivr/2");
-        
-        server.install(user,null);
-        server.install(ivr,null);      	
+//        user = new IvrEndpoint("/mobicents/ivr/1");
+//        ivr = new IvrEndpoint("/mobicents/ivr/2");
+//        
+//        controller.install(user,null);
+//        controller.install(ivr,null);      	
     }
 
     @After

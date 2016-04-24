@@ -29,10 +29,10 @@ package org.mobicents.media.server.test;
 
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.endpoints.BaseMixerEndpointImpl;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SoundCard;
+import org.mobicents.media.server.mgcp.endpoint.BaseMixerEndpointImpl;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.MediaType;
@@ -75,19 +75,19 @@ public class SoundSystem extends BaseMixerEndpointImpl implements Endpoint {
     }    
 
     public Component getResource(MediaType mediaType, ComponentType componentType) {
-        switch(mediaType)
-        {
-        	case AUDIO:
-        		switch(componentType)
-        		{
-        			case SINE:
-        				return sine;
-        			case SOUND_CARD:
-        				return soundcard;        				
-        		}
+        switch (mediaType) {
+            case AUDIO:
+                switch (componentType) {
+                    case SINE:
+                        return sine;
+                    case SOUND_CARD:
+                        return soundcard;
+                    default:
+                        return null;
+                }
+            default:
+                return null;
         }
-        
-        return null;
     }
 
     public void releaseResource(MediaType mediaType, ComponentType componentType) {

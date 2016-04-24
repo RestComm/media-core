@@ -20,41 +20,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.spi;
+package org.mobicents.media.server.mgcp.endpoint.naming;
 
 /**
- * @author amit bhayani
- * @author kulikov
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
+ * @author yulian oifa
  */
-public interface MediaServer {
-
-    /**
-     * Registers given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void addManager(ServerManager manager);
-
-    /**
-     * Unregisters given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void removeManager(ServerManager manager);
-
-    /**
-     * Starts the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already running.
-     */
-    void start() throws IllegalStateException;
-
-    /**
-     * Stops the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already stopped.
-     */
-    void stop() throws IllegalStateException;
-
+public class EndpointName {
+    private String category;
+    private String id;
+    
+    public EndpointName(String name) {
+        String tokens[] = name.split("/");
+        this.id = tokens[tokens.length - 1];
+        
+        this.category = "";
+        for (int i = 0; i < tokens.length - 1; i++) {
+            category += tokens[i];
+            if (i < tokens.length - 2) {
+                category += "/";
+            }
+        }
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+    
+    public String getID() {
+        return id;
+    }
 }

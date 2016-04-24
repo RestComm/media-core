@@ -20,41 +20,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.spi;
+package org.mobicents.media.server.mgcp.endpoint;
+
+import org.mobicents.media.Component;
+import org.mobicents.media.ComponentType;
+import org.mobicents.media.server.spi.MediaType;
 
 /**
- * @author amit bhayani
- * @author kulikov
- * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * Conference endpoint implementation
+ * 
+ * @author yulian oifa
  */
-public interface MediaServer {
+public class ConferenceEndpoint extends BaseMixerEndpointImpl {
 
-    /**
-     * Registers given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void addManager(ServerManager manager);
+	public ConferenceEndpoint(String localName) {
+		super(localName);
+	}
 
-    /**
-     * Unregisters given manager.
-     * 
-     * @param manager the manager instance.
-     */
-    void removeManager(ServerManager manager);
-
-    /**
-     * Starts the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already running.
-     */
-    void start() throws IllegalStateException;
-
-    /**
-     * Stops the Media Server.
-     * 
-     * @throws IllegalStateException If the server is already stopped.
-     */
-    void stop() throws IllegalStateException;
-
+	@Override
+	public Component getResource(MediaType mediaType, ComponentType componentType) {
+		return null;
+	}
 }
