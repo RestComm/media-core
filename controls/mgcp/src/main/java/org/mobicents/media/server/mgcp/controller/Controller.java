@@ -203,6 +203,7 @@ public class Controller implements MgcpListener, ServerManager {
     public void addInstaller(EndpointInstaller installer) {
         ((VirtualEndpointInstaller)installer).setController(this);
         installers.add(installer);
+        installer.install();
     }
 
     /**
@@ -367,17 +368,12 @@ public class Controller implements MgcpListener, ServerManager {
     
     @Override
     public void activate() throws IllegalStateException {
-        for (EndpointInstaller installer : installers) {
-            installer.install();
-        }
-        
+        // TODO implement this
     }
     
     @Override
     public void deactivate() throws IllegalStateException {
-        for (EndpointInstaller installer : installers) {
-            installer.uninstall();
-        }
+     // TODO implement this
     }
     
     @Override

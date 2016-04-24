@@ -100,6 +100,7 @@ public class Server implements MediaServer {
         // Start Media Server
         this.started = true;
         for (ServerManager controller : managers.values()) {
+            log.info("Activating controller " + controller.getControlProtocol().name());
             controller.activate();
         }
 
@@ -125,6 +126,7 @@ public class Server implements MediaServer {
         }
 
         for (ServerManager controller : managers.values()) {
+            log.info("Deactivating controller " + controller.getControlProtocol().name());
             controller.deactivate();
         }
 

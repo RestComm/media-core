@@ -209,43 +209,6 @@
 		</constructor>
 	</bean>
 
-	<!-- MGCP Controller definition -->
-	<bean name="MGCP" class="org.mobicents.media.server.mgcp.controller.Controller">
-		<property name="udpInterface">
-			<inject bean="localhost" />
-		</property>
-		<property name="port">2427</property>
-		<property name="mediaScheduler">
-			<inject bean="Scheduler" />
-		</property>
-		<property name="taskScheduler">
-			<inject bean="ServiceScheduler" />
-		</property>
-		<property name="resourcesPool">
-			<inject bean="resourcesPool" />
-		</property>
-		<property name="configuration">mgcp-conf.xml</property>
-		<property name="poolSize">25</property>
-		<incallback method="addInstaller" />
-		<uncallback method="removeInstaller" />
-	</bean>
-
-	<!-- Media Server -->
-	<bean name="MediaServer" class="org.mobicents.media.core.Server">
-		<property name="clock">
-			<inject bean="SystemClock" />
-		</property>
-		<property name="scheduler">
-			<inject bean="Scheduler" />
-		</property>
-		<property name="udpManager">
-			<inject bean="localhost" />
-		</property>
-		<property name="heartBeatTime">1</property>
-		<incallback method="addManager" />
-		<uncallback method="removeManager" />
-	</bean>
-
 	<!-- Endpoints -->
 	<!-- 
 	<bean name="Announcement" class="org.mobicents.media.server.mgcp.endpoint.factory.VirtualEndpointInstaller">
@@ -299,4 +262,41 @@
 		<property name="dsp"><inject bean="DSP" /></property>
 	</bean>
 	-->
+	
+	<!-- MGCP Controller definition -->
+	<bean name="MGCP" class="org.mobicents.media.server.mgcp.controller.Controller">
+		<property name="udpInterface">
+			<inject bean="localhost" />
+		</property>
+		<property name="port">2427</property>
+		<property name="mediaScheduler">
+			<inject bean="Scheduler" />
+		</property>
+		<property name="taskScheduler">
+			<inject bean="ServiceScheduler" />
+		</property>
+		<property name="resourcesPool">
+			<inject bean="resourcesPool" />
+		</property>
+		<property name="configuration">mgcp-conf.xml</property>
+		<property name="poolSize">25</property>
+		<incallback method="addInstaller" />
+		<uncallback method="removeInstaller" />
+	</bean>
+
+	<!-- Media Server -->
+	<bean name="MediaServer" class="org.mobicents.media.core.Server">
+		<property name="clock">
+			<inject bean="SystemClock" />
+		</property>
+		<property name="scheduler">
+			<inject bean="Scheduler" />
+		</property>
+		<property name="udpManager">
+			<inject bean="localhost" />
+		</property>
+		<property name="heartBeatTime">1</property>
+		<incallback method="addManager" />
+		<uncallback method="removeManager" />
+	</bean>
 </deployment>
