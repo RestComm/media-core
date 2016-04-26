@@ -81,12 +81,14 @@ public class Controller implements MgcpListener, ServerManager {
 
     protected int port;
     protected int poolSize;
+    private boolean active;
     
     public Controller() {
         this.poolSize = 10;
         this.namingService = new NamingService();
         this.installers = new ArrayList<EndpointInstaller>(5);
         this.endpoints = new ConcurrentHashMap<>();
+        this.active = false;
     }
     
     /**
@@ -371,12 +373,27 @@ public class Controller implements MgcpListener, ServerManager {
     
     @Override
     public void activate() throws IllegalStateException {
-        start();
+        if(!this.active) {
+            this.active = true;
+            start();
+        } else {
+            throw new IllegalStateException("Controller is already active."); 
+        }
     }
     
     @Override
     public void deactivate() throws IllegalStateException {
-        stop();
+        if (this.active) {
+            this.active = false;
+            stop();
+        } else {
+            throw new IllegalStateException("Controller is already inactive.");
+        }
+    }
+    
+    @Override
+    public boolean isActive() {
+        return this.active;
     }
     
     @Override

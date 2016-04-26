@@ -61,5 +61,11 @@ public class MgcpController implements ServerManager {
         // TODO Auto-generated method stub
         
     }
+    
+    @Override
+    public boolean isActive() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 }
