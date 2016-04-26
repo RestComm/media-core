@@ -132,6 +132,11 @@ public class RestCommMediaServer implements MediaServer {
             log.info("Media Server stopped");
         }
     }
+    
+    @Override
+    public boolean isRunning() {
+        return this.started;
+    }
 
     private final class HeartBeat extends Task {
 

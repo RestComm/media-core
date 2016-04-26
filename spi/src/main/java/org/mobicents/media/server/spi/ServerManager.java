@@ -50,6 +50,13 @@ public interface ServerManager {
     void deactivate() throws IllegalStateException;
 
     /**
+     * Gets whether the controller is active
+     * 
+     * @return True if active; otherwise false.
+     */
+    boolean isActive();
+
+    /**
      * Notifies manager that given endpoint has been started.
      * 
      * @param endpoint the started endpoint.

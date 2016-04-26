@@ -39,7 +39,9 @@ import org.mobicents.media.server.spi.ServerManager;
  * 
  * @author Oifa Yulian
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @deprecated Use RestCommMediaServer instead
  */
+@Deprecated
 public class Server implements MediaServer {
 
     private static final Logger log = Logger.getLogger(Server.class);
@@ -139,6 +141,11 @@ public class Server implements MediaServer {
         }
     }
 
+    @Override
+    public boolean isRunning() {
+        return this.started;
+    }
+    
     @Override
     public void addManager(ServerManager manager) {
         managers.put(manager.getControlProtocol(), manager);

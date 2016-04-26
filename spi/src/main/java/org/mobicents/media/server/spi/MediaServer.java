@@ -57,4 +57,11 @@ public interface MediaServer {
      */
     void stop() throws IllegalStateException;
 
+    /**
+     * Gets whether the media server is running or not.
+     * 
+     * @return true if Media Server started. Returns false otherwise.
+     */
+    boolean isRunning();
+
 }
