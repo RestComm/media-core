@@ -215,7 +215,8 @@ In case of embedded Media Server all the files related Media Server are placed i
 | conf/bootstrap-beans.xml | Specifies which additional microcontainer deployments are loaded as part of the bootstrap phase. bootstrap-beans.xml references other configuration files contained in the /conf/bootstrap/ directory. For a standard configuration, the bootstrap configuration files require no alteration.
 | conf/log4j.properties | Specifies the Apache log4j framework category priorities and appenders used by the Media Server.
 | conf/mgcp-conf.xml | Specifies the configuration for the MGCP controller.
-| deploy/server-beans.xml | Configuration file for mms.For more information please see chapter 3.
+| conf/mediaserver.xml | Configuration file of the Media Server. For more information please see chapter 3.
+| deploy/server-beans.xml | Specified list of Java Beans necessary for bootstrapping the Media Server.
 |===
 
 [[_itms_writing_and_running_tests_against_the_media_server]]
