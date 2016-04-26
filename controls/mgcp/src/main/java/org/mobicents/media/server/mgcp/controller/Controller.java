@@ -203,7 +203,6 @@ public class Controller implements MgcpListener, ServerManager {
     public void addInstaller(EndpointInstaller installer) {
         ((VirtualEndpointInstaller)installer).setController(this);
         installers.add(installer);
-        installer.install();
     }
 
     /**
@@ -235,6 +234,10 @@ public class Controller implements MgcpListener, ServerManager {
                 
         //initialize transaction subsystem                
         createGlobalTransactionManager();
+        
+        for (EndpointInstaller installer : installers) {
+            installer.install();
+        }
         
         if (logger.isInfoEnabled()) {
             logger.info("Controller started");
@@ -368,12 +371,12 @@ public class Controller implements MgcpListener, ServerManager {
     
     @Override
     public void activate() throws IllegalStateException {
-        // TODO implement this
+        start();
     }
     
     @Override
     public void deactivate() throws IllegalStateException {
-     // TODO implement this
+        stop();
     }
     
     @Override
