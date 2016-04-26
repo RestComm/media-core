@@ -93,6 +93,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         for (HierarchicalConfiguration<ImmutableNode> endpoint : endpoints) {
             MgcpEndpointConfiguration endpointConfig = new MgcpEndpointConfiguration();
             endpointConfig.setName(endpoint.getString("[@name]"));
+            endpointConfig.setClassName(endpoint.getString("[@class]"));
             endpointConfig.setPoolSize(endpoint.getInt("[@poolSize]", MgcpEndpointConfiguration.POOL_SIZE));
             dst.addEndpoint(endpointConfig);
         }

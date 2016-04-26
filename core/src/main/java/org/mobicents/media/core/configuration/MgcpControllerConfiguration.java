@@ -95,6 +95,10 @@ public class MgcpControllerConfiguration {
         }
         this.configuration = configuration;
     }
+    
+    public int countEndpoints() {
+        return this.endpoints.size();
+    }
 
     public Iterator<MgcpEndpointConfiguration> getEndpoints() {
         return this.endpoints.values().iterator();

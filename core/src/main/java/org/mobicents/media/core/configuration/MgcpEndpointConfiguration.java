@@ -32,10 +32,12 @@ public class MgcpEndpointConfiguration {
     public static int POOL_SIZE = 0;
 
     private String name;
+    private String className;
     private int poolSize;
 
     public MgcpEndpointConfiguration() {
-        this.name = "mobicents/unknown";
+        this.name = "";
+        this.className = "";
         this.poolSize = POOL_SIZE;
     }
 
@@ -48,6 +50,17 @@ public class MgcpEndpointConfiguration {
             throw new IllegalArgumentException("Endpoint name cannot be empty.");
         }
         this.name = name.toLowerCase();
+    }
+    
+    public String getClassName() {
+        return className;
+    }
+    
+    public void setClassName(String className) {
+        if(className == null || className.isEmpty()) {
+            throw new IllegalArgumentException("Endpoint class name cannot be empty.");
+        }
+        this.className = className;
     }
 
     public int getPoolSize() {

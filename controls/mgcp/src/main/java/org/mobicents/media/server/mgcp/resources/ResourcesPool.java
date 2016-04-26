@@ -32,11 +32,8 @@ import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
-import org.mobicents.media.server.mgcp.connection.LocalConnectionPool;
 import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
-import org.mobicents.media.server.mgcp.connection.RtpConnectionPool;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
 

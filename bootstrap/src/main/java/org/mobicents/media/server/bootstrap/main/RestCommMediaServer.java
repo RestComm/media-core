@@ -21,73 +21,44 @@
 
 package org.mobicents.media.server.bootstrap.main;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
-import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
-import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
-import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
-import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
-import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.MediaServer;
 import org.mobicents.media.server.spi.ServerManager;
 import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.spi.pooling.ResourcePool;
+
+import com.google.inject.Inject;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class RestCommMediaServer implements MediaServer {
-
+    
+    private static final Logger log = Logger.getLogger(RestCommMediaServer.class);
+    
     // Core Components
     private final Clock clock;
     private final PriorityQueueScheduler mediaScheduler;
-    private final ServiceScheduler taskScheduler;
+    private final Scheduler taskScheduler;
     private final UdpManager udpManager;
     private final ChannelsManager channelsManager;
     private final DspFactory dspFactory;
     private final ServerManager controller;
 
-    // Resource Pools
-    private final ResourcePool<RtpConnectionImpl> rtpConnectionPool;
-    private final ResourcePool<LocalConnectionImpl> localConnectionPool;
-    private final ResourcePool<AudioPlayerImpl> playerPool;
-    private final ResourcePool<AudioRecorderImpl> recorderPool;
-    private final ResourcePool<GeneratorImpl> dtmfGeneratorPool;
-    private final ResourcePool<DetectorImpl> dtmfDetectorPool;
-    private final ResourcePool<PhoneSignalDetector> signalDetectorPool;
-    private final ResourcePool<PhoneSignalGenerator> signalGeneratorPool;
-    private final ResourcesPool resourcesPool;
-
-    public RestCommMediaServer(MediaServerConfiguration configuration) {
-        // Core Components
-        this.clock = new WallClock();
-        this.mediaScheduler = new PriorityQueueScheduler(clock);
-        this.taskScheduler = new ServiceScheduler(clock);
-        this.udpManager = UdpManagerFactory.build(configuration, taskScheduler);
-        this.channelsManager = ChannelsManagerFactory.build(configuration, udpManager, mediaScheduler);
-        this.dspFactory = DspProvider.build(configuration);
-        this.controller = ControllerProvider.buildMgcpController(configuration.getControllerConfiguration(), udpManager, mediaScheduler, taskScheduler, this);
-
-        // Resource Pools
-        this.rtpConnectionPool = ResourcePoolProvider.buildRtpConnectionPool(configuration.getResourcesConfiguration(), channelsManager, dspFactory);
-        this.localConnectionPool = ResourcePoolProvider.buildLocalConnectionPool(configuration.getResourcesConfiguration(), channelsManager);
-        this.playerPool = ResourcePoolProvider.buildPlayerPool(configuration.getResourcesConfiguration(), mediaScheduler, dspFactory);
-        this.recorderPool = ResourcePoolProvider.buildRecorderPool(configuration.getResourcesConfiguration(), mediaScheduler);
-        this.dtmfGeneratorPool = ResourcePoolProvider.buildDtmfGeneratorPool(configuration.getResourcesConfiguration(), mediaScheduler);
-        this.dtmfDetectorPool = ResourcePoolProvider.buildDtmfDetectorPool(configuration.getResourcesConfiguration(), mediaScheduler);
-        this.signalDetectorPool = ResourcePoolProvider.buildSignalDetectorPool(configuration.getResourcesConfiguration(), mediaScheduler);
-        this.signalGeneratorPool = ResourcePoolProvider.buildSignalGeneratorPool(configuration.getResourcesConfiguration(), mediaScheduler);
-        this.resourcesPool = new ResourcesPool(rtpConnectionPool, localConnectionPool, playerPool, recorderPool, dtmfDetectorPool, dtmfGeneratorPool, signalDetectorPool, signalGeneratorPool);
+    @Inject
+    public RestCommMediaServer(Clock clock, PriorityQueueScheduler mediaScheduler, Scheduler taskScheduler, UdpManager udpManager, ChannelsManager channelsManager, DspFactory dspFactory, ServerManager controller) {
+        this.clock = clock;
+        this.mediaScheduler = mediaScheduler;
+        this.taskScheduler = taskScheduler;
+        this.udpManager = udpManager;
+        this.channelsManager = channelsManager;
+        this.dspFactory = dspFactory;
+        this.controller = controller;
     }
 
     @Override
@@ -104,14 +75,13 @@ public class RestCommMediaServer implements MediaServer {
 
     @Override
     public void start() throws IllegalStateException {
-        // TODO Auto-generated method stub
+        log.info("Media Server started!!!");
         
     }
 
     @Override
     public void stop() throws IllegalStateException {
-        // TODO Auto-generated method stub
-        
+        log.info("Media Server stopped!!!");
     }
 
 }
