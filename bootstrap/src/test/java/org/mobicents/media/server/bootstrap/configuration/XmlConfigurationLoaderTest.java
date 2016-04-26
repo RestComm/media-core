@@ -61,14 +61,17 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(3437, controller.getPort());
         Assert.assertEquals("mgcp-conf-test.xml", controller.getConfiguration());
         Assert.assertEquals(5, controller.getPoolSize());
-        MgcpEndpointConfiguration bridgeEndpoint = controller.getEndpoint("mobicents/bridge");
+        MgcpEndpointConfiguration bridgeEndpoint = controller.getEndpoint("mobicents/bridge/");
         Assert.assertNotNull(bridgeEndpoint);
+        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint", bridgeEndpoint.getClassName());
         Assert.assertEquals(51, bridgeEndpoint.getPoolSize());
-        MgcpEndpointConfiguration ivrEndpoint = controller.getEndpoint("mobicents/ivr");
+        MgcpEndpointConfiguration ivrEndpoint = controller.getEndpoint("mobicents/ivr/");
         Assert.assertNotNull(ivrEndpoint);
         Assert.assertEquals(52, ivrEndpoint.getPoolSize());
-        MgcpEndpointConfiguration cnfEndpoint = controller.getEndpoint("mobicents/cnf");
+        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.IvrEndpoint", ivrEndpoint.getClassName());
+        MgcpEndpointConfiguration cnfEndpoint = controller.getEndpoint("mobicents/cnf/");
         Assert.assertNotNull(cnfEndpoint);
+        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint", cnfEndpoint.getClassName());
         Assert.assertEquals(53, cnfEndpoint.getPoolSize());
 
         MediaConfiguration media = config.getMediaConfiguration();
