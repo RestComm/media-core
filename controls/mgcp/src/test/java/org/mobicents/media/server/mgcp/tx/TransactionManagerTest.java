@@ -24,7 +24,11 @@ package org.mobicents.media.server.mgcp.tx;
 import org.mobicents.media.server.scheduler.TaskChain;
 import org.mobicents.media.server.scheduler.Task;
 import java.util.Random;
+
+import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -39,33 +43,18 @@ import static org.junit.Assert.*;
  */
 public class TransactionManagerTest {
     
-    private WallClock clock;
-    private PriorityQueueScheduler scheduler;
-    
+    private Clock clock;
+    private Scheduler scheduler;
     private TransactionManager txManager;
-    
     private Action action;
-    
-    public TransactionManagerTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
     
     @Before
     public void setUp() {
         clock = new WallClock();
-        
-        scheduler = new PriorityQueueScheduler();
-        scheduler.setClock(clock);
+        scheduler = new ServiceScheduler();
         scheduler.start();
         
-        txManager = new TransactionManager(scheduler, 3);
+        txManager = new TransactionManager(clock, scheduler, 3);
         txManager.start();
         
         action = new Action();

@@ -32,6 +32,7 @@ import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
+import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
@@ -52,8 +53,9 @@ import org.mobicents.media.server.spi.dtmf.DtmfGeneratorListener;
  * 
  * @author yulian oifa
  * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
+public class GeneratorImpl extends AbstractSource implements DtmfGenerator, PooledObject {
 
     private final static AudioFormat linear = FormatFactory.createAudioFormat("linear", 8000, 16, 1);
     private long period = 20000000L;
@@ -127,48 +129,48 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
       
     public AudioInput getAudioInput()
     {
-    	return this.input;
+        return this.input;
     }
     
     public OOBInput getOOBInput()
     {
-    	return this.oobInput;
+        return this.oobInput;
     }    
     
     @Override
     public void activate() {
-    	if(oobDigit!=null) {
-    		oobGenerator.index=0;
-    		oobGenerator.activate();    		
-    	}
-    	
-    	if (digit != null) {
-    		time = 0;
+        if(oobDigit!=null) {
+            oobGenerator.index=0;
+            oobGenerator.activate();            
+        }
+        
+        if (digit != null) {
+            time = 0;
             start();
         }     
     }
     
     public void setOOBDigit(String digit) {
-    	if(digit.charAt(0)>='0' && digit.charAt(0)<='9')    			
-    		oobDigitValue=(digit.charAt(0)-'0');
-		else if(digit.charAt(0)=='*')
-			oobDigitValue=10;
-		else if(digit.charAt(0)=='#')
-			oobDigitValue=11;
-		else if(digit.charAt(0)>='A' && digit.charAt(0)<='D')
-			oobDigitValue=12+digit.charAt(0)-'A';
-		else if(digit.charAt(0)>='a' && digit.charAt(0)<='d')
-			oobDigitValue=12+digit.charAt(0)-'a';
-		else
-			return;   
-    	
-    	oobGenerator.index=0;
-    	this.oobDigit=digit;
-    	this.digit=null;
+        if(digit.charAt(0)>='0' && digit.charAt(0)<='9')                
+            oobDigitValue=(digit.charAt(0)-'0');
+        else if(digit.charAt(0)=='*')
+            oobDigitValue=10;
+        else if(digit.charAt(0)=='#')
+            oobDigitValue=11;
+        else if(digit.charAt(0)>='A' && digit.charAt(0)<='D')
+            oobDigitValue=12+digit.charAt(0)-'A';
+        else if(digit.charAt(0)>='a' && digit.charAt(0)<='d')
+            oobDigitValue=12+digit.charAt(0)-'a';
+        else
+            return;   
+        
+        oobGenerator.index=0;
+        this.oobDigit=digit;
+        this.digit=null;
     }
     
     public void setDigit(String digit) {
-    	this.oobDigit=null;
+        this.oobDigit=null;
         this.digit = digit;
         this.time=0;
         for (int i = 0; i < 4; i++) {
@@ -229,10 +231,10 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
 
     @Override
     public Frame evolve(long timestamp) {
-    	if(time > (double) toneDuration / 1000.0)
-    		return null;
-    	
-    	int k = 0;
+        if(time > (double) toneDuration / 1000.0)
+            return null;
+        
+        int k = 0;
         int frameSize = (int) ((double) 20 / 1000.0 / dt);
         Frame frame = Memory.allocate(2* frameSize);
         byte[] data = frame.getData();
@@ -262,43 +264,43 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
     @Override
     public void wakeup() {
         if(this.oobDigit!=null)
-        	oobGenerator.wakeup();
+            oobGenerator.wakeup();
         else if(this.digit!=null)
-        	super.wakeup();
+            super.wakeup();
     }
     
     private class OOBGenerator extends AbstractSource {
-    	int index=0;
-    	int eventDuration=0;
-    	int oobVolume;
-    	public OOBGenerator(PriorityQueueScheduler scheduler,OOBInput input) {
+        int index=0;
+        int eventDuration=0;
+        int oobVolume;
+        public OOBGenerator(PriorityQueueScheduler scheduler,OOBInput input) {
             super("oob generator", scheduler,scheduler.INPUT_QUEUE);
             this.connect(input);
-    	}
-    	
-    	@Override
+        }
+        
+        @Override
         public Frame evolve(long timestamp) {
-    		if(index > ((toneDuration / 20)+2))
-    			return null;    		    		
-    		
-    		Frame frame = Memory.allocate(4);
-    		byte[] data=frame.getData();
-    		
-    		data[0]=(byte)oobDigitValue;
-    		
-    		oobVolume=0-volume;
-    		if(index > (toneDuration / 20))
-    			//with end of event flag
-    			data[1]=(byte)(0xBF & oobVolume);	
-    		else
-    			//without end of event flag
-    			data[1]=(byte)(0x3F & oobVolume);
-    		
-        	eventDuration=(short)(160*index);
-        	data[2]=(byte)((eventDuration>>8) & 0xFF);
-        	data[3]=(byte)(eventDuration & 0xFF);
-        	
-        	frame.setOffset(0);
+            if(index > ((toneDuration / 20)+2))
+                return null;                        
+            
+            Frame frame = Memory.allocate(4);
+            byte[] data=frame.getData();
+            
+            data[0]=(byte)oobDigitValue;
+            
+            oobVolume=0-volume;
+            if(index > (toneDuration / 20))
+                //with end of event flag
+                data[1]=(byte)(0xBF & oobVolume);   
+            else
+                //without end of event flag
+                data[1]=(byte)(0x3F & oobVolume);
+            
+            eventDuration=(short)(160*index);
+            data[2]=(byte)((eventDuration>>8) & 0xFF);
+            data[3]=(byte)(eventDuration & 0xFF);
+            
+            frame.setOffset(0);
             frame.setLength(4);
             frame.setTimestamp(getMediaTime());
             frame.setDuration(20000000L);
@@ -308,16 +310,28 @@ public class GeneratorImpl extends AbstractSource implements DtmfGenerator {
                 listeners.dispatch(event);
         
             return frame;
-    	}
-    	
-    	@Override
+        }
+        
+        @Override
         public void activate() {
             start();
         }
-    	
-    	@Override
+        
+        @Override
         public void deactivate() {
             stop();
         } 
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
     }
 }

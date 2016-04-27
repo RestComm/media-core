@@ -1,0 +1,227 @@
+[[_chapter_installing_the_media_server]]
+= Installing the Media Server
+
+The {this-platform} {this-application} distribution is available as Standalone
+
+The Media Server is available in both binary and source code distributions.
+The simplest way to get started with the Media Server is to download the ready-to-run binary distribution.
+Alternatively, the source code for the Media Server can be obtained by checking it out from its repository using the Git version control system. You can later run a build using Maven.
+The binary distribution is recommended for most users.
+Downloading and building the source code is recommended for those who want access to the latest revisions and Media Server capabilities. 
+
+Installing the <<_jdk_installing_configuring_and_running>>
+
+
+[[_itms_binary_jboss_media_server_installing_configuring_and_running]]
+== JBoss Application Server 5.x.y embedded Media Server Binary Distribution: Installing, Configuring and Running
+
+{this-platform} {this-application} either comes bundled with the JBoss Application Server or Standalone.
+This section details how to install the {this-platform} {this-application} that comes bundled with JBoss Application Server 5.
+For installation of Standalone {this-platform} {this-application} , refer to <<_itms_binary_standalone_media_server_installing_configuring_and_running>>		
+
+[[_itms_binary_jboss_media_server_preinstall_requirements_and_prerequisites]]
+=== Pre-Install Requirements and Prerequisites
+
+Ensure that the following requirements have been met before continuing with the installation. 
+
+.Hardware Requirements
+Sufficient Disk Space::
+  Once unzipped, the JBoss AS embedded Media Server binary release requires _at least_							&MS_EMB_SIZE;							of free disk space.
+  Keep in mind that disk space requirements may change in future iterations. 
+
+Anything built for Java::
+  The JBoss embedded Media Server and its bundled servers, JBoss, are 100% Java.
+  The Media Server will run on the same hardware that the JBoss Application Server runs on. 
+
+.Software Prerequisites
+JDK 5 or Higher::
+  A working installation of the Java Development Kit ( 							) version 5 or higher is required in order to run the JBoss embedded Media Server.
+  Note that the JBoss Application Server is a runtime dependency of the Media Server and, as mentioned, comes bundled with the binary distribution. 
+
+[[_itms_binary_jboss_media_server_downloading]]
+=== Downloading
+
+The latest version of the JBoss embedded Media Server is available from http://www.mobicents.org/mms-downloads.html				. The top row of the table holds the latest version.
+Click the `Download`				link to start the download. 
+
+[[_itms_binary_jboss_media_server_installing]]
+=== Installing
+
+Once the requirements and prerequisites have been met, the JBoss embedded Media Server can be installed onto the system.
+Follow the instructions below for the operating system on which the server will reside. 
+
+.Procedure: Installing the JBoss embedded Media Server BinaryDistribution on Linux
+
+It is assumed that the downloaded archive is saved in the home directory, and that a terminal window is open displaying the home directory. 
+
+. Create a subdirectory into which the files can be extracted. For ease of identification, it is recommended that the version number of the binary is included in this directory name. 
++
+----
+~]$ mkdir ms-<version>
+----
+
+. Move the downloaded zip file into the directory: 
++
+----
+~]$ mv “mms-3.0.0.FINAL.zip” ms-<version>
+----
+
+. Move into the directory:
++
+----
+~]$ cd	ms-<version>
+----
+
+. Extract the files into the current directory by executing one of the following commands. 
++
+.. Java: 
++
+----
+ms-<version>]$ jar -xvf “mms-3.0.0.FINAL.zip”
+----								
++
+.. Linux: 
++
+----
+ms-<version>]$ unzip “mms-3.0.0.FINAL.zip”
+----														
++
+NOTE: Alternatively, use `unzip` -d <unzip_to_location> to extract the zip file's contents to a location other than the current directory.
+
+. Consider deleting the archive, if free disk space is an issue. 
++
+----
+ms-<version>]$ rm “mms-3.0.0.FINAL.zip”
+----
+
+
+.Procedure: Installing the JBoss embedded Media Server BinaryDistribution on Windows
+. For this procedure, it is assumed that the downloaded archive is saved in the [path]_My Downloads_						folder.
+  You can also choose any convenient folder of your choice. 
+. Create a subfolder in [path]_My Downloads_						to extract the zip file's contents into.
+  For ease of identification, it is recommended that the version number of the binary is included in the folder name.
+  For example, [path]_ms-<version>_ . 
+. Extract the contents of the archive, specifying the destination folder as the one created in the previous step. 
+. Alternatively, execute the `jar -xvf`	command to extract the binary distribution files from the zip archive. 
+.. Move the downloaded zip file from [path]_My Downloads_ to the folder created in the previous step. 
+.. Open the Windows Command Prompt and navigate to the folder that contains the archive using the `cd` command 
+.. Execute the `jar -xvf` command to extract the archive contents into the current folder. 
++
+----
+C:\Users\<user>\My Downloads\ms-<version>\jar -xvf "mms-3.0.0.FINAL.zip"
+----
+
+. It is recommended that the folder holding the JBoss embedded Media Server files (in this example, the folder named [path]_ms-<version>_) is moved to a user-defined location for storing executable programs.
+  For example, the [path]_Program Files_ folder. 
+. Consider deleting the archive, if free disk space is an issue. 
++
+----
+C:\Users\<user>\My Downloads\ms-<version>\delete "mms-3.0.0.FINAL.zip"
+----
+
+
+[[_itms_binary_jboss_media_server_running]]
+=== Running
+
+In the Linux terminal or Windows command prompt, the JBoss embedded Media Server has started successfully if the last line of output is similar to the following (ending with "`Started in 23s:648ms`"				): 
+
+[source]
+----
+11:27:34,663 INFO  [ServerImpl] JBoss (Microcontainer) [5.1.0.GA (build: SVNTag=JBoss_5_1_0_GA date=200905221053)] Started in 37s:637ms
+----
+
+.Procedure: Running the Media Server on Linux
+. Change the working directory to installation directory (the one into which the zip file's contents was extracted) 
++
+----
+
+						downloads]$ cd "mms-server"
+----
+
+. (Optional) Ensure that the [path]_bin/run.sh_						start script is executable. 
++
+----
+ms-<version>]$ chmod +x bin/run.sh
+----
+
+. Execute the [path]_run.sh_						Bourne shell script. 
++
+----
+ms-<version>]$ ./bin/run.sh
+----
+
+
+[NOTE]
+====
+Instead of executing the Bourne shell script to start the server, the [path]_run.jar_					executable Java archive can be executed from the [path]_bin_					directory: 
+
+----
+ms-<version>]$ java -jar bin/run.jar
+----
+====
+
+.Procedure: Running the JBoss embedded Media Server on Windows
+. Using Windows Explorer, navigate to the [path]_bin_ subfolder in the installation directory. 
+. The preferred way to start the JBoss embedded Media Server is from the Command Prompt.
+  The command line interface displays details of the startup process, including any problems encountered during the startup process. 
++
+Open the Command Prompt via the [label]#Start#						menu and navigate to the correct folder: 
++
+----
+C:\Users\<user>\My Downloads> cd "mms-server"
+----
+
+.Start the JBoss Application Server by executing one of the following files: 
+** [path]_run.bat_ batch file: 
++
+----
+C:\Users\<user>\My Downloads\ms-<version>>bin\run.bat
+----
+** [path]_run.jar_ executable Java archive: 
++
+----
+C:\Users\<user>\My Downloads\ms-<version>>java -jar bin\run.jar
+----
+
+[[_itms_jboss_server_structure]]
+=== Server Structure
+
+Now the server is installed, it is important to understand the layout of the server directories.
+An understanding of the server structure is useful when deploying examples, and making configuration changes.
+It is also useful to understand what components can be removed to reduce the server boot time. 
+
+The directory structure in the JBoss embedded Media Server installation directory is named using a standard structure. <<_tab_mms_jboss_directory_structure>> describes each directory, and the type of information contained within each location. 
+
+[[_tab_mms_jboss_directory_structure]]
+.Directory Structure
+[cols="1,1", frame="all", options="header"]
+|===
+| Directory Name | Description
+| bin | Contains the entry point JARs and start-up scripts included with the Media Server distribution.
+| conf | Contains the core services that are required for the server. This includes the bootstrap descriptor, log files, and the default bootstrap-beans.xml configuration file.
+| deploy | Contains the dynamic deployment content required by the hot deployment service. The deploy location can be overridden by specifying a location in the URL attribute of the URLDeploymentScanner configuration item.
+| lib | Contains the startup JAR files used by the server.
+| log | Contains the logs from the bootstrap logging service. The log directory is the default directory into which the bootstrap logging service places its logs, however, the location can be overridden by altering the log4j.xml configuration file. This file is located in the /conf directory.					
+|===
+
+The Media Server uses a number of XML configuration files that control various aspects of the server.
+In case of embedded Media Server all the files related Media Server are placed in  mms-jboss-5.1.0.GA-<version>/jboss-5.1.0.GA/server/default/deploy/mobicents-media-server <<_tab_mms_jboss_core_configuration_file_set>> describes the location of the key configuration files, and provides a description of the 
+
+[[_tab_mms_jboss_core_configuration_file_set]]
+.Core Configuration File Set
+[cols="1,1", frame="all", options="header"]
+|===
+| File Name and Location | Description
+| conf/bootstrap-beans.xml | Specifies which additional microcontainer deployments are loaded as part of the bootstrap phase. bootstrap-beans.xml references other configuration files contained in the /conf/bootstrap/ directory. For a standard configuration, the bootstrap configuration files require no alteration.
+| conf/log4j.properties | Specifies the Apache log4j framework category priorities and appenders used by the Media Server.
+| conf/mgcp-conf.xml | Specifies the configuration for the MGCP controller.
+| conf/mediaserver.xml | Configuration file of the Media Server. For more information please see chapter 3.
+| deploy/server-beans.xml | Specified list of Java Beans necessary for bootstrapping the Media Server.
+|===
+
+[[_itms_writing_and_running_tests_against_the_media_server]]
+=== Writing and Running Tests Against the Media Server
+
+For information about the different kinds of tests that the Media Server provides, refer to http://groups.google.com/group/mobicents-public/web/mobicents-ms-tests[
+				Writing and Running Tests Against MMS
+			]			 

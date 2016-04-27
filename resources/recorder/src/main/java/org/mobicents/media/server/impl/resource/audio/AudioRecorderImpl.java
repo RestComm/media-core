@@ -43,15 +43,16 @@ import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
 import org.mobicents.media.server.spi.recorder.RecorderListener;
 
 /**
- *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class AudioRecorderImpl extends AbstractSink implements Recorder {
+public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledObject {
 
     private static final long serialVersionUID = -5290778284867189598L;
 
@@ -178,8 +179,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
 
             writeToWaveFile();
         } catch (Exception e) {
-            String endpointName = getEndpoint() == null ? "" : getEndpoint().getLocalName();
-            logger.error(endpointName + " !!!!!! Error writing to file", e);
+            logger.error("Error writing to file", e);
         } finally {
             // send event
             recorderStopped.setQualifier(qualifier);
@@ -263,10 +263,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         // if append specified and file really exist copy data from the current
         // file to temp
         if (append && file.exists()) {
-            if (getEndpoint() == null)
+            if (logger.isInfoEnabled()) {
                 logger.info("..............>>>>>Copying samples from " + file);
-            else
-                logger.info("(" + getEndpoint().getLocalName() + ") ..............>>>>>Copying samples from " + file);
+            }
             copySamples(file, fout);
         }
     }
@@ -277,8 +276,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
      * @throws IOException
      */
     private void writeToWaveFile() throws IOException {
-        String endpointName = getEndpoint() == null ? "" : getEndpoint().getLocalName();
-        logger.info(endpointName + " !!!!!!!!!! Writting to file......................");
+        if (logger.isInfoEnabled()) {
+            logger.info("!!!!!!!!!! Writting to file......................");
+        }
 
         // stop called on inactive recorder
         if (fout == null) {
@@ -292,7 +292,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         fout = new FileOutputStream(file);
 
         int size = fin.available();
-        logger.info(endpointName + " !!!!!!!!!! Size=" + size);
+        if (logger.isInfoEnabled()) {
+            logger.info("!!!!!!!!!! Size=" + size);
+        }
 
         headerBuffer.clear();
         // RIFF
@@ -376,7 +378,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
         // lets write data
         FileChannel inChannel = fin.getChannel();
         outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());
-        logger.info(endpointName + " !!!!!!!!!! Was copied " + inChannel.size() + " bytes");
+        if (logger.isInfoEnabled()) {
+            logger.info("!!!!!!!!!! Was copied " + inChannel.size() + " bytes");
+        }
 
         fout.flush();
         fout.close();
@@ -414,11 +418,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     private void copyData(FileChannel inChannel, int offset, FileChannel outChannel) throws IOException {
         long count = inChannel.size() - (long) offset;
         inChannel.transferTo(offset, count, outChannel);
-
-        if (getEndpoint() == null)
+        if (logger.isInfoEnabled()) {
             logger.info("Was copied " + count + " bytes");
-        else
-            logger.info("(" + getEndpoint().getLocalName() + ") Was copied " + count + " bytes");
+        }
     }
 
     /**
@@ -452,6 +454,57 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder {
     @Override
     public void clearAllListeners() {
         listeners.clear();
+    }
+    
+    @Override
+    public void checkIn() {
+        // clear listeners
+        clearAllListeners();
+        
+        // close stream
+        if(fout != null) {
+            try {
+                fout.flush();
+                fout.close();
+            } catch (IOException e) {
+                logger.warn("Could not flush or close the recording stream.");
+            } finally {
+                fout = null;
+            }
+        }
+        
+        // clean temp file 
+        if(file != null) {
+            file = null;
+        }
+        if(temp != null) {
+            if(temp.exists()) {
+                temp.delete();
+            }
+            temp = null;
+        }
+        
+        // clean buffers
+        this.byteBuffer.clear();
+        this.headerBuffer.clear();
+        this.data = null;
+        this.offset = 0;
+        this.len = 0;
+        
+        // reset internal state
+        this.recordDir = "";
+        this.postSpeechTimer = -1L;
+        this.preSpeechTimer = -1L;
+        this.lastPacketData = 0L;
+        this.startTime = 0L;
+        this.maxRecordTime = -1L;
+        this.qualifier = 0;
+        this.speechDetected = false;
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
     }
 
     /**

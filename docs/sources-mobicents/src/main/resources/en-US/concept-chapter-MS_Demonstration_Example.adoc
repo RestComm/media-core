@@ -1,0 +1,50 @@
+[[_msde_ms_demonstration_example]]
+= MMS Demonstration Example
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:sourcedir: .
+
+MMS 3.0.0.FINAL is a standalone media software.
+Control panels servers are required in order to make MMS part of your network architecture.
+Two controlling protocols (JSR-309 and MGCP) are currently enabled to work with MMS 3.0.0.FINAL. 
+
+Depending on your needs, https://code.google.com/p/jain-slee/[Jain-slee ] , http://code.google.com/p/sipservlets/[Sip Servlets ] or http://code.google.com/p/restcomm/[RestComm] can be used to control the media server.
+The examples below are included in the &MMS_SHORT_NAME; software. 
+
+To get Jain-Slee examples please see following examples that are part of mobicents / telestax jain Slee release :
+
+.Example for Jain-Slee 
+[cols="1", frame="all", options="header"]
+|===
+| Jain-Slee Example List
+
+
+|===
+
+For more information please see https://code.google.com/p/jain-slee/source/browse?repo=media#git%2Fexamples[Jain-Slee documentation ]that comes with this examples. 
+
+The following examples use MMS with Mobicents/TELESTAX SIP Servlets :
+
+.Examples for SIP Servlets 
+[cols="1", frame="all", options="header"]
+|===
+| SIP Servlets Example List
+
+
+|===
+
+All servlets examples are using jsr-309 control protocol.
+
+For more information please see http://code.google.com/p/sipservlets/source/browse/?name=ts1-snmp#git%2Fsip-servlets-examples[SIP Servlets documentation
+	 ]  that comes with these examples. 
+
+.	Using MMS with RestComm 
+[cols="1", frame="all", options="header"]
+|===
+|  with RestComm
+|===
+
+For more information please see Mobicents/Telestax http://code.google.com/p/restcomm-demo/source/browse/#git%2Fapp[RestComm documentation.]	

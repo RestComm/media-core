@@ -30,21 +30,19 @@ package org.mobicents.media.server.test;
 import java.io.IOException;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.ResourcesPool;
-import org.mobicents.media.core.endpoints.impl.ConferenceEndpoint;
-import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint;
+import org.mobicents.media.server.mgcp.endpoint.IvrEndpoint;
+import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -55,8 +53,8 @@ import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.utils.Text;
 
 /**
- *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class RelayTest {
 
@@ -73,23 +71,13 @@ public class RelayTest {
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();
     
     //ivr endpoint
-    private IvrEndpoint ivr;    
+    private IvrEndpoint ivr;
+
     //analyzer
     private SoundSystem soundcard;
     
     //packet relay bridge
     private ConferenceEndpoint cnfBridge;
-    
-    public RelayTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
@@ -115,7 +103,7 @@ public class RelayTest {
         channelsManager = new ChannelsManager(udpManager);
         channelsManager.setScheduler(scheduler);
         
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
+        resourcesPool=new ResourcesPool(null, null, null, null, null, null, null, null);
         
         //assign scheduler to the endpoint
         ivr = new IvrEndpoint("test-1");
@@ -160,8 +148,6 @@ public class RelayTest {
      */
 //    @Test
     public void testTransmission() throws Exception {
-        long s = System.nanoTime();
-        
         //create client
         Connection connection2 = soundcard.createConnection(ConnectionType.RTP,false);        
         Text sd2 = new Text(connection2.getDescriptor());
@@ -214,12 +200,12 @@ public class RelayTest {
         
     }
     
-    private void printSpectra(String title, int[]s) {
-        System.out.println(title);
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
-    }
+//    private void printSpectra(String title, int[]s) {
+//        System.out.println(title);
+//        for (int i = 0; i < s.length; i++) {
+//            System.out.print(s[i] + " ");
+//        }
+//        System.out.println();
+//    }
     
 }

@@ -23,23 +23,22 @@
 package org.mobicents.media.server.impl;
 
 import org.mobicents.media.Component;
-import org.mobicents.media.server.spi.Endpoint;
+
 /**
  *
  * @author kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public abstract class BaseComponent implements Component {
 
 	private static final long serialVersionUID = 7891529327834578393L;
 
 	//unique identifier of the component
-    private String id = null;
+    private final String id;
     
     //the name of the component. 
-    //name of the component might be same accros many components of same type
-    private String name = null;
-    
-    private Endpoint endpoint;
+    //name of the component might be same across many components of same type
+    private final String name;
     
     /**
      * Creates new instance of the component.
@@ -48,43 +47,17 @@ public abstract class BaseComponent implements Component {
      */
     public BaseComponent(String name) {
         this.name = name;
-        //generate identifier
         this.id = Long.toHexString(System.nanoTime());
     }
 
+    @Override
     public String getId() {
         return this.id;
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.Component#getName(). 
-     */
+    @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * (Non Java-doc.)
-     * 
-     * @see org.mobicents.media.Component#reserStats();
-     */
-    public void reset() {
-    }  
-    
-    public void setEndpoint(Endpoint endpoint)
-    {
-    	this.endpoint=endpoint;
-    }
-    
-    public void clearEndpoint()
-    {
-    	this.endpoint=null;
-    }
-    
-    public Endpoint getEndpoint()
-    {
-    	return this.endpoint;
-    }
 }

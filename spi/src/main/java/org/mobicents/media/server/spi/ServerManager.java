@@ -24,15 +24,45 @@ package org.mobicents.media.server.spi;
 /**
  *
  * @author kulikov
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public interface ServerManager {
+
+    /**
+     * Gets the control protocol supported by the controller.
+     * 
+     * @return The control protocol
+     */
+    ControlProtocol getControlProtocol();
+
+    /**
+     * Activates the Media Server Controller.
+     * 
+     * @throws IllegalStateException If the controller is already active.
+     */
+    void activate() throws IllegalStateException;
+
+    /**
+     * Deactivates the Media Server Controller.
+     * 
+     * @throws IllegalStateException If the controller is already inactive.
+     */
+    void deactivate() throws IllegalStateException;
+
+    /**
+     * Gets whether the controller is active
+     * 
+     * @return True if active; otherwise false.
+     */
+    boolean isActive();
+
     /**
      * Notifies manager that given endpoint has been started.
      * 
      * @param endpoint the started endpoint.
      */
-    public void onStarted(Endpoint endpoint,EndpointInstaller installer);
-    
+    public void onStarted(Endpoint endpoint, EndpointInstaller installer);
+
     /**
      * Notifies manager that given endpoint has been stopped.
      * 

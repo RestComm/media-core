@@ -18,36 +18,30 @@
 package org.mobicents.media.server.impl.resource.phone;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import org.mobicents.media.MediaSource;
 
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.audio.GoertzelFilter;
+import org.mobicents.media.server.impl.AbstractSink;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-
-import org.mobicents.media.server.spi.memory.Frame;
-import org.mobicents.media.server.spi.format.AudioFormat;
-import org.mobicents.media.server.spi.format.Formats;
-import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.FormatNotSupportedException;
-
+import org.mobicents.media.server.spi.format.AudioFormat;
+import org.mobicents.media.server.spi.format.FormatFactory;
+import org.mobicents.media.server.spi.format.Formats;
 import org.mobicents.media.server.spi.listener.Event;
 import org.mobicents.media.server.spi.listener.Listeners;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
-
-import org.mobicents.media.server.spi.tone.ToneEvent;
+import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.spi.pooling.PooledObject;
 import org.mobicents.media.server.spi.tone.ToneDetector;
 import org.mobicents.media.server.spi.tone.ToneDetectorListener;
-
-import org.mobicents.media.server.component.audio.GoertzelFilter;
-import org.mobicents.media.server.impl.AbstractSink;
 
 /**
  *
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
+public class PhoneSignalDetector extends AbstractSink implements ToneDetector, PooledObject {
 
     private double POWER = 100000;
     private final static int PACKET_DURATION = 50;
@@ -188,5 +182,17 @@ public class PhoneSignalDetector extends AbstractSink implements ToneDetector {
     private void sendEvent(Event event)
     {
     	listeners.dispatch(event);    	
+    }
+
+    @Override
+    public void checkIn() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void checkOut() {
+        // TODO Auto-generated method stub
+        
     }    
 }

@@ -28,7 +28,8 @@ import org.mobicents.media.server.concurrent.Lock;
 import org.mobicents.media.server.mgcp.MgcpProvider;
 import org.mobicents.media.server.mgcp.controller.CallManager;
 import org.mobicents.media.server.mgcp.controller.naming.NamingTree;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.Scheduler;
 
 /**
  * Implements pool of transactions.
@@ -47,7 +48,8 @@ public class GlobalTransactionManager
     protected MgcpProvider provider;
        
     //Scheduler
-    private PriorityQueueScheduler scheduler;
+    private final Scheduler scheduler;
+    private final Clock clock;
     
     //Endpoint naming tree
     private NamingTree namingService;
@@ -56,9 +58,10 @@ public class GlobalTransactionManager
     
     private Lock lock=new Lock();
     
-    public GlobalTransactionManager(PriorityQueueScheduler scheduler) 
+    public GlobalTransactionManager(Scheduler scheduler, Clock clock) 
     {
         this.scheduler = scheduler;
+        this.clock = clock;
     }
     
     /**
@@ -84,7 +87,7 @@ public class GlobalTransactionManager
      * 
      * @return job scheduler.
      */
-    public PriorityQueueScheduler scheduler() {
+    public Scheduler scheduler() {
         return scheduler;
     }
     
@@ -94,7 +97,7 @@ public class GlobalTransactionManager
      * @return time measured by wall clock.
      */
     public long getTime() {
-        return scheduler.getClock().getTime();
+        return this.clock.getTime();
     }
     
     /**
@@ -152,7 +155,7 @@ public class GlobalTransactionManager
     }
     
     public TransactionManager createTransactionManager() {
-    	TransactionManager txManager = new TransactionManager(scheduler, poolSize);
+    	TransactionManager txManager = new TransactionManager(clock, scheduler, poolSize);
         txManager.setNamingService(namingService);
         txManager.setCallManager(new CallManager());
         txManager.setMgcpProvider(provider);
@@ -214,7 +217,7 @@ public class GlobalTransactionManager
 			{
 				subManager=new GlobalTransactionManager[256];
 				
-				subManager[intIndex]=new GlobalTransactionManager(scheduler);
+				subManager[intIndex]=new GlobalTransactionManager(scheduler, clock);
     			subManager[intIndex].setMgcpProvider(provider);
     			subManager[intIndex].setNamingService(namingService);
     			subManager[intIndex].setPoolSize(poolSize);
@@ -235,7 +238,7 @@ public class GlobalTransactionManager
 			
 			if(subManager[intIndex]==null)
 			{
-				subManager[intIndex]=new GlobalTransactionManager(scheduler);
+				subManager[intIndex]=new GlobalTransactionManager(scheduler, clock);
     			subManager[intIndex].setMgcpProvider(provider);
     			subManager[intIndex].setNamingService(namingService);
     			subManager[intIndex].setPoolSize(poolSize);

@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
  * @author yulian oifa
  */
 public abstract class MgcpMessage {
+    
     public final static int CREATE_CONNECTION = 1;
     public final static int MODIFY_CONNECTION = 2;
     public final static int DELETE_CONNECTION = 3;
@@ -38,30 +39,12 @@ public abstract class MgcpMessage {
     public final static int AUDIT_ENDPOINT = 6;
     public final static int NOTIFY = 7;
     
-    
-    //backing data buffer;
-    private byte[] buff = new byte[8192];
-    
-    public MgcpMessage() {
-    }
-        
-    public int getType() {
-        return 0;
-    }
-    
     public abstract int getTxID();
     
-    public void read(ByteBuffer buffer) {
-        buffer.get(buff, 0, buffer.limit());
-        parse(buff, 0, buffer.limit());
-    }
+    public abstract void parse(byte[] buff, int offset, int len);
     
-    protected abstract void parse(byte[] buff, int offset, int len);
-    
-    public void write(ByteBuffer buffer) {
-        
-    }
-    
+    public abstract void write(ByteBuffer buffer);
+
     /**
      * Clean parameters
      */

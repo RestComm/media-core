@@ -1,0 +1,36 @@
+[[_msbp_ms_best_practices]]
+= MMS: Best Practices
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:sourcedir: .
+
+== &MMS_LONG_NAME; Best Practices
+
+Note: these best practices apply to &MMS_LONG_NAME;version &MS_VERSION;and later
+
+=== DTMF Detection Mode: RFC2833 versus Inband versus Auto
+
+The &MMS_LONG_NAME;will block the resource depending on the DTMF detection mode configured in _jboss-service.xml_ at start-up time.
+Inband is highly resource-intensive and must perform many more calculations in order to detect DTMF when compared to RFC2833.
+So if your application already knows that User Agents (UAs) support RFC2833, it is always better to configure DTMF mode as _RFC2833_ rather than as _Inband_ or _Auto_.
+Also, please note that _Auto_ is even more resource-intensive because it does not know beforehand whether DTMF would be Inband or _RFC2833_, and hence both detection methods must be started.
+The default detection mode is _RFC2833_. 
+
+All of the Conference, Packet Relay and IVR endpoints have DTMF detection enabled; the mode can be configured using _jboss-service.xml_.
+We advise retaining the same mode for all three, but this is not a necessity.
+
+=== Transcoding Is CPU-Intensive
+
+Digital Signal Processing (DSP) is very costly and should be avoided as much as possible.
+By default, Announcement endpoints and IVR endpoints do not have DSP enabled.
+What this means is that your application needs to know beforehand which codecs are supported by your UA; you can then ask Announcement or IVR to play an audio file which has been pre-encoded in one of these formats.
+The onus of deciding which pre-encoded file to play lies with the application.
+For example, if I am writing a simple announcement application that would only play announcements to the end user, and I know that my end users have one of either the _PCMU_ or _GSM_ codecs, then I would make sure to have pre-encoded audio files such as _helloworld-pcmu.wav_ and _helloworld-gsm.gsm_.
+Then, when the UA attempts to connect to the Media Server, my application knows which codecs the UA supports and can ask the &MMS_SHORT_NAME; to play the respective file.
+
+This strategy will work fine because, most of the time in the telecommunications world, applications have a known set of supported codecs, .However if this is not true, or if you are writing a simple demo application and need or want all codecs to be supported, you can put a Packet Relay endpoint in front of Announcement or IVR endpoint.
+This way, the Packet Relay will do all necessary digital signal processing, and your application need not bother about which audio file to play.
+The audio file in this case will be encoded in _Linear_ format, and all UAs, irrespective of whether they support _PCMU_, _PCMA_, _Speex_, _G729_ or _GSM_ codecs, would be able to hear the announcement.

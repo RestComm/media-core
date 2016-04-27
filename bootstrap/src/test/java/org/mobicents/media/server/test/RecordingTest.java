@@ -28,22 +28,20 @@
 package org.mobicents.media.server.test;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
-import org.mobicents.media.core.ResourcesPool;
 import org.mobicents.media.core.Server;
-import org.mobicents.media.core.endpoints.impl.IvrEndpoint;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.controller.Controller;
+import org.mobicents.media.server.mgcp.endpoint.IvrEndpoint;
+import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 import org.mobicents.media.server.scheduler.WallClock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -53,8 +51,8 @@ import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.utils.Text;
 
 /**
- *
  * @author yulian oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class RecordingTest {
 
@@ -75,17 +73,6 @@ public class RecordingTest {
     private IvrEndpoint user, ivr;    
     
     private Server server;
-    
-    public RecordingTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -111,28 +98,28 @@ public class RecordingTest {
         channelsManager = new ChannelsManager(udpManager);
         channelsManager.setScheduler(scheduler);
         
-        resourcesPool=new ResourcesPool(scheduler, channelsManager, dspFactory);
+        resourcesPool=new ResourcesPool(null, null, null, null, null, null, null, null);
         
         server=new Server();
         server.setClock(clock);
         server.setScheduler(scheduler);
         server.setUdpManager(udpManager);
-        server.setResourcesPool(resourcesPool);        
         
         controller=new Controller();
         controller.setUdpInterface(udpManager);
         controller.setPort(2427);
-        controller.setScheduler(scheduler); 
-        controller.setServer(server);        
+        controller.setMediaScheduler(scheduler); 
+        controller.setResourcesPool(resourcesPool);
+        server.addManager(controller);
         controller.setConfigurationByURL(this.getClass().getResource("/mgcp-conf.xml"));
         
-        controller.start();
+        server.start();
         
-        user = new IvrEndpoint("/mobicents/ivr/1");
-        ivr = new IvrEndpoint("/mobicents/ivr/2");
-        
-        server.install(user,null);
-        server.install(ivr,null);      	
+//        user = new IvrEndpoint("/mobicents/ivr/1");
+//        ivr = new IvrEndpoint("/mobicents/ivr/2");
+//        
+//        controller.install(user,null);
+//        controller.install(ivr,null);      	
     }
 
     @After
@@ -155,8 +142,6 @@ public class RecordingTest {
      */
 //    @Test
     public void testRecording() throws Exception {
-        long s = System.nanoTime();
-        
         //create user connection
         Connection userConnection = user.createConnection(ConnectionType.RTP,false);        
         Text sd2 = new Text(userConnection.getDescriptor());
@@ -198,12 +183,12 @@ public class RecordingTest {
         
     }
     
-    private void printSpectra(String title, int[]s) {
-        System.out.println(title);
-        for (int i = 0; i < s.length; i++) {
-            System.out.print(s[i] + " ");
-        }
-        System.out.println();
-    }
+//    private void printSpectra(String title, int[]s) {
+//        System.out.println(title);
+//        for (int i = 0; i < s.length; i++) {
+//            System.out.print(s[i] + " ");
+//        }
+//        System.out.println();
+//    }
     
 }

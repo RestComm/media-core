@@ -1,0 +1,52 @@
+[[_captms_controlling_and_programming_the_media_server]]
+= Controlling and Programming the Mobicents Media Server
+:doctype: book
+:sectnums:
+:toc: left
+:icons: font
+:experimental:
+:sourcedir: .
+
+[[_captms_mms_control_protocols]]
+== MMS Control Protocols
+
+The Mobicents Media Server adopts a call control architecture where the call control "`intelligence`" is located outside of the Media Server itself, and is handled by external call control elements collectively known as Call State Control Function (CSCF).The media server assumes that these call control elements will synchronize with each other to send coherent commands and responses to the media servers under their control.
+Server Control Protocols is, in essence, an asynchronous master/slave protocol, where the Server Control Modules are expected to execute commands sent by CSCF.
+Each Server Control Module is implemented as a JSLEE application, and consists of a set of Service Building Blocks ()s, which are in charge of communicating with media server endpoints via SPI.
+Such an architecture avoids difficulties with programming concurrency, low-level transaction and state-management details, connection-pooling and other complex APIs.
+
+[[_captms_media_gateway_control_protocol_interface]]
+=== Media Gateway Control Protocol Interface
+
+The Media Gateway Control Protocol (MGCP) is a protocol for controlling media gateways (for example, the Media Server) from external call control elements such as media gateway controllers or Call Agents.
+The MGCP assumes that the Call Agents, will synchronize with each other to send coherent commands and responses to the gateways under their control.
+
+The MGCP module is included in the binary distribution.
+The Call Agent uses the MGCP to tell the Media Server:
+
+* which events should be reported to the Call Agent;
+* how endpoints should be connected; and,
+* which signals should be played on which endpoints.
+
+MGCP is, in essence, a master/slave protocol, where the gateways are expected to execute commands sent by the Call Agents.
+The general base architecture and programming interface is described in http://www.ietf.org/rfc/rfc2805.txt[RFC 2805], and the current specific MGCP definition is located in http://www.ietf.org/rfc/rfc3435.txt[RFC 3435].
+
+=== JSR-309 Control protocol Interface
+
+JSR-309 defines a programming model and object model for Media Server (MS) control independent of MS control protocols.
+JSR-309 API is not an API for a specific protocol.
+It will take advantage of the multiple and evolving Multimedia Server capabilities available in the industry today and also provide an abstraction for commonly used application functions like multi party conferencing, multimedia mixing and interaction dialogs. 
+
+Some of the commonly used MS control protocols are http://www.mobicents.org/mms/mms-mgcp-main.html[MGCP (RFC 3435)], MEGACO (RFC 3525), Media Server Markup Language (MSML) (RFC 4722) and VoiceXML.
+The Mobicents implementation of JSR-309 API makes use of MGCP as MS control protocol. 
+
+The Mobicents JSR-309 Impl is first and only open source implementation of JSR-309 available as of today.
+To further understand the JSR-309 API, download specs from http://jcp.org/en/jsr/detail?id=309[here]
+
+
+"`The latest release of Mobicents JSR-309 Impl is part of binary media server release and can be found under clients folder`". 
+
+The diagram bellow shows the high-level architecture of how application can make use of JSR-309 over MGCP  
+
+
+image::images/SipJSR309.jpeg[]

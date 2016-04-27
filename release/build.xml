@@ -76,7 +76,11 @@
 			<arg line="clean compile" />
 		</exec>
 		<copy overwrite="true" todir="${documentation.target.dir}">
-			<fileset dir="${jdocbook-mobicents}/target/docbook/publish/en-US/" />
+			<fileset dir="${docs.stage.dir}/sources-asciidoc/target/generated-docs/html-book/" />
+		</copy>
+
+		<copy overwrite="true" todir="${documentation.target.dir}">
+			<fileset dir="${docs.stage.dir}/docs/sources-asciidoc/target/generated-docs/pdf/" />
 		</copy>
 
 	</target>
@@ -108,7 +112,7 @@
 		</antcall-->
 		
 		<copy overwrite="true" todir="${release.dir.standalone}/docs">
-			<fileset file="${core.location}/../media-server-docs/jdocbook-telscale/target/docbook/publish/en-US/**" />
+			<fileset file="${core.location}/../docs/sources-asciidoc//target/generated-docs/**" />
 		</copy>
 
 		<copy overwrite="true" file="${ant.file.media.server.release}/../release-standalone-README.txt" tofile="${release.dir.standalone}/README.txt" />

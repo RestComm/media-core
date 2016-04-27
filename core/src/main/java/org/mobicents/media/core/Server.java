@@ -22,70 +22,50 @@
 
 package org.mobicents.media.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.core.endpoints.BaseEndpointImpl;
-import org.mobicents.media.core.endpoints.VirtualEndpointInstaller;
-import org.mobicents.media.core.naming.NamingService;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointInstaller;
+import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.MediaServer;
-import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.ServerManager;
 
 /**
- *
+ * Implementation of a Media Server.
+ * 
  * @author Oifa Yulian
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @deprecated Use RestCommMediaServer instead
  */
+@Deprecated
 public class Server implements MediaServer {
 
-    //timing clock
+    private static final Logger log = Logger.getLogger(Server.class);
+
+    // Core components
     private Clock clock;
-
-    //job scheduler
     private PriorityQueueScheduler scheduler;
-
-    //resources pool
-    private ResourcesPool resourcesPool;
-    
-    //udp manager
     private UdpManager udpManager;
-    
-    private final NamingService namingService;
-    
-    //endpoint installers
-    private final ArrayList<EndpointInstaller> installers = new ArrayList<EndpointInstaller>();
-    
-    //endpoints
-    private final Map<String, Endpoint> endpoints = new ConcurrentHashMap<>();
-    
-    //managers
-    private final ArrayList<ServerManager> managers = new ArrayList<ServerManager>();
-    
+
+    // Heart beat
     private HeartBeat heartbeat;
-    private int heartbeatTime=0;
+    private int heartbeatTime;
     private volatile long ttl;
-    
-    private static final Logger logger = Logger.getLogger(Server.class);
-    
+
+    // Media Server State
+    private final Map<ControlProtocol, ServerManager> managers;
+    private boolean started;
+
     public Server() {
-        namingService = new NamingService();
+        this.managers = new HashMap<>(2);
+        this.started = false;
+        this.heartbeatTime = 0;
     }
 
-   
-    /**
-     * Assigns clock instance.
-     *
-     * @param clock
-     */
     public void setClock(Clock clock) {
         this.clock = clock;
     }
@@ -93,218 +73,114 @@ public class Server implements MediaServer {
     public void setScheduler(PriorityQueueScheduler scheduler) {
         this.scheduler = scheduler;
     }
-    
+
     public void setUdpManager(UdpManager udpManager) {
-        this.udpManager=udpManager;
+        this.udpManager = udpManager;
     }
-    
-    public void setResourcesPool(ResourcesPool resourcesPool) {
-        this.resourcesPool=resourcesPool;
-    }
-    
+
     /**
-     * Assigns the heartbeat time in minutes
+     * Assigns the heart beat time in minutes
      *
      * @param minutes
      */
     public void setHeartBeatTime(int heartbeatTime) {
         this.heartbeatTime = heartbeatTime;
-    }    
-
-    /**
-     * Installs endpoints defined by specified installer.
-     *
-     * @param installer the endpoints installer
-     */
-    public void addInstaller(EndpointInstaller installer) {
-    	((VirtualEndpointInstaller)installer).setServer(this);
-    	installers.add(installer);
-        installer.install();        
     }
 
-    /**
-     * Uninstalls endpoint defined by specified endpoint installer.
-     *
-     * @param installer the endpoints installer.
-     */
-    public void removeInstaller(EndpointInstaller installer) {
-        installers.remove(installer);
-        installer.uninstall();
-    }
-
-    /**
-     * Installs the specified endpoint.
-     *
-     * @param endpoint the endpoint to installed.
-     */
-    public void install(Endpoint endpoint,EndpointInstaller installer) {
-        //check endpoint first
-        if (endpoint == null) {
-            logger.error("Unknown endpoint");
-            return;
+    @Override
+    public void start() throws IllegalStateException {
+        if (this.started) {
+            throw new IllegalStateException("Media Server already started");
         }
 
-        //The endpoint implementation must extend BaseEndpointImpl class
-        BaseEndpointImpl baseEndpoint = null;
-        try {
-            baseEndpoint = (BaseEndpointImpl) endpoint;
-        } catch (ClassCastException e) {
-            logger.error("Unsupported endpoint implementation " + endpoint.getLocalName());
-            return;
-        }
-
-
-        //assign scheduler to the endpoint
-        baseEndpoint.setScheduler(scheduler);
-        baseEndpoint.setResourcesPool(resourcesPool);
-
-        logger.info("Installing " + endpoint.getLocalName());
-
-        //starting endpoint
-        try {
-            endpoint.start();
-        } catch (Exception e) {
-            logger.error("Couldn't start endpoint " + endpoint.getLocalName(), e);
-            return;
-        }
-
-        //register endpoint with naming service
-        try {
-            namingService.register(endpoint);
-        } catch (Exception e) {
-            endpoint.stop();
-            logger.error("Could not register endpoint " + endpoint.getLocalName(), e);
-        }
-        
-        //register endpoint localy
-        endpoints.put(endpoint.getLocalName(), endpoint);
-        
-        //send notification to manager
-        for (ServerManager manager : managers) {
-            manager.onStarted(endpoint,installer);
-        }
-    }
-
-
-    /**
-     * Uninstalls the endpoint.
-     *
-     * @param name the local name of the endpoint to be uninstalled
-     */
-    public void uninstalls(String name) {
-        //unregister localy
-        Endpoint endpoint = endpoints.remove(name);
-
-        //send notification to manager
-        for (ServerManager manager : managers) {
-            manager.onStopped(endpoint);
-        }
-        
-        try {
-            //TODO: lookup irrespective of endpoint usage
-            endpoint = namingService.lookup(name, true);
-            if (endpoint != null) {
-                endpoint.stop();
-                namingService.unregister(endpoint);
-            }
-        } catch (Exception e) {
-        	logger.error(e);
-        }
-        
-    }
-
-    /**
-     * Starts the server.
-     *
-     * @throws Exception
-     */
-    public void start() throws Exception {
-        //check clock
+        // Validate mandatory dependencies
         if (clock == null) {
-            logger.error("Timing clock is not defined");
+            log.error("Timing clock is not defined");
             return;
         }
 
-        if(heartbeatTime>0)
-        {
-        	heartbeat=new HeartBeat();
-        	heartbeat.restart();
+        // Start Media Server
+        this.started = true;
+        for (ServerManager controller : managers.values()) {
+            log.info("Activating controller " + controller.getControlProtocol().name());
+            controller.activate();
+        }
+
+        if (heartbeatTime > 0) {
+            heartbeat = new HeartBeat();
+            heartbeat.restart();
         }
     }
 
-    /**
-     * Stops the server.
-     *
-     */
-    public void stop() {
-        logger.info("Stopping UDP Manager");
+    @Override
+    public void stop() throws IllegalStateException {
+        if (!this.started) {
+            throw new IllegalStateException("Media Server already stopped");
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("Stopping UDP Manager");
+        }
         udpManager.stop();
 
-        if(heartbeat!=null)
-        	heartbeat.cancel();
-        
-        logger.info("Stopping scheduler");
+        if (heartbeat != null) {
+            heartbeat.cancel();
+        }
+
+        for (ServerManager controller : managers.values()) {
+            log.info("Deactivating controller " + controller.getControlProtocol().name());
+            controller.deactivate();
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("Stopping scheduler");
+        }
         scheduler.stop();
-        logger.info("Stopped media server instance ");                
+        if (log.isInfoEnabled()) {
+            log.info("Stopped media server instance ");
+        }
     }
 
     @Override
-    public Endpoint lookup(String name, boolean bussy) throws ResourceUnavailableException {
-        return null;//return namingService.lookup(name, bussy);
+    public boolean isRunning() {
+        return this.started;
     }
     
-    @Override
-    public Endpoint[] lookupall(String endpointName) throws ResourceUnavailableException {
-    	return null;//return namingService.lookupall(endpointName);
-    }
-
-    @Override
-    public int getEndpointCount() {
-        return 0;//return namingService.getEndpointCount();
-    }
-    
-    @Override
-    public Collection<Endpoint> getEndpoints() {
-        return endpoints.values();
-    }
-
     @Override
     public void addManager(ServerManager manager) {
-        managers.add(manager);
+        managers.put(manager.getControlProtocol(), manager);
     }
 
     @Override
     public void removeManager(ServerManager manager) {
         managers.remove(manager);
     }
-    
-    private class HeartBeat extends Task {
+
+    private final class HeartBeat extends Task {
 
         public HeartBeat() {
             super();
-        }        
+        }
 
         @Override
-        public int getQueueNumber()
-        {
-        	return PriorityQueueScheduler.HEARTBEAT_QUEUE;
-        }   
-        
-        public void restart()
-        {
-        	ttl=heartbeatTime*600;
-        	scheduler.submitHeatbeat(this);
+        public int getQueueNumber() {
+            return PriorityQueueScheduler.HEARTBEAT_QUEUE;
         }
-        
+
+        public void restart() {
+            ttl = heartbeatTime * 600;
+            scheduler.submitHeatbeat(this);
+        }
+
         @Override
         public long perform() {
-        	ttl--;
+            ttl--;
             if (ttl == 0) {
-            	logger.info("Global hearbeat is still alive");
-            	restart();
+                log.info("Global hearbeat is still alive");
+                restart();
             } else {
                 scheduler.submitHeatbeat(this);
-            }            
+            }
             return 0;
         }
     }

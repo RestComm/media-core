@@ -15,6 +15,11 @@
                 <source>src/main/config/log4j.xml</source>
                 <destName>conf/log4j.xml</destName>
             </file>
+
+            <file>
+                <source>src/main/config/mediaserver.xml</source>
+                <destName>conf/mediaserver.xml</destName>
+            </file>
             
             <file>
                 <source>src/main/config/mgcp-conf.properties</source>

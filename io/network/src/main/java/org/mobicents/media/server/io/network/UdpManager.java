@@ -24,7 +24,6 @@ package org.mobicents.media.server.io.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -108,7 +107,7 @@ public class UdpManager {
         this.pollTaskFutures = new ArrayList<Future<?>>(ServiceScheduler.POOL_SIZE);
         this.currSelectorIndex = new AtomicInteger(0);
     }
-    
+
     public Scheduler getScheduler() {
         return scheduler;
     }
@@ -492,7 +491,7 @@ public class UdpManager {
         public PollTask(Selector selector) {
             this.localSelector = selector;
         }
-        
+
         @Override
         public void run() {
             if (active) {
