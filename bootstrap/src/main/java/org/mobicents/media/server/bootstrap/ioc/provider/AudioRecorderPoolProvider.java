@@ -19,11 +19,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
 
@@ -35,27 +35,27 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AudioPlayerPoolProvider implements Provider<AudioPlayerPool> {
+public class AudioRecorderPoolProvider implements Provider<AudioRecorderPool> {
 
     private final MediaServerConfiguration config;
-    private final PooledObjectFactory<AudioPlayerImpl> factory;
+    private final PooledObjectFactory<AudioRecorderImpl> factory;
 
     @Inject
-    public AudioPlayerPoolProvider(MediaServerConfiguration config, PooledObjectFactory<AudioPlayerImpl> factory) {
+    public AudioRecorderPoolProvider(MediaServerConfiguration config, PooledObjectFactory<AudioRecorderImpl> factory) {
         this.config = config;
         this.factory = factory;
     }
 
     @Override
-    public AudioPlayerPool get() {
-        return new AudioPlayerPool(this.config.getResourcesConfiguration().getPlayerCount(), this.factory);
+    public AudioRecorderPool get() {
+        return new AudioRecorderPool(config.getResourcesConfiguration().getRecorderCount(), factory);
     }
 
-    public static final class AudioPlayerPoolType extends TypeLiteral<ResourcePool<AudioPlayerImpl>> {
+    public static final class AudioRecorderPoolType extends TypeLiteral<ResourcePool<AudioRecorderImpl>> {
 
-        public static final AudioPlayerPoolType INSTANCE = new AudioPlayerPoolType();
+        public static final AudioRecorderPoolType INSTANCE = new AudioRecorderPoolType();
 
-        private AudioPlayerPoolType() {
+        private AudioRecorderPoolType() {
             super();
         }
 

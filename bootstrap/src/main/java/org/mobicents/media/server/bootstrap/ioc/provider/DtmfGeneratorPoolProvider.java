@@ -19,12 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.mgcp.connection.LocalConnectionFactory;
-import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
+import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -34,25 +35,27 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class LocalConnectionFactoryProvider implements Provider<LocalConnectionFactory> {
+public class DtmfGeneratorPoolProvider implements Provider<DtmfGeneratorPool> {
 
-    private final ChannelsManager connectionFactory;
+    private final MediaServerConfiguration config;
+    private final PooledObjectFactory<GeneratorImpl> factory;
 
     @Inject
-    public LocalConnectionFactoryProvider(ChannelsManager connectionFactory) {
-        this.connectionFactory = connectionFactory;
+    public DtmfGeneratorPoolProvider(MediaServerConfiguration config, PooledObjectFactory<GeneratorImpl> factory) {
+        this.config = config;
+        this.factory = factory;
     }
 
     @Override
-    public LocalConnectionFactory get() {
-        return new LocalConnectionFactory(this.connectionFactory);
+    public DtmfGeneratorPool get() {
+        return new DtmfGeneratorPool(config.getResourcesConfiguration().getDtmfGeneratorCount(), factory);
     }
 
-    public static final class LocalConnectionFactoryType extends TypeLiteral<PooledObjectFactory<LocalConnectionImpl>> {
+    public static final class DtmfGeneratorPoolType extends TypeLiteral<ResourcePool<GeneratorImpl>> {
 
-        public static final LocalConnectionFactoryType INSTANCE = new LocalConnectionFactoryType();
+        public static final DtmfGeneratorPoolType INSTANCE = new DtmfGeneratorPoolType();
 
-        private LocalConnectionFactoryType() {
+        private DtmfGeneratorPoolType() {
             super();
         }
 

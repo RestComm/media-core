@@ -19,10 +19,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
         
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.ServiceScheduler;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -31,18 +33,25 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class TaskSchedulerProvider implements Provider<ServiceScheduler>{
+public class ChannelsManagerProvider implements Provider<ChannelsManager> {
 
-    private final Clock clock;
+    private final UdpManager udpManager;
+    private final PriorityQueueScheduler mediaScheduler;
+    private final MediaServerConfiguration config;
     
     @Inject
-    public TaskSchedulerProvider(Clock clock) {
-        this.clock = clock;
+    public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager, PriorityQueueScheduler mediaScheduler) {
+        this.udpManager = udpManager;
+        this.mediaScheduler = mediaScheduler;
+        this.config = config;
     }
     
     @Override
-    public ServiceScheduler get() {
-        return new ServiceScheduler(this.clock);
+    public ChannelsManager get() {
+        ChannelsManager channelsManager = new ChannelsManager(this.udpManager);
+        channelsManager.setScheduler(mediaScheduler);
+        channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
+        return channelsManager;
     }
 
 }

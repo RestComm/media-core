@@ -19,13 +19,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.mgcp.connection.LocalConnectionFactory;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
-import org.mobicents.media.server.mgcp.connection.LocalConnectionPool;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
-import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -35,29 +34,28 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class LocalConnectionPoolProvider implements Provider<LocalConnectionPool> {
+public class LocalConnectionFactoryProvider implements Provider<LocalConnectionFactory> {
 
-    private final PooledObjectFactory<LocalConnectionImpl> factory;
-    private final MediaServerConfiguration config;
+    private final ChannelsManager connectionFactory;
 
     @Inject
-    public LocalConnectionPoolProvider(MediaServerConfiguration config, PooledObjectFactory<LocalConnectionImpl> factory) {
-        this.config = config;
-        this.factory = factory;
+    public LocalConnectionFactoryProvider(ChannelsManager connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
 
     @Override
-    public LocalConnectionPool get() {
-        return new LocalConnectionPool(this.config.getResourcesConfiguration().getLocalConnectionCount(), this.factory);
+    public LocalConnectionFactory get() {
+        return new LocalConnectionFactory(this.connectionFactory);
     }
 
-    public static final class LocalConnectionPoolType extends TypeLiteral<ResourcePool<LocalConnectionImpl>> {
+    public static final class LocalConnectionFactoryType extends TypeLiteral<PooledObjectFactory<LocalConnectionImpl>> {
 
-        public static final LocalConnectionPoolType INSTANCE = new LocalConnectionPoolType();
+        public static final LocalConnectionFactoryType INSTANCE = new LocalConnectionFactoryType();
 
-        private LocalConnectionPoolType() {
+        private LocalConnectionFactoryType() {
             super();
         }
+
     }
 
 }

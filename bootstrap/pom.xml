@@ -142,13 +142,6 @@
 			<artifactId>commons-beanutils</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		
-		<!-- Dependency Injection -->
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<version>4.0</version>
-		</dependency>
 	</dependencies>
 	<!--  -->
     <build>

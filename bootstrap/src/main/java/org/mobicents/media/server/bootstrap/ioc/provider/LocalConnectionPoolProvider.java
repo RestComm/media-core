@@ -19,12 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.mgcp.connection.LocalConnectionImpl;
+import org.mobicents.media.server.mgcp.connection.LocalConnectionPool;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -34,28 +35,29 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AudioRecorderFactoryProvider implements Provider<AudioRecorderFactory> {
+public class LocalConnectionPoolProvider implements Provider<LocalConnectionPool> {
 
-    private final PriorityQueueScheduler mediaScheduler;
+    private final PooledObjectFactory<LocalConnectionImpl> factory;
+    private final MediaServerConfiguration config;
 
     @Inject
-    public AudioRecorderFactoryProvider(PriorityQueueScheduler mediaScheduler) {
-        this.mediaScheduler = mediaScheduler;
+    public LocalConnectionPoolProvider(MediaServerConfiguration config, PooledObjectFactory<LocalConnectionImpl> factory) {
+        this.config = config;
+        this.factory = factory;
     }
 
     @Override
-    public AudioRecorderFactory get() {
-        return new AudioRecorderFactory(mediaScheduler);
+    public LocalConnectionPool get() {
+        return new LocalConnectionPool(this.config.getResourcesConfiguration().getLocalConnectionCount(), this.factory);
     }
 
-    public static final class AudioRecorderFactoryType extends TypeLiteral<PooledObjectFactory<AudioRecorderImpl>> {
+    public static final class LocalConnectionPoolType extends TypeLiteral<ResourcePool<LocalConnectionImpl>> {
 
-        public static final AudioRecorderFactoryType INSTANCE = new AudioRecorderFactoryType();
+        public static final LocalConnectionPoolType INSTANCE = new LocalConnectionPoolType();
 
-        private AudioRecorderFactoryType() {
+        private LocalConnectionPoolType() {
             super();
         }
-
     }
 
 }

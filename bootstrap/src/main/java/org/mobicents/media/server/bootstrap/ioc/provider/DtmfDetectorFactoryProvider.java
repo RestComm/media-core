@@ -18,14 +18,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.mobicents.media.server.bootstrap.ioc;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
+package org.mobicents.media.server.bootstrap.ioc.provider;
+
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
+import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
-import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -35,30 +34,28 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class DtmfDetectorPoolProvider implements Provider<DtmfDetectorPool> {
+public class DtmfDetectorFactoryProvider implements Provider<DtmfDetectorFactory> {
 
-    private final MediaServerConfiguration config;
-    private final PooledObjectFactory<DetectorImpl> factory;
-    
+    private final PriorityQueueScheduler mediaScheduler;
+
     @Inject
-    public DtmfDetectorPoolProvider(MediaServerConfiguration config, PooledObjectFactory<DetectorImpl> factory) {
-        this.config = config;
-        this.factory = factory;
+    public DtmfDetectorFactoryProvider(PriorityQueueScheduler mediaScheduler) {
+        this.mediaScheduler = mediaScheduler;
     }
-    
+
     @Override
-    public DtmfDetectorPool get() {
-        return new DtmfDetectorPool(config.getResourcesConfiguration().getDtmfDetectorCount(), factory);
+    public DtmfDetectorFactory get() {
+        return new DtmfDetectorFactory(this.mediaScheduler);
     }
-    
-    public static final class DtmfDetectorPoolType extends TypeLiteral<ResourcePool<DetectorImpl>> {
-        
-        public static final DtmfDetectorPoolType INSTANCE = new DtmfDetectorPoolType();
-        
-        private DtmfDetectorPoolType() {
+
+    public static final class DtmfDetectorFactoryType extends TypeLiteral<PooledObjectFactory<DetectorImpl>> {
+
+        public static final DtmfDetectorFactoryType INSTANCE = new DtmfDetectorFactoryType();
+
+        private DtmfDetectorFactoryType() {
             super();
         }
-        
+
     }
 
 }

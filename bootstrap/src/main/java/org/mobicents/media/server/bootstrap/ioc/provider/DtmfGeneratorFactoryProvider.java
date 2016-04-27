@@ -19,13 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
+import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
+import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
-import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -35,27 +35,29 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PhoneSignalDetectorPoolProvider implements Provider<PhoneSignalDetectorPool> {
+public class DtmfGeneratorFactoryProvider implements Provider<DtmfGeneratorFactory> {
 
     private final MediaServerConfiguration config;
-    private final PooledObjectFactory<PhoneSignalDetector> factory;
+    private final PriorityQueueScheduler mediaScheduler;
 
     @Inject
-    public PhoneSignalDetectorPoolProvider(MediaServerConfiguration config, PooledObjectFactory<PhoneSignalDetector> factory) {
+    public DtmfGeneratorFactoryProvider(MediaServerConfiguration config, PriorityQueueScheduler mediaScheduler) {
         this.config = config;
-        this.factory = factory;
+        this.mediaScheduler = mediaScheduler;
     }
 
     @Override
-    public PhoneSignalDetectorPool get() {
-        return new PhoneSignalDetectorPool(config.getResourcesConfiguration().getSignalDetectorCount(), factory);
+    public DtmfGeneratorFactory get() {
+        int duration = this.config.getResourcesConfiguration().getDtmfGeneratorToneDuration();
+        int volume = this.config.getResourcesConfiguration().getDtmfGeneratorToneVolume();
+        return new DtmfGeneratorFactory(mediaScheduler, volume, duration);
     }
 
-    public static final class PhoneSignalDetectorPoolType extends TypeLiteral<ResourcePool<PhoneSignalDetector>> {
+    public static final class DtmfGeneratorFactoryType extends TypeLiteral<PooledObjectFactory<GeneratorImpl>> {
 
-        public static final PhoneSignalDetectorPoolType INSTANCE = new PhoneSignalDetectorPoolType();
+        public static final DtmfGeneratorFactoryType INSTANCE = new DtmfGeneratorFactoryType();
 
-        private PhoneSignalDetectorPoolType() {
+        private DtmfGeneratorFactoryType() {
             super();
         }
 

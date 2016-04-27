@@ -19,21 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
         
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.scheduler.WallClock;
+import org.mobicents.media.server.scheduler.Clock;
+import org.mobicents.media.server.scheduler.ServiceScheduler;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class WallClockProvider implements Provider<WallClock> {
+public class TaskSchedulerProvider implements Provider<ServiceScheduler>{
 
+    private final Clock clock;
+    
+    @Inject
+    public TaskSchedulerProvider(Clock clock) {
+        this.clock = clock;
+    }
+    
     @Override
-    public WallClock get() {
-        return new WallClock();
+    public ServiceScheduler get() {
+        return new ServiceScheduler(this.clock);
     }
 
 }

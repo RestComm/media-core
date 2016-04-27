@@ -18,31 +18,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-package org.mobicents.media.server.bootstrap.ioc;
+import org.mobicents.media.server.scheduler.WallClock;
 
-import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaSchedulerProvider implements Provider<PriorityQueueScheduler> {
+public class WallClockProvider implements Provider<WallClock> {
 
-    private final Clock clock;
-    
-    @Inject
-    public MediaSchedulerProvider(Clock clock) {
-        this.clock = clock;
-    }
-    
     @Override
-    public PriorityQueueScheduler get() {
-        return new PriorityQueueScheduler(this.clock);
+    public WallClock get() {
+        return new WallClock();
     }
 
 }

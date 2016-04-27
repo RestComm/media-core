@@ -19,11 +19,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
-import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
@@ -35,29 +34,25 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class DtmfGeneratorFactoryProvider implements Provider<DtmfGeneratorFactory> {
+public class PhoneSignalGeneratorFactoryProvider implements Provider<PhoneSignalGeneratorFactory> {
 
-    private final MediaServerConfiguration config;
     private final PriorityQueueScheduler mediaScheduler;
 
     @Inject
-    public DtmfGeneratorFactoryProvider(MediaServerConfiguration config, PriorityQueueScheduler mediaScheduler) {
-        this.config = config;
+    public PhoneSignalGeneratorFactoryProvider(PriorityQueueScheduler mediaScheduler) {
         this.mediaScheduler = mediaScheduler;
     }
 
     @Override
-    public DtmfGeneratorFactory get() {
-        int duration = this.config.getResourcesConfiguration().getDtmfGeneratorToneDuration();
-        int volume = this.config.getResourcesConfiguration().getDtmfGeneratorToneVolume();
-        return new DtmfGeneratorFactory(mediaScheduler, volume, duration);
+    public PhoneSignalGeneratorFactory get() {
+        return new PhoneSignalGeneratorFactory(mediaScheduler);
     }
 
-    public static final class DtmfGeneratorFactoryType extends TypeLiteral<PooledObjectFactory<GeneratorImpl>> {
+    public static final class PhoneSignalGeneratorFactoryType extends TypeLiteral<PooledObjectFactory<PhoneSignalGenerator>> {
 
-        public static final DtmfGeneratorFactoryType INSTANCE = new DtmfGeneratorFactoryType();
+        public static final PhoneSignalGeneratorFactoryType INSTANCE = new PhoneSignalGeneratorFactoryType();
 
-        private DtmfGeneratorFactoryType() {
+        private PhoneSignalGeneratorFactoryType() {
             super();
         }
 

@@ -19,11 +19,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionFactory;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 
 import com.google.inject.Inject;
@@ -34,25 +35,27 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PhoneSignalDetectorFactoryProvider implements Provider<PhoneSignalDetectorFactory> {
+public class RtpConnectionFactoryProvider implements Provider<RtpConnectionFactory> {
 
-    private final PriorityQueueScheduler mediaScheduler;
+    private final ChannelsManager connectionFactory;
+    private final DspFactory dspFactory;
 
     @Inject
-    public PhoneSignalDetectorFactoryProvider(PriorityQueueScheduler mediaScheduler) {
-        this.mediaScheduler = mediaScheduler;
+    public RtpConnectionFactoryProvider(ChannelsManager connectionFactory, DspFactory dspFactory) {
+        this.connectionFactory = connectionFactory;
+        this.dspFactory = dspFactory;
     }
 
     @Override
-    public PhoneSignalDetectorFactory get() {
-        return new PhoneSignalDetectorFactory(mediaScheduler);
+    public RtpConnectionFactory get() {
+        return new RtpConnectionFactory(connectionFactory, dspFactory);
     }
 
-    public static final class PhoneSignalDetectorFactoryType extends TypeLiteral<PooledObjectFactory<PhoneSignalDetector>> {
+    public static final class RtpConnectionFactoryType extends TypeLiteral<PooledObjectFactory<RtpConnectionImpl>> {
 
-        public static final PhoneSignalDetectorFactoryType INSTANCE = new PhoneSignalDetectorFactoryType();
+        public static final RtpConnectionFactoryType INSTANCE = new RtpConnectionFactoryType();
 
-        private PhoneSignalDetectorFactoryType() {
+        private RtpConnectionFactoryType() {
             super();
         }
 

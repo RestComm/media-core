@@ -19,11 +19,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetector;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
 
@@ -35,27 +35,27 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PhoneSignalGeneratorPoolProvider implements Provider<PhoneSignalGeneratorPool> {
+public class PhoneSignalDetectorPoolProvider implements Provider<PhoneSignalDetectorPool> {
 
     private final MediaServerConfiguration config;
-    private final PooledObjectFactory<PhoneSignalGenerator> factory;
+    private final PooledObjectFactory<PhoneSignalDetector> factory;
 
     @Inject
-    public PhoneSignalGeneratorPoolProvider(MediaServerConfiguration config, PooledObjectFactory<PhoneSignalGenerator> factory) {
+    public PhoneSignalDetectorPoolProvider(MediaServerConfiguration config, PooledObjectFactory<PhoneSignalDetector> factory) {
         this.config = config;
         this.factory = factory;
     }
 
     @Override
-    public PhoneSignalGeneratorPool get() {
-        return new PhoneSignalGeneratorPool(config.getResourcesConfiguration().getSignalGeneratorCount(), factory);
+    public PhoneSignalDetectorPool get() {
+        return new PhoneSignalDetectorPool(config.getResourcesConfiguration().getSignalDetectorCount(), factory);
     }
 
-    public static final class PhoneSignalGeneratorPoolType extends TypeLiteral<ResourcePool<PhoneSignalGenerator>> {
+    public static final class PhoneSignalDetectorPoolType extends TypeLiteral<ResourcePool<PhoneSignalDetector>> {
 
-        public static final PhoneSignalGeneratorPoolType INSTANCE = new PhoneSignalGeneratorPoolType();
+        public static final PhoneSignalDetectorPoolType INSTANCE = new PhoneSignalDetectorPoolType();
 
-        private PhoneSignalGeneratorPoolType() {
+        private PhoneSignalDetectorPoolType() {
             super();
         }
 

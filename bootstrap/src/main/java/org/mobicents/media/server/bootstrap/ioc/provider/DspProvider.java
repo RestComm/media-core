@@ -18,44 +18,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-package org.mobicents.media.server.bootstrap.ioc;
+import java.util.Iterator;
 
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
-import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+import org.mobicents.media.core.configuration.CodecType;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.component.DspFactoryImpl;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.TypeLiteral;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PhoneSignalGeneratorFactoryProvider implements Provider<PhoneSignalGeneratorFactory> {
+public class DspProvider implements Provider<DspFactoryImpl> {
 
-    private final PriorityQueueScheduler mediaScheduler;
+    private final MediaServerConfiguration config;
 
     @Inject
-    public PhoneSignalGeneratorFactoryProvider(PriorityQueueScheduler mediaScheduler) {
-        this.mediaScheduler = mediaScheduler;
+    public DspProvider(MediaServerConfiguration config) {
+        this.config = config;
     }
-
+    
     @Override
-    public PhoneSignalGeneratorFactory get() {
-        return new PhoneSignalGeneratorFactory(mediaScheduler);
-    }
-
-    public static final class PhoneSignalGeneratorFactoryType extends TypeLiteral<PooledObjectFactory<PhoneSignalGenerator>> {
-
-        public static final PhoneSignalGeneratorFactoryType INSTANCE = new PhoneSignalGeneratorFactoryType();
-
-        private PhoneSignalGeneratorFactoryType() {
-            super();
+    public DspFactoryImpl get() {
+        DspFactoryImpl dsp = new DspFactoryImpl();
+        Iterator<String> codecs = this.config.getMediaConfiguration().getCodecs();
+        while (codecs.hasNext()) {
+            CodecType codec = CodecType.fromName(codecs.next());
+            if(codec != null) {
+                dsp.addCodec(codec.getDecoder());
+                dsp.addCodec(codec.getEncoder());
+            }
         }
-
+        return dsp;
     }
 
 }

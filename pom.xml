@@ -108,6 +108,13 @@
 		<version>1.10.19</version>
 		<scope>test</scope>
 	</dependency>
+
+	<!-- Dependency Injection -->
+	<dependency>
+		<groupId>com.google.inject</groupId>
+		<artifactId>guice</artifactId>
+		<version>4.0</version>
+	</dependency>
     </dependencies>
 
 

@@ -19,13 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
-import org.mobicents.media.server.mgcp.connection.RtpConnectionPool;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
-import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -35,27 +35,27 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class RtpConnectionPoolProvider implements Provider<RtpConnectionPool> {
+public class AudioPlayerFactoryProvider implements Provider<AudioPlayerFactory> {
 
-    private final PooledObjectFactory<RtpConnectionImpl> factory;
-    private final MediaServerConfiguration config;
+    private final PriorityQueueScheduler mediaScheduler;
+    private final DspFactory dspFactory;
 
     @Inject
-    public RtpConnectionPoolProvider(MediaServerConfiguration config, PooledObjectFactory<RtpConnectionImpl> factory) {
-        this.factory = factory;
-        this.config = config;
+    public AudioPlayerFactoryProvider(PriorityQueueScheduler mediaScheduler, DspFactory dspFactory) {
+        this.mediaScheduler = mediaScheduler;
+        this.dspFactory = dspFactory;
     }
 
     @Override
-    public RtpConnectionPool get() {
-        return new RtpConnectionPool(this.config.getResourcesConfiguration().getRemoteConnectionCount(), this.factory);
+    public AudioPlayerFactory get() {
+        return new AudioPlayerFactory(mediaScheduler, dspFactory);
     }
 
-    public static final class RtpConnectionPoolType extends TypeLiteral<ResourcePool<RtpConnectionImpl>> {
+    public static final class AudioPlayerFactoryType extends TypeLiteral<PooledObjectFactory<AudioPlayerImpl>> {
 
-        public static final RtpConnectionPoolType INSTANCE = new RtpConnectionPoolType();
+        public static final AudioPlayerFactoryType INSTANCE = new AudioPlayerFactoryType();
 
-        private RtpConnectionPoolType() {
+        private AudioPlayerFactoryType() {
             super();
         }
 

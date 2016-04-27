@@ -19,11 +19,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
-import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
+import org.mobicents.media.server.mgcp.connection.RtpConnectionPool;
 import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
 import org.mobicents.media.server.spi.pooling.ResourcePool;
 
@@ -35,27 +35,27 @@ import com.google.inject.TypeLiteral;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AudioRecorderPoolProvider implements Provider<AudioRecorderPool> {
+public class RtpConnectionPoolProvider implements Provider<RtpConnectionPool> {
 
+    private final PooledObjectFactory<RtpConnectionImpl> factory;
     private final MediaServerConfiguration config;
-    private final PooledObjectFactory<AudioRecorderImpl> factory;
 
     @Inject
-    public AudioRecorderPoolProvider(MediaServerConfiguration config, PooledObjectFactory<AudioRecorderImpl> factory) {
-        this.config = config;
+    public RtpConnectionPoolProvider(MediaServerConfiguration config, PooledObjectFactory<RtpConnectionImpl> factory) {
         this.factory = factory;
+        this.config = config;
     }
 
     @Override
-    public AudioRecorderPool get() {
-        return new AudioRecorderPool(config.getResourcesConfiguration().getRecorderCount(), factory);
+    public RtpConnectionPool get() {
+        return new RtpConnectionPool(this.config.getResourcesConfiguration().getRemoteConnectionCount(), this.factory);
     }
 
-    public static final class AudioRecorderPoolType extends TypeLiteral<ResourcePool<AudioRecorderImpl>> {
+    public static final class RtpConnectionPoolType extends TypeLiteral<ResourcePool<RtpConnectionImpl>> {
 
-        public static final AudioRecorderPoolType INSTANCE = new AudioRecorderPoolType();
+        public static final RtpConnectionPoolType INSTANCE = new RtpConnectionPoolType();
 
-        private AudioRecorderPoolType() {
+        private RtpConnectionPoolType() {
             super();
         }
 

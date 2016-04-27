@@ -18,40 +18,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.mobicents.media.server.bootstrap.ioc;
+
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGenerator;
+import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
+import org.mobicents.media.server.spi.pooling.PooledObjectFactory;
+import org.mobicents.media.server.spi.pooling.ResourcePool;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.TypeLiteral;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ChannelsManagerProvider implements Provider<ChannelsManager> {
+public class PhoneSignalGeneratorPoolProvider implements Provider<PhoneSignalGeneratorPool> {
 
-    private final UdpManager udpManager;
-    private final PriorityQueueScheduler mediaScheduler;
     private final MediaServerConfiguration config;
-    
+    private final PooledObjectFactory<PhoneSignalGenerator> factory;
+
     @Inject
-    public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager, PriorityQueueScheduler mediaScheduler) {
-        this.udpManager = udpManager;
-        this.mediaScheduler = mediaScheduler;
+    public PhoneSignalGeneratorPoolProvider(MediaServerConfiguration config, PooledObjectFactory<PhoneSignalGenerator> factory) {
         this.config = config;
+        this.factory = factory;
     }
-    
+
     @Override
-    public ChannelsManager get() {
-        ChannelsManager channelsManager = new ChannelsManager(this.udpManager);
-        channelsManager.setScheduler(mediaScheduler);
-        channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
-        return channelsManager;
+    public PhoneSignalGeneratorPool get() {
+        return new PhoneSignalGeneratorPool(config.getResourcesConfiguration().getSignalGeneratorCount(), factory);
+    }
+
+    public static final class PhoneSignalGeneratorPoolType extends TypeLiteral<ResourcePool<PhoneSignalGenerator>> {
+
+        public static final PhoneSignalGeneratorPoolType INSTANCE = new PhoneSignalGeneratorPoolType();
+
+        private PhoneSignalGeneratorPoolType() {
+            super();
+        }
+
     }
 
 }
