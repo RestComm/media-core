@@ -43,7 +43,7 @@ import io.netty.channel.ChannelHandler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NettyNetworkManagerTest {
+public class UdpNetworkManagerTest {
     
     private NetworkManager manager;
     
@@ -59,13 +59,13 @@ public class NettyNetworkManagerTest {
         // given
         PortManager ports = mock(PortManager.class);
         ChannelHandler handler = mock(ChannelHandler.class);
-        NetworkManager manager = new NettyNetworkManager("127.0.0.1", ports);
+        NetworkManager manager = new UdpNetworkManager("127.0.0.1", ports);
 
         // when - activate manager and bind channel
         when(ports.next()).thenReturn(65534);
         manager.activate();
         
-        ChannelFuture future = manager.bindUdpChannel(handler);
+        ChannelFuture future = manager.bindChannel(handler);
         Channel channel = future.channel();
         
         try {
@@ -96,10 +96,10 @@ public class NettyNetworkManagerTest {
         // given
         PortManager ports = mock(PortManager.class);
         ChannelHandler handler = mock(ChannelHandler.class);
-        NetworkManager manager = new NettyNetworkManager("127.0.0.1", ports);
+        NetworkManager manager = new UdpNetworkManager("127.0.0.1", ports);
         
         // when
-        manager.bindUdpChannel(handler);
+        manager.bindChannel(handler);
     }
 
 }

@@ -38,7 +38,7 @@ public interface NetworkManager {
      * @param handler The channel handler.
      * @return The future of the binding operation
      */
-    ChannelFuture bindUdpChannel(ChannelHandler handler);
+    ChannelFuture bindChannel(ChannelHandler handler);
 
     /**
      * Binds a channel to predefined address and port.
@@ -48,7 +48,7 @@ public interface NetworkManager {
      * @param handler The channel handler
      * @return The future of the binding operation
      */
-    ChannelFuture bindUdpChannel(String address, int port, ChannelHandler handler);
+    ChannelFuture bindChannel(String address, int port, ChannelHandler handler);
 
     /**
      * Activates the manager.

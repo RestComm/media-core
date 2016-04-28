@@ -39,7 +39,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * 
  */
-public class NettyNetworkManager implements NetworkManager {
+public class UdpNetworkManager implements NetworkManager {
 
     public static final int N_THREADS = Runtime.getRuntime().availableProcessors() * 2;
 
@@ -48,19 +48,19 @@ public class NettyNetworkManager implements NetworkManager {
     private EventLoopGroup eventGroup;
     private final AtomicBoolean active;
 
-    public NettyNetworkManager(String address, PortManager ports) {
+    public UdpNetworkManager(String address, PortManager ports) {
         this.address = address;
         this.ports = ports;
         this.active = new AtomicBoolean(false);
     }
 
     @Override
-    public ChannelFuture bindUdpChannel(ChannelHandler handler) throws IllegalStateException {
-        return bindUdpChannel(this.address, this.ports.next(), handler);
+    public ChannelFuture bindChannel(ChannelHandler handler) throws IllegalStateException {
+        return bindChannel(this.address, this.ports.next(), handler);
     }
 
     @Override
-    public ChannelFuture bindUdpChannel(String address, int port, ChannelHandler handler) {
+    public ChannelFuture bindChannel(String address, int port, ChannelHandler handler) {
         if (this.active.get()) {
             Bootstrap bootstrap = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class).handler(handler);
             return bootstrap.bind(address, port);
