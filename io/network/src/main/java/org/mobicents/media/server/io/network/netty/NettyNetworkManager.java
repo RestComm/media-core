@@ -55,14 +55,18 @@ public class NettyNetworkManager implements NetworkManager {
     }
 
     @Override
-    public ChannelFuture bindUdpChannel(ChannelHandler handler) {
+    public ChannelFuture bindUdpChannel(ChannelHandler handler) throws IllegalStateException {
         return bindUdpChannel(this.address, this.ports.next(), handler);
     }
 
     @Override
     public ChannelFuture bindUdpChannel(String address, int port, ChannelHandler handler) {
-        Bootstrap bootstrap = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class).handler(handler);
-        return bootstrap.bind(address, port);
+        if (this.active.get()) {
+            Bootstrap bootstrap = new Bootstrap().group(this.eventGroup).channel(NioDatagramChannel.class).handler(handler);
+            return bootstrap.bind(address, port);
+        } else {
+            throw new IllegalStateException("Network manager is not active.");
+        }
     }
 
     @Override

@@ -90,5 +90,16 @@ public class NettyNetworkManagerTest {
         assertFalse(channel.isOpen());
         assertFalse(channel.isActive());
     }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testBindWhileInactive() {
+        // given
+        PortManager ports = mock(PortManager.class);
+        ChannelHandler handler = mock(ChannelHandler.class);
+        NetworkManager manager = new NettyNetworkManager("127.0.0.1", ports);
+        
+        // when
+        manager.bindUdpChannel(handler);
+    }
 
 }
