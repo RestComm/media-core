@@ -24,7 +24,9 @@ package org.mobicents.media.control.mgcp.io;
 import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.MgcpRequest;
+import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 
@@ -35,6 +37,16 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 public class MgcpPacketHandler implements PacketHandler {
 
     private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
+
+    public final MgcpMessageParser parser;
+
+    public MgcpPacketHandler(MgcpMessageParser parser) {
+        this.parser = parser;
+    }
+
+    public MgcpPacketHandler() {
+        this(new MgcpMessageParser());
+    }
 
     @Override
     public int compareTo(PacketHandler o) {
@@ -79,9 +91,12 @@ public class MgcpPacketHandler implements PacketHandler {
     }
 
     private void handleRequest(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
-            InetSocketAddress remotePeer) {
-        MgcpRequest mgcpRequest = new MgcpRequest();
-        
+            InetSocketAddress remotePeer) throws PacketHandlerException {
+        try {
+            this.parser.parseRequest(packet, offset, dataLength);
+        } catch (MgcpParseException e) {
+            throw new PacketHandlerException(e);
+        }
     }
 
     private void handleResponse(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,

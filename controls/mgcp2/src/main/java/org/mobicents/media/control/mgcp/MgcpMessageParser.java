@@ -36,12 +36,16 @@ public class MgcpMessageParser {
     }
 
     public MgcpRequest parseRequest(String message) throws MgcpParseException {
-        MgcpRequest request = new MgcpRequest();
-        parseMgcpRequest(message, request);
-        return request;
+        try {
+            MgcpRequest request = new MgcpRequest();
+            parseMgcpRequest(message, request);
+            return request;
+        } catch (Exception e) {
+            throw new MgcpParseException("Could not parse MGCP request.", e);
+        }
     }
 
-    private void parseMgcpRequest(String message, MgcpRequest request) throws MgcpParseException {
+    private void parseMgcpRequest(String message, MgcpRequest request) throws Exception {
         String[] lines = message.split(System.lineSeparator());
 
         // Analyze request header
@@ -61,6 +65,49 @@ public class MgcpMessageParser {
         String endpointId = headerParams[2];
         request.setEndpointId(endpointId);
 
+        // Set parameters and SDP
+        parseParametersAndSdp(lines, request);
+    }
+
+    public MgcpResponse parseResponse(byte[] data, int offset, int length) throws MgcpParseException {
+        return parseResponse(new String(data, offset, length));
+    }
+
+    public MgcpResponse parseResponse(String message) throws MgcpParseException {
+        MgcpResponse response = new MgcpResponse();
+        try {
+            parseResponse(message, response);
+        } catch (Exception e) {
+            throw new MgcpParseException("Could not parse MGCP response", e);
+        }
+        return response;
+    }
+
+    private void parseResponse(String message, MgcpResponse response) throws Exception {
+        String[] lines = message.split(System.lineSeparator());
+
+        // Analyze request header
+        String header = lines[0];
+
+        // Set Request type
+        int codeSeparator = header.indexOf(" ");
+        String returnCode = header.substring(0, codeSeparator);
+        response.setCode(Integer.parseInt(returnCode));
+
+        // Set transaction ID
+        int transactionIdSeparator = header.indexOf(" ", codeSeparator + 1);
+        String transactionId = header.substring(codeSeparator + 1, transactionIdSeparator);
+        response.setTransactionId(Integer.parseInt(transactionId));
+
+        // Set endpoint ID
+        String returnMessage = header.substring(transactionIdSeparator + 1);
+        response.setMessage(returnMessage);
+        
+        // Set parameters and SDP
+        parseParametersAndSdp(lines, response);
+    }
+    
+    private void parseParametersAndSdp(String[] lines, MgcpMessage message) {
         // Get MGCP parameters and SDP
         StringBuilder sdpBuilder = new StringBuilder();
         boolean sdp = false;
@@ -82,16 +129,15 @@ public class MgcpMessageParser {
                     // Add parameter
                     int separatorIndex = line.indexOf(":");
                     MgcpParameterType type = MgcpParameterType.fromCode(line.substring(0, separatorIndex));
-                    request.addParameter(type, line.substring(separatorIndex + 1));
+                    message.addParameter(type, line.substring(separatorIndex + 1));
                 }
             }
         }
 
         // Set SDP (if present)
         if (sdp) {
-            request.addParameter(MgcpParameterType.SDP, sdpBuilder.toString());
+            message.addParameter(MgcpParameterType.SDP, sdpBuilder.toString());
         }
-
     }
 
 }

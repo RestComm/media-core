@@ -33,7 +33,7 @@ import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 public class MgcpParserTest {
 
     @Test
-    public void testParseCrcx() {
+    public void testParseCrcxRequest() {
         // given
         StringBuilder builder = new StringBuilder();
         builder.append("CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
@@ -61,7 +61,7 @@ public class MgcpParserTest {
     }
 
     @Test
-    public void testParseCrcxWithSdp() {
+    public void testParseCrcxRequestWithSdp() {
         // given
         StringBuilder builder = new StringBuilder();
         builder.append("CRCX 147483655 mobicents/bridge/1@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
@@ -103,7 +103,7 @@ public class MgcpParserTest {
     }
 
     @Test
-    public void testMdcx() {
+    public void testParseMdcxRequest() {
         // given
         StringBuilder builder = new StringBuilder();
         builder.append("MDCX 147483654 mobicents/ivr/1@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
@@ -129,7 +129,7 @@ public class MgcpParserTest {
     }
 
     @Test
-    public void testRqnt() {
+    public void testParseRqntRequest() {
         // given
         StringBuilder builder = new StringBuilder();
         builder.append("RQNT 147483656 mobicents/ivr/1@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
@@ -160,7 +160,7 @@ public class MgcpParserTest {
     }
 
     @Test
-    public void testNtfy() {
+    public void testParseNtfyRequest() {
         // given
         StringBuilder builder = new StringBuilder();
         builder.append("NTFY 2 mobicents/ivr/1@127.0.0.1:2427").append(System.lineSeparator());
@@ -179,6 +179,76 @@ public class MgcpParserTest {
             assertEquals("mobicents/ivr/1@127.0.0.1:2427", request.getEndpointId());
             assertEquals("1", request.getParameter(MgcpParameterType.REQUEST_ID));
             assertEquals("AU/oc(rc=100)", request.getParameter(MgcpParameterType.OBSERVED_EVENT));
+        } catch (MgcpParseException e) {
+            fail();
+        }
+    }
+    
+    @Test
+    public void testParseOkResponse() {
+        // given
+        StringBuilder builder = new StringBuilder();
+        builder.append("200 147483653 Successful Transaction").append(System.lineSeparator());
+        builder.append("I:1f").append(System.lineSeparator());
+        builder.append("Z:mobicents/bridge/1@127.0.0.1:2427").append(System.lineSeparator());
+        builder.append("Z2:mobicents/ivr/1@127.0.0.1:2427").append(System.lineSeparator());
+        builder.append("I2:10").append(System.lineSeparator());
+        MgcpMessageParser parser = new MgcpMessageParser();
+        
+        try {
+            // when
+            MgcpResponse response = parser.parseResponse(builder.toString());
+            
+            // then
+            assertEquals(200, response.getCode());
+            assertEquals(147483653, response.getTransactionId());
+            assertEquals("Successful Transaction", response.getMessage());
+            assertEquals("1f", response.getParameter(MgcpParameterType.CONNECTION_ID));
+            assertEquals("mobicents/bridge/1@127.0.0.1:2427", response.getParameter(MgcpParameterType.ENDPOINT_ID));
+            assertEquals("mobicents/ivr/1@127.0.0.1:2427", response.getParameter(MgcpParameterType.SECOND_ENDPOINT));
+            assertEquals("10", response.getParameter(MgcpParameterType.CONNECTION_ID2));
+        } catch (MgcpParseException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testParseOkResponseWithSdp() {
+        // given
+        StringBuilder builder = new StringBuilder();
+        builder.append("200 147483655 Successful Transaction").append(System.lineSeparator());
+        builder.append("I:20").append(System.lineSeparator());
+        builder.append("Z:mobicents/bridge/1@127.0.0.1:2427").append(System.lineSeparator());
+        builder.append(System.lineSeparator());
+        StringBuilder builderSdp = new StringBuilder();
+        builderSdp.append("v=0").append(System.lineSeparator());
+        builderSdp.append("o=- 1461941902737 1 IN IP4 127.0.0.1").append(System.lineSeparator());
+        builderSdp.append("s=Mobicents Media Server").append(System.lineSeparator());
+        builderSdp.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        builderSdp.append("t=0 0").append(System.lineSeparator());
+        builderSdp.append("m=audio 65534 RTP/AVP 8 0 101").append(System.lineSeparator());
+        builderSdp.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        builderSdp.append("a=sendrecv").append(System.lineSeparator());
+        builderSdp.append("a=rtcp:65535 IN IP4 127.0.0.1").append(System.lineSeparator());
+        builderSdp.append("a=ptime:20").append(System.lineSeparator());
+        builderSdp.append("a=rtpmap:0 pcmu/8000").append(System.lineSeparator());
+        builderSdp.append("a=rtpmap:101 telephone-event/8000").append(System.lineSeparator());
+        builderSdp.append("a=rtpmap:8 pcma/8000").append(System.lineSeparator());
+        builderSdp.append("a=ssrc:2849765541 cname:l3l35Nm+9PFH1A9O");
+        builder.append(builderSdp.toString());
+        MgcpMessageParser parser = new MgcpMessageParser();
+        
+        try {
+            // when
+            MgcpResponse response = parser.parseResponse(builder.toString());
+            
+            // then
+            assertEquals(200, response.getCode());
+            assertEquals(147483655, response.getTransactionId());
+            assertEquals("Successful Transaction", response.getMessage());
+            assertEquals("20", response.getParameter(MgcpParameterType.CONNECTION_ID));
+            assertEquals("mobicents/bridge/1@127.0.0.1:2427", response.getParameter(MgcpParameterType.ENDPOINT_ID));
+            assertEquals(builderSdp.toString(), response.getParameter(MgcpParameterType.SDP));
         } catch (MgcpParseException e) {
             fail();
         }
