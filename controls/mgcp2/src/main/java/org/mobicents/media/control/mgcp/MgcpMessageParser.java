@@ -1,0 +1,97 @@
+/*
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2016, Telestax Inc and individual contributors
+ * by the @authors tag. 
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+package org.mobicents.media.control.mgcp;
+
+import org.mobicents.media.control.mgcp.exception.MgcpParseException;
+
+/**
+ * Parses text into MGCP Message objects.
+ * 
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
+ *
+ */
+public class MgcpMessageParser {
+
+    public void parseRequest(byte[] data, int offset, int length) throws MgcpParseException {
+        parseRequest(new String(data, offset, length));
+    }
+
+    public MgcpRequest parseRequest(String message) throws MgcpParseException {
+        MgcpRequest request = new MgcpRequest();
+        parseMgcpRequest(message, request);
+        return request;
+    }
+
+    private void parseMgcpRequest(String message, MgcpRequest request) throws MgcpParseException {
+        String[] lines = message.split(System.lineSeparator());
+
+        // Analyze request header
+        String header = lines[0];
+        String[] headerParams = header.split(" ");
+
+        // Set Request type
+        String command = headerParams[0];
+        MgcpRequestType requestType = MgcpRequestType.valueOf(command.toUpperCase());
+        request.setRequestType(requestType);
+
+        // Set transaction ID
+        String transactionId = headerParams[1];
+        request.setTransactionId(Integer.parseInt(transactionId));
+
+        // Set endpoint ID
+        String endpointId = headerParams[2];
+        request.setEndpointId(endpointId);
+
+        // Get MGCP parameters and SDP
+        StringBuilder sdpBuilder = new StringBuilder();
+        boolean sdp = false;
+        int nLines = lines.length;
+        for (int i = 1; i < nLines; i++) {
+            String line = lines[i];
+
+            if (sdp) {
+                // Build SDP description
+                sdpBuilder.append(line);
+                if (i < nLines - 1) {
+                    sdpBuilder.append(System.lineSeparator());
+                }
+            } else {
+                if (line.isEmpty()) {
+                    // Set SDP detected
+                    sdp = true;
+                } else {
+                    // Add parameter
+                    int separatorIndex = line.indexOf(":");
+                    MgcpParameterType type = MgcpParameterType.fromCode(line.substring(0, separatorIndex));
+                    request.addParameter(type, line.substring(separatorIndex + 1));
+                }
+            }
+        }
+
+        // Set SDP (if present)
+        if (sdp) {
+            request.addParameter(MgcpParameterType.SDP, sdpBuilder.toString());
+        }
+
+    }
+
+}

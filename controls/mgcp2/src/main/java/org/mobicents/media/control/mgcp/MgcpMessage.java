@@ -22,10 +22,8 @@
 package org.mobicents.media.control.mgcp;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.mobicents.protocols.mgcp.jain.pkg.Parameter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a generic MGCP message.
@@ -36,13 +34,13 @@ import org.mobicents.protocols.mgcp.jain.pkg.Parameter;
 public abstract class MgcpMessage {
 
     private int transactionId;
-    private final List<Parameter> parameters;
+    private final Map<MgcpParameterType, String> parameters;
     protected final ByteBuffer data;
     
     public MgcpMessage() {
         this.transactionId = -1;
+        this.parameters = new HashMap<>(10);
         this.data = ByteBuffer.allocate(8192);
-        this.parameters = new ArrayList<>(10);
     }
     
     public int getTransactionId() {
@@ -53,12 +51,20 @@ public abstract class MgcpMessage {
         this.transactionId = transactionId;
     }
     
-    public void addParameter(Parameter parameter) {
-        this.parameters.add(parameter);
+    public boolean isSdpDetected() {
+        return this.parameters.containsKey(MgcpParameterType.SDP);
     }
     
-    public void removeParameter(Parameter parameter) {
-        this.parameters.remove(parameter);
+    public String getParameter(MgcpParameterType type) {
+        return this.parameters.get(type);
+    }
+    
+    public void addParameter(MgcpParameterType type, String value) {
+        this.parameters.put(type, value);
+    }
+    
+    public void removeParameter(MgcpParameterType type) {
+        this.parameters.remove(type);
     }
     
     public void removeParameters() {
@@ -66,4 +72,5 @@ public abstract class MgcpMessage {
     }
     
     public abstract boolean isRequest();
+    
 }

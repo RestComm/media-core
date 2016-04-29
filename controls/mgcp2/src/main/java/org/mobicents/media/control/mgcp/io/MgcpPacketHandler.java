@@ -18,11 +18,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.io;
 
 import java.net.InetSocketAddress;
 
+import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.MgcpRequest;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 
@@ -32,41 +34,63 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
  */
 public class MgcpPacketHandler implements PacketHandler {
 
+    private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
+
     @Override
     public int compareTo(PacketHandler o) {
-        // TODO Auto-generated method stub
-        return 0;
+        if (o == null) {
+            return 1;
+        }
+        return this.getPipelinePriority() - o.getPipelinePriority();
     }
 
     @Override
     public boolean canHandle(byte[] packet) {
-        // TODO Auto-generated method stub
-        return false;
+        return canHandle(packet, packet.length, 0);
     }
 
     @Override
     public boolean canHandle(byte[] packet, int dataLength, int offset) {
-        // TODO Auto-generated method stub
-        return false;
+        // TODO [MgcpPacketHandler] Check if packet can be handled
+        return true;
     }
 
     @Override
     public byte[] handle(byte[] packet, InetSocketAddress localPeer, InetSocketAddress remotePeer)
             throws PacketHandlerException {
-        // TODO Auto-generated method stub
-        return null;
+        return handle(packet, packet.length, 0, localPeer, remotePeer);
     }
 
     @Override
     public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer, InetSocketAddress remotePeer)
             throws PacketHandlerException {
-        // TODO Auto-generated method stub
+        if (log.isDebugEnabled()) {
+            log.debug("Parsing message: " + new String(packet, offset, dataLength));
+        }
+
+        // Get message type based on first byte
+        byte b = packet[0];
+        if (b >= 48 && b <= 57) {
+            handleResponse(packet, dataLength, offset, localPeer, remotePeer);
+        } else {
+            handleRequest(packet, dataLength, offset, localPeer, remotePeer);
+        }
         return null;
+    }
+
+    private void handleRequest(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
+            InetSocketAddress remotePeer) {
+        MgcpRequest mgcpRequest = new MgcpRequest();
+        
+    }
+
+    private void handleResponse(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
+            InetSocketAddress remotePeer) {
+        // TODO implement handleResponse
     }
 
     @Override
     public int getPipelinePriority() {
-        // TODO Auto-generated method stub
         return 0;
     }
 

@@ -19,44 +19,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.exception;
 
 /**
- * Represents an MGCP request.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpRequest extends MgcpMessage {
+public class MgcpParseException extends MgcpException {
 
-    public static final String VERSION = "MGCP 1.0\n";
+    private static final long serialVersionUID = -4743158843376442288L;
 
-    private MgcpRequestType requestType;
-    private String endpointId;
-
-    public MgcpRequest() {
-        super();
+    public MgcpParseException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public MgcpRequestType getRequestType() {
-        return requestType;
-    }
-
-    public void setRequestType(MgcpRequestType requestType) {
-        this.requestType = requestType;
-    }
-
-    public String getEndpointId() {
-        return endpointId;
-    }
-
-    public void setEndpointId(String endpointId) {
-        this.endpointId = endpointId;
-    }
-
-    @Override
-    public boolean isRequest() {
-        return true;
+    public MgcpParseException(String message) {
+        super(message);
     }
 
 }

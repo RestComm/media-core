@@ -22,41 +22,33 @@
 package org.mobicents.media.control.mgcp;
 
 /**
- * Represents an MGCP request.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpRequest extends MgcpMessage {
+public class MgcpParameter {
 
-    public static final String VERSION = "MGCP 1.0\n";
+    private MgcpParameterType type;
+    private String value;
 
-    private MgcpRequestType requestType;
-    private String endpointId;
-
-    public MgcpRequest() {
-        super();
+    public MgcpParameter() {
+        this.type = null;
+        this.value = "";
     }
 
-    public MgcpRequestType getRequestType() {
-        return requestType;
+    public MgcpParameterType getType() {
+        return type;
     }
 
-    public void setRequestType(MgcpRequestType requestType) {
-        this.requestType = requestType;
+    public void setType(MgcpParameterType type) {
+        this.type = type;
     }
 
-    public String getEndpointId() {
-        return endpointId;
+    public String getValue() {
+        return value;
     }
 
-    public void setEndpointId(String endpointId) {
-        this.endpointId = endpointId;
-    }
-
-    @Override
-    public boolean isRequest() {
-        return true;
+    public void setValue(String value) {
+        this.value = value;
     }
 
 }
