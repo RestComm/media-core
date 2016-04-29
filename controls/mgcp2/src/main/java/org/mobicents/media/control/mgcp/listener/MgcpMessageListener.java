@@ -19,54 +19,18 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.listener;
+
+import org.mobicents.media.control.mgcp.MgcpMessage;
 
 /**
- * Represents an MGCP response.
+ * Listens to incoming MGCP packets.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpResponse extends MgcpMessage {
+public interface MgcpMessageListener {
 
-    private String message;
-    private int code;
-
-    public MgcpResponse() {
-        super();
-        this.message = "";
-        this.code = 0;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    @Override
-    public boolean isRequest() {
-        return false;
-    }
-
-    /**
-     * Indicates whether response code is successful.
-     * 
-     * @return True is code lesser than 300; false otherwise.
-     * @see <a href="https://tools.ietf.org/html/rfc3435#section-2.4">RFC3435 - Section 2.4</a>
-     */
-    public boolean isSuccessful() {
-        return this.code <= 299;
-    }
+    void onMgcpMessage(MgcpMessage response);
 
 }

@@ -21,52 +21,27 @@
 
 package org.mobicents.media.control.mgcp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Represents an MGCP response.
+ * Manages a group of MGCP transactions.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpResponse extends MgcpMessage {
-
-    private String message;
-    private int code;
-
-    public MgcpResponse() {
-        super();
-        this.message = "";
-        this.code = 0;
+public class MgcpTransactionManager {
+    
+    private final Map<Integer, MgcpTransaction> transactions;
+    
+    public MgcpTransactionManager() {
+        this.transactions = new HashMap<>(50);
     }
-
-    public String getMessage() {
-        return message;
+    
+    public void process(MgcpMessage message) {
+        
+        
     }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    @Override
-    public boolean isRequest() {
-        return false;
-    }
-
-    /**
-     * Indicates whether response code is successful.
-     * 
-     * @return True is code lesser than 300; false otherwise.
-     * @see <a href="https://tools.ietf.org/html/rfc3435#section-2.4">RFC3435 - Section 2.4</a>
-     */
-    public boolean isSuccessful() {
-        return this.code <= 299;
-    }
-
+    
+    
 }

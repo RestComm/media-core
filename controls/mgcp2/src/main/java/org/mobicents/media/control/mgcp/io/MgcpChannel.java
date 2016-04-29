@@ -26,6 +26,9 @@ import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.MgcpMessage;
+import org.mobicents.media.control.mgcp.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
@@ -36,27 +39,33 @@ import org.mobicents.media.server.io.network.channel.PacketHandler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannel extends MultiplexedChannel {
+public class MgcpChannel extends MultiplexedChannel implements MgcpMessageListener {
 
     private static final Logger log = Logger.getLogger(MgcpChannel.class);
 
-    // Core components
+    // Core Components
     private final UdpManager networkManager;
+    
+    // MGCP Components
+    private final MgcpMessageParser parser;
+    private final PacketHandler mgcpHandler;
 
     // MGCP Channel
     private final String address;
     private final int port;
-    private final PacketHandler mgcpHandler;
     private boolean open;
 
     public MgcpChannel(String address, int port, UdpManager networkManager) {
         // Core Components
         this.networkManager = networkManager;
 
+        // MGCP Components
+        this.parser = new MgcpMessageParser();
+        
         // MGCP Channel
         this.address = address;
         this.port = port;
-        this.mgcpHandler = new MgcpPacketHandler();
+        this.mgcpHandler = new MgcpPacketHandler(this.parser, this);
         this.handlers.addHandler(mgcpHandler);
         this.open = false;
     }
@@ -106,6 +115,12 @@ public class MgcpChannel extends MultiplexedChannel {
     @Override
     public boolean isOpen() {
         return this.open;
+    }
+
+    @Override
+    public void onMgcpMessage(MgcpMessage request) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

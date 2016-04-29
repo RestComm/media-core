@@ -23,29 +23,29 @@ package org.mobicents.media.control.mgcp.io;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.MgcpMessage;
 import org.mobicents.media.control.mgcp.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.MgcpRequest;
+import org.mobicents.media.control.mgcp.MgcpResponse;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
+import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 
 /**
+ * Handler to decode and process incoming MGCP packets.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpPacketHandler implements PacketHandler {
 
-    private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
-
     public final MgcpMessageParser parser;
+    public final MgcpMessageListener listener;
 
-    public MgcpPacketHandler(MgcpMessageParser parser) {
+    public MgcpPacketHandler(MgcpMessageParser parser, MgcpMessageListener listener) {
         this.parser = parser;
-    }
-
-    public MgcpPacketHandler() {
-        this(new MgcpMessageParser());
+        this.listener = listener;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class MgcpPacketHandler implements PacketHandler {
 
     @Override
     public boolean canHandle(byte[] packet, int dataLength, int offset) {
-        // TODO [MgcpPacketHandler] Check if packet can be handled
+        // TODO [MgcpPacketHandler] Check if packet can be handled somehow
         return true;
     }
 
@@ -76,32 +76,38 @@ public class MgcpPacketHandler implements PacketHandler {
     @Override
     public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer, InetSocketAddress remotePeer)
             throws PacketHandlerException {
-        if (log.isDebugEnabled()) {
-            log.debug("Parsing message: " + new String(packet, offset, dataLength));
-        }
-
         // Get message type based on first byte
         byte b = packet[0];
+        
+        // Produce message according to type
+        MgcpMessage message;
         if (b >= 48 && b <= 57) {
-            handleResponse(packet, dataLength, offset, localPeer, remotePeer);
+            message = handleResponse(packet, dataLength, offset, localPeer, remotePeer);
         } else {
-            handleRequest(packet, dataLength, offset, localPeer, remotePeer);
+            message = handleRequest(packet, dataLength, offset, localPeer, remotePeer);
         }
+        
+        // Warn listener packet was decoded
+        this.listener.onMgcpMessage(message);
         return null;
     }
 
-    private void handleRequest(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
+    private MgcpRequest handleRequest(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
             InetSocketAddress remotePeer) throws PacketHandlerException {
         try {
-            this.parser.parseRequest(packet, offset, dataLength);
+            return this.parser.parseRequest(packet, offset, dataLength);
         } catch (MgcpParseException e) {
             throw new PacketHandlerException(e);
         }
     }
 
-    private void handleResponse(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
-            InetSocketAddress remotePeer) {
-        // TODO implement handleResponse
+    private MgcpResponse handleResponse(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
+            InetSocketAddress remotePeer) throws PacketHandlerException {
+        try {
+            return this.parser.parseResponse(packet, offset, dataLength);
+        } catch (MgcpParseException e) {
+            throw new PacketHandlerException(e);
+        }
     }
 
     @Override

@@ -22,51 +22,19 @@
 package org.mobicents.media.control.mgcp;
 
 /**
- * Represents an MGCP response.
+ * Represents an MGCP action that can be executed.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpResponse extends MgcpMessage {
-
-    private String message;
-    private int code;
-
-    public MgcpResponse() {
-        super();
-        this.message = "";
-        this.code = 0;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    @Override
-    public boolean isRequest() {
-        return false;
-    }
+public interface MgcpCommand {
 
     /**
-     * Indicates whether response code is successful.
+     * Executes an MGCP command.
      * 
-     * @return True is code lesser than 300; false otherwise.
-     * @see <a href="https://tools.ietf.org/html/rfc3435#section-2.4">RFC3435 - Section 2.4</a>
+     * @param request The MGCP request to be executed
+     * @return The response of the execution. Depending on its return code, the response can be successful or not.
      */
-    public boolean isSuccessful() {
-        return this.code <= 299;
-    }
+    public MgcpResponse execute(MgcpRequest request);
 
 }

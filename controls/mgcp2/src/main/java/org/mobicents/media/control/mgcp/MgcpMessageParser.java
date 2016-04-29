@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 
 /**
@@ -31,8 +32,10 @@ import org.mobicents.media.control.mgcp.exception.MgcpParseException;
  */
 public class MgcpMessageParser {
 
-    public void parseRequest(byte[] data, int offset, int length) throws MgcpParseException {
-        parseRequest(new String(data, offset, length));
+    private static final Logger log = Logger.getLogger(MgcpMessageParser.class);
+
+    public MgcpRequest parseRequest(byte[] data, int offset, int length) throws MgcpParseException {
+        return parseRequest(new String(data, offset, length));
     }
 
     public MgcpRequest parseRequest(String message) throws MgcpParseException {
@@ -46,6 +49,10 @@ public class MgcpMessageParser {
     }
 
     private void parseMgcpRequest(String message, MgcpRequest request) throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("Parsing MGCP request: " + message);
+        }
+
         String[] lines = message.split(System.lineSeparator());
 
         // Analyze request header
@@ -84,6 +91,10 @@ public class MgcpMessageParser {
     }
 
     private void parseResponse(String message, MgcpResponse response) throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("Parsing MGCP response: " + message);
+        }
+        
         String[] lines = message.split(System.lineSeparator());
 
         // Analyze request header
@@ -102,11 +113,11 @@ public class MgcpMessageParser {
         // Set endpoint ID
         String returnMessage = header.substring(transactionIdSeparator + 1);
         response.setMessage(returnMessage);
-        
+
         // Set parameters and SDP
         parseParametersAndSdp(lines, response);
     }
-    
+
     private void parseParametersAndSdp(String[] lines, MgcpMessage message) {
         // Get MGCP parameters and SDP
         StringBuilder sdpBuilder = new StringBuilder();
