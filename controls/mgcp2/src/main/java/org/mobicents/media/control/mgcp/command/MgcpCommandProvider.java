@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.MgcpCommand;
+import org.mobicents.media.control.mgcp.MgcpRequest;
 import org.mobicents.media.control.mgcp.MgcpRequestType;
 
 /**
@@ -32,7 +32,9 @@ import org.mobicents.media.control.mgcp.MgcpRequestType;
  */
 public class MgcpCommandProvider {
 
-    public MgcpCommand provide(MgcpRequestType type) {
+    public AbstractMgcpCommand provide(MgcpRequest request) {
+        MgcpRequestType type = request.getRequestType();
+
         switch (type) {
             case CRCX:
                 // TODO provide CRCX command

@@ -21,16 +21,16 @@
 
 package org.mobicents.media.control.mgcp.listener;
 
-import org.mobicents.media.control.mgcp.MgcpMessage;
+import org.mobicents.media.control.mgcp.MgcpTransaction;
 
 /**
- * Listens to incoming MGCP packets.
+ * Listens for notifications on MGCP transaction execution.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpMessageListener {
+public interface MgcpTransactionListener {
 
-    void onMgcpMessage(MgcpMessage message);
+    void onTransactionComplete(MgcpTransaction transaction);
 
 }

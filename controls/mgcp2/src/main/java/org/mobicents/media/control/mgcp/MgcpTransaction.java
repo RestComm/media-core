@@ -21,7 +21,9 @@
 
 package org.mobicents.media.control.mgcp;
 
+import org.mobicents.media.control.mgcp.command.AbstractMgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -29,17 +31,22 @@ import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
  */
 public class MgcpTransaction {
 
-    private final MgcpCommandProvider commandProvider;
-    
+    private MgcpTransactionListener listener;
+
+    // MGCP Core Components
+    private final MgcpCommandProvider commands;
+
+    // MGCP Transaction State
     private int id;
-    private String hexId;
     private boolean completed;
     private MgcpRequest request;
     private MgcpResponse response;
 
-    public MgcpTransaction(MgcpCommandProvider commandProvider) {
-        this.commandProvider = commandProvider;
-        
+    public MgcpTransaction(MgcpCommandProvider commands) {
+        // MGCP Core Components
+        this.commands = commands;
+
+        // MGCP Transaction State
         this.id = 0;
         this.completed = false;
         this.request = null;
@@ -54,25 +61,36 @@ public class MgcpTransaction {
         this.id = id;
         // TODO set hexId
     }
-    
-    public void process(MgcpRequest request) throws IllegalStateException {
-        if(this.request != null) {
+
+    public void setListener(MgcpTransactionListener listener) {
+        this.listener = listener;
+    }
+
+    public void process(MgcpMessage message) throws IllegalStateException {
+        if (message.isRequest()) {
+            processRequest((MgcpRequest) message);
+        } else {
+            processResponse((MgcpResponse) message);
+        }
+    }
+
+    private void processRequest(MgcpRequest request) throws IllegalStateException {
+        if (this.request != null) {
             throw new IllegalStateException("Transaction is already processing a request.");
         }
-        
+
         this.request = request;
-        MgcpCommand command = this.commandProvider.provide(request.getRequestType());
-        MgcpResponse response = command.execute(request);
-        // TODO send response to channel
+        AbstractMgcpCommand command = this.commands.provide(request);
+        command.execute(request);
     }
-    
-    public void process(MgcpResponse request) throws IllegalStateException {
-        if(this.request == null) {
+
+    private void processResponse(MgcpResponse response) throws IllegalStateException {
+        if (this.request == null) {
             throw new IllegalStateException("Transaction has not yet proccessed a request.");
         }
+        
+        this.response = response;
         // TODO process response
     }
-    
-    
 
 }

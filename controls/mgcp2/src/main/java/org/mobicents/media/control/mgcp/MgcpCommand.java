@@ -21,13 +21,15 @@
 
 package org.mobicents.media.control.mgcp;
 
+import java.util.concurrent.Callable;
+
 /**
  * Represents an MGCP action that can be executed.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public interface MgcpCommand extends Callable<MgcpResponse> {
 
     /**
      * Executes an MGCP command.
@@ -35,6 +37,6 @@ public interface MgcpCommand {
      * @param request The MGCP request to be executed
      * @return The response of the execution. Depending on its return code, the response can be successful or not.
      */
-    public MgcpResponse execute(MgcpRequest request);
+    public void execute(MgcpRequest request);
 
 }

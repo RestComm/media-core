@@ -23,7 +23,6 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.MgcpCommand;
 import org.mobicents.media.control.mgcp.MgcpRequest;
-import org.mobicents.media.control.mgcp.MgcpResponse;
 
 /**
  * Abstract implementation of MGCP command that forces a rollback operation when {@link MgcpCommand#execute(MgcpRequest)} fails.
@@ -33,17 +32,22 @@ import org.mobicents.media.control.mgcp.MgcpResponse;
  */
 public abstract class AbstractMgcpCommand implements MgcpCommand {
 
-    @Override
-    public final MgcpResponse execute(MgcpRequest request) {
-        MgcpResponse response = onExecute(request);
-        if (!response.isSuccessful()) {
-            rollback();
-        }
-        return response;
-    }
-
-    protected abstract MgcpResponse onExecute(MgcpRequest request);
-
-    protected abstract void rollback();
+//    @Override
+//    public final void execute(MgcpRequest request) {
+//        // Execute command
+//        MgcpResponse response = execute(request);
+//
+//        // Rolback if command execution failed
+//        if (!response.isSuccessful()) {
+//            rollback();
+//        }
+//
+//        // Notify listener of execution completion
+//        callback.onMgcpRequestComplete(response);
+//    }
+//
+//    protected abstract MgcpResponse onExecute(MgcpRequest request);
+//
+//    protected abstract void rollback();
 
 }

@@ -22,12 +22,11 @@
 package org.mobicents.media.control.mgcp.io;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.MgcpMessage;
-import org.mobicents.media.control.mgcp.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
@@ -45,27 +44,19 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageListen
 
     // Core Components
     private final UdpManager networkManager;
-    
-    // MGCP Components
-    private final MgcpMessageParser parser;
-    private final PacketHandler mgcpHandler;
 
     // MGCP Channel
-    private final String address;
-    private final int port;
+    private final PacketHandler mgcpHandler;
+    private final SocketAddress bindAddress;
     private boolean open;
 
-    public MgcpChannel(String address, int port, UdpManager networkManager) {
+    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpPacketHandler packetHandler) {
         // Core Components
         this.networkManager = networkManager;
 
-        // MGCP Components
-        this.parser = new MgcpMessageParser();
-        
         // MGCP Channel
-        this.address = address;
-        this.port = port;
-        this.mgcpHandler = new MgcpPacketHandler(this.parser, this);
+        this.bindAddress = bindAddress;
+        this.mgcpHandler = packetHandler;
         this.handlers.addHandler(mgcpHandler);
         this.open = false;
     }
@@ -81,7 +72,7 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageListen
 
             // Bind channel
             try {
-                this.dataChannel.bind(new InetSocketAddress(this.address, this.port));
+                this.dataChannel.bind(this.bindAddress);
             } catch (IOException e) {
                 log.error("BOMBED!!");
                 close();
@@ -91,7 +82,7 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageListen
             // Declare the channel officially active
             this.open = true;
             if (log.isInfoEnabled()) {
-                log.info("MGCP Channel is open on " + this.address + ":" + this.port);
+                log.info("MGCP Channel is open on " + this.bindAddress.toString());
             }
         }
     }
@@ -117,10 +108,18 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageListen
         return this.open;
     }
 
+    public void queue(byte[] data) {
+        if (this.open) {
+            queueData(data);
+        } else {
+            throw new IllegalStateException("Channel is closed");
+        }
+    }
+
     @Override
     public void onMgcpMessage(MgcpMessage request) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

@@ -19,18 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
-
-import org.mobicents.media.control.mgcp.MgcpMessage;
+package org.mobicents.media.control.mgcp.exception;
 
 /**
- * Listens to incoming MGCP packets.
+ * Generic exception involving MGCP transactions.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpMessageListener {
+public class MgcpTransactionException extends MgcpException {
 
-    void onMgcpMessage(MgcpMessage message);
+    private static final long serialVersionUID = 4922747936678092919L;
+
+    public MgcpTransactionException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MgcpTransactionException(String message) {
+        super(message);
+    }
 
 }

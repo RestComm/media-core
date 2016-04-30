@@ -30,11 +30,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.io.MgcpChannel;
+import org.mobicents.media.control.mgcp.io.MgcpPacketHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 
 /**
@@ -42,14 +45,18 @@ import org.mobicents.media.server.io.network.UdpManager;
  *
  */
 public class MgcpChannelTest {
+    
+    private final SocketAddress bindAddress = new InetSocketAddress("127.0.0.1", 2427);
 
     @Test
     public void testOpenClose() throws IllegalStateException, IOException {
         try (DatagramChannel datagramChannel = DatagramChannel.open()) {
             // given
             SelectionKey selectionKey = mock(SelectionKey.class);
+            MgcpPacketHandler packetHandler = mock(MgcpPacketHandler.class);
             UdpManager networkManager = mock(UdpManager.class);
-            MgcpChannel channel = new MgcpChannel("127.0.0.1", 2427, networkManager);
+            
+            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
 
             // when - open channel
             when(networkManager.open(channel)).thenReturn(selectionKey);
