@@ -19,22 +19,27 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.command;
+
+import org.mobicents.media.control.mgcp.exception.MgcpException;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public class MgcpCommandException extends MgcpException {
 
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @return The response of the execution. Depending on its return code, the response can be successful or not.
-     */
-    public void execute(MgcpRequest request);
+    private static final long serialVersionUID = 5590775200776881061L;
+
+    private final int code;
+
+    public MgcpCommandException(int code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
 
 }

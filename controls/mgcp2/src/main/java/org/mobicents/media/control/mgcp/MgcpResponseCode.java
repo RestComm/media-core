@@ -68,7 +68,7 @@ public enum MgcpResponseCode {
         this.code = code;
     }
     
-    public int getCode() {
+    public int code() {
         return code;
     }
     

@@ -21,20 +21,35 @@
 
 package org.mobicents.media.control.mgcp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Represents an MGCP action that can be executed.
+ * Represents Local Connection Options parameter of an MGCP message.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public class LocalConnectionOptions {
 
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @return The response of the execution. Depending on its return code, the response can be successful or not.
-     */
-    public void execute(MgcpRequest request);
+    private static final int MAX_LENGTH = LocalConnectionOptionType.values().length;
+
+    private final Map<LocalConnectionOptionType, String> options;
+
+    public LocalConnectionOptions() {
+        this.options = new HashMap<>(MAX_LENGTH);
+    }
+
+    public void add(LocalConnectionOptionType option, String value) {
+        this.options.put(option, value);
+    }
+
+    public String remove(LocalConnectionOptionType option) {
+        return this.options.remove(option);
+    }
+
+    public String get(LocalConnectionOptionType option) {
+        return this.options.get(option);
+    }
 
 }
