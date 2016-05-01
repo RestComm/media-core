@@ -19,22 +19,54 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.message;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Represents an MGCP response.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public class MgcpResponse extends MgcpMessage {
+
+    private String message;
+    private int code;
+
+    public MgcpResponse() {
+        super();
+        this.message = "";
+        this.code = 0;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    @Override
+    public boolean isRequest() {
+        return false;
+    }
 
     /**
-     * Executes an MGCP command.
+     * Indicates whether response code is successful.
      * 
-     * @param request The MGCP request to be executed
-     * @return The response of the execution. Depending on its return code, the response can be successful or not.
+     * @return True is code lesser than 300; false otherwise.
+     * @see <a href="https://tools.ietf.org/html/rfc3435#section-2.4">RFC3435 - Section 2.4</a>
      */
-    public void execute(MgcpRequest request);
+    public boolean isSuccessful() {
+        return this.code <= 299;
+    }
 
 }

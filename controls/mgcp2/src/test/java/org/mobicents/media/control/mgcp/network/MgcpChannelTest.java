@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.network;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -36,8 +36,8 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.io.MgcpChannel;
-import org.mobicents.media.control.mgcp.io.MgcpPacketHandler;
+import org.mobicents.media.control.mgcp.network.MgcpChannel;
+import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 
 /**

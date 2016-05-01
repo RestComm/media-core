@@ -21,8 +21,8 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.MgcpRequest;
-import org.mobicents.media.control.mgcp.MgcpRequestType;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 
 /**
  * Provides MGCP commands to be executed.

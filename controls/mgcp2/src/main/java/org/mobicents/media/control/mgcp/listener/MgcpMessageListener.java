@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.listener;
 
-import org.mobicents.media.control.mgcp.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
 
 /**
  * Listens to incoming MGCP packets.

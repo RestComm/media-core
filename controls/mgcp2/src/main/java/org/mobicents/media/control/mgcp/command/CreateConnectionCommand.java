@@ -22,10 +22,10 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.control.mgcp.MgcpParameterType;
-import org.mobicents.media.control.mgcp.MgcpRequest;
-import org.mobicents.media.control.mgcp.MgcpResponse;
-import org.mobicents.media.control.mgcp.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

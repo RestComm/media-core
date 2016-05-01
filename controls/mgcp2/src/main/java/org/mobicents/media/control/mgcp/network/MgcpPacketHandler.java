@@ -19,16 +19,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.io;
+package org.mobicents.media.control.mgcp.network;
 
 import java.net.InetSocketAddress;
 
-import org.mobicents.media.control.mgcp.MgcpMessage;
-import org.mobicents.media.control.mgcp.MgcpMessageParser;
-import org.mobicents.media.control.mgcp.MgcpRequest;
-import org.mobicents.media.control.mgcp.MgcpResponse;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
 import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 

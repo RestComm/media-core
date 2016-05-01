@@ -19,54 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.message;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Represents an MGCP response.
+ * Represents Local Connection Options parameter of an MGCP message.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpResponse extends MgcpMessage {
+public class LocalConnectionOptions {
 
-    private String message;
-    private int code;
+    private static final int MAX_LENGTH = LocalConnectionOptionType.values().length;
 
-    public MgcpResponse() {
-        super();
-        this.message = "";
-        this.code = 0;
+    private final Map<LocalConnectionOptionType, String> options;
+
+    public LocalConnectionOptions() {
+        this.options = new HashMap<>(MAX_LENGTH);
     }
 
-    public String getMessage() {
-        return message;
+    public void add(LocalConnectionOptionType option, String value) {
+        this.options.put(option, value);
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public String remove(LocalConnectionOptionType option) {
+        return this.options.remove(option);
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    @Override
-    public boolean isRequest() {
-        return false;
-    }
-
-    /**
-     * Indicates whether response code is successful.
-     * 
-     * @return True is code lesser than 300; false otherwise.
-     * @see <a href="https://tools.ietf.org/html/rfc3435#section-2.4">RFC3435 - Section 2.4</a>
-     */
-    public boolean isSuccessful() {
-        return this.code <= 299;
+    public String get(LocalConnectionOptionType option) {
+        return this.options.get(option);
     }
 
 }

@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.listener;
 
-import org.mobicents.media.control.mgcp.MgcpTransaction;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransaction;
 
 /**
  * Listens for notifications on MGCP transaction execution.

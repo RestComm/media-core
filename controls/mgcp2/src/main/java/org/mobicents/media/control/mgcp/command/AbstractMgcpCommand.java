@@ -21,9 +21,8 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.MgcpCommand;
-import org.mobicents.media.control.mgcp.MgcpRequest;
-import org.mobicents.media.control.mgcp.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
 /**
  * Abstract implementation of MGCP command that forces a rollback operation when {@link MgcpCommand#execute(MgcpRequest)} fails.

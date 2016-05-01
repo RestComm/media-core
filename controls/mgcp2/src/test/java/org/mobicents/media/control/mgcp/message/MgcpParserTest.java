@@ -19,12 +19,17 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.message;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
+import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpRequestType;
+import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

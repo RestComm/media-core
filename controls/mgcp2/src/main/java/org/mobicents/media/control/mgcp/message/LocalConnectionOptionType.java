@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
         
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.message;
 
 /**
  * Enumeration of Local Connection options.
