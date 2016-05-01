@@ -74,12 +74,6 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             }
         }
         
-        // Modify Local Connection Options
-        String lcOptions = request.getParameter(MgcpParameterType.LOCAL_CONNECTION_OPTIONS);
-        if(lcOptions != null) {
-        }
-        
-        
         return null;
     }
 

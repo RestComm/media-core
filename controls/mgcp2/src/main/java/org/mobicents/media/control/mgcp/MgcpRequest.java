@@ -33,9 +33,11 @@ public class MgcpRequest extends MgcpMessage {
 
     private MgcpRequestType requestType;
     private String endpointId;
+    private final LocalConnectionOptions lcOptions;
 
     public MgcpRequest() {
         super();
+        this.lcOptions = new LocalConnectionOptions();
     }
 
     public MgcpRequestType getRequestType() {
@@ -52,6 +54,10 @@ public class MgcpRequest extends MgcpMessage {
 
     public void setEndpointId(String endpointId) {
         this.endpointId = endpointId;
+    }
+    
+    public LocalConnectionOptions getLocalConnectionOptions() {
+        return this.lcOptions;
     }
 
     @Override

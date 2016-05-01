@@ -59,6 +59,10 @@ public abstract class MgcpMessage {
         return this.parameters.get(type);
     }
     
+    public boolean hasParameter(MgcpParameterType type) {
+        return this.parameters.containsKey(type);
+    }
+    
     public void addParameter(MgcpParameterType type, String value) {
         this.parameters.put(type, value);
     }

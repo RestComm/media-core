@@ -33,6 +33,12 @@ import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 public class MgcpMessageParser {
 
     private static final Logger log = Logger.getLogger(MgcpMessageParser.class);
+    
+    private final LocalConnectionOptionsParser optionsParser;
+    
+    public MgcpMessageParser() {
+        this.optionsParser = new LocalConnectionOptionsParser();
+    }
 
     public MgcpRequest parseRequest(byte[] data, int offset, int length) throws MgcpParseException {
         return parseRequest(new String(data, offset, length));
@@ -74,6 +80,12 @@ public class MgcpMessageParser {
 
         // Set parameters and SDP
         parseParametersAndSdp(lines, request);
+        
+        // Parse Local Connection Options (if present)
+        String lcOptions = request.getParameter(MgcpParameterType.LOCAL_CONNECTION_OPTIONS);
+        if(lcOptions != null) {
+            this.optionsParser.parse(lcOptions);
+        }
     }
 
     public MgcpResponse parseResponse(byte[] data, int offset, int length) throws MgcpParseException {
@@ -118,7 +130,7 @@ public class MgcpMessageParser {
         parseParametersAndSdp(lines, response);
     }
 
-    private void parseParametersAndSdp(String[] lines, MgcpMessage message) {
+    private void parseParametersAndSdp(String[] lines, MgcpMessage message) throws Exception {
         // Get MGCP parameters and SDP
         StringBuilder sdpBuilder = new StringBuilder();
         boolean sdp = false;
