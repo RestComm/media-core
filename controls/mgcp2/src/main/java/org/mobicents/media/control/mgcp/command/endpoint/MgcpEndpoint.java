@@ -21,7 +21,8 @@
 
 package org.mobicents.media.control.mgcp.command.endpoint;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
+import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -41,19 +42,30 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 public interface MgcpEndpoint {
 
     /**
-     * Creates a new connection.
+     * Gets the endpoint identifier
      * 
-     * @return The newly created connection;
+     * @return The endpoint ID
      */
-    MgcpConnection createConnection();
+    String getEndpointId();
 
     /**
-     * Retrieves a connection associated with the endpoint.
+     * Creates a new connection.
      * 
-     * @param id The connection ID
-     * @return Returns the connection if it exists; otherwise returns null
+     * @param callId The the call identifies which indicates to which session the connection belongs to.
      */
-    MgcpConnection getConnection(int id);
+    void createConnection(int callId);
+
+    /**
+     * Modifies an existing connection.
+     * 
+     * @param callId The identifier of the call which the connection belongs to.
+     * @param connectionId The connection identifier
+     * @param notifiedEntity (optional) The new notified entity for the endpoint.
+     * @param options (optional) New options for the connection.
+     * @param mode (optional) The new connection mode.
+     */
+    void modifyConnection(int callId, int connectionId, String notifiedEntity, LocalConnectionOptions options,
+            MgcpConnectionMode mode);
 
     /**
      * Deletes an active connection.
@@ -68,17 +80,10 @@ public interface MgcpEndpoint {
     void deleteConnections();
 
     /**
-     * Activates the endpoint.
+     * Deletes all currently active connections within a specific call.
      * 
-     * @throws IllegalStateException If endpoint is already active
+     * @param callId the call identifier
      */
-    void activate() throws IllegalStateException;
-
-    /**
-     * Deactivates the endpoint.
-     * 
-     * @throws IllegalStateException If endpoint is already inactive
-     */
-    void deactivate();
+    void deleteConnections(int callId);
 
 }

@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.command.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -32,48 +33,68 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  *
  */
 public class CreateConnectionCommand extends AbstractMgcpCommand {
-    
+
     private static final Logger log = Logger.getLogger(CreateConnectionCommand.class);
-    
-    private static final char WILDCARD_ANY = '*';
+
+    private static final String WILDCARD_ANY = "*";
+    private static final String WILDCARD_ALL = "$";
+
+    // MGCP Components
+    private final MgcpEndpointManager endpointManager;
+
+    public CreateConnectionCommand(MgcpEndpointManager endpointManager) {
+        // MGCP Components
+        this.endpointManager = endpointManager;
+    }
 
     @Override
     protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
         String z2 = request.getParameter(MgcpParameterType.SECOND_ENDPOINT);
         String sdp = request.getParameter(MgcpParameterType.SDP);
-        
+
         // Z2 and SDP must not be together in same request
-        if(z2 != null && sdp != null) {
+        if (z2 != null && sdp != null) {
             throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), "Z2 and SDP present in message");
         }
-        
+
         // Call ID
         String callId = request.getParameter(MgcpParameterType.CALL_ID);
-        if(callId == null) {
+        if (callId == null) {
             throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), "Call ID (C) is not specified");
         }
-        
+
         // Connection Mode
         String mode = request.getParameter(MgcpParameterType.MODE);
-        if(mode == null) {
-            throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), "Connection Mode (M) not specified");
+        if (mode == null) {
+            throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(),
+                    "Connection Mode (M) not specified");
         }
-        
+
         // Endpoint Name
         String endpointId = request.getEndpointId().substring(0, request.getEndpointId().indexOf("@"));
-        if(endpointId.indexOf(WILDCARD_ANY) != -1) {
-            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), "Wildcard ALL (*) is not supported");
+        if (endpointId.indexOf(WILDCARD_ANY) != -1) {
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
+                    "Wildcard ALL (*) is not supported");
         }
-        
+
         // Secondary Endpoint Name
         String secondaryEndpointId = null;
-        if(z2 != null) {
+        if (z2 != null) {
             secondaryEndpointId = z2.substring(0, request.getEndpointId().indexOf("@"));
-            if(secondaryEndpointId.indexOf(WILDCARD_ANY) != -1) {
-                throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), "Wildcard ALL (*) is not supported");
+            if (secondaryEndpointId.indexOf(WILDCARD_ANY) != -1) {
+                throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
+                        "Wildcard ALL (*) is not supported");
             }
         }
-        
+
+        // Search primary endpoint
+        int indexOfAll = endpointId.indexOf(WILDCARD_ALL);
+        if (indexOfAll == -1) {
+            // TODO Search for specific endpoint
+        } else {
+            // TODO Create new endpoint for a specific names pace
+        }
+
         return null;
     }
 
@@ -86,7 +107,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     @Override
     protected void sendResponse(MgcpResponse response) {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
 }
