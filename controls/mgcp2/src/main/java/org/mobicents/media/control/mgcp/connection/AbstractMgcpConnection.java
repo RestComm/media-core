@@ -28,7 +28,7 @@ import org.mobicents.media.server.component.oob.OOBComponent;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractConnection implements MgcpConnection {
+public abstract class AbstractMgcpConnection implements MgcpConnection {
 
     // Connection State
     private final int identifier;
@@ -37,7 +37,7 @@ public abstract class AbstractConnection implements MgcpConnection {
     private volatile MgcpConnectionState state;
     private final Object stateLock;
 
-    public AbstractConnection(int identifier) {
+    public AbstractMgcpConnection(int identifier) {
         // Connection State
         this.identifier = identifier;
         this.hexIdentifier = Integer.toHexString(identifier);
