@@ -33,26 +33,18 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
 public abstract class AbstractMgcpCommand implements MgcpCommand {
 
     @Override
-    public void execute(MgcpRequest request) {
-        MgcpResponse response = null;
+    public MgcpResponse execute(MgcpRequest request) {
+        MgcpResponse response;
         try {
             response = executeRequest(request);
-            if (response != null) {
-                sendResponse(response);
-            }
         } catch (MgcpCommandException e) {
-            response = rollback(e.getCode(), e.getMessage());
-        } finally {
-            if(response != null) {
-                sendResponse(response);
-            }
+            response = rollback(request.getTransactionId(), e.getCode(), e.getMessage());
         }
+        return response;
     }
 
     protected abstract MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException;
 
-    protected abstract MgcpResponse rollback(int code, String message);
-
-    protected abstract void sendResponse(MgcpResponse response);
+    protected abstract MgcpResponse rollback(int transactionId, int code, String message);
 
 }

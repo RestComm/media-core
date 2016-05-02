@@ -35,7 +35,7 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpParserTest {
+public class MgcpMessageParserTest {
 
     @Test
     public void testParseCrcxRequest() {

@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command.endpoint;
 
+import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 
@@ -52,8 +53,9 @@ public interface MgcpEndpoint {
      * Creates a new connection.
      * 
      * @param callId The the call identifies which indicates to which session the connection belongs to.
+     * @param local Whether connection is local or remote
      */
-    void createConnection(int callId);
+    MgcpConnection createConnection(int callId, boolean local);
 
     /**
      * Modifies an existing connection.

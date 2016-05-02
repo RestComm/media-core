@@ -53,7 +53,7 @@ public class MgcpEndpointManager {
     public void uninstallProvider(String namespace) {
         this.providers.remove(namespace);
     }
-    
+
     public boolean supportsNamespace(String namespace) {
         return this.providers.containsKey(namespace);
     }
@@ -74,6 +74,16 @@ public class MgcpEndpointManager {
         MgcpEndpoint endpoint = provider.provide();
         this.endpoints.put(endpoint.getEndpointId(), endpoint);
         return endpoint;
+    }
+
+    /**
+     * Gets a registered endpoint.
+     * 
+     * @param endpointId The endpoint identifier.
+     * @return The endpoint if registered; otherwise returns null
+     */
+    public MgcpEndpoint getEndpoint(String endpointId) {
+        return this.endpoints.get(endpointId);
     }
 
     /**

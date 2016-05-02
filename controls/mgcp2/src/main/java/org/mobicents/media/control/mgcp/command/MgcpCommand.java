@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
 /**
  * Represents an MGCP action that can be executed.
@@ -37,6 +38,6 @@ public interface MgcpCommand {
      * @param request The MGCP request to be executed
      * @return The response of the execution. Depending on its return code, the response can be successful or not.
      */
-    public void execute(MgcpRequest request);
+    MgcpResponse execute(MgcpRequest request);
 
 }

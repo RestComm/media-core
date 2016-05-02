@@ -115,6 +115,7 @@ public class MgcpEndpointManagerTest {
 
         // then
         assertEquals(bridgeEndpoint, endpoint);
+        assertEquals(bridgeEndpoint, endpointManager.getEndpoint(bridgeEndpoint.getEndpointId()));
     }
 
     @Test(expected=UnrecognizedMgcpNamespaceException.class)
