@@ -64,5 +64,11 @@ public class MgcpRequest extends MgcpMessage {
     public boolean isRequest() {
         return true;
     }
+    
+    @Override
+    public String toString() {
+        // TODO Encode message
+        return null;
+    }
 
 }

@@ -27,9 +27,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.network.MgcpChannel;
 
 /**
  * Manages a group of MGCP transactions.
@@ -39,80 +42,76 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  */
 public class MgcpTransactionManager implements MgcpTransactionListener {
 
-    private final AtomicInteger idGenerator;
+    // MGCP Components
     private final MgcpCommandProvider commandProvider;
+    private final MgcpChannel channel;
+
+    // MGCP Transaction Manager
     private final Map<Integer, MgcpTransaction> transactions;
-    
+    private final AtomicInteger idGenerator;
     private final int minId;
     private final int maxId;
 
-    public MgcpTransactionManager(int minId, int maxId) {
-        this.idGenerator = new AtomicInteger(minId);
+    public MgcpTransactionManager(int minId, int maxId, MgcpChannel channel) {
+        // MGCP Components
         this.commandProvider = new MgcpCommandProvider();
+        this.channel = channel;
+
+        // MGCP Transaction Manager
+        this.idGenerator = new AtomicInteger(minId);
         this.transactions = new ConcurrentHashMap<>(500);
         this.minId = minId;
         this.maxId = maxId;
     }
-    
+
     private synchronized void verifyIdRange() {
-        if(this.idGenerator.get() > maxId) {
+        if (this.idGenerator.get() > maxId) {
             this.idGenerator.set(this.minId);
         }
     }
-    
+
     private int generateId() {
         verifyIdRange();
         return this.idGenerator.getAndIncrement();
     }
-    
-    public boolean isLocal(int transactionId) {
+
+    private boolean isLocal(int transactionId) {
         return transactionId >= this.minId && transactionId <= this.maxId;
     }
 
-    public MgcpTransaction createTransaction() {
-        MgcpTransaction transaction = new MgcpTransaction(this.commandProvider);
+    private MgcpTransaction createTransaction() {
+        return createTransaction(generateId());
+    }
+
+    private MgcpTransaction createTransaction(int transactionId) {
+        MgcpTransaction transaction = new MgcpTransaction(this.commandProvider, this.channel, this);
         transaction.setId(generateId());
-        transaction.setListener(this);
         return transaction;
     }
-    
-    public MgcpTransaction findTransaction(int transactionId) {
+
+    private MgcpTransaction findTransaction(int transactionId) {
         return this.transactions.get(transactionId);
     }
-
-    public void process(MgcpMessage message) {
-        if (message.isRequest()) {
-            processRequest((MgcpRequest) message);
-        } else {
-            processResponse((MgcpResponse) message);
-        }
-    }
-
-    public void processRequest(MgcpRequest request) {
-        int transactionId = request.getTransactionId();
-
-        if (this.transactions.containsKey(transactionId)) {
-            // TODO send erroneous response
-        } else {
-            // Create new transaction
+    
+    public void process(MgcpMessage message, MessageDirection direction) {
+        int transactionId = message.getTransactionId();
+        
+        if(message.isRequest()) {
+            // Create new transaction to process incoming request
             MgcpTransaction transaction = createTransaction();
-            this.transactions.put(transactionId, transaction);
-            // Execute request
-            transaction.process(request);
-        }
-    }
-
-    public void processResponse(MgcpResponse response) {
-        // Fetch ongoing transaction
-        int transactionId = response.getTransactionId();
-        MgcpTransaction transaction = this.transactions.get(response.getTransactionId());
-
-        // Terminate transaction
-        if (transaction == null) {
-            // TODO send erroneous message
+            transaction.processRequest((MgcpRequest) message, MessageDirection.INBOUND);
         } else {
-            transaction.process(response);
-            this.transactions.remove(transactionId);
+            MgcpTransaction transaction = findTransaction(transactionId);
+            if(transaction == null) {
+                // Send erroneous response
+                MgcpResponse response = new MgcpResponse();
+                response.setTransactionId(transactionId);
+                response.setCode(MgcpResponseCode.PROTOCOL_ERROR.code());
+                response.setMessage("Transaction " + transactionId + " was aborted and no longer exists");
+                this.channel.queue(response.toString().getBytes());
+            } else {
+                transaction.processResponse((MgcpResponse) message);
+            }
         }
     }
 

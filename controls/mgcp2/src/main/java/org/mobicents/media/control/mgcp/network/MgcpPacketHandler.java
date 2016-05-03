@@ -88,7 +88,7 @@ public class MgcpPacketHandler implements PacketHandler {
         }
         
         // Warn listener packet was decoded
-        this.listener.onMgcpMessage(message);
+        this.listener.onMessageReceived(message);
         return null;
     }
 

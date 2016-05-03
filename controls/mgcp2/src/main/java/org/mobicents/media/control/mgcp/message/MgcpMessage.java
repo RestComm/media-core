@@ -77,4 +77,7 @@ public abstract class MgcpMessage {
     
     public abstract boolean isRequest();
     
+    @Override
+    public abstract String toString();
+    
 }

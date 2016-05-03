@@ -26,8 +26,6 @@ import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
@@ -38,7 +36,7 @@ import org.mobicents.media.server.io.network.channel.PacketHandler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannel extends MultiplexedChannel implements MgcpMessageListener {
+public class MgcpChannel extends MultiplexedChannel {
 
     private static final Logger log = Logger.getLogger(MgcpChannel.class);
 
@@ -114,12 +112,6 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageListen
         } else {
             throw new IllegalStateException("Channel is closed");
         }
-    }
-
-    @Override
-    public void onMgcpMessage(MgcpMessage request) {
-        // TODO Auto-generated method stub
-
     }
 
 }

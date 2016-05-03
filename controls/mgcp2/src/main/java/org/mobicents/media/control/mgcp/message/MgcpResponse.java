@@ -68,5 +68,11 @@ public class MgcpResponse extends MgcpMessage {
     public boolean isSuccessful() {
         return this.code <= 299;
     }
+    
+    @Override
+    public String toString() {
+        // TODO Encode message
+        return null;
+    }
 
 }

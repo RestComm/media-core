@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
@@ -56,7 +57,7 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
         this.messageParser = new MgcpMessageParser();
         this.packetHandler = new MgcpPacketHandler(this.messageParser, this);
         this.channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
-        this.transactions = new MgcpTransactionManager(minTransactionId, maxTransactionId);
+        this.transactions = new MgcpTransactionManager(minTransactionId, maxTransactionId, this.channel);
 
         // MGCP Controller State
         this.active = false;
@@ -80,7 +81,6 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
                 // TODO throw exception
             }
         }
-
     }
 
     @Override
@@ -111,9 +111,11 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     }
 
     @Override
-    public void onMgcpMessage(MgcpMessage message) {
-        // Process incoming message in a transaction
-        this.transactions.process(message);
+    public void onMessageReceived(MgcpMessage message) {
+        // Ask the transaction manager to process the incoming message
+        // If message is a Request, then a new transaction is spawned and executed.
+        // If message is a Response, then existing transaction is retrieved and closed.
+        this.transactions.process(message, MessageDirection.INBOUND);
     }
 
 }

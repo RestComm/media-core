@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.listener;
 
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
 
 /**
  * Listener that receives notifications upon MGCP Command completion.
@@ -31,6 +31,6 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  */
 public interface MgcpCommandListener {
 
-    void onMgcpRequestComplete(MgcpResponse response);
+    void onCommandComplete(MgcpMessage response);
 
 }

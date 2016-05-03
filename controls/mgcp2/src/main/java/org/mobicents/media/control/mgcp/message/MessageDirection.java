@@ -19,18 +19,21 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
+package org.mobicents.media.control.mgcp.message;
 
 /**
- * Listens to incoming MGCP packets.
+ * Indicates the direction of an MGCP message.
+ * 
+ * <p>
+ * An INBOUND message arrives from a remote peer.<br>
+ * An OUTBOUND message must be sent from the Media Server to the remote peer.
+ * </p>
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpMessageListener {
+public enum MessageDirection {
 
-    void onMessageReceived(MgcpMessage message);
+    INBOUND, OUTBOUND;
 
 }
