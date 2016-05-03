@@ -32,7 +32,7 @@ import org.mobicents.media.control.mgcp.message.MgcpRequestType;
  */
 public class MgcpCommandProvider {
 
-    public AbstractMgcpCommand provide(MgcpRequest request) {
+    public MgcpCommand provide(MgcpRequest request) {
         MgcpRequestType type = request.getRequestType();
 
         switch (type) {

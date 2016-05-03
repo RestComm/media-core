@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import org.mobicents.media.control.mgcp.command.AbstractMgcpCommand;
+import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
@@ -41,7 +41,6 @@ public class MgcpTransaction implements MgcpCommandListener {
     private final MgcpCommandProvider commands;
     private final MgcpChannel channel;
     private final MgcpTransactionListener listener;
-    
 
     // MGCP Transaction State
     private int id;
@@ -66,7 +65,7 @@ public class MgcpTransaction implements MgcpCommandListener {
     public int getId() {
         return id;
     }
-    
+
     public String getHexId() {
         return hexId;
     }
@@ -75,7 +74,7 @@ public class MgcpTransaction implements MgcpCommandListener {
         this.id = id;
         this.hexId = Integer.toHexString(id);
     }
-    
+
     private void sendMessage(MgcpMessage message) {
         byte[] data = message.toString().getBytes();
         this.channel.queue(data);
@@ -92,7 +91,7 @@ public class MgcpTransaction implements MgcpCommandListener {
         switch (direction) {
             case INBOUND:
                 // Execute incoming MGCP request
-                AbstractMgcpCommand command = this.commands.provide(request);
+                MgcpCommand command = this.commands.provide(request);
                 command.execute(request);
                 // Transaction must now listen for onCommandComplete event
                 break;
@@ -113,16 +112,17 @@ public class MgcpTransaction implements MgcpCommandListener {
         }
 
         this.response = response;
+        if (MessageDirection.INBOUND.equals(this.direction)) {
+            // Command finished executing inbound request
+            // Time to send response to the remote peer
+            sendMessage(response);
+        }
         this.listener.onTransactionComplete(this);
     }
 
     @Override
-    public void onCommandComplete(MgcpMessage message) {
-        if (MessageDirection.INBOUND.equals(this.direction)) {
-            // Command finished executing inbound request
-            // Time to send response to the remote peer
-            sendMessage(message);
-        }
+    public void onCommandComplete(MgcpResponse response) {
+        processResponse(response);
     }
 
 }
