@@ -46,8 +46,7 @@ public class MgcpTransaction implements MgcpCommandListener {
     private int id;
     private String hexId;
     private MessageDirection direction;
-    private MgcpRequest request;
-    private MgcpResponse response;
+    private MgcpTransactionState state;
 
     public MgcpTransaction(MgcpCommandProvider commands, MgcpChannel channel, MgcpTransactionListener listener) {
         // MGCP Components
@@ -58,8 +57,7 @@ public class MgcpTransaction implements MgcpCommandListener {
         // MGCP Transaction State
         this.id = 0;
         this.direction = null;
-        this.request = null;
-        this.response = null;
+        this.state = MgcpTransactionState.IDLE;
     }
 
     public int getId() {
@@ -74,6 +72,10 @@ public class MgcpTransaction implements MgcpCommandListener {
         this.id = id;
         this.hexId = Integer.toHexString(id);
     }
+    
+    public MgcpTransactionState getState() {
+        return state;
+    }
 
     private void sendMessage(MgcpMessage message) {
         byte[] data = message.toString().getBytes();
@@ -81,47 +83,55 @@ public class MgcpTransaction implements MgcpCommandListener {
     }
 
     public void processRequest(MgcpRequest request, MessageDirection direction) throws IllegalStateException {
-        if (this.request != null) {
-            throw new IllegalStateException("Transaction is already processing a request.");
-        }
+        switch (this.state) {
+            case IDLE:
+                this.direction = direction;
+                this.state = MgcpTransactionState.EXECUTING_REQUEST;
 
-        this.request = request;
-        this.direction = direction;
+                switch (direction) {
+                    case INBOUND:
+                        // Execute incoming MGCP request
+                        MgcpCommand command = this.commands.provide(request);
+                        command.execute(request);
+                        // Transaction must now listen for onCommandComplete event
+                        break;
 
-        switch (direction) {
-            case INBOUND:
-                // Execute incoming MGCP request
-                MgcpCommand command = this.commands.provide(request);
-                command.execute(request);
-                // Transaction must now listen for onCommandComplete event
-                break;
+                    case OUTBOUND:
+                        // Send the request to the remote peer right now and wait for the response
+                        sendMessage(request);
+                        this.state = MgcpTransactionState.WAITING_RESPONSE;
+                        break;
 
-            case OUTBOUND:
-                // Send the request to the remote peer right now and wait for the response
-                sendMessage(request);
+                    default:
+                        throw new IllegalArgumentException("Unknown message direction: " + direction);
+                }
                 break;
 
             default:
-                throw new IllegalArgumentException("Unknown message direction: " + direction);
+                throw new IllegalStateException("Request cannot be processed because transaction is already " + this.state);
         }
     }
 
     public void processResponse(MgcpResponse response) throws IllegalStateException {
-        if (this.request == null) {
-            throw new IllegalStateException("Transaction has not yet proccessed a request.");
-        }
+        switch (this.state) {
+            case WAITING_RESPONSE:
+                this.state = MgcpTransactionState.COMPLETED;
+                if (MessageDirection.INBOUND.equals(this.direction)) {
+                    // Command finished executing inbound request
+                    // Time to send response to the remote peer
+                    sendMessage(response);
+                }
+                this.listener.onTransactionComplete(this);
+                break;
 
-        this.response = response;
-        if (MessageDirection.INBOUND.equals(this.direction)) {
-            // Command finished executing inbound request
-            // Time to send response to the remote peer
-            sendMessage(response);
+            default:
+                throw new IllegalStateException("Request cannot be processed because transaction is " + this.state);
         }
-        this.listener.onTransactionComplete(this);
     }
 
     @Override
     public void onCommandComplete(MgcpResponse response) {
+        this.state = MgcpTransactionState.WAITING_RESPONSE;
         processResponse(response);
     }
 

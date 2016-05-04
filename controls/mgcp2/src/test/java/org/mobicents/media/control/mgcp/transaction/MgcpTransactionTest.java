@@ -63,12 +63,18 @@ public class MgcpTransactionTest {
         when(commands.provide(request)).thenReturn(command);
         when(command.execute(request)).thenReturn(response);
         transaction.processRequest(request, MessageDirection.INBOUND);
-        transaction.onCommandComplete(response);
-
+        
         // then
         assertEquals(12345, transaction.getId());
         assertEquals(Integer.toHexString(12345), transaction.getHexId());
         verify(command, times(1)).execute(request);
+        assertEquals(MgcpTransactionState.EXECUTING_REQUEST, transaction.getState());
+        
+        // when - Command finishes executing
+        transaction.onCommandComplete(response);
+
+        // then
+        assertEquals(MgcpTransactionState.COMPLETED, transaction.getState());
         verify(listener, times(1)).onTransactionComplete(transaction);
         verify(channel, times(1)).queue(RESPONSE.getBytes());
     }
@@ -88,17 +94,23 @@ public class MgcpTransactionTest {
         // when - process outbound request
         when(request.toString()).thenReturn(REQUEST);
         transaction.processRequest(request, MessageDirection.OUTBOUND);
-        transaction.processResponse(response);
-
+        
         // then
         assertEquals(12345, transaction.getId());
         assertEquals(Integer.toHexString(12345), transaction.getHexId());
+        assertEquals(MgcpTransactionState.WAITING_RESPONSE, transaction.getState());
         verify(channel, times(1)).queue(REQUEST.getBytes());
+        
+        // when - response arrives
+        transaction.processResponse(response);
+        
+        // then
+        assertEquals(MgcpTransactionState.COMPLETED, transaction.getState());
         verify(listener, times(1)).onTransactionComplete(transaction);
     }
     
     @Test(expected=IllegalStateException.class)
-    public void testIncomingResponseWithNoRequestProcessed() {
+    public void testResponseWhileTransactionIsIdle() {
         // given
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
@@ -113,7 +125,7 @@ public class MgcpTransactionTest {
     }
     
     @Test(expected=IllegalStateException.class)
-    public void testRequestOverlap() {
+    public void testRequestWhileTransactionIsExecuting() {
         // given
         MgcpRequest request1 = mock(MgcpRequest.class);
         MgcpRequest request2 = mock(MgcpRequest.class);
@@ -129,6 +141,25 @@ public class MgcpTransactionTest {
         when(commands.provide(request1)).thenReturn(command);
         transaction.processRequest(request1, MessageDirection.INBOUND);
         transaction.processRequest(request2, MessageDirection.INBOUND);
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testResponseWhileTransactionIsExecuting() {
+        // given
+        MgcpRequest request = mock(MgcpRequest.class);
+        MgcpResponse response = mock(MgcpResponse.class);
+        MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        MgcpCommand command = mock(MgcpCommand.class);
+        MgcpChannel channel = mock(MgcpChannel.class);
+        MgcpTransactionListener listener = mock(MgcpTransactionListener.class);
+        
+        MgcpTransaction transaction = new MgcpTransaction(commands, channel, listener);
+        transaction.setId(12345);
+        
+        // when - process incoming request
+        when(commands.provide(request)).thenReturn(command);
+        transaction.processRequest(request, MessageDirection.INBOUND);
+        transaction.processResponse(response);
     }
 
 }
