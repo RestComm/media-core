@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command.endpoint;
+package org.mobicents.media.control.mgcp.endpoint;
 
 import java.util.concurrent.ConcurrentHashMap;
 

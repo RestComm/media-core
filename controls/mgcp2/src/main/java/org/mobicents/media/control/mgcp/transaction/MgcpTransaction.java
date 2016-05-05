@@ -130,7 +130,7 @@ public class MgcpTransaction implements MgcpCommandListener {
     }
 
     @Override
-    public void onCommandComplete(MgcpResponse response) {
+    public void onCommandExecuted(MgcpResponse response) {
         this.state = MgcpTransactionState.WAITING_RESPONSE;
         processResponse(response);
     }

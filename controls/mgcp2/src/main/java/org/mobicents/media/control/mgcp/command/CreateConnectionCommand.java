@@ -21,10 +21,10 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.command.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.command.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;

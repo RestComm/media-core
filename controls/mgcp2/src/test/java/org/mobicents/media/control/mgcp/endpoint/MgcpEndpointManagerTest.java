@@ -28,9 +28,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.command.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.command.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.command.endpoint.MgcpEndpointProvider;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 
 /**

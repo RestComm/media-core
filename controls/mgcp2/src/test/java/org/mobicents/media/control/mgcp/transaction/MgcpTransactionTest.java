@@ -71,7 +71,7 @@ public class MgcpTransactionTest {
         assertEquals(MgcpTransactionState.EXECUTING_REQUEST, transaction.getState());
         
         // when - Command finishes executing
-        transaction.onCommandComplete(response);
+        transaction.onCommandExecuted(response);
 
         // then
         assertEquals(MgcpTransactionState.COMPLETED, transaction.getState());

@@ -31,6 +31,6 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  */
 public interface MgcpCommandListener {
 
-    void onCommandComplete(MgcpResponse response);
+    void onCommandExecuted(MgcpResponse response);
 
 }
