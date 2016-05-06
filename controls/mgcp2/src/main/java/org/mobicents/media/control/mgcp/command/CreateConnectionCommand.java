@@ -102,7 +102,6 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     }
 
     private void executeCommand() throws MgcpCommandException {
-
         if (this.endpoint2 == null) {
             // Create one connection between endpoint and remote peer
             this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), false);
@@ -111,14 +110,16 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         } else {
             // Create two local connections between both endpoints
             this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), true);
-            this.connection2 = endpoint2.createConnection(Integer.parseInt(callId), true);
-            // TODO Join local connections
-            // connection1.open(null);
-            // connection2.open(null);
+            // TODO Build SDP for local connections - https://tools.ietf.org/html/rfc3435#section-3.4.2
+            String sdpConnection1 = "";
+            connection1.open(sdpConnection1);
             this.connection1.setMode(mode);
+
+            this.connection2 = endpoint2.createConnection(Integer.parseInt(callId), true);
+            // TODO Build SDP for local connections - https://tools.ietf.org/html/rfc3435#section-3.4.2
+            String sdpConnection2 = "";
+            connection2.open(sdpConnection2);
             this.connection2.setMode(MgcpConnectionMode.SEND_RECV);
-            // connection1.join(endpoint2);
-            // connection2.join(endpoint1);
         }
     }
 
