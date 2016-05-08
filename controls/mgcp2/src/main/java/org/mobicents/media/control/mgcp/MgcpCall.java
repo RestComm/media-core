@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -31,7 +33,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
  *
  */
 public class MgcpCall {
-    
+
     private static final Logger log = Logger.getLogger(MgcpCall.class);
 
     private final int id;
@@ -50,6 +52,10 @@ public class MgcpCall {
     public int getId() {
         return id;
     }
+    
+    public boolean hasConnections() {
+        return !this.connections.isEmpty();
+    }
 
     /**
      * Gets a registered connection.
@@ -57,7 +63,7 @@ public class MgcpCall {
      * @param connectionId The connection ID
      * @return The connection with matching ID or null if no connection matches the criteria.
      */
-    public MgcpConnection getConnection(String connectionId) {
+    public MgcpConnection getConnection(int connectionId) {
         return this.connections.get(connectionId);
     }
 
@@ -75,7 +81,7 @@ public class MgcpCall {
         if (oldConnection != null) {
             throw new IllegalArgumentException("Conection " + connectionId + " is already registered in call " + this.id);
         } else {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Registered connection " + connectionId + " to call " + this.id);
             }
         }
@@ -89,12 +95,22 @@ public class MgcpCall {
      */
     public MgcpConnection removeConnection(int connectionId) {
         MgcpConnection connection = this.connections.remove(connectionId);
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Unregistered connection " + connectionId + " from call " + this.id);
-        }        
+        }
         // TODO alert listener that call has ended if connections == 0
         return connection;
-        
+    }
+
+    /**
+     * Unregisters all connections from the call.
+     * 
+     * @return The list of unregistered connections.
+     */
+    public List<MgcpConnection> removeConnections() {
+        ArrayList<MgcpConnection> values = new ArrayList<>(this.connections.values());
+        this.connections.clear();
+        return values;
     }
 
 }

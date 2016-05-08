@@ -23,7 +23,8 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
-import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -50,31 +51,74 @@ public interface MgcpEndpoint {
     String getEndpointId();
 
     /**
-     * Creates a new connection.
+     * Creates a new Remote Connection.
+     * 
+     * <p>
+     * The connection will be half-open and a Local Connection Description is generated.
+     * </p>
+     * 
+     * @param callId The call identifies which indicates to which session the connection belongs to.
+     * @param mode The connection mode.
+     * 
+     * @return The new connection
+     */
+    MgcpConnection createConnection(int callId, MgcpConnectionMode mode);
+
+    /**
+     * Creates a new Remote Connection.
+     * 
+     * <p>
+     * The connection will be fully open and connected to the remote peer.<br>
+     * A Local Connection Description is generated.
+     * </p>
      * 
      * @param callId The the call identifies which indicates to which session the connection belongs to.
-     * @param local Whether connection is local or remote
+     * @param mode The connection mode.
+     * @param remoteDescription The description of the remote connection.
+     * 
+     * @return The new connection
      */
-    MgcpConnection createConnection(int callId, boolean local);
+    MgcpConnection createConnection(int callId, MgcpConnectionMode mode, String remoteDescription);
+
+    /**
+     * Creates a new Local Connection.
+     * 
+     * <p>
+     * The connection will be fully open and connected to a secondary endpoint.<br>
+     * </p>
+     * 
+     * @param callId The the call identifies which indicates to which session the connection belongs to.
+     * @param mode The connection mode.
+     * @param secondEndpoint The secondary endpoint to connect to.
+     * 
+     * @return The new connection
+     */
+    MgcpConnection createConnection(int callId, MgcpConnectionMode mode, MgcpEndpoint secondEndpoint);
 
     /**
      * Modifies an existing connection.
      * 
      * @param callId The identifier of the call which the connection belongs to.
      * @param connectionId The connection identifier
-     * @param notifiedEntity (optional) The new notified entity for the endpoint.
-     * @param options (optional) New options for the connection.
      * @param mode (optional) The new connection mode.
+     * @param remoteDescription (optional) The session description of the remote peer.
+     * 
+     * @return An updated local session descriptor, if there were any changes. Otherwise, returns null.
+     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
+     * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
      */
-    void modifyConnection(int callId, int connectionId, String notifiedEntity, LocalConnectionOptions options,
-            MgcpConnectionMode mode);
+    String modifyConnection(int callId, int connectionId, MgcpConnectionMode mode, String remoteDescription)
+            throws MgcpCallNotFoundException, MgcpConnectionNotFound;
 
     /**
      * Deletes an active connection.
      * 
-     * @param id The connection ID
+     * @param callId The ID of the call where the connection is stored.
+     * @param connectionId The connection ID
+     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
+     * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
      */
-    void deleteConnection(int id);
+    void deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound;
 
     /**
      * Deletes all currently active connections.
@@ -85,7 +129,8 @@ public interface MgcpEndpoint {
      * Deletes all currently active connections within a specific call.
      * 
      * @param callId the call identifier
+     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
      */
-    void deleteConnections(int callId);
+    void deleteConnections(int callId) throws MgcpCallNotFoundException;
 
 }

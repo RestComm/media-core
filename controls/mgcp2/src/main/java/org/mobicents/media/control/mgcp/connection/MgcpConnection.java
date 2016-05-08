@@ -21,6 +21,9 @@
 
 package org.mobicents.media.control.mgcp.connection;
 
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
+
 /**
  * Connections are created on each endpoint that will be involved in the call.
  * <p>
@@ -116,5 +119,19 @@ public interface MgcpConnection {
      * @throws IllegalStateException If connection state is not half-open nor open.
      */
     void close() throws IllegalStateException;
+
+    /**
+     * Gets the in-band audio component of the connection.
+     * 
+     * @return The in-band media component
+     */
+    AudioComponent getAudioComponent();
+
+    /**
+     * Gets the out-of-band audio component of the connection.
+     * 
+     * @return The out-of-band media component
+     */
+    OOBComponent getOutOfBandComponent();
 
 }

@@ -104,22 +104,22 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private void executeCommand() throws MgcpCommandException {
         if (this.endpoint2 == null) {
             // Create one connection between endpoint and remote peer
-            this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), false);
+            // this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), false);
             // TODO set call agent
-            this.localSdp = (this.remoteSdp == null) ? connection1.halfOpen() : connection1.open(this.remoteSdp);
+            // this.localSdp = (this.remoteSdp == null) ? connection1.halfOpen() : connection1.open(this.remoteSdp);
         } else {
             // Create two local connections between both endpoints
-            this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), true);
+            // this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), true);
             // TODO Build SDP for local connections - https://tools.ietf.org/html/rfc3435#section-3.4.2
-            String sdpConnection1 = "";
-            connection1.open(sdpConnection1);
-            this.connection1.setMode(mode);
+            // String sdpConnection1 = "";
+            // connection1.open(sdpConnection1);
+            // this.connection1.setMode(mode);
 
-            this.connection2 = endpoint2.createConnection(Integer.parseInt(callId), true);
+            // this.connection2 = endpoint2.createConnection(Integer.parseInt(callId), true);
             // TODO Build SDP for local connections - https://tools.ietf.org/html/rfc3435#section-3.4.2
-            String sdpConnection2 = "";
-            connection2.open(sdpConnection2);
-            this.connection2.setMode(MgcpConnectionMode.SEND_RECV);
+            // String sdpConnection2 = "";
+            // connection2.open(sdpConnection2);
+            // this.connection2.setMode(MgcpConnectionMode.SEND_RECV);
         }
     }
 
@@ -188,13 +188,13 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
     @Override
     protected MgcpResponse rollback(int transactionId, int code, String message) {
-        if (endpoint1 != null && connection1 != null) {
-            endpoint1.deleteConnection(connection1.getIdentifier());
-        }
-
-        if (endpoint2 != null && connection2 != null) {
-            endpoint2.deleteConnection(connection2.getIdentifier());
-        }
+        // if (endpoint1 != null && connection1 != null) {
+        // endpoint1.deleteConnection(connection1.getIdentifier());
+        // }
+        //
+        // if (endpoint2 != null && connection2 != null) {
+        // endpoint2.deleteConnection(connection2.getIdentifier());
+        // }
 
         MgcpResponse response = new MgcpResponse();
         response.setCode(code);
