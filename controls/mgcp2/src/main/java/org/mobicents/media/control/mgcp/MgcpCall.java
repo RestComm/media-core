@@ -56,6 +56,10 @@ public class MgcpCall {
     public boolean hasConnections() {
         return !this.connections.isEmpty();
     }
+    
+    public int countConnections() {
+        return this.connections.size();
+    }
 
     /**
      * Gets a registered connection.
@@ -95,7 +99,7 @@ public class MgcpCall {
      */
     public MgcpConnection removeConnection(int connectionId) {
         MgcpConnection connection = this.connections.remove(connectionId);
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && connection != null) {
             log.debug("Unregistered connection " + connectionId + " from call " + this.id);
         }
         // TODO alert listener that call has ended if connections == 0
