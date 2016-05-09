@@ -21,6 +21,9 @@
         
 package org.mobicents.media.control.mgcp.connection;
 
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -79,6 +82,18 @@ public class MgcpRemoteConnection implements MgcpConnection {
     public void close() throws IllegalStateException {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public AudioComponent getAudioComponent() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public OOBComponent getOutOfBandComponent() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

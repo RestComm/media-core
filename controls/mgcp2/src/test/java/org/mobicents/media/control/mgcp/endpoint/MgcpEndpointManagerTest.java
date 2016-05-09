@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointProvider;
+import org.mobicents.media.control.mgcp.endpoint.AbstractMgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 
 /**
@@ -47,8 +47,8 @@ public class MgcpEndpointManagerTest {
     public void testInstallProvider() {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
-        MgcpEndpointProvider<?> bridgeProvider = mock(MgcpEndpointProvider.class);
-        MgcpEndpointProvider<?> ivrProvider = mock(MgcpEndpointProvider.class);
+        AbstractMgcpEndpointProvider<?> bridgeProvider = mock(AbstractMgcpEndpointProvider.class);
+        AbstractMgcpEndpointProvider<?> ivrProvider = mock(AbstractMgcpEndpointProvider.class);
 
         // when
         when(bridgeProvider.getNamespace()).thenReturn(NAMESPACE_BRIDGE);
@@ -67,8 +67,8 @@ public class MgcpEndpointManagerTest {
     public void testInstallDuplicateProvider() {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
-        MgcpEndpointProvider<?> bridgeProvider1 = mock(MgcpEndpointProvider.class);
-        MgcpEndpointProvider<?> bridgeProvider2 = mock(MgcpEndpointProvider.class);
+        AbstractMgcpEndpointProvider<?> bridgeProvider1 = mock(AbstractMgcpEndpointProvider.class);
+        AbstractMgcpEndpointProvider<?> bridgeProvider2 = mock(AbstractMgcpEndpointProvider.class);
         
         // when
         when(bridgeProvider1.getNamespace()).thenReturn(NAMESPACE_BRIDGE);
@@ -82,8 +82,8 @@ public class MgcpEndpointManagerTest {
     public void testUninstallProvider() {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
-        MgcpEndpointProvider<?> bridgeProvider = mock(MgcpEndpointProvider.class);
-        MgcpEndpointProvider<?> ivrProvider = mock(MgcpEndpointProvider.class);
+        AbstractMgcpEndpointProvider<?> bridgeProvider = mock(AbstractMgcpEndpointProvider.class);
+        AbstractMgcpEndpointProvider<?> ivrProvider = mock(AbstractMgcpEndpointProvider.class);
 
         // when
         when(bridgeProvider.getNamespace()).thenReturn(NAMESPACE_BRIDGE);
@@ -104,7 +104,7 @@ public class MgcpEndpointManagerTest {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
         MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
-        MgcpEndpointProvider<MgcpEndpoint> bridgeProvider = mock(MgcpEndpointProvider.class);
+        AbstractMgcpEndpointProvider<MgcpEndpoint> bridgeProvider = mock(AbstractMgcpEndpointProvider.class);
 
         // when
         when(bridgeProvider.getNamespace()).thenReturn(NAMESPACE_BRIDGE);

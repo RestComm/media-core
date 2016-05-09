@@ -22,6 +22,8 @@
 package org.mobicents.media.control.mgcp.connection;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -83,6 +85,18 @@ public class MgcpLocalConnection implements MgcpConnection {
     
     public void join(MgcpEndpoint endpoint) {
         // TODO implement LocalConnection.join
+    }
+
+    @Override
+    public AudioComponent getAudioComponent() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public OOBComponent getOutOfBandComponent() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

@@ -35,15 +35,15 @@ import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceExcep
 public class MgcpEndpointManager {
 
     private final ConcurrentHashMap<String, MgcpEndpoint> endpoints;
-    private final ConcurrentHashMap<String, MgcpEndpointProvider<?>> providers;
+    private final ConcurrentHashMap<String, AbstractMgcpEndpointProvider<?>> providers;
 
     public MgcpEndpointManager() {
         this.endpoints = new ConcurrentHashMap<>(100);
         this.providers = new ConcurrentHashMap<>(5);
     }
 
-    public void installProvider(MgcpEndpointProvider<?> provider) throws IllegalArgumentException {
-        MgcpEndpointProvider<?> old = this.providers.putIfAbsent(provider.getNamespace(), provider);
+    public void installProvider(AbstractMgcpEndpointProvider<?> provider) throws IllegalArgumentException {
+        AbstractMgcpEndpointProvider<?> old = this.providers.putIfAbsent(provider.getNamespace(), provider);
 
         if (old != null) {
             throw new IllegalArgumentException("Provider for namespace " + provider.getNamespace() + "already exists.");
@@ -65,7 +65,7 @@ public class MgcpEndpointManager {
      */
     public MgcpEndpoint registerEndpoint(String namespace) throws UnrecognizedMgcpNamespaceException {
         // Get correct endpoint provider
-        MgcpEndpointProvider<?> provider = this.providers.get(namespace);
+        AbstractMgcpEndpointProvider<?> provider = this.providers.get(namespace);
         if (provider == null) {
             throw new UnrecognizedMgcpNamespaceException("Namespace " + namespace + " is unrecognized");
         }

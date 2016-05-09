@@ -21,54 +21,61 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.mobicents.media.control.mgcp.command.AbstractMgcpEndpoint;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.oob.OOBMixer;
+import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
- * Implementation of an MGCP Endpoint that mixes audio frames from all sources.
+ * Provides MGCP endpoints that rely on a Mixer to relay media.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AbstractMixerEndpoint extends AbstractMgcpEndpoint {
+public class MgcpSplitterEndpoint extends AbstractMgcpEndpoint {
 
-    // Core Components
-    private final AudioMixer audioMixer;
-    private final OOBMixer oobMixer;
+    private final AudioSplitter inbandSplitter;
+    private final OOBSplitter outbandSplitter;
 
-    public AbstractMixerEndpoint(String endpointId, PriorityQueueScheduler mediaScheduler) {
+    public MgcpSplitterEndpoint(String endpointId, PriorityQueueScheduler mediaScheduler) {
         super(endpointId);
-        this.audioMixer = new AudioMixer(mediaScheduler);
-        this.oobMixer = new OOBMixer(mediaScheduler);
+        this.inbandSplitter = new AudioSplitter(mediaScheduler);
+        this.outbandSplitter = new OOBSplitter(mediaScheduler);
     }
 
     @Override
     protected void onConnectionCreated(MgcpConnection connection) {
-        this.audioMixer.addComponent(connection.getAudioComponent());
-        this.oobMixer.addComponent(connection.getOutOfBandComponent());
+        if (connection.isLocal()) {
+            this.inbandSplitter.addInsideComponent(connection.getAudioComponent());
+            this.outbandSplitter.addInsideComponent(connection.getOutOfBandComponent());
+        } else {
+            this.inbandSplitter.addOutsideComponent(connection.getAudioComponent());
+            this.outbandSplitter.addOutsideComponent(connection.getOutOfBandComponent());
+        }
     }
 
     @Override
     protected void onConnectionDeleted(MgcpConnection connection) {
-        this.audioMixer.release(connection.getAudioComponent());
-        this.oobMixer.release(connection.getOutOfBandComponent());
+        if (connection.isLocal()) {
+            this.inbandSplitter.releaseInsideComponent(connection.getAudioComponent());
+            this.outbandSplitter.releaseInsideComponent(connection.getOutOfBandComponent());
+        } else {
+            this.inbandSplitter.releaseOutsideComponent(connection.getAudioComponent());
+            this.outbandSplitter.releaseOutsideComponent(connection.getOutOfBandComponent());
+        }
     }
-    
+
     @Override
     protected void onActivated() {
-        this.audioMixer.start();
-        this.oobMixer.start();
+        this.inbandSplitter.start();
+        this.outbandSplitter.start();
     }
-    
+
     @Override
     protected void onDeactivated() {
-        this.audioMixer.stop();
-        this.oobMixer.stop();
+        this.inbandSplitter.stop();
+        this.outbandSplitter.stop();
     }
 
 }

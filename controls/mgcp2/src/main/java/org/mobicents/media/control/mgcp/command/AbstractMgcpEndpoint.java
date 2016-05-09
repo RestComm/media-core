@@ -91,6 +91,9 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
         // Store connection under call
         call.addConnection(connection);
+        
+        // Warn child class that connection was deleted
+        onConnectionDeleted(connection);
     }
 
     @Override
@@ -102,7 +105,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
         // Register connection under its proper call
         registerConnection(callId, connection);
-        
+
         // Set endpoint state
         modeUpdated(MgcpConnectionMode.INACTIVE, mode);
 
@@ -119,7 +122,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
         // Register connection under its proper call
         registerConnection(callId, connection);
-        
+
         // Set endpoint state
         modeUpdated(MgcpConnectionMode.INACTIVE, mode);
 
@@ -136,7 +139,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
         // Register connection under its proper call
         registerConnection(callId, connection);
-        
+
         // Set endpoint state
         modeUpdated(MgcpConnectionMode.INACTIVE, mode);
 
@@ -190,9 +193,12 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
                 if (call.hasConnections()) {
                     this.calls.remove(callId);
                 }
-                
+
+                // Warn child class that connection was deleted
+                onConnectionDeleted(connection);
+
                 // Set endpoint state
-                if(!hasCalls()) {
+                if (!hasCalls()) {
                     deactivate();
                 }
 
@@ -219,9 +225,9 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
         } else {
             // Delete all connections from call
             deleteConnections(call);
-            
+
             // Set endpoint state
-            if(!hasCalls()) {
+            if (!hasCalls()) {
                 deactivate();
             }
         }
@@ -238,9 +244,9 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             // Close connections
             deleteConnections(call);
         }
-        
+
         // Set endpoint state
-        if(!hasCalls()) {
+        if (!hasCalls()) {
             deactivate();
         }
     }
@@ -308,7 +314,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             }
         }
     }
-    
+
     public boolean isActive() {
         return this.active.get();
     }
@@ -330,7 +336,11 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             throw new IllegalArgumentException("Endpoint " + this.endpointId + " is already inactive.");
         }
     }
-    
+
+    protected abstract void onConnectionCreated(MgcpConnection connection);
+
+    protected abstract void onConnectionDeleted(MgcpConnection connection);
+
     protected abstract void onActivated();
 
     protected abstract void onDeactivated();

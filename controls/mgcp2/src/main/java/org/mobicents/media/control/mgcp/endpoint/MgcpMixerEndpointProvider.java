@@ -21,26 +21,26 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+
 /**
- * Provides MGCP endpoints for a specific name space.
+ * Provides MGCP endpoints that rely on a Mixer to relay media.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpointProvider<T extends MgcpEndpoint> {
+public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<MgcpMixerEndpoint> {
 
-    /**
-     * Gets the name space associated with the provided endpoints.
-     * 
-     * @return The name space.
-     */
-    String getNamespace();
+    private final PriorityQueueScheduler mediaScheduler;
 
-    /**
-     * Provides a new endpoint.
-     * 
-     * @return The newly created endpoint
-     */
-    T provide();
+    public MgcpMixerEndpointProvider(String namespace, PriorityQueueScheduler mediaScheduler) {
+        super(namespace);
+        this.mediaScheduler = mediaScheduler;
+    }
+
+    @Override
+    public MgcpMixerEndpoint provide() {
+        return new MgcpMixerEndpoint(generateId(), mediaScheduler);
+    }
 
 }
