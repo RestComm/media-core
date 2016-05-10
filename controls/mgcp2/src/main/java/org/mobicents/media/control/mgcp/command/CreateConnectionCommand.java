@@ -22,14 +22,15 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -49,7 +50,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private String remoteSdp = null;
     private String localSdp = null;
     private String callId = null;
-    private MgcpConnectionMode mode = null;
+    private ConnectionMode mode = null;
     private MgcpEndpoint endpoint1;
     private MgcpEndpoint endpoint2;
     private MgcpConnection connection1;
@@ -79,7 +80,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
         // Connection Mode
         try {
-            this.mode = MgcpConnectionMode.fromDescription(request.getParameter(MgcpParameterType.MODE));
+            this.mode = ConnectionMode.fromDescription(request.getParameter(MgcpParameterType.MODE));
         } catch (IllegalArgumentException e) {
             throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(),
                     "Connection Mode (M) not specified");
@@ -101,13 +102,14 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         this.endpoint2 = (secondaryEndpointId == null) ? null : resolveEndpoint(secondaryEndpointId);
     }
 
-    private void executeCommand() throws MgcpCommandException {
+    private void executeCommand() throws MgcpCommandException, IllegalStateException, MgcpConnectionException {
 
         if (this.endpoint2 == null) {
             // Create one connection between endpoint and remote peer
             this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), false);
             // TODO set call agent
-            this.localSdp = (this.remoteSdp == null) ? connection1.halfOpen() : connection1.open(this.remoteSdp);
+            // TODO get local connection options and pass them to halfOpen method
+            this.localSdp = (this.remoteSdp == null) ? connection1.halfOpen(null) : connection1.open(this.remoteSdp);
         } else {
             // Create two local connections between both endpoints
             this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), true);
@@ -116,7 +118,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             // connection1.open(null);
             // connection2.open(null);
             this.connection1.setMode(mode);
-            this.connection2.setMode(MgcpConnectionMode.SEND_RECV);
+            this.connection2.setMode(ConnectionMode.SEND_RECV);
             // connection1.join(endpoint2);
             // connection2.join(endpoint1);
         }
@@ -178,7 +180,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             return buildResponse();
         } catch (MgcpCommandException e) {
             throw e;
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | MgcpConnectionException e) {
             throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), "Could not process request");
         } finally {
             reset();

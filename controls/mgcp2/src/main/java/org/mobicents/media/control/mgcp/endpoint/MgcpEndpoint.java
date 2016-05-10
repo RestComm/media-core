@@ -22,8 +22,8 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -67,7 +67,7 @@ public interface MgcpEndpoint {
      * @param mode (optional) The new connection mode.
      */
     void modifyConnection(int callId, int connectionId, String notifiedEntity, LocalConnectionOptions options,
-            MgcpConnectionMode mode);
+            ConnectionMode mode);
 
     /**
      * Deletes an active connection.

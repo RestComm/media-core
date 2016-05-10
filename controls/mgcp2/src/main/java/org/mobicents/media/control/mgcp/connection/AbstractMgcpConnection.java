@@ -23,8 +23,11 @@ package org.mobicents.media.control.mgcp.connection;
 
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
+ * Base implementation for any MGCP connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -33,15 +36,15 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     // Connection State
     private final int identifier;
     private final String hexIdentifier;
-    private MgcpConnectionMode mode;
-    private volatile MgcpConnectionState state;
-    private final Object stateLock;
+    private ConnectionMode mode;
+    protected volatile MgcpConnectionState state;
+    protected final Object stateLock;
 
     public AbstractMgcpConnection(int identifier) {
         // Connection State
         this.identifier = identifier;
         this.hexIdentifier = Integer.toHexString(identifier);
-        this.mode = MgcpConnectionMode.INACTIVE;
+        this.mode = ConnectionMode.INACTIVE;
         this.state = MgcpConnectionState.CLOSED;
         this.stateLock = new Object();
     }
@@ -57,19 +60,12 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     }
 
     @Override
-    public MgcpConnectionState getState() {
-        synchronized (this.stateLock) {
-            return this.state;
-        }
-    }
-
-    @Override
-    public MgcpConnectionMode getMode() {
+    public ConnectionMode getMode() {
         return mode;
     }
 
     @Override
-    public void setMode(MgcpConnectionMode mode) throws IllegalStateException {
+    public void setMode(ConnectionMode mode) throws IllegalStateException {
         synchronized (this.stateLock) {
             if (MgcpConnectionState.CLOSED.equals(this.state)) {
                 throw new IllegalStateException("Cannot update mode because connection is closed.");
@@ -83,4 +79,6 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     public abstract AudioComponent getAudioComponent();
 
     public abstract OOBComponent getOutOfBandComponent();
+    
+    // TODO implement heart beat
 }

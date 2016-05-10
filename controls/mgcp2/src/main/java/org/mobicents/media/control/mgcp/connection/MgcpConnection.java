@@ -21,6 +21,10 @@
 
 package org.mobicents.media.control.mgcp.connection;
 
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
+import org.mobicents.media.server.spi.ConnectionMode;
+
 /**
  * Connections are created on each endpoint that will be involved in the call.
  * <p>
@@ -56,18 +60,11 @@ public interface MgcpConnection {
     boolean isLocal();
 
     /**
-     * Gets the current state of the connection.
-     * 
-     * @return The state of the connection
-     */
-    MgcpConnectionState getState();
-
-    /**
      * Gets the current mode of the connection.
      * 
      * @return The connection mode
      */
-    MgcpConnectionMode getMode();
+    ConnectionMode getMode();
 
     /**
      * Sets the mode of the connection.
@@ -76,7 +73,7 @@ public interface MgcpConnection {
      * 
      * @throws IllegalStateException Cannot update mode of closed connections
      */
-    void setMode(MgcpConnectionMode mode) throws IllegalStateException;
+    void setMode(ConnectionMode mode) throws IllegalStateException;
 
     /**
      * The connection allocates resources and becomes half-open, sending an SDP offer to the remote peer.
@@ -85,11 +82,14 @@ public interface MgcpConnection {
      * request that terminates the connection. description.
      * </p>
      * 
+     * @param options The options that configure the connection.
+     * 
      * @return The SDP offer.
      * 
      * @throws IllegalStateException If connection state is not closed.
+     * @throws MgcpConnectionException If connection could not bind required resources 
      */
-    String halfOpen() throws IllegalStateException;
+    String halfOpen(LocalConnectionOptions options) throws IllegalStateException, MgcpConnectionException;
 
     /**
      * Moves the connection to an open state.
@@ -107,8 +107,9 @@ public interface MgcpConnection {
      * @return The SDP answer if the call is inbound; <code>null</code> if call is outbound.
      * 
      * @throws IllegalStateException If connection state is not closed nor half-open.
+     * @throws MgcpConnectionException If connection fails to open properly
      */
-    String open(String sdp) throws IllegalStateException;
+    String open(String sdp) throws IllegalStateException, MgcpConnectionException;
 
     /**
      * Closes the connection.
