@@ -92,8 +92,8 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
         // Store connection under call
         call.addConnection(connection);
         
-        // Warn child class that connection was deleted
-        onConnectionDeleted(connection);
+        // Warn child class that connection was created
+        onConnectionCreated(connection);
     }
 
     @Override
