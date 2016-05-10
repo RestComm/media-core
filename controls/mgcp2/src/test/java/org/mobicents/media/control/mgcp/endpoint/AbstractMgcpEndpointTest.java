@@ -34,7 +34,6 @@ import java.nio.file.Paths;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.command.AbstractMgcpEndpoint;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;

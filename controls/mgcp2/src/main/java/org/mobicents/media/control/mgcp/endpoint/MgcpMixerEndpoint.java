@@ -21,7 +21,6 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
-import org.mobicents.media.control.mgcp.command.AbstractMgcpEndpoint;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBMixer;
