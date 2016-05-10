@@ -42,6 +42,7 @@ import org.mobicents.media.server.io.sdp.SessionDescriptionParser;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
+import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
@@ -60,11 +61,14 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     private boolean webrtc;
     private SessionDescription localSdp;
     private SessionDescription remoteSdp;
-
+    
     // Media Channels
     private final AudioChannel audioChannel;
+    
+    // Listeners
+    private final ConnectionFailureListener connectionListener;
 
-    public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider) {
+    public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider, ConnectionFailureListener listener) {
         super(identifier);
 
         // Connection Properties
@@ -79,6 +83,9 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         // Media Channels
         this.audioChannel = channelProvider.provideAudioChannel();
         this.audioChannel.setCname(this.cname);
+        
+        // Listeners
+        this.connectionListener = listener;
     }
 
     @Override
@@ -317,6 +324,9 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                 case OPEN:
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;
+                    
+                    // Deactivate connection
+                    setMode(ConnectionMode.INACTIVE);
 
                     // Close audio channel
                     if (this.audioChannel.isOpen()) {
@@ -346,8 +356,8 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
     @Override
     public void onRtpFailure(Throwable e) {
-        String message = "RTP channel failure!";
-        if (e.getMessage() != null) {
+        String message = "RTP channel failure on connection " + this.cname + "!";
+        if (e != null && e.getMessage() != null) {
             message += " Reason: " + e.getMessage();
         }
         onRtpFailure(message);
@@ -355,26 +365,29 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
     @Override
     public void onRtpFailure(String message) {
-        // RTP is mandatory, if it fails close everything
         try {
+            // RTP is mandatory, if it fails close everything
             close();
         } catch (Exception e) {
-            log.warn("Failed to elegantly close connection "+ this.cname + " after RTP failure", e);
+            log.warn("Failed to elegantly close connection " + this.cname + " after RTP failure", e);
         } finally {
-            // TODO alert connection listener
+            // Warn connection listener about failure
+            this.connectionListener.onFailure();
         }
     }
 
     @Override
     public void onRtcpFailure(Throwable e) {
-        // TODO Auto-generated method stub
-
+        String message = "Closing RTCP channel on connection " + this.cname + " due to failure!";
+        if (e != null && e.getMessage() != null) {
+            message += " Reason: " + e.getMessage();
+        }
+        onRtcpFailure(message);
     }
 
     @Override
     public void onRtcpFailure(String e) {
-        // TODO Auto-generated method stub
-
+        log.warn(e);
     }
 
     private void reset() {
@@ -383,5 +396,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         this.localSdp = null;
         this.remoteSdp = null;
     }
+    
+    // TODO Implement time-to-live mechanism
 
 }
