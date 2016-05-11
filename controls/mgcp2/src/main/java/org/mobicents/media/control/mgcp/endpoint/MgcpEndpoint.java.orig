@@ -22,10 +22,14 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+<<<<<<< HEAD
+import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.server.spi.ConnectionMode;
+=======
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionMode;
+import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+>>>>>>> issue142
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -62,9 +66,8 @@ public interface MgcpEndpoint {
      * @param mode The connection mode.
      * 
      * @return The new connection
-     * @throws MgcpConnectionException If connection could not be half opened. 
      */
-    MgcpConnection createConnection(int callId, ConnectionMode mode) throws MgcpConnectionException;
+    MgcpConnection createConnection(int callId, MgcpConnectionMode mode);
 
     /**
      * Creates a new Remote Connection.
@@ -79,9 +82,8 @@ public interface MgcpEndpoint {
      * @param remoteDescription The description of the remote connection.
      * 
      * @return The new connection
-     * @throws MgcpConnectionException If connection could not be opened 
      */
-    MgcpConnection createConnection(int callId, ConnectionMode mode, String remoteDescription) throws MgcpConnectionException;
+    MgcpConnection createConnection(int callId, MgcpConnectionMode mode, String remoteDescription);
 
     /**
      * Creates a new Local Connection.
@@ -96,7 +98,7 @@ public interface MgcpEndpoint {
      * 
      * @return The new connection
      */
-    MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint);
+    MgcpConnection createConnection(int callId, MgcpConnectionMode mode, MgcpEndpoint secondEndpoint);
 
     /**
      * Modifies an existing connection.
@@ -109,10 +111,14 @@ public interface MgcpEndpoint {
      * @return An updated local session descriptor, if there were any changes. Otherwise, returns null.
      * @throws MgcpCallNotFoundException When call with such ID cannot be found.
      * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
-     * @throws MgcpConnectionException If connection could not be opened
      */
-    String modifyConnection(int callId, int connectionId, ConnectionMode mode, String remoteDescription)
-            throws MgcpCallNotFoundException, MgcpConnectionNotFound, MgcpConnectionException;
+<<<<<<< HEAD
+    void modifyConnection(int callId, int connectionId, String notifiedEntity, LocalConnectionOptions options,
+            ConnectionMode mode);
+=======
+    String modifyConnection(int callId, int connectionId, MgcpConnectionMode mode, String remoteDescription)
+            throws MgcpCallNotFoundException, MgcpConnectionNotFound;
+>>>>>>> issue142
 
     /**
      * Deletes an active connection.

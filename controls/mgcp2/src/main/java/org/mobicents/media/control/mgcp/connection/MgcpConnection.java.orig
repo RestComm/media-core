@@ -21,11 +21,14 @@
 
 package org.mobicents.media.control.mgcp.connection;
 
+<<<<<<< HEAD
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.server.spi.ConnectionMode;
+=======
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+>>>>>>> issue142
 
 /**
  * Connections are created on each endpoint that will be involved in the call.
@@ -69,13 +72,6 @@ public interface MgcpConnection {
     ConnectionMode getMode();
 
     /**
-     * Gets the current state of the connection
-     * 
-     * @return The connection state
-     */
-    MgcpConnectionState getState();
-
-    /**
      * Sets the mode of the connection.
      * 
      * @param mode The new mode of the connection
@@ -95,10 +91,10 @@ public interface MgcpConnection {
      * 
      * @return The SDP offer.
      * 
-     * @throws MgcpConnectionException If connection state is not closed.
-     * @throws MgcpConnectionException If connection could not bind required resources
+     * @throws IllegalStateException If connection state is not closed.
+     * @throws MgcpConnectionException If connection could not bind required resources 
      */
-    String halfOpen(LocalConnectionOptions options) throws MgcpConnectionException;
+    String halfOpen(LocalConnectionOptions options) throws IllegalStateException, MgcpConnectionException;
 
     /**
      * Moves the connection to an open state.
@@ -115,17 +111,17 @@ public interface MgcpConnection {
      * @param sdp The SDP description of the remote peer.
      * @return The SDP answer if the call is inbound; <code>null</code> if call is outbound.
      * 
-     * @throws MgcpConnectionException If connection state is not closed nor half-open.
+     * @throws IllegalStateException If connection state is not closed nor half-open.
      * @throws MgcpConnectionException If connection fails to open properly
      */
-    String open(String sdp) throws MgcpConnectionException;
+    String open(String sdp) throws IllegalStateException, MgcpConnectionException;
 
     /**
      * Closes the connection.
      * 
-     * @throws MgcpConnectionException If connection state is not half-open nor open.
+     * @throws IllegalStateException If connection state is not half-open nor open.
      */
-    void close() throws MgcpConnectionException;
+    void close() throws IllegalStateException;
 
     /**
      * Gets the in-band audio component of the connection.

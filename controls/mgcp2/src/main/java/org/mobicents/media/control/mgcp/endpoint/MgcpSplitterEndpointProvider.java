@@ -21,26 +21,30 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+
 /**
- * Provides MGCP endpoints for a specific name space.
+ * Provides MGCP endpoints that rely on a Splitter to relay media.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpointProvider<T extends MgcpEndpoint> {
+public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<MgcpSplitterEndpoint> {
 
-    /**
-     * Gets the name space associated with the provided endpoints.
-     * 
-     * @return The name space.
-     */
-    String getNamespace();
+    private final PriorityQueueScheduler mediaScheduler;
+    private final MgcpConnectionProvider connectionProvider;
 
-    /**
-     * Provides a new endpoint.
-     * 
-     * @return The newly created endpoint
-     */
-    T provide();
+    public MgcpSplitterEndpointProvider(String namespace, MgcpConnectionProvider connectionProvider,
+            PriorityQueueScheduler mediaScheduler) {
+        super(namespace);
+        this.mediaScheduler = mediaScheduler;
+        this.connectionProvider = connectionProvider;
+    }
+
+    @Override
+    public MgcpSplitterEndpoint provide() {
+        return new MgcpSplitterEndpoint(generateId(), this.connectionProvider, this.mediaScheduler);
+    }
 
 }

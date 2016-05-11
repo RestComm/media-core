@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.AbstractMgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptionType;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.server.component.audio.AudioComponent;
@@ -42,7 +43,6 @@ import org.mobicents.media.server.io.sdp.SessionDescriptionParser;
 import org.mobicents.media.server.io.sdp.dtls.attributes.FingerprintAttribute;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
 import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
-import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
@@ -61,14 +61,14 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     private boolean webrtc;
     private SessionDescription localSdp;
     private SessionDescription remoteSdp;
-    
+
     // Media Channels
     private final AudioChannel audioChannel;
-    
-    // Listeners
-    private final ConnectionFailureListener connectionListener;
 
-    public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider, ConnectionFailureListener listener) {
+    // Listeners
+    private MgcpConnectionListener connectionListener;
+
+    public MgcpRemoteConnection(int identifier, MediaChannelProvider channelProvider) {
         super(identifier);
 
         // Connection Properties
@@ -83,9 +83,10 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         // Media Channels
         this.audioChannel = channelProvider.provideAudioChannel();
         this.audioChannel.setCname(this.cname);
-        
-        // Listeners
-        this.connectionListener = listener;
+    }
+
+    public void setConnectionListener(MgcpConnectionListener connectionListener) {
+        this.connectionListener = connectionListener;
     }
 
     @Override
@@ -100,7 +101,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     }
 
     @Override
-    public String halfOpen(LocalConnectionOptions options) throws IllegalStateException, MgcpConnectionException {
+    public String halfOpen(LocalConnectionOptions options) throws MgcpConnectionException {
         synchronized (this.stateLock) {
             switch (this.state) {
                 case CLOSED:
@@ -130,14 +131,14 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     this.localSdp = SdpFactory.buildSdp(true, this.localAddress, this.externalAddress, this.audioChannel);
                     return this.localAddress;
                 default:
-                    throw new IllegalArgumentException(
+                    throw new MgcpConnectionException(
                             "Cannot half-open connection " + this.cname + " because state is " + this.state.name());
             }
         }
     }
 
     @Override
-    public String open(String sdp) throws IllegalStateException, MgcpConnectionException {
+    public String open(String sdp) throws MgcpConnectionException {
         synchronized (this.stateLock) {
             switch (this.state) {
                 case CLOSED:
@@ -157,7 +158,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     break;
 
                 default:
-                    throw new IllegalArgumentException(
+                    throw new MgcpConnectionException(
                             "Cannot open connection " + this.cname + " because state is " + this.state.name());
             }
         }
@@ -317,14 +318,14 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
     }
 
     @Override
-    public void close() throws IllegalStateException {
+    public void close() throws MgcpConnectionException {
         synchronized (this.stateLock) {
             switch (this.state) {
                 case HALF_OPEN:
                 case OPEN:
                     // Update connection state
                     this.state = MgcpConnectionState.CLOSED;
-                    
+
                     // Deactivate connection
                     setMode(ConnectionMode.INACTIVE);
 
@@ -338,7 +339,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
                     break;
                 default:
-                    throw new IllegalArgumentException(
+                    throw new MgcpConnectionException(
                             "Cannot close connection " + this.cname + "because state is " + this.state.name());
             }
         }
@@ -372,7 +373,9 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             log.warn("Failed to elegantly close connection " + this.cname + " after RTP failure", e);
         } finally {
             // Warn connection listener about failure
-            this.connectionListener.onFailure();
+            if (this.connectionListener != null) {
+                this.connectionListener.onConnectionFailure(this);
+            }
         }
     }
 
@@ -396,7 +399,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
         this.localSdp = null;
         this.remoteSdp = null;
     }
-    
+
     // TODO Implement time-to-live mechanism
 
 }

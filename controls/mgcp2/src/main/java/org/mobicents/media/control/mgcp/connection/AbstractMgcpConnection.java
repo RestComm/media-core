@@ -63,6 +63,11 @@ public abstract class AbstractMgcpConnection implements MgcpConnection {
     public ConnectionMode getMode() {
         return mode;
     }
+    
+    @Override
+    public MgcpConnectionState getState() {
+        return this.state;
+    }
 
     @Override
     public void setMode(ConnectionMode mode) throws IllegalStateException {
