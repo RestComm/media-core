@@ -18,59 +18,139 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.connection.local;
 
+import java.io.IOException;
+
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.AbstractMgcpConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.LocalDataChannel;
+import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ModeNotSupportedException;
 
 /**
+ * Type of connection that connects two endpoints locally.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpLocalConnection extends AbstractMgcpConnection {
 
-    public MgcpLocalConnection(int identifier) {
+    private static final Logger log = Logger.getLogger(MgcpLocalConnection.class);
+
+    private final LocalDataChannel audioChannel;
+
+    public MgcpLocalConnection(int identifier, ChannelsManager channelProvider) {
         super(identifier);
+        this.audioChannel = channelProvider.getLocalChannel();
     }
 
     @Override
     public boolean isLocal() {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     @Override
     public String halfOpen(LocalConnectionOptions options) throws MgcpConnectionException {
-        // TODO Auto-generated method stub
+        synchronized (this.stateLock) {
+            switch (this.state) {
+                case CLOSED:
+                    this.state = MgcpConnectionState.HALF_OPEN;
+                    break;
+
+                default:
+                    throw new MgcpConnectionException("Cannot half-open connection " + this.getHexIdentifier()
+                            + " because state is " + this.state.name());
+            }
+        }
         return null;
     }
 
     @Override
     public String open(String sdp) throws MgcpConnectionException {
-        // TODO Auto-generated method stub
+        synchronized (this.stateLock) {
+            switch (this.state) {
+                case CLOSED:
+                case HALF_OPEN:
+                    this.state = MgcpConnectionState.OPEN;
+                    break;
+
+                default:
+                    throw new MgcpConnectionException(
+                            "Cannot open connection " + this.getHexIdentifier() + " because state is " + this.state.name());
+            }
+        }
         return null;
+    }
+
+    public void join(MgcpLocalConnection otherConnection) throws MgcpException {
+        synchronized (this.stateLock) {
+            switch (this.state) {
+                case OPEN:
+                    try {
+                        this.audioChannel.join(otherConnection.audioChannel);
+                    } catch (IOException e) {
+                        throw new MgcpException("Cannot join connection " + this.getHexIdentifier() + " to connection "
+                                + otherConnection.getHexIdentifier(), e);
+                    }
+                    break;
+
+                default:
+                    throw new MgcpException("Cannot join connection " + this.getHexIdentifier() + " to connection "
+                            + otherConnection.getHexIdentifier() + " because current state is not OPEN");
+            }
+        }
     }
 
     @Override
     public void close() throws MgcpConnectionException {
-        // TODO Auto-generated method stub
-        
+        synchronized (this.stateLock) {
+            switch (this.state) {
+                case HALF_OPEN:
+                case OPEN:
+                    // Update connection state
+                    this.state = MgcpConnectionState.CLOSED;
+
+                    // Deactivate connection
+                    setMode(ConnectionMode.INACTIVE);
+
+                    // Close audio channel
+                    this.audioChannel.unjoin();
+                    break;
+
+                default:
+                    throw new MgcpConnectionException(
+                            "Cannot close connection " + this.getHexIdentifier() + " because state is " + this.state.name());
+            }
+        }
+    }
+
+    @Override
+    public void setMode(ConnectionMode mode) throws IllegalStateException {
+        try {
+            this.audioChannel.updateMode(mode);
+        } catch (ModeNotSupportedException e) {
+            log.warn("Could not update data channel mode of local connection " + this.getHexIdentifier());
+        }
+        super.setMode(mode);
     }
 
     @Override
     public AudioComponent getAudioComponent() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.audioChannel.getAudioComponent();
     }
 
     @Override
     public OOBComponent getOutOfBandComponent() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.audioChannel.getOOBComponent();
     }
 
 }

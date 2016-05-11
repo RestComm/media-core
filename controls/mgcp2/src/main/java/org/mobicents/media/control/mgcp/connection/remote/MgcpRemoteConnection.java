@@ -46,6 +46,8 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
+ * Type of connection that connects one endpoint to a remote peer.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -131,8 +133,8 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     this.localSdp = SdpFactory.buildSdp(true, this.localAddress, this.externalAddress, this.audioChannel);
                     return this.localAddress;
                 default:
-                    throw new MgcpConnectionException(
-                            "Cannot half-open connection " + this.cname + " because state is " + this.state.name());
+                    throw new MgcpConnectionException("Cannot half-open connection " + this.getHexIdentifier()
+                            + " because state is " + this.state.name());
             }
         }
     }
@@ -159,7 +161,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
                 default:
                     throw new MgcpConnectionException(
-                            "Cannot open connection " + this.cname + " because state is " + this.state.name());
+                            "Cannot open connection " + this.getHexIdentifier() + " because state is " + this.state.name());
             }
         }
         return null;
@@ -340,7 +342,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                     break;
                 default:
                     throw new MgcpConnectionException(
-                            "Cannot close connection " + this.cname + "because state is " + this.state.name());
+                            "Cannot close connection " + this.getHexIdentifier() + "because state is " + this.state.name());
             }
         }
     }
