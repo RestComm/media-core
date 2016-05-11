@@ -181,10 +181,10 @@ public class RTPFormats {
     }
     
 	public void intersection(RTPFormats other, RTPFormats res) {
-		for (int i = 0; i < this.rtpFormats.size(); i++) {
-			RTPFormat supportedFormat = this.rtpFormats.get(i);
-			for (int j = 0; j < other.size(); j++) {
-				RTPFormat offeredFormat = other.rtpFormats.get(j);
+		for (int i = 0; i < other.size(); i++) {
+			RTPFormat supportedFormat = other.rtpFormats.get(i);
+			for (int j = 0; j < this.rtpFormats.size(); j++) {
+				RTPFormat offeredFormat = this.rtpFormats.get(j);
 				if (supportedFormat.getFormat().matches(offeredFormat.getFormat())) {
 					// Add offered (instead of supported) format for DTMF dynamic payload
 					res.add(offeredFormat);
