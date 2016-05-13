@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.control.mgcp.connection.local.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.remote.MgcpRemoteConnection;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 
 /**
@@ -35,10 +36,12 @@ public class MgcpConnectionProvider {
     
     private final AtomicInteger idGenerator;
     private final MediaChannelProvider channelProvider;
+    private final ChannelsManager channelsManager;
     
-    public MgcpConnectionProvider(MediaChannelProvider channelProvider) {
+    public MgcpConnectionProvider(MediaChannelProvider channelProvider, ChannelsManager channelsManager) {
         this.idGenerator = new AtomicInteger(0);
         this.channelProvider = channelProvider;
+        this.channelsManager = channelsManager;
     }
     
     public MgcpRemoteConnection provideRemote() {
@@ -46,8 +49,7 @@ public class MgcpConnectionProvider {
     }
     
     public MgcpLocalConnection provideLocal() {
-        // TODO implement MgcpConnectionProvider.provideLocal
-        return null;
+        return new MgcpLocalConnection(this.idGenerator.incrementAndGet(), this.channelsManager);
     }
 
 }
