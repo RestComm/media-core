@@ -36,7 +36,6 @@ import org.mobicents.media.control.mgcp.connection.remote.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
-import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
@@ -151,7 +150,8 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
     }
 
     @Override
-    public MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint) throws MgcpException {
+    public MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint)
+            throws MgcpConnectionException {
         // Create connection
         MgcpLocalConnection connection = this.connectionProvider.provideLocal();
         connection.setMode(mode);

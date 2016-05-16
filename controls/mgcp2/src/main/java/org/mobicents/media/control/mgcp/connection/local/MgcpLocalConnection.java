@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.AbstractMgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -91,20 +90,20 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
         return null;
     }
 
-    public void join(MgcpLocalConnection otherConnection) throws MgcpException {
+    public void join(MgcpLocalConnection otherConnection) throws MgcpConnectionException {
         synchronized (this.stateLock) {
             switch (this.state) {
                 case OPEN:
                     try {
                         this.audioChannel.join(otherConnection.audioChannel);
                     } catch (IOException e) {
-                        throw new MgcpException("Cannot join connection " + this.getHexIdentifier() + " to connection "
+                        throw new MgcpConnectionException("Cannot join connection " + this.getHexIdentifier() + " to connection "
                                 + otherConnection.getHexIdentifier(), e);
                     }
                     break;
 
                 default:
-                    throw new MgcpException("Cannot join connection " + this.getHexIdentifier() + " to connection "
+                    throw new MgcpConnectionException("Cannot join connection " + this.getHexIdentifier() + " to connection "
                             + otherConnection.getHexIdentifier() + " because current state is not OPEN");
             }
         }

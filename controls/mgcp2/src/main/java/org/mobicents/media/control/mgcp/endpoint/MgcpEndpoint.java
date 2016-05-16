@@ -98,7 +98,7 @@ public interface MgcpEndpoint {
      * @return The new connection
      * @throws MgcpException If connection could not be opened.
      */
-    MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint) throws MgcpException;
+    MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint) throws MgcpConnectionException;
 
     /**
      * Modifies an existing connection.

@@ -21,10 +21,14 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
+import org.mobicents.media.control.mgcp.connection.local.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
@@ -37,6 +41,8 @@ import org.mobicents.media.server.spi.ConnectionMode;
  *
  */
 public class CreateConnectionCommand extends AbstractMgcpCommand {
+    
+    private static final Logger log = Logger.getLogger(CreateConnectionCommand.class);
 
     private static final String WILDCARD_ANY = "*";
     private static final String WILDCARD_ALL = "$";
@@ -49,7 +55,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private int transactionId = 0;
     private String remoteSdp = null;
     private String localSdp = null;
-    private String callId = null;
+    private int callId = 0;
     private ConnectionMode mode = null;
     private MgcpEndpoint endpoint1;
     private MgcpEndpoint endpoint2;
@@ -76,6 +82,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         String callId = request.getParameter(MgcpParameterType.CALL_ID);
         if (callId == null) {
             throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), "Call ID (C) is not specified");
+        } else {
+            this.callId = Integer.parseInt(callId);
         }
 
         // Connection Mode
@@ -102,24 +110,19 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         this.endpoint2 = (secondaryEndpointId == null) ? null : resolveEndpoint(secondaryEndpointId);
     }
 
-    private void executeCommand() throws MgcpCommandException, IllegalStateException, MgcpConnectionException {
+    private void executeCommand() throws MgcpConnectionException {
 
         if (this.endpoint2 == null) {
             // Create one connection between endpoint and remote peer
-//            this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), false);
+            this.connection1 = this.endpoint1.createConnection(this.callId, this.mode);
             // TODO set call agent
             // TODO get local connection options and pass them to halfOpen method
-//            this.localSdp = (this.remoteSdp == null) ? connection1.halfOpen(null) : connection1.open(this.remoteSdp);
+            this.localSdp = (this.remoteSdp == null) ? connection1.halfOpen(null) : connection1.open(this.remoteSdp);
         } else {
             // Create two local connections between both endpoints
-//            this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), true);
-//            this.connection2 = endpoint2.createConnection(Integer.parseInt(callId), true);
-            // TODO Join local connections
-            // connection1.join(connection2);
-//            this.connection1.setMode(mode);
-//            this.connection2.setMode(ConnectionMode.SEND_RECV);
-            // connection1.join(endpoint2);
-            // connection2.join(endpoint1);
+            this.connection1 = endpoint1.createConnection(this.callId, this.mode, this.endpoint2);
+            this.connection2 = endpoint2.createConnection(this.callId, ConnectionMode.SEND_RECV, this.endpoint1);
+            ((MgcpLocalConnection) connection1).join((MgcpLocalConnection) connection2);
         }
     }
 
@@ -188,13 +191,21 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
     @Override
     protected MgcpResponse rollback(int transactionId, int code, String message) {
-        // if (endpoint1 != null && connection1 != null) {
-        // endpoint1.deleteConnection(connection1.getIdentifier());
-        // }
-        //
-        // if (endpoint2 != null && connection2 != null) {
-        // endpoint2.deleteConnection(connection2.getIdentifier());
-        // }
+        if (endpoint1 != null && connection1 != null) {
+            try {
+                this.endpoint1.deleteConnection(this.callId, this.connection1.getIdentifier());
+            } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
+                log.warn("Could not delete primary connection. " + e.getMessage());
+            }
+        }
+
+        if (endpoint2 != null && connection2 != null) {
+            try {
+                this.endpoint2.deleteConnection(this.callId, this.connection2.getIdentifier());
+            } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
+                log.warn("Could not delete secondary connection. " + e.getMessage());
+            }
+        }
 
         MgcpResponse response = new MgcpResponse();
         response.setCode(code);
@@ -207,7 +218,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         this.transactionId = 0;
         this.remoteSdp = null;
         this.localSdp = null;
-        this.callId = null;
+        this.callId = 0;
         this.mode = null;
         this.endpoint1 = null;
         this.endpoint2 = null;
