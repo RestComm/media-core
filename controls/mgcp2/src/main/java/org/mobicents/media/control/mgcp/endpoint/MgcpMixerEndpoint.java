@@ -25,7 +25,6 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBMixer;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
  * Implementation of an MGCP Endpoint that mixes audio frames from all sources.
@@ -39,10 +38,10 @@ public class MgcpMixerEndpoint extends AbstractMgcpEndpoint {
     private final AudioMixer inbandMixer;
     private final OOBMixer outbandMixer;
 
-    public MgcpMixerEndpoint(String endpointId, MgcpConnectionProvider connectionProvider, PriorityQueueScheduler mediaScheduler) {
+    public MgcpMixerEndpoint(String endpointId, MgcpConnectionProvider connectionProvider, AudioMixer inbandMixer, OOBMixer outbandMixer) {
         super(endpointId, connectionProvider);
-        this.inbandMixer = new AudioMixer(mediaScheduler);
-        this.outbandMixer = new OOBMixer(mediaScheduler);
+        this.inbandMixer = inbandMixer;
+        this.outbandMixer = outbandMixer;
     }
 
     @Override

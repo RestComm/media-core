@@ -24,7 +24,6 @@ package org.mobicents.media.control.mgcp.endpoint;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,10 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -45,47 +41,37 @@ import org.mobicents.media.server.spi.ConnectionMode;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AbstractMgcpEndpointTest {
+public abstract class AbstractMgcpEndpointTestTemplate {
 
     private static String basicSdp;
 
     @BeforeClass
     public static void setup() throws IOException, URISyntaxException {
-        URL resource = AbstractMgcpEndpointTest.class.getResource("basic-sdp.txt");
+        ClassLoader loader = AbstractMgcpEndpointTestTemplate.class.getClassLoader();
+        URL resource = loader.getResource("sdp/basic-sdp.txt");
         byte[] data = Files.readAllBytes(Paths.get(resource.toURI()));
         basicSdp = new String(data);
+        
     }
 
-    @Ignore
-    @Test
-    public void testHalfOpenRemoteConnection() throws MgcpConnectionException {
-        // given
-        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        AbstractMgcpEndpoint endpoint = new MgcpEndpointMock("ms/mock/1", connectionProvider);
-
+    protected void testHalfOpenRemoteConnection(AbstractMgcpEndpoint endpoint) throws MgcpConnectionException {
         // when - creating connection
         MgcpConnection connection = endpoint.createConnection(1, ConnectionMode.SEND_RECV);
 
         // then
-        assertEquals("ms/mock/1", endpoint.getEndpointId());
+        assertEquals("restcomm/mock/1", endpoint.getEndpointId());
         assertNotNull(connection);
         assertEquals(ConnectionMode.SEND_RECV, connection.getMode());
         assertEquals(MgcpConnectionState.HALF_OPEN, connection.getState());
         assertTrue(endpoint.isActive());
     }
 
-    @Ignore
-    @Test
-    public void testOpenRemoteConnection() throws MgcpConnectionException {
-        // given
-        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        AbstractMgcpEndpoint endpoint = new MgcpEndpointMock("ms/mock/1", connectionProvider);
-
+    protected void testOpenRemoteConnection(AbstractMgcpEndpoint endpoint) throws MgcpConnectionException {
         // when - creating connection
         MgcpConnection connection = endpoint.createConnection(1, ConnectionMode.SEND_ONLY, basicSdp);
 
         // then
-        assertEquals("ms/mock/1", endpoint.getEndpointId());
+        assertEquals("restcomm/mock/1", endpoint.getEndpointId());
         assertNotNull(connection);
         assertEquals(ConnectionMode.SEND_ONLY, connection.getMode());
         assertEquals(MgcpConnectionState.OPEN, connection.getState());
@@ -93,38 +79,4 @@ public class AbstractMgcpEndpointTest {
     }
     
     // TODO finish writing tests
-
-    private static final class MgcpEndpointMock extends AbstractMgcpEndpoint {
-
-        private int onConnectionCreated = 0;
-        private int onConnectionDeleted = 0;
-        private int onActivated = 0;
-        private int onDeactivated = 0;
-
-        public MgcpEndpointMock(String endpointId, MgcpConnectionProvider connectionProvider) {
-            super(endpointId, connectionProvider);
-        }
-
-        @Override
-        protected void onConnectionCreated(MgcpConnection connection) {
-            this.onConnectionCreated++;
-        }
-
-        @Override
-        protected void onConnectionDeleted(MgcpConnection connection) {
-            this.onConnectionDeleted++;
-        }
-
-        @Override
-        protected void onActivated() {
-            this.onActivated++;
-        }
-
-        @Override
-        protected void onDeactivated() {
-            this.onDeactivated++;
-        }
-
-    }
-
 }
