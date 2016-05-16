@@ -22,6 +22,8 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
@@ -44,7 +46,8 @@ public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<M
 
     @Override
     public MgcpSplitterEndpoint provide() {
-        return new MgcpSplitterEndpoint(generateId(), this.connectionProvider, this.mediaScheduler);
+        return new MgcpSplitterEndpoint(generateId(), this.connectionProvider, new AudioSplitter(mediaScheduler),
+                new OOBSplitter(mediaScheduler));
     }
 
 }

@@ -115,8 +115,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 //            this.connection1 = endpoint1.createConnection(Integer.parseInt(callId), true);
 //            this.connection2 = endpoint2.createConnection(Integer.parseInt(callId), true);
             // TODO Join local connections
-            // connection1.open(null);
-            // connection2.open(null);
+            // connection1.join(connection2);
 //            this.connection1.setMode(mode);
 //            this.connection2.setMode(ConnectionMode.SEND_RECV);
             // connection1.join(endpoint2);

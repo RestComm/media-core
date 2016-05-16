@@ -25,6 +25,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
@@ -62,7 +63,7 @@ public interface MgcpEndpoint {
      * @param mode The connection mode.
      * 
      * @return The new connection
-     * @throws MgcpConnectionException If connection could not be half opened. 
+     * @throws MgcpConnectionException If connection could not be half opened.
      */
     MgcpConnection createConnection(int callId, ConnectionMode mode) throws MgcpConnectionException;
 
@@ -79,7 +80,7 @@ public interface MgcpEndpoint {
      * @param remoteDescription The description of the remote connection.
      * 
      * @return The new connection
-     * @throws MgcpConnectionException If connection could not be opened 
+     * @throws MgcpConnectionException If connection could not be opened
      */
     MgcpConnection createConnection(int callId, ConnectionMode mode, String remoteDescription) throws MgcpConnectionException;
 
@@ -95,8 +96,9 @@ public interface MgcpEndpoint {
      * @param secondEndpoint The secondary endpoint to connect to.
      * 
      * @return The new connection
+     * @throws MgcpException If connection could not be opened.
      */
-    MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint);
+    MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint) throws MgcpException;
 
     /**
      * Modifies an existing connection.

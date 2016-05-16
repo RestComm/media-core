@@ -25,7 +25,6 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBSplitter;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
  * Provides MGCP endpoints that rely on a Mixer to relay media.
@@ -38,11 +37,11 @@ public class MgcpSplitterEndpoint extends AbstractMgcpEndpoint {
     private final AudioSplitter inbandSplitter;
     private final OOBSplitter outbandSplitter;
 
-    public MgcpSplitterEndpoint(String endpointId, MgcpConnectionProvider connectionProvider,
-            PriorityQueueScheduler mediaScheduler) {
+    public MgcpSplitterEndpoint(String endpointId, MgcpConnectionProvider connectionProvider, AudioSplitter inbandSplitter,
+            OOBSplitter outbandSplitter) {
         super(endpointId, connectionProvider);
-        this.inbandSplitter = new AudioSplitter(mediaScheduler);
-        this.outbandSplitter = new OOBSplitter(mediaScheduler);
+        this.inbandSplitter = inbandSplitter;
+        this.outbandSplitter = outbandSplitter;
     }
 
     @Override
