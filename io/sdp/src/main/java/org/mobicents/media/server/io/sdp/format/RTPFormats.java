@@ -187,7 +187,7 @@ public class RTPFormats {
 				RTPFormat offeredFormat = this.rtpFormats.get(j);
 				if (supportedFormat.getFormat().matches(offeredFormat.getFormat())) {
 					// Add offered (instead of supported) format for DTMF dynamic payload
-					res.add(offeredFormat);
+					res.add(supportedFormat);
 					break;
 				}
 			}

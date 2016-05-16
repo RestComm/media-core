@@ -62,7 +62,7 @@ public class UdpNetworkManagerTest {
         NetworkManager manager = new UdpNetworkManager("127.0.0.1", ports);
 
         // when - activate manager and bind channel
-        when(ports.next()).thenReturn(65534);
+        when(ports.next()).thenReturn(65530);
         manager.activate();
         
         ChannelFuture future = manager.bindChannel(handler);
@@ -80,7 +80,7 @@ public class UdpNetworkManagerTest {
         assertNotNull(channel);
         assertTrue(channel.isOpen());
         assertTrue(channel.isActive());
-        assertEquals(new InetSocketAddress("127.0.0.1", 65534), channel.localAddress());
+        assertEquals(new InetSocketAddress("127.0.0.1", 65530), channel.localAddress());
         
         // when - deactivate manager
         manager.deactivate();
