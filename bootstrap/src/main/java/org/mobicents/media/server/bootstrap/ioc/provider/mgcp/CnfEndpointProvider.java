@@ -19,44 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint;
-
-import static org.mockito.Mockito.*;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 /**
+ * Provides mixer endpoints belonging to name space mobicents/cnf/$
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MixerEndpointProviderTest {
+public class CnfEndpointProvider extends MgcpMixerEndpointProvider implements Provider<MgcpMixerEndpoint> {
 
-    @Test
-    public void testProvide() {
-        // given
-        String namespace = "ms/mock/";
-        PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
-        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, connectionProvider, mediaScheduler);
+    private final static String NAMESPACE = "mobicents/cnf/";
 
-        // when
-        MgcpMixerEndpoint endpoint1 = provider.provide();
-        MgcpMixerEndpoint endpoint2 = provider.provide();
-        MgcpMixerEndpoint endpoint3 = provider.provide();
-
-        // then
-        assertEquals(namespace + 1, endpoint1.getEndpointId());
-        assertFalse(endpoint1.isActive());
-        assertEquals(namespace + 2, endpoint2.getEndpointId());
-        assertFalse(endpoint2.isActive());
-        assertEquals(namespace + 3, endpoint3.getEndpointId());
-        assertFalse(endpoint3.isActive());
+    @Inject
+    public CnfEndpointProvider(MgcpConnectionProvider connectionProvider, PriorityQueueScheduler mediaScheduler) {
+        super(NAMESPACE, connectionProvider, mediaScheduler);
     }
 
+    @Override
+    public MgcpMixerEndpoint get() {
+        return provide();
+    }
 }

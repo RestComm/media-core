@@ -19,34 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint;
+package org.mobicents.media.control.mgcp.endpoint.provider;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.server.component.audio.AudioMixer;
-import org.mobicents.media.server.component.oob.OOBMixer;
+import org.mobicents.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
+import org.mobicents.media.server.component.audio.AudioSplitter;
+import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
- * Provides MGCP endpoints that rely on a Mixer to relay media.
+ * Provides MGCP endpoints that rely on a Splitter to relay media.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<MgcpMixerEndpoint> {
+public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<MgcpSplitterEndpoint> {
 
     private final PriorityQueueScheduler mediaScheduler;
     private final MgcpConnectionProvider connectionProvider;
 
-    public MgcpMixerEndpointProvider(String namespace, MgcpConnectionProvider connectionProvider,
+    public MgcpSplitterEndpointProvider(String namespace, MgcpConnectionProvider connectionProvider,
             PriorityQueueScheduler mediaScheduler) {
         super(namespace);
-        this.connectionProvider = connectionProvider;
         this.mediaScheduler = mediaScheduler;
+        this.connectionProvider = connectionProvider;
     }
 
     @Override
-    public MgcpMixerEndpoint provide() {
-        return new MgcpMixerEndpoint(generateId(), connectionProvider, new AudioMixer(mediaScheduler), new OOBMixer(mediaScheduler));
+    public MgcpSplitterEndpoint provide() {
+        return new MgcpSplitterEndpoint(generateId(), this.connectionProvider, new AudioSplitter(mediaScheduler),
+                new OOBSplitter(mediaScheduler));
     }
 
 }

@@ -19,35 +19,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.server.component.audio.AudioSplitter;
-import org.mobicents.media.server.component.oob.OOBSplitter;
+import org.mobicents.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
+import org.mobicents.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 /**
- * Provides MGCP endpoints that rely on a Splitter to relay media.
+ * Provides splitter endpoints belonging to name space mobicents/bridge/$
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<MgcpSplitterEndpoint> {
+public class BridgeEndpointProvider extends MgcpSplitterEndpointProvider implements Provider<MgcpSplitterEndpoint> {
 
-    private final PriorityQueueScheduler mediaScheduler;
-    private final MgcpConnectionProvider connectionProvider;
+    private final static String NAMESPACE = "mobicents/bridge/";
 
-    public MgcpSplitterEndpointProvider(String namespace, MgcpConnectionProvider connectionProvider,
-            PriorityQueueScheduler mediaScheduler) {
-        super(namespace);
-        this.mediaScheduler = mediaScheduler;
-        this.connectionProvider = connectionProvider;
+    @Inject
+    public BridgeEndpointProvider(MgcpConnectionProvider connectionProvider, PriorityQueueScheduler mediaScheduler) {
+        super(NAMESPACE, connectionProvider, mediaScheduler);
     }
 
     @Override
-    public MgcpSplitterEndpoint provide() {
-        return new MgcpSplitterEndpoint(generateId(), this.connectionProvider, new AudioSplitter(mediaScheduler),
-                new OOBSplitter(mediaScheduler));
+    public MgcpSplitterEndpoint get() {
+        return provide();
     }
 
 }

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**

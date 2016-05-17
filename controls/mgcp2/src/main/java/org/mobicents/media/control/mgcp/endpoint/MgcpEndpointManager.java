@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.mobicents.media.control.mgcp.endpoint.provider.AbstractMgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.exception.MgcpEndpointNotFoundException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 

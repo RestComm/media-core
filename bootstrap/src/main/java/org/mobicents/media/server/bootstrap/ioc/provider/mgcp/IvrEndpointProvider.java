@@ -19,44 +19,34 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
+import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Provides MGCP endpoints for a specific name space.
+ * Provides mixer endpoints belonging to name space mobicents/ivr/$
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractMgcpEndpointProvider<T extends MgcpEndpoint> {
-    
-    private final String namespace;
-    private final AtomicInteger idGenerator;
-    
-    public AbstractMgcpEndpointProvider(String namespace) {
-        this.namespace = namespace;
-        this.idGenerator = new AtomicInteger(0);
+public class IvrEndpointProvider extends MgcpMixerEndpointProvider implements Provider<MgcpMixerEndpoint> {
+
+    private final static String NAMESPACE = "mobicents/ivr/";
+
+    @Inject
+    public IvrEndpointProvider(MgcpConnectionProvider connectionProvider, PriorityQueueScheduler mediaScheduler) {
+        super(NAMESPACE, connectionProvider, mediaScheduler);
     }
 
-    /**
-     * Gets the name space associated with the provided endpoints.
-     * 
-     * @return The name space.
-     */
-    public String getNamespace() {
-        return this.namespace;
+    @Override
+    public MgcpMixerEndpoint get() {
+        return provide();
     }
-    
-    protected String generateId() {
-        return this.namespace + this.idGenerator.incrementAndGet();
-    }
-
-    /**
-     * Provides a new endpoint.
-     * 
-     * @return The newly created endpoint
-     */
-    public abstract T provide();
 
 }
