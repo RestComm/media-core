@@ -22,7 +22,6 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 
 /**
@@ -40,9 +39,7 @@ public class MgcpCommandProvider {
         this.endpointManager = endpointManager;
     }
 
-    public MgcpCommand provide(MgcpRequest request) {
-        MgcpRequestType type = request.getRequestType();
-
+    public MgcpCommand provide(MgcpRequestType type) {
         switch (type) {
             case CRCX:
                 return new CreateConnectionCommand(this.endpointManager);

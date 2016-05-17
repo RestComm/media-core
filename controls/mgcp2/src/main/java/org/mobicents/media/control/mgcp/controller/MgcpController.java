@@ -38,8 +38,6 @@ import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.ServerManager;
 
-import com.google.inject.Inject;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *

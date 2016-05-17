@@ -22,7 +22,6 @@
 package org.mobicents.media.control.mgcp.endpoint.command;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +35,6 @@ import org.mobicents.media.control.mgcp.command.ModifyConnectionCommand;
 import org.mobicents.media.control.mgcp.command.NotifyCommand;
 import org.mobicents.media.control.mgcp.command.RequestNotificationCommand;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 
 /**
@@ -48,13 +46,11 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideCrcx() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
 
         // when
-        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-        MgcpCommand command = commandProvider.provide(request);
+        MgcpCommand command = commandProvider.provide(MgcpRequestType.CRCX);
 
         // then
         Assert.assertTrue(command instanceof CreateConnectionCommand);
@@ -63,13 +59,11 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideMdcx() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
 
         // when
-        when(request.getRequestType()).thenReturn(MgcpRequestType.MDCX);
-        MgcpCommand command = commandProvider.provide(request);
+        MgcpCommand command = commandProvider.provide(MgcpRequestType.MDCX);
 
         // then
         Assert.assertTrue(command instanceof ModifyConnectionCommand);
@@ -78,13 +72,11 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideDlcx() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
 
         // when
-        when(request.getRequestType()).thenReturn(MgcpRequestType.DLCX);
-        MgcpCommand command = commandProvider.provide(request);
+        MgcpCommand command = commandProvider.provide(MgcpRequestType.DLCX);
 
         // then
         Assert.assertTrue(command instanceof DeleteConnectionCommand);
@@ -93,13 +85,11 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideAucx() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
 
         // when
-        when(request.getRequestType()).thenReturn(MgcpRequestType.AUCX);
-        MgcpCommand command = commandProvider.provide(request);
+        MgcpCommand command = commandProvider.provide(MgcpRequestType.AUCX);
 
         // then
         Assert.assertTrue(command instanceof AuditConnectionCommand);
@@ -108,13 +98,11 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideAuep() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
 
         // when
-        when(request.getRequestType()).thenReturn(MgcpRequestType.AUEP);
-        MgcpCommand command = commandProvider.provide(request);
+        MgcpCommand command = commandProvider.provide(MgcpRequestType.AUEP);
 
         // then
         Assert.assertTrue(command instanceof AuditEndpointCommand);
@@ -123,13 +111,11 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideRqnt() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
 
         // when
-        when(request.getRequestType()).thenReturn(MgcpRequestType.RQNT);
-        MgcpCommand command = commandProvider.provide(request);
+        MgcpCommand command = commandProvider.provide(MgcpRequestType.RQNT);
 
         // then
         Assert.assertTrue(command instanceof RequestNotificationCommand);
@@ -138,13 +124,11 @@ public class MgcpCommandProviderTest {
     @Test
     public void testProvideNtfy() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
 
         // when
-        when(request.getRequestType()).thenReturn(MgcpRequestType.NTFY);
-        MgcpCommand command = commandProvider.provide(request);
+        MgcpCommand command = commandProvider.provide(MgcpRequestType.NTFY);
 
         // then
         Assert.assertTrue(command instanceof NotifyCommand);

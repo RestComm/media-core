@@ -91,7 +91,7 @@ public class MgcpTransaction implements MgcpCommandListener {
                 switch (direction) {
                     case INBOUND:
                         // Execute incoming MGCP request
-                        MgcpCommand command = this.commands.provide(request);
+                        MgcpCommand command = this.commands.provide(request.getRequestType());
                         command.execute(request);
                         // Transaction must now listen for onCommandComplete event
                         break;

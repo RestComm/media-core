@@ -33,6 +33,7 @@ import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 
@@ -60,7 +61,8 @@ public class MgcpTransactionTest {
 
         // when - process incoming request
         when(response.toString()).thenReturn(RESPONSE);
-        when(commands.provide(request)).thenReturn(command);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
         when(command.execute(request)).thenReturn(response);
         transaction.processRequest(request, MessageDirection.INBOUND);
         
@@ -138,7 +140,8 @@ public class MgcpTransactionTest {
         transaction.setId(12345);
 
         // when - process incoming request
-        when(commands.provide(request1)).thenReturn(command);
+        when(request1.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
         transaction.processRequest(request1, MessageDirection.INBOUND);
         transaction.processRequest(request2, MessageDirection.INBOUND);
     }
@@ -157,7 +160,8 @@ public class MgcpTransactionTest {
         transaction.setId(12345);
         
         // when - process incoming request
-        when(commands.provide(request)).thenReturn(command);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
         transaction.processRequest(request, MessageDirection.INBOUND);
         transaction.processResponse(response);
     }
