@@ -1,30 +1,36 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * Copyright (C) 2016 TeleStax, Inc..
  *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
-
 package org.mobicents.media.server.impl.resource.mediaplayer.audio.wav;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.URL;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.Channels;
+import java.nio.channels.Selector;
+import java.nio.channels.ReadableByteChannel; 
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -35,15 +41,13 @@ import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.spi.memory.Memory;
-
 /**
  *
- * @author Oifa Yulian
+ * @author apollo
  */
-public class WavTrackImpl implements Track {
-
-    /** audio stream */
-    private InputStream inStream;
+public class WavTrackImpl implements Track{
+    
+    /*audio stream*/
     private AudioFormat format;
     private int period = 20;
     private int frameSize;
@@ -51,11 +55,13 @@ public class WavTrackImpl implements Track {
     private long duration;
     private int totalRead = 0;
     private int sizeOfData;
-
     private boolean first = true;
-
-    private static final Logger logger = Logger.getLogger(WavTrackImpl.class);
-
+    
+    private ReadableByteChannel rbChannel;
+    private ByteBuffer buff;
+   
+    private final static int BUFFER_SIZE = 128;
+    
     // Padding for different stream types.
     private final static byte PCM_PADDING_BYTE = 0;
     private final static byte ALAW_PADDING_BYTE = (byte) 0xD5;
@@ -63,76 +69,37 @@ public class WavTrackImpl implements Track {
 
     private final static byte[] factBytes = new byte[] { 0x66, 0x61, 0x63, 0x74 };
     private byte paddingByte = PCM_PADDING_BYTE;
-
-    public WavTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {
-        inStream = url.openStream();
-
-        getFormat(inStream);
+    private static final Logger logger = Logger.getLogger(WavTrackImpl.class);
+    
+    public WavTrackImpl (URL url) throws IOException, UnsupportedAudioFileException {
+        
+        buff = ByteBuffer.allocate(BUFFER_SIZE); 
+        rbChannel=Channels.newChannel(url.openStream());
+        
+        getAudioFormat(rbChannel);
         if (format == null) {
             throw new UnsupportedAudioFileException();
         }
+       
     }
 
-    public void setPeriod(int period) {
-        this.period = period;
-        frameSize = (int) (period * format.getChannels() * format.getSampleSize() * format.getSampleRate() / 8000);
-    }
-
-    public int getPeriod() {
-        return period;
-    }
-
-    @Override
-    public long getMediaTime() {
-        return 0;// timestamp * 1000000L;
-    }
-
-    @Override
-    public long getDuration() {
-        return duration;
-    }
-
-    @Override
-    public void setMediaTime(long timestamp) {
-        // this.timestamp = timestamp/1000000L;
-        // try {
-        // long offset = frameSize * (timestamp / period);
-        // byte[] skip = new byte[(int)offset];
-        // stream.read(skip);
-        // } catch (IOException e) {
-        // }
-    }
-
-    private void skip(long timestamp) {
-        try {
-            long offset = frameSize * (timestamp / period / 1000000L);
-            byte[] skip = new byte[(int) offset];
-            int bytesRead = 0;
-            while (bytesRead < skip.length && inStream.available() > 0) {
-                int len = inStream.read(skip, bytesRead, skip.length - bytesRead);
-                if (len == -1)
-                    return;
-
-                totalRead += len;
-                bytesRead += len;
-            }
-
-        } catch (IOException e) {
-            logger.error(e);
-        }
-    }
-
-    private void getFormat(InputStream stream) throws IOException {
+    private void getAudioFormat(ReadableByteChannel rbc) throws IOException {
         byte[] header = new byte[36];
         byte[] headerEnd = null;
+       
+        int bytesReadFromChannel = 0 ;
         int bytesRead = 0;
-        while (bytesRead < 36 && stream.available() > 0) {
-            int len = stream.read(header, bytesRead, 36 - bytesRead);
-            if (len == -1) {
-                return;
-            }
-            bytesRead += len;
+        int count = 0;
+            
+        bytesReadFromChannel=rbc.read(buff);
+        buff.clear();
+        
+        while (count < 36 && buff.remaining() > 0) {
+            //count=rbc.read(buffer);
+            header[count]=buff.get(count);
+            count++;
         }
+        buff.order(ByteOrder.LITTLE_ENDIAN);
 
         // ckSize 16,17,18,19
         int ckSize = (header[16] & 0xFF) | ((header[17] & 0xFF) << 8) | ((header[18] & 0xFF) << 16)
@@ -172,14 +139,21 @@ public class WavTrackImpl implements Track {
         }
 
         headerEnd = new byte[8 + ckSize - 16];
-        bytesRead = 0;
         extraHeaderSize = headerEnd.length;
-        while (bytesRead < extraHeaderSize && stream.available() > 0) {
-            int len = stream.read(headerEnd, bytesRead, extraHeaderSize - bytesRead);
+        int bytesReadExtra = 0;
+        
+        int headerSize=header.length;
+        int buffLimit = headerSize + extraHeaderSize;
+        buff.limit(buffLimit);
+        buff.position(headerSize);
+
+        while (bytesReadExtra < extraHeaderSize && buff.remaining()> 0) {
+            
+            int len = rbc.read(buff.get(headerEnd));
             if (len == -1) {
                 return;
             }
-            bytesRead += len;
+            bytesReadExtra += len;
         }
 
         int byteIndex = headerEnd.length - 4 - factBytes.length;
@@ -196,8 +170,13 @@ public class WavTrackImpl implements Track {
             sizeOfData -= 12;
             headerEnd = new byte[12];
             bytesRead = 0;
-            while (bytesRead < 12 && stream.available() > 0) {
-                int len = stream.read(headerEnd, bytesRead, 12 - bytesRead);
+            buffLimit += 12;
+            buff.limit(buffLimit);
+            buff.position(buffLimit-12);
+            
+            while (bytesRead < 12 && buff.remaining() > 0) {
+
+                int len = rbc.read(buff.get(headerEnd));
                 if (len == -1) {
                     return;
                 }
@@ -209,9 +188,65 @@ public class WavTrackImpl implements Track {
             frameSize = (int) (period * format.getChannels() * format.getSampleSize() * format.getSampleRate() / 8000);
             duration = sizeOfData * period * 1000000L / frameSize;
         }
+        
+        rbc.close();
+        //close();
+    }
+    
+    public void setPeriod(int period) {
+        this.period = period;
+        frameSize = (int) (period * format.getChannels() * format.getSampleSize() * format.getSampleRate() / 8000);
     }
 
-    /**
+    public int getPeriod() {
+        return period;
+    }
+    
+    @Override
+    public Format getFormat() {
+        return format;
+    }
+
+    @Override
+    public long getMediaTime() {
+        return 0;
+    }
+
+    @Override
+    public void setMediaTime(long timestamp) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public long getDuration() {
+        return duration;
+    }
+    
+    // check the channel
+    private void skip(long timestamp) {
+        try {
+            long offset = frameSize * (timestamp / period / 1000000L);
+            byte[] skip = new byte[(int) offset];
+            int bytesRead = 0;
+            buff.position(0);
+            buff.limit(skip.length);
+            while (bytesRead < skip.length && buff.remaining() > 0) {
+               
+                int len = rbChannel.read(buff.get(skip));
+                //int len = inStream.read(skip, bytesRead, skip.length - bytesRead);
+                if (len == -1)
+                    return;
+
+                totalRead += len;
+                bytesRead += len;
+            }
+
+        } catch (IOException e) {
+            logger.error(e);
+        }
+    }
+    
+        /**
      * Reads packet from currently opened stream.
      * 
      * @param packet the packet to read
@@ -220,22 +255,29 @@ public class WavTrackImpl implements Track {
      * @throws java.io.IOException
      */
     private int readPacket(byte[] packet, int offset, int psize) throws IOException {
-        int length = 0;
-        try {
-            while (length < psize) {
-                int len = inStream.read(packet, offset + length, psize - length);
-                if (len == -1) {
-                    return length;
-                }
-                length += len;
-            }
-            return length;
-        } catch (Exception e) {
-            logger.error(e);
+     
+        int bytesRead=0;
+        
+        if (psize == 0) { 
+            return 0; 
+        } 
+        
+        if (buff.capacity()< psize){
+            int packetSize = psize + 32;
+            ByteBuffer newBuff = ByteBuffer.allocate(packetSize); 
+            newBuff.put((ByteBuffer) buff.flip()); 
+            buff = newBuff;
         }
-        return length;
+        
+        buff.position(offset);
+        while (bytesRead < packet.length && buff.remaining() > 0){
+            int len = rbChannel.read(buff.get(packet));
+            bytesRead += len;
+        }
+        
+        return bytesRead;
     }
-
+    
     private void padding(byte[] data, int count) {
         int offset = data.length - count;
         for (int i = 0; i < count; i++) {
@@ -269,11 +311,11 @@ public class WavTrackImpl implements Track {
             eom = true;
         }
 
-        // will not generate empty packet next time
+//      will not generate empty packet next time
         if (totalRead >= sizeOfData) {
             eom = true;
         }
-
+        
         frame.setOffset(0);
         frame.setLength(frameSize);
         frame.setEOM(eom);
@@ -286,14 +328,10 @@ public class WavTrackImpl implements Track {
     @Override
     public void close() {
         try {
-            inStream.close();
+            rbChannel.close();
         } catch (Exception e) {
             logger.error("Could not close .wav track properly.", e);
         }
     }
-
-    @Override
-    public Format getFormat() {
-        return format;
-    }
+    
 }
