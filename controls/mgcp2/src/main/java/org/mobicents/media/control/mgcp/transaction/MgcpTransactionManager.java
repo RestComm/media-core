@@ -52,9 +52,9 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
     private final int minId;
     private final int maxId;
 
-    public MgcpTransactionManager(int minId, int maxId, MgcpChannel channel) {
+    public MgcpTransactionManager(int minId, int maxId, MgcpChannel channel, MgcpCommandProvider commandProvider) {
         // MGCP Components
-        this.commandProvider = new MgcpCommandProvider();
+        this.commandProvider = commandProvider;
         this.channel = channel;
 
         // MGCP Transaction Manager
