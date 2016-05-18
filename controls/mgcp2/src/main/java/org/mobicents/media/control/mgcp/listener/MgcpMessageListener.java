@@ -31,6 +31,18 @@ import org.mobicents.media.control.mgcp.message.MgcpMessage;
  */
 public interface MgcpMessageListener {
 
-    void onMessageReceived(MgcpMessage message);
+    /**
+     * Event triggered when a message is received from a remote peer.
+     * 
+     * @param message The incoming message.
+     */
+    void onIncomingMessage(MgcpMessage message);
+
+    /**
+     * Event triggered when a message is sent to a remote peer.
+     * 
+     * @param message The outgoing message
+     */
+    void onOutgoingMessage(MgcpMessage message);
 
 }

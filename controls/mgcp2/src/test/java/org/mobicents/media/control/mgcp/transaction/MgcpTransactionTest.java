@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.transaction;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,12 +31,13 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
-import org.mobicents.media.control.mgcp.network.MgcpChannel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -53,10 +55,10 @@ public class MgcpTransactionTest {
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         MgcpCommand command = mock(MgcpCommand.class);
-        MgcpChannel channel = mock(MgcpChannel.class);
-        MgcpTransactionListener listener = mock(MgcpTransactionListener.class);
+        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, channel, listener);
+        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
         transaction.setId(12345);
 
         // when - process incoming request
@@ -65,20 +67,20 @@ public class MgcpTransactionTest {
         when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
         when(command.execute(request)).thenReturn(response);
         transaction.processRequest(request, MessageDirection.INBOUND);
-        
+
         // then
         assertEquals(12345, transaction.getId());
         assertEquals(Integer.toHexString(12345), transaction.getHexId());
         verify(command, times(1)).execute(request);
         assertEquals(MgcpTransactionState.EXECUTING_REQUEST, transaction.getState());
-        
+
         // when - Command finishes executing
         transaction.onCommandExecuted(response);
 
         // then
         assertEquals(MgcpTransactionState.COMPLETED, transaction.getState());
-        verify(listener, times(1)).onTransactionComplete(transaction);
-        verify(channel, times(1)).queue(RESPONSE.getBytes());
+        verify(txListener, times(1)).onTransactionComplete(transaction);
+        verify(messageListener, times(1)).onOutgoingMessage(any(MgcpMessage.class));
     }
 
     @Test
@@ -87,56 +89,56 @@ public class MgcpTransactionTest {
         MgcpRequest request = mock(MgcpRequest.class);
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        MgcpChannel channel = mock(MgcpChannel.class);
-        MgcpTransactionListener listener = mock(MgcpTransactionListener.class);
+        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, channel, listener);
+        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
         transaction.setId(12345);
 
         // when - process outbound request
         when(request.toString()).thenReturn(REQUEST);
         transaction.processRequest(request, MessageDirection.OUTBOUND);
-        
+
         // then
         assertEquals(12345, transaction.getId());
         assertEquals(Integer.toHexString(12345), transaction.getHexId());
         assertEquals(MgcpTransactionState.WAITING_RESPONSE, transaction.getState());
-        verify(channel, times(1)).queue(REQUEST.getBytes());
-        
+        verify(messageListener, times(1)).onOutgoingMessage(any(MgcpMessage.class));
+
         // when - response arrives
         transaction.processResponse(response);
-        
+
         // then
         assertEquals(MgcpTransactionState.COMPLETED, transaction.getState());
-        verify(listener, times(1)).onTransactionComplete(transaction);
+        verify(txListener, times(1)).onTransactionComplete(transaction);
     }
-    
-    @Test(expected=IllegalStateException.class)
+
+    @Test(expected = IllegalStateException.class)
     public void testResponseWhileTransactionIsIdle() {
         // given
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        MgcpChannel channel = mock(MgcpChannel.class);
-        MgcpTransactionListener listener = mock(MgcpTransactionListener.class);
+        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, channel, listener);
+        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
         transaction.setId(12345);
 
         // when - process outbound request
         transaction.processResponse(response);
     }
-    
-    @Test(expected=IllegalStateException.class)
+
+    @Test(expected = IllegalStateException.class)
     public void testRequestWhileTransactionIsExecuting() {
         // given
         MgcpRequest request1 = mock(MgcpRequest.class);
         MgcpRequest request2 = mock(MgcpRequest.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         MgcpCommand command = mock(MgcpCommand.class);
-        MgcpChannel channel = mock(MgcpChannel.class);
-        MgcpTransactionListener listener = mock(MgcpTransactionListener.class);
+        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, channel, listener);
+        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
         transaction.setId(12345);
 
         // when - process incoming request
@@ -146,19 +148,19 @@ public class MgcpTransactionTest {
         transaction.processRequest(request2, MessageDirection.INBOUND);
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void testResponseWhileTransactionIsExecuting() {
         // given
         MgcpRequest request = mock(MgcpRequest.class);
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         MgcpCommand command = mock(MgcpCommand.class);
-        MgcpChannel channel = mock(MgcpChannel.class);
-        MgcpTransactionListener listener = mock(MgcpTransactionListener.class);
-        
-        MgcpTransaction transaction = new MgcpTransaction(commands, channel, listener);
+        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
+
+        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
         transaction.setId(12345);
-        
+
         // when - process incoming request
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);

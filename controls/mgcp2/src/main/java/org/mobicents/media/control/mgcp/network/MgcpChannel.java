@@ -28,7 +28,6 @@ import java.nio.channels.DatagramChannel;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
-import org.mobicents.media.server.io.network.channel.PacketHandler;
 
 /**
  * UDP channel that handles MGCP traffic.
@@ -44,18 +43,15 @@ public class MgcpChannel extends MultiplexedChannel {
     private final UdpManager networkManager;
 
     // MGCP Channel
-    private final PacketHandler mgcpHandler;
     private final SocketAddress bindAddress;
     private boolean open;
 
-    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpPacketHandler packetHandler) {
+    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager) {
         // Core Components
         this.networkManager = networkManager;
 
         // MGCP Channel
         this.bindAddress = bindAddress;
-        this.mgcpHandler = packetHandler;
-        this.handlers.addHandler(mgcpHandler);
         this.open = false;
     }
 
@@ -112,6 +108,10 @@ public class MgcpChannel extends MultiplexedChannel {
         } else {
             throw new IllegalStateException("Channel is closed");
         }
+    }
+
+    public void addHandler(MgcpPacketHandler packetHandler) {
+        this.handlers.addHandler(packetHandler);
     }
 
 }

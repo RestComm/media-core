@@ -78,7 +78,7 @@ public class MgcpPacketHandler implements PacketHandler {
             throws PacketHandlerException {
         // Get message type based on first byte
         byte b = packet[0];
-        
+
         // Produce message according to type
         MgcpMessage message;
         if (b >= 48 && b <= 57) {
@@ -86,9 +86,11 @@ public class MgcpPacketHandler implements PacketHandler {
         } else {
             message = handleRequest(packet, dataLength, offset, localPeer, remotePeer);
         }
-        
+
         // Warn listener packet was decoded
-        this.listener.onMessageReceived(message);
+        if (this.listener != null) {
+            this.listener.onIncomingMessage(message);
+        }
         return null;
     }
 

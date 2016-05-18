@@ -24,12 +24,11 @@ package org.mobicents.media.control.mgcp.transaction;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
+import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
-import org.mobicents.media.control.mgcp.network.MgcpChannel;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -39,7 +38,7 @@ public class MgcpTransaction implements MgcpCommandListener {
 
     // Mgcp Components
     private final MgcpCommandProvider commands;
-    private final MgcpChannel channel;
+    private final MgcpMessageListener messageListener;
     private final MgcpTransactionListener listener;
 
     // MGCP Transaction State
@@ -48,10 +47,11 @@ public class MgcpTransaction implements MgcpCommandListener {
     private MessageDirection direction;
     private MgcpTransactionState state;
 
-    public MgcpTransaction(MgcpCommandProvider commands, MgcpChannel channel, MgcpTransactionListener listener) {
+    public MgcpTransaction(MgcpCommandProvider commands, MgcpMessageListener messageListener,
+            MgcpTransactionListener listener) {
         // MGCP Components
         this.commands = commands;
-        this.channel = channel;
+        this.messageListener = messageListener;
         this.listener = listener;
 
         // MGCP Transaction State
@@ -72,14 +72,9 @@ public class MgcpTransaction implements MgcpCommandListener {
         this.id = id;
         this.hexId = Integer.toHexString(id);
     }
-    
+
     public MgcpTransactionState getState() {
         return state;
-    }
-
-    private void sendMessage(MgcpMessage message) {
-        byte[] data = message.toString().getBytes();
-        this.channel.queue(data);
     }
 
     public void processRequest(MgcpRequest request, MessageDirection direction) throws IllegalStateException {
@@ -98,7 +93,7 @@ public class MgcpTransaction implements MgcpCommandListener {
 
                     case OUTBOUND:
                         // Send the request to the remote peer right now and wait for the response
-                        sendMessage(request);
+                        this.messageListener.onOutgoingMessage(request);
                         this.state = MgcpTransactionState.WAITING_RESPONSE;
                         break;
 
@@ -119,7 +114,7 @@ public class MgcpTransaction implements MgcpCommandListener {
                 if (MessageDirection.INBOUND.equals(this.direction)) {
                     // Command finished executing inbound request
                     // Time to send response to the remote peer
-                    sendMessage(response);
+                    this.messageListener.onOutgoingMessage(response);
                 }
                 this.listener.onTransactionComplete(this);
                 break;

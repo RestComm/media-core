@@ -22,7 +22,6 @@
 package org.mobicents.media.control.mgcp.controller;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
@@ -32,7 +31,6 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -53,12 +51,13 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     // MGCP Controller State
     private boolean active;
 
-    public MgcpController(SocketAddress bindAddress, int minTransactionId, int maxTransactionId, UdpManager networkManager, MgcpCommandProvider commandProvider) {
+    public MgcpController(MgcpChannel channel, MgcpTransactionManager txManager, MgcpCommandProvider commandProvider) {
         // MGCP Components
         this.messageParser = new MgcpMessageParser();
         this.packetHandler = new MgcpPacketHandler(this.messageParser, this);
-        this.channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
-        this.transactions = new MgcpTransactionManager(minTransactionId, maxTransactionId, this.channel, commandProvider);
+        this.channel = channel;
+        this.channel.addHandler(this.packetHandler);
+        this.transactions = txManager;
 
         // MGCP Controller State
         this.active = false;
@@ -112,11 +111,17 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     }
 
     @Override
-    public void onMessageReceived(MgcpMessage message) {
+    public void onIncomingMessage(MgcpMessage message) {
         // Ask the transaction manager to process the incoming message
         // If message is a Request, then a new transaction is spawned and executed.
         // If message is a Response, then existing transaction is retrieved and closed.
         this.transactions.process(message, MessageDirection.INBOUND);
+    }
+
+    @Override
+    public void onOutgoingMessage(MgcpMessage message) {
+        // Send message to remote peer
+        this.channel.queue(message.toString().getBytes());
     }
 
 }

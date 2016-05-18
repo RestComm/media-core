@@ -36,8 +36,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.server.io.network.UdpManager;
 
 /**
@@ -53,10 +51,9 @@ public class MgcpChannelTest {
         try (DatagramChannel datagramChannel = DatagramChannel.open()) {
             // given
             SelectionKey selectionKey = mock(SelectionKey.class);
-            MgcpPacketHandler packetHandler = mock(MgcpPacketHandler.class);
             UdpManager networkManager = mock(UdpManager.class);
             
-            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
+            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager);
 
             // when - open channel
             when(networkManager.open(channel)).thenReturn(selectionKey);

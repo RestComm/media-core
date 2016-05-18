@@ -26,13 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.network.MgcpChannel;
 
 /**
  * Manages a group of MGCP transactions.
@@ -44,7 +44,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
 
     // MGCP Components
     private final MgcpCommandProvider commandProvider;
-    private final MgcpChannel channel;
+    private final MgcpMessageListener messageListener;
 
     // MGCP Transaction Manager
     private final Map<Integer, MgcpTransaction> transactions;
@@ -52,10 +52,10 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
     private final int minId;
     private final int maxId;
 
-    public MgcpTransactionManager(int minId, int maxId, MgcpChannel channel, MgcpCommandProvider commandProvider) {
+    public MgcpTransactionManager(int minId, int maxId, MgcpMessageListener messageListener, MgcpCommandProvider commandProvider) {
         // MGCP Components
         this.commandProvider = commandProvider;
-        this.channel = channel;
+        this.messageListener = messageListener;
 
         // MGCP Transaction Manager
         this.idGenerator = new AtomicInteger(minId);
@@ -84,7 +84,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
     }
 
     private MgcpTransaction createTransaction(int transactionId) {
-        MgcpTransaction transaction = new MgcpTransaction(this.commandProvider, this.channel, this);
+        MgcpTransaction transaction = new MgcpTransaction(this.commandProvider, this.messageListener, this);
         transaction.setId(generateId());
         return transaction;
     }
@@ -108,7 +108,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
                 response.setTransactionId(transactionId);
                 response.setCode(MgcpResponseCode.PROTOCOL_ERROR.code());
                 response.setMessage("Transaction " + transactionId + " was aborted and no longer exists");
-                this.channel.queue(response.toString().getBytes());
+                this.messageListener.onOutgoingMessage(response);
             } else {
                 transaction.processResponse((MgcpResponse) message);
             }
