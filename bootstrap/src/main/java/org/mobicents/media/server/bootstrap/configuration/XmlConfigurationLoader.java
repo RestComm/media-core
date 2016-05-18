@@ -94,6 +94,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
             MgcpEndpointConfiguration endpointConfig = new MgcpEndpointConfiguration();
             endpointConfig.setName(endpoint.getString("[@name]"));
             endpointConfig.setClassName(endpoint.getString("[@class]"));
+            endpointConfig.setRelayType(endpoint.getString("[@relay]", "mixer"));
             endpointConfig.setPoolSize(endpoint.getInt("[@poolSize]", MgcpEndpointConfiguration.POOL_SIZE));
             dst.addEndpoint(endpointConfig);
         }

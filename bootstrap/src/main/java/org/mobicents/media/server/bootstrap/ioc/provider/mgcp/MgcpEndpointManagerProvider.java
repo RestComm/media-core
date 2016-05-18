@@ -19,33 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
+import java.util.List;
+
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider.MgcpEndpointInstallerListType;
-import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
+import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpModule extends AbstractModule {
+public class MgcpEndpointManagerProvider implements Provider<MgcpEndpointManager> {
 
-    private final MediaServerConfiguration config;
+    private final List<MgcpEndpointProvider<? extends MgcpEndpoint>> endpointProviders;
 
-    public MgcpModule(MediaServerConfiguration config) {
-        this.config = config;
+    @Inject
+    public MgcpEndpointManagerProvider(List<MgcpEndpointProvider<? extends MgcpEndpoint>> endpointProviders) {
+        this.endpointProviders = endpointProviders;
     }
 
     @Override
-    protected void configure() {
-        bind(MediaServerConfiguration.class).toInstance(this.config);
-        bind(MgcpEndpointInstallerListType.INSTANCE).toProvider(MgcpEndpointInstallerProvider.class).in(Singleton.class);
-        bind(MgcpEndpointManager.class).toProvider(MgcpEndpointManagerProvider.class).in(Singleton.class);
+    public MgcpEndpointManager get() {
+        MgcpEndpointManager manager = new MgcpEndpointManager();
+        for (MgcpEndpointProvider<? extends MgcpEndpoint> endpointProvider : this.endpointProviders) {
+            manager.installProvider(endpointProvider);
+        }
+        return manager;
     }
+
 }

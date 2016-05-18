@@ -21,33 +21,26 @@
 
 package org.mobicents.media.control.mgcp.endpoint.provider;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 
 /**
- * Provides MGCP endpoints for a specific name space.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractMgcpEndpointProvider<T extends MgcpEndpoint> implements MgcpEndpointProvider<T> {
-    
-    private final String namespace;
-    private final AtomicInteger idGenerator;
-    
-    public AbstractMgcpEndpointProvider(String namespace) {
-        this.namespace = namespace;
-        this.idGenerator = new AtomicInteger(0);
-    }
+public interface MgcpEndpointProvider<T extends MgcpEndpoint> {
 
-    @Override
-    public String getNamespace() {
-        return this.namespace;
-    }
-    
-    protected String generateId() {
-        return this.namespace + this.idGenerator.incrementAndGet();
-    }
+    /**
+     * Gets the name space associated with the provided endpoints.
+     * 
+     * @return The name space.
+     */
+    String getNamespace();
+
+    /**
+     * Provides a new endpoint.
+     * 
+     * @return The newly created endpoint
+     */
+    T provide();
 
 }

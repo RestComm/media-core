@@ -19,35 +19,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
+package org.mobicents.media.server.spi;
 
 /**
- * Provides MGCP endpoints for a specific name space.
+ * List of possible types of Media Relay.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractMgcpEndpointProvider<T extends MgcpEndpoint> implements MgcpEndpointProvider<T> {
+public enum RelayType {
     
-    private final String namespace;
-    private final AtomicInteger idGenerator;
+    MIXER, SPLITTER;
     
-    public AbstractMgcpEndpointProvider(String namespace) {
-        this.namespace = namespace;
-        this.idGenerator = new AtomicInteger(0);
-    }
-
-    @Override
-    public String getNamespace() {
-        return this.namespace;
-    }
-    
-    protected String generateId() {
-        return this.namespace + this.idGenerator.incrementAndGet();
+    public static final RelayType fromName(String name) {
+        for (RelayType relayType : values()) {
+            if(relayType.name().equalsIgnoreCase(name)) {
+                return relayType;
+            }
+        }
+        throw new IllegalArgumentException("Unknown relay type " + name);
     }
 
 }
