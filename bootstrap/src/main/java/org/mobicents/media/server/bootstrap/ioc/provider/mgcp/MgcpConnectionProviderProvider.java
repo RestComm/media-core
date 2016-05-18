@@ -22,31 +22,31 @@
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
- * Provides mixer endpoints belonging to name space mobicents/ivr/$
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class IvrEndpointProvider extends MgcpMixerEndpointProvider implements Provider<MgcpMixerEndpoint> {
+public class MgcpConnectionProviderProvider implements Provider<MgcpConnectionProvider> {
 
-    private final static String NAMESPACE = "mobicents/ivr/";
+    private final MediaChannelProvider mediaChannelProvider;
+    private final ChannelsManager channelsManager;
 
     @Inject
-    public IvrEndpointProvider(MgcpConnectionProvider connectionProvider, PriorityQueueScheduler mediaScheduler) {
-        super(NAMESPACE, connectionProvider, mediaScheduler);
+    public MgcpConnectionProviderProvider(MediaChannelProvider mediaChannelProvider, ChannelsManager channelsManager) {
+        super();
+        this.mediaChannelProvider = mediaChannelProvider;
+        this.channelsManager = channelsManager;
     }
 
     @Override
-    public MgcpMixerEndpoint get() {
-        return provide();
+    public MgcpConnectionProvider get() {
+        return new MgcpConnectionProvider(this.mediaChannelProvider, this.channelsManager);
     }
 
 }

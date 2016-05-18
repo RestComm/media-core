@@ -18,13 +18,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
+package org.mobicents.media.server.bootstrap.ioc.provider.media;
+
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -33,25 +32,20 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ChannelsManagerProvider implements Provider<ChannelsManager> {
+public class MediaChannelProviderProvider implements Provider<MediaChannelProvider> {
 
-    private final UdpManager udpManager;
-    private final PriorityQueueScheduler mediaScheduler;
-    private final MediaServerConfiguration config;
-    
+    private final ChannelsManager channelsManager;
+    private final DspFactory dspFactory;
+
     @Inject
-    public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager, PriorityQueueScheduler mediaScheduler) {
-        this.udpManager = udpManager;
-        this.mediaScheduler = mediaScheduler;
-        this.config = config;
+    public MediaChannelProviderProvider(ChannelsManager channelsManager, DspFactory dspFactory) {
+        this.channelsManager = channelsManager;
+        this.dspFactory = dspFactory;
     }
-    
+
     @Override
-    public ChannelsManager get() {
-        ChannelsManager channelsManager = new ChannelsManager(this.udpManager);
-        channelsManager.setScheduler(mediaScheduler);
-        channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
-        return channelsManager;
+    public MediaChannelProvider get() {
+        return new MediaChannelProvider(channelsManager, dspFactory);
     }
 
 }

@@ -21,8 +21,9 @@
 
 package org.mobicents.media.server.bootstrap.ioc;
 
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpConnectionProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider.MgcpEndpointInstallerListType;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
@@ -36,15 +37,9 @@ import com.google.inject.Singleton;
  */
 public class MgcpModule extends AbstractModule {
 
-    private final MediaServerConfiguration config;
-
-    public MgcpModule(MediaServerConfiguration config) {
-        this.config = config;
-    }
-
     @Override
     protected void configure() {
-        bind(MediaServerConfiguration.class).toInstance(this.config);
+        bind(MgcpConnectionProvider.class).toProvider(MgcpConnectionProviderProvider.class).in(Singleton.class);
         bind(MgcpEndpointInstallerListType.INSTANCE).toProvider(MgcpEndpointInstallerProvider.class).in(Singleton.class);
         bind(MgcpEndpointManager.class).toProvider(MgcpEndpointManagerProvider.class).in(Singleton.class);
     }

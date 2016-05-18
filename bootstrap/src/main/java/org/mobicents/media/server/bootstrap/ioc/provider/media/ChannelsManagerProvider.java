@@ -18,34 +18,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.server.bootstrap.ioc.provider.media;
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
-
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
- * Provides mixer endpoints belonging to name space mobicents/cnf/$
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class CnfEndpointProvider extends MgcpMixerEndpointProvider implements Provider<MgcpMixerEndpoint> {
+public class ChannelsManagerProvider implements Provider<ChannelsManager> {
 
-    private final static String NAMESPACE = "mobicents/cnf/";
-
+    private final UdpManager udpManager;
+    private final PriorityQueueScheduler mediaScheduler;
+    private final MediaServerConfiguration config;
+    
     @Inject
-    public CnfEndpointProvider(MgcpConnectionProvider connectionProvider, PriorityQueueScheduler mediaScheduler) {
-        super(NAMESPACE, connectionProvider, mediaScheduler);
+    public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager, PriorityQueueScheduler mediaScheduler) {
+        this.udpManager = udpManager;
+        this.mediaScheduler = mediaScheduler;
+        this.config = config;
+    }
+    
+    @Override
+    public ChannelsManager get() {
+        ChannelsManager channelsManager = new ChannelsManager(this.udpManager);
+        channelsManager.setScheduler(mediaScheduler);
+        channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
+        return channelsManager;
     }
 
-    @Override
-    public MgcpMixerEndpoint get() {
-        return provide();
-    }
 }

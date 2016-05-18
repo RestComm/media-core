@@ -18,35 +18,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.server.bootstrap.ioc;
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
+import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.media.ChannelsManagerProvider;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.spi.dsp.DspFactory;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointProvider;
-import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 
 /**
- * Provides splitter endpoints belonging to name space mobicents/bridge/$
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class BridgeEndpointProvider extends MgcpSplitterEndpointProvider implements Provider<MgcpSplitterEndpoint> {
-
-    private final static String NAMESPACE = "mobicents/bridge/";
-
-    @Inject
-    public BridgeEndpointProvider(MgcpConnectionProvider connectionProvider, PriorityQueueScheduler mediaScheduler) {
-        super(NAMESPACE, connectionProvider, mediaScheduler);
-    }
+public class MediaModule extends AbstractModule {
 
     @Override
-    public MgcpSplitterEndpoint get() {
-        return provide();
+    protected void configure() {
+        bind(DspFactory.class).toProvider(DspProvider.class).in(Singleton.class);
+        bind(ChannelsManager.class).toProvider(ChannelsManagerProvider.class).in(Singleton.class);
     }
 
 }
