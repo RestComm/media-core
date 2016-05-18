@@ -24,38 +24,32 @@ package org.mobicents.media.control.mgcp.command;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 
 /**
- * Abstract implementation of MGCP command that forces a rollback operation when {@link MgcpCommand#execute(MgcpRequest)} fails.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractMgcpCommand implements MgcpCommand {
-    
-    protected static final String WILDCARD_ANY = "*";
-    protected static final String WILDCARD_ALL = "$";
-    protected static final String ENDPOINT_ID_SEPARATOR = "@";
-    
-    protected final MgcpEndpointManager endpointManager;
-    
-    public AbstractMgcpCommand(MgcpEndpointManager endpointManager) {
-        this.endpointManager = endpointManager;
+public class DeleteConnectionCommand extends AbstractMgcpCommand {
+
+    public DeleteConnectionCommand(MgcpEndpointManager endpointManager) {
+        super(endpointManager);
     }
 
     @Override
-    public MgcpResponse execute(MgcpRequest request) {
-        MgcpResponse response;
-        try {
-            response = executeRequest(request);
-        } catch (MgcpCommandException e) {
-            response = rollback(request.getTransactionId(), e.getCode(), e.getMessage());
-        }
+    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
+        // TODO Auto-generated method stub
+        MgcpResponse response = new MgcpResponse();
+        response.setCode(MgcpResponseCode.ABORTED.code());
+        response.setMessage("Not yet implemented");
+        response.setTransactionId(request.getTransactionId());
         return response;
     }
 
-    protected abstract MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException;
-
-    protected abstract MgcpResponse rollback(int transactionId, int code, String message);
+    @Override
+    protected MgcpResponse rollback(int transactionId, int code, String message) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

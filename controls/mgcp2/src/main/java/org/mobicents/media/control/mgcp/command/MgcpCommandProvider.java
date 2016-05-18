@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 
 /**
@@ -32,42 +32,39 @@ import org.mobicents.media.control.mgcp.message.MgcpRequestType;
  */
 public class MgcpCommandProvider {
 
-    public MgcpCommand provide(MgcpRequest request) {
-        MgcpRequestType type = request.getRequestType();
+    private final MgcpEndpointManager endpointManager;
 
+    public MgcpCommandProvider(MgcpEndpointManager endpointManager) {
+        super();
+        this.endpointManager = endpointManager;
+    }
+
+    public MgcpCommand provide(MgcpRequestType type) {
         switch (type) {
             case CRCX:
-                // TODO provide CRCX command
-                break;
+                return new CreateConnectionCommand(this.endpointManager);
 
             case MDCX:
-                // TODO provide CRCX command
-                break;
+                return new ModifyConnectionCommand(this.endpointManager);
 
             case DLCX:
-                // TODO provide CRCX command
-                break;
+                return new DeleteConnectionCommand(this.endpointManager);
 
             case RQNT:
-                // TODO provide CRCX command
-                break;
+                return new RequestNotificationCommand(this.endpointManager);
 
             case NTFY:
-                // TODO provide CRCX command
-                break;
+                return new NotifyCommand(this.endpointManager);
 
             case AUCX:
-                // TODO provide CRCX command
-                break;
+                return new AuditConnectionCommand(this.endpointManager);
 
             case AUEP:
-                // TODO provide CRCX command
-                break;
+                return new AuditEndpointCommand(this.endpointManager);
 
             default:
                 throw new IllegalArgumentException("Unsupported command type " + type.name());
         }
-        return null;
     }
 
 }

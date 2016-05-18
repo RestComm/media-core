@@ -41,15 +41,8 @@ import org.mobicents.media.server.spi.ConnectionMode;
  *
  */
 public class CreateConnectionCommand extends AbstractMgcpCommand {
-    
+
     private static final Logger log = Logger.getLogger(CreateConnectionCommand.class);
-
-    private static final String WILDCARD_ANY = "*";
-    private static final String WILDCARD_ALL = "$";
-    private static final String ENDPOINT_ID_SEPARATOR = "@";
-
-    // MGCP Components
-    private final MgcpEndpointManager endpointManager;
 
     // MGCP Command Execution
     private int transactionId = 0;
@@ -63,8 +56,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpConnection connection2;
 
     public CreateConnectionCommand(MgcpEndpointManager endpointManager) {
-        // MGCP Components
-        this.endpointManager = endpointManager;
+        super(endpointManager);
     }
 
     private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
