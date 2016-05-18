@@ -45,7 +45,6 @@ import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionFactoryP
 import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider.LocalConnectionPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.MediaSchedulerProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.MgcpControllerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider.PhoneSignalDetectorFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorPoolProvider;
@@ -67,7 +66,6 @@ import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.ServerManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -109,7 +107,6 @@ public class CoreModule extends AbstractModule {
         bind(PhoneSignalGeneratorPoolType.INSTANCE).toProvider(PhoneSignalGeneratorPoolProvider.class).in(Singleton.class);
         bind(ResourcesPool.class).toProvider(ResourcesPoolProvider.class).in(Singleton.class);
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
-        bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
     }
 
 }

@@ -19,29 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.media.ChannelsManagerProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.media.MediaChannelProviderProvider;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
-import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaModule extends AbstractModule {
+public class MgcpCommandProviderProvider implements Provider<MgcpCommandProvider> {
+
+    private final MgcpEndpointManager endpointManager;
+
+    @Inject
+    public MgcpCommandProviderProvider(MgcpEndpointManager endpointManager) {
+        this.endpointManager = endpointManager;
+    }
 
     @Override
-    protected void configure() {
-        bind(DspFactory.class).toProvider(DspProvider.class).in(Singleton.class);
-        bind(ChannelsManager.class).toProvider(ChannelsManagerProvider.class).in(Singleton.class);
-        bind(MediaChannelProvider.class).toProvider(MediaChannelProviderProvider.class).in(Singleton.class);
+    public MgcpCommandProvider get() {
+        return new MgcpCommandProvider(this.endpointManager);
     }
 
 }

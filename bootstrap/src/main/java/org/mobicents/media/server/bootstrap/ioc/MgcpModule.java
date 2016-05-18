@@ -21,12 +21,16 @@
 
 package org.mobicents.media.server.bootstrap.ioc;
 
+import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpCommandProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpConnectionProviderProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpControllerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointInstallerProvider.MgcpEndpointInstallerListType;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpEndpointManagerProvider;
+import org.mobicents.media.server.spi.ServerManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -42,5 +46,7 @@ public class MgcpModule extends AbstractModule {
         bind(MgcpConnectionProvider.class).toProvider(MgcpConnectionProviderProvider.class).in(Singleton.class);
         bind(MgcpEndpointInstallerListType.INSTANCE).toProvider(MgcpEndpointInstallerProvider.class).in(Singleton.class);
         bind(MgcpEndpointManager.class).toProvider(MgcpEndpointManagerProvider.class).in(Singleton.class);
+        bind(MgcpCommandProvider.class).toProvider(MgcpCommandProviderProvider.class).in(Singleton.class);
+        bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
     }
 }
