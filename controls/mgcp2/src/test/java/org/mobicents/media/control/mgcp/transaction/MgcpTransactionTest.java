@@ -58,8 +58,10 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
+        MgcpTransaction transaction = new MgcpTransaction(commands);
         transaction.setId(12345);
+        transaction.addMessageListener(messageListener);
+        transaction.addTransactionListener(txListener);
 
         // when - process incoming request
         when(response.toString()).thenReturn(RESPONSE);
@@ -92,8 +94,10 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
+        MgcpTransaction transaction = new MgcpTransaction(commands);
         transaction.setId(12345);
+        transaction.addMessageListener(messageListener);
+        transaction.addTransactionListener(txListener);
 
         // when - process outbound request
         when(request.toString()).thenReturn(REQUEST);
@@ -121,8 +125,10 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
+        MgcpTransaction transaction = new MgcpTransaction(commands);
         transaction.setId(12345);
+        transaction.addMessageListener(messageListener);
+        transaction.addTransactionListener(txListener);
 
         // when - process outbound request
         transaction.processResponse(response);
@@ -138,8 +144,10 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
+        MgcpTransaction transaction = new MgcpTransaction(commands);
         transaction.setId(12345);
+        transaction.addMessageListener(messageListener);
+        transaction.addTransactionListener(txListener);
 
         // when - process incoming request
         when(request1.getRequestType()).thenReturn(MgcpRequestType.CRCX);
@@ -158,8 +166,10 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands, messageListener, txListener);
+        MgcpTransaction transaction = new MgcpTransaction(commands);
         transaction.setId(12345);
+        transaction.addMessageListener(messageListener);
+        transaction.addTransactionListener(txListener);
 
         // when - process incoming request
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);

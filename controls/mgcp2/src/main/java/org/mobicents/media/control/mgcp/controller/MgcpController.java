@@ -32,6 +32,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
@@ -57,7 +58,7 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
         // MGCP Components
         this.packetHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
         this.channel = new MgcpChannel(bindAddress, networkManager, this.packetHandler);
-        this.transactions = new MgcpTransactionManager(this, commandProvider);
+        this.transactions = new MgcpTransactionManager(this, new MgcpTransactionProvider(commandProvider));
 
         // MGCP Controller State
         this.active = false;

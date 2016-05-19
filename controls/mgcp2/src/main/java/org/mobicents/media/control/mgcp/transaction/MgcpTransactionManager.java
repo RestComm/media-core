@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
@@ -46,7 +45,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
     private static final Logger log = Logger.getLogger(MgcpTransactionManager.class);
 
     // MGCP Components
-    private final MgcpCommandProvider commandProvider;
+    private final MgcpTransactionProvider transactionProvider;
     private final MgcpMessageListener messageListener;
 
     // MGCP Transaction Manager
@@ -55,10 +54,10 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
     private final int minId;
     private final int maxId;
 
-    public MgcpTransactionManager(MgcpMessageListener messageListener, MgcpCommandProvider commandProvider) {
+    public MgcpTransactionManager(MgcpMessageListener messageListener, MgcpTransactionProvider transactionProvider) {
         // MGCP Components
-        this.commandProvider = commandProvider;
         this.messageListener = messageListener;
+        this.transactionProvider = transactionProvider;
 
         // MGCP Transaction Manager
         this.minId = 1;
@@ -78,7 +77,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
         return this.idGenerator.getAndIncrement();
     }
 
-    private boolean isLocal(int transactionId) {
+    boolean isLocal(int transactionId) {
         return transactionId >= this.minId && transactionId <= this.maxId;
     }
 
@@ -88,8 +87,10 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
 
     private MgcpTransaction createTransaction(int transactionId) throws DuplicateMgcpTransactionException {
         // Create Transaction
-        MgcpTransaction transaction = new MgcpTransaction(this.commandProvider, this.messageListener, this);
+        MgcpTransaction transaction = this.transactionProvider.provide();
         transaction.setId(transactionId);
+        transaction.addMessageListener(this.messageListener);
+        transaction.addTransactionListener(this);
 
         // Register Transaction
         MgcpTransaction old = this.transactions.putIfAbsent(transactionId, transaction);
@@ -105,6 +106,10 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
 
         return transaction;
     }
+    
+    boolean contains(int transactionId) {
+        return this.transactions.containsKey(transactionId);
+    }
 
     private MgcpTransaction findTransaction(int transactionId) {
         return this.transactions.get(transactionId);
@@ -119,7 +124,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
             try {
                 transaction = MessageDirection.INBOUND.equals(direction) ? createTransaction(transactionId)
                         : createTransaction();
-                transaction.processRequest((MgcpRequest) message, MessageDirection.INBOUND);
+                transaction.processRequest((MgcpRequest) message, direction);
             } catch (DuplicateMgcpTransactionException e) {
                 // Send provisional response
                 final MgcpResponseCode responseCode = MgcpResponseCode.TRANSACTION_BEEN_EXECUTED;
@@ -157,7 +162,13 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
         if (log.isDebugEnabled()) {
             log.debug("Unregistered transaction " + transaction.getId());
         }
+
+        // Unregister transaction
         this.transactions.remove(transaction.getId());
+
+        // Unregister listeners from transaction
+        transaction.removeMessageListener(this.messageListener);
+        transaction.removeTransactionListener(this);
     }
 
 }

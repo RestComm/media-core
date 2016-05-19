@@ -21,12 +21,16 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
@@ -38,8 +42,8 @@ public class MgcpTransaction implements MgcpCommandListener {
 
     // Mgcp Components
     private final MgcpCommandProvider commands;
-    private final MgcpMessageListener messageListener;
-    private final MgcpTransactionListener listener;
+    private final List<MgcpMessageListener> messageListeners;
+    private final List<MgcpTransactionListener> transactionListeners;
 
     // MGCP Transaction State
     private int id;
@@ -47,12 +51,11 @@ public class MgcpTransaction implements MgcpCommandListener {
     private MessageDirection direction;
     private MgcpTransactionState state;
 
-    public MgcpTransaction(MgcpCommandProvider commands, MgcpMessageListener messageListener,
-            MgcpTransactionListener listener) {
+    public MgcpTransaction(MgcpCommandProvider commands) {
         // MGCP Components
         this.commands = commands;
-        this.messageListener = messageListener;
-        this.listener = listener;
+        this.messageListeners = new ArrayList<>(5);
+        this.transactionListeners = new ArrayList<>(5);
 
         // MGCP Transaction State
         this.id = 0;
@@ -76,6 +79,34 @@ public class MgcpTransaction implements MgcpCommandListener {
     public MgcpTransactionState getState() {
         return state;
     }
+    
+    public void addMessageListener(MgcpMessageListener listener) {
+        this.messageListeners.add(listener);
+    }
+
+    public void removeMessageListener(MgcpMessageListener listener) {
+        this.messageListeners.remove(listener);
+    }
+    
+    public void addTransactionListener(MgcpTransactionListener listener) {
+        this.transactionListeners.add(listener);
+    }
+
+    public void removeTransactionListener(MgcpTransactionListener listener) {
+        this.transactionListeners.remove(listener);
+    }
+
+    private void broadcast(MgcpMessage message) {
+        for (MgcpMessageListener observer : this.messageListeners) {
+            observer.onOutgoingMessage(message);
+        }
+    }
+
+    private void broadcast(MgcpTransaction transaction) {
+        for (MgcpTransactionListener observer : this.transactionListeners) {
+            observer.onTransactionComplete(transaction);
+        }
+    }
 
     public void processRequest(MgcpRequest request, MessageDirection direction) throws IllegalStateException {
         switch (this.state) {
@@ -93,7 +124,7 @@ public class MgcpTransaction implements MgcpCommandListener {
 
                     case OUTBOUND:
                         // Send the request to the remote peer right now and wait for the response
-                        this.messageListener.onOutgoingMessage(request);
+                        broadcast(request);
                         this.state = MgcpTransactionState.WAITING_RESPONSE;
                         break;
 
@@ -114,9 +145,9 @@ public class MgcpTransaction implements MgcpCommandListener {
                 if (MessageDirection.INBOUND.equals(this.direction)) {
                     // Command finished executing inbound request
                     // Time to send response to the remote peer
-                    this.messageListener.onOutgoingMessage(response);
+                    broadcast(response);
                 }
-                this.listener.onTransactionComplete(this);
+                broadcast(this);
                 break;
 
             default:
