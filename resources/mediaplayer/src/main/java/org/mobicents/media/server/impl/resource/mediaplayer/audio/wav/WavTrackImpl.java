@@ -73,8 +73,8 @@ public class WavTrackImpl implements Track{
     
     public WavTrackImpl (URL url) throws IOException, UnsupportedAudioFileException {
         
-        buff = ByteBuffer.allocate(BUFFER_SIZE); 
         rbChannel=Channels.newChannel(url.openStream());
+        buff = ByteBuffer.allocate(BUFFER_SIZE); 
         
         getAudioFormat(rbChannel);
         if (format == null) {
@@ -90,7 +90,7 @@ public class WavTrackImpl implements Track{
         int bytesReadFromChannel = 0 ;
         int bytesRead = 0;
         int count = 0;
-            
+        
         bytesReadFromChannel=rbc.read(buff);
         buff.clear();
         
@@ -189,8 +189,7 @@ public class WavTrackImpl implements Track{
             duration = sizeOfData * period * 1000000L / frameSize;
         }
         
-        rbc.close();
-        //close();
+        // don't close the channel
     }
     
     public void setPeriod(int period) {
@@ -222,18 +221,25 @@ public class WavTrackImpl implements Track{
         return duration;
     }
     
-    // check the channel
     private void skip(long timestamp) {
         try {
             long offset = frameSize * (timestamp / period / 1000000L);
             byte[] skip = new byte[(int) offset];
             int bytesRead = 0;
-            buff.position(0);
-            buff.limit(skip.length);
+            
+            int header = 46;
+            int buffSize = skip.length + header;
+            
+            if (buff.capacity()< skip.length){
+                ByteBuffer newBuff = ByteBuffer.allocate(buffSize); 
+                newBuff.put((ByteBuffer) buff.flip()); 
+                buff = newBuff;
+            }   
+
             while (bytesRead < skip.length && buff.remaining() > 0) {
-               
-                int len = rbChannel.read(buff.get(skip));
-                //int len = inStream.read(skip, bytesRead, skip.length - bytesRead);
+                buff.position(header);
+                buff.limit(buffSize);
+                int len = rbChannel.read(ByteBuffer.wrap(skip));
                 if (len == -1)
                     return;
 
@@ -255,27 +261,34 @@ public class WavTrackImpl implements Track{
      * @throws java.io.IOException
      */
     private int readPacket(byte[] packet, int offset, int psize) throws IOException {
-     
-        int bytesRead=0;
         
-        if (psize == 0) { 
-            return 0; 
-        } 
+        int length = 0;
+        offset += 46;
+        int packetSize = psize + offset;
         
         if (buff.capacity()< psize){
-            int packetSize = psize + 32;
             ByteBuffer newBuff = ByteBuffer.allocate(packetSize); 
             newBuff.put((ByteBuffer) buff.flip()); 
             buff = newBuff;
         }
         
-        buff.position(offset);
-        while (bytesRead < packet.length && buff.remaining() > 0){
-            int len = rbChannel.read(buff.get(packet));
-            bytesRead += len;
+        try {
+            while (length < psize && buff.remaining() > 0) {
+                
+                buff.position(offset);
+                buff.limit(packetSize);
+                int len = rbChannel.read(ByteBuffer.wrap(packet));
+                if (len == -1) {
+                    return length;
+                }
+                length += len;
+            }
+            return length;
+        } catch (Exception e) {
+            logger.error(e);
         }
-        
-        return bytesRead;
+
+        return length;
     }
     
     private void padding(byte[] data, int count) {
