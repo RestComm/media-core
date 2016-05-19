@@ -21,11 +21,12 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
@@ -42,26 +43,28 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  */
 public class MgcpTransactionManager implements MgcpTransactionListener {
 
+    private static final Logger log = Logger.getLogger(MgcpTransactionManager.class);
+
     // MGCP Components
     private final MgcpCommandProvider commandProvider;
     private final MgcpMessageListener messageListener;
 
     // MGCP Transaction Manager
-    private final Map<Integer, MgcpTransaction> transactions;
+    private final ConcurrentHashMap<Integer, MgcpTransaction> transactions;
     private final AtomicInteger idGenerator;
     private final int minId;
     private final int maxId;
 
-    public MgcpTransactionManager(int minId, int maxId, MgcpMessageListener messageListener, MgcpCommandProvider commandProvider) {
+    public MgcpTransactionManager(MgcpMessageListener messageListener, MgcpCommandProvider commandProvider) {
         // MGCP Components
         this.commandProvider = commandProvider;
         this.messageListener = messageListener;
 
         // MGCP Transaction Manager
-        this.idGenerator = new AtomicInteger(minId);
+        this.minId = 1;
+        this.maxId = 100000000;
+        this.idGenerator = new AtomicInteger(this.minId);
         this.transactions = new ConcurrentHashMap<>(500);
-        this.minId = minId;
-        this.maxId = maxId;
     }
 
     private synchronized void verifyIdRange() {
@@ -79,44 +82,81 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
         return transactionId >= this.minId && transactionId <= this.maxId;
     }
 
-    private MgcpTransaction createTransaction() {
+    private MgcpTransaction createTransaction() throws DuplicateMgcpTransactionException {
         return createTransaction(generateId());
     }
 
-    private MgcpTransaction createTransaction(int transactionId) {
+    private MgcpTransaction createTransaction(int transactionId) throws DuplicateMgcpTransactionException {
+        // Create Transaction
         MgcpTransaction transaction = new MgcpTransaction(this.commandProvider, this.messageListener, this);
-        transaction.setId(generateId());
+        transaction.setId(transactionId);
+
+        // Register Transaction
+        MgcpTransaction old = this.transactions.putIfAbsent(transactionId, transaction);
+
+        // Ensure transaction is not duplicate
+        if (old != null) {
+            throw new DuplicateMgcpTransactionException("Transaction " + transactionId + " already exists.");
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Created new transaction " + transactionId + " to process request");
+        }
+
         return transaction;
     }
 
     private MgcpTransaction findTransaction(int transactionId) {
         return this.transactions.get(transactionId);
     }
-    
+
     public void process(MgcpMessage message, MessageDirection direction) {
         int transactionId = message.getTransactionId();
-        
-        if(message.isRequest()) {
+
+        if (message.isRequest()) {
             // Create new transaction to process incoming request
-            MgcpTransaction transaction = createTransaction();
-            transaction.processRequest((MgcpRequest) message, MessageDirection.INBOUND);
+            MgcpTransaction transaction;
+            try {
+                transaction = MessageDirection.INBOUND.equals(direction) ? createTransaction(transactionId)
+                        : createTransaction();
+                transaction.processRequest((MgcpRequest) message, MessageDirection.INBOUND);
+            } catch (DuplicateMgcpTransactionException e) {
+                // Send provisional response
+                final MgcpResponseCode responseCode = MgcpResponseCode.TRANSACTION_BEEN_EXECUTED;
+                sendResponse(transactionId, responseCode.code(), responseCode.message());
+            }
         } else {
             MgcpTransaction transaction = findTransaction(transactionId);
-            if(transaction == null) {
+            if (transaction == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not find transaction " + transactionId + " to process response.");
+                }
+
                 // Send erroneous response
-                MgcpResponse response = new MgcpResponse();
-                response.setTransactionId(transactionId);
-                response.setCode(MgcpResponseCode.PROTOCOL_ERROR.code());
-                response.setMessage("Transaction " + transactionId + " was aborted and no longer exists");
-                this.messageListener.onOutgoingMessage(response);
+                sendResponse(transactionId, MgcpResponseCode.PROTOCOL_ERROR.code(),
+                        "Transaction " + transactionId + " does not exist");
             } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Found transaction " + transactionId + " to process response.");
+                }
                 transaction.processResponse((MgcpResponse) message);
             }
         }
     }
 
+    private void sendResponse(int transactionId, int code, String message) {
+        MgcpResponse response = new MgcpResponse();
+        response.setTransactionId(transactionId);
+        response.setCode(code);
+        response.setMessage(message);
+        this.messageListener.onOutgoingMessage(response);
+    }
+
     @Override
     public void onTransactionComplete(MgcpTransaction transaction) {
+        if (log.isDebugEnabled()) {
+            log.debug("Unregistered transaction " + transaction.getId());
+        }
         this.transactions.remove(transaction.getId());
     }
 

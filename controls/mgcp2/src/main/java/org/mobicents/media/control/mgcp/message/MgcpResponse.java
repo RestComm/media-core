@@ -29,11 +29,13 @@ package org.mobicents.media.control.mgcp.message;
  */
 public class MgcpResponse extends MgcpMessage {
 
+    private final StringBuilder builder;
     private String message;
     private int code;
 
     public MgcpResponse() {
         super();
+        this.builder = new StringBuilder();
         this.message = "";
         this.code = 0;
     }
@@ -68,11 +70,15 @@ public class MgcpResponse extends MgcpMessage {
     public boolean isSuccessful() {
         return this.code <= 299;
     }
-    
+
     @Override
     public String toString() {
-        // TODO Encode message
-        return null;
+        // Reset builder
+        this.builder.setLength(0);
+
+        // Build message
+        this.builder.append(this.code).append(" ").append(getTransactionId()).append(" ").append(this.message);
+        return this.builder.toString();
     }
 
 }

@@ -37,6 +37,7 @@ import java.nio.channels.SelectionKey;
 
 import org.junit.Test;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.io.network.channel.PacketHandler;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -52,8 +53,9 @@ public class MgcpChannelTest {
             // given
             SelectionKey selectionKey = mock(SelectionKey.class);
             UdpManager networkManager = mock(UdpManager.class);
+            PacketHandler packetHandler = mock(PacketHandler.class);
             
-            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager);
+            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
 
             // when - open channel
             when(networkManager.open(channel)).thenReturn(selectionKey);

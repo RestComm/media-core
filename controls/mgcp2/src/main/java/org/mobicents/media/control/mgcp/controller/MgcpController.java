@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.controller;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
@@ -31,6 +32,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -43,7 +45,6 @@ import org.mobicents.media.server.spi.ServerManager;
 public class MgcpController implements ServerManager, MgcpMessageListener {
 
     // MGCP Components
-    private final MgcpMessageParser messageParser;
     private final MgcpPacketHandler packetHandler;
     private final MgcpTransactionManager transactions;
     private final MgcpChannel channel;
@@ -51,13 +52,12 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     // MGCP Controller State
     private boolean active;
 
-    public MgcpController(MgcpChannel channel, MgcpTransactionManager txManager, MgcpCommandProvider commandProvider) {
+    public MgcpController(SocketAddress bindAddress, int minTransactionId, int maxTransactionId, UdpManager networkManager,
+            MgcpCommandProvider commandProvider) {
         // MGCP Components
-        this.messageParser = new MgcpMessageParser();
-        this.packetHandler = new MgcpPacketHandler(this.messageParser, this);
-        this.channel = channel;
-        this.channel.addHandler(this.packetHandler);
-        this.transactions = txManager;
+        this.packetHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
+        this.channel = new MgcpChannel(bindAddress, networkManager, this.packetHandler);
+        this.transactions = new MgcpTransactionManager(this, commandProvider);
 
         // MGCP Controller State
         this.active = false;
@@ -73,9 +73,8 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
         if (this.active) {
             throw new IllegalStateException("Controller is already active");
         } else {
-            // TODO start resources
             try {
-                channel.open();
+                this.channel.open();
                 this.active = true;
             } catch (IOException e) {
                 // TODO throw exception
@@ -87,6 +86,8 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     public void deactivate() throws IllegalStateException {
         if (this.active) {
             // TODO stop resources
+            this.channel.close();
+            // TODO clear transactions
             this.active = false;
         } else {
             throw new IllegalStateException("Controller is already inactive");
