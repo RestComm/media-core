@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.listener;
 
-import org.mobicents.media.control.mgcp.MgcpCall;
+import org.mobicents.media.control.mgcp.connection.MgcpCall;
 
 /**
  * Listens to events related to an MGCP Call.

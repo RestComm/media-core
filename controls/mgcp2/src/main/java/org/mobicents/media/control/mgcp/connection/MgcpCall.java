@@ -19,14 +19,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp;
+package org.mobicents.media.control.mgcp.connection;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

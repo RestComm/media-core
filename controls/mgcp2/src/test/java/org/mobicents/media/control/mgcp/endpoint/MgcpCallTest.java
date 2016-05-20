@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.MgcpCall;
+import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 
 /**
