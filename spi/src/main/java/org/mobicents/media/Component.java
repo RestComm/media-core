@@ -40,30 +40,30 @@ public interface Component extends Serializable {
      * 
      * @return
      */
-    public String getId();
+    String getId();
 
     /**
      * Gets the name of the component. The component of same type can share same name.
      * 
      * @return name of this component;
      */
-    public String getName();
+    String getName();
 
     /**
      * Resets component to its original state. This methods cleans transmission statistics and any assigned formats
      */
-    public void reset();
+    void reset();
 
     /**
      * Activates component
      * 
      */
-    public void activate();
+    void activate();
 
     /**
      * Deactivates component
      * 
      */
-    public void deactivate();
+    void deactivate();
 
 }
