@@ -24,7 +24,6 @@ package org.mobicents.media.control.mgcp.controller;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
@@ -53,12 +52,11 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     // MGCP Controller State
     private boolean active;
 
-    public MgcpController(SocketAddress bindAddress, int minTransactionId, int maxTransactionId, UdpManager networkManager,
-            MgcpCommandProvider commandProvider) {
+    public MgcpController(SocketAddress bindAddress, UdpManager networkManager, MgcpTransactionProvider transactionProvider) {
         // MGCP Components
         this.packetHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
         this.channel = new MgcpChannel(bindAddress, networkManager, this.packetHandler);
-        this.transactions = new MgcpTransactionManager(this, new MgcpTransactionProvider(commandProvider));
+        this.transactions = new MgcpTransactionManager(this, transactionProvider);
 
         // MGCP Controller State
         this.active = false;

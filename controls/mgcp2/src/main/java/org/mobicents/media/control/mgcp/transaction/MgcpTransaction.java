@@ -46,19 +46,20 @@ public class MgcpTransaction implements MgcpCommandListener {
     private final List<MgcpTransactionListener> transactionListeners;
 
     // MGCP Transaction State
-    private int id;
-    private String hexId;
+    private final int id;
+    private final String hexId;
     private MessageDirection direction;
     private MgcpTransactionState state;
 
-    public MgcpTransaction(MgcpCommandProvider commands) {
+    public MgcpTransaction(int id, MgcpCommandProvider commands) {
         // MGCP Components
         this.commands = commands;
         this.messageListeners = new ArrayList<>(5);
         this.transactionListeners = new ArrayList<>(5);
 
         // MGCP Transaction State
-        this.id = 0;
+        this.id = id;
+        this.hexId = Integer.toHexString(id);
         this.direction = null;
         this.state = MgcpTransactionState.IDLE;
     }
@@ -69,11 +70,6 @@ public class MgcpTransaction implements MgcpCommandListener {
 
     public String getHexId() {
         return hexId;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-        this.hexId = Integer.toHexString(id);
     }
 
     public MgcpTransactionState getState() {

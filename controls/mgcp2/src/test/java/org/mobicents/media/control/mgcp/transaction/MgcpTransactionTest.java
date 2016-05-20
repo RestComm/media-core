@@ -58,8 +58,7 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands);
-        transaction.setId(12345);
+        MgcpTransaction transaction = new MgcpTransaction(12345, commands);
         transaction.addMessageListener(messageListener);
         transaction.addTransactionListener(txListener);
 
@@ -94,8 +93,7 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands);
-        transaction.setId(12345);
+        MgcpTransaction transaction = new MgcpTransaction(12345, commands);
         transaction.addMessageListener(messageListener);
         transaction.addTransactionListener(txListener);
 
@@ -125,8 +123,7 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands);
-        transaction.setId(12345);
+        MgcpTransaction transaction = new MgcpTransaction(12345, commands);
         transaction.addMessageListener(messageListener);
         transaction.addTransactionListener(txListener);
 
@@ -144,8 +141,7 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands);
-        transaction.setId(12345);
+        MgcpTransaction transaction = new MgcpTransaction(12345, commands);
         transaction.addMessageListener(messageListener);
         transaction.addTransactionListener(txListener);
 
@@ -166,8 +162,7 @@ public class MgcpTransactionTest {
         MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
-        MgcpTransaction transaction = new MgcpTransaction(commands);
-        transaction.setId(12345);
+        MgcpTransaction transaction = new MgcpTransaction(12345, commands);
         transaction.addMessageListener(messageListener);
         transaction.addTransactionListener(txListener);
 

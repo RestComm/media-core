@@ -21,14 +21,8 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
-import org.mobicents.media.control.mgcp.controller.MgcpController;
+import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
-import org.mobicents.media.server.io.network.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -37,25 +31,18 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpControllerProvider implements Provider<MgcpController> {
+public class MgcpTransactionProviderProvider implements Provider<MgcpTransactionProvider> {
 
-    private final MgcpTransactionProvider txProvider;
-    private final UdpManager networkManager;
-    private final SocketAddress bindAddress;
+    private final MgcpCommandProvider commands;
 
     @Inject
-    public MgcpControllerProvider(MediaServerConfiguration config, MgcpTransactionProvider txProvider,
-            UdpManager networkManager) {
-        final MgcpControllerConfiguration controller = config.getControllerConfiguration();
-
-        this.txProvider = txProvider;
-        this.networkManager = networkManager;
-        this.bindAddress = new InetSocketAddress(controller.getAddress(), controller.getPort());
+    public MgcpTransactionProviderProvider(MgcpCommandProvider commands) {
+        this.commands = commands;
     }
 
     @Override
-    public MgcpController get() {
-        return new MgcpController(this.bindAddress, this.networkManager, this.txProvider);
+    public MgcpTransactionProvider get() {
+        return new MgcpTransactionProvider(1, 100000000, this.commands);
     }
 
 }

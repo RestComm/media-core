@@ -54,11 +54,10 @@ public class MgcpTransactionManagerTest {
         when(request.isRequest()).thenReturn(true);
         when(request.getTransactionId()).thenReturn(transactionId);
         when(transaction.getId()).thenReturn(transactionId);
-        when(txProvider.provide()).thenReturn(transaction);
+        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
         txManager.process(request, MessageDirection.INBOUND);
 
         // then
-        assertFalse(txManager.isLocal(transaction.getId()));
         assertTrue(txManager.contains(transaction.getId()));
         verify(transaction, times(1)).processRequest(request, MessageDirection.INBOUND);
         verify(transaction, times(1)).addMessageListener(messageListener);
@@ -90,7 +89,7 @@ public class MgcpTransactionManagerTest {
         when(retransmission.isRequest()).thenReturn(true);
         when(retransmission.getTransactionId()).thenReturn(transactionId);
         when(transaction.getId()).thenReturn(transactionId);
-        when(txProvider.provide()).thenReturn(transaction);
+        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -107,7 +106,6 @@ public class MgcpTransactionManagerTest {
         txManager.process(retransmission, MessageDirection.INBOUND);
 
         // then
-        assertFalse(txManager.isLocal(transaction.getId()));
         assertTrue(txManager.contains(transaction.getId()));
         verify(transaction, times(1)).processRequest(request, MessageDirection.INBOUND);
         verify(messageListener, times(1)).onOutgoingMessage(any(MgcpResponse.class));

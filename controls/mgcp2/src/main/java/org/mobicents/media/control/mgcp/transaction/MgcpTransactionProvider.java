@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 
 /**
@@ -29,14 +31,52 @@ import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
  */
 public class MgcpTransactionProvider {
 
+    // MGCP Components
     private final MgcpCommandProvider commands;
 
-    public MgcpTransactionProvider(MgcpCommandProvider commands) {
+    // Provider Properties
+    private final AtomicInteger idGenerator;
+    private final int minId;
+    private final int maxId;
+
+    public MgcpTransactionProvider(int minId, int maxId, MgcpCommandProvider commands) {
+        // MGCP Components
         this.commands = commands;
+
+        // Provider Properties
+        this.minId = minId;
+        this.maxId = maxId;
+        this.idGenerator = new AtomicInteger(minId);
     }
 
-    public MgcpTransaction provide() {
-        return new MgcpTransaction(this.commands);
+    private synchronized void verifyIdRange() {
+        if (this.idGenerator.get() > maxId) {
+            this.idGenerator.set(this.minId);
+        }
+    }
+
+    private int generateId() {
+        verifyIdRange();
+        return this.idGenerator.getAndIncrement();
+    }
+
+    public boolean isLocal(int transactionId) {
+        return transactionId >= this.minId && transactionId <= this.maxId;
+    }
+    
+    private MgcpTransaction provide(int transactionId) {
+        return new MgcpTransaction(transactionId, this.commands);
+    }
+
+    public MgcpTransaction provideRemote(int transactionId) throws IllegalArgumentException {
+        if(isLocal(transactionId)) {
+            throw new IllegalArgumentException("Transaction ID " + transactionId + " is local, hence managed by this provider.");
+        }
+        return provide(transactionId);
+    }
+    
+    public MgcpTransaction provideLocal() {
+        return provide(generateId());
     }
 
 }

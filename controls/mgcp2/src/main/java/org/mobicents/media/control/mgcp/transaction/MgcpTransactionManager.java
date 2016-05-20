@@ -22,7 +22,6 @@
 package org.mobicents.media.control.mgcp.transaction;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
@@ -50,9 +49,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
 
     // MGCP Transaction Manager
     private final ConcurrentHashMap<Integer, MgcpTransaction> transactions;
-    private final AtomicInteger idGenerator;
-    private final int minId;
-    private final int maxId;
+
 
     public MgcpTransactionManager(MgcpMessageListener messageListener, MgcpTransactionProvider transactionProvider) {
         // MGCP Components
@@ -60,35 +57,17 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
         this.transactionProvider = transactionProvider;
 
         // MGCP Transaction Manager
-        this.minId = 1;
-        this.maxId = 100000000;
-        this.idGenerator = new AtomicInteger(this.minId);
         this.transactions = new ConcurrentHashMap<>(500);
-    }
-
-    private synchronized void verifyIdRange() {
-        if (this.idGenerator.get() > maxId) {
-            this.idGenerator.set(this.minId);
-        }
-    }
-
-    private int generateId() {
-        verifyIdRange();
-        return this.idGenerator.getAndIncrement();
-    }
-
-    boolean isLocal(int transactionId) {
-        return transactionId >= this.minId && transactionId <= this.maxId;
-    }
-
-    private MgcpTransaction createTransaction() throws DuplicateMgcpTransactionException {
-        return createTransaction(generateId());
     }
 
     private MgcpTransaction createTransaction(int transactionId) throws DuplicateMgcpTransactionException {
         // Create Transaction
-        MgcpTransaction transaction = this.transactionProvider.provide();
-        transaction.setId(transactionId);
+        MgcpTransaction transaction;
+        if(transactionId == 0) {
+            transaction = this.transactionProvider.provideLocal();
+        } else {
+            transaction = this.transactionProvider.provideRemote(transactionId);
+        }
         transaction.addMessageListener(this.messageListener);
         transaction.addTransactionListener(this);
 
@@ -122,8 +101,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
             // Create new transaction to process incoming request
             MgcpTransaction transaction;
             try {
-                transaction = MessageDirection.INBOUND.equals(direction) ? createTransaction(transactionId)
-                        : createTransaction();
+                transaction = createTransaction(transactionId);
                 transaction.processRequest((MgcpRequest) message, direction);
             } catch (DuplicateMgcpTransactionException e) {
                 // Send provisional response
