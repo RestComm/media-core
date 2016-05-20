@@ -19,13 +19,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.connection.remote;
+package org.mobicents.media.control.mgcp.connection;
 
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.control.mgcp.connection.AbstractMgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptionType;

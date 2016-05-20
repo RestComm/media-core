@@ -29,8 +29,8 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.connection.local.MgcpLocalConnection;
-import org.mobicents.media.control.mgcp.connection.remote.MgcpRemoteConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;

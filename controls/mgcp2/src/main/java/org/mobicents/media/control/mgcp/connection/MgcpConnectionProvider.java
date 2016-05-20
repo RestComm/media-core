@@ -23,8 +23,6 @@ package org.mobicents.media.control.mgcp.connection;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.control.mgcp.connection.local.MgcpLocalConnection;
-import org.mobicents.media.control.mgcp.connection.remote.MgcpRemoteConnection;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 
