@@ -18,19 +18,14 @@
  */
 package org.mobicents.media.server.impl.resource.mediaplayer.audio.wav;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.URL;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.Channels;
-import java.nio.channels.Selector;
 import java.nio.channels.ReadableByteChannel; 
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -47,7 +42,7 @@ import org.mobicents.media.server.spi.memory.Memory;
  */
 public class WavTrackImpl implements Track{
     
-    /*audio stream*/
+    /*Audio stream*/
     private AudioFormat format;
     private int period = 20;
     private int frameSize;
@@ -57,69 +52,126 @@ public class WavTrackImpl implements Track{
     private int sizeOfData;
     private boolean first = true;
     
-    private ReadableByteChannel rbChannel;
-    private ByteBuffer buff;
-   
+    /*Buffer, Channel, Header */
     private final static int BUFFER_SIZE = 128;
+    private ReadableByteChannel rbChannel;
+    private ByteBuffer buff = ByteBuffer.allocate(BUFFER_SIZE);
+    private byte[] header = new byte[46];
+    private byte[] headerEnd = null;
+    int buffPos = 0;
     
-    // Padding for different stream types.
+    /*Padding for different stream types.*/
     private final static byte PCM_PADDING_BYTE = 0;
     private final static byte ALAW_PADDING_BYTE = (byte) 0xD5;
     private final static byte ULAW_PADDING_BYTE = (byte) 0xFF;
-
     private final static byte[] factBytes = new byte[] { 0x66, 0x61, 0x63, 0x74 };
     private byte paddingByte = PCM_PADDING_BYTE;
     private static final Logger logger = Logger.getLogger(WavTrackImpl.class);
     
+    
     public WavTrackImpl (URL url) throws IOException, UnsupportedAudioFileException {
         
-        rbChannel=Channels.newChannel(url.openStream());
-        buff = ByteBuffer.allocate(BUFFER_SIZE); 
-        
-        getAudioFormat(rbChannel);
-        if (format == null) {
-            throw new UnsupportedAudioFileException();
-        }
+        setRbChannel(url.openStream());
+        getAudioFormat(getRbChannel());
        
     }
+    
+    /**
+        Reads data from channel into buffer and transfers data to header[] array.
+        bytesRead in this case (using bulk method) returns the amount which is available
+        and not the number of actually read bytes. The buffer position must be set to some offset.
+        The offset in the bulk method is the offset in the array where the data is stored.
+        Before getting the data in the array, the whole channel is read (bytesReadFromChannel),
+        to avoid BufferUnderflow. 
+    */
 
-    private void getAudioFormat(ReadableByteChannel rbc) throws IOException {
-        byte[] header = new byte[36];
-        byte[] headerEnd = null;
-       
-        int bytesReadFromChannel = 0 ;
+    private void getAudioFormat(ReadableByteChannel rbc) throws IOException, UnsupportedAudioFileException {
+        
         int bytesRead = 0;
-        int count = 0;
+        int bytesCount = 0;
+        int byteIndex = 0;
+        int bytesReadFromChannel=rbc.read(getBuff());
         
-        bytesReadFromChannel=rbc.read(buff);
-        buff.clear();
+        setBuffPos(0);
         
-        while (count < 36 && buff.remaining() > 0) {
-            //count=rbc.read(buffer);
-            header[count]=buff.get(count);
-            count++;
+        while (bytesCount < getHeader().length && getBuff().remaining() > 0) {
+            
+            bytesRead = rbc.read(getBuff().get(getHeader(), 0, getHeader().length));
+            if (bytesRead == -1) {
+                return;
+            }
+            bytesCount = bytesReadFromChannel - bytesRead; 
+
         }
-        buff.order(ByteOrder.LITTLE_ENDIAN);
+        getBuff().order(ByteOrder.LITTLE_ENDIAN);
 
         // ckSize 16,17,18,19
-        int ckSize = (header[16] & 0xFF) | ((header[17] & 0xFF) << 8) | ((header[18] & 0xFF) << 16)
-                | ((header[19] & 0xFF) << 24);
+        int ckSize = (getHeader(16) & 0xFF) | ((getHeader(17) & 0xFF) << 8) 
+                     | ((getHeader(18) & 0xFF) << 16) | ((getHeader(19) & 0xFF) << 24);
         // format 20,21
-        int formatValue = (header[20] & 0xFF) | ((header[21] & 0xFF) << 8);
+        int formatValue = (getHeader(20) & 0xFF) | ((getHeader(21) & 0xFF) << 8);
         // channels 22,23
-        int channels = (header[22] & 0xFF) | ((header[23] & 0xFF) << 8);
+        int channels = (getHeader(22) & 0xFF) | ((getHeader(23) & 0xFF) << 8);
         // bits per sample 34,35
-        int bitsPerSample = (header[34] & 0xFF) | ((header[35] & 0xFF) << 8);
+        int bitsPerSample = (getHeader(34) & 0xFF) | ((getHeader(35) & 0xFF) << 8);
         // sample rate 24,25,26,27
-        int sampleRate = (header[24] & 0xFF) | ((header[25] & 0xFF) << 8) | ((header[26] & 0xFF) << 16)
-                | ((header[27] & 0xFF) << 24);
+        int sampleRate = (getHeader(24) & 0xFF) | ((getHeader(25) & 0xFF) << 8) 
+                         | ((getHeader(26) & 0xFF) << 16) | ((getHeader(27) & 0xFF) << 24);
         // size of data bytes 4,5,6,7
-        sizeOfData = (header[4] & 0xFF) | ((header[5] & 0xFF) << 8) | ((header[6] & 0xFF) << 16) | ((header[7] & 0xFF) << 24);
+        sizeOfData = (getHeader(4) & 0xFF) | ((getHeader(5) & 0xFF) << 8) 
+                     | ((getHeader(6) & 0xFF) << 16) | ((getHeader(7) & 0xFF) << 24);
+        
         sizeOfData -= 12;
         sizeOfData -= ckSize;
+        
+        this.getFormat(formatValue,channels,bitsPerSample,sampleRate);
+        
+        /*Gets the last 10 bytes from the header 
+        and transfers data to headerEnd[] array.*/
+        
+        setHeaderEnd(new byte[8 + ckSize - 16]);
+        setBuffPos(getHeader().length - getHeaderEnd().length);
+        bytesCount = 0;
+       
+        while (bytesCount < getHeaderEnd().length && getBuff().remaining()> 0) {
+            
+            bytesRead = rbc.read(getBuff().get(getHeaderEnd(), 0, getHeaderEnd().length));
+            if (bytesRead == -1){
+                return;
+            }
+            bytesCount = bytesReadFromChannel - bytesRead; 
+        }
+        
+        byteIndex = getHeaderEnd().length - 4 - getFactBytes().length;
+        boolean hasFact = true;
+        for (int i = 0; i < getFactBytes().length; i++) {
+            if (getFactBytes(i) != getHeaderEnd(byteIndex++)) {
+                hasFact = false;
+                break;
+            }
+        }
 
-        int extraHeaderSize = 0;
+        if (hasFact) {
+            // skip fact chunk
+            sizeOfData -= 12;
+            setHeaderEnd(new byte[12]);
+            setBuffPos(getHeader().length);
+            bytesCount = 0;
+            
+            while (bytesCount < getHeaderEnd().length && getBuff().remaining() > 0) {
 
+                bytesRead = rbc.read(getBuff().get(getHeaderEnd(), 0, getHeaderEnd().length));
+                if (bytesRead == -1) {
+                    return;
+                }
+                bytesCount = bytesReadFromChannel - bytesRead;                
+            }
+        }
+        // don't close the channel
+    }
+    
+    private void getFormat(int formatValue, int channels, int bitsPerSample, int sampleRate) throws UnsupportedAudioFileException {
+        
         format = null;
         switch (formatValue) {
             case 1:
@@ -137,68 +189,154 @@ public class WavTrackImpl implements Track{
                 paddingByte = ULAW_PADDING_BYTE;
                 break;
         }
-
-        headerEnd = new byte[8 + ckSize - 16];
-        extraHeaderSize = headerEnd.length;
-        int bytesReadExtra = 0;
         
-        int headerSize=header.length;
-        int buffLimit = headerSize + extraHeaderSize;
-        buff.limit(buffLimit);
-        buff.position(headerSize);
-
-        while (bytesReadExtra < extraHeaderSize && buff.remaining()> 0) {
-            
-            int len = rbc.read(buff.get(headerEnd));
-            if (len == -1) {
-                return;
-            }
-            bytesReadExtra += len;
-        }
-
-        int byteIndex = headerEnd.length - 4 - factBytes.length;
-        boolean hasFact = true;
-        for (int i = 0; i < factBytes.length; i++) {
-            if (factBytes[i] != headerEnd[byteIndex++]) {
-                hasFact = false;
-                break;
-            }
-        }
-
-        if (hasFact) {
-            // skip fact chunk
-            sizeOfData -= 12;
-            headerEnd = new byte[12];
-            bytesRead = 0;
-            buffLimit += 12;
-            buff.limit(buffLimit);
-            buff.position(buffLimit-12);
-            
-            while (bytesRead < 12 && buff.remaining() > 0) {
-
-                int len = rbc.read(buff.get(headerEnd));
-                if (len == -1) {
-                    return;
-                }
-                bytesRead += len;
-            }
-        }
-
         if (format != null) {
             frameSize = (int) (period * format.getChannels() * format.getSampleSize() * format.getSampleRate() / 8000);
             duration = sizeOfData * period * 1000000L / frameSize;
+        } else {
+            throw new UnsupportedAudioFileException();
         }
-        
-        // don't close the channel
     }
     
-    public void setPeriod(int period) {
-        this.period = period;
-        frameSize = (int) (period * format.getChannels() * format.getSampleSize() * format.getSampleRate() / 8000);
-    }
+    private void skip(long timestamp) {
+        try {
+            long offset = frameSize * (timestamp / period / 1000000L);
+            byte[] skip = new byte[(int) offset];
+            int buffSize = getHeader().length + skip.length;
+            int bytesRead = 0;
+            
+            if (getBuff().capacity()< skip.length){
+                ByteBuffer newBuff = ByteBuffer.allocate(buffSize); 
+                newBuff.put((ByteBuffer) getBuff().flip()); 
+                setBuff(newBuff);
+            } 
+ 
+            setBuffPos(getHeader().length);
+            while (bytesRead < skip.length && getBuff().remaining() > 0) {
 
+                int len = getRbChannel().read(ByteBuffer.wrap(skip, 0, skip.length));
+                if (len == -1) {
+                    return;
+                }
+
+                totalRead += len;
+                bytesRead += len;
+            }
+
+        } catch (IOException e) {
+            logger.error(e);
+        }
+    }
+    
+     /**
+     * Reads packet from currently opened stream.
+     * 
+     * @param packet the packet to read
+     * @param offset the offset from which new data will be inserted
+     * @return the number of actually read bytes.
+     * @throws java.io.IOException
+     */
+    private int readPacket(byte[] packet, int offset, int psize) throws IOException {
+        
+        int length = 0;
+        offset += 46;
+        int packetSize = psize + offset;
+        
+        if (getBuff().capacity()< psize){
+            ByteBuffer newBuff = ByteBuffer.allocate(packetSize); 
+            newBuff.put((ByteBuffer) getBuff().flip()); 
+            setBuff(newBuff);
+        }
+        
+        try {
+            setBuffPos(offset);
+            while (length < psize && getBuff().remaining() > 0) {
+
+                int len = getRbChannel().read(ByteBuffer.wrap(packet,0,psize));
+                if (len == -1){
+                    return length;
+                }
+                length += len;
+            }
+            return length;
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        return length;
+    }
+    
+    private void padding(byte[] data, int count) {
+        int offset = data.length - count;
+        for (int i = 0; i < count; i++) {
+            data[i + offset] = paddingByte;
+        }
+    }
+    
+    /* Getters, Setters, Overridable methods*/
+
+    public int getFrameSize() {
+        return frameSize;
+    }
+    
     public int getPeriod() {
         return period;
+    }
+
+    public void setPeriod(int period) {
+        this.period = period;
+    }
+    
+    public static byte[] getFactBytes() {
+        return factBytes;
+    }
+    
+    public static byte getFactBytes(int i) {
+        return factBytes[i];
+    }
+    
+    public byte[] getHeader() {
+        return header;
+    }
+    public byte getHeader(int i) {
+        return header[i];
+    }
+
+    public byte[] getHeaderEnd() {
+        return headerEnd;
+    }
+    
+    public byte getHeaderEnd(int i) {
+        return headerEnd[i];
+    }
+    
+    public void setHeader(byte[] header) {
+        this.header = header;
+    }
+
+    public void setHeaderEnd(byte[] headerEnd) {
+        this.headerEnd = headerEnd;
+    }
+
+    private ReadableByteChannel getRbChannel()  {
+        return rbChannel;
+    }
+
+    private void setRbChannel(InputStream inStream) {
+        this.rbChannel = Channels.newChannel(inStream);
+    }
+    
+    public ByteBuffer getBuff() {
+        return buff;
+    }
+
+    public void setBuff(ByteBuffer buff) {
+        this.buff = buff;
+    }
+    
+    public void setBuffPos(int buffPos) {
+        this.buffPos = buffPos;
+        this.getBuff().position(buffPos);
     }
     
     @Override
@@ -220,83 +358,6 @@ public class WavTrackImpl implements Track{
     public long getDuration() {
         return duration;
     }
-    
-    private void skip(long timestamp) {
-        try {
-            long offset = frameSize * (timestamp / period / 1000000L);
-            byte[] skip = new byte[(int) offset];
-            int bytesRead = 0;
-            
-            int header = 46;
-            int buffSize = skip.length + header;
-            
-            if (buff.capacity()< skip.length){
-                ByteBuffer newBuff = ByteBuffer.allocate(buffSize); 
-                newBuff.put((ByteBuffer) buff.flip()); 
-                buff = newBuff;
-            }   
-
-            while (bytesRead < skip.length && buff.remaining() > 0) {
-                buff.position(header);
-                buff.limit(buffSize);
-                int len = rbChannel.read(ByteBuffer.wrap(skip));
-                if (len == -1)
-                    return;
-
-                totalRead += len;
-                bytesRead += len;
-            }
-
-        } catch (IOException e) {
-            logger.error(e);
-        }
-    }
-    
-        /**
-     * Reads packet from currently opened stream.
-     * 
-     * @param packet the packet to read
-     * @param offset the offset from which new data will be inserted
-     * @return the number of actualy read bytes.
-     * @throws java.io.IOException
-     */
-    private int readPacket(byte[] packet, int offset, int psize) throws IOException {
-        
-        int length = 0;
-        offset += 46;
-        int packetSize = psize + offset;
-        
-        if (buff.capacity()< psize){
-            ByteBuffer newBuff = ByteBuffer.allocate(packetSize); 
-            newBuff.put((ByteBuffer) buff.flip()); 
-            buff = newBuff;
-        }
-        
-        try {
-            while (length < psize && buff.remaining() > 0) {
-                
-                buff.position(offset);
-                buff.limit(packetSize);
-                int len = rbChannel.read(ByteBuffer.wrap(packet));
-                if (len == -1) {
-                    return length;
-                }
-                length += len;
-            }
-            return length;
-        } catch (Exception e) {
-            logger.error(e);
-        }
-
-        return length;
-    }
-    
-    private void padding(byte[] data, int count) {
-        int offset = data.length - count;
-        for (int i = 0; i < count; i++) {
-            data[i + offset] = paddingByte;
-        }
-    }
 
     @Override
     public Frame process(long timestamp) throws IOException {
@@ -307,20 +368,20 @@ public class WavTrackImpl implements Track{
             first = false;
         }
 
-        Frame frame = Memory.allocate(frameSize);
+        Frame frame = Memory.allocate(getFrameSize());
         byte[] data = frame.getData();
         if (data == null) {
-            data = new byte[frameSize];
+            data = new byte[getFrameSize()];
         }
 
-        int len = readPacket(data, 0, frameSize);
+        int len = readPacket(data, 0, getFrameSize());
         totalRead += len;
         if (len == 0) {
             eom = true;
         }
 
-        if (len < frameSize) {
-            padding(data, frameSize - len);
+        if (len < getFrameSize()) {
+            padding(data, getFrameSize() - len);
             eom = true;
         }
 
@@ -330,9 +391,9 @@ public class WavTrackImpl implements Track{
         }
         
         frame.setOffset(0);
-        frame.setLength(frameSize);
+        frame.setLength(getFrameSize());
         frame.setEOM(eom);
-        frame.setDuration(period * 1000000L);
+        frame.setDuration(getPeriod() * 1000000L);
         frame.setFormat(format);
 
         return frame;
@@ -341,7 +402,7 @@ public class WavTrackImpl implements Track{
     @Override
     public void close() {
         try {
-            rbChannel.close();
+            getRbChannel().close();
         } catch (Exception e) {
             logger.error("Could not close .wav track properly.", e);
         }
