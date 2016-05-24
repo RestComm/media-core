@@ -23,13 +23,10 @@
 package org.mobicents.media.server.impl.resource.mediaplayer.audio.wav;
 
 import java.net.URL;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import org.mobicents.media.server.spi.memory.Frame;
 /**
  *
  * @author kulikov
@@ -41,40 +38,20 @@ public class WavTrackImplTest {
     public WavTrackImplTest() {
     }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
-    /**
-     * Test of setPeriod method, of class WavTrackImpl.
-     */
     @Test
-    public void testDurationd() throws Exception {
-        /*URL url = WavTrackImplTest.class.getClassLoader().getResource(
-                "org/mobicents/media/server/impl/addf8-Alaw-GW.wav");
-        URL url1 = WavTrackImplTest.class.getClassLoader().getResource(
-                "org/mobicents/media/server/impl/8kulaw.wav");
+    public void testDuration() throws Exception {
+        URL url = WavTrackImplTest.class.getClassLoader().getResource(
+                "org/mobicents/media/server/impl/resource/mediaplayer/audio/wav/wavSample.wav");
         
         track = new WavTrackImpl(url);
-        assertEquals(2976000000L, track.getDuration());
-        
-        long s = System.nanoTime();
-        track = new WavTrackImpl(url1);
-        
-        long f = System.nanoTime();
-        System.out.println(f-s);*/
+        assertEquals(2742902494L, track.getDuration());
+        boolean isEOMReached = false;
+        while (!isEOMReached) {
+            Frame process = track.process(0L);
+            isEOMReached = process.isEOM();
+        }
+        track.close();
     }
 
 
