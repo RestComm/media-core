@@ -65,6 +65,7 @@ public class MgcpProvider extends MultiplexedChannel {
      * @param port port number to bind
      */
     public MgcpProvider(UdpManager transport, int port) {
+        this.connectable = false;
         this.transport = transport;
         this.mgcpHandler = new MGCPHandler();
         this.port = port;
@@ -310,4 +311,5 @@ public class MgcpProvider extends MultiplexedChannel {
             this.address = new InetSocketAddress(a.getHostName(), a.getPort());
         }
     }
+
 }

@@ -55,6 +55,8 @@ public class MultiplexedChannel implements Channel {
 	// Data that is pending for writing
 	private final List<byte[]> pendingData;
 	private final ByteBuffer pendingDataBuffer;
+	
+	protected boolean connectable = true;
 
 	public MultiplexedChannel() {
 		this.handlers = new PacketHandlerPipeline();
@@ -167,9 +169,10 @@ public class MultiplexedChannel implements Channel {
 
 		// Read data from channel
 		int dataLength = 0;
+		SocketAddress remotePeer = null;
 		try {
-			SocketAddress remotePeer = dataChannel.receive(this.receiveBuffer);
-			if (!isConnected() && remotePeer != null) {
+			remotePeer = dataChannel.receive(this.receiveBuffer);
+			if (!isConnected() && remotePeer != null && this.connectable) {
 				connect(remotePeer);
 			}
 			dataLength = this.receiveBuffer.position();
@@ -193,7 +196,7 @@ public class MultiplexedChannel implements Channel {
 				try {
 					// Let the handler process the incoming packet.
 					// A response MAY be provided as result.
-					byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) dataChannel.getLocalAddress(), (InetSocketAddress) dataChannel.getRemoteAddress());
+					byte[] response = handler.handle(dataCopy, dataLength, 0, (InetSocketAddress) dataChannel.getLocalAddress(), (InetSocketAddress) remotePeer);
 					
 					/*
 					 * If handler intends to send a response to the remote peer,
