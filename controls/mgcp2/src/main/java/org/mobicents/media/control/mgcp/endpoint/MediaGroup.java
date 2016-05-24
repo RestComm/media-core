@@ -34,6 +34,8 @@ import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.GeneratorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
+import org.mobicents.media.server.spi.dtmf.DtmfDetector;
+import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.recorder.Recorder;
 
@@ -62,17 +64,11 @@ public class MediaGroup {
         if (component instanceof Recorder) {
             return ComponentType.RECORDER;
         }
-        if (component instanceof Player) {
+        if (component instanceof DtmfDetector) {
             return ComponentType.DTMF_DETECTOR;
         }
-        if (component instanceof Player) {
+        if (component instanceof DtmfGenerator) {
             return ComponentType.DTMF_GENERATOR;
-        }
-        if (component instanceof Player) {
-            return ComponentType.SINE;
-        }
-        if (component instanceof Player) {
-            return ComponentType.SPECTRA_ANALYZER;
         }
         return null;
     }
