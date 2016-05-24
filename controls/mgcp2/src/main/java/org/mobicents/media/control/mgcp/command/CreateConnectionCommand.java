@@ -37,6 +37,8 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
+ * This command is used to create a connection between two endpoints.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -50,6 +52,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private String localSdp = null;
     private int callId = 0;
     private ConnectionMode mode = null;
+    private String endpointId;
+    private String secondaryEndpointId;
     private MgcpEndpoint endpoint1;
     private MgcpEndpoint endpoint2;
     private MgcpConnection connection1;
@@ -87,23 +91,23 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         }
 
         // Endpoint Name
-        String endpointId = request.getEndpointId().substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
-        validateEndpointId(endpointId);
+        this.endpointId = request.getEndpointId().substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
+        validateEndpointId(this.endpointId);
 
         // Secondary Endpoint Name
-        String secondaryEndpointId = null;
+        this.secondaryEndpointId = null;
         if (z2 != null) {
-            secondaryEndpointId = z2.substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
-            validateEndpointId(secondaryEndpointId);
+            this.secondaryEndpointId = z2.substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
+            validateEndpointId(this.secondaryEndpointId);
         }
-
-        // Retrieve Endpoints
-        this.endpoint1 = resolveEndpoint(endpointId);
-        this.endpoint2 = (secondaryEndpointId == null) ? null : resolveEndpoint(secondaryEndpointId);
     }
 
-    private void executeCommand() throws MgcpConnectionException {
+    private void executeCommand() throws MgcpConnectionException, MgcpCommandException {
+        // Retrieve Endpoints
+        this.endpoint1 = resolveEndpoint(this.endpointId);
+        this.endpoint2 = (secondaryEndpointId == null) ? null : resolveEndpoint(secondaryEndpointId);
 
+        // Create Connections
         if (this.endpoint2 == null) {
             // Create one connection between endpoint and remote peer
             this.connection1 = this.endpoint1.createConnection(this.callId, this.mode);
@@ -136,7 +140,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     }
 
     private void validateEndpointId(String endpointId) throws MgcpCommandException {
-        if (endpointId.indexOf(WILDCARD_ANY) != -1) {
+        if (endpointId.indexOf(WILDCARD_ALL) != -1) {
             throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
                     "Wildcard ALL (*) is not supported");
         }
@@ -144,11 +148,10 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
     private MgcpEndpoint resolveEndpoint(String endpointId) throws MgcpCommandException {
         MgcpEndpoint endpoint;
-        int indexOfAll = endpointId.indexOf(WILDCARD_ALL);
+        int indexOfAll = endpointId.indexOf(WILDCARD_ANY);
         if (indexOfAll == -1) {
             // Search for registered endpoint
-            int separator = endpointId.indexOf(ENDPOINT_ID_SEPARATOR);
-            endpoint = this.endpointManager.getEndpoint(endpointId.substring(0, separator));
+            endpoint = this.endpointManager.getEndpoint(endpointId);
 
             if (endpoint == null) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(),
@@ -156,9 +159,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             }
         } else {
             // Create new endpoint for a specific name space
-            int separator = endpointId.indexOf(ENDPOINT_ID_SEPARATOR);
             try {
-                endpoint = this.endpointManager.registerEndpoint(endpointId.substring(0, separator));
+                endpoint = this.endpointManager.registerEndpoint(endpointId.substring(0, indexOfAll));
             } catch (UnrecognizedMgcpNamespaceException e) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), e.getMessage());
             }
@@ -175,6 +177,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         } catch (MgcpCommandException e) {
             throw e;
         } catch (RuntimeException | MgcpConnectionException e) {
+            log.error("Could not process MGCP Request.", e);
             throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), "Could not process request");
         } finally {
             reset();
@@ -212,6 +215,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         this.localSdp = null;
         this.callId = 0;
         this.mode = null;
+        this.endpointId = null;
+        this.secondaryEndpointId = null;
         this.endpoint1 = null;
         this.endpoint2 = null;
         this.connection1 = null;

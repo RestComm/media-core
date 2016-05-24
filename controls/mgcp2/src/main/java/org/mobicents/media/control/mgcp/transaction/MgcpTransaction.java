@@ -75,7 +75,7 @@ public class MgcpTransaction implements MgcpCommandListener {
     public MgcpTransactionState getState() {
         return state;
     }
-    
+
     public void addMessageListener(MgcpMessageListener listener) {
         this.messageListeners.add(listener);
     }
@@ -83,7 +83,7 @@ public class MgcpTransaction implements MgcpCommandListener {
     public void removeMessageListener(MgcpMessageListener listener) {
         this.messageListeners.remove(listener);
     }
-    
+
     public void addTransactionListener(MgcpTransactionListener listener) {
         this.transactionListeners.add(listener);
     }
@@ -93,13 +93,21 @@ public class MgcpTransaction implements MgcpCommandListener {
     }
 
     private void broadcast(MgcpMessage message) {
-        for (MgcpMessageListener observer : this.messageListeners) {
+        // FIXME Avoid copying the collection
+        final int count = this.messageListeners.size();
+        final MgcpMessageListener[] copy = this.messageListeners.toArray(new MgcpMessageListener[count]);
+
+        for (MgcpMessageListener observer : copy) {
             observer.onOutgoingMessage(message);
         }
     }
 
     private void broadcast(MgcpTransaction transaction) {
-        for (MgcpTransactionListener observer : this.transactionListeners) {
+        // FIXME Avoid copying the collection
+        final int count = this.transactionListeners.size();
+        final MgcpTransactionListener[] copy = this.transactionListeners.toArray(new MgcpTransactionListener[count]);
+
+        for (MgcpTransactionListener observer : copy) {
             observer.onTransactionComplete(transaction);
         }
     }
@@ -114,7 +122,7 @@ public class MgcpTransaction implements MgcpCommandListener {
                     case INBOUND:
                         // Execute incoming MGCP request
                         MgcpCommand command = this.commands.provide(request.getRequestType());
-                        command.execute(request);
+                        command.execute(request, this);
                         // Transaction must now listen for onCommandComplete event
                         break;
 

@@ -154,8 +154,8 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             throws MgcpConnectionException {
         // Create connection
         MgcpLocalConnection connection = this.connectionProvider.provideLocal();
-        connection.setMode(mode);
         connection.open(null);
+        connection.setMode(mode);
 
         // Register connection under its proper call
         registerConnection(callId, connection);
@@ -181,17 +181,17 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             throw new MgcpConnectionNotFound("Connection " + connectionId + " was not found in call " + callId);
         }
 
+        // Update remote description and retrieve local description (may be null)
+        String localDescription = null;
+        if (remoteDescription != null) {
+            localDescription = connection.open(remoteDescription);
+        }
+        
         // Update connection mode and set endpoint state
         if (mode != null) {
             ConnectionMode oldMode = connection.getMode();
             connection.setMode(mode);
             modeUpdated(oldMode, mode);
-        }
-
-        // Update remote description and retrieve local description (may be null)
-        String localDescription = null;
-        if (remoteDescription != null) {
-            localDescription = connection.open(remoteDescription);
         }
 
         return localDescription;

@@ -33,8 +33,8 @@ import java.util.Map;
  */
 public abstract class MgcpMessage {
 
-    private int transactionId;
-    private final Map<MgcpParameterType, String> parameters;
+    protected int transactionId;
+    protected final Map<MgcpParameterType, String> parameters;
     protected final ByteBuffer data;
     
     public MgcpMessage() {

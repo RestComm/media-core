@@ -21,6 +21,9 @@
 
 package org.mobicents.media.control.mgcp.message;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 /**
  * Represents an MGCP response.
  * 
@@ -78,6 +81,11 @@ public class MgcpResponse extends MgcpMessage {
 
         // Build message
         this.builder.append(this.code).append(" ").append(getTransactionId()).append(" ").append(this.message);
+        Iterator<Entry<MgcpParameterType, String>> parameters = this.parameters.entrySet().iterator();
+        while (parameters.hasNext()) {
+            Entry<MgcpParameterType, String> parameter = parameters.next();
+            builder.append(System.lineSeparator()).append(parameter.getKey().getCode()).append(":").append(parameter.getValue());
+        }
         return this.builder.toString();
     }
 

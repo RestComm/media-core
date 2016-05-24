@@ -21,8 +21,8 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
 /**
  * Represents an MGCP action that can be executed.
@@ -36,8 +36,9 @@ public interface MgcpCommand {
      * Executes an MGCP command.
      * 
      * @param request The MGCP request to be executed
-     * @return The response of the execution. Depending on its return code, the response can be successful or not.
+     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
+     *        can be successful or not.
      */
-    MgcpResponse execute(MgcpRequest request);
+    void execute(MgcpRequest request, MgcpCommandListener listener);
 
 }

@@ -51,14 +51,13 @@ public class MgcpTransactionTest {
     @Test
     public void testInboundRequest() {
         // given
-        MgcpRequest request = mock(MgcpRequest.class);
-        MgcpResponse response = mock(MgcpResponse.class);
-        MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        MgcpCommand command = mock(MgcpCommand.class);
-        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
-        MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
-
-        MgcpTransaction transaction = new MgcpTransaction(12345, commands);
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        final MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
+        final MgcpTransaction transaction = new MgcpTransaction(12345, commands);
         transaction.addMessageListener(messageListener);
         transaction.addTransactionListener(txListener);
 
@@ -66,13 +65,12 @@ public class MgcpTransactionTest {
         when(response.toString()).thenReturn(RESPONSE);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
-        when(command.execute(request)).thenReturn(response);
         transaction.processRequest(request, MessageDirection.INBOUND);
 
         // then
         assertEquals(12345, transaction.getId());
         assertEquals(Integer.toHexString(12345), transaction.getHexId());
-        verify(command, times(1)).execute(request);
+        verify(command, times(1)).execute(request, transaction);
         assertEquals(MgcpTransactionState.EXECUTING_REQUEST, transaction.getState());
 
         // when - Command finishes executing
