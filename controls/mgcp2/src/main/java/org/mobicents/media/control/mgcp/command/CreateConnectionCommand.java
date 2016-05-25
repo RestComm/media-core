@@ -125,7 +125,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpResponse buildResponse() {
         MgcpResponse response = new MgcpResponse();
         response.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
-        response.setMessage("Transaction was executed successfully");
+        response.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
         response.setTransactionId(this.transactionId);
         response.addParameter(MgcpParameterType.ENDPOINT_ID, this.endpoint1.getEndpointId());
         response.addParameter(MgcpParameterType.CONNECTION_ID, this.connection1.getHexIdentifier());
@@ -142,7 +142,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private void validateEndpointId(String endpointId) throws MgcpCommandException {
         if (endpointId.indexOf(WILDCARD_ALL) != -1) {
             throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
-                    "Wildcard ALL (*) is not supported");
+                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
         }
     }
 
