@@ -91,4 +91,30 @@ public class CreateConnectionCommandTest {
         verify(connection1, times(1)).join(connection2);
     }
 
+//    @Test
+//    public void testCreateOutboundRemoteConnection() throws MgcpException {
+//        // given
+//        StringBuilder builder = new StringBuilder();
+//        builder.append("CRCX 147483655 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+//        builder.append("C:1").append(System.lineSeparator());
+//        builder.append("M:sendrecv").append(System.lineSeparator());
+//        builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
+//        builder.append("L:webrtc:false").append(System.lineSeparator());
+//        
+//        final MgcpMessageParser parser = new MgcpMessageParser();
+//        final MgcpRequest request = parser.parseRequest(builder.toString());
+//        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+//        final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
+//        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
+//        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+//        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager);
+//        
+//        // when
+//        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
+//        when(bridgeEndpoint.cre)
+//        crcx.execute(request, listener);
+//        
+//        // then
+//    }
+
 }
