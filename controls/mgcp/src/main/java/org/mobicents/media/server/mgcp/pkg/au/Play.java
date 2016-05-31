@@ -24,7 +24,7 @@ package org.mobicents.media.server.mgcp.pkg.au;
 
 import java.net.MalformedURLException;
 import java.util.Iterator;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
@@ -71,7 +71,7 @@ public class Play extends Signal implements PlayerListener {
     private final Event of;
 
     // Concurrency Properties
-    private final Semaphore terminateSemaphore;
+    private final ReentrantLock lock;
 
     public Play(String name) {
         super(name);
@@ -83,13 +83,13 @@ public class Play extends Signal implements PlayerListener {
         this.of.add(new NotifyImmediately("N"));
 
         // Concurrency Properties
-        this.terminateSemaphore = new Semaphore(1);
+        this.lock = new ReentrantLock();
     }
 
     @Override
     public void execute() {
         // get access to player
-        player = this.getPlayer();
+        player = (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
 
         // check result
         if (player == null) {
@@ -131,14 +131,14 @@ public class Play extends Signal implements PlayerListener {
             player.setURL(uri);
         } catch (MalformedURLException e) {
             if (logger.isInfoEnabled()) {
-                logger.info("Received URL in invalid format , firing of");
+                logger.warn("Invalid URL format: " + uri);
             }
             of.fire(this, MSG_RC_301);
             complete();
             return;
         } catch (ResourceUnavailableException e) {
             if (logger.isInfoEnabled()) {
-                logger.info("Received URL can not be found , firing of");
+                logger.info("URL cannot be found: " + uri);
             }
             of.fire(this, MSG_RC_312);
             complete();
@@ -180,10 +180,6 @@ public class Play extends Signal implements PlayerListener {
         terminate();
     }
 
-    private Player getPlayer() {
-        return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
-    }
-
     @Override
     public void reset() {
         super.reset();
@@ -194,24 +190,21 @@ public class Play extends Signal implements PlayerListener {
     }
 
     private void terminate() {
+        this.lock.lock();
         try {
-            terminateSemaphore.acquire();
-        } catch (InterruptedException e) {
+            if (player != null) {
+                player.removeListener(this);
+                player.deactivate();
+                player = null;
+            }
 
+            if (options != null) {
+                Options.recycle(options);
+                options = null;
+            }
+        } finally {
+            this.lock.unlock();
         }
-
-        if (player != null) {
-            player.removeListener(this);
-            player.deactivate();
-            player = null;
-        }
-
-        if (options != null) {
-            Options.recycle(options);
-            options = null;
-        }
-
-        terminateSemaphore.release();
     }
 
     private void repeat(long delay) {
@@ -227,6 +220,7 @@ public class Play extends Signal implements PlayerListener {
         startAnnouncementPhase();
     }
 
+    @Override
     public void process(PlayerEvent event) {
         switch (event.getID()) {
             case PlayerEvent.STOP:
