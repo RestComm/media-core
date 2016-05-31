@@ -23,13 +23,16 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
+import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -59,8 +62,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpConnection connection1;
     private MgcpConnection connection2;
 
-    public CreateConnectionCommand(MgcpEndpointManager endpointManager) {
-        super(endpointManager);
+    public CreateConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+        super(endpointManager, connectionProvider);
     }
 
     private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
@@ -104,22 +107,42 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
     private void executeCommand() throws MgcpConnectionException, MgcpCommandException {
         // Retrieve Endpoints
-        this.endpoint1 = resolveEndpoint(this.endpointId);
-        this.endpoint2 = (secondaryEndpointId == null) ? null : resolveEndpoint(secondaryEndpointId);
+        this.endpoint1 = retrieveEndpoint(this.endpointId);
+        this.endpoint2 = retrieveEndpoint(this.secondaryEndpointId);
 
         // Create Connections
         if (this.endpoint2 == null) {
-            // Create one connection between endpoint and remote peer
-            this.connection1 = this.endpoint1.createConnection(this.callId, this.mode);
-            // TODO set call agent
-            // TODO get local connection options and pass them to halfOpen method
-            this.localSdp = (this.remoteSdp == null) ? connection1.halfOpen(null) : connection1.open(this.remoteSdp);
+            if(this.remoteSdp == null) {
+                createOutboundRemoteConnection(this.callId, this.mode);
+            } else {
+                createInboundRemoteConnection(this.callId, this.mode, this.remoteSdp);
+            }
         } else {
             // Create two local connections between both endpoints
             this.connection1 = endpoint1.createConnection(this.callId, this.mode, this.endpoint2);
             this.connection2 = endpoint2.createConnection(this.callId, ConnectionMode.SEND_RECV, this.endpoint1);
             ((MgcpLocalConnection) connection1).join((MgcpLocalConnection) connection2);
         }
+    }
+
+    private MgcpConnection createOutboundRemoteConnection(int callId, ConnectionMode mode) throws MgcpConnectionException {
+        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+        connection.setMode(mode);
+        // TODO set call agent
+        // TODO provide local connection options
+        this.localSdp = connection.halfOpen(new LocalConnectionOptions());
+        // TODO register connection in endpoint manager
+        return connection;
+    }
+
+    private MgcpConnection createInboundRemoteConnection(int callId, ConnectionMode mode, String remoteSdp)
+            throws MgcpConnectionException {
+        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+        connection.setMode(mode);
+        // TODO set call agent
+        this.localSdp = connection.open(remoteSdp);
+        // TODO register connection in endpoint manager
+        return connection;
     }
 
     private MgcpResponse buildResponse() {
@@ -146,7 +169,11 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         }
     }
 
-    private MgcpEndpoint resolveEndpoint(String endpointId) throws MgcpCommandException {
+    private MgcpEndpoint retrieveEndpoint(String endpointId) throws MgcpCommandException {
+        if (endpointId == null || endpointId.isEmpty()) {
+            return null;
+        }
+
         MgcpEndpoint endpoint;
         int indexOfAll = endpointId.indexOf(WILDCARD_ANY);
         if (indexOfAll == -1) {

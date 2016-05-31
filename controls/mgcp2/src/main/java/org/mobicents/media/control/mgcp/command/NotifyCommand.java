@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -32,8 +33,8 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  */
 public class NotifyCommand extends AbstractMgcpCommand {
 
-    public NotifyCommand(MgcpEndpointManager endpointManager) {
-        super(endpointManager);
+    public NotifyCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+        super(endpointManager, connectionProvider);
     }
 
     @Override

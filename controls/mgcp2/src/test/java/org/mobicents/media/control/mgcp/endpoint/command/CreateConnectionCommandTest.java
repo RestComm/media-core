@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.CreateConnectionCommand;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -58,12 +59,13 @@ public class CreateConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpEndpoint ivrEndpoint = mock(MgcpEndpoint.class);
         final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
         final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
         final MgcpCommandListener listener = mock(MgcpCommandListener.class);
-        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager, connectionProvider);
 
         // when
         when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);

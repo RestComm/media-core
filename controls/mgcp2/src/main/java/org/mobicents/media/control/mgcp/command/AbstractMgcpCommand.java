@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
@@ -39,9 +40,11 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
     
     protected final MgcpEndpointManager endpointManager;
+    protected final MgcpConnectionProvider connectionProvider;
     
-    public AbstractMgcpCommand(MgcpEndpointManager endpointManager) {
+    public AbstractMgcpCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         this.endpointManager = endpointManager;
+        this.connectionProvider = connectionProvider;
     }
 
     @Override

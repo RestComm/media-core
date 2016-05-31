@@ -34,6 +34,7 @@ import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.command.ModifyConnectionCommand;
 import org.mobicents.media.control.mgcp.command.NotifyCommand;
 import org.mobicents.media.control.mgcp.command.RequestNotificationCommand;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 
@@ -47,7 +48,8 @@ public class MgcpCommandProviderTest {
     public void testProvideCrcx() {
         // given
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
+        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.CRCX);
@@ -60,7 +62,8 @@ public class MgcpCommandProviderTest {
     public void testProvideMdcx() {
         // given
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
+        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.MDCX);
@@ -73,7 +76,8 @@ public class MgcpCommandProviderTest {
     public void testProvideDlcx() {
         // given
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
+        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.DLCX);
@@ -86,7 +90,8 @@ public class MgcpCommandProviderTest {
     public void testProvideAucx() {
         // given
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
+        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.AUCX);
@@ -99,7 +104,8 @@ public class MgcpCommandProviderTest {
     public void testProvideAuep() {
         // given
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
+        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.AUEP);
@@ -112,7 +118,8 @@ public class MgcpCommandProviderTest {
     public void testProvideRqnt() {
         // given
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
+        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.RQNT);
@@ -125,7 +132,8 @@ public class MgcpCommandProviderTest {
     public void testProvideNtfy() {
         // given
         MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager);
+        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        MgcpCommandProvider commandProvider = new MgcpCommandProvider(endpointManager, connectionProvider);
 
         // when
         MgcpCommand command = commandProvider.provide(MgcpRequestType.NTFY);
