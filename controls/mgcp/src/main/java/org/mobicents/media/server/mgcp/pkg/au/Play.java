@@ -73,7 +73,7 @@ public class Play extends Signal implements PlayerListener {
     private final Event of;
 
     // Concurrency
-    private final ReentrantLock lock;
+    private final Object lock;
 
     public Play(String name) {
         super(name);
@@ -132,8 +132,7 @@ public class Play extends Signal implements PlayerListener {
     }
 
     private void startAnnouncementPhase() {
-        this.lock.lock();
-        try {
+        synchronized (this.lock) {
             // Hotfix for concurrency issues
             // https://github.com/RestComm/mediaserver/issues/162
             if (this.terminated.get()) {
@@ -180,8 +179,6 @@ public class Play extends Signal implements PlayerListener {
 
             // starting
             player.activate();
-        } finally {
-            this.lock.unlock();
         }
     }
 
@@ -213,14 +210,11 @@ public class Play extends Signal implements PlayerListener {
     }
 
     private void terminate() {
-        this.lock.lock();
-        try {
+        synchronized (this.lock) {
             if (!this.terminated.get()) {
                 this.terminated.set(true);
                 cleanup();
             }
-        } finally {
-            this.lock.unlock();
         }
     }
 
