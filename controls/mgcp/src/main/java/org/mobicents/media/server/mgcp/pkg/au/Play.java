@@ -24,6 +24,7 @@ package org.mobicents.media.server.mgcp.pkg.au;
 
 import java.net.MalformedURLException;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
@@ -47,7 +48,7 @@ import org.mobicents.media.server.utils.Text;
  */
 public class Play extends Signal implements PlayerListener {
 
-    private final static Logger logger = Logger.getLogger(Play.class);
+    private final static Logger log = Logger.getLogger(Play.class);
 
     // Response Messages
     private static final Text MSG_NO_PLAYER = new Text("Endpoint has no player");
@@ -65,16 +66,20 @@ public class Play extends Signal implements PlayerListener {
     private int segCount;
     private long delay;
     private String uri;
+    private final AtomicBoolean terminated;
 
     // MGCP Properties
     private final Event oc;
     private final Event of;
 
-    // Concurrency Properties
+    // Concurrency
     private final ReentrantLock lock;
 
     public Play(String name) {
         super(name);
+
+        // Play Properties
+        this.terminated = new AtomicBoolean(false);
 
         // MGCP Properties
         this.oc = new Event(new Text("oc"));
@@ -82,7 +87,7 @@ public class Play extends Signal implements PlayerListener {
         this.of = new Event(new Text("of"));
         this.of.add(new NotifyImmediately("N"));
 
-        // Concurrency Properties
+        // Concurrency
         this.lock = new ReentrantLock();
     }
 
@@ -102,7 +107,7 @@ public class Play extends Signal implements PlayerListener {
         try {
             player.addListener(this);
         } catch (TooManyListenersException e) {
-            logger.error("OPERATION FAILURE", e);
+            log.error("OPERATION FAILURE", e);
         }
 
         // get options of the request
@@ -118,48 +123,66 @@ public class Play extends Signal implements PlayerListener {
 
         uri = segments.next().toString();
 
+        // Need to manually set terminated to false at this point
+        // Because object is recycled and reset is always called before this method.
+        this.terminated.set(false);
+
         // start announcement
         startAnnouncementPhase();
     }
 
     private void startAnnouncementPhase() {
-        if (logger.isInfoEnabled()) {
-            logger.info(String.format("(%s) Start announcement (segment=%d)", getEndpoint().getLocalName(), segCount));
-        }
-
+        this.lock.lock();
         try {
-            player.setURL(uri);
-        } catch (MalformedURLException e) {
-            if (logger.isInfoEnabled()) {
-                logger.warn("Invalid URL format: " + uri);
+            // Hotfix for concurrency issues
+            // https://github.com/RestComm/mediaserver/issues/162
+            if (this.terminated.get()) {
+                if (log.isInfoEnabled()) {
+                    log.info("Skipping announcement phase because play has been terminated.");
+                }
+                return;
             }
-            of.fire(this, MSG_RC_301);
-            complete();
-            return;
-        } catch (ResourceUnavailableException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info("URL cannot be found: " + uri);
+
+            if (log.isInfoEnabled()) {
+                log.info(String.format("(%s) Start announcement (segment=%d)", getEndpoint().getLocalName(), segCount));
             }
-            of.fire(this, MSG_RC_312);
-            complete();
-            return;
+
+            try {
+                player.setURL(uri);
+            } catch (MalformedURLException e) {
+                if (log.isInfoEnabled()) {
+                    log.warn("Invalid URL format: " + uri);
+                }
+                of.fire(this, MSG_RC_301);
+                complete();
+                return;
+            } catch (ResourceUnavailableException e) {
+                if (log.isInfoEnabled()) {
+                    log.info("URL cannot be found: " + uri);
+                }
+                of.fire(this, MSG_RC_312);
+                complete();
+                return;
+            }
+
+            // set max duration if present
+            if (options.getDuration() != -1) {
+                player.setDuration(options.getDuration());
+            }
+
+            // set initial offset
+            if (options.getOffset() > 0) {
+                player.setMediaTime(options.getOffset());
+            }
+
+            // initial delay
+            player.setInitialDelay(delay);
+
+            // starting
+            player.activate();
+        } finally {
+            this.lock.unlock();
         }
-
-        // set max duration if present
-        if (options.getDuration() != -1) {
-            player.setDuration(options.getDuration());
-        }
-
-        // set initial offset
-        if (options.getOffset() > 0) {
-            player.setMediaTime(options.getOffset());
-        }
-
-        // initial delay
-        player.setInitialDelay(delay);
-
-        // starting
-        player.activate();
     }
 
     @Override
@@ -192,18 +215,25 @@ public class Play extends Signal implements PlayerListener {
     private void terminate() {
         this.lock.lock();
         try {
-            if (player != null) {
-                player.removeListener(this);
-                player.deactivate();
-                player = null;
-            }
-
-            if (options != null) {
-                Options.recycle(options);
-                options = null;
+            if (!this.terminated.get()) {
+                this.terminated.set(true);
+                cleanup();
             }
         } finally {
             this.lock.unlock();
+        }
+    }
+
+    private void cleanup() {
+        if (player != null) {
+            player.removeListener(this);
+            player.deactivate();
+            player = null;
+        }
+
+        if (options != null) {
+            Options.recycle(options);
+            options = null;
         }
     }
 
@@ -224,8 +254,8 @@ public class Play extends Signal implements PlayerListener {
     public void process(PlayerEvent event) {
         switch (event.getID()) {
             case PlayerEvent.STOP:
-                if (logger.isInfoEnabled()) {
-                    logger.info(String.format("(%s) Announcement (segment=%d) has completed", getEndpoint().getLocalName(),
+                if (log.isInfoEnabled()) {
+                    log.info(String.format("(%s) Announcement (segment=%d) has completed", getEndpoint().getLocalName(),
                             segCount));
                 }
 
@@ -250,12 +280,13 @@ public class Play extends Signal implements PlayerListener {
                 terminate();
                 oc.fire(this, MSG_RC_100);
                 this.complete();
-
                 break;
+
             case PlayerEvent.FAILED:
                 terminate();
                 oc.fire(this, null);
                 this.complete();
+                break;
         }
     }
 }
