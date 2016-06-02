@@ -124,7 +124,7 @@ public class Play extends Signal implements PlayerListener {
         uri = segments.next().toString();
 
         // Need to manually set terminated to false at this point
-        // Because object is recycled and reset is always called before this method.
+        // Because object is recycled and reset() is always called before this method.
         this.terminated.set(false);
 
         // start announcement
