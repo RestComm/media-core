@@ -116,7 +116,6 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
     private static void configureResource(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
         dst.setLocalConnectionCount(src.getInt("localConnection[@poolSize]", ResourcesConfiguration.LOCAL_CONNECTION_COUNT));
         dst.setRemoteConnectionCount(src.getInt("remoteConnection[@poolSize]", ResourcesConfiguration.REMOTE_CONNECTION_COUNT));
-        dst.setPlayerCount(src.getInt("player[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
         dst.setRecorderCount(src.getInt("recorder[@poolSize]", ResourcesConfiguration.RECORDER_COUNT));
         dst.setDtmfDetectorCount(src.getInt("dtmfDetector[@poolSize]", ResourcesConfiguration.DTMF_DETECTOR_COUNT));
         dst.setDtmfDetectorDbi(src.getInt("dtmfDetector[@dbi]", ResourcesConfiguration.DTMF_DETECTOR_DBI));
@@ -125,6 +124,9 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
         dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
         dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
+        HierarchicalConfiguration<ImmutableNode> player = src.configurationAt("player");
+        dst.setPlayerCount(player.getInt("poolSize", ResourcesConfiguration.PLAYER_COUNT));
+        dst.setPlayerCacheSize(player.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE));
     }
 
 }

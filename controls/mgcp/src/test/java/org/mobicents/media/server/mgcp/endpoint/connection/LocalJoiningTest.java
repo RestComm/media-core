@@ -44,6 +44,8 @@ import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioCache;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioCacheECache;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
@@ -102,7 +104,7 @@ public class LocalJoiningTest {
     private PhoneSignalDetectorPool signalDetectorPool;
     private PhoneSignalGeneratorFactory signalGeneratorFactory;
     private PhoneSignalGeneratorPool signalGeneratorPool;
-    
+
     Component sine1,sine2;
     Component analyzer1,analyzer2;
     
@@ -112,7 +114,6 @@ public class LocalJoiningTest {
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
     	//use default clock
         clock = new WallClock();
-
         //create single thread scheduler
         mediaScheduler = new PriorityQueueScheduler();
         mediaScheduler.setClock(clock);
@@ -126,7 +127,7 @@ public class LocalJoiningTest {
         this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
         this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
-        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory);
+        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory, new AudioCacheECache(100));
         this.playerPool = new AudioPlayerPool(0, playerFactory);
         this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);

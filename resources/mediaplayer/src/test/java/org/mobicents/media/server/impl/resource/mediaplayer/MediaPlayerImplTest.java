@@ -30,6 +30,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioCacheECache;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.spi.memory.Frame;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -58,11 +59,12 @@ public class MediaPlayerImplTest {
 
     @Before
     public void setUp() throws Exception {    	
+      AudioCacheECache cache = new AudioCacheECache(100);
     	scheduler = new PriorityQueueScheduler();
     	scheduler.setClock(new WallClock());
         scheduler.start();
         
-        audioPlayer = new AudioPlayerImpl("test", scheduler);
+        audioPlayer = new AudioPlayerImpl("test", scheduler, cache);
     }
 
     @After

@@ -40,6 +40,7 @@ public class ResourcesConfiguration {
     public static final int DTMF_GENERATOR_TONE_DURATION = 80;
     public static final int SIGNAL_DETECTOR_COUNT = 0;
     public static final int SIGNAL_GENERATOR_COUNT = 0;
+    public static final int PLAYER_CACHE_SIZE = 100;
 
     private int localConnectionCount;
     private int remoteConnectionCount;
@@ -52,6 +53,7 @@ public class ResourcesConfiguration {
     private int dtmfGeneratorToneDuration;
     private int signalDetectorCount;
     private int signalGeneratorCount;
+    private int playerCacheSize;
 
     public ResourcesConfiguration() {
         this.localConnectionCount = LOCAL_CONNECTION_COUNT;
@@ -65,6 +67,7 @@ public class ResourcesConfiguration {
         this.dtmfGeneratorToneDuration = DTMF_GENERATOR_TONE_DURATION;
         this.signalDetectorCount = SIGNAL_DETECTOR_COUNT;
         this.signalGeneratorCount = SIGNAL_GENERATOR_COUNT;
+        this.playerCacheSize = PLAYER_CACHE_SIZE;
     }
 
     public int getLocalConnectionCount() {
@@ -188,4 +191,12 @@ public class ResourcesConfiguration {
         this.signalGeneratorCount = signalGeneratorCount;
     }
 
+    public int getPlayerCacheSize() { return  playerCacheSize; }
+
+    public void setPlayerCacheSize(int playerCacheSize) {
+        if (playerCacheSize < 0) {
+            throw new IllegalArgumentException("Player cache size cannot be negative");
+        }
+        this.playerCacheSize = playerCacheSize;
+    }
 }
