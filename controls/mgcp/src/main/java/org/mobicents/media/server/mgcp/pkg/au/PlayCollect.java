@@ -61,6 +61,9 @@ public class PlayCollect extends Signal {
     private final static Logger logger = Logger.getLogger(PlayCollect.class);
 
     // MGCP Responses
+    private static final Text RC_300 = new Text("rc=300");
+    private static final Text RC_301 = new Text("rc=301");
+
     private final Event oc;
     private final Event of;
 
@@ -245,13 +248,13 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.activate();
             } catch (TooManyListenersException e) {
-                of.fire(this, new Text("rc=300"));
+                of.fire(this, RC_300);
                 logger.error("Too many listeners, firing of", e);
             } catch (MalformedURLException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL in invalid format, firing of");
             } catch (ResourceUnavailableException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL can not be found, firing of");
             }
         }
@@ -317,7 +320,7 @@ public class PlayCollect extends Signal {
             }
             dtmfDetector.flushBuffer();
         } catch (TooManyListenersException e) {
-            of.fire(this, new Text("rc=300"));
+            of.fire(this, RC_300);
             logger.error("Too many listeners for DTMF detector, firing of");
         }
     }
@@ -452,10 +455,10 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.start();
             } catch (MalformedURLException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL in invalid format , firing of");
             } catch (ResourceUnavailableException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL can not be found , firing of");
             }
         }
@@ -484,11 +487,11 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.start();
             } catch (MalformedURLException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL in invalid format, firing of");
                 return;
             } catch (ResourceUnavailableException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL can not be found, firing of");
                 return;
             }
@@ -517,10 +520,10 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.start();
             } catch (MalformedURLException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL in invalid format, firing of");
             } catch (ResourceUnavailableException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL can not be found, firing of");
             }
         }
@@ -549,10 +552,10 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.start();
             } catch (MalformedURLException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL in invalid format , firing of");
             } catch (ResourceUnavailableException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL can not be found , firing of");
             }
         }
@@ -580,10 +583,10 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.start();
             } catch (MalformedURLException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL in invalid format , firing of");
             } catch (ResourceUnavailableException e) {
-                of.fire(this, new Text("rc=301"));
+                of.fire(this, RC_301);
                 logger.error("Received URL can not be found , firing of");
             }
         }
@@ -668,7 +671,7 @@ public class PlayCollect extends Signal {
                     }
                     break;
                 case PlayerEvent.FAILED:
-                    of.fire(signal, new Text("rc=300"));
+                    of.fire(signal, RC_300);
                     complete();
                     break;
             }
