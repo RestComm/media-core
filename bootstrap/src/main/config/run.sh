@@ -161,7 +161,7 @@ if $cygwin; then
 fi
 
 # Display our environment
-echo "========================================================================="
+echo "=============================================================================="
 echo ""
 echo "  MMS Bootstrap Environment"
 echo ""
@@ -173,7 +173,19 @@ echo "  JAVA_OPTS: $JAVA_OPTS"
 echo ""
 echo "  CLASSPATH: $MMS_CLASSPATH"
 echo ""
-echo "========================================================================="
+echo "=============================================================================="
+echo ""
+echo "=============================================================================="
+echo "==                                                                          =="
+echo "==          RestComm Media Server ships with G.729 codec.                   =="
+echo "==      G.729 includes patents from several companies and is licensed by    =="
+echo "==      Sipro Lab Telecom. Sipro Lab Telecom is the authorized Intellectual =="
+echo "==      Property Licensing Administrator for G.729 technology and patent    =="
+echo "==      pool. In a number of countries, the use of G.729 may require        =="
+echo "==      a license fee and/or royalty fee. For more information please visit =="
+echo "==                       http://www.sipro.com/G-729.html                    =="
+echo "==                                                                          =="
+echo "=============================================================================="
 echo ""
 
       "$JAVA" $JAVA_OPTS \
