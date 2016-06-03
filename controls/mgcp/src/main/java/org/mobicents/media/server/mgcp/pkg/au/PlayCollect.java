@@ -245,16 +245,14 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.activate();
             } catch (TooManyListenersException e) {
-                of.fire(this, new Text("Too many listeners"));
-                logger.error("OPERATION FAILURE", e);
+                of.fire(this, new Text("rc=300"));
+                logger.error("Too many listeners, firing of", e);
             } catch (MalformedURLException e) {
-                logger.info("Received URL in invalid format , firing of");
-                of.fire(this, new Text(e.getMessage()));
-                return;
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL in invalid format, firing of");
             } catch (ResourceUnavailableException e) {
-                logger.info("Received URL can not be found , firing of");
-                of.fire(this, new Text(e.getMessage()));
-                return;
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL can not be found, firing of");
             }
         }
     }
@@ -319,8 +317,8 @@ public class PlayCollect extends Signal {
             }
             dtmfDetector.flushBuffer();
         } catch (TooManyListenersException e) {
-            of.fire(this, new Text("Too many listeners for DTMF detector"));
-            logger.error("OPERATION FAILURE", e);
+            of.fire(this, new Text("rc=300"));
+            logger.error("Too many listeners for DTMF detector, firing of");
         }
     }
 
@@ -454,105 +452,140 @@ public class PlayCollect extends Signal {
                 // start playback
                 player.start();
             } catch (MalformedURLException e) {
+                of.fire(this, new Text("rc=301"));
                 logger.error("Received URL in invalid format , firing of");
-                of.fire(this, new Text(e.getMessage()));
-                return;
             } catch (ResourceUnavailableException e) {
+                of.fire(this, new Text("rc=301"));
                 logger.error("Received URL can not be found , firing of");
-                of.fire(this, new Text(e.getMessage()));
-                return;
             }
         }
     }
 
     private void prev(long delay) {
-        segCount++;
-        promptIndex--;
-        try {
-            String url = prompt[promptIndex].toString();
-            if (logger.isInfoEnabled()) {
-                logger.info(String.format("(%s) Processing player prev with url - %s", getEndpoint().getLocalName(), url));
+        synchronized (this.LOCK) {
+            // Hotfix for concurrency issues
+            // https://github.com/RestComm/mediaserver/issues/164
+            if (this.terminated.get() || !this.isPromptActive) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Skipping prompt phase because PlayCollect has been terminated.");
+                }
+                return;
             }
-            player.setURL(url);
-            player.setInitialDelay(delay);
-            // start playback
-            player.start();
-        } catch (MalformedURLException e) {
-            logger.error("Received URL in invalid format, firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
-        } catch (ResourceUnavailableException e) {
-            logger.error("Received URL can not be found, firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
+
+            segCount++;
+            promptIndex--;
+            try {
+                String url = prompt[promptIndex].toString();
+                if (logger.isInfoEnabled()) {
+                    logger.info(String.format("(%s) Processing player prev with url - %s", getEndpoint().getLocalName(), url));
+                }
+                player.setURL(url);
+                player.setInitialDelay(delay);
+                // start playback
+                player.start();
+            } catch (MalformedURLException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL in invalid format, firing of");
+                return;
+            } catch (ResourceUnavailableException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL can not be found, firing of");
+                return;
+            }
         }
     }
 
     private void curr(long delay) {
-        segCount++;
-        try {
-            String url = prompt[promptIndex].toString();
-            if (logger.isInfoEnabled()) {
-                logger.info(String.format("(%s) Processing player curr with url - %s", getEndpoint().getLocalName(), url));
+        synchronized (this.LOCK) {
+            // Hotfix for concurrency issues
+            // https://github.com/RestComm/mediaserver/issues/164
+            if (this.terminated.get() || !this.isPromptActive) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Skipping prompt phase because PlayCollect has been terminated.");
+                }
+                return;
             }
-            player.setURL(url);
-            player.setInitialDelay(delay);
-            // start playback
-            player.start();
-        } catch (MalformedURLException e) {
-            logger.error("Received URL in invalid format, firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
-        } catch (ResourceUnavailableException e) {
-            logger.error("Received URL can not be found, firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
+
+            segCount++;
+            try {
+                String url = prompt[promptIndex].toString();
+                if (logger.isInfoEnabled()) {
+                    logger.info(String.format("(%s) Processing player curr with url - %s", getEndpoint().getLocalName(), url));
+                }
+                player.setURL(url);
+                player.setInitialDelay(delay);
+                // start playback
+                player.start();
+            } catch (MalformedURLException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL in invalid format, firing of");
+            } catch (ResourceUnavailableException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL can not be found, firing of");
+            }
         }
     }
 
     private void first(long delay) {
-        segCount++;
-        promptIndex = 0;
-        try {
-            String url = prompt[promptIndex].toString();
-            if (logger.isInfoEnabled()) {
-                logger.info(String.format("(%s) Processing player first with url - %s", getEndpoint().getLocalName(), url));
+        synchronized (this.LOCK) {
+            // Hotfix for concurrency issues
+            // https://github.com/RestComm/mediaserver/issues/164
+            if (this.terminated.get() || !this.isPromptActive) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Skipping prompt phase because PlayCollect has been terminated.");
+                }
+                return;
             }
-            player.setURL(url);
-            player.setInitialDelay(delay);
-            // start playback
-            player.start();
-        } catch (MalformedURLException e) {
-            logger.error("Received URL in invalid format , firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
-        } catch (ResourceUnavailableException e) {
-            logger.error("Received URL can not be found , firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
+
+            segCount++;
+            promptIndex = 0;
+            try {
+                String url = prompt[promptIndex].toString();
+                if (logger.isInfoEnabled()) {
+                    logger.info(String.format("(%s) Processing player first with url - %s", getEndpoint().getLocalName(), url));
+                }
+                player.setURL(url);
+                player.setInitialDelay(delay);
+                // start playback
+                player.start();
+            } catch (MalformedURLException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL in invalid format , firing of");
+            } catch (ResourceUnavailableException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL can not be found , firing of");
+            }
         }
     }
 
     private void last(long delay) {
-        segCount++;
-        promptIndex = promptLength - 1;
-        try {
-            String url = prompt[promptIndex].toString();
-            if (logger.isInfoEnabled()) {
-                logger.info(String.format("(%s) Processing player last with url - %s", getEndpoint().getLocalName(), url));
+        synchronized (this.LOCK) {
+            // Hotfix for concurrency issues
+            // https://github.com/RestComm/mediaserver/issues/164
+            if (this.terminated.get() || !this.isPromptActive) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Skipping prompt phase because PlayCollect has been terminated.");
+                }
+                return;
             }
-            player.setURL(url);
-            player.setInitialDelay(delay);
-            // start playback
-            player.start();
-        } catch (MalformedURLException e) {
-            logger.error("Received URL in invalid format , firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
-        } catch (ResourceUnavailableException e) {
-            logger.error("Received URL can not be found , firing of");
-            of.fire(this, new Text(e.getMessage()));
-            return;
+            segCount++;
+            promptIndex = promptLength - 1;
+            try {
+                String url = prompt[promptIndex].toString();
+                if (logger.isInfoEnabled()) {
+                    logger.info(String.format("(%s) Processing player last with url - %s", getEndpoint().getLocalName(), url));
+                }
+                player.setURL(url);
+                player.setInitialDelay(delay);
+                // start playback
+                player.start();
+            } catch (MalformedURLException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL in invalid format , firing of");
+            } catch (ResourceUnavailableException e) {
+                of.fire(this, new Text("rc=301"));
+                logger.error("Received URL can not be found , firing of");
+            }
         }
     }
 
@@ -635,7 +668,7 @@ public class PlayCollect extends Signal {
                     }
                     break;
                 case PlayerEvent.FAILED:
-                    of.fire(signal, null);
+                    of.fire(signal, new Text("rc=300"));
                     complete();
                     break;
             }
