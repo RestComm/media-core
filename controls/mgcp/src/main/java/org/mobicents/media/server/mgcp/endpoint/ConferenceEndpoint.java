@@ -41,4 +41,9 @@ public class ConferenceEndpoint extends BaseMixerEndpointImpl {
 	public Component getResource(MediaType mediaType, ComponentType componentType) {
 		return null;
 	}
+
+    @Override
+    public String toString() {
+        return "Conference";
+    }
 }

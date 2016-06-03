@@ -56,4 +56,8 @@ public class PacketRelayEndpoint extends BaseMixerEndpointImpl {
     	return null;
     }
 	
+    @Override
+    public String toString() {
+        return "PacketRelay";
+    }
 }

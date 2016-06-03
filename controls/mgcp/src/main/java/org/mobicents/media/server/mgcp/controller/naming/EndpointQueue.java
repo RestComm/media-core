@@ -132,7 +132,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
         		if(logger.isDebugEnabled())    	
             	{
             		logger.debug("Endpoint " + endp.getName() + " taken");
-            		logger.debug("Free endpoints " + queue.size());
+                    logger.debug("Free " + endp.getEndpoint().toString() + " endpoints " + queue.size());
             	}
         		return 1;        		            
         	}
@@ -157,7 +157,7 @@ public class EndpointQueue implements MgcpEndpointStateListener {
     	if(logger.isDebugEnabled())    	
     	{
     		logger.debug("Endpoint " + endpoint.getName() + " released");
-    		logger.debug("Free endpoints " + queue.size());
+            logger.debug("Free " + endpoint.getEndpoint().toString() + " endpoints " + queue.size());
     	}
     }
     
