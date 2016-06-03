@@ -40,6 +40,12 @@
 			<codec name="pcmu" />
 			<codec name="pcma" />
 			<codec name="gsm" />
+			<!-- RestComm Media Server ships with G.729 codec. G.729 includes patents 
+				from several companies and is licensed by Sipro Lab Telecom. Sipro Lab Telecom 
+				is the authorized Intellectual Property Licensing Administrator for G.729 
+				technology and patent pool. In a number of countries, the use of G.729 may 
+				require a license fee and/or royalty fee. For more information please visit 
+				http://www.sipro.com/G-729.html -->
 			<codec name="g729" />
 		</codecs>
 	</media>
