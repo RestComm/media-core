@@ -58,9 +58,4 @@ public class Ds0Endpoint extends BaseSS7EndpointImpl {
 		}
 		return null;
 	}
-
-    @Override
-    public String toString() {
-        return "Ds0";
-    }
 }
