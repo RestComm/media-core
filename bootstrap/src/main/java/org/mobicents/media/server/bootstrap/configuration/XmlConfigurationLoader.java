@@ -127,6 +127,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         HierarchicalConfiguration<ImmutableNode> player = src.configurationAt("player");
         dst.setPlayerCount(player.getInt("poolSize", ResourcesConfiguration.PLAYER_COUNT));
         dst.setPlayerCacheSize(player.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE));
+        dst.setPlayerCacheEnabled(player.getBoolean("cacheEnabled", ResourcesConfiguration.PLAYER_CACHE_ENABLED));
     }
 
 }

@@ -50,6 +50,7 @@
 		<player>
 			<poolSize>50</poolSize>
 			<cacheSize>100</cacheSize>
+			<cacheEnabled>true</cacheEnabled>
 		</player>
 		<recorder poolSize="50" />
 		<dtmfDetector poolSize="50" dbi="-35" />

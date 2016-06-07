@@ -3,6 +3,7 @@ package org.mobicents.media.server.impl.resource.mediaplayer.audio;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
@@ -33,10 +34,11 @@ public class AudioCacheECache implements AudioCache {
     }
 
     public InputStream getStream(URL uri) throws IOException {
-        Cache<String, byte[]> cache = getCache();
-        if (!cache.containsKey(uri.toString())) {
-            cache.put(uri.toString(), IOUtils.toByteArray(uri.openStream()));
+        Cache<URL, byte[]> cache = getCache();
+
+        if (!cache.containsKey(uri)) {
+            cache.put(uri, IOUtils.toByteArray(uri.openStream()));
         }
-        return new ByteArrayInputStream(cache.get(uri.toString()));
+        return new ByteArrayInputStream(cache.get(uri));
     }
 }

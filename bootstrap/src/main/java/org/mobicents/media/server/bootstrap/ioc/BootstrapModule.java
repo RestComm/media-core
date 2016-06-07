@@ -22,6 +22,7 @@
 package org.mobicents.media.server.bootstrap.ioc;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioCacheDisabledCacheProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider;
@@ -119,6 +120,12 @@ public class BootstrapModule extends AbstractModule {
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
         bind(AudioCache.class).toProvider(AudioCacheECacheProvider.class).in(Singleton.class);
+        Class audioCacheClass;
+        if (this.config.getResourcesConfiguration().getPlayerCacheEnabled()) {
+            audioCacheClass = AudioCacheECacheProvider.class;
+        } else {
+            audioCacheClass = AudioCacheDisabledCacheProvider.class;
+        }
+        bind(AudioCache.class).toProvider(audioCacheClass).in(Singleton.class);
     }
-
 }

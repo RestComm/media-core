@@ -41,6 +41,7 @@ public class ResourcesConfiguration {
     public static final int SIGNAL_DETECTOR_COUNT = 0;
     public static final int SIGNAL_GENERATOR_COUNT = 0;
     public static final int PLAYER_CACHE_SIZE = 100;
+    public static final boolean PLAYER_CACHE_ENABLED = true;
 
     private int localConnectionCount;
     private int remoteConnectionCount;
@@ -54,6 +55,7 @@ public class ResourcesConfiguration {
     private int signalDetectorCount;
     private int signalGeneratorCount;
     private int playerCacheSize;
+    private boolean playerCacheEnabled;
 
     public ResourcesConfiguration() {
         this.localConnectionCount = LOCAL_CONNECTION_COUNT;
@@ -68,6 +70,7 @@ public class ResourcesConfiguration {
         this.signalDetectorCount = SIGNAL_DETECTOR_COUNT;
         this.signalGeneratorCount = SIGNAL_GENERATOR_COUNT;
         this.playerCacheSize = PLAYER_CACHE_SIZE;
+        this.playerCacheEnabled = PLAYER_CACHE_ENABLED;
     }
 
     public int getLocalConnectionCount() {
@@ -198,5 +201,11 @@ public class ResourcesConfiguration {
             throw new IllegalArgumentException("Player cache size cannot be negative");
         }
         this.playerCacheSize = playerCacheSize;
+    }
+
+    public boolean getPlayerCacheEnabled() { return playerCacheEnabled; }
+
+    public void setPlayerCacheEnabled(boolean playerCacheEnabled) {
+        this.playerCacheEnabled = playerCacheEnabled;
     }
 }
