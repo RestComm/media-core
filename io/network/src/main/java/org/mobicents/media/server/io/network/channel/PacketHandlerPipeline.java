@@ -43,7 +43,7 @@ public class PacketHandlerPipeline {
     };
 
     private final List<PacketHandler> handlers;
-    private AtomicInteger count;
+    private final AtomicInteger count;
 
     public PacketHandlerPipeline() {
         this.handlers = new ArrayList<PacketHandler>(5);
@@ -134,9 +134,7 @@ public class PacketHandlerPipeline {
      * @return The list of handlers registered.
      */
     protected List<PacketHandler> getHandlers() {
-        synchronized (this.handlers) {
-            return this.handlers;
-        }
+        return this.handlers;
     }
 
 }
