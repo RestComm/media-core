@@ -68,7 +68,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
             configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
             configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
         } catch (ConfigurationException | IllegalArgumentException e) {
-            log.error("Could not load configuration from " + filepath + ". Using default values.");
+            log.error("Could not load configuration from " + filepath + ". Using default values. Reason: " + e.getMessage());
         }
         return configuration;
     }
