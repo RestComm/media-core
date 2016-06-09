@@ -249,7 +249,7 @@ public class PlayCollect extends Signal {
                 player.activate();
             } catch (TooManyListenersException e) {
                 of.fire(this, RC_300);
-                logger.error("Too many listeners, firing of", e);
+                logger.error("Too many listeners, firing of");
             } catch (MalformedURLException e) {
                 of.fire(this, RC_301);
                 logger.error("Received URL in invalid format, firing of");
