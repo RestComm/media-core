@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
@@ -95,7 +94,7 @@ public class PlayRecord extends Signal {
     private Text eventContent;
     private Boolean playerListenerAdded = false;
 
-    private Semaphore terminateSemaphore = new Semaphore(1);
+    private final Object LOCK = new Object();
 
     public PlayRecord(String name) {
         super(name);
@@ -375,23 +374,17 @@ public class PlayRecord extends Signal {
      * Terminates any activity.
      */
     private void terminate() {
-        try {
-            terminateSemaphore.acquire();
-        } catch (InterruptedException e) {
-            logger.error("Could not acquire semaphore", e);
+        synchronized (this.LOCK) {
+            this.isPromptActive = false;
+            this.terminatePrompt();
+            this.terminateRecordPhase();
+            this.terminateCollectPhase();
+
+            if (options != null) {
+                Options.recycle(options);
+                options = null;
+            }
         }
-
-        this.isPromptActive = false;
-        this.terminatePrompt();
-        this.terminateRecordPhase();
-        this.terminateCollectPhase();
-
-        if (options != null) {
-            Options.recycle(options);
-            options = null;
-        }
-
-        terminateSemaphore.release();
     }
 
     private void decreaseNa() {
