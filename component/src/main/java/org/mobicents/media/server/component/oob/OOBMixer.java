@@ -82,8 +82,6 @@ public class OOBMixer {
 	}
 
 	private class MixTask extends Task {
-		int sourceComponent = 0;
-		private Frame current;
 
 		public MixTask() {
 			super();
@@ -96,6 +94,9 @@ public class OOBMixer {
 
 		@Override
 		public long perform() {
+		    int sourceComponent = 0;
+	        Frame current = null;
+		    
 			// summarize all
 			activeComponents = components.valuesIterator();
 			while (activeComponents.hasNext()) {
