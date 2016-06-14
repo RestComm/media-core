@@ -23,9 +23,13 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -35,6 +39,25 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
 
     public ModifyConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         super(endpointManager, connectionProvider);
+    }
+    
+    /**
+     * Modifies an existing connection.
+     * 
+     * @param callId The identifier of the call which the connection belongs to.
+     * @param connectionId The connection identifier
+     * @param mode (optional) The new connection mode.
+     * @param remoteDescription (optional) The session description of the remote peer.
+     * 
+     * @return An updated local session descriptor, if there were any changes. Otherwise, returns null.
+     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
+     * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
+     * @throws MgcpConnectionException If connection could not be opened
+     */
+    private String modifyConnection(int callId, int connectionId, ConnectionMode mode, String remoteDescription)
+            throws MgcpCallNotFoundException, MgcpConnectionNotFound, MgcpConnectionException {
+        // TODO implement modifyConnection(int callId, int connectionId, ConnectionMode mode, String remoteDescription)
+        return null;
     }
 
     @Override

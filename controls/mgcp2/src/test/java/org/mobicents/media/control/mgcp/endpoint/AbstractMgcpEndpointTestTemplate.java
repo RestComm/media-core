@@ -21,10 +21,6 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,10 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
-import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionState;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
-import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -51,32 +43,31 @@ public abstract class AbstractMgcpEndpointTestTemplate {
         URL resource = loader.getResource("sdp/basic-sdp.txt");
         byte[] data = Files.readAllBytes(Paths.get(resource.toURI()));
         basicSdp = new String(data);
-        
     }
 
-    protected void testHalfOpenRemoteConnection(AbstractMgcpEndpoint endpoint) throws MgcpConnectionException {
-        // when - creating connection
-        MgcpConnection connection = endpoint.createConnection(1, ConnectionMode.SEND_RECV);
+    // protected void testHalfOpenRemoteConnection(AbstractMgcpEndpoint endpoint) throws MgcpConnectionException {
+    // // when - creating connection
+    // MgcpConnection connection = endpoint.createConnection(1, ConnectionMode.SEND_RECV);
+    //
+    // // then
+    // assertEquals("restcomm/mock/1", endpoint.getEndpointId());
+    // assertNotNull(connection);
+    // assertEquals(ConnectionMode.SEND_RECV, connection.getMode());
+    // assertEquals(MgcpConnectionState.HALF_OPEN, connection.getState());
+    // assertTrue(endpoint.isActive());
+    // }
+    //
+    // protected void testOpenRemoteConnection(AbstractMgcpEndpoint endpoint) throws MgcpConnectionException {
+    // // when - creating connection
+    // MgcpConnection connection = endpoint.createConnection(1, ConnectionMode.SEND_ONLY, basicSdp);
+    //
+    // // then
+    // assertEquals("restcomm/mock/1", endpoint.getEndpointId());
+    // assertNotNull(connection);
+    // assertEquals(ConnectionMode.SEND_ONLY, connection.getMode());
+    // assertEquals(MgcpConnectionState.OPEN, connection.getState());
+    // assertTrue(endpoint.isActive());
+    // }
 
-        // then
-        assertEquals("restcomm/mock/1", endpoint.getEndpointId());
-        assertNotNull(connection);
-        assertEquals(ConnectionMode.SEND_RECV, connection.getMode());
-        assertEquals(MgcpConnectionState.HALF_OPEN, connection.getState());
-        assertTrue(endpoint.isActive());
-    }
-
-    protected void testOpenRemoteConnection(AbstractMgcpEndpoint endpoint) throws MgcpConnectionException {
-        // when - creating connection
-        MgcpConnection connection = endpoint.createConnection(1, ConnectionMode.SEND_ONLY, basicSdp);
-
-        // then
-        assertEquals("restcomm/mock/1", endpoint.getEndpointId());
-        assertNotNull(connection);
-        assertEquals(ConnectionMode.SEND_ONLY, connection.getMode());
-        assertEquals(MgcpConnectionState.OPEN, connection.getState());
-        assertTrue(endpoint.isActive());
-    }
-    
     // TODO finish writing tests
 }

@@ -23,6 +23,8 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
+import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
@@ -35,6 +37,35 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
 
     public DeleteConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         super(endpointManager, connectionProvider);
+    }
+
+    /**
+     * Deletes an active connection.
+     * 
+     * @param callId The ID of the call where the connection is stored.
+     * @param connectionId The connection ID
+     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
+     * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
+     */
+    private void deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
+        // TODO implement deleteConnection(int callId, int connectionId)
+    }
+
+    /**
+     * Deletes all currently active connections.
+     */
+    private void deleteConnections() {
+        // TODO implement deleteConnections()
+    }
+
+    /**
+     * Deletes all currently active connections within a specific call.
+     * 
+     * @param callId the call identifier
+     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
+     */
+    private void deleteConnections(int callId) throws MgcpCallNotFoundException {
+        // TODO implement deleteConnections(int callId)
     }
 
     @Override

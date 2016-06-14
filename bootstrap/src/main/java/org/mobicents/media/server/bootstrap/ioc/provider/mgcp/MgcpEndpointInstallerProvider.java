@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
@@ -46,14 +45,11 @@ import com.google.inject.TypeLiteral;
 public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpointProvider<? extends MgcpEndpoint>>> {
 
     private final MediaServerConfiguration configuration;
-    private final MgcpConnectionProvider connectionProvider;
     private final PriorityQueueScheduler mediaScheduler;
 
     @Inject
-    public MgcpEndpointInstallerProvider(MediaServerConfiguration configuration, MgcpConnectionProvider connectionProvider,
-            PriorityQueueScheduler mediaScheduler) {
+    public MgcpEndpointInstallerProvider(MediaServerConfiguration configuration, PriorityQueueScheduler mediaScheduler) {
         this.configuration = configuration;
-        this.connectionProvider = connectionProvider;
         this.mediaScheduler = mediaScheduler;
     }
 
@@ -70,11 +66,11 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
 
             switch (endpoint.getRelayType()) {
                 case MIXER:
-                    provider = new MgcpMixerEndpointProvider(namespace, this.connectionProvider, this.mediaScheduler);
+                    provider = new MgcpMixerEndpointProvider(namespace, this.mediaScheduler);
                     break;
 
                 case SPLITTER:
-                    provider = new MgcpSplitterEndpointProvider(namespace, this.connectionProvider, this.mediaScheduler);
+                    provider = new MgcpSplitterEndpointProvider(namespace, this.mediaScheduler);
                     break;
 
                 default:

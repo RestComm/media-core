@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.endpoint;
 
 import static org.mockito.Matchers.any;
@@ -28,7 +28,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
@@ -46,21 +45,21 @@ import org.mobicents.media.server.spi.ConnectionMode;
  *
  */
 public class MgcpSplitterEndpointTest {
-    
+
     @Test
-    public void testOpenCloseRemoteConnection() throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFound {
+    public void testOpenCloseRemoteConnection()
+            throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFound {
         // given
-        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         AudioSplitter inbandMixer = mock(AudioSplitter.class);
         OOBSplitter outbandMixer = mock(OOBSplitter.class);
-        MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", connectionProvider, inbandMixer, outbandMixer);
+        MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandMixer, outbandMixer);
 
         // when - half open connection
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.isLocal()).thenReturn(false);
-        when(connectionProvider.provideRemote()).thenReturn(connection);
-        endpoint.createConnection(1, ConnectionMode.SEND_RECV);
+        when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        endpoint.addConnection(1, connection);
 
         // then
         verify(inbandMixer, times(1)).addOutsideComponent(any(AudioComponent.class));
@@ -77,26 +76,24 @@ public class MgcpSplitterEndpointTest {
     @Test
     public void testOpenCloseLocalConnection() throws MgcpException {
         // given
-        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
         AudioSplitter inbandSplitter = mock(AudioSplitter.class);
         OOBSplitter outbandSplitter = mock(OOBSplitter.class);
-        MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", connectionProvider, inbandSplitter, outbandSplitter);
-        MgcpSplitterEndpoint endpoint2 = new MgcpSplitterEndpoint("restcomm/mock/2", connectionProvider, inbandSplitter, outbandSplitter);
-        
+        MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandSplitter, outbandSplitter);
+
         // when - open connection and join it to secondary endpoint
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.isLocal()).thenReturn(true);
-        when(connectionProvider.provideLocal()).thenReturn(connection);
-        endpoint.createConnection(1, ConnectionMode.SEND_RECV, endpoint2);
-        
+        when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+        endpoint.addConnection(1, connection);
+
         // then
         verify(inbandSplitter, times(1)).addInsideComponent(any(AudioComponent.class));
         verify(outbandSplitter, times(1)).addInsideComponent(any(OOBComponent.class));
-        
+
         // when - close connection
         endpoint.deleteConnection(1, connection.getIdentifier());
-        
+
         // then
         verify(inbandSplitter, times(1)).releaseInsideComponent(any(AudioComponent.class));
         verify(outbandSplitter, times(1)).releaseInsideComponent(any(OOBComponent.class));

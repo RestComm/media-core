@@ -21,13 +21,11 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
@@ -42,8 +40,7 @@ public class MixerEndpointProviderTest {
         // given
         String namespace = "ms/mock/";
         PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
-        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, connectionProvider, mediaScheduler);
+        MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, mediaScheduler);
 
         // when
         MgcpMixerEndpoint endpoint1 = provider.provide();

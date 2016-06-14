@@ -25,8 +25,6 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
-import org.mobicents.media.control.mgcp.exception.MgcpException;
-import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -53,68 +51,13 @@ public interface MgcpEndpoint {
     String getEndpointId();
 
     /**
-     * Creates a new Remote Connection.
+     * Registers a connection.
      * 
-     * <p>
-     * The connection will be half-open and a Local Connection Description is generated.
-     * </p>
-     * 
-     * @param callId The call identifies which indicates to which session the connection belongs to.
-     * @param mode The connection mode.
-     * 
-     * @return The new connection
-     * @throws MgcpConnectionException If connection could not be half opened.
+     * @param callId The identifier of the call where the connection belongs to.
+     * @param connection The connection to be registered.
+     * @throws MgcpConnectionException When connection is duplicate.
      */
-    MgcpConnection createConnection(int callId, ConnectionMode mode) throws MgcpConnectionException;
-
-    /**
-     * Creates a new Remote Connection.
-     * 
-     * <p>
-     * The connection will be fully open and connected to the remote peer.<br>
-     * A Local Connection Description is generated.
-     * </p>
-     * 
-     * @param callId The the call identifies which indicates to which session the connection belongs to.
-     * @param mode The connection mode.
-     * @param remoteDescription The description of the remote connection.
-     * 
-     * @return The new connection
-     * @throws MgcpConnectionException If connection could not be opened
-     */
-    MgcpConnection createConnection(int callId, ConnectionMode mode, String remoteDescription) throws MgcpConnectionException;
-
-    /**
-     * Creates a new Local Connection.
-     * 
-     * <p>
-     * The connection will be fully open and connected to a secondary endpoint.<br>
-     * </p>
-     * 
-     * @param callId The the call identifies which indicates to which session the connection belongs to.
-     * @param mode The connection mode.
-     * @param secondEndpoint The secondary endpoint to connect to.
-     * 
-     * @return The new connection
-     * @throws MgcpException If connection could not be opened.
-     */
-    MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint) throws MgcpConnectionException;
-
-    /**
-     * Modifies an existing connection.
-     * 
-     * @param callId The identifier of the call which the connection belongs to.
-     * @param connectionId The connection identifier
-     * @param mode (optional) The new connection mode.
-     * @param remoteDescription (optional) The session description of the remote peer.
-     * 
-     * @return An updated local session descriptor, if there were any changes. Otherwise, returns null.
-     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
-     * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
-     * @throws MgcpConnectionException If connection could not be opened
-     */
-    String modifyConnection(int callId, int connectionId, ConnectionMode mode, String remoteDescription)
-            throws MgcpCallNotFoundException, MgcpConnectionNotFound, MgcpConnectionException;
+    void addConnection(int callId, MgcpConnection connection) throws MgcpConnectionException;
 
     /**
      * Deletes an active connection.

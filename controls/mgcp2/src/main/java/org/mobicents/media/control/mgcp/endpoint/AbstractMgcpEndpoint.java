@@ -30,15 +30,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
-import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
-import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
@@ -51,9 +48,6 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
     private static final Logger log = Logger.getLogger(AbstractMgcpEndpoint.class);
 
-    // Core Elements
-    private final MgcpConnectionProvider connectionProvider;
-
     // Endpoint Properties
     private final String endpointId;
     private final ConcurrentHashMap<Integer, MgcpCall> calls;
@@ -64,10 +58,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
     private final AtomicInteger readCount = new AtomicInteger(0);
     private final AtomicInteger writeCount = new AtomicInteger(0);
 
-    public AbstractMgcpEndpoint(String endpointId, MgcpConnectionProvider connectionProvider) {
-        // Core Elements
-        this.connectionProvider = connectionProvider;
-
+    public AbstractMgcpEndpoint(String endpointId) {
         // Endpoint Properties
         this.endpointId = endpointId;
         this.calls = new ConcurrentHashMap<>(10);
@@ -110,92 +101,109 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
         // Warn child class that connection was created
         onConnectionCreated(connection);
+
+        // Update endpoint mode
+        modeUpdated(ConnectionMode.INACTIVE, connection.getMode());
     }
 
     @Override
-    public MgcpConnection createConnection(int callId, ConnectionMode mode) throws MgcpConnectionException {
-        // Create connection
-        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
-        connection.setConnectionListener(this);
-        connection.setMode(mode);
-        // TODO provide local connection options
-        connection.halfOpen(new LocalConnectionOptions());
-
-        // Register connection under its proper call
-        registerConnection(callId, connection);
-
-        // Set endpoint state
-        modeUpdated(ConnectionMode.INACTIVE, mode);
-
-        // Validate endpoint state
-        return connection;
+    public void addConnection(int callId, MgcpConnection connection) throws MgcpConnectionException {
+        try {
+            registerConnection(callId, connection);
+            if (!connection.isLocal()) {
+                ((MgcpRemoteConnection) connection).setConnectionListener(this);
+            }
+            // TODO update endpoint mode based on connection mode
+        } catch (IllegalArgumentException e) {
+            throw new MgcpConnectionException(
+                    "Could not add connection " + connection.getHexIdentifier() + " to " + this.endpointId, e);
+        }
     }
 
-    @Override
-    public MgcpConnection createConnection(int callId, ConnectionMode mode, String remoteDescription)
-            throws MgcpConnectionException {
-        // Create connection
-        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
-        connection.setConnectionListener(this);
-        connection.setMode(mode);
-        connection.open(remoteDescription);
+    // @Override
+    // public MgcpConnection createConnection(int callId, ConnectionMode mode) throws MgcpConnectionException {
+    // // Create connection
+    // MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+    // connection.setConnectionListener(this);
+    // connection.setMode(mode);
+    // // TODO provide local connection options
+    // connection.halfOpen(new LocalConnectionOptions());
+    //
+    // // Register connection under its proper call
+    // registerConnection(callId, connection);
+    //
+    // // Set endpoint state
+    // modeUpdated(ConnectionMode.INACTIVE, mode);
+    //
+    // // Validate endpoint state
+    // return connection;
+    // }
 
-        // Register connection under its proper call
-        registerConnection(callId, connection);
+    // @Override
+    // public MgcpConnection createConnection(int callId, ConnectionMode mode, String remoteDescription)
+    // throws MgcpConnectionException {
+    // // Create connection
+    // MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+    // connection.setConnectionListener(this);
+    // connection.setMode(mode);
+    // connection.open(remoteDescription);
+    //
+    // // Register connection under its proper call
+    // registerConnection(callId, connection);
+    //
+    // // Set endpoint state
+    // modeUpdated(ConnectionMode.INACTIVE, mode);
+    //
+    // return connection;
+    // }
 
-        // Set endpoint state
-        modeUpdated(ConnectionMode.INACTIVE, mode);
+    // @Override
+    // public MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint)
+    // throws MgcpConnectionException {
+    // // Create connection
+    // MgcpLocalConnection connection = this.connectionProvider.provideLocal();
+    // connection.open(null);
+    // connection.setMode(mode);
+    //
+    // // Register connection under its proper call
+    // registerConnection(callId, connection);
+    //
+    // // Set endpoint state
+    // modeUpdated(ConnectionMode.INACTIVE, mode);
+    //
+    // return connection;
+    // }
 
-        return connection;
-    }
-
-    @Override
-    public MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint)
-            throws MgcpConnectionException {
-        // Create connection
-        MgcpLocalConnection connection = this.connectionProvider.provideLocal();
-        connection.open(null);
-        connection.setMode(mode);
-
-        // Register connection under its proper call
-        registerConnection(callId, connection);
-
-        // Set endpoint state
-        modeUpdated(ConnectionMode.INACTIVE, mode);
-
-        return connection;
-    }
-
-    @Override
-    public String modifyConnection(int callId, int connectionId, ConnectionMode mode, String remoteDescription)
-            throws MgcpCallNotFoundException, MgcpConnectionNotFound, MgcpConnectionException {
-        MgcpCall call = this.calls.get(callId);
-
-        if (call == null) {
-            throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
-        }
-
-        MgcpConnection connection = call.getConnection(connectionId);
-
-        if (connection == null) {
-            throw new MgcpConnectionNotFound("Connection " + connectionId + " was not found in call " + callId);
-        }
-
-        // Update remote description and retrieve local description (may be null)
-        String localDescription = null;
-        if (remoteDescription != null) {
-            localDescription = connection.open(remoteDescription);
-        }
-        
-        // Update connection mode and set endpoint state
-        if (mode != null) {
-            ConnectionMode oldMode = connection.getMode();
-            connection.setMode(mode);
-            modeUpdated(oldMode, mode);
-        }
-
-        return localDescription;
-    }
+    // @Override
+    // public String modifyConnection(int callId, int connectionId, ConnectionMode mode, String remoteDescription)
+    // throws MgcpCallNotFoundException, MgcpConnectionNotFound, MgcpConnectionException {
+    // MgcpCall call = this.calls.get(callId);
+    //
+    // if (call == null) {
+    // throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
+    // }
+    //
+    // MgcpConnection connection = call.getConnection(connectionId);
+    //
+    // if (connection == null) {
+    // throw new MgcpConnectionNotFound("Connection " + connectionId + " was not found in call " + callId);
+    // }
+    //
+    // // Update remote description and retrieve local description (may be null)
+    // String localDescription = null;
+    // if (remoteDescription != null) {
+    // localDescription = connection.open(remoteDescription);
+    // }
+    //
+    // // Update connection mode and set endpoint state
+    // if (mode != null) {
+    // ConnectionMode oldMode = connection.getMode();
+    // connection.setMode(mode);
+    // modeUpdated(oldMode, mode);
+    // }
+    //
+    // return localDescription;
+    // }
 
     @Override
     public void deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
@@ -207,7 +215,8 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             MgcpConnection connection = call.removeConnection(connectionId);
 
             if (connection == null) {
-                throw new MgcpConnectionNotFound("Connection " + connectionId + " was not found in call " + callId);
+                throw new MgcpConnectionNotFound(
+                        "Connection " + Integer.toHexString(connectionId) + " was not found in call " + callId);
             } else {
                 // Unregister call if it contains no more connections
                 if (call.hasConnections()) {

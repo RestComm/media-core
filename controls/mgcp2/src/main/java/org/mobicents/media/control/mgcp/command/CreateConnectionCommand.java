@@ -66,6 +66,92 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         super(endpointManager, connectionProvider);
     }
 
+    /**
+     * Creates a new Remote Connection.
+     * 
+     * <p>
+     * The connection will be half-open and a Local Connection Description is generated.
+     * </p>
+     * 
+     * @param callId The call identifies which indicates to which session the connection belongs to.
+     * @param mode The connection mode.
+     * @param endpoint The endpoint where the connection will be registered to.
+     * 
+     * @return The new connection
+     * @throws MgcpConnectionException If connection could not be half opened.
+     */
+    private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint)
+            throws MgcpConnectionException {
+        // Create connection
+        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+        // TODO set call agent
+        connection.setMode(mode);
+        // TODO provide local connection options
+        this.localSdp = connection.halfOpen(new LocalConnectionOptions());
+
+        // Register connection under its proper call
+        endpoint.addConnection(callId, connection);
+
+        return connection;
+    }
+
+    /**
+     * Creates a new Remote Connection.
+     * 
+     * <p>
+     * The connection will be fully open and connected to the remote peer.<br>
+     * A Local Connection Description is generated.
+     * </p>
+     * 
+     * @param callId The the call identifies which indicates to which session the connection belongs to.
+     * @param mode The connection mode.
+     * @param remoteDescription The description of the remote connection.
+     * @param endpoint The endpoint where the connection will be registered to.
+     * 
+     * @return The new connection
+     * @throws MgcpConnectionException If connection could not be opened
+     */
+    private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, String remoteDescription,
+            MgcpEndpoint endpoint) throws MgcpConnectionException {
+        // Create connection
+        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+        // TODO set call agent
+        connection.setMode(mode);
+        this.localSdp = connection.open(remoteDescription);
+
+        // Register connection under its proper call
+        endpoint.addConnection(callId, connection);
+
+        return connection;
+    }
+
+    /**
+     * Creates a new Local Connection.
+     * 
+     * <p>
+     * The connection will be fully open and connected to a secondary endpoint.<br>
+     * </p>
+     * 
+     * @param callId The the call identifies which indicates to which session the connection belongs to.
+     * @param mode The connection mode.
+     * @param secondEndpoint The endpoint where the connection will be registered to.
+     * 
+     * @return The new connection
+     * @throws MgcpException If connection could not be opened.
+     */
+    private MgcpConnection createLocalConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint)
+            throws MgcpConnectionException {
+        // Create connection
+        MgcpLocalConnection connection = this.connectionProvider.provideLocal();
+        connection.open(null);
+        connection.setMode(mode);
+
+        // Register connection under its proper call
+        endpoint.addConnection(callId, connection);
+
+        return connection;
+    }
+
     private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
         this.transactionId = request.getTransactionId();
 
@@ -112,37 +198,21 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
         // Create Connections
         if (this.endpoint2 == null) {
-            if(this.remoteSdp == null) {
-                createOutboundRemoteConnection(this.callId, this.mode);
+            if (this.remoteSdp == null) {
+                // Create half-open connection
+                this.connection1 = createRemoteConnection(this.callId, this.mode, this.endpoint1);
             } else {
-                createInboundRemoteConnection(this.callId, this.mode, this.remoteSdp);
+                // Create open connection
+                this.connection1 = createRemoteConnection(this.callId, this.mode, this.remoteSdp, this.endpoint1);
             }
         } else {
             // Create two local connections between both endpoints
-            this.connection1 = endpoint1.createConnection(this.callId, this.mode, this.endpoint2);
-            this.connection2 = endpoint2.createConnection(this.callId, ConnectionMode.SEND_RECV, this.endpoint1);
+            this.connection1 = createLocalConnection(this.callId, mode, endpoint1);
+            this.connection2 = createLocalConnection(callId, ConnectionMode.SEND_RECV, endpoint2);
+
+            // Join connections
             ((MgcpLocalConnection) connection1).join((MgcpLocalConnection) connection2);
         }
-    }
-
-    private MgcpConnection createOutboundRemoteConnection(int callId, ConnectionMode mode) throws MgcpConnectionException {
-        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
-        connection.setMode(mode);
-        // TODO set call agent
-        // TODO provide local connection options
-        this.localSdp = connection.halfOpen(new LocalConnectionOptions());
-        // TODO register connection in endpoint manager
-        return connection;
-    }
-
-    private MgcpConnection createInboundRemoteConnection(int callId, ConnectionMode mode, String remoteSdp)
-            throws MgcpConnectionException {
-        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
-        connection.setMode(mode);
-        // TODO set call agent
-        this.localSdp = connection.open(remoteSdp);
-        // TODO register connection in endpoint manager
-        return connection;
     }
 
     private MgcpResponse buildResponse() {
@@ -150,10 +220,12 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         response.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
         response.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
         response.setTransactionId(this.transactionId);
-        response.addParameter(MgcpParameterType.ENDPOINT_ID, this.endpoint1.getEndpointId());
+        // XXX do not hardcode the endpoint address
+        response.addParameter(MgcpParameterType.ENDPOINT_ID, this.endpoint1.getEndpointId() + "@127.0.0.1:2427");
         response.addParameter(MgcpParameterType.CONNECTION_ID, this.connection1.getHexIdentifier());
         if (this.endpoint2 != null) {
-            response.addParameter(MgcpParameterType.SECOND_ENDPOINT, this.endpoint2.getEndpointId());
+            // XXX do not hardcode the endpoint address
+            response.addParameter(MgcpParameterType.SECOND_ENDPOINT, this.endpoint2.getEndpointId() + "@127.0.0.1:2427");
             response.addParameter(MgcpParameterType.CONNECTION_ID2, this.connection2.getHexIdentifier());
         }
         if (this.localSdp != null) {

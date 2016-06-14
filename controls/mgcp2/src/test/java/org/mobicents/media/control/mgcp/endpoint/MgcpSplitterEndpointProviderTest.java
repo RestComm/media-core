@@ -26,7 +26,6 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
@@ -41,8 +40,7 @@ public class MgcpSplitterEndpointProviderTest {
         // given
         String namespace = "ms/mock/";
         PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
-        MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        MgcpSplitterEndpointProvider provider = new MgcpSplitterEndpointProvider(namespace, connectionProvider, mediaScheduler);
+        MgcpSplitterEndpointProvider provider = new MgcpSplitterEndpointProvider(namespace, mediaScheduler);
 
         // when
         MgcpSplitterEndpoint endpoint1 = provider.provide();
