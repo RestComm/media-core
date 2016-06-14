@@ -21,22 +21,29 @@
 
 package org.mobicents.media.control.mgcp.endpoint.command;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.CreateConnectionCommand;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
+import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.server.spi.ConnectionMode;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -47,7 +54,7 @@ import org.mockito.stubbing.Answer;
 public class CreateConnectionCommandTest {
 
     @Test
-    public void testCreateLocalConnection() throws MgcpException {
+    public void testCreateLocalConnectionsBetweenTwoEndpoints() throws MgcpException {
         // given
         final StringBuilder builder = new StringBuilder();
         builder.append("CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
@@ -67,56 +74,70 @@ public class CreateConnectionCommandTest {
         final MgcpCommandListener listener = mock(MgcpCommandListener.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager, connectionProvider);
 
-//        // when
-//        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
-//        when(endpointManager.registerEndpoint("mobicents/ivr/")).thenReturn(ivrEndpoint);
-//        when(bridgeEndpoint.createConnection(1, ConnectionMode.SEND_ONLY, ivrEndpoint)).thenReturn(connection1);
-//        when(ivrEndpoint.createConnection(1, ConnectionMode.SEND_RECV, bridgeEndpoint)).thenReturn(connection2);
-//        doAnswer(new Answer<Object>() {
-//
-//            @Override
-//            public Object answer(InvocationOnMock invocation) throws Throwable {
-//                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
-//                assertNotNull(response);
-//                assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
-//                assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message(), response.getMessage());
-//                return null;
-//            }
-//        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
-//        crcx.execute(request, listener);
-//
-//        // then
-//        verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
-//        verify(endpointManager, times(1)).registerEndpoint("mobicents/ivr/");
-//        verify(bridgeEndpoint, times(1)).createConnection(1, ConnectionMode.SEND_ONLY, ivrEndpoint);
-//        verify(ivrEndpoint, times(1)).createConnection(1, ConnectionMode.SEND_RECV, bridgeEndpoint);
-//        verify(connection1, times(1)).join(connection2);
+        // when
+        when(connectionProvider.provideLocal()).thenReturn(connection1, connection2);
+        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
+        when(endpointManager.registerEndpoint("mobicents/ivr/")).thenReturn(ivrEndpoint);
+        doAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
+                assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message(), response.getMessage());
+                return null;
+            }
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        crcx.execute(request, listener);
+
+        // then
+        verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
+        verify(endpointManager, times(1)).registerEndpoint("mobicents/ivr/");
+        verify(bridgeEndpoint, times(1)).addConnection(1, connection1);
+        verify(ivrEndpoint, times(1)).addConnection(1, connection2);
+        verify(connection1, times(1)).join(connection2);
     }
 
-//    @Test
-//    public void testCreateOutboundRemoteConnection() throws MgcpException {
-//        // given
-//        StringBuilder builder = new StringBuilder();
-//        builder.append("CRCX 147483655 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
-//        builder.append("C:1").append(System.lineSeparator());
-//        builder.append("M:sendrecv").append(System.lineSeparator());
-//        builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
-//        builder.append("L:webrtc:false").append(System.lineSeparator());
-//        
-//        final MgcpMessageParser parser = new MgcpMessageParser();
-//        final MgcpRequest request = parser.parseRequest(builder.toString());
-//        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-//        final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
-//        final MgcpLocalConnection connection1 = mock(MgcpLocalConnection.class);
-//        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
-//        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager);
-//        
-//        // when
-//        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
-//        when(bridgeEndpoint.cre)
-//        crcx.execute(request, listener);
-//        
-//        // then
-//    }
+    @Test
+    public void testCreateOutboundRemoteConnection() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("CRCX 147483655 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append("M:sendrecv").append(System.lineSeparator());
+        builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
+        builder.append("L:webrtc:false").append(System.lineSeparator());
+
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
+        final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager, connectionProvider);
+
+        // when
+        when(connectionProvider.provideRemote()).thenReturn(connection);
+        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
+        doAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
+                assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message(), response.getMessage());
+                return null;
+            }
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        crcx.execute(request, listener);
+
+        // then
+        verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
+        verify(bridgeEndpoint, times(1)).addConnection(1, connection);
+        verify(connection, times(1)).halfOpen(any(LocalConnectionOptions.class));
+    }
 
 }
