@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.endpoint.command;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.CreateConnectionCommand;
+import org.mobicents.media.control.mgcp.command.MgcpCommandException;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -189,6 +191,49 @@ public class CreateConnectionCommandTest {
         verify(endpointManager, times(1)).registerEndpoint("mobicents/bridge/");
         verify(bridgeEndpoint, times(1)).addConnection(1, connection);
         verify(connection, times(1)).open(builderSdp.toString());
+    }
+    
+    @Test
+    public void testValidateRequestWithZ2AndSdpPresent() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("CRCX 147483655 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append("M:sendrecv").append(System.lineSeparator());
+        builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
+        builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427");
+        builder.append("L:webrtc:false").append(System.lineSeparator());
+        builder.append(System.lineSeparator());
+        final StringBuilder builderSdp = new StringBuilder();
+        builderSdp.append("v=0").append(System.lineSeparator());
+        builderSdp.append("o=hrosa 3616 1899 IN IP4 127.0.0.1").append(System.lineSeparator());
+        builderSdp.append("s=Talk").append(System.lineSeparator());
+        builderSdp.append("c=IN IP4 127.0.0.1").append(System.lineSeparator());
+        builderSdp.append("t=0 0").append(System.lineSeparator());
+        builderSdp.append("m=audio 7070 RTP/AVP 8 0 101").append(System.lineSeparator());
+        builderSdp.append("a=rtpmap:101 telephone-event/8000");
+        builder.append(builderSdp.toString());
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        doAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
+                return null;
+            }
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        crcx.execute(request, listener);
     }
 
 }
