@@ -38,6 +38,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
+import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
@@ -362,6 +363,76 @@ public class CreateConnectionCommandTest {
                 MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
+                return null;
+            }
+            
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        crcx.execute(request, listener);
+    }
+
+    @Test
+    public void testValidateRequestWithUnknownPrimaryEndpoint() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append("M:sendrecv").append(System.lineSeparator());
+        builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
+        builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427");
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenThrow(new UnrecognizedMgcpNamespaceException(""));
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), response.getCode());
+                return null;
+            }
+            
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        crcx.execute(request, listener);
+    }
+
+    @Test
+    public void testValidateRequestWithUnknownSecondaryEndpoint() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append("M:sendrecv").append(System.lineSeparator());
+        builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
+        builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427");
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final CreateConnectionCommand crcx = new CreateConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        when(endpointManager.registerEndpoint("mobicents/bridge/")).thenReturn(bridgeEndpoint);
+        when(endpointManager.registerEndpoint("mobicents/ivr/")).thenThrow(new UnrecognizedMgcpNamespaceException(""));
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), response.getCode());
                 return null;
             }
             
