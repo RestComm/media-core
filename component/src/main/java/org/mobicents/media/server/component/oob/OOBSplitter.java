@@ -100,9 +100,8 @@ public class OOBSplitter {
 	}
 
 	private class InsideMixTask extends Task {
-		private Frame current;
 
-		public InsideMixTask() {
+	    public InsideMixTask() {
 			super();
 		}
 
@@ -113,8 +112,9 @@ public class OOBSplitter {
 
 		@Override
 		public long perform() {
-			// summarize all
-			current = null;
+		    Frame current = null;
+
+		    // summarize all
 			insideRIterator = insideComponents.valuesIterator();
 			while (insideRIterator.hasNext()) {
 				OOBComponent component = insideRIterator.next();
@@ -149,7 +149,6 @@ public class OOBSplitter {
 	}
 
 	private class OutsideMixTask extends Task {
-		private Frame current;
 
 		public OutsideMixTask() {
 			super();
@@ -162,8 +161,9 @@ public class OOBSplitter {
 
 		@Override
 		public long perform() {
+		    Frame current = null;
+		    
 			// summarize all
-			current = null;
 			outsideRIterator = outsideComponents.valuesIterator();
 			while (outsideRIterator.hasNext()) {
 				OOBComponent component = outsideRIterator.next();

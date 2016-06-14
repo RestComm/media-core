@@ -45,6 +45,8 @@ import org.mobicents.media.core.configuration.ResourcesConfiguration;
 public class XmlConfigurationLoader implements ConfigurationLoader {
     
     private static final Logger log = Logger.getLogger(XmlConfigurationLoader.class);
+    private static final String MMS_HOME = "mms.home.dir";
+    private static final String DEFAULT_PATH = "/conf/mediaserver.xml";
 
     private final Configurations configurations;
 
@@ -60,7 +62,17 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         // Read configuration from file
         XMLConfiguration xml;
         try {
-            xml = this.configurations.xml(filepath);
+            try {
+                // Load from configured path (relative path)
+                xml = this.configurations.xml(filepath);
+            } catch (ConfigurationException e) {
+                log.warn("Could not load configuration from " + filepath);
+                // If failed using configured path, try to use default path (absolute path)
+                final String mmsHome = System.getProperty(MMS_HOME);
+                filepath = mmsHome + DEFAULT_PATH;
+                xml = this.configurations.xml(filepath);
+                log.warn("Configuration file found at " + filepath);
+            }
 
             // Overwrite default configurations
             configureNetwork(xml.configurationAt("network"), configuration.getNetworkConfiguration());
@@ -68,7 +80,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
             configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
             configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
         } catch (ConfigurationException | IllegalArgumentException e) {
-            log.error("Could not load configuration from " + filepath + ". Using default values.");
+            log.error("Could not load configuration from " + filepath + ". Using default values. Reason: " + e.getMessage());
         }
         return configuration;
     }

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Pipeline that selects a capable {@link PacketHandler} to process incoming packets.
@@ -42,11 +43,11 @@ public class PacketHandlerPipeline {
     };
 
     private final List<PacketHandler> handlers;
-    private int count;
+    private final AtomicInteger count;
 
     public PacketHandlerPipeline() {
         this.handlers = new ArrayList<PacketHandler>(5);
-        this.count = 0;
+        this.count = new AtomicInteger(0);
     }
 
     /**
@@ -57,13 +58,15 @@ public class PacketHandlerPipeline {
      * @return Whether the handler was successfully registered or not.
      */
     public boolean addHandler(PacketHandler handler) {
-        if (!handlers.contains(handler)) {
-            handlers.add(handler);
-            this.count++;
-            Collections.sort(this.handlers, REVERSE_COMPARATOR);
-            return true;
+        synchronized (this.handlers){
+            if (!handlers.contains(handler)) {
+                handlers.add(handler);
+                this.count.incrementAndGet();
+                Collections.sort(this.handlers, REVERSE_COMPARATOR);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -74,11 +77,13 @@ public class PacketHandlerPipeline {
      *         pipeline.
      */
     public boolean removeHandler(PacketHandler handler) {
-        boolean removed = this.handlers.remove(handler);
-        if (removed) {
-            this.count--;
+        synchronized (this.handlers) {
+            boolean removed = this.handlers.remove(handler);
+            if (removed) {
+                this.count.decrementAndGet();
+            }
+            return removed;
         }
-        return removed;
     }
 
     /**
@@ -87,7 +92,7 @@ public class PacketHandlerPipeline {
      * @return The number of registered handlers.
      */
     public int count() {
-        return this.count;
+        return this.count.get();
     }
 
     /**
@@ -97,7 +102,9 @@ public class PacketHandlerPipeline {
      * @return <code>true</code> if the handler is registered. Returns <code>false</code>, otherwise.
      */
     public boolean contains(PacketHandler handler) {
-        return this.handlers.contains(handler);
+        synchronized (this.handlers) {
+            return this.handlers.contains(handler);
+        }
     }
 
     /**
@@ -108,15 +115,17 @@ public class PacketHandlerPipeline {
      *         Returns null in case no capable handler exists.
      */
     public PacketHandler getHandler(byte[] packet) {
-        // Search for the first handler capable of processing the packet
-        for (PacketHandler protocolHandler : this.handlers) {
-            if (protocolHandler.canHandle(packet)) {
-                return protocolHandler;
+        synchronized (this.handlers) {
+            // Search for the first handler capable of processing the packet
+            for (PacketHandler protocolHandler : this.handlers) {
+                if (protocolHandler.canHandle(packet)) {
+                    return protocolHandler;
+                }
             }
-        }
 
-        // Return null in case no handler is capable of decoding the packet
-        return null;
+            // Return null in case no handler is capable of decoding the packet
+            return null;
+        }
     }
 
     /**
