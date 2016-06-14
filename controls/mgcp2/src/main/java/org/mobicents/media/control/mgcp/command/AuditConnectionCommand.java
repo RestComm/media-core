@@ -52,5 +52,11 @@ public class AuditConnectionCommand extends AbstractMgcpCommand {
         // TODO Auto-generated method stub
         return null;
     }
+    
+    @Override
+    protected void reset() {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

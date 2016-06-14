@@ -34,14 +34,14 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  *
  */
 public abstract class AbstractMgcpCommand implements MgcpCommand {
-    
+
     protected static final String WILDCARD_ALL = "*";
     protected static final String WILDCARD_ANY = "$";
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
-    
+
     protected final MgcpEndpointManager endpointManager;
     protected final MgcpConnectionProvider connectionProvider;
-    
+
     public AbstractMgcpCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         this.endpointManager = endpointManager;
         this.connectionProvider = connectionProvider;
@@ -54,6 +54,8 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
             response = executeRequest(request);
         } catch (MgcpCommandException e) {
             response = rollback(request.getTransactionId(), e.getCode(), e.getMessage());
+        } finally {
+            reset();
         }
         commandListener.onCommandExecuted(response);
     }
@@ -61,5 +63,7 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected abstract MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException;
 
     protected abstract MgcpResponse rollback(int transactionId, int code, String message);
+
+    protected abstract void reset();
 
 }

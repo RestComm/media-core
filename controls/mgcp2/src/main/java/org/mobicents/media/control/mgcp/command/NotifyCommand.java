@@ -53,4 +53,10 @@ public class NotifyCommand extends AbstractMgcpCommand {
         return null;
     }
 
+    @Override
+    protected void reset() {
+        // TODO Auto-generated method stub
+
+    }
+
 }

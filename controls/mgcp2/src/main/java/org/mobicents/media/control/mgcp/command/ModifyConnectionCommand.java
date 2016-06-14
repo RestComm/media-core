@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
@@ -40,7 +40,7 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
     public ModifyConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         super(endpointManager, connectionProvider);
     }
-    
+
     /**
      * Modifies an existing connection.
      * 
@@ -74,6 +74,12 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
     protected MgcpResponse rollback(int transactionId, int code, String message) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    protected void reset() {
+        // TODO Auto-generated method stub
+
     }
 
 }

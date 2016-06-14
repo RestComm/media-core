@@ -278,8 +278,6 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         } catch (RuntimeException | MgcpConnectionException e) {
             log.error("Could not process MGCP Request.", e);
             throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), "Could not process request");
-        } finally {
-            reset();
         }
     }
 
@@ -308,7 +306,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         return response;
     }
 
-    private void reset() {
+    protected void reset() {
         this.transactionId = 0;
         this.remoteSdp = null;
         this.localSdp = null;

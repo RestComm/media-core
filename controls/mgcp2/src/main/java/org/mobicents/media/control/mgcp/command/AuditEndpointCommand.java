@@ -36,7 +36,7 @@ public class AuditEndpointCommand extends AbstractMgcpCommand {
     public AuditEndpointCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         super(endpointManager, connectionProvider);
     }
-    
+
     @Override
     protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
         // TODO Auto-generated method stub
@@ -51,6 +51,12 @@ public class AuditEndpointCommand extends AbstractMgcpCommand {
     protected MgcpResponse rollback(int transactionId, int code, String message) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    protected void reset() {
+        // TODO Auto-generated method stub
+
     }
 
 }

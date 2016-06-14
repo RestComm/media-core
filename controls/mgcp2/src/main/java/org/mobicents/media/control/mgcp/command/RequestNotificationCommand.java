@@ -53,4 +53,10 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         return null;
     }
 
+    @Override
+    protected void reset() {
+        // TODO Auto-generated method stub
+
+    }
+
 }
