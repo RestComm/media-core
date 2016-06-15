@@ -95,8 +95,8 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
                     try {
                         this.audioChannel.join(otherConnection.audioChannel);
                     } catch (IOException e) {
-                        throw new MgcpConnectionException("Cannot join connection " + this.getHexIdentifier() + " to connection "
-                                + otherConnection.getHexIdentifier(), e);
+                        throw new MgcpConnectionException("Cannot join connection " + this.getHexIdentifier()
+                                + " to connection " + otherConnection.getHexIdentifier(), e);
                     }
                     break;
 
@@ -113,11 +113,11 @@ public class MgcpLocalConnection extends AbstractMgcpConnection {
             switch (this.state) {
                 case HALF_OPEN:
                 case OPEN:
-                    // Update connection state
-                    this.state = MgcpConnectionState.CLOSED;
-
                     // Deactivate connection
                     setMode(ConnectionMode.INACTIVE);
+
+                    // Update connection state
+                    this.state = MgcpConnectionState.CLOSED;
 
                     // Close audio channel
                     this.audioChannel.unjoin();

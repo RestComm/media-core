@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -118,7 +119,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
     }
 
     @Override
-    public void deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
+    public MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
         MgcpCall call = this.calls.get(callId);
         if (call == null) {
             throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
@@ -150,11 +151,13 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
                     log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly",
                             e);
                 }
+                
+                return connection;
             }
         }
     }
 
-    private void deleteConnections(MgcpCall call) {
+    private List<MgcpConnection> deleteConnections(MgcpCall call) {
         List<MgcpConnection> connections = call.removeConnections();
         for (MgcpConnection connection : connections) {
             // Close connection
@@ -162,29 +165,33 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
                 connection.close();
             } catch (MgcpConnectionException e) {
                 log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly", e);
+           
             }
         }
+        return connections;
     }
 
     @Override
-    public void deleteConnections(int callId) throws MgcpCallNotFoundException {
+    public List<MgcpConnection> deleteConnections(int callId) throws MgcpCallNotFoundException {
         // De-register call from active sessions
         MgcpCall call = this.calls.remove(callId);
         if (call == null) {
             throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
         } else {
             // Delete all connections from call
-            deleteConnections(call);
+            List<MgcpConnection> connections = deleteConnections(call);
 
             // Set endpoint state
             if (!hasCalls()) {
                 deactivate();
             }
+            return connections;
         }
     }
 
     @Override
-    public void deleteConnections() {
+    public List<MgcpConnection> deleteConnections() {
+        List<MgcpConnection> connections = new ArrayList<>();
         Iterator<MgcpCall> iterator = this.calls.values().iterator();
         while (iterator.hasNext()) {
             // Remove call from active call list
@@ -192,13 +199,14 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             iterator.remove();
 
             // Close connections
-            deleteConnections(call);
+            connections.addAll(deleteConnections(call));
         }
 
         // Set endpoint state
         if (!hasCalls()) {
             deactivate();
         }
+        return connections;
     }
 
     @Override
