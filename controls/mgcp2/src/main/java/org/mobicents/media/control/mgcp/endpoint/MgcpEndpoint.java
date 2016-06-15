@@ -51,6 +51,15 @@ public interface MgcpEndpoint {
     String getEndpointId();
 
     /**
+     * Gets a connection by identifier.
+     * 
+     * @param callId The call identifier.
+     * @param connectionId The connection identifier.
+     * @return The connection matching the criteria. Returns null if no such connection exists.
+     */
+    MgcpConnection getConnection(int callId, int connectionId);
+
+    /**
      * Registers a connection.
      * 
      * @param callId The identifier of the call where the connection belongs to.

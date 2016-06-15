@@ -116,8 +116,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         // Create connection
         MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
         // TODO set call agent
-        connection.setMode(mode);
         this.localSdp = connection.open(remoteDescription);
+        connection.setMode(mode);
 
         // Register connection under its proper call
         endpoint.addConnection(callId, connection);
@@ -168,7 +168,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         if (callId == null) {
             throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), "Call ID (C) is not specified");
         } else {
-            this.callId = Integer.parseInt(callId);
+            this.callId = Integer.parseInt(callId, 16);
         }
 
         // Connection Mode
@@ -254,7 +254,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
             if (endpoint == null) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(),
-                        "Endpoint " + endpointId + " not found");
+                        MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.message());
             }
         } else {
             // Create new endpoint for a specific name space

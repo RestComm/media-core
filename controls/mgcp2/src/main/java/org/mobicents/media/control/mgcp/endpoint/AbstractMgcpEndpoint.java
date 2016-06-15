@@ -76,7 +76,8 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
         return this.calls.isEmpty();
     }
 
-    protected MgcpConnection getConnection(int callId, int connectionId) {
+    @Override
+    public MgcpConnection getConnection(int callId, int connectionId) {
         MgcpCall call = this.calls.get(callId);
         return (call == null) ? null : call.getConnection(connectionId);
     }
@@ -113,97 +114,11 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
             if (!connection.isLocal()) {
                 ((MgcpRemoteConnection) connection).setConnectionListener(this);
             }
-            // TODO update endpoint mode based on connection mode
         } catch (IllegalArgumentException e) {
             throw new MgcpConnectionException(
                     "Could not add connection " + connection.getHexIdentifier() + " to " + this.endpointId, e);
         }
     }
-
-    // @Override
-    // public MgcpConnection createConnection(int callId, ConnectionMode mode) throws MgcpConnectionException {
-    // // Create connection
-    // MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
-    // connection.setConnectionListener(this);
-    // connection.setMode(mode);
-    // // TODO provide local connection options
-    // connection.halfOpen(new LocalConnectionOptions());
-    //
-    // // Register connection under its proper call
-    // registerConnection(callId, connection);
-    //
-    // // Set endpoint state
-    // modeUpdated(ConnectionMode.INACTIVE, mode);
-    //
-    // // Validate endpoint state
-    // return connection;
-    // }
-
-    // @Override
-    // public MgcpConnection createConnection(int callId, ConnectionMode mode, String remoteDescription)
-    // throws MgcpConnectionException {
-    // // Create connection
-    // MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
-    // connection.setConnectionListener(this);
-    // connection.setMode(mode);
-    // connection.open(remoteDescription);
-    //
-    // // Register connection under its proper call
-    // registerConnection(callId, connection);
-    //
-    // // Set endpoint state
-    // modeUpdated(ConnectionMode.INACTIVE, mode);
-    //
-    // return connection;
-    // }
-
-    // @Override
-    // public MgcpConnection createConnection(int callId, ConnectionMode mode, MgcpEndpoint secondEndpoint)
-    // throws MgcpConnectionException {
-    // // Create connection
-    // MgcpLocalConnection connection = this.connectionProvider.provideLocal();
-    // connection.open(null);
-    // connection.setMode(mode);
-    //
-    // // Register connection under its proper call
-    // registerConnection(callId, connection);
-    //
-    // // Set endpoint state
-    // modeUpdated(ConnectionMode.INACTIVE, mode);
-    //
-    // return connection;
-    // }
-
-    // @Override
-    // public String modifyConnection(int callId, int connectionId, ConnectionMode mode, String remoteDescription)
-    // throws MgcpCallNotFoundException, MgcpConnectionNotFound, MgcpConnectionException {
-    // MgcpCall call = this.calls.get(callId);
-    //
-    // if (call == null) {
-    // throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
-    // }
-    //
-    // MgcpConnection connection = call.getConnection(connectionId);
-    //
-    // if (connection == null) {
-    // throw new MgcpConnectionNotFound("Connection " + connectionId + " was not found in call " + callId);
-    // }
-    //
-    // // Update remote description and retrieve local description (may be null)
-    // String localDescription = null;
-    // if (remoteDescription != null) {
-    // localDescription = connection.open(remoteDescription);
-    // }
-    //
-    // // Update connection mode and set endpoint state
-    // if (mode != null) {
-    // ConnectionMode oldMode = connection.getMode();
-    // connection.setMode(mode);
-    // modeUpdated(oldMode, mode);
-    // }
-    //
-    // return localDescription;
-    // }
 
     @Override
     public void deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
