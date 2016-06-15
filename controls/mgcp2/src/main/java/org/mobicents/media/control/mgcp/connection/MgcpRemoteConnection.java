@@ -162,7 +162,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
                             "Cannot open connection " + this.getHexIdentifier() + " because state is " + this.state.name());
             }
         }
-        return null;
+        return this.localSdp.toString();
     }
 
     private void openConnection() throws MgcpConnectionException {

@@ -81,11 +81,23 @@ public class MgcpResponse extends MgcpMessage {
 
         // Build message
         this.builder.append(this.code).append(" ").append(getTransactionId()).append(" ").append(this.message);
+
+        // Append Parameters
         Iterator<Entry<MgcpParameterType, String>> parameters = this.parameters.entrySet().iterator();
         while (parameters.hasNext()) {
             Entry<MgcpParameterType, String> parameter = parameters.next();
-            builder.append(System.lineSeparator()).append(parameter.getKey().getCode()).append(":").append(parameter.getValue());
+            if (!parameter.getKey().equals(MgcpParameterType.SDP)) {
+                builder.append(System.lineSeparator()).append(parameter.getKey().getCode()).append(":")
+                        .append(parameter.getValue());
+            }
         }
+
+        // Append SDP last (if available)
+        String sdp = this.parameters.get(MgcpParameterType.SDP);
+        if (sdp != null) {
+            builder.append(System.lineSeparator()).append(System.lineSeparator()).append(sdp);
+        }
+
         return this.builder.toString();
     }
 

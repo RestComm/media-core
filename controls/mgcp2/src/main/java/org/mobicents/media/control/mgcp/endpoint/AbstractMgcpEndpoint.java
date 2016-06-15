@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
@@ -36,7 +35,6 @@ import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
-import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
  * Abstract representation of an MGCP Endpoint that groups connections by calls.
@@ -54,9 +52,6 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
     // Endpoint State
     private final AtomicBoolean active;
-    private final AtomicInteger loopbackCount = new AtomicInteger(0);
-    private final AtomicInteger readCount = new AtomicInteger(0);
-    private final AtomicInteger writeCount = new AtomicInteger(0);
 
     public AbstractMgcpEndpoint(String endpointId) {
         // Endpoint Properties
@@ -103,8 +98,10 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
         // Warn child class that connection was created
         onConnectionCreated(connection);
 
-        // Update endpoint mode
-        modeUpdated(ConnectionMode.INACTIVE, connection.getMode());
+        // Activate endpoint on first registered connection
+        if (!isActive()) {
+            activate();
+        }
     }
 
     @Override
@@ -207,65 +204,6 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
     @Override
     public void onCallTerminated(MgcpCall call) {
         this.calls.remove(call.getId());
-    }
-
-    private void modeUpdated(ConnectionMode oldMode, ConnectionMode newMode) {
-        int readCount = 0;
-        int loopbackCount = 0;
-        int writeCount = 0;
-
-        switch (oldMode) {
-            case RECV_ONLY:
-                readCount -= 1;
-                break;
-            case SEND_ONLY:
-                writeCount -= 1;
-                break;
-            case SEND_RECV:
-            case CONFERENCE:
-                readCount -= 1;
-                writeCount -= 1;
-                break;
-            case NETWORK_LOOPBACK:
-                loopbackCount -= 1;
-                break;
-            default:
-                // inactive
-                break;
-        }
-
-        switch (newMode) {
-            case RECV_ONLY:
-                readCount += 1;
-                break;
-            case SEND_ONLY:
-                writeCount += 1;
-                break;
-            case SEND_RECV:
-            case CONFERENCE:
-                readCount += 1;
-                writeCount += 1;
-                break;
-            case NETWORK_LOOPBACK:
-                loopbackCount += 1;
-                break;
-            default:
-                // inactive
-                break;
-        }
-
-        if (readCount != 0 || writeCount != 0 || loopbackCount != 0) {
-            // something changed
-            loopbackCount = this.loopbackCount.addAndGet(loopbackCount);
-            readCount = this.readCount.addAndGet(readCount);
-            writeCount = this.writeCount.addAndGet(writeCount);
-
-            if (loopbackCount > 0 || readCount == 0 || writeCount == 0) {
-                deactivate();
-            } else {
-                activate();
-            }
-        }
     }
 
     public boolean isActive() {
