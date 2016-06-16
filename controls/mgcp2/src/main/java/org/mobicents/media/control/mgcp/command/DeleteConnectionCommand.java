@@ -21,73 +21,150 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 
 /**
+ * This command is used to terminate a single connection or multiple connections at the same time.<br>
+ * As a side effect, it collects statistics on the execution of the connection.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class DeleteConnectionCommand extends AbstractMgcpCommand {
 
+    private static final Logger log = Logger.getLogger(DeleteConnectionCommand.class);
+
+    // MGCP Command Execution
+    private int transactionId = 0;
+    private int callId = 0;
+    private int connectionId = 0;
+    private String endpointId;
+    private MgcpEndpoint endpoint;
+    private int rxPackets = 0;
+    private int txPackets = 0;
+
     public DeleteConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         super(endpointManager, connectionProvider);
     }
 
-    /**
-     * Deletes an active connection.
-     * 
-     * @param callId The ID of the call where the connection is stored.
-     * @param connectionId The connection ID
-     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
-     * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
-     */
-    private void deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
-        // TODO implement deleteConnection(int callId, int connectionId)
+    private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
+        this.transactionId = request.getTransactionId();
+
+        // Call Identifier
+        final String callIdHex = request.getParameter(MgcpParameterType.CALL_ID);
+        if (callIdHex == null) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(),
+                    MgcpResponseCode.INCORRECT_CALL_ID.message());
+        } else {
+            this.callId = Integer.parseInt(callIdHex, 16);
+        }
+
+        // Connection Identifier
+        final String connectionIdHex = request.getParameter(MgcpParameterType.CONNECTION_ID);
+        if (connectionIdHex != null) {
+            this.connectionId = Integer.parseInt(connectionIdHex, 16);
+        }
+
+        // Endpoint Identifier
+        final String endpointName = request.getEndpointId();
+        if (endpointName.indexOf(WILDCARD_ANY) != -1) {
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
+                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+        } else if (connectionIdHex != null && endpointName.indexOf(WILDCARD_ALL) != -1) {
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
+                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+        } else {
+            this.endpointId = endpointName.substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
+        }
     }
 
-    /**
-     * Deletes all currently active connections.
-     */
-    private void deleteConnections() {
-        // TODO implement deleteConnections()
+    private void executeCommand() throws MgcpCommandException, MgcpCallNotFoundException, MgcpConnectionNotFound {
+        // Retrieve endpoint
+        this.endpoint = this.endpointManager.getEndpoint(this.endpointId);
+        if (this.endpoint == null) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(),
+                    MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+        }
+
+        if (this.connectionId > 0) {
+            // Delete specific connection
+            MgcpConnection deleted = this.endpoint.deleteConnection(this.callId, this.connectionId);
+            // TODO Gather statistics from connection
+        } else {
+            // Bulk delete connections
+            try {
+                this.endpoint.deleteConnections(this.callId);
+            } catch (MgcpCallNotFoundException e) {
+                /*
+                 * https://tools.ietf.org/html/rfc3435#section-2.3.9
+                 * 
+                 * Note that the command will still succeed if there were no connections with the CallId specified, as long as
+                 * the EndpointId was valid.
+                 */
+            }
+        }
     }
 
-    /**
-     * Deletes all currently active connections within a specific call.
-     * 
-     * @param callId the call identifier
-     * @throws MgcpCallNotFoundException When call with such ID cannot be found.
-     */
-    private void deleteConnections(int callId) throws MgcpCallNotFoundException {
-        // TODO implement deleteConnections(int callId)
-    }
-
-    @Override
-    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
-        // TODO Auto-generated method stub
+    private MgcpResponse buildResponse() {
         MgcpResponse response = new MgcpResponse();
-        response.setCode(MgcpResponseCode.ABORTED.code());
-        response.setMessage("Not yet implemented");
-        response.setTransactionId(request.getTransactionId());
+        response.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
+        response.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
+        response.setTransactionId(this.transactionId);
+
+        if (this.connectionId > 0) {
+            response.addParameter(MgcpParameterType.CONNECTION_PARAMETERS, "PS=" + txPackets + ", PR=" + rxPackets);
+        }
         return response;
     }
 
     @Override
+    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
+        try {
+            validateRequest(request);
+            executeCommand();
+            return buildResponse();
+        } catch (MgcpConnectionNotFound e) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(),
+                    MgcpResponseCode.INCORRECT_CONNECTION_ID.message());
+        } catch (MgcpCallNotFoundException e) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(),
+                    MgcpResponseCode.INCORRECT_CALL_ID.message());
+        } catch (MgcpCommandException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            log.warn("Could not process MGCP Request.", e);
+            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
+        }
+    }
+
+    @Override
     protected MgcpResponse rollback(int transactionId, int code, String message) {
-        // TODO Auto-generated method stub
-        return null;
+        MgcpResponse response = new MgcpResponse();
+        response.setCode(code);
+        response.setMessage(message);
+        response.setTransactionId(transactionId);
+        return response;
     }
 
     @Override
     protected void reset() {
-        // TODO Auto-generated method stub
-
+        this.transactionId = 0;
+        this.callId = 0;
+        this.connectionId = 0;
+        this.endpointId = null;
+        this.endpoint = null;
+        this.rxPackets = 0;
+        this.txPackets = 0;
     }
 
 }

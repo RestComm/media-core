@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import java.util.List;
+
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
@@ -76,12 +78,12 @@ public interface MgcpEndpoint {
      * @throws MgcpCallNotFoundException When call with such ID cannot be found.
      * @throws MgcpConnectionNotFound When call does not contain connection with such ID.
      */
-    void deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound;
+    MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound;
 
     /**
      * Deletes all currently active connections.
      */
-    void deleteConnections();
+    List<MgcpConnection> deleteConnections();
 
     /**
      * Deletes all currently active connections within a specific call.
@@ -89,6 +91,6 @@ public interface MgcpEndpoint {
      * @param callId the call identifier
      * @throws MgcpCallNotFoundException When call with such ID cannot be found.
      */
-    void deleteConnections(int callId) throws MgcpCallNotFoundException;
+    List<MgcpConnection> deleteConnections(int callId) throws MgcpCallNotFoundException;
 
 }

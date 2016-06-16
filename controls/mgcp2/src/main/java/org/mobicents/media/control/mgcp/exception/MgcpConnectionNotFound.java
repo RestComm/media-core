@@ -27,7 +27,7 @@ package org.mobicents.media.control.mgcp.exception;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpConnectionNotFound extends MgcpException {
+public class MgcpConnectionNotFound extends MgcpConnectionException {
 
     private static final long serialVersionUID = 8852471630089010250L;
 

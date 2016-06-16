@@ -323,11 +323,11 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
             switch (this.state) {
                 case HALF_OPEN:
                 case OPEN:
-                    // Update connection state
-                    this.state = MgcpConnectionState.CLOSED;
-
                     // Deactivate connection
                     setMode(ConnectionMode.INACTIVE);
+
+                    // Update connection state
+                    this.state = MgcpConnectionState.CLOSED;
 
                     // Close audio channel
                     if (this.audioChannel.isOpen()) {
