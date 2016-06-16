@@ -23,55 +23,49 @@ package org.mobicents.media.server.bootstrap.ioc;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider.AudioPlayerFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider.AudioPlayerPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider.AudioRecorderFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.ChannelsManagerProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider.AudioRecorderPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider.DtmfDetectorFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider.DtmfDetectorPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider.DtmfGeneratorFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorPoolProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorPoolProvider.DtmfGeneratorPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.EndpointInstallerListProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.EndpointInstallerListProvider.EndpointInstallerListType;
 import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionFactoryProvider.LocalConnectionFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider.LocalConnectionPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.MediaSchedulerProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.MgcpControllerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider.PhoneSignalDetectorFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorPoolProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorPoolProvider.PhoneSignalDetectorPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorFactoryProvider.PhoneSignalGeneratorFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoolProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoolProvider.PhoneSignalGeneratorPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.ResourcesPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider.RtpConnectionFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionPoolProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionPoolProvider.RtpConnectionPoolType;
 import org.mobicents.media.server.bootstrap.ioc.provider.TaskSchedulerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.UdpManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.WallClockProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider.AudioPlayerFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider.AudioPlayerPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider.AudioRecorderFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider.AudioRecorderPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider.DtmfDetectorFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider.DtmfDetectorPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider.DtmfGeneratorFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorPoolProvider.DtmfGeneratorPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.EndpointInstallerListProvider.EndpointInstallerListType;
-import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionFactoryProvider.LocalConnectionFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider.LocalConnectionPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider.PhoneSignalDetectorFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorPoolProvider.PhoneSignalDetectorPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorFactoryProvider.PhoneSignalGeneratorFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoolProvider.PhoneSignalGeneratorPoolType;
-import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider.RtpConnectionFactoryType;
-import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionPoolProvider.RtpConnectionPoolType;
-import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
-import org.mobicents.media.server.spi.ServerManager;
-import org.mobicents.media.server.spi.dsp.DspFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -80,11 +74,11 @@ import com.google.inject.Singleton;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class BootstrapModule extends AbstractModule {
+public class CoreModule extends AbstractModule {
 
     private final MediaServerConfiguration config;
 
-    public BootstrapModule(MediaServerConfiguration config) {
+    public CoreModule(MediaServerConfiguration config) {
         this.config = config;
     }
 
@@ -95,8 +89,6 @@ public class BootstrapModule extends AbstractModule {
         bind(PriorityQueueScheduler.class).toProvider(MediaSchedulerProvider.class).in(Singleton.class);
         bind(Scheduler.class).toProvider(TaskSchedulerProvider.class).in(Singleton.class);
         bind(UdpManager.class).toProvider(UdpManagerProvider.class).in(Singleton.class);
-        bind(ChannelsManager.class).toProvider(ChannelsManagerProvider.class).in(Singleton.class);
-        bind(DspFactory.class).toProvider(DspProvider.class).in(Singleton.class);
         bind(RtpConnectionFactoryType.INSTANCE).toProvider(RtpConnectionFactoryProvider.class).in(Singleton.class);
         bind(RtpConnectionPoolType.INSTANCE).toProvider(RtpConnectionPoolProvider.class).in(Singleton.class);
         bind(LocalConnectionFactoryType.INSTANCE).toProvider(LocalConnectionFactoryProvider.class).in(Singleton.class);
@@ -115,7 +107,6 @@ public class BootstrapModule extends AbstractModule {
         bind(PhoneSignalGeneratorPoolType.INSTANCE).toProvider(PhoneSignalGeneratorPoolProvider.class).in(Singleton.class);
         bind(ResourcesPool.class).toProvider(ResourcesPoolProvider.class).in(Singleton.class);
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
-        bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
     }
 
 }

@@ -18,54 +18,45 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
-package org.mobicents.media.server.mgcp.controller;
 
-import org.mobicents.media.server.spi.ControlProtocol;
-import org.mobicents.media.server.spi.Endpoint;
-import org.mobicents.media.server.spi.EndpointInstaller;
-import org.mobicents.media.server.spi.ServerManager;
+package org.mobicents.media.control.mgcp.command;
+
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpController implements ServerManager {
+public class RequestNotificationCommand extends AbstractMgcpCommand {
 
-    @Override
-    public void onStarted(Endpoint endpoint, EndpointInstaller installer) {
-        // TODO Auto-generated method stub
-        
+    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+        super(endpointManager, connectionProvider);
     }
 
     @Override
-    public void onStopped(Endpoint endpoint) {
+    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
         // TODO Auto-generated method stub
-        
+        MgcpResponse response = new MgcpResponse();
+        response.setCode(MgcpResponseCode.ABORTED.code());
+        response.setMessage("Not yet implemented");
+        response.setTransactionId(request.getTransactionId());
+        return response;
     }
 
     @Override
-    public ControlProtocol getControlProtocol() {
+    protected MgcpResponse rollback(int transactionId, int code, String message) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void activate() throws IllegalStateException {
+    protected void reset() {
         // TODO Auto-generated method stub
-        
-    }
 
-    @Override
-    public void deactivate() throws IllegalStateException {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    @Override
-    public boolean isActive() {
-        // TODO Auto-generated method stub
-        return false;
     }
 
 }

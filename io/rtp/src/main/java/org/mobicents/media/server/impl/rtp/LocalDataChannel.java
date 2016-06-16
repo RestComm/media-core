@@ -60,7 +60,7 @@ public class LocalDataChannel {
 	/**
 	 * Creates new local channel.
 	 */
-	protected LocalDataChannel(ChannelsManager channelsManager, int channelId) {
+	public LocalDataChannel(ChannelsManager channelsManager, int channelId) {
 		audioComponent = new AudioComponent(channelId);
 		input = new AudioInput(1, packetSize);
 		output = new AudioOutput(channelsManager.getScheduler(), 2);

@@ -115,7 +115,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
     // Listeners
     private RtpListener rtpListener;
 
-    protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock,
+    public RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock,
             PriorityQueueScheduler scheduler, UdpManager udpManager) {
         // Initialize MultiplexedChannel elements
         super();

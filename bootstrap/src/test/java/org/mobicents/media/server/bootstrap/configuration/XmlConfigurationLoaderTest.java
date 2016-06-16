@@ -29,6 +29,7 @@ import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.core.configuration.MgcpEndpointConfiguration;
 import org.mobicents.media.core.configuration.NetworkConfiguration;
 import org.mobicents.media.core.configuration.ResourcesConfiguration;
+import org.mobicents.media.server.spi.RelayType;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -65,14 +66,17 @@ public class XmlConfigurationLoaderTest {
         Assert.assertNotNull(bridgeEndpoint);
         Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.BridgeEndpoint", bridgeEndpoint.getClassName());
         Assert.assertEquals(51, bridgeEndpoint.getPoolSize());
+        Assert.assertEquals(RelayType.SPLITTER, bridgeEndpoint.getRelayType());
         MgcpEndpointConfiguration ivrEndpoint = controller.getEndpoint("mobicents/ivr/");
         Assert.assertNotNull(ivrEndpoint);
         Assert.assertEquals(52, ivrEndpoint.getPoolSize());
         Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.IvrEndpoint", ivrEndpoint.getClassName());
+        Assert.assertEquals(RelayType.MIXER, ivrEndpoint.getRelayType());
         MgcpEndpointConfiguration cnfEndpoint = controller.getEndpoint("mobicents/cnf/");
         Assert.assertNotNull(cnfEndpoint);
-        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint", cnfEndpoint.getClassName());
         Assert.assertEquals(53, cnfEndpoint.getPoolSize());
+        Assert.assertEquals("org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint", cnfEndpoint.getClassName());
+        Assert.assertEquals(RelayType.MIXER, cnfEndpoint.getRelayType());
 
         MediaConfiguration media = config.getMediaConfiguration();
         Assert.assertEquals(5, media.getTimeout());

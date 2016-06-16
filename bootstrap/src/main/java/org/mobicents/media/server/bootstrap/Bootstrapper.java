@@ -24,7 +24,9 @@ package org.mobicents.media.server.bootstrap;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.bootstrap.configuration.ConfigurationLoader;
 import org.mobicents.media.server.bootstrap.configuration.XmlConfigurationLoader;
-import org.mobicents.media.server.bootstrap.ioc.BootstrapModule;
+import org.mobicents.media.server.bootstrap.ioc.CoreModule;
+import org.mobicents.media.server.bootstrap.ioc.MediaModule;
+import org.mobicents.media.server.bootstrap.ioc.MgcpModule;
 import org.mobicents.media.server.bootstrap.main.RestCommMediaServer;
 import org.mobicents.media.server.spi.MediaServer;
 
@@ -50,7 +52,7 @@ public class Bootstrapper {
 
     public void start() {
         MediaServerConfiguration conf = configurationLoader.load(this.filepath);
-        Injector injector = Guice.createInjector(new BootstrapModule(conf));
+        Injector injector = Guice.createInjector(new CoreModule(conf), new MediaModule(), new MgcpModule());
         this.mediaServer = injector.getInstance(RestCommMediaServer.class);
         this.mediaServer.start();
     }

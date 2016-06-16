@@ -1,8 +1,7 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * TeleStax, Open Source Cloud Communications
+ * Copyright 2011-2016, Telestax Inc and individual contributors
+ * by the @authors tag. 
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -20,20 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.impl.rtp;
-
-import java.nio.ByteBuffer;
+package org.mobicents.media.control.mgcp.exception;
 
 /**
+ * Exception that occurs when a registry contains duplicate entry for same MGCP transaction.
  * 
- * @author amit bhayani
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class PacketHandler {
+public class DuplicateMgcpTransactionException extends MgcpTransactionException {
 
-	public abstract boolean isClosed();
+    private static final long serialVersionUID = -7131127100174915729L;
 
-	public abstract void close();
+    public DuplicateMgcpTransactionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public abstract void receive(ByteBuffer readBuffer);
+    public DuplicateMgcpTransactionException(String message) {
+        super(message);
+    }
+
 }

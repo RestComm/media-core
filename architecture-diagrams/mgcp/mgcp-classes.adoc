@@ -1,0 +1,227 @@
+[plantuml,file="mgcp-classes.png"]
+--
+class MgcpMessageParser {
++ MgcpMessage parse(byte[])
+}
+
+interface PacketHandler{
++ handle(byte[])
+}
+
+class MgcpPacketHandler {
+}
+
+abstract class MgcpMessage {
+- int transactionId
+- List<Parameter> parameters
+- byte[] data
+}
+
+class MgcpRequest {
+- MgcpActionType actionType
+}
+
+class MgcpResponse {
+- int code
+- String message
+}
+
+interface MgcpMessageListener {
++ onMessageReceived(MgcpMessage)
+}
+
+class MgcpChannel {
+}
+
+PacketHandler <|-- MgcpPacketHandler
+MgcpPacketHandler -> MgcpMessageParser
+(MgcpPacketHandler, MgcpMessageParser) .. MgcpMessage
+MgcpMessage <|-- MgcpRequest
+MgcpMessage <|-- MgcpResponse
+MgcpMessageListener <|-- MgcpChannel
+MgcpMessageListener <- MgcpPacketHandler : < incoming message
+MgcpChannel *--> "1" MgcpPacketHandler
+
+class MgcpTransactionManager {
+- Map<Integer, MgcpTransaction> transactions
++ process(MgcpTransaction, MessageDirection)
+}
+
+interface MgcpTransactionListener {
++ onTransactionComplete(MgcpTransaction)
+}
+
+class MgcpTransaction {
+- int transactionId
+- String transactionIdHex
+- boolean completed
++ process(MgcpRequest)
++ process(MgcpResponse)
+}
+
+interface MgcpCommandListener {
++ onCommandExecuted(MgcpResponse)
+}
+
+class MgcpCommandProvider {
++ provide(MgcpRequest)
+}
+
+interface MgcpCommand {
++ execute(MgcpRequest, MgcpCommandListener)
+}
+
+MgcpChannel --> MgcpTransactionManager : submit message
+MgcpTransactionListener <|- MgcpTransactionManager
+MgcpTransactionManager *--> MgcpTransaction : execute
+MgcpTransactionListener <-- MgcpTransaction : onComplete
+MgcpChannel <-- MgcpTransaction : send message
+MgcpTransaction --|> MgcpCommandListener
+MgcpCommandProvider <- MgcpTransaction : build command
+(MgcpCommandProvider, MgcpTransaction) .. MgcpCommand
+MgcpCommand -> MgcpCommandListener : command executed
+MgcpCommand <|-- AuditEndpoint
+MgcpCommand <|-- AuditConnection
+MgcpCommand <|-- CreateConnection
+MgcpCommand <|-- ModifyConnection
+MgcpCommand <|-- DeleteConnection
+MgcpCommand <|-- NotificationRequest
+MgcpCommand <|-- Notify
+
+class MgcpEndpointProvider {
+- String namespace
++ String getNamespace()
++ MgcpEndpoint provide()
+}
+
+class MgcpEndpointManager {
+- Map<String, MgcpEndpoint> endpoints
+- Map<String, MgcpEndpointProvider> providers
++ MgcpEndpoint registerEndpoint(String)
++ MgcpEndpoint getEndpoint(String)
++ unregisterEndpoint(String)
+}
+
+interface MgcpEndpoint {
++ String getEndpointId()
++ MgcpConnection createConnection(int callId, boolean local)
++ modifyConnection(int callId, int connectionId, LocalConnectionOptions options, ConnectionMode mode)
++ deleteConnection(int connectionId)
++ deleteConnections(int callId)
++ deleteConnections()
+}
+
+abstract class AbstractMgcpEndpoint {
+- int endpointEndpointId
+- Map<Integer, MgcpCall> calls
+- boolean active
+- activate()
+- deactivate()
+# onActivated()
+# onDeactivated()
+# onConnectionCreated(MgcpConnection)
+# onConnectionDeleted(MgcpConnection)
+}
+
+class MgcpMixerEndpoint {
+- AudioMixer inbandMixer
+- OOBMixer outbandMixer
+}
+
+class MgcpSplitterEndpoint {
+- AudioSplitter inbandSplitter
+- OOBSplitter outbandSplitter
+}
+
+class MgcpConnectionProvider {
+- ChannelsManager channelsManager
++ MgcpRemoteConnection provideRemote()
++ MgcpLocalConnection provideLocal()
+}
+
+class MediaChannelProvider {
+- ChannelsManager channelsManager
+- DspFactory dspFactory
++ AudioChannel provideAudioChannel()
+}
+
+interface MgcpCallListener {
++ onCallTerminated(MgcpCall)
+}
+
+interface MgcpConnectionListener {
++ onConnectionFailure(MgcpConnection)
+}
+
+class MgcpCall {
+- int callId
+- Map<String, MgcpConnection> connections
++ addConnection(MgcpConnection)
++ MgcpConnection(String)
++ MgcpConnection removeConnection(String)
+}
+
+interface MgcpConnectionListener {
++ onConnectionFailure(MgcpConnection)
+}
+
+interface MgcpConnection {
++ int getId()
++ String getHexId()
++ boolean isLocal()
++ ConnectionState getState()
++ ConnectionMode getMode()
++ String halfOpen()
++ String open(String)
++ close()
+}
+
+abstract class AbstractMgcpConnection {
+- int identifier
+- String hexIdentifier
+- ConnectionMode mode
+- ConnectionState state
++ AudioComponent getAudioComponent()
++ OOBComponent getOutbandComponent()
+}
+
+class MgcpLocalConnection {
+- LocalDataChannel audioChannel
++ join(MgcpLocalConnection)
+}
+
+class MgcpRemoteConnection {
+- String localAddress
+- String externalAddress
+- String cname
+- boolean outbound
+- boolean webrtc
+- SessionDescription localSdp
+- SessionDescription remoteSdp
+}
+
+AuditEndpoint --> MgcpEndpointManager
+AuditConnection --> MgcpEndpointManager
+CreateConnection --> MgcpEndpointManager
+ModifyConnection --> MgcpEndpointManager
+DeleteConnection --> MgcpEndpointManager
+NotificationRequest --> MgcpEndpointManager
+MgcpEndpointProvider <-* MgcpEndpointManager
+MgcpEndpointManager *--> MgcpEndpoint
+MgcpEndpoint <|-- AbstractMgcpEndpoint
+MgcpEndpoint -|> MgcpConnectionListener
+MgcpEndpoint -|> MgcpCallListener
+AbstractMgcpEndpoint <|-- MgcpSplitterEndpoint
+AbstractMgcpEndpoint <|-- MgcpMixerEndpoint
+MgcpConnectionProvider <- AbstractMgcpEndpoint
+MgcpConnectionProvider --> MediaChannelProvider
+AbstractMgcpEndpoint *-> MgcpCall
+MgcpCall --> MgcpCallListener : call terminated
+MgcpCall *-> MgcpConnection
+MgcpConnection <|- AbstractMgcpConnection
+MgcpConnectionListener <-- AbstractMgcpConnection : on failure
+AbstractMgcpConnection <|-- MgcpRemoteConnection
+AbstractMgcpConnection <|-- MgcpLocalConnection
+
+
+--
