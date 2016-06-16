@@ -71,6 +71,11 @@ interface MgcpCommand {
 + execute(MgcpRequest, MgcpCommandListener)
 }
 
+abstract class AbstractMgcpCommand {
+# String WILDCARD_ALL = "*"
+# String WILDCARD_ANY = "$"
+}
+
 MgcpChannel --> MgcpTransactionManager : submit message
 MgcpTransactionListener <|- MgcpTransactionManager
 MgcpTransactionManager *--> MgcpTransaction : execute
@@ -80,13 +85,16 @@ MgcpTransaction --|> MgcpCommandListener
 MgcpCommandProvider <- MgcpTransaction : build command
 (MgcpCommandProvider, MgcpTransaction) .. MgcpCommand
 MgcpCommand -> MgcpCommandListener : command executed
-MgcpCommand <|-- AuditEndpoint
-MgcpCommand <|-- AuditConnection
-MgcpCommand <|-- CreateConnection
-MgcpCommand <|-- ModifyConnection
-MgcpCommand <|-- DeleteConnection
-MgcpCommand <|-- NotificationRequest
-MgcpCommand <|-- Notify
+MgcpCommand <|-- AbstractMgcpCommand
+AbstractMgcpCommand <|-- CreateConnection
+CreateConnection --> MgcpConnectionProvider
+MediaChannelProvider <- MgcpConnectionProvider
+AbstractMgcpCommand <|-- AuditEndpoint
+AbstractMgcpCommand <|-- AuditConnection
+AbstractMgcpCommand <|-- ModifyConnection
+AbstractMgcpCommand <|-- DeleteConnection
+AbstractMgcpCommand <|-- NotificationRequest
+AbstractMgcpCommand <|-- Notify
 
 class MgcpEndpointProvider {
 - String namespace
@@ -104,8 +112,8 @@ class MgcpEndpointManager {
 
 interface MgcpEndpoint {
 + String getEndpointId()
-+ MgcpConnection createConnection(int callId, boolean local)
-+ modifyConnection(int callId, int connectionId, LocalConnectionOptions options, ConnectionMode mode)
++ MgcpConnection getConnection(int callId, int connectionId)
++ addConnection(int callId, MgcpConnection connection)
 + deleteConnection(int connectionId)
 + deleteConnections(int callId)
 + deleteConnections()
@@ -213,8 +221,6 @@ MgcpEndpoint -|> MgcpConnectionListener
 MgcpEndpoint -|> MgcpCallListener
 AbstractMgcpEndpoint <|-- MgcpSplitterEndpoint
 AbstractMgcpEndpoint <|-- MgcpMixerEndpoint
-MgcpConnectionProvider <- AbstractMgcpEndpoint
-MgcpConnectionProvider --> MediaChannelProvider
 AbstractMgcpEndpoint *-> MgcpCall
 MgcpCall --> MgcpCallListener : call terminated
 MgcpCall *-> MgcpConnection
