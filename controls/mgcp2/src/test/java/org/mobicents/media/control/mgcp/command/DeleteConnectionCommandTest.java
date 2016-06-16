@@ -254,5 +254,192 @@ public class DeleteConnectionCommandTest {
         // then
         verify(bridgeEndpoint, times(1)).deleteConnections(1);
     }
+    
+    @Test
+    public void testValidateRequestWithEndpointNameContainingWildCardAllWithEndpointIdSpecified() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("DLCX 147483653 mobicents/bridge/*@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append("I:1").append(System.lineSeparator());
+        builder.append(System.lineSeparator());
 
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+
+        // when
+        doAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
+                return null;
+            }
+
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        dlcx.execute(request, listener);
+    }
+
+    @Test
+    public void testValidateRequestWithEndpointNameContainingWildCardAnyWithEndpointIdSpecified() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("DLCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append("I:1").append(System.lineSeparator());
+        builder.append(System.lineSeparator());
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
+                return null;
+            }
+            
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        dlcx.execute(request, listener);
+    }
+
+    @Test
+    public void testValidateRequestWithEndpointNameContainingWildCardAnyWithoutEndpointIdSpecified() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("DLCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append(System.lineSeparator());
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
+                return null;
+            }
+            
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        dlcx.execute(request, listener);
+    }
+
+    @Test
+    public void testValidateRequestWithoutCallId() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("DLCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), response.getCode());
+                return null;
+            }
+            
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        dlcx.execute(request, listener);
+    }
+
+    @Test
+    public void testUnknownEndpoint() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("DLCX 147483653 mobicents/bridge/1@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append(System.lineSeparator());
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(null);
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), response.getCode());
+                return null;
+            }
+            
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        dlcx.execute(request, listener);
+    }
+
+    @Test
+    public void testUnexpectedExceptionWhileExecutingCommand() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("DLCX 147483653 mobicents/bridge/1@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+        builder.append("C:1").append(System.lineSeparator());
+        builder.append(System.lineSeparator());
+        
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        
+        // when
+        when(endpointManager.getEndpoint("mobicents/bridge/1")).thenThrow(new RuntimeException("Test Purposes!"));
+        doAnswer(new Answer<Object>() {
+            
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // then
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                assertNotNull(response);
+                assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
+                return null;
+            }
+            
+        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        dlcx.execute(request, listener);
+    }
 }
