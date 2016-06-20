@@ -21,9 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,17 +30,18 @@ import java.util.Map;
  */
 public abstract class AbstractMgcpSignal implements MgcpSignal {
 
+    private final String packageName;
     private final String symbol;
     private final SignalType type;
     private final Map<String, String> parameters;
-    private final List<String> requestedEvents;
+    private String[] requestedEvents;
 
-    public AbstractMgcpSignal(String symbol, SignalType type) {
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
         super();
+        this.packageName = packageName;
         this.symbol = symbol;
         this.type = type;
         this.parameters = new HashMap<>(10);
-        this.requestedEvents = new ArrayList<>(5);
     }
 
     public String getSymbol() {
@@ -53,12 +52,10 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
         return type;
     }
 
-    @Override
     public String getParameter(String name) {
         return this.parameters.get(name);
     }
 
-    @Override
     public void addParameter(String name, String value) throws IllegalArgumentException {
         if (!isParameterSupported(name)) {
             throw new IllegalArgumentException("Parameter " + name + " is not supported by signal " + this.symbol);
@@ -67,5 +64,19 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     }
 
     protected abstract boolean isParameterSupported(String name);
+    
+    @Override
+    public void listen(String... events) throws IllegalArgumentException {
+        // validate event list
+        for (String event : events) {
+            if (!isEventSupported(event)) {
+                throw new IllegalArgumentException("Event " + event + " is not supported by signal " + this.symbol);
+            }
+        }
+        // Register event list
+        this.requestedEvents = events;
+    }
 
+    protected abstract boolean isEventSupported(String name);
+    
 }

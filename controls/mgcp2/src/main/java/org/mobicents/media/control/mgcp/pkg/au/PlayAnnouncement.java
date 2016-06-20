@@ -22,7 +22,9 @@
 package org.mobicents.media.control.mgcp.pkg.au;
 
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
+import org.mobicents.media.control.mgcp.pkg.base.EventType;
 
 /**
  * Plays an announcement in situations where there is no need for interaction with the user.
@@ -38,7 +40,7 @@ import org.mobicents.media.control.mgcp.pkg.SignalType;
 public class PlayAnnouncement extends AbstractMgcpSignal {
 
     public PlayAnnouncement() {
-        super("pa", SignalType.TIME_OUT);
+        super(AudioPackage.PACKAGE_NAME, "pa", SignalType.TIME_OUT);
     }
 
     @Override
@@ -62,6 +64,43 @@ public class PlayAnnouncement extends AbstractMgcpSignal {
             default:
                 return false;
         }
+    }
+
+    @Override
+    public void execute() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void cancel() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected boolean isEventSupported(String name) {
+        // Check if event type is valid
+        EventType eventType = EventType.fromSymbol(name);
+        if (eventType == null) {
+            return false;
+        }
+
+        // Check if event type is supported
+        switch (eventType) {
+            case OPERATION_COMPLETE:
+            case OPERATION_FAILURE:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onMgcpEvent(MgcpEvent event) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

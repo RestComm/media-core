@@ -1,0 +1,63 @@
+[plantuml,file="mgcp-classes-events.png"]
+--
+interface MgcpEvent {
++ fire()
+}
+
+abstract class AbstractMgcpEvent {
+- String symbol
+- Map<String, String> parameters
+- List<MgcpEventListener> listeners
+- AtomicBoolean fired
++ getSymbol()
++ getParameter(String)
++ addParameter(String, String)
+- clean()
+}
+
+class OperationComplete {
+
+}
+
+class OperationFailure {
+
+}
+
+interface MgcpEventListener {
++ onMgcpEvent(MgcpEvent)
+}
+
+interface MgcpSignal {
++ listen(String[] events)
++ execute()
++ cancel()
+}
+
+abstract class AbstractMgcpSignal {
+- String package
+- String symbol
+- Map<String, String> parameters
+- String[] events
++ addParameter(String, String)
++ String getParameter()
+# boolean isParameterSupported(String)
+# boolean isEventSupported(String)
+}
+
+abstract class MgcpPackage {
+- String symbol
+- List<String> signals
+}
+
+class AudioPackage {
++ String PACKAGE_NAME = "AU"
+}
+
+MgcpEvent <|-- AbstractMgcpEvent
+AbstractMgcpEvent <|-- OperationComplete
+AbstractMgcpEvent <|-- OperationFailure
+AbstractMgcpEvent -> MgcpEventListener
+MgcpEventListener <|-- MgcpSignal
+MgcpSignal <|-- AbstractMgcpSignal
+MgcpPackage <|-- AudioPackage
+--

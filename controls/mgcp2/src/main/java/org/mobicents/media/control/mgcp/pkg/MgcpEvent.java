@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.pkg;
 
 /**
@@ -26,9 +26,16 @@ package org.mobicents.media.control.mgcp.pkg;
  *
  */
 public interface MgcpEvent {
-    
+
     String getSymbol();
-    
+
     String getParameter(String name);
+
+    /**
+     * Fires the event.
+     * 
+     * @throws IllegalStateException In case the event is fired more than once.
+     */
+    void fire() throws IllegalStateException;
 
 }
