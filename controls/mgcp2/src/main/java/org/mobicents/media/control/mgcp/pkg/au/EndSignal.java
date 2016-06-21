@@ -22,9 +22,7 @@
 package org.mobicents.media.control.mgcp.pkg.au;
 
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
-import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
-import org.mobicents.media.control.mgcp.pkg.base.EventType;
 
 /**
  * Gracefully terminates a Play, PlayCollect, or PlayRecord signal.
@@ -48,25 +46,6 @@ public class EndSignal extends AbstractMgcpSignal {
     protected boolean isParameterSupported(String name) {
         return false;
     }
-    
-    @Override
-    protected boolean isEventSupported(String name) {
-        // Check if event type is valid
-        EventType eventType = EventType.fromSymbol(name);
-        if (eventType == null) {
-            return false;
-        }
-
-        // Check if event type is supported
-        switch (eventType) {
-            case OPERATION_COMPLETE:
-            case OPERATION_FAILURE:
-                return true;
-
-            default:
-                return false;
-        }
-    }
 
     @Override
     public void execute() {
@@ -80,10 +59,5 @@ public class EndSignal extends AbstractMgcpSignal {
         
     }
 
-    @Override
-    public void onMgcpEvent(MgcpEvent event) {
-        // TODO Auto-generated method stub
-        
-    }
 
 }

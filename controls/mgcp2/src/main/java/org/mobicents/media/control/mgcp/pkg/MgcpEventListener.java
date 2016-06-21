@@ -29,6 +29,8 @@ package org.mobicents.media.control.mgcp.pkg;
  */
 public interface MgcpEventListener {
     
+    void listen(String... events);
+    
     void onMgcpEvent(MgcpEvent event);
 
 }

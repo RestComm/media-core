@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
@@ -49,6 +50,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
 
     // Endpoint Properties
     private final String endpointId;
+    private final NotifiedEntity notifiedEntity;
     private final ConcurrentHashMap<Integer, MgcpCall> calls;
 
     // Endpoint State
@@ -57,6 +59,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
     public AbstractMgcpEndpoint(String endpointId) {
         // Endpoint Properties
         this.endpointId = endpointId;
+        this.notifiedEntity = new NotifiedEntity();
         this.calls = new ConcurrentHashMap<>(10);
 
         // Endpoint State

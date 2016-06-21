@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.pkg;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -35,6 +36,7 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final SignalType type;
     private final Map<String, String> parameters;
     private String[] requestedEvents;
+    protected final AtomicBoolean executing;
 
     public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
         super();
@@ -42,6 +44,7 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
         this.symbol = symbol;
         this.type = type;
         this.parameters = new HashMap<>(10);
+        this.executing = new AtomicBoolean(false);
     }
 
     public String getSymbol() {
@@ -66,17 +69,8 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     protected abstract boolean isParameterSupported(String name);
     
     @Override
-    public void listen(String... events) throws IllegalArgumentException {
-        // validate event list
-        for (String event : events) {
-            if (!isEventSupported(event)) {
-                throw new IllegalArgumentException("Event " + event + " is not supported by signal " + this.symbol);
-            }
-        }
-        // Register event list
-        this.requestedEvents = events;
+    public boolean isExecuting() {
+        return this.executing.get();
     }
-
-    protected abstract boolean isEventSupported(String name);
     
 }

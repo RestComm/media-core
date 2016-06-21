@@ -27,15 +27,12 @@ package org.mobicents.media.control.mgcp.pkg;
  */
 public interface MgcpEvent {
 
-    String getSymbol();
-
-    String getParameter(String name);
-
     /**
      * Fires the event.
      * 
+     * @param targets The listeners targeted by the event.
      * @throws IllegalStateException In case the event is fired more than once.
      */
-    void fire() throws IllegalStateException;
+    void fire(MgcpEventListener... targets) throws IllegalStateException;
 
 }

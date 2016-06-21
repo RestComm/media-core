@@ -22,9 +22,7 @@
 package org.mobicents.media.control.mgcp.pkg.au;
 
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
-import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
-import org.mobicents.media.control.mgcp.pkg.base.EventType;
 
 /**
  * Plays a prompt and records user speech.
@@ -93,31 +91,6 @@ public class PlayRecord extends AbstractMgcpSignal {
     public void cancel() {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    protected boolean isEventSupported(String name) {
-        // Check if event type is valid
-        EventType eventType = EventType.fromSymbol(name);
-        if (eventType == null) {
-            return false;
-        }
-
-        // Check if event type is supported
-        switch (eventType) {
-            case OPERATION_COMPLETE:
-            case OPERATION_FAILURE:
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public void onMgcpEvent(MgcpEvent event) {
-        // TODO Auto-generated method stub
-        
     }
 
 }

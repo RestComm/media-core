@@ -35,39 +35,64 @@ package org.mobicents.media.control.mgcp.command.param;
  * endpoint.
  * </p>
  * 
+ * <p>
+ * Upon startup, the "notified entity" MUST be set to a provisioned value.<br>
+ * Most commands sent by the Call Agent include the ability to explicitly name the "notified entity" through the use of a
+ * "NotifiedEntity" parameter.<br>
+ * The "notified entity" will stay the same until either a new "NotifiedEntity" parameter is received or the endpoint does a
+ * warm or cold (power-cycle) restart.
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  * @see <a href="https://tools.ietf.org/html/rfc3435#section-2.1.4">RFC3435</a>
  */
 public class NotifiedEntity {
 
-    private final String name;
-    private final String domain;
-    private final int port;
-    private final String qualifiedName;
+    private static final String DEFAULT_NAME = "call-agent";
+    private static final String DEFAULT_DOMAIN = "127.0.0.1:2427";
 
-    public NotifiedEntity(String name, String domain, int port) {
+    private String name;
+    private String domain;
+    private final StringBuilder builder;
+
+    public NotifiedEntity(String name, String domain) {
         super();
         this.name = name;
         this.domain = domain;
-        this.port = port;
-        this.qualifiedName = name + "@" + domain + ":" + port;
+        this.builder = new StringBuilder();
+    }
+
+    public NotifiedEntity() {
+        this(DEFAULT_NAME, DEFAULT_DOMAIN);
     }
 
     public String getName() {
+        if (this.name == null || this.name.isEmpty()) {
+            return DEFAULT_NAME;
+        }
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDomain() {
+        if (this.domain == null || this.domain.isEmpty()) {
+            return DEFAULT_DOMAIN;
+        }
         return domain;
     }
 
-    public int getPort() {
-        return port;
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
     @Override
     public String toString() {
-        return this.qualifiedName;
+        this.builder.setLength(0);
+        this.builder.append(getName()).append("@").append(getDomain());
+        return this.builder.toString();
     }
 }

@@ -25,15 +25,7 @@ package org.mobicents.media.control.mgcp.pkg;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpSignal extends MgcpEventListener {
-
-    /**
-     * Asks the signal to listen to an event type.
-     * 
-     * @param events The list of event types to listen to.
-     * @throws IllegalArgumentException If the event type is not supported by the signal.
-     */
-    void listen(String... events) throws IllegalArgumentException;
+public interface MgcpSignal {
 
     /**
      * Executes the signal.
@@ -45,5 +37,12 @@ public interface MgcpSignal extends MgcpEventListener {
      * No action is taken if signal is not executing.
      */
     void cancel();
+
+    /**
+     * Gets whether the signal is currently executing.
+     * 
+     * @return <code>true</code> if executing; otherwise returns <code>false</code>
+     */
+    boolean isExecuting();
 
 }

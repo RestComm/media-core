@@ -21,9 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,37 +33,33 @@ public class AbstractMgcpEvent implements MgcpEvent {
 
     private final String symbol;
     private final Map<String, String> parameters;
-    private final List<MgcpEventListener> eventListeners;
     private final AtomicBoolean fired;
 
     public AbstractMgcpEvent(String symbol) {
         super();
         this.symbol = symbol;
         this.parameters = new HashMap<>(10);
-        this.eventListeners = new ArrayList<>(5);
         this.fired = new AtomicBoolean(false);
     }
 
-    @Override
     public String getSymbol() {
         return this.symbol;
     }
 
-    @Override
     public String getParameter(String name) {
         return this.parameters.get(name);
     }
 
     @Override
-    public void fire() {
+    public void fire(MgcpEventListener... targets) {
         if (this.fired.get()) {
             throw new IllegalStateException("Event was already fired");
         }
 
         // Broadcast event across all listeners
         this.fired.set(true);
-        for (MgcpEventListener listener : this.eventListeners) {
-            listener.onMgcpEvent(this);
+        for (MgcpEventListener target : targets) {
+            target.onMgcpEvent(this);
         }
 
         // Clean event state (since it cannot be fired twice)
@@ -74,7 +68,6 @@ public class AbstractMgcpEvent implements MgcpEvent {
 
     private void clean() {
         this.parameters.clear();
-        this.eventListeners.clear();
     }
 
 }

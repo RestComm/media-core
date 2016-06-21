@@ -78,29 +78,4 @@ public class PlayAnnouncement extends AbstractMgcpSignal {
 
     }
 
-    @Override
-    protected boolean isEventSupported(String name) {
-        // Check if event type is valid
-        EventType eventType = EventType.fromSymbol(name);
-        if (eventType == null) {
-            return false;
-        }
-
-        // Check if event type is supported
-        switch (eventType) {
-            case OPERATION_COMPLETE:
-            case OPERATION_FAILURE:
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public void onMgcpEvent(MgcpEvent event) {
-        // TODO Auto-generated method stub
-        
-    }
-
 }
