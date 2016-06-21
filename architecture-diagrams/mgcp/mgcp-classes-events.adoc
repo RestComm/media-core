@@ -1,5 +1,32 @@
 [plantuml,file="mgcp-classes-events.png"]
 --
+class NotificationRequestCommand {
+}
+
+class MgcpEndpoint {
+- NotificationRequest notificationRequest
++ requestNotification(NotificationRequest)
+}
+
+class NotificationRequest {
+- Queue<Signal> requestedSignals
+- String[] requestedEvents
+- NotifiedEntity notifiedEntity
+- AtomicBoolean executing
++ execute()
++ cancel()
++ isEventRegistered(String)
+}
+
+abstract class MgcpPackage {
+- String symbol
+- List<String> signals
+}
+
+class AudioPackage {
++ String PACKAGE_NAME = "AU"
+}
+
 interface MgcpEvent {
 + fire()
 }
@@ -27,8 +54,11 @@ interface MgcpEventListener {
 + onMgcpEvent(MgcpEvent)
 }
 
+interface MgcpSignalFactory {
++ MgcpSignal produce(String)
+}
+
 interface MgcpSignal {
-+ listen(String[] events)
 + execute()
 + cancel()
 }
@@ -37,27 +67,26 @@ abstract class AbstractMgcpSignal {
 - String package
 - String symbol
 - Map<String, String> parameters
-- String[] events
 + addParameter(String, String)
 + String getParameter()
 # boolean isParameterSupported(String)
-# boolean isEventSupported(String)
 }
 
-abstract class MgcpPackage {
-- String symbol
-- List<String> signals
-}
-
-class AudioPackage {
-+ String PACKAGE_NAME = "AU"
-}
-
+NotificationRequestCommand -> MgcpEndpoint : submit
+(NotificationRequestCommand,MgcpEndpoint) .. NotificationRequest
+NotificationRequest *-> MgcpSignal : execute or cancel
+MgcpEndpoint -|> MgcpEventListener
+MgcpSignal <|-- AbstractMgcpSignal
+AbstractMgcpSignal <|-- PlayAnnouncement
+AbstractMgcpSignal <|-- PlayCollect
+AbstractMgcpSignal <|-- PlayRecord
+MgcpSignal -> MgcpEvent : fires
+MgcpEventListener <-- MgcpEvent : notifies
 MgcpEvent <|-- AbstractMgcpEvent
 AbstractMgcpEvent <|-- OperationComplete
 AbstractMgcpEvent <|-- OperationFailure
-AbstractMgcpEvent -> MgcpEventListener
-MgcpEventListener <|-- MgcpSignal
-MgcpSignal <|-- AbstractMgcpSignal
+
+MgcpSignal <-- MgcpSignalFactory : produces
+MgcpSignalFactory <-- MgcpPackage
 MgcpPackage <|-- AudioPackage
 --
