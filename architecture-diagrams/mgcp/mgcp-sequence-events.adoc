@@ -1,0 +1,22 @@
+[plantuml,file="mgcp-sequence-events.png"]
+--
+[-> MgcpEndpoint : RQNT(request)
+Activate MgcpEndpoint
+
+MgcpEndpoint -> NotificationRequest : execute
+Activate NotificationRequest
+
+NotificationRequest -> MgcpSignal : execute
+Activate MgcpSignal
+|||
+...
+
+
+
+|||
+|||
+
+
+  
+
+--
