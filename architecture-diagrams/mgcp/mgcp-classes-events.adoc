@@ -4,18 +4,13 @@ class NotificationRequestCommand {
 }
 
 class MgcpEndpoint {
-- NotificationRequest notificationRequest
-+ requestNotification(NotificationRequest)
+- NotifiedEntity notifiedEntity
 }
 
 class NotificationRequest {
-- Queue<Signal> requestedSignals
+- Signal[] requestedSignals
 - String[] requestedEvents
 - NotifiedEntity notifiedEntity
-- AtomicBoolean executing
-+ execute()
-+ cancel()
-+ isEventRegistered(String)
 }
 
 abstract class MgcpPackage {
@@ -28,7 +23,7 @@ class AudioPackage {
 }
 
 interface MgcpEvent {
-+ fire()
++ fire(MgcpEventListener[])
 }
 
 abstract class AbstractMgcpEvent {
@@ -39,7 +34,6 @@ abstract class AbstractMgcpEvent {
 + getSymbol()
 + getParameter(String)
 + addParameter(String, String)
-- clean()
 }
 
 class OperationComplete {
@@ -51,7 +45,12 @@ class OperationFailure {
 }
 
 interface MgcpEventListener {
++ listen(String[])
 + onMgcpEvent(MgcpEvent)
+}
+
+interface MgcpSignalExecutor {
++ execute(Signal[])
 }
 
 interface MgcpSignalFactory {
@@ -67,26 +66,33 @@ abstract class AbstractMgcpSignal {
 - String package
 - String symbol
 - Map<String, String> parameters
+- AtomicBoolean executing
 + addParameter(String, String)
 + String getParameter()
 # boolean isParameterSupported(String)
 }
 
-NotificationRequestCommand -> MgcpEndpoint : submit
-(NotificationRequestCommand,MgcpEndpoint) .. NotificationRequest
-NotificationRequest *-> MgcpSignal : execute or cancel
-MgcpEndpoint -|> MgcpEventListener
+NotificationRequestCommand --> MgcpEndpoint : request notification
+(NotificationRequestCommand,MgcpEndpoint) . NotificationRequest
+
+MgcpEndpoint --|> MgcpEventListener
+MgcpEndpoint --|> MgcpSignalExecutor
+MgcpSignalExecutor --> MgcpSignal : executes
+MgcpEventListener <-- MgcpEvent : notifies
+MgcpEvent <- MgcpSignal : fires
+
 MgcpSignal <|-- AbstractMgcpSignal
 AbstractMgcpSignal <|-- PlayAnnouncement
 AbstractMgcpSignal <|-- PlayCollect
 AbstractMgcpSignal <|-- PlayRecord
-MgcpSignal -> MgcpEvent : fires
-MgcpEventListener <-- MgcpEvent : notifies
+
 MgcpEvent <|-- AbstractMgcpEvent
 AbstractMgcpEvent <|-- OperationComplete
 AbstractMgcpEvent <|-- OperationFailure
 
-MgcpSignal <-- MgcpSignalFactory : produces
-MgcpSignalFactory <-- MgcpPackage
 MgcpPackage <|-- AudioPackage
+MgcpSignalFactory <- MgcpPackage
+MgcpSignal <- MgcpSignalFactory : produces
 --
+
+

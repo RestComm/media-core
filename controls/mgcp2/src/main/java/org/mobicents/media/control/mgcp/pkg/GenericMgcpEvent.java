@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @category NotThreadSafe
  */
 public class GenericMgcpEvent implements MgcpEvent {
 

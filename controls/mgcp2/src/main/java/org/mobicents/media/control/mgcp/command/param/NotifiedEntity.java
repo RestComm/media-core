@@ -50,10 +50,12 @@ package org.mobicents.media.control.mgcp.command.param;
 public class NotifiedEntity {
 
     private static final String DEFAULT_NAME = "call-agent";
-    private static final String DEFAULT_DOMAIN = "127.0.0.1:2427";
+    private static final String DEFAULT_DOMAIN = "127.0.0.1";
+    private static final int DEFAULT_PORT = 2727;
 
     private String name;
     private String domain;
+    private int port;
     private final StringBuilder builder;
 
     public NotifiedEntity(String name, String domain) {
@@ -89,10 +91,21 @@ public class NotifiedEntity {
         this.domain = domain;
     }
 
+    public int getPort() {
+        if (this.port <= 0) {
+            return DEFAULT_PORT;
+        }
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     @Override
     public String toString() {
         this.builder.setLength(0);
-        this.builder.append(getName()).append("@").append(getDomain());
+        this.builder.append(getName()).append("@").append(getDomain()).append(":").append(getPort());
         return this.builder.toString();
     }
 }
