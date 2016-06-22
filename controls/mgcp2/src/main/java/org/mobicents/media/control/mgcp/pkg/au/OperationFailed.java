@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
-import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
 
 /**
  * Detected upon the failure of a Play, PlayRecord, or PlayCollect signal.
@@ -29,7 +29,7 @@ import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationFailed extends AbstractMgcpEvent {
+public class OperationFailed extends GenericMgcpEvent {
 
     public OperationFailed() {
         super("of");

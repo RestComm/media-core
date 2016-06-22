@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
-import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
 
 /**
  * Detected upon the successful completion of a Play, PlayRecord, or Play Collect signal.
@@ -29,7 +29,7 @@ import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationComplete extends AbstractMgcpEvent {
+public class OperationComplete extends GenericMgcpEvent {
 
     public OperationComplete() {
         super("oc");

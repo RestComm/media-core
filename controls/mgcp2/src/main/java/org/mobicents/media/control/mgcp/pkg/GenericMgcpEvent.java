@@ -29,13 +29,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AbstractMgcpEvent implements MgcpEvent {
+public class GenericMgcpEvent implements MgcpEvent {
 
     private final String symbol;
     private final Map<String, String> parameters;
     private final AtomicBoolean fired;
 
-    public AbstractMgcpEvent(String symbol) {
+    public GenericMgcpEvent(String symbol) {
         super();
         this.symbol = symbol;
         this.parameters = new HashMap<>(10);
@@ -48,6 +48,10 @@ public class AbstractMgcpEvent implements MgcpEvent {
 
     public String getParameter(String name) {
         return this.parameters.get(name);
+    }
+    
+    public void setParameter(String name, String value) {
+        this.parameters.put(name, value);
     }
 
     @Override

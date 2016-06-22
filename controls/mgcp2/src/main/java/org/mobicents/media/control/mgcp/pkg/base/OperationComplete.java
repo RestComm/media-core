@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.base;
 
-import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
 
 /**
  * The operation complete event is generated when the gateway was asked to apply one or several signals of type TO on the
@@ -46,7 +46,7 @@ import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationComplete extends AbstractMgcpEvent {
+public class OperationComplete extends GenericMgcpEvent {
 
     public OperationComplete() {
         super("oc");

@@ -28,9 +28,20 @@ package org.mobicents.media.control.mgcp.pkg;
  *
  */
 public interface MgcpEventListener {
-    
+
+    /**
+     * Registers the type of events the listener is interested in.
+     * 
+     * @param events The list of event types.
+     */
     void listen(String... events);
-    
+
+    /**
+     * Triggered when an event is fired.<br>
+     * The listener reacts to the event only if it is interested in it.
+     * 
+     * @param event The fired event.
+     */
     void onMgcpEvent(MgcpEvent event);
 
 }

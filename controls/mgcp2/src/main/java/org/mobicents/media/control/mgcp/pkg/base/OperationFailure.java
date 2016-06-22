@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.base;
 
-import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
 
 /**
  * The operation failure event is generated when the endpoint was asked to apply one or several signals of type TO on the
@@ -46,7 +46,7 @@ import org.mobicents.media.control.mgcp.pkg.AbstractMgcpEvent;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationFailure extends AbstractMgcpEvent {
+public class OperationFailure extends GenericMgcpEvent {
 
     public OperationFailure() {
         super("of");
