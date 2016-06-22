@@ -21,6 +21,8 @@
 		<param name="File" value="../log/server.log" />
 		<param name="Append" value="false" />
 		<param name="Threshold" value="INFO" />
+		<param name="MaxBackupIndex" value="5" />
+		<param name="MaxFileSize" value="100MB" />
 		
 		<param name="DatePattern" value="'.'yyyy-MM-dd"/>
 		
