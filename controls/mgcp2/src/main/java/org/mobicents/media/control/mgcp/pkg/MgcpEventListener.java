@@ -31,6 +31,9 @@ public interface MgcpEventListener {
 
     /**
      * Registers the type of events the listener is interested in.
+     * <p>
+     * If the listener was already listening to a set of events, then the list is overwritten.
+     * </p>
      * 
      * @param events The list of event types.
      */

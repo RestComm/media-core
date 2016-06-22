@@ -31,7 +31,7 @@ import org.mobicents.media.server.component.oob.OOBMixer;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMixerEndpoint extends AbstractMgcpEndpoint {
+public class MgcpMixerEndpoint extends GenericMgcpEndpoint {
 
     // Core Components
     private final AudioMixer inbandMixer;

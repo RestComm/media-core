@@ -28,6 +28,13 @@ package org.mobicents.media.control.mgcp.pkg;
 public interface MgcpEvent {
 
     /**
+     * Gets the symbol representing the event.
+     * 
+     * @return The event symbol
+     */
+    String getSymbol();
+
+    /**
      * Fires the event.
      * 
      * @param targets The listeners targeted by the event.

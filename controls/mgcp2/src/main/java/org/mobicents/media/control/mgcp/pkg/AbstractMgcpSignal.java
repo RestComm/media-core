@@ -35,7 +35,6 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final String symbol;
     private final SignalType type;
     private final Map<String, String> parameters;
-    private String[] requestedEvents;
     protected final AtomicBoolean executing;
 
     public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
@@ -67,10 +66,32 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     }
 
     protected abstract boolean isParameterSupported(String name);
-    
+
     @Override
     public boolean isExecuting() {
         return this.executing.get();
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean equals = false;
+        if (obj != null && obj instanceof AbstractMgcpSignal) {
+            AbstractMgcpSignal other = (AbstractMgcpSignal) obj;
+            equals = this.packageName.equalsIgnoreCase(other.packageName) 
+                    && this.symbol.equalsIgnoreCase(other.symbol)
+                    && this.type.equals(other.type) 
+                    && this.parameters.size() == other.parameters.size();
+
+            if (equals) {
+                for (String key : this.parameters.keySet()) {
+                    if (!this.parameters.get(key).equals(other.parameters.get(key))) {
+                        equals = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return equals;
+    }
+
 }

@@ -37,6 +37,8 @@ import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 
 /**
  * Abstract representation of an MGCP Endpoint that groups connections by calls.
@@ -44,9 +46,9 @@ import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, MgcpConnectionListener {
+public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, MgcpConnectionListener {
 
-    private static final Logger log = Logger.getLogger(AbstractMgcpEndpoint.class);
+    private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
 
     // Endpoint Properties
     private final String endpointId;
@@ -56,7 +58,11 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
     // Endpoint State
     private final AtomicBoolean active;
 
-    public AbstractMgcpEndpoint(String endpointId) {
+    // Events and Signals
+    private String[] events;
+    private MgcpSignal signal;
+
+    public GenericMgcpEndpoint(String endpointId) {
         // Endpoint Properties
         this.endpointId = endpointId;
         this.notifiedEntity = new NotifiedEntity();
@@ -122,7 +128,8 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
     }
 
     @Override
-    public MgcpConnection deleteConnection(int callId, int connectionId) throws MgcpCallNotFoundException, MgcpConnectionNotFound {
+    public MgcpConnection deleteConnection(int callId, int connectionId)
+            throws MgcpCallNotFoundException, MgcpConnectionNotFound {
         MgcpCall call = this.calls.get(callId);
         if (call == null) {
             throw new MgcpCallNotFoundException("Call " + callId + " was not found.");
@@ -154,7 +161,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
                     log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly",
                             e);
                 }
-                
+
                 return connection;
             }
         }
@@ -168,7 +175,7 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
                 connection.close();
             } catch (MgcpConnectionException e) {
                 log.error(this.endpointId + ": Connection " + connection.getHexIdentifier() + " was not closed properly", e);
-           
+
             }
         }
         return connections;
@@ -265,12 +272,82 @@ public abstract class AbstractMgcpEndpoint implements MgcpEndpoint, MgcpCallList
         }
     }
 
-    protected abstract void onConnectionCreated(MgcpConnection connection);
+    private boolean isListening(String event) {
+        if (this.events != null) {
+            for (String evt : events) {
+                if (evt.equalsIgnoreCase(event)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-    protected abstract void onConnectionDeleted(MgcpConnection connection);
+    @Override
+    public void execute(MgcpSignal signal) {
+        if (this.signal == null) {
+            // No signal being executing. Execute new signal immediately
+            this.signal = signal;
+            this.signal.execute();
+        } else {
+            // Current signal is identical to newly request signal. Ignore.
+            if (this.signal.equals(signal)) {
+                log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
+            } else {
+                this.signal.cancel();
+                this.signal = signal;
+                this.signal.execute();
+            }
+        }
+    }
 
-    protected abstract void onActivated();
+    @Override
+    public void listen(String... events) {
+        this.events = events;
+    }
 
-    protected abstract void onDeactivated();
+    @Override
+    public void onMgcpEvent(MgcpEvent event) {
+        final String symbol = event.getSymbol();
+        if (isListening(symbol)) {
+            // TODO send NTFY to NotifiedEntity
+        }
+    }
+
+    /**
+     * Event that is called when a new connection is created in the endpoint. <br>
+     * <b>To be overriden by subclasses.</b>
+     * 
+     * @param connection
+     */
+    protected void onConnectionCreated(MgcpConnection connection) {
+    }
+
+    /**
+     * Event that is called when a new connection is deleted in the endpoint. <br>
+     * <b>To be overriden by subclasses.</b>
+     * 
+     * @param connection
+     */
+    protected void onConnectionDeleted(MgcpConnection connection) {
+    }
+
+    /**
+     * Event that is called when endpoint becomes active. <br>
+     * <b>To be overriden by subclasses.</b>
+     * 
+     * @param connection
+     */
+    protected void onActivated() {
+    }
+
+    /**
+     * Event that is called when endpoint becomes inactive. <br>
+     * <b>To be overriden by subclasses.</b>
+     * 
+     * @param connection
+     */
+    protected void onDeactivated() {
+    }
 
 }

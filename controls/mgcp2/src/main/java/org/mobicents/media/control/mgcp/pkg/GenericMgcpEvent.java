@@ -42,6 +42,7 @@ public class GenericMgcpEvent implements MgcpEvent {
         this.fired = new AtomicBoolean(false);
     }
 
+    @Override
     public String getSymbol() {
         return this.symbol;
     }

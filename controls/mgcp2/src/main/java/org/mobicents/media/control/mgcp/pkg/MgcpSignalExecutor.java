@@ -29,6 +29,6 @@ package org.mobicents.media.control.mgcp.pkg;
  */
 public interface MgcpSignalExecutor {
 
-    void execute(MgcpSignal... signals);
+    void execute(MgcpSignal signal);
 
 }
