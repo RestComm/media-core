@@ -55,11 +55,11 @@ public class MgcpTransactionManagerTest {
         when(request.getTransactionId()).thenReturn(transactionId);
         when(transaction.getId()).thenReturn(transactionId);
         when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
-        txManager.process(request, MessageDirection.INBOUND);
+        txManager.process(request, MessageDirection.INCOMING);
 
         // then
         assertTrue(txManager.contains(transaction.getId()));
-        verify(transaction, times(1)).processRequest(request, MessageDirection.INBOUND);
+        verify(transaction, times(1)).processRequest(request, MessageDirection.INCOMING);
         verify(transaction, times(1)).addMessageListener(messageListener);
         verify(transaction, times(1)).addTransactionListener(txManager);
 
@@ -99,16 +99,16 @@ public class MgcpTransactionManagerTest {
                 assertEquals(MgcpResponseCode.TRANSACTION_BEEN_EXECUTED.code(), ((MgcpResponse) message).getCode());
                 return null;
             }
-        }).when(messageListener).onOutgoingMessage(any(MgcpResponse.class));
+        }).when(messageListener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         
         
-        txManager.process(request, MessageDirection.INBOUND);
-        txManager.process(retransmission, MessageDirection.INBOUND);
+        txManager.process(request, MessageDirection.INCOMING);
+        txManager.process(retransmission, MessageDirection.INCOMING);
 
         // then
         assertTrue(txManager.contains(transaction.getId()));
-        verify(transaction, times(1)).processRequest(request, MessageDirection.INBOUND);
-        verify(messageListener, times(1)).onOutgoingMessage(any(MgcpResponse.class));
+        verify(transaction, times(1)).processRequest(request, MessageDirection.INCOMING);
+        verify(messageListener, times(1)).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
     }
 
 }

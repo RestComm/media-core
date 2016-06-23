@@ -29,6 +29,7 @@ import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageProcessor;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
@@ -39,7 +40,7 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionManager implements MgcpTransactionListener {
+public class MgcpTransactionManager implements MgcpTransactionListener, MgcpMessageProcessor {
 
     private static final Logger log = Logger.getLogger(MgcpTransactionManager.class);
 
@@ -94,6 +95,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
         return this.transactions.get(transactionId);
     }
 
+    @Override
     public void process(MgcpMessage message, MessageDirection direction) {
         int transactionId = message.getTransactionId();
 
@@ -132,7 +134,7 @@ public class MgcpTransactionManager implements MgcpTransactionListener {
         response.setTransactionId(transactionId);
         response.setCode(code);
         response.setMessage(message);
-        this.messageListener.onOutgoingMessage(response);
+        this.messageListener.onMessage(response, MessageDirection.OUTGOING);
     }
 
     @Override

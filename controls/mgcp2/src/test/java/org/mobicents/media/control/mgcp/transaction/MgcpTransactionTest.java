@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.transaction;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -65,7 +66,7 @@ public class MgcpTransactionTest {
         when(response.toString()).thenReturn(RESPONSE);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
-        transaction.processRequest(request, MessageDirection.INBOUND);
+        transaction.processRequest(request, MessageDirection.INCOMING);
 
         // then
         assertEquals(12345, transaction.getId());
@@ -79,7 +80,7 @@ public class MgcpTransactionTest {
         // then
         assertEquals(MgcpTransactionState.COMPLETED, transaction.getState());
         verify(txListener, times(1)).onTransactionComplete(transaction);
-        verify(messageListener, times(1)).onOutgoingMessage(any(MgcpMessage.class));
+        verify(messageListener, times(1)).onMessage(any(MgcpMessage.class), eq(MessageDirection.OUTGOING));
     }
 
     @Test
@@ -97,13 +98,13 @@ public class MgcpTransactionTest {
 
         // when - process outbound request
         when(request.toString()).thenReturn(REQUEST);
-        transaction.processRequest(request, MessageDirection.OUTBOUND);
+        transaction.processRequest(request, MessageDirection.OUTGOING);
 
         // then
         assertEquals(12345, transaction.getId());
         assertEquals(Integer.toHexString(12345), transaction.getHexId());
         assertEquals(MgcpTransactionState.WAITING_RESPONSE, transaction.getState());
-        verify(messageListener, times(1)).onOutgoingMessage(any(MgcpMessage.class));
+        verify(messageListener, times(1)).onMessage(any(MgcpMessage.class), eq(MessageDirection.OUTGOING));
 
         // when - response arrives
         transaction.processResponse(response);
@@ -146,8 +147,8 @@ public class MgcpTransactionTest {
         // when - process incoming request
         when(request1.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
-        transaction.processRequest(request1, MessageDirection.INBOUND);
-        transaction.processRequest(request2, MessageDirection.INBOUND);
+        transaction.processRequest(request1, MessageDirection.INCOMING);
+        transaction.processRequest(request2, MessageDirection.INCOMING);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -167,7 +168,7 @@ public class MgcpTransactionTest {
         // when - process incoming request
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
-        transaction.processRequest(request, MessageDirection.INBOUND);
+        transaction.processRequest(request, MessageDirection.INCOMING);
         transaction.processResponse(response);
     }
 

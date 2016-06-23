@@ -98,7 +98,7 @@ public class MgcpTransaction implements MgcpCommandListener {
         final MgcpMessageListener[] copy = this.messageListeners.toArray(new MgcpMessageListener[count]);
 
         for (MgcpMessageListener observer : copy) {
-            observer.onOutgoingMessage(message);
+            observer.onMessage(message, MessageDirection.OUTGOING);
         }
     }
 
@@ -119,14 +119,14 @@ public class MgcpTransaction implements MgcpCommandListener {
                 this.state = MgcpTransactionState.EXECUTING_REQUEST;
 
                 switch (direction) {
-                    case INBOUND:
+                    case INCOMING:
                         // Execute incoming MGCP request
                         MgcpCommand command = this.commands.provide(request.getRequestType());
                         command.execute(request, this);
                         // Transaction must now listen for onCommandComplete event
                         break;
 
-                    case OUTBOUND:
+                    case OUTGOING:
                         // Send the request to the remote peer right now and wait for the response
                         broadcast(request);
                         this.state = MgcpTransactionState.WAITING_RESPONSE;
@@ -146,7 +146,7 @@ public class MgcpTransaction implements MgcpCommandListener {
         switch (this.state) {
             case WAITING_RESPONSE:
                 this.state = MgcpTransactionState.COMPLETED;
-                if (MessageDirection.INBOUND.equals(this.direction)) {
+                if (MessageDirection.INCOMING.equals(this.direction)) {
                     // Command finished executing inbound request
                     // Time to send response to the remote peer
                     broadcast(response);

@@ -21,11 +21,12 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
@@ -40,7 +41,7 @@ public class GenericMgcpEndpointTest {
     @Test
     public void testExecuteSignal() {
         // given
-        MgcpSignal signal = mock(MgcpSignal.class);
+        final MgcpSignal signal = mock(MgcpSignal.class);
         final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1");
 
         // when
@@ -53,8 +54,8 @@ public class GenericMgcpEndpointTest {
     @Test
     public void testExecuteSignalDuringSignalExecution() {
         // given
-        MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        MockSignal signal2 = new MockSignal("AU", "pc", SignalType.TIME_OUT);
+        final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
+        final MockSignal signal2 = new MockSignal("AU", "pc", SignalType.TIME_OUT);
         final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1");
 
         // when
@@ -71,8 +72,8 @@ public class GenericMgcpEndpointTest {
     @Test
     public void testExecuteDuplicateSignal() {
         // given
-        MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        MockSignal signal2 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
+        final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
+        final MockSignal signal2 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
         final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1");
         
         // when

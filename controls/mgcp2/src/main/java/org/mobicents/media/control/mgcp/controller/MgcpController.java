@@ -28,6 +28,7 @@ import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.message.MgcpMessageProcessor;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
@@ -46,7 +47,7 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
 
     // MGCP Components
     private final MgcpPacketHandler packetHandler;
-    private final MgcpTransactionManager transactions;
+    private final MgcpMessageProcessor processor;
     private final MgcpChannel channel;
 
     // MGCP Controller State
@@ -56,7 +57,7 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
         // MGCP Components
         this.packetHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
         this.channel = new MgcpChannel(bindAddress, networkManager, this.packetHandler);
-        this.transactions = new MgcpTransactionManager(this, transactionProvider);
+        this.processor = new MgcpTransactionManager(this, transactionProvider);
 
         // MGCP Controller State
         this.active = false;
@@ -111,17 +112,24 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     }
 
     @Override
-    public void onIncomingMessage(MgcpMessage message) {
-        // Ask the transaction manager to process the incoming message
-        // If message is a Request, then a new transaction is spawned and executed.
-        // If message is a Response, then existing transaction is retrieved and closed.
-        this.transactions.process(message, MessageDirection.INBOUND);
-    }
+    public void onMessage(MgcpMessage message, MessageDirection direction) {
+        switch (direction) {
+            case INCOMING:
+                // Ask the transaction manager to process the incoming message
+                // If message is a Request, then a new transaction is spawned and executed.
+                // If message is a Response, then existing transaction is retrieved and closed.
+                this.processor.process(message, MessageDirection.INCOMING);
+                break;
 
-    @Override
-    public void onOutgoingMessage(MgcpMessage message) {
-        // Send message to remote peer
-        this.channel.queue(message.toString().getBytes());
+            case OUTGOING:
+                // Send message to remote peer
+                this.channel.queue(message.toString().getBytes());
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown message direction: " + direction.name());
+        }
+
     }
 
 }

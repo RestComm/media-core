@@ -3,6 +3,10 @@
 class NotificationRequestCommand {
 }
 
+interface MgcpMessageProcessor {
++ process(MgcpMessage, Direction)
+}
+
 class MgcpEndpoint {
 - NotifiedEntity notifiedEntity
 }
@@ -75,6 +79,8 @@ abstract class AbstractMgcpSignal {
 NotificationRequestCommand --> MgcpEndpoint : request notification
 (NotificationRequestCommand,MgcpEndpoint) . NotificationRequest
 
+MgcpMessageProcessor <- MgcpEndpoint
+(MgcpMessageProcessor, MgcpEndpoint) .. NotifyCommand 
 MgcpEndpoint --|> MgcpEventListener
 MgcpEndpoint --|> MgcpSignalExecutor
 MgcpSignalExecutor --> MgcpSignal : executes

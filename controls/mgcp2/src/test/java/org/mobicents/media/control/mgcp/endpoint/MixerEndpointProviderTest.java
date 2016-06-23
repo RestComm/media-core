@@ -38,9 +38,9 @@ public class MixerEndpointProviderTest {
     @Test
     public void testProvide() {
         // given
-        String namespace = "ms/mock/";
-        PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
-        MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, mediaScheduler);
+        final String namespace = "ms/mock/";
+        final PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
+        final MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, mediaScheduler);
 
         // when
         MgcpMixerEndpoint endpoint1 = provider.provide();

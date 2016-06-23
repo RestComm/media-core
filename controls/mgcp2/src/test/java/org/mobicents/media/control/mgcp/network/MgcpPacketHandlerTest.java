@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -61,7 +62,7 @@ public class MgcpPacketHandlerTest {
 
         // then
         verify(parser, times(1)).parseRequest(data, 0, data.length);
-        verify(listener, times(1)).onIncomingMessage(request);
+        verify(listener, times(1)).onMessage(request, MessageDirection.INCOMING);
     }
 
     @Test
@@ -85,7 +86,7 @@ public class MgcpPacketHandlerTest {
 
         // then
         verify(parser, times(1)).parseResponse(data, 0, data.length);
-        verify(listener, times(1)).onIncomingMessage(response);
+        verify(listener, times(1)).onMessage(response, MessageDirection.INCOMING);
     }
 
 }
