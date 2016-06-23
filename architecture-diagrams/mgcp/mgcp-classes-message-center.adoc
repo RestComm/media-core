@@ -1,0 +1,62 @@
+[plantuml,file="mgcp-classes-message-center.png"]
+--
+class MgcpChannel {
++ receive()
++ send()
++ queue(MgcpMessage)
+}
+
+interface MgcpMessageSubject {
++ observe(MgcpMessageObserver)
++ forget(MgcpMessageObserver)
++ notify(MgcpMessage, MessageDirection)
+}
+
+interface MgcpMessageObserver {
++ onMessage(MgcpMessage, MessageDirection)
+}
+
+interface MgcpMessageProcessor {
++ process(MgcpMessage, MessageDirection)
+}
+
+abstract class MgcpMessageMediator {
+- List<MgcpMessageObserver> observers
+}
+
+class TransactionalMgcpMessageMediator {
+- MgcpTransactionManager txManager
+}
+
+class MgcpTransaction {
++ processIncoming(MgcpMessage)
++ processOutgoing(MgcpMessage)
+}
+
+class AbstractMgcpEndpoint {
+}
+
+interface MgcpCommand {
++ execute()
+}
+
+MgcpMessageSubject <|-- MgcpMessageMediator
+MgcpMessageProcessor <|-- MgcpMessageMediator
+
+MgcpMessageObserver <|-- MgcpChannel
+MgcpChannel -> MgcpMessageMediator : observe | process([CRCX|MDCX|DLCX|Resp], IN)
+MgcpChannel <-* MgcpMessageMediator : notify(OUT)
+
+MgcpMessageMediator <- AbstractMgcpEndpoint : process([NTFY|RSIP],OUT)
+
+MgcpMessageMediator <|-- TransactionalMgcpMessageMediator
+TransactionalMgcpMessageMediator *--> MgcpTransaction : start
+AbstractMgcpEndpoint <-- MgcpCommand : manipulate
+MgcpTransaction -> MgcpCommand : execute
+MgcpMessageMediator <-- MgcpTransaction : process([Resp], OUT)
+--
+
+
+
+
+
