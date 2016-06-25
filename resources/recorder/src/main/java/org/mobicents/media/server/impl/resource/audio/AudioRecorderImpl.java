@@ -276,10 +276,10 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         file = Paths.get(path);
         tempFile = Paths.get(path+"~");
         fout = FileChannel.open(tempFile);
+        fout.write(emptyHeader);
 
-        if (Files.exists(file))  {
+        if (Files.exists(file)) {
             if (append) {
-                fout.write(emptyHeader);
                 if (logger.isInfoEnabled()) {
                     logger.info("..............>>>>>Copying samples from " + file);
                 }
@@ -290,8 +290,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
                 logger.info("..............>>>>>Removing current file " + file);
             }
             Files.delete(file);
-        } else {
-            fout.write(emptyHeader);
         }
     }
 
