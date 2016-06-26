@@ -29,6 +29,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
@@ -275,7 +276,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         // create file for recording
         file = Paths.get(path);
         tempFile = Paths.get(path+"~");
-        fout = FileChannel.open(tempFile);
+
+        fout = FileChannel.open(tempFile, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
         fout.write(emptyHeader);
 
         if (Files.exists(file)) {
