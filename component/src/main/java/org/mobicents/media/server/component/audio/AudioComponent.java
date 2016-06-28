@@ -55,7 +55,7 @@ public class AudioComponent {
 	// Mixing State
 	private int[] data;
 	private byte[] dataArray;
-	int inputCount, outputCount, inputIndex, outputIndex;
+	int inputCount, inputIndex;
 	final AtomicBoolean first;
 
 	/**
@@ -146,8 +146,8 @@ public class AudioComponent {
 		final Frame outputFrame = Memory.allocate(PACKET_SIZE);
 		dataArray = outputFrame.getData();
 
-		outputIndex = 0;
-		for (outputCount = 0; outputCount < data.length;) {
+		int outputIndex = 0;
+		for (int outputCount = 0; outputCount < data.length;) {
 			dataArray[outputIndex++] = (byte) (data[outputCount]);
 			dataArray[outputIndex++] = (byte) (data[outputCount++] >> 8);
 		}
