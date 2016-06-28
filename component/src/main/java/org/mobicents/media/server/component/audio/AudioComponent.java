@@ -57,8 +57,6 @@ public class AudioComponent {
 	private int[] data;
 
 	private byte[] dataArray;
-	private Frame inputFrame;
-	private Frame outputFrame;
 
 	int inputCount, outputCount, inputIndex, outputIndex;
 	boolean first;
@@ -103,8 +101,9 @@ public class AudioComponent {
 		activeInputs = inputs.valuesIterator();
 
 		while (activeInputs.hasNext()) {
-			AudioInput input = activeInputs.next();
-			inputFrame = input.poll();
+			final AudioInput input = activeInputs.next();
+			final Frame inputFrame = input.poll();
+
 			if (inputFrame != null) {
 				dataArray = inputFrame.getData();
 				if (first) {
@@ -141,7 +140,7 @@ public class AudioComponent {
 			return;
 		}
 
-		outputFrame = Memory.allocate(packetSize);
+		final Frame outputFrame = Memory.allocate(packetSize);
 		dataArray = outputFrame.getData();
 
 		outputIndex = 0;
