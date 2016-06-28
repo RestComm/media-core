@@ -34,21 +34,17 @@ import org.mobicents.media.server.spi.memory.Memory;
  * Implements compound components used by mixer and splitter.
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class AudioComponent {
 
 	// the format of the output stream.
-	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR",
-			8000, 16, 1);
-	private long period = 20000000L;
-	private int packetSize = (int) (period / 1000000) * format.getSampleRate()
-			/ 1000 * format.getSampleSize() / 8;
+    private final static AudioFormat FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    private final static long PERIOD = 20000000L;
+    private final static int PACKET_SIZE = (int) (PERIOD / 1000000) * FORMAT.getSampleRate() / 1000 * FORMAT.getSampleSize() / 8;
 
-	private ConcurrentMap<AudioInput> inputs = new ConcurrentMap<AudioInput>();
-	private ConcurrentMap<AudioOutput> outputs = new ConcurrentMap<AudioOutput>();
-
-	private Iterator<AudioInput> activeInputs;
-	private Iterator<AudioOutput> activeOutputs;
+	private final ConcurrentMap<AudioInput> inputs = new ConcurrentMap<AudioInput>();
+	private final ConcurrentMap<AudioOutput> outputs = new ConcurrentMap<AudioOutput>();
 
 	protected Boolean shouldRead = false;
 	protected Boolean shouldWrite = false;
@@ -68,7 +64,7 @@ public class AudioComponent {
 	 */
 	public AudioComponent(int componentId) {
 		this.componentId = componentId;
-		data = new int[packetSize / 2];
+		data = new int[PACKET_SIZE / 2];
 	}
 
 	public int getComponentId() {
@@ -97,9 +93,9 @@ public class AudioComponent {
 	}
 
 	public void perform() {
-		first = true;
-		activeInputs = inputs.valuesIterator();
+		this.first = true;
 
+		final Iterator<AudioInput> activeInputs = inputs.valuesIterator();
 		while (activeInputs.hasNext()) {
 			final AudioInput input = activeInputs.next();
 			final Frame inputFrame = input.poll();
@@ -140,7 +136,7 @@ public class AudioComponent {
 			return;
 		}
 
-		final Frame outputFrame = Memory.allocate(packetSize);
+		final Frame outputFrame = Memory.allocate(PACKET_SIZE);
 		dataArray = outputFrame.getData();
 
 		outputIndex = 0;
@@ -150,11 +146,11 @@ public class AudioComponent {
 		}
 
 		outputFrame.setOffset(0);
-		outputFrame.setLength(packetSize);
-		outputFrame.setDuration(period);
-		outputFrame.setFormat(format);
+		outputFrame.setLength(PACKET_SIZE);
+		outputFrame.setDuration(PERIOD);
+		outputFrame.setFormat(FORMAT);
 
-		activeOutputs = outputs.valuesIterator();
+		final Iterator<AudioOutput> activeOutputs = outputs.valuesIterator();
 		while (activeOutputs.hasNext()) {
 			AudioOutput output = activeOutputs.next();
 			if (!activeOutputs.hasNext()) {
