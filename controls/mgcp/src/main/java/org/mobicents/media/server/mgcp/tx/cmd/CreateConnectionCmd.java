@@ -268,7 +268,7 @@ public class CreateConnectionCmd extends Action {
                 
                 try {
                     connections[0].setMode(m);
-                    connections[1].setMode(ConnectionMode.SEND_RECV);
+                    //connections[1].setMode(ConnectionMode.SEND_RECV);
                 } catch (Exception e) {
                     throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Unsupported mode"));
                 }
