@@ -53,9 +53,7 @@ public class AudioComponent {
 	protected final AtomicBoolean shouldWrite;
 
 	// Mixing State
-	private int[] data;
-	private byte[] dataArray;
-	int inputCount, inputIndex;
+	private final int[] data;
 	final AtomicBoolean first;
 
 	/**
@@ -99,32 +97,32 @@ public class AudioComponent {
 		outputs.remove(output.getOutputId());
 	}
 
-	public void perform() {
-		this.first.set(true);
+    public void perform() {
+        this.first.set(true);
 
-		final Iterator<AudioInput> activeInputs = inputs.valuesIterator();
-		while (activeInputs.hasNext()) {
-			final AudioInput input = activeInputs.next();
-			final Frame inputFrame = input.poll();
+        final Iterator<AudioInput> activeInputs = this.inputs.valuesIterator();
+        while (activeInputs.hasNext()) {
+            final AudioInput input = activeInputs.next();
+            final Frame inputFrame = input.poll();
 
-			if (inputFrame != null) {
-				dataArray = inputFrame.getData();
-				if (first.get()) {
-					inputIndex = 0;
-					for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
-						data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
-					}
-					first.set(false);
-				} else {
-					inputIndex = 0;
-					for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
-						data[inputIndex++] += (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
-					}
-				}
-				inputFrame.recycle();
-			}
-		}
-	}
+            if (inputFrame != null) {
+                try {
+                    final byte[] dataArray = inputFrame.getData();
+
+                    int inputIndex = 0;
+                    for (int inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                        this.data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                    }
+
+                    if (first.get()) {
+                        this.first.set(false);
+                    }
+                } finally {
+                    inputFrame.recycle();
+                }
+            }
+        }
+    }
 
 	public int[] getData() {
 		if (!this.shouldRead.get()) {
@@ -144,7 +142,7 @@ public class AudioComponent {
 		}
 
 		final Frame outputFrame = Memory.allocate(PACKET_SIZE);
-		dataArray = outputFrame.getData();
+		final byte[] dataArray = outputFrame.getData();
 
 		int outputIndex = 0;
 		for (int outputCount = 0; outputCount < data.length;) {
