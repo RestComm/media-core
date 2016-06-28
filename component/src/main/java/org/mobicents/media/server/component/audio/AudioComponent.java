@@ -23,6 +23,7 @@
 package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -38,42 +39,48 @@ import org.mobicents.media.server.spi.memory.Memory;
  */
 public class AudioComponent {
 
-	// the format of the output stream.
+	// Format of the output stream.
     private final static AudioFormat FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
     private final static long PERIOD = 20000000L;
     private final static int PACKET_SIZE = (int) (PERIOD / 1000000) * FORMAT.getSampleRate() / 1000 * FORMAT.getSampleSize() / 8;
 
-	private final ConcurrentMap<AudioInput> inputs = new ConcurrentMap<AudioInput>();
-	private final ConcurrentMap<AudioOutput> outputs = new ConcurrentMap<AudioOutput>();
+    // Component State
+    private final int componentId;
+	private final ConcurrentMap<AudioInput> inputs;
+	private final ConcurrentMap<AudioOutput> outputs;
+	
+	protected final AtomicBoolean shouldRead;
+	protected final AtomicBoolean shouldWrite;
 
-	protected Boolean shouldRead = false;
-	protected Boolean shouldWrite = false;
-
-	// samples storage
+	// Mixing State
 	private int[] data;
-
 	private byte[] dataArray;
-
 	int inputCount, outputCount, inputIndex, outputIndex;
-	boolean first;
-
-	private int componentId;
+	final AtomicBoolean first;
 
 	/**
 	 * Creates new instance with default name.
 	 */
 	public AudioComponent(int componentId) {
+	    // Component State
 		this.componentId = componentId;
-		data = new int[PACKET_SIZE / 2];
+		this.inputs = new ConcurrentMap<AudioInput>();
+		this.outputs = new ConcurrentMap<AudioOutput>();
+		this.shouldRead = new AtomicBoolean(false);
+		this.shouldWrite = new AtomicBoolean(false);
+
+		// Mixing State
+		this.data = new int[PACKET_SIZE / 2];
+		this.first = new AtomicBoolean(false);
 	}
 
 	public int getComponentId() {
 		return componentId;
 	}
 
-	public void updateMode(Boolean shouldRead, Boolean shouldWrite) {
-		this.shouldRead = shouldRead;
-		this.shouldWrite = shouldWrite;
+	public void updateMode(boolean shouldRead, boolean shouldWrite) {
+		this.shouldRead.set(shouldRead);
+		this.shouldWrite.set(shouldWrite);
 	}
 
 	public void addInput(AudioInput input) {
@@ -93,7 +100,7 @@ public class AudioComponent {
 	}
 
 	public void perform() {
-		this.first = true;
+		this.first.set(true);
 
 		final Iterator<AudioInput> activeInputs = inputs.valuesIterator();
 		while (activeInputs.hasNext()) {
@@ -102,12 +109,12 @@ public class AudioComponent {
 
 			if (inputFrame != null) {
 				dataArray = inputFrame.getData();
-				if (first) {
+				if (first.get()) {
 					inputIndex = 0;
 					for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
 						data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
 					}
-					first = false;
+					first.set(false);
 				} else {
 					inputIndex = 0;
 					for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
@@ -120,11 +127,11 @@ public class AudioComponent {
 	}
 
 	public int[] getData() {
-		if (!this.shouldRead) {
+		if (!this.shouldRead.get()) {
 			return null;
 		}
 
-		if (first) {
+		if (first.get()) {
 			return null;
 		}
 
@@ -132,7 +139,7 @@ public class AudioComponent {
 	}
 
 	public void offer(int[] data) {
-		if (!this.shouldWrite) {
+		if (!this.shouldWrite.get()) {
 			return;
 		}
 
