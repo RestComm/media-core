@@ -23,6 +23,7 @@
 package org.mobicents.media.server.component.oob;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.memory.Frame;
@@ -31,36 +32,36 @@ import org.mobicents.media.server.spi.memory.Frame;
  * Implements compound components used by mixer and splitter.
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class OOBComponent {
 
-	private ConcurrentMap<OOBInput> inputs = new ConcurrentMap<OOBInput>();
-	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap<OOBOutput>();
-
-	Iterator<OOBInput> activeInputs;
-	Iterator<OOBOutput> activeOutputs;
-
-	protected Boolean shouldRead = false;
-	protected Boolean shouldWrite = false;
+    private final int componentId;
+	private final ConcurrentMap<OOBInput> inputs;
+	private final ConcurrentMap<OOBOutput> outputs;
+	private final AtomicBoolean shouldRead;
+	private final AtomicBoolean shouldWrite;
 
 	private Frame frame;
-
-	private int componentId;
 
 	/**
 	 * Creates new instance with default name.
 	 */
 	public OOBComponent(int componentId) {
 		this.componentId = componentId;
+		this.inputs = new ConcurrentMap<OOBInput>();
+		this.outputs = new ConcurrentMap<OOBOutput>();
+		this.shouldRead = new AtomicBoolean(false);
+        this.shouldWrite = new AtomicBoolean(false);
 	}
 
 	public int getComponentId() {
 		return componentId;
 	}
 
-	public void updateMode(Boolean shouldRead, Boolean shouldWrite) {
-		this.shouldRead = shouldRead;
-		this.shouldWrite = shouldWrite;
+	public void updateMode(boolean shouldRead, boolean shouldWrite) {
+		this.shouldRead.set(shouldRead);
+		this.shouldWrite.set(shouldWrite);
 	}
 
 	public void addInput(OOBInput input) {
@@ -81,7 +82,7 @@ public class OOBComponent {
 
 	public void perform() {
 		frame = null;
-		activeInputs = inputs.valuesIterator();
+		final Iterator<OOBInput> activeInputs = inputs.valuesIterator();
 		while (activeInputs.hasNext()) {
 			OOBInput input = activeInputs.next();
 			frame = input.poll();
@@ -92,7 +93,7 @@ public class OOBComponent {
 	}
 
 	public Frame getData() {
-		if (!this.shouldRead) {
+		if (!this.shouldRead.get()) {
 			if (frame != null) {
 				frame.recycle();
 			}
@@ -102,12 +103,12 @@ public class OOBComponent {
 	}
 
 	public void offer(Frame frame) {
-		if (!this.shouldWrite) {
+		if (!this.shouldWrite.get()) {
 			frame.recycle();
 			return;
 		}
 
-		activeOutputs = outputs.valuesIterator();
+		final Iterator<OOBOutput> activeOutputs = outputs.valuesIterator();
 		while (activeOutputs.hasNext()) {
 			OOBOutput output = activeOutputs.next();
 			if (!activeOutputs.hasNext()) {
