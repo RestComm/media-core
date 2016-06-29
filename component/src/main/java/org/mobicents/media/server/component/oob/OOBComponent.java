@@ -31,14 +31,12 @@ import org.mobicents.media.server.spi.memory.Frame;
  * Implements compound components used by mixer and splitter.
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class OOBComponent {
 
 	private ConcurrentMap<OOBInput> inputs = new ConcurrentMap<OOBInput>();
 	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap<OOBOutput>();
-
-	Iterator<OOBInput> activeInputs;
-	Iterator<OOBOutput> activeOutputs;
 
 	protected Boolean shouldRead = false;
 	protected Boolean shouldWrite = false;
@@ -81,7 +79,7 @@ public class OOBComponent {
 
 	public void perform() {
 		frame = null;
-		activeInputs = inputs.valuesIterator();
+		final Iterator<OOBInput> activeInputs = inputs.valuesIterator();
 		while (activeInputs.hasNext()) {
 			OOBInput input = activeInputs.next();
 			frame = input.poll();
@@ -107,7 +105,7 @@ public class OOBComponent {
 			return;
 		}
 
-		activeOutputs = outputs.valuesIterator();
+		final Iterator<OOBOutput> activeOutputs = outputs.valuesIterator();
 		while (activeOutputs.hasNext()) {
 			OOBOutput output = activeOutputs.next();
 			if (!activeOutputs.hasNext()) {
