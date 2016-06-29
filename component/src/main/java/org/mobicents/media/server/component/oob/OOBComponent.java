@@ -36,21 +36,21 @@ import org.mobicents.media.server.spi.memory.Frame;
  */
 public class OOBComponent {
 
-	private ConcurrentMap<OOBInput> inputs = new ConcurrentMap<OOBInput>();
-	private ConcurrentMap<OOBOutput> outputs = new ConcurrentMap<OOBOutput>();
-
-	protected final AtomicBoolean shouldRead;
-	protected final AtomicBoolean shouldWrite;
+    private final int componentId;
+	private final ConcurrentMap<OOBInput> inputs;
+	private final ConcurrentMap<OOBOutput> outputs;
+	private final AtomicBoolean shouldRead;
+	private final AtomicBoolean shouldWrite;
 
 	private Frame frame;
-
-	private int componentId;
 
 	/**
 	 * Creates new instance with default name.
 	 */
 	public OOBComponent(int componentId) {
 		this.componentId = componentId;
+		this.inputs = new ConcurrentMap<OOBInput>();
+		this.outputs = new ConcurrentMap<OOBOutput>();
 		this.shouldRead = new AtomicBoolean(false);
         this.shouldWrite = new AtomicBoolean(false);
 	}
