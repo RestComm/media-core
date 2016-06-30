@@ -6,6 +6,6 @@ import java.net.URL;
 /**
  * Created by achikin on 5/9/16.
  */
-public interface AudioCache {
+public interface RemoteStreamProvider {
     InputStream getStream(URL uri) throws IOException;
 }

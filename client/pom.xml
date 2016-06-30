@@ -14,7 +14,7 @@
     <name>Client</name>
     
     <modules>
-        <module>jsr-309</module>
+        <!--<module>jsr-309</module>-->
         <module>mgcp</module>
     </modules>
 	

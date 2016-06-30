@@ -76,7 +76,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
     // Listeners
     private final Listeners<PlayerListener> listeners;
 
-    private final AudioCache audioCache;
+    private final RemoteStreamProvider remoteStreamProvider;
 
     /**
      * Creates new instance of the Audio player.
@@ -85,12 +85,12 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
      * @param scheduler EDF job scheduler
      * @param vc the TTS voice cache.
      */
-    public AudioPlayerImpl(String name, PriorityQueueScheduler scheduler, AudioCache audioCache) {
+    public AudioPlayerImpl(String name, PriorityQueueScheduler scheduler, RemoteStreamProvider remoteStreamProvider) {
         super(name, scheduler, PriorityQueueScheduler.INPUT_QUEUE);
         this.input = new AudioInput(ComponentType.PLAYER.getType(), packetSize);
         this.listeners = new Listeners<PlayerListener>();
         this.connect(this.input);
-        this.audioCache = audioCache;
+        this.remoteStreamProvider = remoteStreamProvider;
     }
 
     public AudioInput getAudioInput() {
@@ -143,7 +143,7 @@ public class AudioPlayerImpl extends AbstractSource implements Player, TTSEngine
         try {
             // check scheme, if its file, we should try to create dirs
             if (ext.matches(Extension.WAV)) {
-                track = new WavTrackImpl(targetURL, audioCache);
+                track = new WavTrackImpl(targetURL, remoteStreamProvider);
             } else if (ext.matches(Extension.GSM)) {
                 track = new GsmTrackImpl(targetURL);
             } else if (ext.matches(Extension.TONE)) {

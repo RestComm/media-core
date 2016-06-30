@@ -38,12 +38,11 @@ import org.mobicents.media.core.configuration.ResourcesConfiguration;
 
 /**
  * Loads Media Server configurations from an XML file.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class XmlConfigurationLoader implements ConfigurationLoader {
-    
+
     private static final Logger log = Logger.getLogger(XmlConfigurationLoader.class);
 
     private final Configurations configurations;
@@ -124,10 +123,18 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
         dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
         dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
+        configurePlayer(src, dst);
+    }
+
+    private static void configurePlayer(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
         HierarchicalConfiguration<ImmutableNode> player = src.configurationAt("player");
-        dst.setPlayerCount(player.getInt("poolSize", ResourcesConfiguration.PLAYER_COUNT));
-        dst.setPlayerCacheSize(player.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE));
-        dst.setPlayerCacheEnabled(player.getBoolean("cacheEnabled", ResourcesConfiguration.PLAYER_CACHE_ENABLED));
+        HierarchicalConfiguration<ImmutableNode> cache = player.configurationAt("cache");
+
+        dst.setPlayerCount(player.getInt("[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
+        dst.setPlayerCache(
+                cache.getBoolean("cacheEnabled", ResourcesConfiguration.PLAYER_CACHE_ENABLED),
+                cache.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE)
+        );
     }
 
 }

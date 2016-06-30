@@ -22,7 +22,7 @@
 package org.mobicents.media.server.bootstrap.ioc;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.bootstrap.ioc.provider.AudioCacheDisabledCacheProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DirectRemoteStreamProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider;
@@ -73,8 +73,8 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ServerManager;
 import org.mobicents.media.server.spi.dsp.DspFactory;
-import org.mobicents.media.server.bootstrap.ioc.provider.AudioCacheECacheProvider; 
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioCache;
+import org.mobicents.media.server.bootstrap.ioc.provider.CachedRemoteStreamProvider;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.RemoteStreamProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -119,13 +119,12 @@ public class BootstrapModule extends AbstractModule {
         bind(ResourcesPool.class).toProvider(ResourcesPoolProvider.class).in(Singleton.class);
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
-        bind(AudioCache.class).toProvider(AudioCacheECacheProvider.class).in(Singleton.class);
-        Class audioCacheClass;
+        Class remoteStreamProvider;
         if (this.config.getResourcesConfiguration().getPlayerCacheEnabled()) {
-            audioCacheClass = AudioCacheECacheProvider.class;
+            remoteStreamProvider = CachedRemoteStreamProvider.class;
         } else {
-            audioCacheClass = AudioCacheDisabledCacheProvider.class;
+            remoteStreamProvider = DirectRemoteStreamProvider.class;
         }
-        bind(AudioCache.class).toProvider(audioCacheClass).in(Singleton.class);
+        bind(RemoteStreamProvider.class).toProvider(remoteStreamProvider).in(Singleton.class);
     }
 }

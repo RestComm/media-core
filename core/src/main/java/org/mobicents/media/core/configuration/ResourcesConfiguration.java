@@ -23,9 +23,8 @@ package org.mobicents.media.core.configuration;
 
 /**
  * Configuration related to Resources Pools.
- * 
- * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class ResourcesConfiguration {
 
@@ -40,8 +39,8 @@ public class ResourcesConfiguration {
     public static final int DTMF_GENERATOR_TONE_DURATION = 80;
     public static final int SIGNAL_DETECTOR_COUNT = 0;
     public static final int SIGNAL_GENERATOR_COUNT = 0;
-    public static final int PLAYER_CACHE_SIZE = 100;
-    public static final boolean PLAYER_CACHE_ENABLED = true;
+    public static final int PLAYER_CACHE_SIZE = 0;
+    public static final boolean PLAYER_CACHE_ENABLED = false;
 
     private int localConnectionCount;
     private int remoteConnectionCount;
@@ -55,7 +54,6 @@ public class ResourcesConfiguration {
     private int signalDetectorCount;
     private int signalGeneratorCount;
     private int playerCacheSize;
-    private boolean playerCacheEnabled;
 
     public ResourcesConfiguration() {
         this.localConnectionCount = LOCAL_CONNECTION_COUNT;
@@ -70,7 +68,6 @@ public class ResourcesConfiguration {
         this.signalDetectorCount = SIGNAL_DETECTOR_COUNT;
         this.signalGeneratorCount = SIGNAL_GENERATOR_COUNT;
         this.playerCacheSize = PLAYER_CACHE_SIZE;
-        this.playerCacheEnabled = PLAYER_CACHE_ENABLED;
     }
 
     public int getLocalConnectionCount() {
@@ -194,18 +191,24 @@ public class ResourcesConfiguration {
         this.signalGeneratorCount = signalGeneratorCount;
     }
 
-    public int getPlayerCacheSize() { return  playerCacheSize; }
-
-    public void setPlayerCacheSize(int playerCacheSize) {
-        if (playerCacheSize < 0) {
+    public void setPlayerCache(boolean playerCacheEnabled, int playerCacheSize) {
+        if (!playerCacheEnabled) {
+            this.playerCacheSize = 0;
+            return;
+        }
+        if (playerCacheSize <= 0) {
             throw new IllegalArgumentException("Player cache size cannot be negative");
         }
         this.playerCacheSize = playerCacheSize;
     }
 
-    public boolean getPlayerCacheEnabled() { return playerCacheEnabled; }
 
-    public void setPlayerCacheEnabled(boolean playerCacheEnabled) {
-        this.playerCacheEnabled = playerCacheEnabled;
+    public int getPlayerCacheSize() {
+        return playerCacheSize;
     }
+
+    public boolean getPlayerCacheEnabled() {
+        return this.playerCacheSize != 0;
+    }
+
 }

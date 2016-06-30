@@ -42,17 +42,17 @@ public class AudioPlayerFactory implements PooledObjectFactory<AudioPlayerImpl> 
 
     private final PriorityQueueScheduler scheduler;
     private final DspFactory dspFactory;
-    private final AudioCache audioCache;
+    private final RemoteStreamProvider remoteStreamProvider;
 
-    public AudioPlayerFactory(PriorityQueueScheduler scheduler, DspFactory dspFactory, AudioCache audioCache) {
+    public AudioPlayerFactory(PriorityQueueScheduler scheduler, DspFactory dspFactory, RemoteStreamProvider remoteStreamProvider) {
         this.scheduler = scheduler;
         this.dspFactory = dspFactory;
-        this.audioCache = audioCache;
+        this.remoteStreamProvider = remoteStreamProvider;
     }
 
     @Override
     public AudioPlayerImpl produce() {
-        AudioPlayerImpl player = new AudioPlayerImpl("player-" + ID.getAndIncrement(), scheduler, audioCache);
+        AudioPlayerImpl player = new AudioPlayerImpl("player-" + ID.getAndIncrement(), scheduler, remoteStreamProvider);
         try {
             player.setDsp(this.dspFactory.newProcessor());
         } catch (InstantiationException | ClassNotFoundException | IllegalAccessException e) {

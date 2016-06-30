@@ -28,8 +28,6 @@
 package org.mobicents.media.server.mgcp.endpoint.connection;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,8 +39,7 @@ import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioCache;
-import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioCacheECache;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
@@ -120,7 +117,7 @@ public class ReclaimingTest {
         this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
         this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
-        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory, new AudioCacheECache(100));
+        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory, new CachedRemoteStreamProvider(100));
         this.playerPool = new AudioPlayerPool(0, playerFactory);
         this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);

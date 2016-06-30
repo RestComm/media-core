@@ -88,7 +88,6 @@ public class XmlConfigurationLoaderTest {
         ResourcesConfiguration resources = config.getResourcesConfiguration();
         Assert.assertEquals(200, resources.getLocalConnectionCount());
         Assert.assertEquals(100, resources.getRemoteConnectionCount());
-        Assert.assertEquals(100, resources.getPlayerCount());
         Assert.assertEquals(100, resources.getRecorderCount());
         Assert.assertEquals(100, resources.getDtmfDetectorCount());
         Assert.assertEquals(-25, resources.getDtmfDetectorDbi());
@@ -97,6 +96,7 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(-25, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(10, resources.getSignalDetectorCount());
         Assert.assertEquals(10, resources.getSignalGeneratorCount());
+        Assert.assertEquals(100, resources.getPlayerCount());
         Assert.assertEquals(100, resources.getPlayerCacheSize());
         Assert.assertEquals(true, resources.getPlayerCacheEnabled());
     }
