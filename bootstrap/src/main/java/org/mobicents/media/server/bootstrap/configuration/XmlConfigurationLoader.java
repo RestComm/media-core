@@ -27,6 +27,7 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationRuntimeException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.configuration.MediaConfiguration;
@@ -128,13 +129,20 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
 
     private static void configurePlayer(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
         HierarchicalConfiguration<ImmutableNode> player = src.configurationAt("player");
-        HierarchicalConfiguration<ImmutableNode> cache = player.configurationAt("cache");
-
         dst.setPlayerCount(player.getInt("[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
+
+        HierarchicalConfiguration<ImmutableNode> cache;
+        try {
+            cache = player.configurationAt("cache");
+        } catch (ConfigurationRuntimeException exception) {
+            log.info("No cache was specified for player");
+            return;
+        }
         dst.setPlayerCache(
                 cache.getBoolean("cacheEnabled", ResourcesConfiguration.PLAYER_CACHE_ENABLED),
                 cache.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE)
         );
+
     }
 
 }
