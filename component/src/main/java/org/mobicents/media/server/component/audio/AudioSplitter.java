@@ -48,12 +48,6 @@ public class AudioSplitter {
 	private ConcurrentMap<AudioComponent> insideComponents = new ConcurrentMap<AudioComponent>();
 	private ConcurrentMap<AudioComponent> outsideComponents = new ConcurrentMap<AudioComponent>();
 
-	private Iterator<AudioComponent> insideRIterator;
-	private Iterator<AudioComponent> insideSIterator;
-
-	private Iterator<AudioComponent> outsideRIterator;
-	private Iterator<AudioComponent> outsideSIterator;
-
 	private long period = 20000000L;
 	private int packetSize = (int) (period / 1000000) * format.getSampleRate() / 1000 * format.getSampleSize() / 8;
 
@@ -147,8 +141,8 @@ public class AudioSplitter {
 		public long perform() {
 			// summarize all
 			first = true;
-			insideRIterator = insideComponents.valuesIterator();
-			
+
+			final Iterator<AudioComponent> insideRIterator = insideComponents.valuesIterator();
 			while (insideRIterator.hasNext()) {
 				AudioComponent component = insideRIterator.next();
 				component.perform();
@@ -199,7 +193,7 @@ public class AudioSplitter {
 			}
 
 			// get data for each component
-			outsideSIterator = outsideComponents.valuesIterator();
+			final Iterator<AudioComponent> outsideSIterator = outsideComponents.valuesIterator();
 			while (outsideSIterator.hasNext()) {
 				AudioComponent component = outsideSIterator.next();
 				component.offer(total);
@@ -233,8 +227,8 @@ public class AudioSplitter {
 		public long perform() {
 			// summarize all
 			first = true;
-			outsideRIterator = outsideComponents.valuesIterator();
-			
+
+			final Iterator<AudioComponent> outsideRIterator = outsideComponents.valuesIterator();
 			while (outsideRIterator.hasNext()) {
 				AudioComponent component = outsideRIterator.next();
 				component.perform();
@@ -282,7 +276,7 @@ public class AudioSplitter {
 			}
 
 			// get data for each component
-			insideSIterator = insideComponents.valuesIterator();
+			final Iterator<AudioComponent> insideSIterator = insideComponents.valuesIterator();
 			while (insideSIterator.hasNext()) {
 				AudioComponent component = insideSIterator.next();
 				component.offer(total);
