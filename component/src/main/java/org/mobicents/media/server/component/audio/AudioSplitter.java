@@ -109,16 +109,20 @@ public class AudioSplitter {
 	}
 
 	public void start() {
-		mixCount = 0;
-		started.set(true);
-		scheduler.submit(insideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
-		scheduler.submit(outsideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+	    if(!this.started.get()) {
+	        mixCount = 0;
+	        started.set(true);
+	        scheduler.submit(insideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+	        scheduler.submit(outsideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+	    }
 	}
 
 	public void stop() {
-		started.set(false);
-		insideMixer.cancel();
-		outsideMixer.cancel();
+	    if(this.started.get()) {
+	        started.set(false);
+	        insideMixer.cancel();
+	        outsideMixer.cancel();
+	    }
 	}
 
 	private class InsideMixTask extends Task {
@@ -208,13 +212,8 @@ public class AudioSplitter {
 	}
 
 	private class OutsideMixTask extends Task {
-		private boolean first = false;
-		private int i;
-		private int minValue = 0;
-		private int maxValue = 0;
-		private double currGain = 0;
-		private int[] total = new int[PACKET_SIZE / 2];
-		private int[] current;
+	    
+		private final int[] total = new int[PACKET_SIZE / 2];
 
 		public OutsideMixTask() {
 			super();
@@ -228,19 +227,19 @@ public class AudioSplitter {
 		@Override
 		public long perform() {
 			// summarize all
-			first = true;
+			boolean first = true;
 
 			final Iterator<AudioComponent> outsideRIterator = outsideComponents.valuesIterator();
 			while (outsideRIterator.hasNext()) {
 				AudioComponent component = outsideRIterator.next();
 				component.perform();
-				current = component.getData();
+				int[] current = component.getData();
 				if (current != null) {
 					if (first) {
 						System.arraycopy(current, 0, total, 0, total.length);
 						first = false;
 					} else {
-						for (i = 0; i < total.length; i++) {
+						for (int i = 0; i < total.length; i++) {
 							total[i] += current[i];
 						}
 					}
@@ -253,9 +252,9 @@ public class AudioSplitter {
 				return 0;
 			}
 
-			minValue = 0;
-			maxValue = 0;
-			for (i = 0; i < total.length; i++) {
+			int minValue = 0;
+			int maxValue = 0;
+			for (int i = 0; i < total.length; i++) {
 				if (total[i] > maxValue) {
 					maxValue = total[i];
 				} else if (total[i] < minValue) {
@@ -268,12 +267,12 @@ public class AudioSplitter {
 				maxValue = minValue;
 			}
 
-			currGain = gain;
+			double currGain = gain;
 			if (maxValue > Short.MAX_VALUE) {
 				currGain = (currGain * Short.MAX_VALUE) / maxValue;
 			}
 
-			for (i = 0; i < total.length; i++) {
+			for (int i = 0; i < total.length; i++) {
 				total[i] = (short) Math.round((double) total[i] * currGain);
 			}
 
