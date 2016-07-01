@@ -23,6 +23,7 @@
 package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -34,28 +35,26 @@ import org.mobicents.media.server.spi.format.FormatFactory;
  * Implements compound audio splitter , one of core components of mms 3.0
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class AudioSplitter {
 
 	// scheduler for mixer job scheduling
-	private PriorityQueueScheduler scheduler;
+	private final PriorityQueueScheduler scheduler;
 
 	// the format of the output stream.
-	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR",
-			8000, 16, 1);
+	private static final AudioFormat FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+	private static final long PERIOD = 20000000L;
+	private static final int PACKET_SIZE = (int) (PERIOD / 1000000) * FORMAT.getSampleRate() / 1000 * FORMAT.getSampleSize() / 8;
 
 	// The pools of components
-	private ConcurrentMap<AudioComponent> insideComponents = new ConcurrentMap<AudioComponent>();
-	private ConcurrentMap<AudioComponent> outsideComponents = new ConcurrentMap<AudioComponent>();
+	private final ConcurrentMap<AudioComponent> insideComponents;
+	private final ConcurrentMap<AudioComponent> outsideComponents;
 
-	private long period = 20000000L;
-	private int packetSize = (int) (period / 1000000) * format.getSampleRate() / 1000 * format.getSampleSize() / 8;
-
-	private InsideMixTask insideMixer;
-	private OutsideMixTask outsideMixer;
-	private volatile boolean started = false;
-
-	protected long mixCount = 0;
+	private final InsideMixTask insideMixer;
+	private final OutsideMixTask outsideMixer;
+	private final AtomicBoolean started;
+	private long mixCount = 0;
 
 	// gain value
 	private double gain = 1.0;
@@ -64,6 +63,9 @@ public class AudioSplitter {
 		this.scheduler = scheduler;
 		this.insideMixer = new InsideMixTask();
 		this.outsideMixer = new OutsideMixTask();
+		this.insideComponents = new ConcurrentMap<AudioComponent>();
+		this.outsideComponents = new ConcurrentMap<AudioComponent>();
+		this.started = new AtomicBoolean(false);
 	}
 
 	public void addInsideComponent(AudioComponent component) {
@@ -75,7 +77,7 @@ public class AudioSplitter {
 	}
 
 	protected int getPacketSize() {
-		return this.packetSize;
+		return PACKET_SIZE;
 	}
 
 	/**
@@ -108,13 +110,13 @@ public class AudioSplitter {
 
 	public void start() {
 		mixCount = 0;
-		started = true;
+		started.set(true);
 		scheduler.submit(insideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 		scheduler.submit(outsideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 	}
 
 	public void stop() {
-		started = false;
+		started.set(false);
 		insideMixer.cancel();
 		outsideMixer.cancel();
 	}
@@ -125,7 +127,7 @@ public class AudioSplitter {
 		private int minValue = 0;
 		private int maxValue = 0;
 		private double currGain = 0;
-		private int[] total = new int[packetSize / 2];
+		private int[] total = new int[PACKET_SIZE / 2];
 		private int[] current;
 
 		public InsideMixTask() {
@@ -206,12 +208,12 @@ public class AudioSplitter {
 	}
 
 	private class OutsideMixTask extends Task {
-		Boolean first = false;
+		private boolean first = false;
 		private int i;
 		private int minValue = 0;
 		private int maxValue = 0;
 		private double currGain = 0;
-		private int[] total = new int[packetSize / 2];
+		private int[] total = new int[PACKET_SIZE / 2];
 		private int[] current;
 
 		public OutsideMixTask() {
