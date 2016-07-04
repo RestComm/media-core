@@ -53,6 +53,10 @@ public class OOBMixer {
 		this.started = new AtomicBoolean(false);
 		this.mixCount = new AtomicLong(0);
 	}
+	
+	public long getMixCount() {
+        return mixCount.get();
+    }
 
 	public void addComponent(OOBComponent component) {
 		components.put(component.getComponentId(), component);
