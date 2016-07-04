@@ -33,6 +33,7 @@ import org.mobicents.media.server.spi.memory.Frame;
  * Implements compound oob mixer , one of core components of mms 3.0
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class OOBMixer {
 	// scheduler for mixer job scheduling
@@ -40,8 +41,6 @@ public class OOBMixer {
 
 	// The pool of components
 	private ConcurrentMap<OOBComponent> components = new ConcurrentMap<OOBComponent>();
-
-	Iterator<OOBComponent> activeComponents;
 
 	private MixTask mixer;
 	private volatile boolean started = false;
@@ -98,7 +97,7 @@ public class OOBMixer {
 	        Frame current = null;
 		    
 			// summarize all
-			activeComponents = components.valuesIterator();
+	        Iterator<OOBComponent> activeComponents = components.valuesIterator();
 			while (activeComponents.hasNext()) {
 				OOBComponent component = activeComponents.next();
 				component.perform();
