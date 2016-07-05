@@ -27,30 +27,58 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
     public CachedRemoteStreamProvider(int size) {
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache("preConfigured",
-                        CacheConfigurationBuilder.newCacheConfigurationBuilder(URL.class, byte[].class,
+                        CacheConfigurationBuilder.newCacheConfigurationBuilder(URL.class, AudioStreamCache.class,
                                 ResourcePoolsBuilder.newResourcePoolsBuilder().heap(size, MemoryUnit.MB))
                                 .build())
                 .build(true);
     }
 
-    public Cache getCache() {
-        return cacheManager.getCache("preConfigured", URL.class, byte[].class);
+    private Cache<URL, AudioStreamCache> getCache() {
+        return cacheManager.getCache("preConfigured", URL.class, AudioStreamCache.class);
     }
 
     public InputStream getStream(URL uri) throws IOException {
-        Cache<URL, byte[]> cache = getCache();
+        Cache<URL, AudioStreamCache> cache = getCache();
 
         if (!cache.containsKey(uri)) {
             lock.lock();
             try {
                 //need to check twice
                 if (!cache.containsKey(uri)) {
-                    cache.put(uri, IOUtils.toByteArray(uri.openStream()));
+                    cache.put(uri, new AudioStreamCache(uri));
                 }
             } finally {
                 lock.unlock();
             }
         }
-        return new ByteArrayInputStream(cache.get(uri));
+        return new ByteArrayInputStream(cache.get(uri).getBytes());
+    }
+
+    private static class AudioStreamCache {
+
+        private URL uri;
+
+        private Lock lock = new ReentrantLock();
+
+        private volatile byte[] bytes;
+
+        public AudioStreamCache(URL uri) {
+            this.uri = uri;
+        }
+
+        public byte[] getBytes() throws IOException {
+            if (bytes == null) {
+                lock.lock();
+                try {
+                    //need to check twice
+                    if (bytes == null) {
+                        bytes = IOUtils.toByteArray(uri.openStream());
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+            return bytes;
+        }
     }
 }
