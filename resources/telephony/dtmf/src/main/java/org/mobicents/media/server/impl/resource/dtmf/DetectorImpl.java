@@ -23,15 +23,17 @@
 package org.mobicents.media.server.impl.resource.dtmf;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import org.apache.log4j.Logger;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioOutput;
+import org.mobicents.media.server.component.audio.GoertzelFilter;
 import org.mobicents.media.server.component.oob.OOBOutput;
 import org.mobicents.media.server.impl.AbstractSink;
-import org.mobicents.media.server.component.audio.GoertzelFilter;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Task;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
@@ -362,7 +364,7 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
 
     public class EventSender extends Task {
 
-        protected ArrayList<DtmfEventImpl> events = new ArrayList<DtmfEventImpl>();
+        private final Queue<DtmfEventImpl> events = new ConcurrentLinkedQueue<>();
 
         public EventSender() {
             super();
@@ -375,7 +377,10 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
 
         @Override
         public long perform() {
-            for (DtmfEventImpl evt : events) {
+            final Iterator<DtmfEventImpl> iterator = this.events.iterator();
+            while (iterator.hasNext()) {
+                DtmfEventImpl evt = iterator.next();
+
                 // try to deliver or queue to buffer if not delivered
                 if (!listeners.dispatch(evt)) {
                     dtmfBuffer.queue(evt);
@@ -387,8 +392,10 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
                         logger.info(String.format("(%s) Delivered '%s' tone", getName(), evt.getTone()));
                     }
                 }
+
+                // Remove event from collection
+                iterator.remove();
             }
-            events.clear();
             return 0;
         }
 

@@ -23,6 +23,7 @@
 package org.mobicents.media.server.component.audio;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.spi.format.AudioFormat;
@@ -34,52 +35,50 @@ import org.mobicents.media.server.spi.memory.Memory;
  * Implements compound components used by mixer and splitter.
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class AudioComponent {
 
-	// the format of the output stream.
-	private AudioFormat format = FormatFactory.createAudioFormat("LINEAR",
-			8000, 16, 1);
-	private long period = 20000000L;
-	private int packetSize = (int) (period / 1000000) * format.getSampleRate()
-			/ 1000 * format.getSampleSize() / 8;
+	// Format of the output stream.
+    private final static AudioFormat FORMAT = FormatFactory.createAudioFormat("LINEAR", 8000, 16, 1);
+    private final static long PERIOD = 20000000L;
+    private final static int PACKET_SIZE = (int) (PERIOD / 1000000) * FORMAT.getSampleRate() / 1000 * FORMAT.getSampleSize() / 8;
 
-	private ConcurrentMap<AudioInput> inputs = new ConcurrentMap<AudioInput>();
-	private ConcurrentMap<AudioOutput> outputs = new ConcurrentMap<AudioOutput>();
+    // Component State
+    private final int componentId;
+	private final ConcurrentMap<AudioInput> inputs;
+	private final ConcurrentMap<AudioOutput> outputs;
+	
+	protected final AtomicBoolean shouldRead;
+	protected final AtomicBoolean shouldWrite;
 
-	private Iterator<AudioInput> activeInputs;
-	private Iterator<AudioOutput> activeOutputs;
-
-	protected Boolean shouldRead = false;
-	protected Boolean shouldWrite = false;
-
-	// samples storage
-	private int[] data;
-
-	private byte[] dataArray;
-	private Frame inputFrame;
-	private Frame outputFrame;
-
-	int inputCount, outputCount, inputIndex, outputIndex;
-	boolean first;
-
-	private int componentId;
+	// Mixing State
+	private final int[] data;
+	final AtomicBoolean first;
 
 	/**
 	 * Creates new instance with default name.
 	 */
 	public AudioComponent(int componentId) {
+	    // Component State
 		this.componentId = componentId;
-		data = new int[packetSize / 2];
+		this.inputs = new ConcurrentMap<AudioInput>();
+		this.outputs = new ConcurrentMap<AudioOutput>();
+		this.shouldRead = new AtomicBoolean(false);
+		this.shouldWrite = new AtomicBoolean(false);
+
+		// Mixing State
+		this.data = new int[PACKET_SIZE / 2];
+		this.first = new AtomicBoolean(false);
 	}
 
 	public int getComponentId() {
 		return componentId;
 	}
 
-	public void updateMode(Boolean shouldRead, Boolean shouldWrite) {
-		this.shouldRead = shouldRead;
-		this.shouldWrite = shouldWrite;
+	public void updateMode(boolean shouldRead, boolean shouldWrite) {
+		this.shouldRead.set(shouldRead);
+		this.shouldWrite.set(shouldWrite);
 	}
 
 	public void addInput(AudioInput input) {
@@ -98,38 +97,39 @@ public class AudioComponent {
 		outputs.remove(output.getOutputId());
 	}
 
-	public void perform() {
-		first = true;
-		activeInputs = inputs.valuesIterator();
+    public void perform() {
+        this.first.set(true);
 
-		while (activeInputs.hasNext()) {
-			AudioInput input = activeInputs.next();
-			inputFrame = input.poll();
-			if (inputFrame != null) {
-				dataArray = inputFrame.getData();
-				if (first) {
-					inputIndex = 0;
-					for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
-						data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
-					}
-					first = false;
-				} else {
-					inputIndex = 0;
-					for (inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
-						data[inputIndex++] += (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
-					}
-				}
-				inputFrame.recycle();
-			}
-		}
-	}
+        final Iterator<AudioInput> activeInputs = this.inputs.valuesIterator();
+        while (activeInputs.hasNext()) {
+            final AudioInput input = activeInputs.next();
+            final Frame inputFrame = input.poll();
+
+            if (inputFrame != null) {
+                try {
+                    final byte[] dataArray = inputFrame.getData();
+
+                    int inputIndex = 0;
+                    for (int inputCount = 0; inputCount < dataArray.length; inputCount += 2) {
+                        this.data[inputIndex++] = (short) (((dataArray[inputCount + 1]) << 8) | (dataArray[inputCount] & 0xff));
+                    }
+
+                    if (first.get()) {
+                        this.first.set(false);
+                    }
+                } finally {
+                    inputFrame.recycle();
+                }
+            }
+        }
+    }
 
 	public int[] getData() {
-		if (!this.shouldRead) {
+		if (!this.shouldRead.get()) {
 			return null;
 		}
 
-		if (first) {
+		if (first.get()) {
 			return null;
 		}
 
@@ -137,25 +137,25 @@ public class AudioComponent {
 	}
 
 	public void offer(int[] data) {
-		if (!this.shouldWrite) {
+		if (!this.shouldWrite.get()) {
 			return;
 		}
 
-		outputFrame = Memory.allocate(packetSize);
-		dataArray = outputFrame.getData();
+		final Frame outputFrame = Memory.allocate(PACKET_SIZE);
+		final byte[] dataArray = outputFrame.getData();
 
-		outputIndex = 0;
-		for (outputCount = 0; outputCount < data.length;) {
+		int outputIndex = 0;
+		for (int outputCount = 0; outputCount < data.length;) {
 			dataArray[outputIndex++] = (byte) (data[outputCount]);
 			dataArray[outputIndex++] = (byte) (data[outputCount++] >> 8);
 		}
 
 		outputFrame.setOffset(0);
-		outputFrame.setLength(packetSize);
-		outputFrame.setDuration(period);
-		outputFrame.setFormat(format);
+		outputFrame.setLength(PACKET_SIZE);
+		outputFrame.setDuration(PERIOD);
+		outputFrame.setFormat(FORMAT);
 
-		activeOutputs = outputs.valuesIterator();
+		final Iterator<AudioOutput> activeOutputs = outputs.valuesIterator();
 		while (activeOutputs.hasNext()) {
 			AudioOutput output = activeOutputs.next();
 			if (!activeOutputs.hasNext()) {
