@@ -28,8 +28,8 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -51,7 +51,7 @@ public class MgcpPacketHandlerTest {
         builder.append("N:restcomm@127.0.0.1:2727").append(System.lineSeparator());
         builder.append("Z2:mobicents/ivr/$@127.0.0.1:2427");
         final byte[] data = builder.toString().getBytes();
-        final MgcpMessageListener listener = mock(MgcpMessageListener.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpMessageParser parser = mock(MgcpMessageParser.class);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpPacketHandler handler = new MgcpPacketHandler(parser, listener);
@@ -75,7 +75,7 @@ public class MgcpPacketHandlerTest {
         builder.append("Z2:mobicents/ivr/1@127.0.0.1:2427").append(System.lineSeparator());
         builder.append("I2:10").append(System.lineSeparator());
         final byte[] data = builder.toString().getBytes();
-        final MgcpMessageListener listener = mock(MgcpMessageListener.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpMessageParser parser = mock(MgcpMessageParser.class);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpPacketHandler handler = new MgcpPacketHandler(parser, listener);

@@ -22,15 +22,17 @@
 package org.mobicents.media.control.mgcp.transaction;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
@@ -42,7 +44,6 @@ public class MgcpTransaction implements MgcpCommandListener {
 
     // Mgcp Components
     private final MgcpCommandProvider commands;
-    private final List<MgcpMessageListener> messageListeners;
     private final List<MgcpTransactionListener> transactionListeners;
 
     // MGCP Transaction State
@@ -54,8 +55,7 @@ public class MgcpTransaction implements MgcpCommandListener {
     public MgcpTransaction(int id, MgcpCommandProvider commands) {
         // MGCP Components
         this.commands = commands;
-        this.messageListeners = new ArrayList<>(5);
-        this.transactionListeners = new ArrayList<>(5);
+        this.transactionListeners = new CopyOnWriteArrayList<>();
 
         // MGCP Transaction State
         this.id = id;
@@ -76,14 +76,6 @@ public class MgcpTransaction implements MgcpCommandListener {
         return state;
     }
 
-    public void addMessageListener(MgcpMessageListener listener) {
-        this.messageListeners.add(listener);
-    }
-
-    public void removeMessageListener(MgcpMessageListener listener) {
-        this.messageListeners.remove(listener);
-    }
-
     public void addTransactionListener(MgcpTransactionListener listener) {
         this.transactionListeners.add(listener);
     }
@@ -92,23 +84,11 @@ public class MgcpTransaction implements MgcpCommandListener {
         this.transactionListeners.remove(listener);
     }
 
-    private void broadcast(MgcpMessage message) {
-        // FIXME Avoid copying the collection
-        final int count = this.messageListeners.size();
-        final MgcpMessageListener[] copy = this.messageListeners.toArray(new MgcpMessageListener[count]);
-
-        for (MgcpMessageListener observer : copy) {
-            observer.onMessage(message, MessageDirection.OUTGOING);
-        }
-    }
-
     private void broadcast(MgcpTransaction transaction) {
-        // FIXME Avoid copying the collection
-        final int count = this.transactionListeners.size();
-        final MgcpTransactionListener[] copy = this.transactionListeners.toArray(new MgcpTransactionListener[count]);
-
-        for (MgcpTransactionListener observer : copy) {
-            observer.onTransactionComplete(transaction);
+        final Iterator<MgcpTransactionListener> iterator = this.transactionListeners.iterator();
+        while (iterator.hasNext()) {
+            MgcpTransactionListener listener = iterator.next();
+            listener.onTransactionComplete(transaction);
         }
     }
 

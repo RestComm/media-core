@@ -25,11 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
-import org.mobicents.media.control.mgcp.message.MgcpMessageProcessor;
+import org.mobicents.media.control.mgcp.message.MgcpMessageCenter;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
@@ -40,21 +39,19 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionManager implements MgcpTransactionListener, MgcpMessageProcessor {
+public class MgcpTransactionManager extends MgcpMessageCenter implements MgcpTransactionListener {
 
     private static final Logger log = Logger.getLogger(MgcpTransactionManager.class);
 
     // MGCP Components
     private final MgcpTransactionProvider transactionProvider;
-    private final MgcpMessageListener messageListener;
 
     // MGCP Transaction Manager
     private final ConcurrentHashMap<Integer, MgcpTransaction> transactions;
 
 
-    public MgcpTransactionManager(MgcpMessageListener messageListener, MgcpTransactionProvider transactionProvider) {
+    public MgcpTransactionManager(MgcpTransactionProvider transactionProvider) {
         // MGCP Components
-        this.messageListener = messageListener;
         this.transactionProvider = transactionProvider;
 
         // MGCP Transaction Manager

@@ -24,13 +24,8 @@ package org.mobicents.media.control.mgcp.controller;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
-import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
-import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
-import org.mobicents.media.control.mgcp.message.MgcpMessageProcessor;
+import org.mobicents.media.control.mgcp.message.MgcpMessageCenter;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -43,11 +38,10 @@ import org.mobicents.media.server.spi.ServerManager;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpController implements ServerManager, MgcpMessageListener {
+public class MgcpController implements ServerManager {
 
     // MGCP Components
-    private final MgcpPacketHandler packetHandler;
-    private final MgcpMessageProcessor processor;
+    private final MgcpMessageCenter processor;
     private final MgcpChannel channel;
 
     // MGCP Controller State
@@ -55,9 +49,8 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
 
     public MgcpController(SocketAddress bindAddress, UdpManager networkManager, MgcpTransactionProvider transactionProvider) {
         // MGCP Components
-        this.packetHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
-        this.channel = new MgcpChannel(bindAddress, networkManager, this.packetHandler);
-        this.processor = new MgcpTransactionManager(this, transactionProvider);
+        this.processor = new MgcpTransactionManager(transactionProvider);
+        this.channel = new MgcpChannel(bindAddress, networkManager, this.processor);
 
         // MGCP Controller State
         this.active = false;
@@ -108,27 +101,6 @@ public class MgcpController implements ServerManager, MgcpMessageListener {
     @Override
     public void onStopped(Endpoint endpoint) {
         // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onMessage(MgcpMessage message, MessageDirection direction) {
-        switch (direction) {
-            case INCOMING:
-                // Ask the transaction manager to process the incoming message
-                // If message is a Request, then a new transaction is spawned and executed.
-                // If message is a Response, then existing transaction is retrieved and closed.
-                this.processor.process(message, MessageDirection.INCOMING);
-                break;
-
-            case OUTGOING:
-                // Send message to remote peer
-                this.channel.queue(message.toString().getBytes());
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown message direction: " + direction.name());
-        }
 
     }
 

@@ -36,26 +36,26 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.junit.Test;
+import org.mobicents.media.control.mgcp.message.MgcpMessageCenter;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.channel.PacketHandler;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpChannelTest {
-    
+
     private final SocketAddress bindAddress = new InetSocketAddress("127.0.0.1", 2427);
 
     @Test
     public void testOpenClose() throws IllegalStateException, IOException {
         try (DatagramChannel datagramChannel = DatagramChannel.open()) {
             // given
-            SelectionKey selectionKey = mock(SelectionKey.class);
-            UdpManager networkManager = mock(UdpManager.class);
-            PacketHandler packetHandler = mock(PacketHandler.class);
-            
-            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
+            final SelectionKey selectionKey = mock(SelectionKey.class);
+            final UdpManager networkManager = mock(UdpManager.class);
+            final MgcpMessageCenter messageCenter = mock(MgcpMessageCenter.class);
+
+            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, messageCenter);
 
             // when - open channel
             when(networkManager.open(channel)).thenReturn(selectionKey);

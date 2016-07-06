@@ -26,9 +26,13 @@ import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageCenter;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
+import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
-import org.mobicents.media.server.io.network.channel.PacketHandler;
 
 /**
  * UDP channel that handles MGCP traffic.
@@ -36,7 +40,7 @@ import org.mobicents.media.server.io.network.channel.PacketHandler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannel extends MultiplexedChannel {
+public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserver {
 
     private static final Logger log = Logger.getLogger(MgcpChannel.class);
 
@@ -47,14 +51,27 @@ public class MgcpChannel extends MultiplexedChannel {
     private final SocketAddress bindAddress;
     private boolean open;
 
-    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, PacketHandler mgcpPacketHandler) {
+    // Packet Handlers
+    private final MgcpPacketHandler mgcpHandler;
+
+    // MGCP Messaging
+    private final MgcpMessageCenter messager;
+
+    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpMessageCenter messager) {
         // Core Components
         this.networkManager = networkManager;
 
         // MGCP Channel
-        this.handlers.addHandler(mgcpPacketHandler);
         this.bindAddress = bindAddress;
         this.open = false;
+
+        // Packet Handlers
+        this.mgcpHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
+        this.handlers.addHandler(this.mgcpHandler);
+
+        // Messaging
+        this.messager = messager;
+        this.messager.observe(this);
     }
 
     @Override
@@ -104,11 +121,27 @@ public class MgcpChannel extends MultiplexedChannel {
         return this.open;
     }
 
-    public void queue(byte[] data) {
-        if (this.open) {
-            queueData(data);
-        } else {
-            throw new IllegalStateException("Channel is closed");
+    void incomingPacket(MgcpMessage message) {
+
+    }
+
+    @Override
+    public void onMessage(MgcpMessage message, MessageDirection direction) {
+        switch (direction) {
+            case INCOMING:
+                // Ask the transaction manager to process the incoming message
+                // If message is a Request, then a new transaction is spawned and executed.
+                // If message is a Response, then existing transaction is retrieved and closed.
+                this.messager.notify(this, message, MessageDirection.INCOMING);
+                break;
+
+            case OUTGOING:
+                // Queue message to be sent during next write cycle.
+                this.queueData(message.toString().getBytes());
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown message direction: " + direction);
         }
     }
 

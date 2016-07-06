@@ -22,19 +22,19 @@
 package org.mobicents.media.control.mgcp.message;
 
 /**
- * Processes incoming and outgoing MGCP messages.
+ * Listens to incoming MGCP packets.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpMessageProcessor {
+public interface MgcpMessageObserver {
 
     /**
-     * Processes an MGCP message, which can be either incoming or outgoing.
+     * Event triggered when a message arrives.
      * 
-     * @param message The message to be processed
-     * @param direction The direction of the message
+     * @param message The message
+     * @param direction The direction of the message: incoming or outgoing.
      */
-    void process(MgcpMessage message, MessageDirection direction);
+    void onMessage(MgcpMessage message, MessageDirection direction);
 
 }

@@ -19,25 +19,20 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
-
-import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
+package org.mobicents.media.control.mgcp.message;
 
 /**
- * Listens to incoming MGCP packets.
+ * Subscribes observers to receive notifications about MGCP Message passing.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpMessageListener {
+public interface MgcpMessageSubject {
 
-    /**
-     * Event triggered when a message arrives.
-     * 
-     * @param message The message
-     * @param direction The direction of the message: incoming or outgoing.
-     */
-    void onMessage(MgcpMessage message, MessageDirection direction);
+    void observe(MgcpMessageObserver observer);
+
+    void forget(MgcpMessageObserver observer);
+
+    void notify(Object originator, MgcpMessage message, MessageDirection direction);
 
 }

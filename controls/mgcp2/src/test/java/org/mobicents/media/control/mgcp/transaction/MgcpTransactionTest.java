@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -56,7 +56,7 @@ public class MgcpTransactionTest {
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
-        final MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        final MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         final MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
         final MgcpTransaction transaction = new MgcpTransaction(12345, commands);
         transaction.addMessageListener(messageListener);
@@ -89,7 +89,7 @@ public class MgcpTransactionTest {
         MgcpRequest request = mock(MgcpRequest.class);
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
         MgcpTransaction transaction = new MgcpTransaction(12345, commands);
@@ -119,7 +119,7 @@ public class MgcpTransactionTest {
         // given
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
         MgcpTransaction transaction = new MgcpTransaction(12345, commands);
@@ -137,7 +137,7 @@ public class MgcpTransactionTest {
         MgcpRequest request2 = mock(MgcpRequest.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         MgcpCommand command = mock(MgcpCommand.class);
-        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
         MgcpTransaction transaction = new MgcpTransaction(12345, commands);
@@ -158,7 +158,7 @@ public class MgcpTransactionTest {
         MgcpResponse response = mock(MgcpResponse.class);
         MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         MgcpCommand command = mock(MgcpCommand.class);
-        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionListener txListener = mock(MgcpTransactionListener.class);
 
         MgcpTransaction transaction = new MgcpTransaction(12345, commands);

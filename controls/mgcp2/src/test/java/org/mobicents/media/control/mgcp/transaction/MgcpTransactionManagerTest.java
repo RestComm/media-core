@@ -25,9 +25,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
@@ -44,9 +44,9 @@ public class MgcpTransactionManagerTest {
     public void testTransactionLifecycle() {
         // given
         final int transactionId = 111111111;
-        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-        MgcpTransactionManager txManager = new MgcpTransactionManager(messageListener, txProvider);
+        MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
         MgcpRequest request = mock(MgcpRequest.class);
         MgcpTransaction transaction = mock(MgcpTransaction.class);
 
@@ -76,9 +76,9 @@ public class MgcpTransactionManagerTest {
     public void testHandleRetransmission() {
         // given
         final int transactionId = 111111111;
-        MgcpMessageListener messageListener = mock(MgcpMessageListener.class);
+        MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-        MgcpTransactionManager txManager = new MgcpTransactionManager(messageListener, txProvider);
+        MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
         MgcpRequest request = mock(MgcpRequest.class);
         MgcpRequest retransmission = mock(MgcpRequest.class);
         MgcpTransaction transaction = mock(MgcpTransaction.class);

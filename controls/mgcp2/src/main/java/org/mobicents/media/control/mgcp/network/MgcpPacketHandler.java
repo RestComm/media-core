@@ -24,9 +24,9 @@ package org.mobicents.media.control.mgcp.network;
 import java.net.InetSocketAddress;
 
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
-import org.mobicents.media.control.mgcp.listener.MgcpMessageListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -42,9 +42,9 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 public class MgcpPacketHandler implements PacketHandler {
 
     public final MgcpMessageParser parser;
-    public final MgcpMessageListener listener;
+    public final MgcpMessageObserver listener;
 
-    public MgcpPacketHandler(MgcpMessageParser parser, MgcpMessageListener listener) {
+    public MgcpPacketHandler(MgcpMessageParser parser, MgcpMessageObserver listener) {
         this.parser = parser;
         this.listener = listener;
     }
