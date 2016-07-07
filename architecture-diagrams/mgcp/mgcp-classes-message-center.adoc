@@ -16,24 +16,24 @@ interface MgcpMessageObserver {
 + onMessage(MgcpMessage, MessageDirection)
 }
 
-interface MgcpMessageProcessor {
-+ process(MgcpMessage, MessageDirection)
-}
-
 abstract class MgcpMessageMediator {
 - List<MgcpMessageObserver> observers
+# broadcast(MgcpMessage, MessageDirection)
 }
 
 class TransactionalMgcpMessageMediator {
-- MgcpTransactionManager txManager
+- List<MgcpTransaction> transactions
 }
 
 class MgcpTransaction {
-+ processIncoming(MgcpMessage)
-+ processOutgoing(MgcpMessage)
+- String transactionId
 }
 
 class AbstractMgcpEndpoint {
+}
+
+interface MgcpCommandProvider {
++ MgcpCommand provide(String)
 }
 
 interface MgcpCommand {
@@ -41,21 +41,20 @@ interface MgcpCommand {
 }
 
 MgcpMessageSubject <|-- MgcpMessageMediator
-MgcpMessageProcessor <|-- MgcpMessageMediator
+MgcpMessageObserver <-* MgcpMessageMediator : broadcast
+MgcpChannel --|> MgcpMessageObserver
+MgcpChannel -> MgcpMessageSubject : observe | notify([Req|Resp], IN)
 
-MgcpMessageObserver <|-- MgcpChannel
-MgcpChannel -> MgcpMessageMediator : observe | process([CRCX|MDCX|DLCX|Resp], IN)
-MgcpChannel <-* MgcpMessageMediator : notify(OUT)
-
-MgcpMessageMediator <- AbstractMgcpEndpoint : process([NTFY|RSIP],OUT)
+AbstractMgcpEndpoint --> MgcpMessageSubject : notify(request,OUT)
 
 MgcpMessageMediator <|-- TransactionalMgcpMessageMediator
-TransactionalMgcpMessageMediator *--> MgcpTransaction : start
-AbstractMgcpEndpoint <-- MgcpCommand : manipulate
-MgcpTransaction -> MgcpCommand : execute
-MgcpMessageMediator <-- MgcpTransaction : process([Resp], OUT)
---
+TransactionalMgcpMessageMediator *--> MgcpTransaction : (de)register
 
+MgcpMessageSubject <- MgcpCommand : notify(response, OUT)
+
+TransactionalMgcpMessageMediator -> MgcpCommandProvider : provide
+MgcpCommand <-- TransactionalMgcpMessageMediator : execute
+--
 
 
 

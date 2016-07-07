@@ -1,0 +1,40 @@
+[plantuml,file="mgcp-transaction-inbound-sequence.png"]
+--
+[-> MgcpChannel : bytes
+activate MgcpChannel
+
+MgcpChannel -> MgcpMessageCenter : notify(request, IN)
+deactivate MgcpChannel
+activate MgcpMessageCenter
+
+create MgcpTransaction
+MgcpMessageCenter -> MgcpTransaction : create
+MgcpMessageCenter -> MgcpMessageCenter : register(tx)
+activate MgcpTransaction
+
+MgcpMessageCenter -> MgcpCommandProvider : provider(requestType)
+create MgcpCommand
+MgcpCommandProvider -> MgcpCommand : create
+MgcpCommandProvider --> MgcpMessageCenter : command
+MgcpMessageCenter -> MgcpCommand : execute(request)
+deactivate MgcpMessageCenter
+
+activate MgcpCommand
+|||
+... executing command ...
+|||
+
+MgcpCommand -> MgcpMessageCenter : notify(response, OUT)
+activate MgcpMessageCenter
+deactivate MgcpCommand
+destroy MgcpCommand
+
+MgcpMessageCenter -> MgcpMessageCenter : deregister(tx)
+deactivate MgcpTransaction
+destroy MgcpTransaction
+
+MgcpMessageCenter -> MgcpChannel : onMgcpMessage(response, OUT)
+activate MgcpChannel
+[<-MgcpChannel : bytes
+deactivate MgcpChannel
+--
