@@ -73,7 +73,7 @@ public class TransactionalMgcpMessageMediator extends MgcpMessageMediator {
         }
 
         // Register Transaction
-        MgcpTransaction old = this.transactions.putIfAbsent(transactionId, transaction);
+        MgcpTransaction old = this.transactions.putIfAbsent(transaction.getId(), transaction);
 
         // Ensure transaction is not duplicate
         if (old != null) {
