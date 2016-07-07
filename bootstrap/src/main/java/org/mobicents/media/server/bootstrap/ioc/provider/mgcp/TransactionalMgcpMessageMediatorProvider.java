@@ -19,18 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
+import org.mobicents.media.control.mgcp.transaction.TransactionalMgcpMessageMediator;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Listener that receives notifications upon MGCP Command completion.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommandListener {
+public class TransactionalMgcpMessageMediatorProvider implements Provider<TransactionalMgcpMessageMediator> {
 
-    void onCommandExecuted(MgcpResponse response);
+    private final MgcpCommandProvider commands;
+    private final MgcpTransactionProvider transactionProvider;
+
+    @Inject
+    public TransactionalMgcpMessageMediatorProvider(MgcpCommandProvider commands, MgcpTransactionProvider transactionProvider) {
+        this.commands = commands;
+        this.transactionProvider = transactionProvider;
+    }
+
+    @Override
+    public TransactionalMgcpMessageMediator get() {
+        return new TransactionalMgcpMessageMediator(transactionProvider, commands);
+    }
 
 }

@@ -46,7 +46,7 @@ public class MgcpTransactionManagerTest {
         final int transactionId = 111111111;
         MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-        MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
+        TransactionalMgcpMessageMediator txManager = new TransactionalMgcpMessageMediator(txProvider);
         MgcpRequest request = mock(MgcpRequest.class);
         MgcpTransaction transaction = mock(MgcpTransaction.class);
 
@@ -78,7 +78,7 @@ public class MgcpTransactionManagerTest {
         final int transactionId = 111111111;
         MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
         MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-        MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
+        TransactionalMgcpMessageMediator txManager = new TransactionalMgcpMessageMediator(txProvider);
         MgcpRequest request = mock(MgcpRequest.class);
         MgcpRequest retransmission = mock(MgcpRequest.class);
         MgcpTransaction transaction = mock(MgcpTransaction.class);

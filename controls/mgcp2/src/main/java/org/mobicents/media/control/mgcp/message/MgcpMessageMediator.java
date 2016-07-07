@@ -31,11 +31,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpMessageCenter implements MgcpMessageSubject {
+public abstract class MgcpMessageMediator implements MgcpMessageSubject {
 
-    private final List<MgcpMessageObserver> observers;
+    protected final List<MgcpMessageObserver> observers;
 
-    public MgcpMessageCenter() {
+    public MgcpMessageMediator() {
         this.observers = new CopyOnWriteArrayList<>();
     }
 
@@ -53,8 +53,7 @@ public class MgcpMessageCenter implements MgcpMessageSubject {
         }
     }
 
-    @Override
-    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+    protected void broadcast(Object originator, MgcpMessage message, MessageDirection direction) {
         final Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
             final MgcpMessageObserver observer = iterator.next();

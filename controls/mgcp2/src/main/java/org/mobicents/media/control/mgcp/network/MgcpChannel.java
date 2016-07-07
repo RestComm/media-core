@@ -28,9 +28,9 @@ import java.nio.channels.DatagramChannel;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
-import org.mobicents.media.control.mgcp.message.MgcpMessageCenter;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
 
@@ -55,9 +55,9 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserv
     private final MgcpPacketHandler mgcpHandler;
 
     // MGCP Messaging
-    private final MgcpMessageCenter messager;
+    private final MgcpMessageSubject messageCenter;
 
-    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpMessageCenter messager) {
+    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpMessageSubject messageCenter) {
         // Core Components
         this.networkManager = networkManager;
 
@@ -70,8 +70,8 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserv
         this.handlers.addHandler(this.mgcpHandler);
 
         // Messaging
-        this.messager = messager;
-        this.messager.observe(this);
+        this.messageCenter = messageCenter;
+        this.messageCenter.observe(this);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserv
                 // Ask the transaction manager to process the incoming message
                 // If message is a Request, then a new transaction is spawned and executed.
                 // If message is a Response, then existing transaction is retrieved and closed.
-                this.messager.notify(this, message, MessageDirection.INCOMING);
+                this.messageCenter.notify(this, message, MessageDirection.INCOMING);
                 break;
 
             case OUTGOING:

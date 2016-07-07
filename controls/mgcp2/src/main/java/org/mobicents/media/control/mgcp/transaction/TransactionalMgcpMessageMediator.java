@@ -24,11 +24,12 @@ package org.mobicents.media.control.mgcp.transaction;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.command.MgcpCommand;
+import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
-import org.mobicents.media.control.mgcp.listener.MgcpTransactionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
-import org.mobicents.media.control.mgcp.message.MgcpMessageCenter;
+import org.mobicents.media.control.mgcp.message.MgcpMessageMediator;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
@@ -39,20 +40,21 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionManager extends MgcpMessageCenter implements MgcpTransactionListener {
+public class TransactionalMgcpMessageMediator extends MgcpMessageMediator {
 
-    private static final Logger log = Logger.getLogger(MgcpTransactionManager.class);
+    private static final Logger log = Logger.getLogger(TransactionalMgcpMessageMediator.class);
 
     // MGCP Components
     private final MgcpTransactionProvider transactionProvider;
+    private final MgcpCommandProvider commands;
 
     // MGCP Transaction Manager
     private final ConcurrentHashMap<Integer, MgcpTransaction> transactions;
 
-
-    public MgcpTransactionManager(MgcpTransactionProvider transactionProvider) {
+    public TransactionalMgcpMessageMediator(MgcpTransactionProvider transactionProvider, MgcpCommandProvider commands) {
         // MGCP Components
         this.transactionProvider = transactionProvider;
+        this.commands = commands;
 
         // MGCP Transaction Manager
         this.transactions = new ConcurrentHashMap<>(500);
@@ -61,13 +63,14 @@ public class MgcpTransactionManager extends MgcpMessageCenter implements MgcpTra
     private MgcpTransaction createTransaction(int transactionId) throws DuplicateMgcpTransactionException {
         // Create Transaction
         MgcpTransaction transaction;
-        if(transactionId == 0) {
+        if (transactionId == 0) {
+            // Transaction originated from within this Media Server (NTFY, for example)
+            // to be sent out to call agent. A transaction ID must be generated
             transaction = this.transactionProvider.provideLocal();
         } else {
+            // Transaction originated from the remote call agent
             transaction = this.transactionProvider.provideRemote(transactionId);
         }
-        transaction.addMessageListener(this.messageListener);
-        transaction.addTransactionListener(this);
 
         // Register Transaction
         MgcpTransaction old = this.transactions.putIfAbsent(transactionId, transaction);
@@ -83,7 +86,7 @@ public class MgcpTransactionManager extends MgcpMessageCenter implements MgcpTra
 
         return transaction;
     }
-    
+
     boolean contains(int transactionId) {
         return this.transactions.containsKey(transactionId);
     }
@@ -91,23 +94,66 @@ public class MgcpTransactionManager extends MgcpMessageCenter implements MgcpTra
     private MgcpTransaction findTransaction(int transactionId) {
         return this.transactions.get(transactionId);
     }
+    
+    private void processRequest(Object originator, MgcpRequest request, MessageDirection direction) {
+        switch (direction) {
+            case INCOMING:
+                // Execute incoming MGCP request
+                MgcpCommand command = this.commands.provide(request.getRequestType());
+                command.execute(request, this);
+                // Transaction must now listen for onCommandComplete event
+                break;
+
+            case OUTGOING:
+                // Send the request to the remote peer right now and wait for the response
+                broadcast(originator, request, direction);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown message direction: " + direction);
+        }
+    }
+    
+    public void processResponse(Object originator, MgcpResponse response, MessageDirection direction) {
+        // Transaction completes once response is received
+        // Locate transaction and close it.
+        final int transactionId = response.getTransactionId();
+        this.transactions.remove(transactionId);
+
+        if (log.isInfoEnabled()) {
+            log.info("Transaction " + transactionId + " terminated with code " + response.getCode());
+        }
+
+        if (MessageDirection.OUTGOING.equals(direction)) {
+            // The response was originated from within the Media Server.
+            // Broadcast it so the transport channel can be notified and send the message to call agent.
+            broadcast(originator, response, direction);
+        }
+    }
+
+    private void sendResponse(int transactionId, int code, String message) {
+        MgcpResponse response = new MgcpResponse();
+        response.setTransactionId(transactionId);
+        response.setCode(code);
+        response.setMessage(message);
+        broadcast(this, response, MessageDirection.OUTGOING);
+    }
 
     @Override
-    public void process(MgcpMessage message, MessageDirection direction) {
+    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
         int transactionId = message.getTransactionId();
-
         if (message.isRequest()) {
-            // Create new transaction to process incoming request
-            MgcpTransaction transaction;
             try {
-                transaction = createTransaction(transactionId);
-                transaction.processRequest((MgcpRequest) message, direction);
+                // Create new transaction to process incoming request
+                createTransaction(transactionId);
+                processRequest(originator, (MgcpRequest) message, direction);
             } catch (DuplicateMgcpTransactionException e) {
                 // Send provisional response
                 final MgcpResponseCode responseCode = MgcpResponseCode.TRANSACTION_BEEN_EXECUTED;
                 sendResponse(transactionId, responseCode.code(), responseCode.message());
             }
         } else {
+            // Locate transaction to which the response belongs to
             MgcpTransaction transaction = findTransaction(transactionId);
             if (transaction == null) {
                 if (log.isDebugEnabled()) {
@@ -121,31 +167,9 @@ public class MgcpTransactionManager extends MgcpMessageCenter implements MgcpTra
                 if (log.isDebugEnabled()) {
                     log.debug("Found transaction " + transactionId + " to process response.");
                 }
-                transaction.processResponse((MgcpResponse) message);
+                processResponse(originator, (MgcpResponse) message, direction);
             }
         }
-    }
-
-    private void sendResponse(int transactionId, int code, String message) {
-        MgcpResponse response = new MgcpResponse();
-        response.setTransactionId(transactionId);
-        response.setCode(code);
-        response.setMessage(message);
-        this.messageListener.onMessage(response, MessageDirection.OUTGOING);
-    }
-
-    @Override
-    public void onTransactionComplete(MgcpTransaction transaction) {
-        if (log.isDebugEnabled()) {
-            log.debug("Unregistered transaction " + transaction.getId());
-        }
-
-        // Unregister transaction
-        this.transactions.remove(transaction.getId());
-
-        // Unregister listeners from transaction
-        transaction.removeMessageListener(this.messageListener);
-        transaction.removeTransactionListener(this);
     }
 
 }

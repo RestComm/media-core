@@ -23,7 +23,8 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
@@ -48,7 +49,7 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     }
 
     @Override
-    public void execute(MgcpRequest request, MgcpCommandListener commandListener) {
+    public void execute(MgcpRequest request, MgcpMessageSubject messageSubject) {
         MgcpResponse response;
         try {
             response = executeRequest(request);
@@ -57,7 +58,7 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
         } finally {
             reset();
         }
-        commandListener.onCommandExecuted(response);
+        messageSubject.notify(this, response, MessageDirection.OUTGOING);
     }
 
     protected abstract MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException;

@@ -23,26 +23,18 @@ package org.mobicents.media.control.mgcp.transaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpTransactionProvider {
 
-    // MGCP Components
-    private final MgcpCommandProvider commands;
-
     // Provider Properties
     private final AtomicInteger idGenerator;
     private final int minId;
     private final int maxId;
 
-    public MgcpTransactionProvider(int minId, int maxId, MgcpCommandProvider commands) {
-        // MGCP Components
-        this.commands = commands;
-
+    public MgcpTransactionProvider(int minId, int maxId) {
         // Provider Properties
         this.minId = minId;
         this.maxId = maxId;
@@ -65,7 +57,7 @@ public class MgcpTransactionProvider {
     }
     
     private MgcpTransaction provide(int transactionId) {
-        return new MgcpTransaction(transactionId, this.commands);
+        return new MgcpTransaction(transactionId);
     }
 
     public MgcpTransaction provideRemote(int transactionId) throws IllegalArgumentException {
