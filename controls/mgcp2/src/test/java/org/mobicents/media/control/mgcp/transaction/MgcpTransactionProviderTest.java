@@ -21,28 +21,28 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpTransactionProviderTest {
-    
+
     @Test
     public void testIsTransactionIdLocal() {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId, commands);
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
 
         // when
         boolean minIdIsLocal = provider.isLocal(minId);
@@ -54,14 +54,13 @@ public class MgcpTransactionProviderTest {
         assertTrue(maxIdIsLocal);
         assertFalse(idIsNotLocal);
     }
-    
+
     @Test
     public void testProvideLocal() {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId, commands);
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
 
         // when
         List<Integer> identifiers = new ArrayList<>(maxId * 2);
@@ -74,31 +73,29 @@ public class MgcpTransactionProviderTest {
         assertEquals(maxId, identifiers.get(maxId - 1).intValue());
         assertEquals(minId, identifiers.get(maxId).intValue());
     }
-    
+
     @Test
     public void testProvideRemote() {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId, commands);
-        
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
+
         // when
         MgcpTransaction transaction = provider.provideRemote(maxId + 1);
-        
+
         // then
         assertNotNull(transaction);
         assertEquals(maxId + 1, transaction.getId());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testProvideRemoteWithLocalId() {
         // given
         final int minId = 1;
         final int maxId = 10;
-        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId, commands);
-        
+        final MgcpTransactionProvider provider = new MgcpTransactionProvider(minId, maxId);
+
         // when
         provider.provideRemote(maxId);
     }
