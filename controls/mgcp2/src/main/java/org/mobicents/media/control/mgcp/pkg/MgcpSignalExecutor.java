@@ -19,30 +19,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
- * Listens to incoming MGCP packets.
+ * Executes signals.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpMessageListener {
+public interface MgcpSignalExecutor {
 
-    /**
-     * Event triggered when a message is received from a remote peer.
-     * 
-     * @param message The incoming message.
-     */
-    void onIncomingMessage(MgcpMessage message);
-
-    /**
-     * Event triggered when a message is sent to a remote peer.
-     * 
-     * @param message The outgoing message
-     */
-    void onOutgoingMessage(MgcpMessage message);
+    void execute(MgcpSignal signal);
 
 }

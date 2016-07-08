@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -44,8 +45,9 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
-import org.mobicents.media.control.mgcp.listener.MgcpCommandListener;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -73,7 +75,7 @@ public class DeleteConnectionCommandTest {
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
 
         // when
@@ -84,14 +86,14 @@ public class DeleteConnectionCommandTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
                 assertNotNull(response.getParameter(MgcpParameterType.CONNECTION_PARAMETERS));
                 return null;
             }
 
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
 
         // then
@@ -113,7 +115,7 @@ public class DeleteConnectionCommandTest {
         final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
         final List<MgcpConnection> connections = new ArrayList<>();
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
 
         // when
@@ -123,14 +125,14 @@ public class DeleteConnectionCommandTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
                 assertNull(response.getParameter(MgcpParameterType.CONNECTION_PARAMETERS));
                 return null;
             }
 
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
         connections.add(connection1);
         connections.add(connection2);
@@ -153,7 +155,7 @@ public class DeleteConnectionCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
 
         // when
@@ -164,13 +166,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
 
         // then
@@ -190,7 +192,7 @@ public class DeleteConnectionCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
 
         // when
@@ -201,13 +203,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
 
         // then
@@ -226,7 +228,7 @@ public class DeleteConnectionCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
 
         // when
@@ -237,7 +239,7 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 /*
                  * Note that the command will still succeed if there were no connections with the CallId specified, as long as
@@ -248,7 +250,7 @@ public class DeleteConnectionCommandTest {
                 return null;
             }
 
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
 
         // then
@@ -268,7 +270,7 @@ public class DeleteConnectionCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
 
         // when
@@ -277,13 +279,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
     }
 
@@ -300,7 +302,7 @@ public class DeleteConnectionCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
         
         // when
@@ -309,13 +311,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
                 return null;
             }
             
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
     }
 
@@ -331,7 +333,7 @@ public class DeleteConnectionCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
         
         // when
@@ -340,13 +342,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
                 return null;
             }
             
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
     }
 
@@ -360,7 +362,7 @@ public class DeleteConnectionCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
         
         // when
@@ -369,13 +371,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), response.getCode());
                 return null;
             }
             
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
     }
 
@@ -391,7 +393,7 @@ public class DeleteConnectionCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
         
         // when
@@ -401,13 +403,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), response.getCode());
                 return null;
             }
             
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
     }
 
@@ -423,7 +425,7 @@ public class DeleteConnectionCommandTest {
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpCommandListener listener = mock(MgcpCommandListener.class);
+        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
         final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
         
         // when
@@ -433,13 +435,13 @@ public class DeleteConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
                 return null;
             }
             
-        }).when(listener).onCommandExecuted(any(MgcpResponse.class));
+        }).when(listener).notify(eq(dlcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
         dlcx.execute(request, listener);
     }
 }

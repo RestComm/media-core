@@ -19,26 +19,31 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
+package org.mobicents.media.control.mgcp.pkg;
 
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Data accessor for {@link MgcpEvent}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public interface MgcpEventData {
 
     /**
-     * Executes an MGCP command.
+     * Gets the symbol representing the event.
      * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
+     * @return The event symbol
      */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    String getSymbol();
+
+    /**
+     * Gets a parameter from the event.
+     * 
+     * @param type The type of parameter to be returned.
+     * @return The value of the parameter. Returns null if no such parameter exists.
+     */
+    String getParameter(MgcpParameterType type);
 
 }

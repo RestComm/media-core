@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import org.mobicents.media.control.mgcp.controller.MgcpController;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -39,23 +39,23 @@ import com.google.inject.Provider;
  */
 public class MgcpControllerProvider implements Provider<MgcpController> {
 
-    private final MgcpTransactionProvider txProvider;
+    private final MgcpMessageSubject messageCenter;
     private final UdpManager networkManager;
     private final SocketAddress bindAddress;
 
     @Inject
-    public MgcpControllerProvider(MediaServerConfiguration config, MgcpTransactionProvider txProvider,
+    public MgcpControllerProvider(MediaServerConfiguration config, MgcpMessageSubject messageCenter,
             UdpManager networkManager) {
         final MgcpControllerConfiguration controller = config.getControllerConfiguration();
 
-        this.txProvider = txProvider;
+        this.messageCenter = messageCenter;
         this.networkManager = networkManager;
         this.bindAddress = new InetSocketAddress(controller.getAddress(), controller.getPort());
     }
 
     @Override
     public MgcpController get() {
-        return new MgcpController(this.bindAddress, this.networkManager, this.txProvider);
+        return new MgcpController(this.bindAddress, this.networkManager, this.messageCenter);
     }
 
 }

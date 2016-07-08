@@ -50,10 +50,10 @@ public class MgcpSplitterEndpointTest {
     public void testOpenCloseRemoteConnection()
             throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFound {
         // given
-        MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        AudioSplitter inbandMixer = mock(AudioSplitter.class);
-        OOBSplitter outbandMixer = mock(OOBSplitter.class);
-        MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandMixer, outbandMixer);
+        final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
+        final AudioSplitter inbandMixer = mock(AudioSplitter.class);
+        final OOBSplitter outbandMixer = mock(OOBSplitter.class);
+        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandMixer, outbandMixer);
 
         // when - half open connection
         when(connection.getIdentifier()).thenReturn(1);
@@ -76,10 +76,10 @@ public class MgcpSplitterEndpointTest {
     @Test
     public void testOpenCloseLocalConnection() throws MgcpException {
         // given
-        MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
-        AudioSplitter inbandSplitter = mock(AudioSplitter.class);
-        OOBSplitter outbandSplitter = mock(OOBSplitter.class);
-        MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandSplitter, outbandSplitter);
+        final MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
+        final AudioSplitter inbandSplitter = mock(AudioSplitter.class);
+        final OOBSplitter outbandSplitter = mock(OOBSplitter.class);
+        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandSplitter, outbandSplitter);
 
         // when - open connection and join it to secondary endpoint
         when(connection.getIdentifier()).thenReturn(1);

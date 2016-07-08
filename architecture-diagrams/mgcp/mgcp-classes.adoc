@@ -30,6 +30,10 @@ interface MgcpMessageListener {
 + onMessageReceived(MgcpMessage)
 }
 
+interface MgcpMessageProcessor {
++ process(MgcpMessage, MessageDirection)
+}
+
 class MgcpChannel {
 }
 
@@ -76,11 +80,12 @@ abstract class AbstractMgcpCommand {
 # String WILDCARD_ANY = "$"
 }
 
-MgcpChannel --> MgcpTransactionManager : submit message
+MgcpChannel --> MgcpMessageProcessor : incoming message
+MgcpChannel <-- MgcpMessageProcessor : outgoing message
+MgcpMessageProcessor <|-- MgcpTransactionManager
 MgcpTransactionListener <|- MgcpTransactionManager
 MgcpTransactionManager *--> MgcpTransaction : execute
 MgcpTransactionListener <-- MgcpTransaction : onComplete
-MgcpChannel <-- MgcpTransaction : send message
 MgcpTransaction --|> MgcpCommandListener
 MgcpCommandProvider <- MgcpTransaction : build command
 (MgcpCommandProvider, MgcpTransaction) .. MgcpCommand
@@ -216,6 +221,7 @@ DeleteConnection --> MgcpEndpointManager
 NotificationRequest --> MgcpEndpointManager
 MgcpEndpointProvider <-* MgcpEndpointManager
 MgcpEndpointManager *--> MgcpEndpoint
+MgcpMessageProcessor <-- MgcpEndpoint : NTFY
 MgcpEndpoint <|-- AbstractMgcpEndpoint
 MgcpEndpoint -|> MgcpConnectionListener
 MgcpEndpoint -|> MgcpCallListener

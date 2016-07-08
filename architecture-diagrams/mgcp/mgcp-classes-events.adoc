@@ -1,0 +1,104 @@
+[plantuml,file="mgcp-classes-events.png"]
+--
+class NotificationRequestCommand {
+}
+
+interface MgcpMessageProcessor {
++ process(MgcpMessage, Direction)
+}
+
+class MgcpEndpoint {
+- NotifiedEntity notifiedEntity
+}
+
+class NotificationRequest {
+- Signal[] requestedSignals
+- String[] requestedEvents
+- NotifiedEntity notifiedEntity
+}
+
+abstract class MgcpPackage {
+- String symbol
+- List<String> signals
+}
+
+class AudioPackage {
++ String PACKAGE_NAME = "AU"
+}
+
+interface MgcpEvent {
++ fire(MgcpEventListener[])
+}
+
+abstract class AbstractMgcpEvent {
+- String symbol
+- Map<String, String> parameters
+- List<MgcpEventListener> listeners
+- AtomicBoolean fired
++ getSymbol()
++ getParameter(String)
++ addParameter(String, String)
+}
+
+class OperationComplete {
+
+}
+
+class OperationFailure {
+
+}
+
+interface MgcpEventListener {
++ listen(String[])
++ onMgcpEvent(MgcpEvent)
+}
+
+interface MgcpSignalExecutor {
++ execute(Signal[])
+}
+
+interface MgcpSignalFactory {
++ MgcpSignal produce(String)
+}
+
+interface MgcpSignal {
++ execute()
++ cancel()
+}
+
+abstract class AbstractMgcpSignal {
+- String package
+- String symbol
+- Map<String, String> parameters
+- AtomicBoolean executing
++ addParameter(String, String)
++ String getParameter()
+# boolean isParameterSupported(String)
+}
+
+NotificationRequestCommand --> MgcpEndpoint : request notification
+(NotificationRequestCommand,MgcpEndpoint) . NotificationRequest
+
+MgcpMessageProcessor <- MgcpEndpoint
+(MgcpMessageProcessor, MgcpEndpoint) .. NotifyCommand 
+MgcpEndpoint --|> MgcpEventListener
+MgcpEndpoint --|> MgcpSignalExecutor
+MgcpSignalExecutor --> MgcpSignal : executes
+MgcpEventListener <-- MgcpEvent : notifies
+MgcpEvent <- MgcpSignal : fires
+
+MgcpSignal <|-- AbstractMgcpSignal
+AbstractMgcpSignal <|-- PlayAnnouncement
+AbstractMgcpSignal <|-- PlayCollect
+AbstractMgcpSignal <|-- PlayRecord
+
+MgcpEvent <|-- AbstractMgcpEvent
+AbstractMgcpEvent <|-- OperationComplete
+AbstractMgcpEvent <|-- OperationFailure
+
+MgcpPackage <|-- AudioPackage
+MgcpSignalFactory <- MgcpPackage
+MgcpSignal <- MgcpSignalFactory : produces
+--
+
+

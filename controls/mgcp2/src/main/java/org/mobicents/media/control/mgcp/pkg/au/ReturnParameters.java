@@ -18,27 +18,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+        
+package org.mobicents.media.control.mgcp.pkg.au;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Each event has an associated set of possible return parameters which are listed in the following tables.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public enum ReturnParameters {
 
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
-     */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    VOICE_INTERRUPT("vi"),
+    INTERRUPTING_KEY_SEQUENCE("ik"),
+    AMOUNT_PLAYED("ap"),
+    NUMBER_OF_ATTEMPTS("na"),
+    DIGITS_COLLECTED("dc"),
+    RECORDING_ID("ri"),
+    RETURN_CODE("rc");
+
+    private final String symbol;
+
+    private ReturnParameters(String symbol) {
+        this.symbol = symbol;
+    }
+
+    public String symbol() {
+        return symbol;
+    }
 
 }

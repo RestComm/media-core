@@ -31,7 +31,7 @@ import org.mobicents.media.server.component.oob.OOBSplitter;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpSplitterEndpoint extends AbstractMgcpEndpoint {
+public class MgcpSplitterEndpoint extends GenericMgcpEndpoint {
 
     private final AudioSplitter inbandSplitter;
     private final OOBSplitter outbandSplitter;

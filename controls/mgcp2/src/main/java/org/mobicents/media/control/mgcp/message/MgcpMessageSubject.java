@@ -19,18 +19,20 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.listener;
-
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
+package org.mobicents.media.control.mgcp.message;
 
 /**
- * Listener that receives notifications upon MGCP Command completion.
+ * Subscribes observers to receive notifications about MGCP Message passing.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommandListener {
+public interface MgcpMessageSubject {
 
-    void onCommandExecuted(MgcpResponse response);
+    void observe(MgcpMessageObserver observer);
+
+    void forget(MgcpMessageObserver observer);
+
+    void notify(Object originator, MgcpMessage message, MessageDirection direction);
 
 }

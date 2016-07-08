@@ -19,26 +19,25 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+package org.mobicents.media.control.mgcp.pkg.au;
 
 /**
- * Represents an MGCP action that can be executed.
+ * This package defines events and signals for an ARF package for an Audio Server Media Gateway.
+ * 
+ * <p>
+ * If an Advanced Audio Package signal is active on an endpoint and another signal of the same type is applied, the two signals
+ * including parameters and parameter values will compared If the signals are identical, the signal in progress will be allowed
+ * to continue and the new signal will be discarded.<br>
+ * <b>Because of this behavior the Advanced Audio Package may not interoperate well with some other packages such as the Line
+ * and Trunk packages.</b>
+ * </p>
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
+ * @see <a href="https://tools.ietf.org/html/rfc2897">RFC2897</a>
  */
-public interface MgcpCommand {
-
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
-     */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+public class AudioPackage {
+    
+    public static final String PACKAGE_NAME = "AU";
 
 }

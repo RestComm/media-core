@@ -19,26 +19,22 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+package org.mobicents.media.control.mgcp.message;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Listens to incoming MGCP packets.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public interface MgcpMessageObserver {
 
     /**
-     * Executes an MGCP command.
+     * Event triggered when a message arrives.
      * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
+     * @param message The message
+     * @param direction The direction of the message: incoming or outgoing.
      */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    void onMessage(MgcpMessage message, MessageDirection direction);
 
 }

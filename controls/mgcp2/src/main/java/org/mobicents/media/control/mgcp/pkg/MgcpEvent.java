@@ -19,26 +19,20 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public interface MgcpEvent extends MgcpEventData {
 
     /**
-     * Executes an MGCP command.
+     * Fires the event.
      * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
+     * @param targets The listeners targeted by the event.
+     * @throws IllegalStateException In case the event is fired more than once.
      */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    void fire(MgcpEventListener... targets) throws IllegalStateException;
 
 }

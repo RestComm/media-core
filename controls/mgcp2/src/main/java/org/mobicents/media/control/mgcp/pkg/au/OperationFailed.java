@@ -19,26 +19,20 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
+package org.mobicents.media.control.mgcp.pkg.au;
 
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Detected upon the failure of a Play, PlayRecord, or PlayCollect signal.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public class OperationFailed extends GenericMgcpEvent {
 
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
-     */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    public OperationFailed() {
+        super("of");
+    }
 
 }

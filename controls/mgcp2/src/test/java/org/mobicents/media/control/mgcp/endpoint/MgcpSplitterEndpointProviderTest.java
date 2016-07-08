@@ -38,9 +38,9 @@ public class MgcpSplitterEndpointProviderTest {
     @Test
     public void testProvide() {
         // given
-        String namespace = "ms/mock/";
-        PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
-        MgcpSplitterEndpointProvider provider = new MgcpSplitterEndpointProvider(namespace, mediaScheduler);
+        final String namespace = "ms/mock/";
+        final PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
+        final MgcpSplitterEndpointProvider provider = new MgcpSplitterEndpointProvider(namespace, mediaScheduler);
 
         // when
         MgcpSplitterEndpoint endpoint1 = provider.provide();

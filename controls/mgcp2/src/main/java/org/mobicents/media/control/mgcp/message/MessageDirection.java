@@ -25,8 +25,8 @@ package org.mobicents.media.control.mgcp.message;
  * Indicates the direction of an MGCP message.
  * 
  * <p>
- * An INBOUND message arrives from a remote peer.<br>
- * An OUTBOUND message must be sent from the Media Server to the remote peer.
+ * An INCOMING message arrives from a remote peer.<br>
+ * An OUTGOING message must be sent from the Media Server to the remote peer.
  * </p>
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -34,6 +34,6 @@ package org.mobicents.media.control.mgcp.message;
  */
 public enum MessageDirection {
 
-    INBOUND, OUTBOUND;
+    INCOMING, OUTGOING;
 
 }

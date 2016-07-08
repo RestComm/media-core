@@ -47,10 +47,10 @@ public class MgcpMixerEndpointTest {
     @Test
     public void testOpenCloseConnection() throws MgcpConnectionException, MgcpCallNotFoundException, MgcpConnectionNotFound {
         // given
-        MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        AudioMixer inbandMixer = mock(AudioMixer.class);
-        OOBMixer outbandMixer = mock(OOBMixer.class);
-        MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer);
+        final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
+        final AudioMixer inbandMixer = mock(AudioMixer.class);
+        final OOBMixer outbandMixer = mock(OOBMixer.class);
+        final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer);
 
         // when - half open connection
         when(connection.getIdentifier()).thenReturn(1);

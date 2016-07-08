@@ -19,26 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public interface MgcpSignal {
 
     /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
+     * Executes the signal.
      */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    void execute();
+
+    /**
+     * Cancels the executing signal.<br>
+     * No action is taken if signal is not executing.
+     */
+    void cancel();
+
+    /**
+     * Gets whether the signal is currently executing.
+     * 
+     * @return <code>true</code> if executing; otherwise returns <code>false</code>
+     */
+    boolean isExecuting();
 
 }

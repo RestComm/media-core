@@ -27,6 +27,8 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventListener;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignalExecutor;
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -43,7 +45,7 @@ import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpoint {
+public interface MgcpEndpoint extends MgcpEventListener, MgcpSignalExecutor {
 
     /**
      * Gets the endpoint identifier

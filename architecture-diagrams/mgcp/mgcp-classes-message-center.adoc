@@ -1,0 +1,61 @@
+[plantuml,file="mgcp-classes-message-center.png"]
+--
+class MgcpChannel {
++ receive()
++ send()
++ queue(MgcpMessage)
+}
+
+interface MgcpMessageSubject {
++ observe(MgcpMessageObserver)
++ forget(MgcpMessageObserver)
++ notify(MgcpMessage, MessageDirection)
+}
+
+interface MgcpMessageObserver {
++ onMessage(MgcpMessage, MessageDirection)
+}
+
+abstract class MgcpMessageMediator {
+- List<MgcpMessageObserver> observers
+# broadcast(MgcpMessage, MessageDirection)
+}
+
+class TransactionalMgcpMessageMediator {
+- List<MgcpTransaction> transactions
+}
+
+class MgcpTransaction {
+- String transactionId
+}
+
+class AbstractMgcpEndpoint {
+}
+
+interface MgcpCommandProvider {
++ MgcpCommand provide(String)
+}
+
+interface MgcpCommand {
++ execute()
+}
+
+MgcpMessageSubject <|-- MgcpMessageMediator
+MgcpMessageObserver <-* MgcpMessageMediator : broadcast
+MgcpChannel --|> MgcpMessageObserver
+MgcpChannel -> MgcpMessageSubject : observe | notify([Req|Resp], IN)
+
+AbstractMgcpEndpoint --> MgcpMessageSubject : notify(request,OUT)
+
+MgcpMessageMediator <|-- TransactionalMgcpMessageMediator
+TransactionalMgcpMessageMediator *--> MgcpTransaction : (de)register
+
+MgcpMessageSubject <- MgcpCommand : notify(response, OUT)
+
+TransactionalMgcpMessageMediator -> MgcpCommandProvider : provide
+MgcpCommand <-- TransactionalMgcpMessageMediator : execute
+--
+
+
+
+

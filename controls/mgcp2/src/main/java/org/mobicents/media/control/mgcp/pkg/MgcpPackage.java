@@ -18,27 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+        
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
-
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
-     */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+public interface MgcpPackage {
+    
+    String getPackageName();
 
 }

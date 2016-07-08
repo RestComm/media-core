@@ -19,26 +19,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Listens to MGCP events.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public interface MgcpEventListener {
 
     /**
-     * Executes an MGCP command.
+     * Registers the type of events the listener is interested in.
+     * <p>
+     * If the listener was already listening to a set of events, then the list is overwritten.
+     * </p>
      * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
+     * @param events The list of event types.
      */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    void listen(String... events);
+
+    /**
+     * Triggered when an event is fired.<br>
+     * The listener reacts to the event only if it is interested in it.
+     * 
+     * @param event The fired event.
+     */
+    void onMgcpEvent(MgcpEventData event);
 
 }

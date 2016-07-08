@@ -19,26 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
+import org.mobicents.media.control.mgcp.transaction.TransactionalMgcpMessageMediator;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Represents an MGCP action that can be executed.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public class TransactionalMgcpMessageMediatorProvider implements Provider<TransactionalMgcpMessageMediator> {
 
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
-     */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    private final MgcpCommandProvider commands;
+    private final MgcpTransactionProvider transactionProvider;
+
+    @Inject
+    public TransactionalMgcpMessageMediatorProvider(MgcpCommandProvider commands, MgcpTransactionProvider transactionProvider) {
+        this.commands = commands;
+        this.transactionProvider = transactionProvider;
+    }
+
+    @Override
+    public TransactionalMgcpMessageMediator get() {
+        return new TransactionalMgcpMessageMediator(transactionProvider, commands);
+    }
 
 }
