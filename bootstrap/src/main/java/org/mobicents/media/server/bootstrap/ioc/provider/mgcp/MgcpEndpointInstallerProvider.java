@@ -29,6 +29,7 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpSplitterEndpointProvider;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.core.configuration.MgcpEndpointConfiguration;
@@ -46,11 +47,13 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
 
     private final MediaServerConfiguration configuration;
     private final PriorityQueueScheduler mediaScheduler;
+    private final MgcpMessageSubject messageCenter;
 
     @Inject
-    public MgcpEndpointInstallerProvider(MediaServerConfiguration configuration, PriorityQueueScheduler mediaScheduler) {
+    public MgcpEndpointInstallerProvider(MediaServerConfiguration configuration, PriorityQueueScheduler mediaScheduler, MgcpMessageSubject messageCenter) {
         this.configuration = configuration;
         this.mediaScheduler = mediaScheduler;
+        this.messageCenter = messageCenter;
     }
 
     @Override
@@ -66,11 +69,11 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
 
             switch (endpoint.getRelayType()) {
                 case MIXER:
-                    provider = new MgcpMixerEndpointProvider(namespace, this.mediaScheduler);
+                    provider = new MgcpMixerEndpointProvider(namespace, this.mediaScheduler, this.messageCenter);
                     break;
 
                 case SPLITTER:
-                    provider = new MgcpSplitterEndpointProvider(namespace, this.mediaScheduler);
+                    provider = new MgcpSplitterEndpointProvider(namespace, this.mediaScheduler, this.messageCenter);
                     break;
 
                 default:

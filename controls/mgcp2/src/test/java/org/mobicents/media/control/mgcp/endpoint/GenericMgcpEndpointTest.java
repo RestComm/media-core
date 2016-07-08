@@ -28,6 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Test;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
@@ -42,7 +43,8 @@ public class GenericMgcpEndpointTest {
     public void testExecuteSignal() {
         // given
         final MgcpSignal signal = mock(MgcpSignal.class);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1");
+        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", messageCenter);
 
         // when
         genericMgcpEndpoint.execute(signal);
@@ -56,7 +58,8 @@ public class GenericMgcpEndpointTest {
         // given
         final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
         final MockSignal signal2 = new MockSignal("AU", "pc", SignalType.TIME_OUT);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1");
+        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", messageCenter);
 
         // when
         genericMgcpEndpoint.execute(signal1);
@@ -74,7 +77,8 @@ public class GenericMgcpEndpointTest {
         // given
         final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
         final MockSignal signal2 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1");
+        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", messageCenter);
         
         // when
         genericMgcpEndpoint.execute(signal1);

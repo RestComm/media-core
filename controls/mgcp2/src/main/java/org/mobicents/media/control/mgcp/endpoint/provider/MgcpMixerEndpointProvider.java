@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.endpoint.provider;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -35,15 +36,17 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<MgcpMixerEndpoint> {
 
     private final PriorityQueueScheduler mediaScheduler;
+    private final MgcpMessageSubject messageCenter;
 
-    public MgcpMixerEndpointProvider(String namespace, PriorityQueueScheduler mediaScheduler) {
+    public MgcpMixerEndpointProvider(String namespace, PriorityQueueScheduler mediaScheduler, MgcpMessageSubject messageCenter) {
         super(namespace);
         this.mediaScheduler = mediaScheduler;
+        this.messageCenter = messageCenter;
     }
 
     @Override
     public MgcpMixerEndpoint provide() {
-        return new MgcpMixerEndpoint(generateId(), new AudioMixer(mediaScheduler), new OOBMixer(mediaScheduler));
+        return new MgcpMixerEndpoint(generateId(), new AudioMixer(mediaScheduler), new OOBMixer(mediaScheduler), messageCenter);
     }
 
 }

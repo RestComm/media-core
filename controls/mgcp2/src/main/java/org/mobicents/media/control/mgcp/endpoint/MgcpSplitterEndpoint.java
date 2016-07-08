@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 
@@ -36,8 +37,8 @@ public class MgcpSplitterEndpoint extends GenericMgcpEndpoint {
     private final AudioSplitter inbandSplitter;
     private final OOBSplitter outbandSplitter;
 
-    public MgcpSplitterEndpoint(String endpointId, AudioSplitter inbandSplitter, OOBSplitter outbandSplitter) {
-        super(endpointId);
+    public MgcpSplitterEndpoint(String endpointId, AudioSplitter inbandSplitter, OOBSplitter outbandSplitter, MgcpMessageSubject messageCenter) {
+        super(endpointId, messageCenter);
         this.inbandSplitter = inbandSplitter;
         this.outbandSplitter = outbandSplitter;
     }
