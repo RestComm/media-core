@@ -269,7 +269,7 @@ public class AuditConnectionCmd extends Action {
 					response.setParameter(Parameter.LOCAL_CONNECTION_OPTIONS, localConnectionOpts);
 				}
 				if(queryMode) {
-					response.setParameter(Parameter.MODE, connectionMode.getDescription());
+					response.setParameter(Parameter.MODE, new Text(connectionMode.description()));
 				}
 				if(queryConnectionParams) {
 					// see http://tools.ietf.org/html/rfc3435#appendix-F.9

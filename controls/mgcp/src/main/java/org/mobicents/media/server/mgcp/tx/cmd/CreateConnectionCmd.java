@@ -264,7 +264,7 @@ public class CreateConnectionCmd extends Action {
                     throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR, new Text("Mode was not specified"));
                 }
                 
-                ConnectionMode m = ConnectionMode.valueOf(mode.getValue());
+                ConnectionMode m = ConnectionMode.fromDescription(mode.getValue().toString());
                 
                 try {
                     connections[0].setMode(m);

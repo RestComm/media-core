@@ -94,7 +94,7 @@ public class MgcpConnection implements ConnectionFailureListener {
     }
     
     public void setMode(Text mode) throws ModeNotSupportedException {
-    	connection.setMode(ConnectionMode.valueOf(mode));
+    	connection.setMode(ConnectionMode.fromDescription(mode.toString()));
     }
 
     public void setMode(ConnectionMode mode) throws ModeNotSupportedException {

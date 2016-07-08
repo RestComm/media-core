@@ -1,0 +1,33 @@
+[plantuml,file="mgcp-transaction-outbound-sequence.png"]
+--
+MgcpEndpoint -> MgcpMessageCenter : notify(request, OUT)
+activate MgcpEndpoint
+activate MgcpMessageCenter
+deactivate MgcpEndpoint
+
+create MgcpTransaction
+MgcpMessageCenter -> MgcpTransaction : create
+MgcpMessageCenter -> MgcpMessageCenter : register(tx)
+activate MgcpTransaction
+
+MgcpMessageCenter -> MgcpChannel : onMgcpMessage(request, OUT)
+deactivate MgcpMessageCenter
+activate MgcpChannel
+MgcpChannel ->] : bytes
+deactivate MgcpChannel
+
+|||
+... waiting for call agent to reply ...
+|||
+
+MgcpChannel <-] : bytes
+activate MgcpChannel
+MgcpChannel -> MgcpMessageCenter : notify(response, IN)
+deactivate MgcpChannel
+
+activate MgcpMessageCenter
+MgcpMessageCenter -> MgcpMessageCenter : deregister(tx)
+deactivate MgcpTransaction
+destroy MgcpTransaction
+deactivate MgcpMessageCenter
+--

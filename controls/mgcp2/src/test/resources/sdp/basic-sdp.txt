@@ -1,0 +1,8 @@
+v=0
+o=example 1450021652720 1450021652720 IN IP4 127.0.0.1
+s=sip call
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio 65000 RTP/AVP 8 18
+a=ptime:20
+a=fmtp:18 annexb=no

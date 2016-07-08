@@ -49,6 +49,11 @@
 			<version>${project.version}</version>
 			<type>jar</type>
 		</dependency>
+		<dependency>
+			<groupId>org.mobicents.media.controls</groupId>
+			<artifactId>mgcp2</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<!--RESOURCES -->
 		<dependency>
