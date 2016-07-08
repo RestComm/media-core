@@ -458,48 +458,48 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     
     @Override
     public void checkIn() {
-        // clear listeners
-        clearAllListeners();
-        
-        // close stream
-        if(fout != null) {
-            try {
-                fout.flush();
-                fout.close();
-            } catch (IOException e) {
-                logger.warn("Could not flush or close the recording stream.");
-            } finally {
-                fout = null;
-            }
-        }
-        
-        // clean temp file 
-        if(file != null) {
-            file = null;
-        }
-        if(temp != null) {
-            if(temp.exists()) {
-                temp.delete();
-            }
-            temp = null;
-        }
-        
-        // clean buffers
-        this.byteBuffer.clear();
-        this.headerBuffer.clear();
-        this.data = null;
-        this.offset = 0;
-        this.len = 0;
-        
-        // reset internal state
-        this.recordDir = "";
-        this.postSpeechTimer = -1L;
-        this.preSpeechTimer = -1L;
-        this.lastPacketData = 0L;
-        this.startTime = 0L;
-        this.maxRecordTime = -1L;
-        this.qualifier = 0;
-        this.speechDetected = false;
+//        // clear listeners
+//        clearAllListeners();
+//        
+//        // close stream
+//        if(fout != null) {
+//            try {
+//                fout.flush();
+//                fout.close();
+//            } catch (IOException e) {
+//                logger.warn("Could not flush or close the recording stream.");
+//            } finally {
+//                fout = null;
+//            }
+//        }
+//        
+//        // clean temp file 
+//        if(file != null) {
+//            file = null;
+//        }
+//        if(temp != null) {
+//            if(temp.exists()) {
+//                temp.delete();
+//            }
+//            temp = null;
+//        }
+//        
+//        // clean buffers
+//        this.byteBuffer.clear();
+//        this.headerBuffer.clear();
+//        this.data = null;
+//        this.offset = 0;
+//        this.len = 0;
+//        
+//        // reset internal state
+//        this.recordDir = "";
+//        this.postSpeechTimer = -1L;
+//        this.preSpeechTimer = -1L;
+//        this.lastPacketData = 0L;
+//        this.startTime = 0L;
+//        this.maxRecordTime = -1L;
+//        this.qualifier = 0;
+//        this.speechDetected = false;
     }
 
     @Override

@@ -72,7 +72,7 @@ public class SdpFactory {
 		String originAddress = (externalAddress == null || externalAddress.isEmpty()) ? localAddress : externalAddress;
 		sd.setOrigin(new OriginField("-", String.valueOf(System.currentTimeMillis()), "1", "IN", "IP4", originAddress));
 		sd.setSessionName(new SessionNameField("Mobicents Media Server"));
-		sd.setConnection(new ConnectionField("IN", "IP4", localAddress));
+        sd.setConnection(new ConnectionField("IN", "IP4", originAddress));
 		sd.setTiming(new TimingField(0, 0));
 		
 		// Media Descriptions
@@ -129,9 +129,10 @@ public class SdpFactory {
 		md.setPort(channel.getRtpPort());
 		MediaProfile profile = channel.isDtlsEnabled() ? MediaProfile.RTP_SAVPF : MediaProfile.RTP_AVP;
 		md.setProtocol(profile.getProfile());
-		md.setConnection(new ConnectionField("IN", "IP4", channel.getRtpAddress()));
+        final String externalAddress = channel.getExternalAddress() == null || channel.getExternalAddress().isEmpty() ? null : channel.getExternalAddress();
+        md.setConnection(new ConnectionField("IN", "IP4", externalAddress != null ? externalAddress : channel.getRtpAddress()));
 		md.setPtime(new PacketTimeAttribute(20));
-		md.setRtcp(new RtcpAttribute(channel.getRtcpPort(), "IN", "IP4", channel.getRtcpAddress()));
+        md.setRtcp(new RtcpAttribute(channel.getRtcpPort(), "IN", "IP4", externalAddress != null ? externalAddress : channel.getRtcpAddress()));
 		if (channel.isRtcpMux()) {
 			md.setRtcpMux(new RtcpMuxAttribute());
 		}
@@ -142,12 +143,12 @@ public class SdpFactory {
 			md.setIcePwd(new IcePwdAttribute(channel.getIcePwd()));
 			
 			// Fix connection address based on default (only) candidate
-			md.getConnection().setAddress(channel.getRtpAddress());
+            md.getConnection().setAddress(externalAddress != null ? externalAddress : channel.getRtpAddress());
 			md.setPort(channel.getRtpPort());
 			
 			// Fix RTCP if rtcp-mux is used
 			if(channel.isRtcpMux()) {
-			    md.getRtcp().setAddress(channel.getRtpAddress());
+                md.getRtcp().setAddress(externalAddress != null ? externalAddress : channel.getRtpAddress());
 			    md.getRtcp().setPort(channel.getRtpPort());
 			}
 			

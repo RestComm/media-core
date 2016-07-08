@@ -23,6 +23,8 @@
 package org.mobicents.media.server.component.oob;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -33,28 +35,28 @@ import org.mobicents.media.server.spi.memory.Frame;
  * Implements compound oob mixer , one of core components of mms 3.0
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class OOBMixer {
-	// scheduler for mixer job scheduling
-	private PriorityQueueScheduler scheduler;
 
-	// The pool of components
-	private ConcurrentMap<OOBComponent> components = new ConcurrentMap<OOBComponent>();
+	private final PriorityQueueScheduler scheduler;
+	private final ConcurrentMap<OOBComponent> components;
+	private final MixTask mixer;
 
-	Iterator<OOBComponent> activeComponents;
-
-	private MixTask mixer;
-	private volatile boolean started = false;
-
-	public long mixCount = 0;
-
-	// gain value
-	private double gain = 1.0;
+	private final AtomicBoolean started;
+	private final AtomicLong mixCount;
 
 	public OOBMixer(PriorityQueueScheduler scheduler) {
 		this.scheduler = scheduler;
+		this.components = new ConcurrentMap<OOBComponent>();
 		this.mixer = new MixTask();
+		this.started = new AtomicBoolean(false);
+		this.mixCount = new AtomicLong(0);
 	}
+	
+	public long getMixCount() {
+        return mixCount.get();
+    }
 
 	public void addComponent(OOBComponent component) {
 		components.put(component.getComponentId(), component);
@@ -70,18 +72,22 @@ public class OOBMixer {
 		components.remove(component.getComponentId());
 	}
 
-	public void start() {
-		mixCount = 0;
-		started = true;
-		scheduler.submit(mixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
-	}
+    public void start() {
+        if (!this.started.get()) {
+            started.set(true);
+            mixCount.set(0);
+            scheduler.submit(mixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
+        }
+    }
 
-	public void stop() {
-		started = false;
-		mixer.cancel();
-	}
+    public void stop() {
+        if (this.started.get()) {
+            started.set(false);
+            mixer.cancel();
+        }
+    }
 
-	private class MixTask extends Task {
+	private final class MixTask extends Task {
 
 		public MixTask() {
 			super();
@@ -98,7 +104,7 @@ public class OOBMixer {
 	        Frame current = null;
 		    
 			// summarize all
-			activeComponents = components.valuesIterator();
+	        Iterator<OOBComponent> activeComponents = components.valuesIterator();
 			while (activeComponents.hasNext()) {
 				OOBComponent component = activeComponents.next();
 				component.perform();
@@ -111,7 +117,7 @@ public class OOBMixer {
 
 			if (current == null) {
 				scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
-				mixCount++;
+				mixCount.incrementAndGet();
 				return 0;
 			}
 
@@ -126,7 +132,7 @@ public class OOBMixer {
 
 			current.recycle();
 			scheduler.submit(this, PriorityQueueScheduler.MIXER_MIX_QUEUE);
-			mixCount++;
+			mixCount.incrementAndGet();
 			return 0;
 		}
 	}

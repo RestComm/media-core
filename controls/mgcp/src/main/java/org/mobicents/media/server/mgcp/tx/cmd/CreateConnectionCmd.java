@@ -268,7 +268,7 @@ public class CreateConnectionCmd extends Action {
                 
                 try {
                     connections[0].setMode(m);
-                    //connections[1].setMode(ConnectionMode.SEND_RECV);
+                    connections[1].setMode(ConnectionMode.SEND_RECV);
                 } catch (Exception e) {
                     throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE, new Text("Unsupported mode"));
                 }
@@ -406,20 +406,6 @@ public class CreateConnectionCmd extends Action {
             return 0;
         }
         
-    }
-    
-    /**
-     * Converts mode in case of unidirectional transmission.
-     * 
-     * @param mode the original mode value
-     * @return mode with opposite transmission mode. 
-     */
-    private ConnectionMode invert(ConnectionMode mode) {
-        switch (mode) {
-            case SEND_ONLY : return ConnectionMode.RECV_ONLY;
-            case RECV_ONLY : return ConnectionMode.SEND_ONLY;
-            default : return mode;    
-        }
     }
     
 }
