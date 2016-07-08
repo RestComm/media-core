@@ -37,7 +37,12 @@ import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
-import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpRequestType;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventData;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 
 /**
@@ -50,6 +55,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
 
+    // MGCP Components
+    private final MgcpMessageSubject messageCenter;
+    
     // Endpoint Properties
     private final String endpointId;
     private final NotifiedEntity notifiedEntity;
@@ -62,7 +70,10 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     private String[] events;
     private MgcpSignal signal;
 
-    public GenericMgcpEndpoint(String endpointId) {
+    public GenericMgcpEndpoint(String endpointId, MgcpMessageSubject messageCenter) {
+        // MGCP Components
+        this.messageCenter = messageCenter;
+
         // Endpoint Properties
         this.endpointId = endpointId;
         this.notifiedEntity = new NotifiedEntity();
@@ -307,10 +318,17 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     }
 
     @Override
-    public void onMgcpEvent(MgcpEvent event) {
+    public void onMgcpEvent(MgcpEventData event) {
         final String symbol = event.getSymbol();
         if (isListening(symbol)) {
-            // TODO send NTFY to NotifiedEntity
+            MgcpRequest notify = new MgcpRequest();
+            notify.setRequestType(MgcpRequestType.NTFY);
+            notify.setTransactionId(0);
+            notify.setEndpointId(this.endpointId);
+            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
+            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
+            notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
+            this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
         }
     }
 

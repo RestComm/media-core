@@ -21,30 +21,29 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+
 /**
- * Listens to MGCP events.
+ * Data accessor for {@link MgcpEvent}.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventListener {
+public interface MgcpEventData {
 
     /**
-     * Registers the type of events the listener is interested in.
-     * <p>
-     * If the listener was already listening to a set of events, then the list is overwritten.
-     * </p>
+     * Gets the symbol representing the event.
      * 
-     * @param events The list of event types.
+     * @return The event symbol
      */
-    void listen(String... events);
+    String getSymbol();
 
     /**
-     * Triggered when an event is fired.<br>
-     * The listener reacts to the event only if it is interested in it.
+     * Gets a parameter from the event.
      * 
-     * @param event The fired event.
+     * @param type The type of parameter to be returned.
+     * @return The value of the parameter. Returns null if no such parameter exists.
      */
-    void onMgcpEvent(MgcpEventData event);
+    String getParameter(MgcpParameterType type);
 
 }

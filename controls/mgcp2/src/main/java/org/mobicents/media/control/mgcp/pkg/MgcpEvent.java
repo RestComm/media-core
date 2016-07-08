@@ -25,14 +25,7 @@ package org.mobicents.media.control.mgcp.pkg;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEvent {
-
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
+public interface MgcpEvent extends MgcpEventData {
 
     /**
      * Fires the event.

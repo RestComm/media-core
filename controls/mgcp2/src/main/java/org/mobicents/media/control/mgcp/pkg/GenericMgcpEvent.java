@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  * @category NotThreadSafe
@@ -32,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GenericMgcpEvent implements MgcpEvent {
 
     private final String symbol;
-    private final Map<String, String> parameters;
+    private final Map<MgcpParameterType, String> parameters;
     private final AtomicBoolean fired;
 
     public GenericMgcpEvent(String symbol) {
@@ -47,12 +49,13 @@ public class GenericMgcpEvent implements MgcpEvent {
         return this.symbol;
     }
 
-    public String getParameter(String name) {
-        return this.parameters.get(name);
+    @Override
+    public String getParameter(MgcpParameterType type) {
+        return this.parameters.get(type);
     }
     
-    public void setParameter(String name, String value) {
-        this.parameters.put(name, value);
+    public void setParameter(MgcpParameterType type, String value) {
+        this.parameters.put(type, value);
     }
 
     @Override
