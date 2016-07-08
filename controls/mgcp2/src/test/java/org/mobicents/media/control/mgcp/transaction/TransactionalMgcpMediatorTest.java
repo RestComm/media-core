@@ -28,10 +28,14 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -137,43 +141,51 @@ public class TransactionalMgcpMediatorTest {
         assertFalse(mediator.contains(transactionId));
     }
 
-    // @Test
-    // public void testHandleRetransmission() {
-    // // given
-    // final int transactionId = 111111111;
-    // MgcpMessageObserver messageListener = mock(MgcpMessageObserver.class);
-    // MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-    // TransactionalMgcpMessageMediator txManager = new TransactionalMgcpMessageMediator(txProvider);
-    // MgcpRequest request = mock(MgcpRequest.class);
-    // MgcpRequest retransmission = mock(MgcpRequest.class);
-    // MgcpTransaction transaction = mock(MgcpTransaction.class);
-    //
-    // // when - create transaction and process message
-    // when(request.isRequest()).thenReturn(true);
-    // when(request.getTransactionId()).thenReturn(transactionId);
-    // when(retransmission.isRequest()).thenReturn(true);
-    // when(retransmission.getTransactionId()).thenReturn(transactionId);
-    // when(transaction.getId()).thenReturn(transactionId);
-    // when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
-    // doAnswer(new Answer<Object>() {
-    //
-    // @Override
-    // public Object answer(InvocationOnMock invocation) throws Throwable {
-    // MgcpMessage message = invocation.getArgumentAt(0, MgcpMessage.class);
-    // assertTrue(message instanceof MgcpResponse);
-    // assertEquals(MgcpResponseCode.TRANSACTION_BEEN_EXECUTED.code(), ((MgcpResponse) message).getCode());
-    // return null;
-    // }
-    // }).when(messageListener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-    //
-    //
-    // txManager.process(request, MessageDirection.INCOMING);
-    // txManager.process(retransmission, MessageDirection.INCOMING);
-    //
-    // // then
-    // assertTrue(txManager.contains(transaction.getId()));
-    // verify(transaction, times(1)).processRequest(request, MessageDirection.INCOMING);
-    // verify(messageListener, times(1)).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-    // }
+    @Test
+    public void testRetransmission() {
+        // given
+        final int transactionId = 147483653;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
+        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
+        final MgcpMessageObserver channel = mock(MgcpMessageObserver.class);
+        final TransactionalMgcpMessageMediator mediator = new TransactionalMgcpMessageMediator(txProvider, commands);
+
+        // when...then
+        when(request.toString()).thenReturn(REQUEST);
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(response.toString()).thenReturn(RESPONSE);
+        when(response.isRequest()).thenReturn(false);
+        when(response.getTransactionId()).thenReturn(transactionId);
+        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
+        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
+
+        doAnswer(new Answer<Object>() {
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                // assert
+                MgcpMessage message = invocation.getArgumentAt(0, MgcpMessage.class);
+                assertTrue(message instanceof MgcpResponse);
+                assertEquals(MgcpResponseCode.TRANSACTION_BEEN_EXECUTED.code(), ((MgcpResponse) message).getCode());
+                return null;
+            }
+
+        }).when(channel).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+
+        // execute
+        mediator.observe(channel);
+        mediator.notify(channel, request, MessageDirection.INCOMING);
+        mediator.notify(channel, request, MessageDirection.INCOMING);
+
+        // assert
+        assertTrue(mediator.contains(transactionId));
+        verify(channel, times(1)).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+    }
 
 }
