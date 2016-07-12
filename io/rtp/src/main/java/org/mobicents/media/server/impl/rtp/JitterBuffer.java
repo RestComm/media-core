@@ -140,7 +140,7 @@ public class JitterBuffer implements Serializable {
 		}
 		//logger.info(String.format("recalculating jitter: arrival=%d, newPacketTimestamp=%d, transit=%d, transit delta=%d", arrival, newPacketTimestamp, transit, d ));
 		currentTransit = transit;
-		currentJitter += d - ((currentJitter + 8) >> 4);
+		currentJitter += d - ((currentJitter + 8) >>> 4);
 	}
     
     /**
@@ -149,7 +149,7 @@ public class JitterBuffer implements Serializable {
      * http://tools.ietf.org/html/rfc3550#appendix-A.8
      */
     public long getEstimatedJitter() {
-            long jitterEstimate = currentJitter >> 4; 
+            long jitterEstimate = currentJitter >>> 4; 
             // logger.info(String.format("Jitter estimated at %d. Current transit time is %d.", jitterEstimate, currentTransit));
             return jitterEstimate;
     }
@@ -378,4 +378,14 @@ public class JitterBuffer implements Serializable {
     	format=null;
     	isn=-1;
     }
+
+    public long getCurrentTransit() {
+        return currentTransit;
+    }
+
+    public long getCurrentJitter() {
+        return currentJitter;
+    }
+    
+    
 }
