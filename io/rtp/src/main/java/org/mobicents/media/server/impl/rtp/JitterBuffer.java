@@ -278,7 +278,6 @@ public class JitterBuffer implements Serializable {
 
 				// check for duplicate packet
 				if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
-					LOCK.unlock();
 					return;
 				}
 
