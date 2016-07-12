@@ -22,14 +22,10 @@
 
 package org.mobicents.media.server.impl.resource.audio;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
@@ -54,6 +50,7 @@ import org.mobicents.media.server.spi.recorder.RecorderListener;
 /**
  * @author yulian oifa
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @author Pavel Chlupacek (pchlupacek)
  */
 public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledObject {
 
@@ -71,14 +68,12 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     private String recordDir;
     private AtomicReference<RecorderFileSink> sink = new AtomicReference<>(null);
 
-
     // if set ti true the record will terminate recording when silence detected
     private long postSpeechTimer = -1L;
     private long preSpeechTimer = -1L;
 
     // samples
     private ByteBuffer byteBuffer = ByteBuffer.allocateDirect(8192);
-    private ByteBuffer emptyHeader = ByteBuffer.wrap(new byte[44]).asReadOnlyBuffer();
     private byte[] data;
     private int offset;
     private int len;
@@ -183,8 +178,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
             if (snk != null) {
                 snk.commit();
             }
-
-
         } catch (Exception e) {
             logger.error("Error writing to file", e);
         } finally {
@@ -200,7 +193,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
             this.speechDetected = false;
         }
     }
-
 
     @Override
     public void setPreSpeechTimer(long value) {
@@ -259,18 +251,15 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
     @Override
     public void setRecordFile(String uri, boolean append) throws IOException {
-
         // calculate the full path
         String path = uri.startsWith("file:") ? uri.replaceAll("file://", "") : this.recordDir + "/" + uri;
         Path file = Paths.get(path);
 
         RecorderFileSink snk = sink.getAndSet(new RecorderFileSink(file,append));
         if (snk != null) {
-            logger.error(" Sink for the recording is not cleaned properly, found " + snk);
+            logger.error("Sink for the recording is not cleaned properly, found " + snk);
         }
     }
-
-
 
     /**
      * Checks does the frame contains sound or silence.

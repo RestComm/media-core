@@ -1,5 +1,4 @@
-package org.mobicents.media.server.impl.resource.audio;
-/**
+/*
  * TeleStax, Open Source Cloud Communications
  * Copyright 2011-2016, Telestax Inc and individual contributors
  * by the @authors tag.
@@ -20,6 +19,8 @@ package org.mobicents.media.server.impl.resource.audio;
  * @author pavel.shlupacek@spinoco.com
  */
 
+package org.mobicents.media.server.impl.resource.audio;
+
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -36,63 +37,61 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * Sink exists once the recording starts, and ceases to exists on recording deactivate.
  *
+ * @author Pavel Chlupacek (pchlupacek)
  */
 public class RecorderFileSink {
 
-    private static int HDR_SIZE = 44;
-    private static ByteBuffer EMPTY_HEADER = ByteBuffer.wrap(new byte[HDR_SIZE]).asReadOnlyBuffer();
-
     private static final Logger logger = Logger.getLogger(RecorderFileSink.class);
 
+    private static final int HDR_SIZE = 44;
+    private static final ByteBuffer EMPTY_HEADER = ByteBuffer.wrap(new byte[HDR_SIZE]).asReadOnlyBuffer();
+
     // target and temp file used for recording
-    private Path target;
-    private Path temp;
+    private final Path target;
+    private final Path temp;
 
-    //whether the recording shall be appended to target, if that target exists
-    private boolean append;
+    // whether the recording shall be appended to target, if that target exists
+    private final boolean append;
 
-    //destination of write operation
-    private FileChannel fout;
+    // destination of write operation
+    private final FileChannel fout;
 
-    //when true, then this sink accepts new data false otherwise.
-    private AtomicBoolean open;
-
-
+    // when true, then this sink accepts new data false otherwise.
+    private final AtomicBoolean open;
 
     /**
-     * Creates a sink. If append is true, and target exists, then when recording is finished
-     * the resulting recording is appended to current recorded file.
-     * @param target    Target to write file to
-     * @param append    Whether to append recording to `target`
+     * Creates a sink. If append is true, and target exists, then when recording is finished the resulting recording is appended
+     * to current recorded file.
+     * 
+     * @param target Target to write file to
+     * @param append Whether to append recording to `target`
      */
     public RecorderFileSink(Path target, boolean append) throws IOException {
         this.target = target;
-        this.temp = target.getParent().resolve(target.getFileName()+"~");
+        this.temp = target.getParent().resolve(target.getFileName() + "~");
         this.append = append;
         this.open = new AtomicBoolean(true);
 
-        fout = FileChannel.open(temp, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
-        fout.write(EMPTY_HEADER);
+        this.fout = FileChannel.open(temp, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+        this.fout.write(EMPTY_HEADER);
     }
-
-
-
 
     /**
      * Writes supplied data to the Sink (File).
      */
     public void write(ByteBuffer data) throws IOException {
-        if (open.get()) fout.write(data);
+        if (open.get()) {
+            fout.write(data);
+        }
     }
 
     /**
-     * Commit this sink.
-     * Causes to prevent any further write operations, and commits temporary file to target.
-     * When this returns, Sink is done and cannot be used again.
+     * Commit this sink. Causes to prevent any further write operations, and commits temporary file to target. When this
+     * returns, Sink is done and cannot be used again.
      */
     public void commit() throws IOException {
         // assures we perform the close operation only once.
-        if (open.compareAndSet(true,false)) {
+        if (open.compareAndSet(true, false)) {
             // flush & close
             fout.force(true);
             fout.close();
@@ -104,31 +103,27 @@ public class RecorderFileSink {
                 logger.info("Finishing recording ...... append: " + append + " exists: " + exists + " target:" + target);
             }
             if (append && exists) {
-               appendSamples(target,temp);
-               writeHeader(target);
-               Files.delete(temp);
+                appendSamples(target, temp);
+                writeHeader(target);
+                Files.delete(temp);
             } else {
-               writeHeader(temp);
-               Files.move(temp,target, StandardCopyOption.REPLACE_EXISTING);
+                writeHeader(temp);
+                Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }
 
     @Override
     public String toString() {
-        return "RecorderFileSink{" +
-                "target=" + target +
-                ", temp=" + temp +
-                ", append=" + append +
-                ", open=" + open.get() +
-                '}';
+        return "RecorderFileSink{" + "target=" + target + ", temp=" + temp + ", append=" + append + ", open=" + open.get()
+                + '}';
     }
 
     /**
      * Writes samples to file following WAVE format.
      *
      *
-     * @param  file         Recording where to write the header
+     * @param file Recording where to write the header
      *
      * @throws IOException
      */
@@ -221,29 +216,18 @@ public class RecorderFileSink {
             fout.position(0);
             fout.write(headerBuffer);
         }
-
-
     }
-
-
 
     private static void appendSamples(Path appendTo, Path appendFrom) throws IOException {
 
-        try(
-            FileChannel inChannel = FileChannel.open(appendFrom, StandardOpenOption.READ);
-            FileChannel outChannel = FileChannel.open(appendTo, StandardOpenOption.WRITE)
-         ) {
+        try (FileChannel inChannel = FileChannel.open(appendFrom, StandardOpenOption.READ);
+                FileChannel outChannel = FileChannel.open(appendTo, StandardOpenOption.WRITE)) {
             long count = inChannel.size() - HDR_SIZE;
             inChannel.transferTo(HDR_SIZE, count, outChannel);
             if (logger.isInfoEnabled()) {
                 logger.info("Appended " + count + " bytes from " + appendFrom + " to " + appendTo);
             }
         }
-
-
     }
-
-
-
 
 }
