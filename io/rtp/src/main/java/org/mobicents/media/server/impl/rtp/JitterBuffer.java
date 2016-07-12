@@ -335,6 +335,7 @@ public class JitterBuffer implements Serializable {
      */
     public Frame read(long timestamp) {
 		try {
+			LOCK.lock();
 			if (queue.size() == 0) {
 				this.ready = false;
 				return null;
