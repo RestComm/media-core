@@ -296,7 +296,7 @@ public class PlayRecord extends Signal {
             logger.error("Too many listeners, firing of");
         } catch (IOException e) {
             of.fire(this, RC_301);
-            logger.error("Received Recording URL can not be found, firing of");
+            logger.error("Received Recording URL can not be found, firing of 301", e);
         }
     }
 
