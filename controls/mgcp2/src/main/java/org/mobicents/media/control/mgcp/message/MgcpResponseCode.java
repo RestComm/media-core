@@ -63,7 +63,8 @@ public enum MgcpResponseCode {
     UNKNOWN_PACKAGE(518, "Unsupported or unknown package"),
     INTERNAL_INCONSISTENCY_IN_LOCAL_SDP(524, "Internal inconsistency in LocalConnectionOptions"),
     MISSING_REMOTE_CONNECTION_DESCRIPTOR(527, "Missing RemoteConnectionDescriptor"),
-    CODEC_NEGOTIATION_FAILURE(534, "Codec negotiation failure");
+    CODEC_NEGOTIATION_FAILURE(534, "Codec negotiation failure"), 
+    EVENT_OR_SIGNAL_ERROR(538, "Event/signal parameter error");
 
     private final int code;
     private final String message;

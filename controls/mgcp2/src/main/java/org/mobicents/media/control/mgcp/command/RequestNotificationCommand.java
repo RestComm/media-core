@@ -25,10 +25,14 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.control.mgcp.pkg.SignalRequests;
+import org.mobicents.media.control.mgcp.pkg.SignalsRequestParser;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
@@ -50,7 +54,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     private String notifiedEntity;
     private String requestIdentifier;
     private String[] requestedEvents;
-    private String signalRequests;
+    private SignalRequests signalRequests;
 
     public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         super(endpointManager, connectionProvider);
@@ -88,7 +92,15 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         }
 
         // Requested Signals
-        this.signalRequests = request.getParameter(MgcpParameterType.REQUESTED_SIGNALS);
+        String signal = request.getParameter(MgcpParameterType.REQUESTED_SIGNALS);
+        if(signal != null) {
+            try {
+                this.signalRequests = SignalsRequestParser.parse(signal);
+            } catch (MgcpParseException e) {
+                throw new MgcpCommandException(MgcpResponseCode.EVENT_OR_SIGNAL_ERROR.code(), MgcpResponseCode.EVENT_OR_SIGNAL_ERROR.message());
+            }
+        }
+        
     }
 
     private MgcpResponse buildResponse() {
@@ -112,8 +124,12 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
        // Register types of event to be looked at
        this.endpoint.listen(this.requestedEvents);
        
+       // Retrieve signal (if requested)
+       if(this.signalRequests != null) {
+           MgcpSignalProvider.provide(this.signalRequests.getPackageName(), this.signalRequests.getPackageName());
+       }
        
-       this.endpoint.execute(signal);
+//       this.endpoint.execute(signal);
        
 
     }
