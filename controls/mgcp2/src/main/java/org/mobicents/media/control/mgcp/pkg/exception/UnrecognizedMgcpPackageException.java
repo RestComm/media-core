@@ -19,18 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg;
+package org.mobicents.media.control.mgcp.pkg.exception;
 
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
+import org.mobicents.media.control.mgcp.exception.MgcpException;
 
 /**
- * Executes signals.
+ * Occurs when a received signal points to an unrecognized MGCP Package.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpSignalExecutor {
+public class UnrecognizedMgcpPackageException extends MgcpException {
 
-    void execute(MgcpSignal signal, NotifiedEntity notifiedEntity);
+    private static final long serialVersionUID = -294493425706464225L;
+
+    public UnrecognizedMgcpPackageException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public UnrecognizedMgcpPackageException(String message) {
+        super(message);
+    }
 
 }

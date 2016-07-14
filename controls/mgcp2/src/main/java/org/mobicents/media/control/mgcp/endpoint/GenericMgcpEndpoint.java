@@ -295,7 +295,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     }
 
     @Override
-    public void execute(MgcpSignal signal) {
+    public void execute(MgcpSignal signal, NotifiedEntity notifiedEntity) {
         if (this.signal == null) {
             // No signal being executing. Execute new signal immediately
             this.signal = signal;
@@ -314,6 +314,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     @Override
     public void listen(String... events) {
+        if(log.isDebugEnabled()) {
+            log.debug("Listening to events: " + events);
+        }
         this.events = events;
     }
 

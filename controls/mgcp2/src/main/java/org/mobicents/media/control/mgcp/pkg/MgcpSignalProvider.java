@@ -23,6 +23,8 @@ package org.mobicents.media.control.mgcp.pkg;
 
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
 import org.mobicents.media.control.mgcp.pkg.au.AudioSignalType;
+import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
+import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 
 /**
  * Provides MGCP signals by package.
@@ -38,24 +40,26 @@ public class MgcpSignalProvider {
      * @param pkg The package name.
      * @param signal The signal name.
      * @return The MGCP signal.
-     * @throws IllegalArgumentException When package or signal names are unrecognized.
+     * @throws UnrecognizedMgcpPackageException When package name is unrecognized.
+     * @throws UnsupportedMgcpSignalException When package does not support the specified signal.
      */
-    public static MgcpSignal provide(String pkg, String signal) throws IllegalArgumentException {
+    public static MgcpSignal provide(String pkg, String signal)
+            throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
                 return provideAudioSignal(signal);
 
             default:
-                throw new IllegalArgumentException("Unrecognized package " + pkg);
+                throw new UnrecognizedMgcpPackageException("Unrecognized package " + pkg);
         }
     }
 
-    private static MgcpSignal provideAudioSignal(String signal) {
+    private static MgcpSignal provideAudioSignal(String signal) throws UnsupportedMgcpSignalException {
         // Validate signal type
         AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
         if (signalType == null) {
-            throw new IllegalArgumentException("Unrecognized audio signal: " + signal);
+            throw new UnsupportedMgcpSignalException("Package " + AudioPackage.PACKAGE_NAME + " does not support signal " + signal);
         }
 
         switch (signalType) {

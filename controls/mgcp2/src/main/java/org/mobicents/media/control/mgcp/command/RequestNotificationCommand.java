@@ -21,7 +21,10 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import java.text.ParseException;
+
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -30,10 +33,13 @@ import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.control.mgcp.pkg.NotifiedEntityParser;
 import org.mobicents.media.control.mgcp.pkg.SignalRequests;
 import org.mobicents.media.control.mgcp.pkg.SignalsRequestParser;
-import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
+import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 
 /**
  * The NotificationRequest command is used to request the gateway to send notifications upon the occurrence of specified events
@@ -48,10 +54,9 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
 
     // MGCP Command Execution
     private int transactionId = 0;
-    private int callId = 0;
     private String endpointId;
     private MgcpEndpoint endpoint;
-    private String notifiedEntity;
+    private NotifiedEntity notifiedEntity;
     private String requestIdentifier;
     private String[] requestedEvents;
     private SignalRequests signalRequests;
@@ -70,20 +75,25 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
         this.transactionId = request.getTransactionId();
 
-        // Call ID
-        String callId = request.getParameter(MgcpParameterType.CALL_ID);
-        if (callId == null) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), "Call ID (C) is not specified");
-        } else {
-            this.callId = Integer.parseInt(callId, 16);
-        }
-
         // Endpoint Name
         this.endpointId = request.getEndpointId().substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
         validateEndpointId(this.endpointId);
 
         // Notified Entity
-        this.notifiedEntity = request.getParameter(MgcpParameterType.NOTIFIED_ENTITY);
+        String callAgent = request.getParameter(MgcpParameterType.NOTIFIED_ENTITY);
+        if(callAgent != null) {
+            try {
+                this.notifiedEntity = NotifiedEntityParser.parse(callAgent);
+            } catch (ParseException e) {
+                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_OR_UNSUPPORTED_COMMAND.code(), MgcpResponseCode.UNKNOWN_OR_UNSUPPORTED_COMMAND.message());
+            }
+        }
+        
+        // Request Identifier
+        this.requestIdentifier = request.getParameter(MgcpParameterType.REQUEST_ID);
+        if(this.requestIdentifier == null || this.requestIdentifier.isEmpty()) {
+            throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_OR_UNSUPPORTED_COMMAND.code(), MgcpResponseCode.UNKNOWN_OR_UNSUPPORTED_COMMAND.message());
+        }
 
         // Requested Events
         String events = request.getParameter(MgcpParameterType.REQUESTED_EVENTS);
@@ -97,10 +107,9 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             try {
                 this.signalRequests = SignalsRequestParser.parse(signal);
             } catch (MgcpParseException e) {
-                throw new MgcpCommandException(MgcpResponseCode.EVENT_OR_SIGNAL_ERROR.code(), MgcpResponseCode.EVENT_OR_SIGNAL_ERROR.message());
+                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
             }
         }
-        
     }
 
     private MgcpResponse buildResponse() {
@@ -121,17 +130,22 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         
         // TODO Check if connection is specified (to do later down in roadmap)
         
-       // Register types of event to be looked at
-       this.endpoint.listen(this.requestedEvents);
-       
-       // Retrieve signal (if requested)
-       if(this.signalRequests != null) {
-           MgcpSignalProvider.provide(this.signalRequests.getPackageName(), this.signalRequests.getPackageName());
-       }
-       
-//       this.endpoint.execute(signal);
-       
+        // Register types of event to be looked at
+        this.endpoint.listen(this.requestedEvents);
 
+        // Retrieve signal (if requested)
+        if(this.signalRequests != null) {
+            MgcpSignal signal;
+            try {
+                signal = MgcpSignalProvider.provide(this.signalRequests.getPackageName(), this.signalRequests.getPackageName());
+            } catch (UnrecognizedMgcpPackageException e) {
+                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
+            } catch (UnsupportedMgcpSignalException e) {
+                throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.message());
+            }
+            // TODO Catch exception
+            this.endpoint.execute(signal, this.notifiedEntity);
+        }
     }
 
     @Override
@@ -160,14 +174,12 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     @Override
     protected void reset() {
         this.transactionId = 0;
-        this.callId = 0;
         this.endpointId = null;
         this.endpoint = null;
         this.notifiedEntity = null;
         this.requestIdentifier = null;
         this.requestedEvents = null;
         this.signalRequests = null;
-
     }
 
 }
