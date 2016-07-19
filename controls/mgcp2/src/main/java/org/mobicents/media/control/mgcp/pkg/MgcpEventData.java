@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 
 /**
@@ -30,6 +31,13 @@ import org.mobicents.media.control.mgcp.message.MgcpParameterType;
  *
  */
 public interface MgcpEventData {
+
+    /**
+     * Gets the name and address of the entity to be notified.
+     * 
+     * @return The notified entity.
+     */
+    NotifiedEntity getNotifiedEntity();
 
     /**
      * Gets the symbol representing the event.

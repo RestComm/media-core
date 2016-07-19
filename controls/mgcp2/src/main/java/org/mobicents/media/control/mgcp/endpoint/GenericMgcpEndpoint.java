@@ -58,7 +58,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     // MGCP Components
     private final MgcpMessageSubject messageCenter;
-    
+
     // Endpoint Properties
     private final String endpointId;
     private final NotifiedEntity defaultNotifiedEntity;
@@ -283,54 +283,44 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             }
         }
     }
-    
+
     @Override
     public void requestNotification(NotificationRequest request) {
-        if(this.signal != null) {
-            this.signal.cancel();
-            // TODO cancel current signal
-        } else {
-            this.notificationRequest = request;
-            this.signal = this.notificationRequest.pollSignal();
-            this.signal.execute();
+        if (this.signal != null) {
+            // Current signal is identical to newly request signal. Ignore.
+            if (this.signal.equals(signal)) {
+                log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
+                return;
+            } else {
+                // Cancel current signal.
+                // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
+                // registered with the event.
+                this.signal.cancel();
+            }
         }
-    }
 
-//    @Override
-//    public void execute(MgcpSignal signal, NotifiedEntity notifiedEntity) {
-//        if (this.signal == null) {
-//            // No signal being executing. Execute new signal immediately
-//            this.signal = signal;
-//            this.notifiedEntity = notifiedEntity;
-//            this.signal.execute();
-//        } else {
-//            // Current signal is identical to newly request signal. Ignore.
-//            if (this.signal.equals(signal)) {
-//                log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
-//            } else {
-//                this.signal.cancel();
-//                this.signal = signal;
-//                this.notifiedEntity = notifiedEntity;
-//                this.signal.execute();
-//            }
-//        }
-//    }
+        // Set new notification request and start executing requested signals
+        this.notificationRequest = request;
+        this.signal = this.notificationRequest.pollSignal();
+        this.signal.execute();
+    }
 
     @Override
     public void onMgcpEvent(MgcpEventData event) {
         final String symbol = event.getSymbol();
         if (this.notificationRequest.isListening(symbol)) {
             this.signal = this.notificationRequest.pollSignal();
-            if(this.signal == null) {
+            if (this.signal == null) {
                 // Build Notification
                 MgcpRequest notify = new MgcpRequest();
                 notify.setRequestType(MgcpRequestType.NTFY);
                 notify.setTransactionId(0);
                 notify.setEndpointId(this.endpointId);
-                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, getNotifiedEntity().toString());
+                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
+                        resolve(event.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
                 notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
                 notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
-                
+
                 // Clean notification request and send notification to call agent
                 this.notificationRequest = null;
                 this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
@@ -339,15 +329,12 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             }
         }
     }
-    
-    private NotifiedEntity getNotifiedEntity() {
-        if(this.notificationRequest != null) {
-            NotifiedEntity callAgent = this.notificationRequest.getNotifiedEntity();
-            if(callAgent != null) {
-                return callAgent;
-            }
+
+    private NotifiedEntity resolve(NotifiedEntity value, NotifiedEntity defaultValue) {
+        if (value != null) {
+            return value;
         }
-        return this.defaultNotifiedEntity;
+        return defaultValue;
     }
 
     /**

@@ -40,7 +40,7 @@ public class NotificationRequest {
     private final Queue<MgcpSignal> requestedSignals;
 
     public NotificationRequest(int transactionId, String requestIdentifier, NotifiedEntity notifiedEntity,
-            String[] requestedEvents, MgcpSignal[] requestedSignals) {
+            String[] requestedEvents, MgcpSignal... requestedSignals) {
         super();
         this.transactionId = transactionId;
         this.requestIdentifier = requestIdentifier;

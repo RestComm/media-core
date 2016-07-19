@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 
 /**
@@ -56,6 +57,12 @@ public class GenericMgcpEvent implements MgcpEvent {
     
     public void setParameter(MgcpParameterType type, String value) {
         this.parameters.put(type, value);
+    }
+    
+    @Override
+    public NotifiedEntity getNotifiedEntity() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
