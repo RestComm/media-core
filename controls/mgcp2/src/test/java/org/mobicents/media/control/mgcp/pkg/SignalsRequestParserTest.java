@@ -33,18 +33,39 @@ import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 public class SignalsRequestParserTest {
 
     @Test
-    public void testParse() throws MgcpParseException {
+    public void testParseSingleRequest() throws MgcpParseException {
         // given
         final String request = "AU/pa(an=https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26d12996.wav it=1)";
 
         // when
-        SignalRequests obj = SignalsRequestParser.parse(request);
+        SignalRequest[] requests = SignalsRequestParser.parse(request);
 
         // then
-        assertEquals("AU", obj.getPackageName());
-        assertEquals("pa", obj.getSignalType());
-        assertEquals("https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26d12996.wav", obj.getParameter("an"));
-        assertEquals("1", obj.getParameter("it"));
+        assertEquals(1, requests.length);
+        assertEquals("AU", requests[0].getPackageName());
+        assertEquals("pa", requests[0].getSignalType());
+        assertEquals("https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26d12996.wav", requests[0].getParameter("an"));
+        assertEquals("1", requests[0].getParameter("it"));
+    }
+
+    @Test
+    public void testParseMultipleRequests() throws MgcpParseException {
+        // given
+        final String request = "AU/pa(an=https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26d12996.wav it=1), AU/pr(an=https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26xxx111.wav)";
+        
+        // when
+        SignalRequest[] requests = SignalsRequestParser.parse(request);
+        
+        // then
+        assertEquals(2, requests.length);
+        assertEquals("AU", requests[0].getPackageName());
+        assertEquals("pa", requests[0].getSignalType());
+        assertEquals("https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26d12996.wav", requests[0].getParameter("an"));
+        assertEquals("1", requests[0].getParameter("it"));
+        assertEquals("AU", requests[1].getPackageName());
+        assertEquals("pr", requests[1].getSignalType());
+        assertEquals("https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26xxx111.wav", requests[1].getParameter("an"));
+        assertNull(requests[1].getParameter("it"));
     }
 
     @Test(expected = MgcpParseException.class)
@@ -60,15 +81,6 @@ public class SignalsRequestParserTest {
     public void testParseWhenMissingParameterStartSeparator() throws MgcpParseException {
         // given
         final String request = "AU/pa an=https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26d12996.wav it=1)";
-
-        // when
-        SignalsRequestParser.parse(request);
-    }
-
-    @Test(expected = MgcpParseException.class)
-    public void testParseWhenMissingParameterEndSeparator() throws MgcpParseException {
-        // given
-        final String request = "AU/pa(an=https://127.0.0.1:8080/restcomm/cache/ACae6e420f4/5a26d12996.wav it=1";
 
         // when
         SignalsRequestParser.parse(request);

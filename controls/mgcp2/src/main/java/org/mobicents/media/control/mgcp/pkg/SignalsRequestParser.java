@@ -35,7 +35,17 @@ public class SignalsRequestParser {
     private static final String PARAM_SEPARATOR = " ";
     private static final String VALUE_SEPARATOR = "=";
 
-    public static SignalRequests parse(String request) throws MgcpParseException {
+    public static SignalRequest[] parse(String request) throws MgcpParseException {
+        String[] signals = request.split("\\),");
+        SignalRequest[] signalRequests = new SignalRequest[signals.length];
+        
+        for (int i = 0; i < signals.length; i++) {
+            signalRequests[i] = parseSingle(signals[i].trim() + ")");
+        }
+        return signalRequests;
+    }
+    
+    private static SignalRequest parseSingle(String request) throws MgcpParseException {
         try {
             // Get index of separators
             int indexOfNamespace = request.indexOf(NAMESPACE_SEPARATOR);
@@ -56,7 +66,7 @@ public class SignalsRequestParser {
             }
 
             // Create Object
-            SignalRequests obj = new SignalRequests(packageName, signalType);
+            SignalRequest obj = new SignalRequest(packageName, signalType);
             for (String param : parameters) {
                 int indexOfValue = param.indexOf(VALUE_SEPARATOR);
                 if (indexOfValue == -1) {
@@ -71,7 +81,6 @@ public class SignalsRequestParser {
         } catch (Exception e) {
             throw new MgcpParseException("Malformed signal request: " + request, e);
         }
-
     }
 
 }

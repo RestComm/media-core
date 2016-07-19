@@ -30,13 +30,13 @@ import java.util.Map;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SignalRequests {
+public class SignalRequest {
 
     private final String packageName;
     private final String signalType;
     private final Map<String, String> parameters;
 
-    public SignalRequests(String packageName, String signalType) {
+    public SignalRequest(String packageName, String signalType) {
         super();
         this.packageName = packageName;
         this.signalType = signalType;

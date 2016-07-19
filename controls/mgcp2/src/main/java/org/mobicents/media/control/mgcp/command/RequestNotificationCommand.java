@@ -36,7 +36,7 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.control.mgcp.pkg.NotifiedEntityParser;
-import org.mobicents.media.control.mgcp.pkg.SignalRequests;
+import org.mobicents.media.control.mgcp.pkg.SignalRequest;
 import org.mobicents.media.control.mgcp.pkg.SignalsRequestParser;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
@@ -59,7 +59,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     private NotifiedEntity notifiedEntity;
     private String requestIdentifier;
     private String[] requestedEvents;
-    private SignalRequests signalRequests;
+    private SignalRequest[] signalRequests;
 
     public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         super(endpointManager, connectionProvider);
@@ -102,10 +102,10 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         }
 
         // Requested Signals
-        String signal = request.getParameter(MgcpParameterType.REQUESTED_SIGNALS);
-        if(signal != null) {
+        String signals = request.getParameter(MgcpParameterType.REQUESTED_SIGNALS);
+        if(signals != null) {
             try {
-                this.signalRequests = SignalsRequestParser.parse(signal);
+                this.signalRequests = SignalsRequestParser.parse(signals);
             } catch (MgcpParseException e) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
             }
@@ -130,22 +130,24 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         
         // TODO Check if connection is specified (to do later down in roadmap)
         
-        // Register types of event to be looked at
-        this.endpoint.listen(this.requestedEvents);
-
-        // Retrieve signal (if requested)
+        // Retrieve signal requests (if any)
+        MgcpSignal[] signals = null;
         if(this.signalRequests != null) {
-            MgcpSignal signal;
-            try {
-                signal = MgcpSignalProvider.provide(this.signalRequests.getPackageName(), this.signalRequests.getPackageName());
-            } catch (UnrecognizedMgcpPackageException e) {
-                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
-            } catch (UnsupportedMgcpSignalException e) {
-                throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.message());
+            signals = new MgcpSignal[this.signalRequests.length];
+            for (int i=0; i < this.signalRequests.length; i++) {
+                try {
+                    SignalRequest signalRequest = this.signalRequests[i];
+                    signals[i] = MgcpSignalProvider.provide(signalRequest.getPackageName(), signalRequest.getPackageName());
+                } catch (UnrecognizedMgcpPackageException e) {
+                    throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
+                } catch (UnsupportedMgcpSignalException e) {
+                    throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.message());
+                }
             }
-            // TODO Catch exception
-            this.endpoint.execute(signal, this.notifiedEntity);
         }
+        
+        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier, notifiedEntity, requestedEvents, signals);
+        this.endpoint.requestNotification(rqnt);
     }
 
     @Override

@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
@@ -60,14 +61,14 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     
     // Endpoint Properties
     private final String endpointId;
-    private final NotifiedEntity notifiedEntity;
+    private final NotifiedEntity defaultNotifiedEntity;
     private final ConcurrentHashMap<Integer, MgcpCall> calls;
 
     // Endpoint State
     private final AtomicBoolean active;
 
     // Events and Signals
-    private String[] events;
+    private NotificationRequest notificationRequest;
     private MgcpSignal signal;
 
     public GenericMgcpEndpoint(String endpointId, MgcpMessageSubject messageCenter) {
@@ -76,7 +77,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
         // Endpoint Properties
         this.endpointId = endpointId;
-        this.notifiedEntity = new NotifiedEntity();
+        this.defaultNotifiedEntity = new NotifiedEntity();
         this.calls = new ConcurrentHashMap<>(10);
 
         // Endpoint State
@@ -282,57 +283,71 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             }
         }
     }
-
-    private boolean isListening(String event) {
-        if (this.events != null) {
-            for (String evt : events) {
-                if (evt.equalsIgnoreCase(event)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
+    
     @Override
-    public void execute(MgcpSignal signal, NotifiedEntity notifiedEntity) {
-        if (this.signal == null) {
-            // No signal being executing. Execute new signal immediately
-            this.signal = signal;
-            this.signal.execute();
+    public void requestNotification(NotificationRequest request) {
+        if(this.signal != null) {
+            this.signal.cancel();
+            // TODO cancel current signal
         } else {
-            // Current signal is identical to newly request signal. Ignore.
-            if (this.signal.equals(signal)) {
-                log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
-            } else {
-                this.signal.cancel();
-                this.signal = signal;
-                this.signal.execute();
-            }
+            this.notificationRequest = request;
+            this.signal = this.notificationRequest.pollSignal();
+            this.signal.execute();
         }
     }
 
-    @Override
-    public void listen(String... events) {
-        if(log.isDebugEnabled()) {
-            log.debug("Listening to events: " + events);
-        }
-        this.events = events;
-    }
+//    @Override
+//    public void execute(MgcpSignal signal, NotifiedEntity notifiedEntity) {
+//        if (this.signal == null) {
+//            // No signal being executing. Execute new signal immediately
+//            this.signal = signal;
+//            this.notifiedEntity = notifiedEntity;
+//            this.signal.execute();
+//        } else {
+//            // Current signal is identical to newly request signal. Ignore.
+//            if (this.signal.equals(signal)) {
+//                log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
+//            } else {
+//                this.signal.cancel();
+//                this.signal = signal;
+//                this.notifiedEntity = notifiedEntity;
+//                this.signal.execute();
+//            }
+//        }
+//    }
 
     @Override
     public void onMgcpEvent(MgcpEventData event) {
         final String symbol = event.getSymbol();
-        if (isListening(symbol)) {
-            MgcpRequest notify = new MgcpRequest();
-            notify.setRequestType(MgcpRequestType.NTFY);
-            notify.setTransactionId(0);
-            notify.setEndpointId(this.endpointId);
-            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
-            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
-            notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
-            this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
+        if (this.notificationRequest.isListening(symbol)) {
+            this.signal = this.notificationRequest.pollSignal();
+            if(this.signal == null) {
+                // Build Notification
+                MgcpRequest notify = new MgcpRequest();
+                notify.setRequestType(MgcpRequestType.NTFY);
+                notify.setTransactionId(0);
+                notify.setEndpointId(this.endpointId);
+                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, getNotifiedEntity().toString());
+                notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
+                notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
+                
+                // Clean notification request and send notification to call agent
+                this.notificationRequest = null;
+                this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
+            } else {
+                this.signal.execute();
+            }
         }
+    }
+    
+    private NotifiedEntity getNotifiedEntity() {
+        if(this.notificationRequest != null) {
+            NotifiedEntity callAgent = this.notificationRequest.getNotifiedEntity();
+            if(callAgent != null) {
+                return callAgent;
+            }
+        }
+        return this.defaultNotifiedEntity;
     }
 
     /**
