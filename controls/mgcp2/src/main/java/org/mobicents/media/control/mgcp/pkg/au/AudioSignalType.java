@@ -19,39 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg;
-
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+package org.mobicents.media.control.mgcp.pkg.au;
 
 /**
- * Data accessor for {@link MgcpEvent}.
+ * Types of MGCP signals defined by Advanced Audio Package.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventData {
+public enum AudioSignalType {
 
-    /**
-     * Gets the name and address of the entity to be notified.
-     * 
-     * @return The notified entity.
-     */
-    NotifiedEntity getNotifiedEntity();
+    PLAY_ANNOUNCEMENT("pa"), PLAY_COLLECT("pc"), PLAY_RECORD("pr"), END_SIGNAL("es");
 
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
+    private final String symbol;
 
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(MgcpParameterType type);
+    private AudioSignalType(String symbol) {
+        this.symbol = symbol;
+    }
+
+    public String symbol() {
+        return symbol;
+    }
+
+    public static AudioSignalType fromSymbol(String symbol) {
+        if (symbol != null && !symbol.isEmpty()) {
+            for (AudioSignalType signal : values()) {
+                if (signal.symbol.equalsIgnoreCase(symbol)) {
+                    return signal;
+                }
+            }
+        }
+        return null;
+    }
 
 }

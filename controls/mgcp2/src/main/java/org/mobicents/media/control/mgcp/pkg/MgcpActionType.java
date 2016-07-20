@@ -19,36 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.base;
+package org.mobicents.media.control.mgcp.pkg;
 
 /**
+ * List of actions that can be srpung when an event is fired.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum EventType {
+public enum MgcpActionType {
 
-    OPERATION_COMPLETE("oc"),
-    OPERATION_FAILURE("of");
+    NOTIFY("N"), ACCUMULATE("A"), TREATE_ACCORDING_DIGIT_MAP("D"), SWAP("S"), IGNORE("I"), KEEP_ACTIVE("K"), EMBEDDED_RQNT("E");
 
     private final String symbol;
 
-    private EventType(String symbol) {
+    private MgcpActionType(String symbol) {
         this.symbol = symbol;
     }
 
     public String symbol() {
-        return symbol;
+        return this.symbol;
     }
 
-    public static final EventType fromSymbol(String symbol) {
+    public static MgcpActionType fromSymbol(String symbol) {
         if (symbol != null && !symbol.isEmpty()) {
-            for (EventType eventType : values()) {
-                if (eventType.symbol.equalsIgnoreCase(symbol)) {
-                    return eventType;
+            for (MgcpActionType action : values()) {
+                if (action.symbol.equalsIgnoreCase(symbol)) {
+                    return action;
                 }
             }
         }
         return null;
     }
-
 }

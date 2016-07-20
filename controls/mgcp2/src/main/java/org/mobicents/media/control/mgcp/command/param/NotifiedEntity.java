@@ -59,20 +59,22 @@ public class NotifiedEntity {
     private final StringBuilder builder;
 
     public NotifiedEntity(String name, String domain) {
+        this(name, domain, 0);
+    }
+
+    public NotifiedEntity(String name, String domain, int port) {
         super();
         this.name = name;
         this.domain = domain;
+        this.port = port;
         this.builder = new StringBuilder();
     }
 
     public NotifiedEntity() {
-        this(DEFAULT_NAME, DEFAULT_DOMAIN);
+        this(DEFAULT_NAME, DEFAULT_DOMAIN, DEFAULT_PORT);
     }
 
     public String getName() {
-        if (this.name == null || this.name.isEmpty()) {
-            return DEFAULT_NAME;
-        }
         return name;
     }
 
@@ -81,9 +83,6 @@ public class NotifiedEntity {
     }
 
     public String getDomain() {
-        if (this.domain == null || this.domain.isEmpty()) {
-            return DEFAULT_DOMAIN;
-        }
         return domain;
     }
 
@@ -92,9 +91,6 @@ public class NotifiedEntity {
     }
 
     public int getPort() {
-        if (this.port <= 0) {
-            return DEFAULT_PORT;
-        }
         return port;
     }
 
@@ -105,7 +101,10 @@ public class NotifiedEntity {
     @Override
     public String toString() {
         this.builder.setLength(0);
-        this.builder.append(getName()).append("@").append(getDomain()).append(":").append(getPort());
+        this.builder.append(getName()).append("@").append(getDomain());
+        if(this.port != 0) {
+            this.builder.append(":").append(getPort());
+        }
         return this.builder.toString();
     }
 }

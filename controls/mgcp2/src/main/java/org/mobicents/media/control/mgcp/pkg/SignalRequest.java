@@ -21,37 +21,42 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Data accessor for {@link MgcpEvent}.
+ * Representation of the SignalRequests parameter of an MGCP RQNT command.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventData {
+public class SignalRequest {
 
-    /**
-     * Gets the name and address of the entity to be notified.
-     * 
-     * @return The notified entity.
-     */
-    NotifiedEntity getNotifiedEntity();
+    private final String packageName;
+    private final String signalType;
+    private final Map<String, String> parameters;
 
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
+    public SignalRequest(String packageName, String signalType) {
+        super();
+        this.packageName = packageName;
+        this.signalType = signalType;
+        this.parameters = new HashMap<>(5);
+    }
 
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(MgcpParameterType type);
+    public String getPackageName() {
+        return packageName;
+    }
 
+    public String getSignalType() {
+        return signalType;
+    }
+
+    public void addParameter(String name, String value) {
+        this.parameters.put(name, value);
+    }
+
+    public String getParameter(String name) {
+        return this.parameters.get(name);
+    }
+    
 }

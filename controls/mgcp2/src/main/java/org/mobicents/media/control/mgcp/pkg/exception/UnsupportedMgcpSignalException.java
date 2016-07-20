@@ -19,39 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg;
+package org.mobicents.media.control.mgcp.pkg.exception;
 
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.exception.MgcpException;
 
 /**
- * Data accessor for {@link MgcpEvent}.
+ * Occurs when a specific signal is unsupported by an MGCP Package.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventData {
+public class UnsupportedMgcpSignalException extends MgcpException {
 
-    /**
-     * Gets the name and address of the entity to be notified.
-     * 
-     * @return The notified entity.
-     */
-    NotifiedEntity getNotifiedEntity();
+    private static final long serialVersionUID = -7741582422343826426L;
 
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
+    public UnsupportedMgcpSignalException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(MgcpParameterType type);
+    public UnsupportedMgcpSignalException(String message) {
+        super(message);
+    }
 
 }

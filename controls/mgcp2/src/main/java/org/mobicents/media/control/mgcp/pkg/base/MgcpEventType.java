@@ -19,39 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg;
-
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+package org.mobicents.media.control.mgcp.pkg.base;
 
 /**
- * Data accessor for {@link MgcpEvent}.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventData {
+public enum MgcpEventType {
 
-    /**
-     * Gets the name and address of the entity to be notified.
-     * 
-     * @return The notified entity.
-     */
-    NotifiedEntity getNotifiedEntity();
+    OPERATION_COMPLETE("oc"),
+    OPERATION_FAILURE("of");
 
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
+    private final String symbol;
 
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(MgcpParameterType type);
+    private MgcpEventType(String symbol) {
+        this.symbol = symbol;
+    }
+
+    public String symbol() {
+        return symbol;
+    }
+
+    public static final MgcpEventType fromSymbol(String symbol) {
+        if (symbol != null && !symbol.isEmpty()) {
+            for (MgcpEventType eventType : values()) {
+                if (eventType.symbol.equalsIgnoreCase(symbol)) {
+                    return eventType;
+                }
+            }
+        }
+        return null;
+    }
 
 }

@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * Generic representation of an MGCP Signal.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
@@ -77,10 +79,8 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
         boolean equals = false;
         if (obj != null && obj instanceof AbstractMgcpSignal) {
             AbstractMgcpSignal other = (AbstractMgcpSignal) obj;
-            equals = this.packageName.equalsIgnoreCase(other.packageName) 
-                    && this.symbol.equalsIgnoreCase(other.symbol)
-                    && this.type.equals(other.type) 
-                    && this.parameters.size() == other.parameters.size();
+            equals = this.packageName.equalsIgnoreCase(other.packageName) && this.symbol.equalsIgnoreCase(other.symbol)
+                    && this.type.equals(other.type) && this.parameters.size() == other.parameters.size();
 
             if (equals) {
                 for (String key : this.parameters.keySet()) {

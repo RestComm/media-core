@@ -49,7 +49,7 @@ public enum MgcpResponseCode {
     UNKNOWN_OR_UNSUPPORTED_COMMAND(504, "Unknown or unsupported command"),
     UNSUPPORTED_SDP(505, "Unsupported RemoteConnectionDescriptor"),
     REMOTE_SDP_AND_LOCAL_OPTION_CONFLICT(506, "Unable to satisfy both LocalConnectionOptions and RemoteConnectionDescriptor"),
-    UNSUPPROTED_FUNCTIONALITY(507, "Unsupported functionality"),
+    UNSUPPORTED_FUNCTIONALITY(507, "Unsupported functionality"),
     UNKNOWN_QUARANTINE_HANDLING(508, "Unknown or unsupported quarantine handling"),
     ERROR_IN_SDP(509, "Error in RemoteConnectionDescriptor"),
     PROTOCOL_ERROR(510, "The transaction could not be executed, because some unspecified protocol error was detected"),
@@ -61,9 +61,11 @@ public enum MgcpResponseCode {
     INCORRECT_CALL_ID(516, "The transaction refers to an unknown call-id, or the call-id supplied is incorrect"),
     INVALID_OR_UNSUPPORTED_MODE(517, "Unsupported or invalid mode"),
     UNKNOWN_PACKAGE(518, "Unsupported or unknown package"),
+    NO_SUCH_EVENT_OR_SIGNAL(522, "No such event or signal"),
     INTERNAL_INCONSISTENCY_IN_LOCAL_SDP(524, "Internal inconsistency in LocalConnectionOptions"),
     MISSING_REMOTE_CONNECTION_DESCRIPTOR(527, "Missing RemoteConnectionDescriptor"),
-    CODEC_NEGOTIATION_FAILURE(534, "Codec negotiation failure");
+    CODEC_NEGOTIATION_FAILURE(534, "Codec negotiation failure"), 
+    EVENT_OR_SIGNAL_PARAMETER_ERROR(538, "Event/signal parameter error");
 
     private final int code;
     private final String message;

@@ -21,37 +21,39 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-
 /**
- * Data accessor for {@link MgcpEvent}.
+ * Holds information about a RequestedEvent from an MGCP RQNT command.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventData {
+public class MgcpRequestedEvent {
 
-    /**
-     * Gets the name and address of the entity to be notified.
-     * 
-     * @return The notified entity.
-     */
-    NotifiedEntity getNotifiedEntity();
+    private final String packageName;
+    private final String eventType;
+    private final MgcpActionType action;
 
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
+    public MgcpRequestedEvent(String packageName, String eventType, MgcpActionType action) {
+        this.packageName = packageName;
+        this.eventType = eventType;
+        this.action = action;
+    }
 
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(MgcpParameterType type);
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public MgcpActionType getAction() {
+        return action;
+    }
+
+    @Override
+    public String toString() {
+        return this.packageName + "/" + this.eventType + "(" + this.action + ")";
+    }
 
 }

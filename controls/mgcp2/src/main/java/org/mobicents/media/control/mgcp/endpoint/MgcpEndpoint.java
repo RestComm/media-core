@@ -23,12 +23,12 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import java.util.List;
 
+import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventListener;
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalExecutor;
 
 /**
  * An Endpoint is a logical representation of a physical entity, such as an analog phone or a channel in a trunk.
@@ -45,7 +45,7 @@ import org.mobicents.media.control.mgcp.pkg.MgcpSignalExecutor;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpoint extends MgcpEventListener, MgcpSignalExecutor {
+public interface MgcpEndpoint extends MgcpEventListener {
 
     /**
      * Gets the endpoint identifier
@@ -94,5 +94,12 @@ public interface MgcpEndpoint extends MgcpEventListener, MgcpSignalExecutor {
      * @throws MgcpCallNotFoundException When call with such ID cannot be found.
      */
     List<MgcpConnection> deleteConnections(int callId) throws MgcpCallNotFoundException;
+
+    /**
+     * Requests a notification to be fired when an event happens in the endpoint.
+     * 
+     * @param request The notification request.
+     */
+    void requestNotification(NotificationRequest request);
 
 }

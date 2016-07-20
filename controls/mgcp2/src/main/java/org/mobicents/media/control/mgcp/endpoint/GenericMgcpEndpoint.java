@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
@@ -57,17 +58,17 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     // MGCP Components
     private final MgcpMessageSubject messageCenter;
-    
+
     // Endpoint Properties
     private final String endpointId;
-    private final NotifiedEntity notifiedEntity;
+    private final NotifiedEntity defaultNotifiedEntity;
     private final ConcurrentHashMap<Integer, MgcpCall> calls;
 
     // Endpoint State
     private final AtomicBoolean active;
 
     // Events and Signals
-    private String[] events;
+    private NotificationRequest notificationRequest;
     private MgcpSignal signal;
 
     public GenericMgcpEndpoint(String endpointId, MgcpMessageSubject messageCenter) {
@@ -76,7 +77,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
         // Endpoint Properties
         this.endpointId = endpointId;
-        this.notifiedEntity = new NotifiedEntity();
+        this.defaultNotifiedEntity = new NotifiedEntity();
         this.calls = new ConcurrentHashMap<>(10);
 
         // Endpoint State
@@ -283,53 +284,59 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         }
     }
 
-    private boolean isListening(String event) {
-        if (this.events != null) {
-            for (String evt : events) {
-                if (evt.equalsIgnoreCase(event)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     @Override
-    public void execute(MgcpSignal signal) {
-        if (this.signal == null) {
-            // No signal being executing. Execute new signal immediately
-            this.signal = signal;
-            this.signal.execute();
-        } else {
+    public void requestNotification(NotificationRequest request) {
+        if (this.signal != null) {
             // Current signal is identical to newly request signal. Ignore.
             if (this.signal.equals(signal)) {
                 log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
+                return;
             } else {
+                // Cancel current signal.
+                // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
+                // registered with the event.
                 this.signal.cancel();
-                this.signal = signal;
-                this.signal.execute();
             }
         }
-    }
 
-    @Override
-    public void listen(String... events) {
-        this.events = events;
+        // Set new notification request and start executing requested signals (if any)
+        this.notificationRequest = request;
+        this.signal = this.notificationRequest.pollSignal();
+        if(signal != null) {
+            this.signal.execute();
+        }
     }
 
     @Override
     public void onMgcpEvent(MgcpEventData event) {
         final String symbol = event.getSymbol();
-        if (isListening(symbol)) {
-            MgcpRequest notify = new MgcpRequest();
-            notify.setRequestType(MgcpRequestType.NTFY);
-            notify.setTransactionId(0);
-            notify.setEndpointId(this.endpointId);
-            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
-            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
-            notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
-            this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
+        if (this.notificationRequest.isListening(symbol)) {
+            this.signal = this.notificationRequest.pollSignal();
+            if (this.signal == null) {
+                // Build Notification
+                MgcpRequest notify = new MgcpRequest();
+                notify.setRequestType(MgcpRequestType.NTFY);
+                notify.setTransactionId(0);
+                notify.setEndpointId(this.endpointId);
+                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
+                        resolve(event.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
+                notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
+                notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
+
+                // Clean notification request and send notification to call agent
+                this.notificationRequest = null;
+                this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
+            } else {
+                this.signal.execute();
+            }
         }
+    }
+
+    private NotifiedEntity resolve(NotifiedEntity value, NotifiedEntity defaultValue) {
+        if (value != null) {
+            return value;
+        }
+        return defaultValue;
     }
 
     /**
