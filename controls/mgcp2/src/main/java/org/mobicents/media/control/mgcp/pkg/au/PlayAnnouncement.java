@@ -24,7 +24,7 @@ package org.mobicents.media.control.mgcp.pkg.au;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
-import org.mobicents.media.control.mgcp.pkg.base.EventType;
+import org.mobicents.media.control.mgcp.pkg.base.MgcpEventType;
 
 /**
  * Plays an announcement in situations where there is no need for interaction with the user.
