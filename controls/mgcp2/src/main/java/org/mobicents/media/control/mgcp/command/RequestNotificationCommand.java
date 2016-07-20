@@ -99,6 +99,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         String events = request.getParameter(MgcpParameterType.REQUESTED_EVENTS);
         if (events != null) {
             this.requestedEvents = events.split(",");
+            // TODO validate event package, type and action
         }
 
         // Requested Signals
@@ -137,7 +138,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             for (int i=0; i < this.signalRequests.length; i++) {
                 try {
                     SignalRequest signalRequest = this.signalRequests[i];
-                    signals[i] = MgcpSignalProvider.provide(signalRequest.getPackageName(), signalRequest.getPackageName());
+                    signals[i] = MgcpSignalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType());
                 } catch (UnrecognizedMgcpPackageException e) {
                     throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
                 } catch (UnsupportedMgcpSignalException e) {

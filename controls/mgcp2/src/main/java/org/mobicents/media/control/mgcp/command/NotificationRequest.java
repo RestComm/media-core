@@ -47,6 +47,9 @@ public class NotificationRequest {
         this.notifiedEntity = notifiedEntity;
         this.requestedEvents = requestedEvents;
         this.requestedSignals = new ArrayDeque<>(requestedSignals.length);
+        for (MgcpSignal signal : requestedSignals) {
+            this.requestedSignals.add(signal);
+        }
     }
 
     public int getTransactionId() {
@@ -60,7 +63,7 @@ public class NotificationRequest {
     public NotifiedEntity getNotifiedEntity() {
         return notifiedEntity;
     }
-
+    
     public boolean isListening(String event) {
         for (String evt : this.requestedEvents) {
             if (evt.equalsIgnoreCase(event)) {
@@ -72,5 +75,9 @@ public class NotificationRequest {
 
     public MgcpSignal pollSignal() {
         return this.requestedSignals.poll();
+    }
+    
+    public int countSignals() {
+        return this.requestedSignals.size();
     }
 }

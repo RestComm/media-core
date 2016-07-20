@@ -23,6 +23,9 @@ package org.mobicents.media.control.mgcp.pkg;
 
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
 import org.mobicents.media.control.mgcp.pkg.au.AudioSignalType;
+import org.mobicents.media.control.mgcp.pkg.au.PlayAnnouncement;
+import org.mobicents.media.control.mgcp.pkg.au.PlayCollect;
+import org.mobicents.media.control.mgcp.pkg.au.PlayRecord;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 
@@ -64,13 +67,13 @@ public class MgcpSignalProvider {
 
         switch (signalType) {
             case PLAY_ANNOUNCEMENT:
-                return null;
+                return new PlayAnnouncement();
 
             case PLAY_COLLECT:
-                return null;
+                return new PlayCollect();
 
             case PLAY_RECORD:
-                return null;
+                return new PlayRecord();
 
             default:
                 throw new IllegalArgumentException("Unsupported audio signal: " + signal);

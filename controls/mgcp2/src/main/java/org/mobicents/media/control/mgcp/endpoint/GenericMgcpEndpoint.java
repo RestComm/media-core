@@ -299,10 +299,12 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             }
         }
 
-        // Set new notification request and start executing requested signals
+        // Set new notification request and start executing requested signals (if any)
         this.notificationRequest = request;
         this.signal = this.notificationRequest.pollSignal();
-        this.signal.execute();
+        if(signal != null) {
+            this.signal.execute();
+        }
     }
 
     @Override
