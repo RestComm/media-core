@@ -30,19 +30,24 @@ import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- * @category NotThreadSafe
  */
 public class GenericMgcpEvent implements MgcpEvent {
 
+    private final String pkg;
     private final String symbol;
     private final Map<MgcpParameterType, String> parameters;
     private final AtomicBoolean fired;
 
-    public GenericMgcpEvent(String symbol) {
-        super();
+    public GenericMgcpEvent(String pkg, String symbol) {
+        this.pkg = pkg;
         this.symbol = symbol;
         this.parameters = new HashMap<>(10);
         this.fired = new AtomicBoolean(false);
+    }
+    
+    @Override
+    public String getPackage() {
+        return this.pkg;
     }
 
     @Override

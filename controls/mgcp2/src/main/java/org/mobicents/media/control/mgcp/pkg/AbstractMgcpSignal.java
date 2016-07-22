@@ -21,8 +21,10 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,14 +39,16 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final String symbol;
     private final SignalType type;
     private final Map<String, String> parameters;
+    private final List<MgcpEventListener> listeners;
     protected final AtomicBoolean executing;
 
-    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, Map<String, String> params) {
         super();
         this.packageName = packageName;
         this.symbol = symbol;
         this.type = type;
-        this.parameters = new HashMap<>(10);
+        this.parameters = params;
+        this.listeners = new CopyOnWriteArrayList<>();
         this.executing = new AtomicBoolean(false);
     }
 
@@ -58,13 +62,6 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
 
     public String getParameter(String name) {
         return this.parameters.get(name);
-    }
-
-    public void addParameter(String name, String value) throws IllegalArgumentException {
-        if (!isParameterSupported(name)) {
-            throw new IllegalArgumentException("Parameter " + name + " is not supported by signal " + this.symbol);
-        }
-        this.parameters.put(name, value);
     }
 
     protected abstract boolean isParameterSupported(String name);
@@ -92,6 +89,14 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
             }
         }
         return equals;
+    }
+    
+    protected void fire(MgcpEvent event) {
+        Iterator<MgcpEventListener> iterator = this.listeners.iterator();
+        while (iterator.hasNext()) {
+            MgcpEventListener listener = iterator.next();
+            listener.onMgcpEvent(event);
+        }
     }
 
 }

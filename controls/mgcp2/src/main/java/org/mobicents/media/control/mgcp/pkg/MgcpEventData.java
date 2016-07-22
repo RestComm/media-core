@@ -40,6 +40,13 @@ public interface MgcpEventData {
     NotifiedEntity getNotifiedEntity();
 
     /**
+     * Gets the package the event belongs to.
+     * 
+     * @return The package symbol
+     */
+    String getPackage();
+
+    /**
      * Gets the symbol representing the event.
      * 
      * @return The event symbol

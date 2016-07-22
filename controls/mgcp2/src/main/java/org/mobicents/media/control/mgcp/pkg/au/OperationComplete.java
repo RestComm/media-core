@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
 
 /**
@@ -31,8 +32,13 @@ import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
  */
 public class OperationComplete extends GenericMgcpEvent {
 
-    public OperationComplete() {
-        super("oc");
+    public OperationComplete(int reasonCode) {
+        super(AudioPackage.PACKAGE_NAME, "oc");
+        
+        if(reasonCode < 100 || reasonCode > 199) {
+            throw new IllegalArgumentException("Illegal reason code: " + reasonCode);
+        }
+        this.setParameter(MgcpParameterType.REASON_CODE, String.valueOf(reasonCode));
     }
 
 }

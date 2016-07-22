@@ -21,24 +21,30 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
-
 /**
- * Detected upon the failure of a Play, PlayRecord, or PlayCollect signal.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationFailed extends GenericMgcpEvent {
+public class Playlist {
 
-    public OperationFailed(int reasonCode) {
-        super(AudioPackage.PACKAGE_NAME, "of");
-        
-        if(reasonCode < 300 || reasonCode > 399) {
-            throw new IllegalArgumentException("Illegal reason code: " + reasonCode);
-        }
-        setParameter(MgcpParameterType.REASON_CODE, String.valueOf(reasonCode));
+    private final String[] segments;
+    private final int segmentCount;
+    private int index;
+    private int counter;
+
+    public Playlist(String[] segments, int iterations) {
+        this.segments = segments;
+        this.segmentCount = segments.length;
+        this.index = 0;
+        this.counter = iterations == -1 ? Integer.MAX_VALUE : iterations * segmentCount;
     }
 
+    public String current() {
+        return this.segments[this.index];
+    }
+
+    public String next() {
+        this.counter--;
+        return this.counter == -1 ? "" : this.segments[this.index++ % this.segmentCount];
+    }
 }
