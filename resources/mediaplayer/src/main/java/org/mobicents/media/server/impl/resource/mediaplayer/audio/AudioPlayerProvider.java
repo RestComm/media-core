@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.player.Player;
+import org.mobicents.media.server.spi.player.PlayerProvider;
 
 /**
  * Provides audio players.
@@ -32,7 +33,7 @@ import org.mobicents.media.server.spi.player.Player;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AudioPlayerProvider {
+public class AudioPlayerProvider implements PlayerProvider {
 
     private final PriorityQueueScheduler scheduler;
     private final AtomicInteger id;
