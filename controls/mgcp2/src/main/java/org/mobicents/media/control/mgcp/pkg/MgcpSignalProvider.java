@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
+import java.util.Map;
+
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
 import org.mobicents.media.control.mgcp.pkg.au.AudioSignalType;
 import org.mobicents.media.control.mgcp.pkg.au.PlayAnnouncement;
@@ -49,22 +51,23 @@ public class MgcpSignalProvider {
      * 
      * @param pkg The package name.
      * @param signal The signal name.
+     * @param parameters The parameters that configure the signal
      * @return The MGCP signal.
      * @throws UnrecognizedMgcpPackageException When package name is unrecognized.
      * @throws UnsupportedMgcpSignalException When package does not support the specified signal.
      */
-    public MgcpSignal provide(String pkg, String signal)
+    public MgcpSignal provide(String pkg, String signal, Map<String, String> parameters)
             throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
-                return provideAudioSignal(signal);
+                return provideAudioSignal(signal, parameters);
 
             default:
                 throw new UnrecognizedMgcpPackageException("Unrecognized package " + pkg);
         }
     }
 
-    private MgcpSignal provideAudioSignal(String signal) throws UnsupportedMgcpSignalException {
+    private MgcpSignal provideAudioSignal(String signal, Map<String, String> parameters) throws UnsupportedMgcpSignalException {
         // Validate signal type
         AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
@@ -74,7 +77,7 @@ public class MgcpSignalProvider {
 
         switch (signalType) {
             case PLAY_ANNOUNCEMENT:
-                return new PlayAnnouncement(this.playerProvider.provide());
+                return new PlayAnnouncement(this.playerProvider.provide(), parameters);
 
             case PLAY_COLLECT:
                 // TODO provide player and DTMF detector

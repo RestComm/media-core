@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +43,18 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final List<MgcpEventListener> observers;
     protected final AtomicBoolean executing;
 
-    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, Map<String, String> parameters) {
         super();
         this.packageName = packageName;
         this.symbol = symbol;
         this.type = type;
-        this.parameters = new HashMap<>(10);
+        this.parameters = parameters;
         this.observers = new CopyOnWriteArrayList<>();
         this.executing = new AtomicBoolean(false);
+    }
+
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
+        this(packageName, symbol, type, Collections.<String, String> emptyMap());
     }
 
     public String getSymbol() {

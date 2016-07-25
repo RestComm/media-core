@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.pkg.au;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
@@ -69,15 +70,27 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
 
     // Media Components
     private final Player player;
-    private Playlist playlist;
+    private final Playlist playlist;
 
     // Play operation
-    private long duration;
-    private long interval;
+    private final long duration;
+    private final long interval;
 
-    public PlayAnnouncement(Player player) {
-        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT);
+    public PlayAnnouncement(Player player, Map<String, String> parameters) {
+        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT, parameters);
 
+        // Setup Play Parameters
+        String[] segments = getParameter(SignalParameters.ANNOUNCEMENT.symbol()).split(",");
+        String iterationsParam = getParameter(SignalParameters.ITERATIONS.symbol());
+        int iterations = iterationsParam == null ? ITERATIONS : Integer.parseInt(iterationsParam);
+        String durationParam = getParameter(SignalParameters.DURATION.symbol());
+        this.duration = (durationParam == null) ? -1L : Long.parseLong(durationParam);
+        String intervalParam = getParameter(SignalParameters.INTERVAL.symbol());
+        this.interval = ((intervalParam == null) ? INTERVAL : Long.parseLong(intervalParam)) * 1000000L;
+
+        // Setup Playlist
+        this.playlist = new Playlist(segments, iterations);
+        
         // Media Player
         this.player = player;
         this.player.setDuration(this.duration);
@@ -134,18 +147,6 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
         if (this.executing.getAndSet(true)) {
             throw new IllegalStateException("Already executing.");
         }
-
-        // Setup Play Parameters
-        String[] segments = getParameter(SignalParameters.ANNOUNCEMENT.symbol()).split(",");
-        String iterationsParam = getParameter(SignalParameters.ITERATIONS.symbol());
-        int iterations = iterationsParam == null ? ITERATIONS : Integer.parseInt(iterationsParam);
-        String durationParam = getParameter(SignalParameters.DURATION.symbol());
-        this.duration = (durationParam == null) ? -1L : Long.parseLong(durationParam);
-        String intervalParam = getParameter(SignalParameters.INTERVAL.symbol());
-        this.interval = ((intervalParam == null) ? INTERVAL : Long.parseLong(intervalParam)) * 1000000L;
-
-        // Setup Playlist
-        this.playlist = new Playlist(segments, iterations);
 
         // Play announcements
         String announcement = this.playlist.next();

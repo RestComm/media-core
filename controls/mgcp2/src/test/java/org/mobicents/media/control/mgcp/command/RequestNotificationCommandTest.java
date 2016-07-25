@@ -29,6 +29,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
@@ -55,7 +57,9 @@ import org.mockito.stubbing.Answer;
 public class RequestNotificationCommandTest {
 
     @Test
-    public void testNotificationRequest() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
+    @SuppressWarnings("unchecked")
+    public void testNotificationRequest()
+            throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -72,7 +76,7 @@ public class RequestNotificationCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide("AU", "pa")).thenReturn(mock(MgcpSignal.class));
+        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class))).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -118,7 +122,9 @@ public class RequestNotificationCommandTest {
     }
 
     @Test
-    public void testNotificationRequestWithMultipleSignals() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
+    @SuppressWarnings("unchecked")
+    public void testNotificationRequestWithMultipleSignals()
+            throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -136,7 +142,7 @@ public class RequestNotificationCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide("AU", "pa")).thenReturn(mock(MgcpSignal.class));
+        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class))).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -283,6 +289,7 @@ public class RequestNotificationCommandTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testNotificationRequestWithUnrecognizedSignalPackage() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
@@ -300,7 +307,7 @@ public class RequestNotificationCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide("AX", "pa")).thenThrow(new UnrecognizedMgcpPackageException(""));
+        when(signalProvider.provide(eq("AX"), eq("pa"), any(Map.class))).thenThrow(new UnrecognizedMgcpPackageException(""));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -318,6 +325,7 @@ public class RequestNotificationCommandTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testNotificationRequestWithUnrecognizedSignalType() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
@@ -335,7 +343,7 @@ public class RequestNotificationCommandTest {
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide("AU", "xyz")).thenThrow(new UnsupportedMgcpSignalException(""));
+        when(signalProvider.provide(eq("AU"), eq("xyz"), any(Map.class))).thenThrow(new UnsupportedMgcpSignalException(""));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -367,11 +375,11 @@ public class RequestNotificationCommandTest {
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
-        
+
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
         doAnswer(new Answer<Object>() {
-            
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
@@ -380,9 +388,9 @@ public class RequestNotificationCommandTest {
                 Assert.assertEquals(MgcpResponseCode.UNKNOWN_PACKAGE.code(), response.getCode());
                 return null;
             }
-            
+
         }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        
+
         rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
     }
 
@@ -401,11 +409,11 @@ public class RequestNotificationCommandTest {
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
-        
+
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
         doAnswer(new Answer<Object>() {
-            
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
@@ -414,9 +422,9 @@ public class RequestNotificationCommandTest {
                 Assert.assertEquals(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), response.getCode());
                 return null;
             }
-            
+
         }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        
+
         rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
     }
 
@@ -435,11 +443,11 @@ public class RequestNotificationCommandTest {
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
-        
+
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
         doAnswer(new Answer<Object>() {
-            
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
@@ -448,9 +456,9 @@ public class RequestNotificationCommandTest {
                 Assert.assertEquals(MgcpResponseCode.EVENT_OR_SIGNAL_PARAMETER_ERROR.code(), response.getCode());
                 return null;
             }
-            
+
         }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        
+
         rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
     }
 
@@ -468,12 +476,13 @@ public class RequestNotificationCommandTest {
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
-        
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider,
+                signalProvider);
+
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
         doAnswer(new Answer<Object>() {
-            
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
@@ -482,9 +491,9 @@ public class RequestNotificationCommandTest {
                 Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
                 return null;
             }
-            
+
         }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        
+
         rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
     }
 
@@ -501,12 +510,13 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
-        
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider,
+                signalProvider);
+
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenThrow(new RuntimeException());
         doAnswer(new Answer<Object>() {
-            
+
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
@@ -515,9 +525,9 @@ public class RequestNotificationCommandTest {
                 Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
                 return null;
             }
-            
+
         }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        
+
         rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
     }
 
