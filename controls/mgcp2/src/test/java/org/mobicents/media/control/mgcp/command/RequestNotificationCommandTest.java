@@ -41,6 +41,10 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
+import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -51,7 +55,7 @@ import org.mockito.stubbing.Answer;
 public class RequestNotificationCommandTest {
 
     @Test
-    public void testNotificationRequest() throws MgcpParseException {
+    public void testNotificationRequest() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -63,10 +67,12 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
+        when(signalProvider.provide("AU", "pa")).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -112,7 +118,7 @@ public class RequestNotificationCommandTest {
     }
 
     @Test
-    public void testNotificationRequestWithMultipleSignals() throws MgcpParseException {
+    public void testNotificationRequestWithMultipleSignals() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -125,10 +131,12 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
+        when(signalProvider.provide("AU", "pa")).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -187,7 +195,8 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
@@ -219,7 +228,8 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
@@ -251,7 +261,8 @@ public class RequestNotificationCommandTest {
         final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(null);
@@ -272,7 +283,7 @@ public class RequestNotificationCommandTest {
     }
 
     @Test
-    public void testNotificationRequestWithUnrecognizedSignalPackage() throws MgcpParseException {
+    public void testNotificationRequestWithUnrecognizedSignalPackage() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -284,10 +295,12 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
+        when(signalProvider.provide("AX", "pa")).thenThrow(new UnrecognizedMgcpPackageException(""));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -305,7 +318,7 @@ public class RequestNotificationCommandTest {
     }
 
     @Test
-    public void testNotificationRequestWithUnrecognizedSignalType() throws MgcpParseException {
+    public void testNotificationRequestWithUnrecognizedSignalType() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -317,10 +330,12 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
+        when(signalProvider.provide("AU", "xyz")).thenThrow(new UnsupportedMgcpSignalException(""));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -350,7 +365,8 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
         
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
@@ -383,7 +399,8 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
         
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
@@ -416,7 +433,8 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
         
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
@@ -449,7 +467,8 @@ public class RequestNotificationCommandTest {
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
         
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
@@ -481,7 +500,8 @@ public class RequestNotificationCommandTest {
         final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider);
+        final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
         
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenThrow(new RuntimeException());

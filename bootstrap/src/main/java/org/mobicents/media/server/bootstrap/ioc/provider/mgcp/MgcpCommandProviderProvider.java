@@ -24,6 +24,7 @@ package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -36,16 +37,18 @@ public class MgcpCommandProviderProvider implements Provider<MgcpCommandProvider
 
     private final MgcpEndpointManager endpointManager;
     private final MgcpConnectionProvider connectionProvider;
+    private final MgcpSignalProvider signalProvider;
 
     @Inject
-    public MgcpCommandProviderProvider(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+    public MgcpCommandProviderProvider(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider, MgcpSignalProvider signalProvider) {
         this.endpointManager = endpointManager;
         this.connectionProvider = connectionProvider;
+        this.signalProvider = signalProvider;
     }
 
     @Override
     public MgcpCommandProvider get() {
-        return new MgcpCommandProvider(this.endpointManager, this.connectionProvider);
+        return new MgcpCommandProvider(this.endpointManager, this.connectionProvider, this.signalProvider);
     }
 
 }

@@ -37,7 +37,7 @@ public class GenericMgcpEventTest {
         MgcpEventListener listener1 = mock(MgcpEventListener.class);
         MgcpEventListener listener2 = mock(MgcpEventListener.class);
         MgcpEventListener listener3 = mock(MgcpEventListener.class);
-        GenericMgcpEvent event = new GenericMgcpEvent("evt");
+        GenericMgcpEvent event = new GenericMgcpEvent("AU", "evt", "pa");
         
         // when
         event.fire(listener1, listener2, listener3);
@@ -54,7 +54,7 @@ public class GenericMgcpEventTest {
         MgcpEventListener listener1 = mock(MgcpEventListener.class);
         MgcpEventListener listener2 = mock(MgcpEventListener.class);
         MgcpEventListener listener3 = mock(MgcpEventListener.class);
-        GenericMgcpEvent event = new GenericMgcpEvent("evt");
+        GenericMgcpEvent event = new GenericMgcpEvent("AU", "evt", "pa");
         
         // when
         event.fire(listener1, listener2, listener3);

@@ -19,25 +19,35 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.au;
+package org.mobicents.media.server.impl.resource.mediaplayer.audio;
 
-import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.player.Player;
 
 /**
- * Detected upon the successful completion of a Play, PlayRecord, or Play Collect signal.
+ * Provides audio players.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationComplete extends GenericMgcpEvent {
+public class AudioPlayerProvider {
 
-    public OperationComplete(String signal, int reasonCode) {
-        super(AudioPackage.PACKAGE_NAME, "oc", signal);
-        
-        if(reasonCode < 100 || reasonCode > 199) {
-            throw new IllegalArgumentException("Illegal reason code: " + reasonCode);
-        }
-        this.setParameter("rc", String.valueOf(reasonCode));
+    private final PriorityQueueScheduler scheduler;
+    private final AtomicInteger id;
+
+    public AudioPlayerProvider(PriorityQueueScheduler scheduler) {
+        this.scheduler = scheduler;
+        this.id = new AtomicInteger(0);
+    }
+
+    public Player provide() {
+        return new AudioPlayerImpl(nextId(), this.scheduler);
+    }
+
+    private String nextId() {
+        return "audio-player" + id.getAndIncrement();
     }
 
 }

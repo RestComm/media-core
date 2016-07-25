@@ -41,7 +41,7 @@ public class EndSignal extends AbstractMgcpSignal {
     public EndSignal() {
         super(AudioPackage.PACKAGE_NAME, "es", SignalType.BRIEF);
     }
-    
+
     @Override
     protected boolean isParameterSupported(String name) {
         return false;
@@ -50,14 +50,13 @@ public class EndSignal extends AbstractMgcpSignal {
     @Override
     public void execute() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void cancel() {
         // TODO Auto-generated method stub
-        
-    }
 
+    }
 
 }

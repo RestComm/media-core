@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,16 +40,16 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final String symbol;
     private final SignalType type;
     private final Map<String, String> parameters;
-    private final List<MgcpEventListener> listeners;
+    private final List<MgcpEventListener> observers;
     protected final AtomicBoolean executing;
 
-    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, Map<String, String> params) {
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
         super();
         this.packageName = packageName;
         this.symbol = symbol;
         this.type = type;
-        this.parameters = params;
-        this.listeners = new CopyOnWriteArrayList<>();
+        this.parameters = new HashMap<>(10);
+        this.observers = new CopyOnWriteArrayList<>();
         this.executing = new AtomicBoolean(false);
     }
 
@@ -72,6 +73,24 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     }
 
     @Override
+    public void observe(MgcpEventListener observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void forget(MgcpEventListener observer) {
+        this.observers.remove(observer);
+    }
+
+    protected void fire(MgcpEvent event) {
+        Iterator<MgcpEventListener> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpEventListener listener = iterator.next();
+            listener.onMgcpEvent(event);
+        }
+    }
+
+    @Override
     public boolean equals(Object obj) {
         boolean equals = false;
         if (obj != null && obj instanceof AbstractMgcpSignal) {
@@ -89,14 +108,6 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
             }
         }
         return equals;
-    }
-    
-    protected void fire(MgcpEvent event) {
-        Iterator<MgcpEventListener> iterator = this.listeners.iterator();
-        while (iterator.hasNext()) {
-            MgcpEventListener listener = iterator.next();
-            listener.onMgcpEvent(event);
-        }
     }
 
 }

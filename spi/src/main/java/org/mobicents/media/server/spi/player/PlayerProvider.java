@@ -19,25 +19,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.au;
-
-import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
+package org.mobicents.media.server.spi.player;
 
 /**
- * Detected upon the successful completion of a Play, PlayRecord, or Play Collect signal.
+ * Provides Players.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationComplete extends GenericMgcpEvent {
-
-    public OperationComplete(String signal, int reasonCode) {
-        super(AudioPackage.PACKAGE_NAME, "oc", signal);
-        
-        if(reasonCode < 100 || reasonCode > 199) {
-            throw new IllegalArgumentException("Illegal reason code: " + reasonCode);
-        }
-        this.setParameter("rc", String.valueOf(reasonCode));
-    }
+public interface PlayerProvider {
+    
+    Player provide();
 
 }

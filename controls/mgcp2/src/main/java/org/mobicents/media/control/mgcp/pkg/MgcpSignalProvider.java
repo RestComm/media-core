@@ -28,6 +28,7 @@ import org.mobicents.media.control.mgcp.pkg.au.PlayCollect;
 import org.mobicents.media.control.mgcp.pkg.au.PlayRecord;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
+import org.mobicents.media.server.spi.player.PlayerProvider;
 
 /**
  * Provides MGCP signals by package.
@@ -36,6 +37,12 @@ import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalExcep
  *
  */
 public class MgcpSignalProvider {
+    
+    private final PlayerProvider playerProvider;
+    
+    public MgcpSignalProvider(PlayerProvider playerProvider) {
+        this.playerProvider = playerProvider;
+    }
 
     /**
      * Provides an MGCP Signal to be executed.
@@ -46,7 +53,7 @@ public class MgcpSignalProvider {
      * @throws UnrecognizedMgcpPackageException When package name is unrecognized.
      * @throws UnsupportedMgcpSignalException When package does not support the specified signal.
      */
-    public static MgcpSignal provide(String pkg, String signal)
+    public MgcpSignal provide(String pkg, String signal)
             throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
@@ -57,7 +64,7 @@ public class MgcpSignalProvider {
         }
     }
 
-    private static MgcpSignal provideAudioSignal(String signal) throws UnsupportedMgcpSignalException {
+    private MgcpSignal provideAudioSignal(String signal) throws UnsupportedMgcpSignalException {
         // Validate signal type
         AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
@@ -67,12 +74,14 @@ public class MgcpSignalProvider {
 
         switch (signalType) {
             case PLAY_ANNOUNCEMENT:
-                return new PlayAnnouncement();
+                return new PlayAnnouncement(this.playerProvider.provide());
 
             case PLAY_COLLECT:
+                // TODO provide player and DTMF detector
                 return new PlayCollect();
 
             case PLAY_RECORD:
+                // TODO provide player and recorder
                 return new PlayRecord();
 
             default:

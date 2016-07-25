@@ -81,28 +81,6 @@ public class GenericMgcpEndpointTest {
         assertFalse(signal2.calledCancel);
     }
 
-    @Test
-    public void testExecuteDuplicateSignal() {
-        // given
-        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
-        final String[] requestedEvents = new String[] { "AU/oc(N)", "AU/of(N)" };
-        final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        final MockSignal signal2 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1);
-        final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents, signal2);
-        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", messageCenter);
-
-        // when
-        genericMgcpEndpoint.requestNotification(rqnt1);
-        genericMgcpEndpoint.requestNotification(rqnt2);
-
-        // then
-        assertTrue(signal1.calledExecute);
-        assertFalse(signal1.calledCancel);
-        assertFalse(signal2.calledExecute);
-    }
-
     /**
      * Needed to create a mock class because Mockito overrides equals() so we cannot use mocks for MgcpSignal.
      * 

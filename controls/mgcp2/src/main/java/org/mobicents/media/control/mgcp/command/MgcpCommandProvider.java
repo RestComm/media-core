@@ -24,6 +24,7 @@ package org.mobicents.media.control.mgcp.command;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 
 /**
  * Provides MGCP commands to be executed.
@@ -35,11 +36,13 @@ public class MgcpCommandProvider {
 
     private final MgcpEndpointManager endpointManager;
     private final MgcpConnectionProvider connectionProvider;
+    private final MgcpSignalProvider signalProvider;
 
-    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider, MgcpSignalProvider signalProvider) {
         super();
         this.endpointManager = endpointManager;
         this.connectionProvider = connectionProvider;
+        this.signalProvider = signalProvider;
     }
 
     public MgcpCommand provide(MgcpRequestType type) {
@@ -54,7 +57,7 @@ public class MgcpCommandProvider {
                 return new DeleteConnectionCommand(this.endpointManager, this.connectionProvider);
 
             case RQNT:
-                return new RequestNotificationCommand(this.endpointManager, this.connectionProvider);
+                return new RequestNotificationCommand(this.endpointManager, this.connectionProvider, this.signalProvider);
 
             case NTFY:
                 return new NotifyCommand(this.endpointManager, this.connectionProvider);

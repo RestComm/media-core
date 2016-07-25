@@ -287,48 +287,50 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public void requestNotification(NotificationRequest request) {
         if (this.signal != null) {
-            // Current signal is identical to newly request signal. Ignore.
-            if (this.signal.equals(signal)) {
-                log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
-                return;
-            } else {
-                // Cancel current signal.
-                // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
-                // registered with the event.
-                this.signal.cancel();
-            }
+            // Cancel current signal.
+            // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
+            // registered with the event.
+            this.signal.cancel();
         }
 
         // Set new notification request and start executing requested signals (if any)
         this.notificationRequest = request;
         this.signal = this.notificationRequest.pollSignal();
-        if(signal != null) {
+        if (signal != null) {
+            this.signal.observe(this);
             this.signal.execute();
         }
     }
 
     @Override
     public void onMgcpEvent(MgcpEventData event) {
-        final String symbol = event.getSymbol();
-        if (this.notificationRequest.isListening(symbol)) {
-            this.signal = this.notificationRequest.pollSignal();
-            if (this.signal == null) {
-                // Build Notification
-                MgcpRequest notify = new MgcpRequest();
-                notify.setRequestType(MgcpRequestType.NTFY);
-                notify.setTransactionId(0);
-                notify.setEndpointId(this.endpointId);
-                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
-                        resolve(event.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
-                notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
-                notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
+        // Verify if endpoint is listening for such event
+        final String composedName = event.getPackage() + "/" + event.getSymbol();
+        if (this.notificationRequest.isListening(composedName)) {
+            // Unregister from current event
+            this.signal.forget(this);
 
-                // Clean notification request and send notification to call agent
-                this.notificationRequest = null;
-                this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
-            } else {
-                this.signal.execute();
-            }
+            // Build Notification
+            MgcpRequest notify = new MgcpRequest();
+            notify.setRequestType(MgcpRequestType.NTFY);
+            notify.setTransactionId(0);
+            notify.setEndpointId(this.endpointId);
+            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
+                    resolve(this.notificationRequest.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
+            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
+            notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
+
+            // Send notification to call agent
+            this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
+        }
+
+        // Execute next event in pipeline
+        this.signal = this.notificationRequest.pollSignal();
+        if (this.signal != null) {
+            this.signal.execute();
+        } else {
+            // No further events are scheduled. Cleanup notification request.
+            this.notificationRequest = null;
         }
     }
 
@@ -341,7 +343,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     /**
      * Event that is called when a new connection is created in the endpoint. <br>
-     * <b>To be overriden by subclasses.</b>
+     * <b>To be overridden by subclasses.</b>
      * 
      * @param connection
      */

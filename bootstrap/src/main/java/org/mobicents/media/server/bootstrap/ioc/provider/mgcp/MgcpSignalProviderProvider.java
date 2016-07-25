@@ -19,25 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg.au;
+package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.server.spi.player.PlayerProvider;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
- * Detected upon the successful completion of a Play, PlayRecord, or Play Collect signal.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class OperationComplete extends GenericMgcpEvent {
+public class MgcpSignalProviderProvider implements Provider<MgcpSignalProvider> {
 
-    public OperationComplete(String signal, int reasonCode) {
-        super(AudioPackage.PACKAGE_NAME, "oc", signal);
-        
-        if(reasonCode < 100 || reasonCode > 199) {
-            throw new IllegalArgumentException("Illegal reason code: " + reasonCode);
-        }
-        this.setParameter("rc", String.valueOf(reasonCode));
+    private final PlayerProvider playerProvider;
+
+    @Inject
+    public MgcpSignalProviderProvider(PlayerProvider playerProvider) {
+        this.playerProvider = playerProvider;
+    }
+
+    @Override
+    public MgcpSignalProvider get() {
+        return new MgcpSignalProvider(this.playerProvider);
     }
 
 }

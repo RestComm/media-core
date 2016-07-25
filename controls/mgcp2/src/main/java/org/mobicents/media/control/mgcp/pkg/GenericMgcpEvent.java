@@ -22,10 +22,10 @@
 package org.mobicents.media.control.mgcp.pkg;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 
 /**
@@ -35,16 +35,20 @@ public class GenericMgcpEvent implements MgcpEvent {
 
     private final String pkg;
     private final String symbol;
-    private final Map<MgcpParameterType, String> parameters;
+    private final String signal;
+    private final Map<String, String> parameters;
     private final AtomicBoolean fired;
+    private final StringBuilder builder;
 
-    public GenericMgcpEvent(String pkg, String symbol) {
+    public GenericMgcpEvent(String pkg, String symbol, String signal) {
         this.pkg = pkg;
         this.symbol = symbol;
-        this.parameters = new HashMap<>(10);
+        this.signal = signal;
+        this.parameters = new HashMap<>(5);
         this.fired = new AtomicBoolean(false);
+        this.builder = new StringBuilder();
     }
-    
+
     @Override
     public String getPackage() {
         return this.pkg;
@@ -56,18 +60,17 @@ public class GenericMgcpEvent implements MgcpEvent {
     }
 
     @Override
+    public String getSignal() {
+        return this.signal;
+    }
+
+    @Override
     public String getParameter(MgcpParameterType type) {
         return this.parameters.get(type);
     }
-    
-    public void setParameter(MgcpParameterType type, String value) {
-        this.parameters.put(type, value);
-    }
-    
-    @Override
-    public NotifiedEntity getNotifiedEntity() {
-        // TODO Auto-generated method stub
-        return null;
+
+    public void setParameter(String key, String value) {
+        this.parameters.put(key, value);
     }
 
     @Override
@@ -88,6 +91,32 @@ public class GenericMgcpEvent implements MgcpEvent {
 
     private void clean() {
         this.parameters.clear();
+    }
+
+    @Override
+    public String toString() {
+        this.builder.setLength(0);
+        this.builder.append(this.pkg).append("/").append(this.symbol).append("(");
+        this.builder.append(this.pkg).append("/").append(this.signal);
+
+        if (!this.parameters.isEmpty()) {
+            Iterator<String> iterator = this.parameters.keySet().iterator();
+            while (iterator.hasNext()) {
+                String key = iterator.next();
+                String value = this.parameters.get(key);
+
+                this.builder.append(key);
+                if (value != null) {
+                    this.builder.append("=").append(value);
+                }
+
+                if (iterator.hasNext()) {
+                    this.builder.append(" ");
+                }
+            }
+        }
+        this.builder.append(")");
+        return builder.toString();
     }
 
 }

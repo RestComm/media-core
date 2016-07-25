@@ -55,6 +55,8 @@ import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalExcep
 public class RequestNotificationCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(RequestNotificationCommand.class);
+    
+    private final MgcpSignalProvider signalProvider;
 
     // MGCP Command Execution
     private int transactionId = 0;
@@ -65,8 +67,9 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     private String[] requestedEvents;
     private SignalRequest[] signalRequests;
 
-    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider, MgcpSignalProvider signalProvider) {
         super(endpointManager, connectionProvider);
+        this.signalProvider = signalProvider;
     }
 
     private void validateEndpointId(String endpointId) throws MgcpCommandException {
@@ -153,7 +156,8 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             for (int i = 0; i < this.signalRequests.length; i++) {
                 try {
                     SignalRequest signalRequest = this.signalRequests[i];
-                    signals[i] = MgcpSignalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType());
+                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType());
+                    // TODO setup parameters
                 } catch (UnrecognizedMgcpPackageException e) {
                     throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(),
                             MgcpResponseCode.UNKNOWN_PACKAGE.message());

@@ -22,7 +22,6 @@
 package org.mobicents.media.control.mgcp.pkg.au;
 
 import java.net.MalformedURLException;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
@@ -49,6 +48,8 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     private static final Logger log = Logger.getLogger(PlayAnnouncement.class);
 
     // Play Parameters (default values)
+    private static final String SIGNAL = "pa";
+
     /**
      * The maximum number of times an announcement is to be played.
      * 
@@ -68,23 +69,14 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
 
     // Media Components
     private final Player player;
-    private final Playlist playlist;
+    private Playlist playlist;
 
     // Play operation
-    private final long duration;
-    private final long interval;
+    private long duration;
+    private long interval;
 
-    public PlayAnnouncement(Player player, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, "pa", SignalType.TIME_OUT, parameters);
-
-        // Play Parameters
-        String[] segments = getParameter(SignalParameters.ANNOUNCEMENT.symbol()).split(",");
-        String iterationsParam = getParameter(SignalParameters.ITERATIONS.symbol());
-        int iterations = iterationsParam == null ? ITERATIONS : Integer.parseInt(iterationsParam);
-        String durationParam = getParameter(SignalParameters.DURATION.symbol());
-        this.duration = (durationParam == null) ? -1L : Long.parseLong(durationParam);
-        String intervalParam = getParameter(SignalParameters.INTERVAL.symbol());
-        this.interval = ((intervalParam == null) ? INTERVAL : Long.parseLong(intervalParam)) * 1000000L;
+    public PlayAnnouncement(Player player) {
+        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT);
 
         // Media Player
         this.player = player;
@@ -95,9 +87,6 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
         } catch (TooManyListenersException e) {
             log.error("Too many listeners for audio player", e);
         }
-
-        // Playlist
-        this.playlist = new Playlist(segments, iterations);
     }
 
     @Override
@@ -142,10 +131,23 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
 
     @Override
     public void execute() {
-        if(this.executing.getAndSet(true)) {
+        if (this.executing.getAndSet(true)) {
             throw new IllegalStateException("Already executing.");
         }
 
+        // Setup Play Parameters
+        String[] segments = getParameter(SignalParameters.ANNOUNCEMENT.symbol()).split(",");
+        String iterationsParam = getParameter(SignalParameters.ITERATIONS.symbol());
+        int iterations = iterationsParam == null ? ITERATIONS : Integer.parseInt(iterationsParam);
+        String durationParam = getParameter(SignalParameters.DURATION.symbol());
+        this.duration = (durationParam == null) ? -1L : Long.parseLong(durationParam);
+        String intervalParam = getParameter(SignalParameters.INTERVAL.symbol());
+        this.interval = ((intervalParam == null) ? INTERVAL : Long.parseLong(intervalParam)) * 1000000L;
+
+        // Setup Playlist
+        this.playlist = new Playlist(segments, iterations);
+
+        // Play announcements
         String announcement = this.playlist.next();
         if (announcement == null) {
             this.executing.set(false);
@@ -176,11 +178,10 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
                 } else {
                     playAnnouncement(announcement, this.interval);
                 }
-
                 break;
 
             case PlayerEvent.FAILED:
-                if(this.executing.getAndSet(false)) {
+                if (this.executing.getAndSet(false)) {
                     fireOF(ReturnCode.UNSPECIFIED_FAILURE.code());
                 }
                 break;
@@ -190,15 +191,13 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
                 break;
         }
     }
-    
+
     private void fireOC(int code) {
-        fire(new OperationComplete(code));
+        fire(new OperationComplete(getSymbol(), code));
     }
-    
+
     private void fireOF(int code) {
-        fire(new OperationFailed(code));
+        fire(new OperationFailed(getSymbol(), code));
     }
-    
-    
 
 }
