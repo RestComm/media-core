@@ -24,6 +24,9 @@ package org.mobicents.media.control.mgcp.network;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
@@ -40,7 +43,7 @@ import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserver {
+public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubject {
 
     private static final Logger log = Logger.getLogger(MgcpChannel.class);
 
@@ -54,10 +57,10 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserv
     // Packet Handlers
     private final MgcpPacketHandler mgcpHandler;
 
-    // MGCP Messaging
-    private final MgcpMessageSubject messageCenter;
+    // Message Observers
+    private final Collection<MgcpMessageObserver> observers;
 
-    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpMessageSubject messageCenter) {
+    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager) {
         // Core Components
         this.networkManager = networkManager;
 
@@ -69,9 +72,8 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserv
         this.mgcpHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
         this.handlers.addHandler(this.mgcpHandler);
 
-        // Messaging
-        this.messageCenter = messageCenter;
-        this.messageCenter.observe(this);
+        // Observers
+        this.observers = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -121,27 +123,24 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageObserv
         return this.open;
     }
 
-    void incomingPacket(MgcpMessage message) {
-
+    @Override
+    public void observe(MgcpMessageObserver observer) {
+        this.observers.add(observer);
     }
 
     @Override
-    public void onMessage(MgcpMessage message, MessageDirection direction) {
-        switch (direction) {
-            case INCOMING:
-                // Ask the transaction manager to process the incoming message
-                // If message is a Request, then a new transaction is spawned and executed.
-                // If message is a Response, then existing transaction is retrieved and closed.
-                this.messageCenter.notify(this, message, MessageDirection.INCOMING);
-                break;
+    public void forget(MgcpMessageObserver observer) {
+        this.observers.remove(observer);
+    }
 
-            case OUTGOING:
-                // Queue message to be sent during next write cycle.
-                this.queueData(message.toString().getBytes());
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown message direction: " + direction);
+    @Override
+    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
+            if (observer != originator) {
+                observer.onMessage(message, direction);
+            }
         }
     }
 
