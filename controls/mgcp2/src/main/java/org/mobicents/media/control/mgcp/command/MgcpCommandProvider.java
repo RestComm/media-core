@@ -21,7 +21,6 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
@@ -35,20 +34,18 @@ import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 public class MgcpCommandProvider {
 
     private final MgcpEndpointManager endpointManager;
-    private final MgcpConnectionProvider connectionProvider;
     private final MgcpSignalProvider signalProvider;
 
-    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider, MgcpSignalProvider signalProvider) {
+    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
         super();
         this.endpointManager = endpointManager;
-        this.connectionProvider = connectionProvider;
         this.signalProvider = signalProvider;
     }
 
     public MgcpCommand provide(MgcpRequestType type) {
         switch (type) {
             case CRCX:
-                return new CreateConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new CreateConnectionCommand(this.endpointManager);
 
             case MDCX:
                 return new ModifyConnectionCommand(this.endpointManager);

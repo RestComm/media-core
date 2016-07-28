@@ -28,6 +28,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventListener;
 
 /**
@@ -45,7 +46,7 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEventListener;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpoint extends MgcpEventListener {
+public interface MgcpEndpoint extends MgcpEventListener, MgcpMessageSubject {
 
     /**
      * Gets the endpoint identifier

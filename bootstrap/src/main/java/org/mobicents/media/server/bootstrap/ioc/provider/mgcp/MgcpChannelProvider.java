@@ -21,9 +21,12 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import java.net.InetSocketAddress;
+
+import org.mobicents.media.control.mgcp.network.MgcpChannel;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
+import org.mobicents.media.server.io.network.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -32,20 +35,21 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpCommandProviderProvider implements Provider<MgcpCommandProvider> {
+public class MgcpChannelProvider implements Provider<MgcpChannel> {
 
-    private final MgcpEndpointManager endpointManager;
-    private final MgcpSignalProvider signalProvider;
+    private final MediaServerConfiguration configuration;
+    private final UdpManager networkManager;
 
     @Inject
-    public MgcpCommandProviderProvider(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
-        this.endpointManager = endpointManager;
-        this.signalProvider = signalProvider;
+    public MgcpChannelProvider(MediaServerConfiguration configuration, UdpManager networkManager) {
+        this.configuration = configuration;
+        this.networkManager = networkManager;
     }
 
     @Override
-    public MgcpCommandProvider get() {
-        return new MgcpCommandProvider(this.endpointManager, this.signalProvider);
+    public MgcpChannel get() {
+        MgcpControllerConfiguration mgcp = configuration.getControllerConfiguration();
+        return new MgcpChannel(new InetSocketAddress(mgcp.getAddress(), mgcp.getPort()), this.networkManager);
     }
 
 }

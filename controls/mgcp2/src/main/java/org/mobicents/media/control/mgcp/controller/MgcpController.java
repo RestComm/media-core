@@ -64,7 +64,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         this.channel = channel;
         this.transactions = transactions;
         this.endpoints = endpoints;
-        this.commands = new MgcpCommandProvider(this.endpoints, null, null);
+        this.commands = new MgcpCommandProvider(this.endpoints, null);
 
         // MGCP Controller State
         this.active = false;

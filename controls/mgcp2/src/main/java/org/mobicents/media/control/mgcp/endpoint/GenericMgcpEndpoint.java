@@ -22,9 +22,11 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
@@ -32,6 +34,7 @@ import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
@@ -39,7 +42,8 @@ import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
@@ -57,8 +61,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
 
     // MGCP Components
-    private final MgcpMessageSubject messageCenter;
-
+    private final MgcpConnectionProvider connectionProvider;
+    
     // Endpoint Properties
     private final String endpointId;
     private final NotifiedEntity defaultNotifiedEntity;
@@ -70,11 +74,14 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     // Events and Signals
     private NotificationRequest notificationRequest;
     private MgcpSignal signal;
+    
+    // Observers
+    private final Collection<MgcpMessageObserver> observers;
 
-    public GenericMgcpEndpoint(String endpointId, MgcpMessageSubject messageCenter) {
+    public GenericMgcpEndpoint(String endpointId, MgcpConnectionProvider connectionProvider) {
         // MGCP Components
-        this.messageCenter = messageCenter;
-
+        this.connectionProvider = connectionProvider;
+        
         // Endpoint Properties
         this.endpointId = endpointId;
         this.defaultNotifiedEntity = new NotifiedEntity();
@@ -82,6 +89,9 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
         // Endpoint State
         this.active = new AtomicBoolean(false);
+        
+        // Observers
+        this.observers = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -321,7 +331,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
 
             // Send notification to call agent
-            this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
+            notify(this, notify, MessageDirection.OUTGOING);
         }
 
         // Execute next event in pipeline
@@ -375,6 +385,28 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
      * @param connection
      */
     protected void onDeactivated() {
+    }
+
+    @Override
+    public void observe(MgcpMessageObserver observer) {
+        this.observers.add(observer);
+        
+    }
+
+    @Override
+    public void forget(MgcpMessageObserver observer) {
+        this.observers.remove(observer);
+    }
+
+    @Override
+    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
+            if(observer != originator) {
+                observer.onMessage(message, direction);
+            }
+        }
     }
 
 }

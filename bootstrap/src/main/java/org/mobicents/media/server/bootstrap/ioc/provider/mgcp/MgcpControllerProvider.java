@@ -21,18 +21,10 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.controller.MgcpController;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
-import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
-import org.mobicents.media.server.io.network.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
