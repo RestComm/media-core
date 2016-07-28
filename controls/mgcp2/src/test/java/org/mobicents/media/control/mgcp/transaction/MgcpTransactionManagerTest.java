@@ -41,7 +41,7 @@ import org.mockito.stubbing.Answer;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class TransactionalMgcpMediatorTest {
+public class MgcpTransactionManagerTest {
 
     private static final String REQUEST = "CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0";
     private static final String RESPONSE = "200 147483653 Successful Transaction";
@@ -65,7 +65,7 @@ public class TransactionalMgcpMediatorTest {
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
         final MgcpMessageObserver channel = mock(MgcpMessageObserver.class);
-        final TransactionalMgcpMessageMediator mediator = new TransactionalMgcpMessageMediator(txProvider, commands);
+        final MgcpTransactionManager mediator = new MgcpTransactionManager(txProvider);
 
         // when...then
         when(request.toString()).thenReturn(REQUEST);
@@ -113,7 +113,7 @@ public class TransactionalMgcpMediatorTest {
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
         final MgcpMessageObserver channel = mock(MgcpMessageObserver.class);
         final MgcpMessageObserver endpoint = mock(MgcpMessageObserver.class);
-        final TransactionalMgcpMessageMediator mediator = new TransactionalMgcpMessageMediator(txProvider, commands);
+        final MgcpTransactionManager mediator = new MgcpTransactionManager(txProvider);
 
         // when...then
         when(request.toString()).thenReturn(REQUEST);
@@ -152,7 +152,7 @@ public class TransactionalMgcpMediatorTest {
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
         final MgcpMessageObserver channel = mock(MgcpMessageObserver.class);
-        final TransactionalMgcpMessageMediator mediator = new TransactionalMgcpMessageMediator(txProvider, commands);
+        final MgcpTransactionManager mediator = new MgcpTransactionManager(txProvider);
 
         // when...then
         when(request.toString()).thenReturn(REQUEST);
@@ -172,7 +172,7 @@ public class TransactionalMgcpMediatorTest {
                 // assert
                 MgcpMessage message = invocation.getArgumentAt(0, MgcpMessage.class);
                 assertTrue(message instanceof MgcpResponse);
-                assertEquals(MgcpResponseCode.TRANSACTION_BEEN_EXECUTED.code(), ((MgcpResponse) message).getCode());
+                assertEquals(MgcpResponseCode.TRANSACTION_BEING_EXECUTED.code(), ((MgcpResponse) message).getCode());
                 return null;
             }
 

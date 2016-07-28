@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;

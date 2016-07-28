@@ -21,10 +21,15 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
@@ -42,14 +47,16 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
 
     protected final MgcpEndpointManager endpointManager;
     protected final MgcpConnectionProvider connectionProvider;
+    private final Collection<MgcpMessageObserver> observers;
 
     public AbstractMgcpCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
         this.endpointManager = endpointManager;
         this.connectionProvider = connectionProvider;
+        this.observers = new CopyOnWriteArrayList<>();
     }
 
     @Override
-    public void execute(MgcpRequest request, MgcpMessageSubject messageSubject) {
+    public void execute(MgcpRequest request) {
         MgcpResponse response;
         try {
             response = executeRequest(request);
@@ -58,7 +65,7 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
         } finally {
             reset();
         }
-        messageSubject.notify(this, response, MessageDirection.OUTGOING);
+        notify(this, response, MessageDirection.OUTGOING);
     }
 
     protected abstract MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException;
@@ -66,5 +73,26 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected abstract MgcpResponse rollback(int transactionId, int code, String message);
 
     protected abstract void reset();
+
+    @Override
+    public void observe(MgcpMessageObserver observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void forget(MgcpMessageObserver observer) {
+        this.observers.remove(observer);
+    }
+
+    @Override
+    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpMessageObserver observer = iterator.next();
+            if (observer != originator) {
+                observer.onMessage(message, direction);
+            }
+        }
+    }
 
 }

@@ -23,7 +23,7 @@ package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
-import org.mobicents.media.control.mgcp.transaction.TransactionalMgcpMessageMediator;
+import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -32,7 +32,7 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class TransactionalMgcpMessageMediatorProvider implements Provider<TransactionalMgcpMessageMediator> {
+public class TransactionalMgcpMessageMediatorProvider implements Provider<MgcpTransactionManager> {
 
     private final MgcpCommandProvider commands;
     private final MgcpTransactionProvider transactionProvider;
@@ -44,8 +44,8 @@ public class TransactionalMgcpMessageMediatorProvider implements Provider<Transa
     }
 
     @Override
-    public TransactionalMgcpMessageMediator get() {
-        return new TransactionalMgcpMessageMediator(transactionProvider, commands);
+    public MgcpTransactionManager get() {
+        return new MgcpTransactionManager(transactionProvider, commands);
     }
 
 }

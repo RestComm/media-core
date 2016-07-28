@@ -19,26 +19,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
+package org.mobicents.media.control.mgcp.exception;
 
 /**
- * Represents an MGCP action that can be executed.
+ * Occurs when a supposedly active transaction cannot be found.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand extends MgcpMessageSubject {
+public class MgcpTransactionNotFoundException extends MgcpTransactionException {
 
-    /**
-     * Executes an MGCP command.
-     * 
-     * @param request The MGCP request to be executed
-     * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
-     *        can be successful or not.
-     */
-    void execute(MgcpRequest request);
+    private static final long serialVersionUID = 1649695881432266319L;
+
+    public MgcpTransactionNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MgcpTransactionNotFoundException(String message) {
+        super(message);
+    }
 
 }

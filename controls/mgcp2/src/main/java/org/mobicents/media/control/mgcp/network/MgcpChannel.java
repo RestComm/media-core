@@ -122,6 +122,11 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
     public boolean isOpen() {
         return this.open;
     }
+    
+    @Override
+    public void queueData(byte[] data) {
+        super.queueData(data);
+    }
 
     @Override
     public void observe(MgcpMessageObserver observer) {

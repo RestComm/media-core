@@ -39,8 +39,8 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
@@ -67,7 +67,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -82,13 +82,13 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
         doAnswer(new Answer<Object>() {
 
@@ -115,7 +115,8 @@ public class RequestNotificationCommandTest {
 
         }).when(endpoint).requestNotification(any(NotificationRequest.class));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
 
         // then
         verify(endpoint, times(1)).requestNotification(any(NotificationRequest.class));
@@ -133,7 +134,7 @@ public class RequestNotificationCommandTest {
         request.append("AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACfe453rb3/ea3422f11.wav it=5)").append("\n");
         request.append("R:AU/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -148,13 +149,13 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
         doAnswer(new Answer<Object>() {
 
@@ -182,7 +183,8 @@ public class RequestNotificationCommandTest {
 
         }).when(endpoint).requestNotification(any(NotificationRequest.class));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
 
         // then
         verify(endpoint, times(1)).requestNotification(any(NotificationRequest.class));
@@ -197,7 +199,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -211,15 +213,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
@@ -230,7 +233,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -244,15 +247,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
@@ -264,7 +268,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
@@ -277,20 +281,22 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testNotificationRequestWithUnrecognizedSignalPackage() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
+    public void testNotificationRequestWithUnrecognizedSignalPackage()
+            throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -298,7 +304,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AX/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AX/oc(N),AX/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -313,20 +319,22 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.UNKNOWN_PACKAGE.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testNotificationRequestWithUnrecognizedSignalType() throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
+    public void testNotificationRequestWithUnrecognizedSignalType()
+            throws MgcpParseException, UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         // given
         final StringBuilder request = new StringBuilder("RQNT 12345 mobicents/ivr/10@127.0.0.1:2427 MGCP 1.0").append("\n");
         request.append("N:restcomm@10.229.72.130:2727").append("\n");
@@ -334,7 +342,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/xyz(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -349,15 +357,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
@@ -369,7 +378,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:XYZ/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -383,15 +392,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.UNKNOWN_PACKAGE.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
@@ -403,7 +413,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/xyz(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -417,15 +427,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
@@ -437,7 +448,7 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(XYZ),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -451,15 +462,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.EVENT_OR_SIGNAL_PARAMETER_ERROR.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
@@ -471,13 +483,12 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/pa(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(N),AU/of(N");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider,
-                signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
@@ -486,15 +497,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
     @Test
@@ -506,12 +518,11 @@ public class RequestNotificationCommandTest {
         request.append("S:AU/xyz(an=http://127.0.0.1:8080/restcomm/cache/ACae6e420f/5a26d1299.wav it=1)").append("\n");
         request.append("R:AU/oc(N),AU/of(N)");
         final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpMessageSubject mgcpSubject = mock(MgcpMessageSubject.class);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
-        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider,
-                signalProvider);
+        final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, connectionProvider, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenThrow(new RuntimeException());
@@ -520,15 +531,16 @@ public class RequestNotificationCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // Assert
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 Assert.assertNotNull(response);
                 Assert.assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), response.getCode());
                 return null;
             }
 
-        }).when(mgcpSubject).notify(eq(rqnt), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
 
-        rqnt.execute(parser.parseRequest(request.toString()), mgcpSubject);
+        rqnt.observe(listener);
+        rqnt.execute(parser.parseRequest(request.toString()));
     }
 
 }
