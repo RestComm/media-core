@@ -24,8 +24,12 @@ package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.controller.MgcpController;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+import org.mobicents.media.control.mgcp.network.MgcpChannel;
+import org.mobicents.media.control.mgcp.transaction.TransactionManager;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -39,23 +43,20 @@ import com.google.inject.Provider;
  */
 public class MgcpControllerProvider implements Provider<MgcpController> {
 
-    private final MgcpMessageSubject messageCenter;
-    private final UdpManager networkManager;
-    private final SocketAddress bindAddress;
+    private final MgcpChannel channel;
+    private final TransactionManager transactions;
+    private final MgcpEndpointManager endpoints;
 
     @Inject
-    public MgcpControllerProvider(MediaServerConfiguration config, MgcpMessageSubject messageCenter,
-            UdpManager networkManager) {
-        final MgcpControllerConfiguration controller = config.getControllerConfiguration();
-
-        this.messageCenter = messageCenter;
-        this.networkManager = networkManager;
-        this.bindAddress = new InetSocketAddress(controller.getAddress(), controller.getPort());
+    public MgcpControllerProvider(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints) {
+        this.channel = channel;
+        this.transactions = transactions;
+        this.endpoints = endpoints;
     }
 
     @Override
     public MgcpController get() {
-        return new MgcpController(this.bindAddress, this.networkManager, this.messageCenter);
+        return new MgcpController(this.channel, this.transactions, this.endpoints);
     }
 
 }
