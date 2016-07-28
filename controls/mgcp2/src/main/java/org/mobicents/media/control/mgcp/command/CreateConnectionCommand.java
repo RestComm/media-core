@@ -61,9 +61,12 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpEndpoint endpoint2;
     private MgcpConnection connection1;
     private MgcpConnection connection2;
+    
+    private final MgcpConnectionProvider connectionProvider;
 
     public CreateConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
-        super(endpointManager, connectionProvider);
+        super(endpointManager);
+        this.connectionProvider = connectionProvider;
     }
 
     /**

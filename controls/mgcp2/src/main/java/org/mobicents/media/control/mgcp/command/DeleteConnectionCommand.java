@@ -23,7 +23,6 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
@@ -53,8 +52,8 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
     private int rxPackets = 0;
     private int txPackets = 0;
 
-    public DeleteConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
-        super(endpointManager, connectionProvider);
+    public DeleteConnectionCommand(MgcpEndpointManager endpointManager) {
+        super(endpointManager);
     }
 
     private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {

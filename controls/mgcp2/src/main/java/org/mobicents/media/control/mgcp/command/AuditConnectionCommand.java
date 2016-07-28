@@ -21,7 +21,6 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -33,10 +32,10 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  */
 public class AuditConnectionCommand extends AbstractMgcpCommand {
 
-    public AuditConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
-        super(endpointManager, connectionProvider);
+    public AuditConnectionCommand(MgcpEndpointManager endpointManager) {
+        super(endpointManager);
     }
-    
+
     @Override
     protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
         // TODO Auto-generated method stub
@@ -52,11 +51,11 @@ public class AuditConnectionCommand extends AbstractMgcpCommand {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
     @Override
     protected void reset() {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

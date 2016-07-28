@@ -25,7 +25,6 @@ import java.text.ParseException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
@@ -67,8 +66,8 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     private String[] requestedEvents;
     private SignalRequest[] signalRequests;
 
-    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider, MgcpSignalProvider signalProvider) {
-        super(endpointManager, connectionProvider);
+    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
+        super(endpointManager);
         this.signalProvider = signalProvider;
     }
 

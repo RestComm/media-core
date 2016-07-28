@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
@@ -46,12 +45,10 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
 
     protected final MgcpEndpointManager endpointManager;
-    protected final MgcpConnectionProvider connectionProvider;
     private final Collection<MgcpMessageObserver> observers;
 
-    public AbstractMgcpCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+    public AbstractMgcpCommand(MgcpEndpointManager endpointManager) {
         this.endpointManager = endpointManager;
-        this.connectionProvider = connectionProvider;
         this.observers = new CopyOnWriteArrayList<>();
     }
 

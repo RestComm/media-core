@@ -51,22 +51,22 @@ public class MgcpCommandProvider {
                 return new CreateConnectionCommand(this.endpointManager, this.connectionProvider);
 
             case MDCX:
-                return new ModifyConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new ModifyConnectionCommand(this.endpointManager);
 
             case DLCX:
-                return new DeleteConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new DeleteConnectionCommand(this.endpointManager);
 
             case RQNT:
-                return new RequestNotificationCommand(this.endpointManager, this.connectionProvider, this.signalProvider);
+                return new RequestNotificationCommand(this.endpointManager, this.signalProvider);
 
             case NTFY:
-                return new NotifyCommand(this.endpointManager, this.connectionProvider);
+                return new NotifyCommand(this.endpointManager);
 
             case AUCX:
-                return new AuditConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new AuditConnectionCommand(this.endpointManager);
 
             case AUEP:
-                return new AuditEndpointCommand(this.endpointManager, this.connectionProvider);
+                return new AuditEndpointCommand(this.endpointManager);
 
             default:
                 throw new IllegalArgumentException("Unsupported command type " + type.name());

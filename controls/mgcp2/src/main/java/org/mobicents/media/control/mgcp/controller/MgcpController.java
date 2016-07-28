@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
@@ -52,16 +53,18 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     // MGCP Components
     private final MgcpChannel channel;
     private final TransactionManager transactions;
+    private final MgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
     // MGCP Controller State
     private boolean active;
 
-    public MgcpController(MgcpChannel channel, TransactionManager transactions, MgcpCommandProvider commands) {
+    public MgcpController(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints) {
         // MGCP Components
         this.channel = channel;
         this.transactions = transactions;
-        this.commands = commands;
+        this.endpoints = endpoints;
+        this.commands = new MgcpCommandProvider(this.endpoints, null, null);
 
         // MGCP Controller State
         this.active = false;

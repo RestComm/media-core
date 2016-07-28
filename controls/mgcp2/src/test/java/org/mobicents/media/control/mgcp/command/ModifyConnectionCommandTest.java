@@ -33,7 +33,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -67,11 +66,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -117,11 +115,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -158,9 +155,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -192,9 +188,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -225,9 +220,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -258,9 +252,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -292,9 +285,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -325,11 +317,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(null);
@@ -362,10 +353,9 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -409,11 +399,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);

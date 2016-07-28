@@ -37,7 +37,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
@@ -72,11 +71,10 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -112,13 +110,12 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpRemoteConnection connection1 = mock(MgcpRemoteConnection.class);
         final MgcpLocalConnection connection2 = mock(MgcpLocalConnection.class);
         final List<MgcpConnection> connections = new ArrayList<>();
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -156,10 +153,9 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -195,10 +191,9 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -233,10 +228,9 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -278,9 +272,8 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -312,9 +305,8 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -345,9 +337,8 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -376,9 +367,8 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -409,9 +399,8 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(null);
@@ -443,9 +432,8 @@ public class DeleteConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager, connectionProvider);
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenThrow(new RuntimeException("Test Purposes!"));
