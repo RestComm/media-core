@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.message;
 
+import java.util.Iterator;
+
 /**
  * Represents an MGCP request.
  * 
@@ -29,15 +31,17 @@ package org.mobicents.media.control.mgcp.message;
  */
 public class MgcpRequest extends MgcpMessage {
 
-    public static final String VERSION = "MGCP 1.0\n";
+    public static final String VERSION = "MGCP 1.0";
 
     private MgcpRequestType requestType;
     private String endpointId;
     private final LocalConnectionOptions lcOptions;
+    private final StringBuilder builder;
 
     public MgcpRequest() {
         super();
         this.lcOptions = new LocalConnectionOptions();
+        this.builder = new StringBuilder();
     }
 
     public MgcpRequestType getRequestType() {
@@ -55,7 +59,7 @@ public class MgcpRequest extends MgcpMessage {
     public void setEndpointId(String endpointId) {
         this.endpointId = endpointId;
     }
-    
+
     public LocalConnectionOptions getLocalConnectionOptions() {
         return this.lcOptions;
     }
@@ -64,11 +68,24 @@ public class MgcpRequest extends MgcpMessage {
     public boolean isRequest() {
         return true;
     }
-    
+
     @Override
     public String toString() {
-        // TODO Encode message
-        return null;
+        // Reset builder
+        this.builder.setLength(0);
+
+        // Build header
+        this.builder.append(this.requestType.name()).append(" ").append(this.transactionId).append(" ").append(this.endpointId)
+                .append("@127.0.0.1:2427").append(" ").append(VERSION).append(System.lineSeparator());
+
+        // Build parameters
+        Iterator<MgcpParameterType> keys = this.parameters.keySet().iterator();
+        while (keys.hasNext()) {
+            MgcpParameterType key = (MgcpParameterType) keys.next();
+            String value = this.parameters.get(key);
+            builder.append(key.getCode()).append(":").append(value).append(System.lineSeparator());
+        }
+        return builder.toString();
     }
 
 }

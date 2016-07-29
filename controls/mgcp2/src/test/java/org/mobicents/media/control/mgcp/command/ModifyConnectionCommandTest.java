@@ -33,15 +33,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
@@ -67,11 +66,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -80,14 +78,15 @@ public class ModifyConnectionCommandTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
 
         // then
         verify(connection, times(1)).setMode(ConnectionMode.SEND_ONLY);
@@ -116,11 +115,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -129,14 +127,15 @@ public class ModifyConnectionCommandTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
 
         // then
         verify(connection, times(1)).setMode(ConnectionMode.SEND_RECV);
@@ -156,9 +155,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -166,14 +164,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
     @Test
@@ -189,9 +188,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -199,14 +197,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
     @Test
@@ -221,9 +220,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -231,14 +229,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
     @Test
@@ -253,9 +252,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -263,14 +261,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
     @Test
@@ -286,9 +285,8 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -296,14 +294,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
     @Test
@@ -318,11 +317,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(null);
@@ -332,14 +330,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
     @Test
@@ -354,10 +353,9 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -367,14 +365,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
     @Test
@@ -400,11 +399,10 @@ public class ModifyConnectionCommandTest {
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
-        final MgcpMessageSubject listener = mock(MgcpMessageSubject.class);
-        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager, connectionProvider);
+        final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
+        final ModifyConnectionCommand mdcx = new ModifyConnectionCommand(endpointManager);
 
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1")).thenReturn(bridgeEndpoint);
@@ -415,14 +413,15 @@ public class ModifyConnectionCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse response = invocation.getArgumentAt(1, MgcpResponse.class);
+                MgcpResponse response = invocation.getArgumentAt(0, MgcpResponse.class);
                 assertNotNull(response);
                 assertEquals(MgcpResponseCode.UNSUPPORTED_SDP.code(), response.getCode());
                 return null;
             }
 
-        }).when(listener).notify(eq(mdcx), any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-        mdcx.execute(request, listener);
+        }).when(listener).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
+        mdcx.observe(listener);
+        mdcx.execute(request);
     }
 
 }

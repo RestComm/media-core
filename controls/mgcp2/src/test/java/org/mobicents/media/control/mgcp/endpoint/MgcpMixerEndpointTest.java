@@ -28,11 +28,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -51,13 +51,14 @@ public class MgcpMixerEndpointTest {
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final AudioMixer inbandMixer = mock(AudioMixer.class);
         final OOBMixer outbandMixer = mock(OOBMixer.class);
-        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
-        final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, messageCenter);
+        final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
+        final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, connections);
 
         // when - half open connection
+        when(connections.provideRemote()).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
-        endpoint.addConnection(1, connection);
+        endpoint.createConnection(1, false);
 
         // then
         verify(inbandMixer, times(1)).addComponent(any(AudioComponent.class));

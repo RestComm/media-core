@@ -36,7 +36,9 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.message.MgcpMessageMediator;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.server.io.network.UdpManager;
 
 /**
@@ -53,9 +55,8 @@ public class MgcpChannelTest {
             // given
             final SelectionKey selectionKey = mock(SelectionKey.class);
             final UdpManager networkManager = mock(UdpManager.class);
-            final MgcpMessageMediator messageCenter = mock(MgcpMessageMediator.class);
 
-            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, messageCenter);
+            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager);
 
             // when - open channel
             when(networkManager.open(channel)).thenReturn(selectionKey);
@@ -76,6 +77,23 @@ public class MgcpChannelTest {
         } catch (Exception e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void testMessageNotification() {
+        // given
+        final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
+        final MgcpMessage message = mock(MgcpMessage.class);
+        final UdpManager networkManager = mock(UdpManager.class);
+        final MgcpChannel channel = new MgcpChannel(bindAddress, networkManager);
+
+        // when
+        channel.observe(observer);
+        channel.notify(channel, message, MessageDirection.INCOMING);
+
+        // then
+        verify(observer, times(1)).onMessage(message, MessageDirection.INCOMING);
+
     }
 
 }

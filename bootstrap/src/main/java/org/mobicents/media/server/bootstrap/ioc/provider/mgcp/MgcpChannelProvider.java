@@ -21,11 +21,12 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.controller.MgcpController;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import java.net.InetSocketAddress;
+
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
+import org.mobicents.media.server.io.network.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -34,24 +35,21 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpControllerProvider implements Provider<MgcpController> {
+public class MgcpChannelProvider implements Provider<MgcpChannel> {
 
-    private final MgcpChannel channel;
-    private final TransactionManager transactions;
-    private final MgcpEndpointManager endpoints;
-    private final MgcpCommandProvider commands;
+    private final MediaServerConfiguration configuration;
+    private final UdpManager networkManager;
 
     @Inject
-    public MgcpControllerProvider(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
-        this.channel = channel;
-        this.transactions = transactions;
-        this.endpoints = endpoints;
-        this.commands = commands;
+    public MgcpChannelProvider(MediaServerConfiguration configuration, UdpManager networkManager) {
+        this.configuration = configuration;
+        this.networkManager = networkManager;
     }
 
     @Override
-    public MgcpController get() {
-        return new MgcpController(this.channel, this.transactions, this.endpoints, this.commands);
+    public MgcpChannel get() {
+        MgcpControllerConfiguration mgcp = configuration.getControllerConfiguration();
+        return new MgcpChannel(new InetSocketAddress(mgcp.getAddress(), mgcp.getPort()), this.networkManager);
     }
 
 }

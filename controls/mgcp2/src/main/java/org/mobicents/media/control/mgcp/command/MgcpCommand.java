@@ -30,7 +30,7 @@ import org.mobicents.media.control.mgcp.message.MgcpRequest;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpCommand {
+public interface MgcpCommand extends MgcpMessageSubject {
 
     /**
      * Executes an MGCP command.
@@ -39,6 +39,6 @@ public interface MgcpCommand {
      * @param listener The listener that will receive the response of the execution. Depending on its return code, the response
      *        can be successful or not.
      */
-    void execute(MgcpRequest request, MgcpMessageSubject listener);
+    void execute(MgcpRequest request);
 
 }

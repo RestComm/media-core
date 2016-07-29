@@ -46,6 +46,10 @@ public class MgcpRequestedEvent {
     public String getEventType() {
         return eventType;
     }
+    
+    public String getQualifiedName() {
+        return this.packageName + "/" + this.eventType;
+    }
 
     public MgcpActionType getAction() {
         return action;

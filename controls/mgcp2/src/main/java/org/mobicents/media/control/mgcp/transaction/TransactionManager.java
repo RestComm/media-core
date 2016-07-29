@@ -18,33 +18,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.control.mgcp.transaction;
 
-package org.mobicents.media.control.mgcp.pkg.au;
+import org.mobicents.media.control.mgcp.command.MgcpCommand;
+import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
+import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
+import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class Playlist {
+public interface TransactionManager {
+    
+    void process(MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException;
+    
+    void process(MgcpResponse response) throws MgcpTransactionNotFoundException;
 
-    private final String[] segments;
-    private final int segmentCount;
-    private int index;
-    private int counter;
-
-    public Playlist(String[] segments, int iterations) {
-        this.segments = segments;
-        this.segmentCount = segments.length;
-        this.index = 0;
-        this.counter = iterations == -1 ? Integer.MAX_VALUE : iterations * segmentCount;
-    }
-
-    public String current() {
-        return this.segments[this.index++ % this.segmentCount];
-    }
-
-    public String next() {
-        this.counter--;
-        return this.counter == -1 ? "" : this.segments[this.index++ % this.segmentCount];
-    }
 }

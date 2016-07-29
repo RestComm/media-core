@@ -26,8 +26,8 @@ import java.net.InetSocketAddress;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
-import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.server.io.network.channel.PacketHandler;
@@ -42,9 +42,9 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
 public class MgcpPacketHandler implements PacketHandler {
 
     public final MgcpMessageParser parser;
-    public final MgcpMessageObserver listener;
+    public final MgcpMessageSubject listener;
 
-    public MgcpPacketHandler(MgcpMessageParser parser, MgcpMessageObserver listener) {
+    public MgcpPacketHandler(MgcpMessageParser parser, MgcpMessageSubject listener) {
         this.parser = parser;
         this.listener = listener;
     }
@@ -90,7 +90,7 @@ public class MgcpPacketHandler implements PacketHandler {
 
         // Warn listener packet was decoded
         if (this.listener != null) {
-            this.listener.onMessage(message, MessageDirection.INCOMING);
+            this.listener.notify(this, message, MessageDirection.INCOMING);
         }
         return null;
     }
