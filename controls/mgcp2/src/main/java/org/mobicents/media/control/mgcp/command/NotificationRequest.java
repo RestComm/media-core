@@ -25,6 +25,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 
 /**
@@ -36,11 +37,11 @@ public class NotificationRequest {
     private final int transactionId;
     private final String requestIdentifier;
     private final NotifiedEntity notifiedEntity;
-    private final String[] requestedEvents;
+    private final MgcpRequestedEvent[] requestedEvents;
     private final Queue<MgcpSignal> requestedSignals;
 
     public NotificationRequest(int transactionId, String requestIdentifier, NotifiedEntity notifiedEntity,
-            String[] requestedEvents, MgcpSignal... requestedSignals) {
+            MgcpRequestedEvent[] requestedEvents, MgcpSignal... requestedSignals) {
         super();
         this.transactionId = transactionId;
         this.requestIdentifier = requestIdentifier;
@@ -55,7 +56,7 @@ public class NotificationRequest {
     public int getTransactionId() {
         return transactionId;
     }
-    
+
     public String getRequestIdentifier() {
         return requestIdentifier;
     }
@@ -63,10 +64,10 @@ public class NotificationRequest {
     public NotifiedEntity getNotifiedEntity() {
         return notifiedEntity;
     }
-    
+
     public boolean isListening(String event) {
-        for (String evt : this.requestedEvents) {
-            if (evt.equalsIgnoreCase(event)) {
+        for (MgcpRequestedEvent evt : this.requestedEvents) {
+            if (evt.getQualifiedName().equalsIgnoreCase(event)) {
                 return true;
             }
         }
@@ -76,7 +77,7 @@ public class NotificationRequest {
     public MgcpSignal pollSignal() {
         return this.requestedSignals.poll();
     }
-    
+
     public int countSignals() {
         return this.requestedSignals.size();
     }

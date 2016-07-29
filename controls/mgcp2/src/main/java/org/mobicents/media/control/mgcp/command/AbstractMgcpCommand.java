@@ -45,7 +45,7 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
 
     protected final MgcpEndpointManager endpointManager;
-    private final Collection<MgcpMessageObserver> observers;
+    protected final Collection<MgcpMessageObserver> observers;
 
     public AbstractMgcpCommand(MgcpEndpointManager endpointManager) {
         this.endpointManager = endpointManager;

@@ -54,13 +54,19 @@ public class MgcpTransactionManager implements TransactionManager {
         this.transactions = new ConcurrentHashMap<>(500);
     }
 
-    private MgcpTransaction createTransaction(int transactionId) throws DuplicateMgcpTransactionException {
+    private MgcpTransaction createTransaction(MgcpRequest request) throws DuplicateMgcpTransactionException {
+        int transactionId = request.getTransactionId();
+        
         // Create Transaction
         MgcpTransaction transaction;
         if (transactionId == 0) {
             // Transaction originated from within this Media Server (NTFY, for example)
             // to be sent out to call agent. A transaction ID must be generated
             transaction = this.transactionProvider.provideLocal();
+            
+            // Patch transaction ID
+            request.setTransactionId(transaction.getId());
+            transactionId = transaction.getId();
         } else {
             // Transaction originated from the remote call agent
             transaction = this.transactionProvider.provideRemote(transactionId);
@@ -87,8 +93,10 @@ public class MgcpTransactionManager implements TransactionManager {
 
     @Override
     public void process(MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException {
-        createTransaction(request.getTransactionId());
-        command.execute(request);
+        createTransaction(request);
+        if(command != null) {
+            command.execute(request);
+        }
     }
 
     @Override

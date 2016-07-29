@@ -40,7 +40,7 @@ public class Playlist {
     }
 
     public String current() {
-        return this.segments[this.index];
+        return this.segments[this.index++ % this.segmentCount];
     }
 
     public String next() {

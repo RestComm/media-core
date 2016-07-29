@@ -59,12 +59,12 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     // MGCP Controller State
     private boolean active;
 
-    public MgcpController(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints) {
+    public MgcpController(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         // MGCP Components
         this.channel = channel;
         this.transactions = transactions;
         this.endpoints = endpoints;
-        this.commands = new MgcpCommandProvider(this.endpoints, null);
+        this.commands = commands;
 
         // MGCP Controller State
         this.active = false;
@@ -167,7 +167,14 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // Start transaction
             this.transactions.process(request, null);
             // Send request to call agent
+            log.info("Sending outgoing request: " + request.toString());
             this.channel.queueData(request.toString().getBytes());
+            // TODO FIX ME!!!!
+            try {
+                this.channel.send();
+            } catch (IOException e) {
+                log.error(e);
+            }
         } catch (DuplicateMgcpTransactionException e) {
             log.error(e.getMessage() + ". Request wont' be sent to call agent.");
         }

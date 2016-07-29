@@ -105,13 +105,9 @@ public class GenericMgcpEvent implements MgcpEvent {
                 String key = iterator.next();
                 String value = this.parameters.get(key);
 
-                this.builder.append(key);
+                this.builder.append(" ").append(key);
                 if (value != null) {
                     this.builder.append("=").append(value);
-                }
-
-                if (iterator.hasNext()) {
-                    this.builder.append(" ");
                 }
             }
         }

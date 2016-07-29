@@ -32,6 +32,7 @@ import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 
@@ -45,7 +46,8 @@ public class GenericMgcpEndpointTest {
     public void testExecuteSignal() {
         // given
         final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
-        final String[] requestedEvents = new String[] { "AU/oc(N)", "AU/of(N)" };
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
+        
         final MgcpSignal signal = mock(MgcpSignal.class);
         final NotificationRequest rqnt = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -62,7 +64,7 @@ public class GenericMgcpEndpointTest {
     public void testExecuteSignalDuringSignalExecution() {
         // given
         final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
-        final String[] requestedEvents = new String[] { "AU/oc(N)", "AU/of(N)" };
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
         final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
         final MockSignal signal2 = new MockSignal("AU", "pc", SignalType.TIME_OUT);
         final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1);

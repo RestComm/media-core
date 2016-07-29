@@ -174,7 +174,7 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
                 }
 
                 String announcement = this.playlist.next();
-                if (announcement == null || !isExecuting()) {
+                if (announcement.isEmpty() || !isExecuting()) {
                     fireOC(ReturnCode.SUCCESS.code());
                 } else {
                     playAnnouncement(announcement, this.interval);

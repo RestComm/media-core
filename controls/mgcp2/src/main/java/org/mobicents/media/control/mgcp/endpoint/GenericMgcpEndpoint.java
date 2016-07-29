@@ -137,16 +137,13 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     }
 
     @Override
-    public void addConnection(int callId, MgcpConnection connection) throws MgcpConnectionException {
-        try {
-            registerConnection(callId, connection);
-            if (!connection.isLocal()) {
-                ((MgcpRemoteConnection) connection).setConnectionListener(this);
-            }
-        } catch (IllegalArgumentException e) {
-            throw new MgcpConnectionException(
-                    "Could not add connection " + connection.getHexIdentifier() + " to " + this.endpointId, e);
+    public MgcpConnection createConnection(int callId, boolean local) {
+        MgcpConnection connection = local ? this.connectionProvider.provideLocal() : this.connectionProvider.provideRemote();
+        registerConnection(callId, connection);
+        if (!connection.isLocal()) {
+            ((MgcpRemoteConnection) connection).setConnectionListener(this);
         }
+        return connection;
     }
 
     @Override
@@ -327,8 +324,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             notify.setEndpointId(this.endpointId);
             notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
                     resolve(this.notificationRequest.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
-            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
-            notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
+            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
+            notify.addParameter(MgcpParameterType.REQUEST_ID, notificationRequest.getRequestIdentifier());
 
             // Send notification to call agent
             notify(this, notify, MessageDirection.OUTGOING);
