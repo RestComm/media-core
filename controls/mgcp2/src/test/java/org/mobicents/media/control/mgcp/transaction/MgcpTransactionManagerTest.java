@@ -94,7 +94,7 @@ public class MgcpTransactionManagerTest {
 //        assertFalse(mediator.contains(transactionId));
 //        verify(channel, times(1)).onMessage(response, MessageDirection.OUTGOING);
 //    }
-//
+
 //    /**
 //     * The mediator creates a new transaction upon receiving an outgoing MGCP request from an endpoint (NTFY for example). The
 //     * message is broadcast and intercepted by the observers.

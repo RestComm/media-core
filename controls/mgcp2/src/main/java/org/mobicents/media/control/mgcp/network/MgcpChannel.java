@@ -148,5 +148,10 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
             }
         }
     }
+    
+    public void send(MgcpMessage message) throws IOException {
+        queueData(message.toString().getBytes());
+        send();
+    }
 
 }

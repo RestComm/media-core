@@ -45,7 +45,14 @@ public class MgcpTransactionManager implements TransactionManager {
 
     // MGCP Transaction Manager
     private final ConcurrentHashMap<Integer, MgcpTransaction> transactions;
-
+    /*
+     * TODO MGCP entities MUST keep in memory a list of the responses that they sent to recent transactions, i.e., a list of all
+     * the responses they sent over the last T-HIST seconds.
+     * 
+     * The transaction identifiers of incoming commands are compared to the transaction identifiers of the recent responses. If
+     * a match is found, the MGCP entity does not execute the transaction, but simply repeats the response.
+     */
+    
     public MgcpTransactionManager(MgcpTransactionProvider transactionProvider) {
         // MGCP Components
         this.transactionProvider = transactionProvider;

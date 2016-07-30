@@ -158,7 +158,11 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // Transaction is already being processed
             // Send provisional message
             MgcpResponseCode provisional = MgcpResponseCode.TRANSACTION_BEING_EXECUTED;
-            sendResponse(request.getTransactionId(), provisional.code(), provisional.message());
+            try {
+                sendResponse(request.getTransactionId(), provisional.code(), provisional.message());
+            } catch (IOException e1) {
+                log.error("Could not send provisional response to call agent, regarding transaction " + request.getTransactionId(), e);
+            }
         }
     }
 
@@ -200,12 +204,12 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         }
     }
 
-    private void sendResponse(int transactionId, int code, String message) {
+    private void sendResponse(int transactionId, int code, String message) throws IOException {
         MgcpResponse response = new MgcpResponse();
         response.setTransactionId(transactionId);
         response.setCode(code);
         response.setMessage(message);
-        this.channel.queueData(response.toString().getBytes());
+        this.channel.send(response);
     }
 
 }
