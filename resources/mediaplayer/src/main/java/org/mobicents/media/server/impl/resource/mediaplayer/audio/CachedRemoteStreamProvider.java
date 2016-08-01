@@ -22,8 +22,6 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
     private CacheManager cacheManager;
 
-    private Lock lock = new ReentrantLock();
-
     public CachedRemoteStreamProvider(int size) {
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache("preConfigured",
@@ -41,15 +39,7 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
         Cache<URL, AudioStreamCache> cache = getCache();
 
         if (!cache.containsKey(uri)) {
-            lock.lock();
-            try {
-                //need to check twice
-                if (!cache.containsKey(uri)) {
-                    cache.put(uri, new AudioStreamCache(uri));
-                }
-            } finally {
-                lock.unlock();
-            }
+            cache.putIfAbsent(uri, new AudioStreamCache(uri));
         }
         return new ByteArrayInputStream(cache.get(uri).getBytes());
     }
