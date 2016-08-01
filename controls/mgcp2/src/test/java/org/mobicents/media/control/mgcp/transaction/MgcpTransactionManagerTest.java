@@ -21,21 +21,20 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
-import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
+import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
+import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
-import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -46,146 +45,95 @@ public class MgcpTransactionManagerTest {
     private static final String REQUEST = "CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0";
     private static final String RESPONSE = "200 147483653 Successful Transaction";
 
-//    /**
-//     * The mediator creates a new transaction and submits an MGCP command for execution, upon receiving an incoming MGCP
-//     * request.
-//     * <p>
-//     * The mediator shall close the existing transaction upon receiving the outgoing response. The outgoing response must be
-//     * broadcast to all observers.
-//     * </p>
-//     */
-//    @Test
-//    public void testIncomingRequest() {
-//        // given
-//        final int transactionId = 147483653;
-//        final MgcpRequest request = mock(MgcpRequest.class);
-//        final MgcpResponse response = mock(MgcpResponse.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpCommand command = mock(MgcpCommand.class);
-//        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-//        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
-//        final MgcpMessageObserver channel = mock(MgcpMessageObserver.class);
-//        final MgcpTransactionManager mediator = new MgcpTransactionManager(txProvider);
-//
-//        // when...then
-//        when(request.toString()).thenReturn(REQUEST);
-//        when(request.isRequest()).thenReturn(true);
-//        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-//        when(request.getTransactionId()).thenReturn(transactionId);
-//        when(response.toString()).thenReturn(RESPONSE);
-//        when(response.isRequest()).thenReturn(false);
-//        when(response.getTransactionId()).thenReturn(transactionId);
-//        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
-//        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
-//
-//        // execute
-//        mediator.observe(channel);
-//        mediator.notify(channel, request, MessageDirection.INCOMING);
-//
-//        // assert
-//        assertTrue(mediator.contains(transactionId));
-//        verify(txProvider, times(1)).provideRemote(transactionId);
-//        verify(command, times(1)).execute(request, mediator);
-//
-//        // execute
-//        mediator.notify(command, response, MessageDirection.OUTGOING);
-//
-//        // assert
-//        assertFalse(mediator.contains(transactionId));
-//        verify(channel, times(1)).onMessage(response, MessageDirection.OUTGOING);
-//    }
+    @Test
+    public void testProcessRemoteTransaction() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
+        // given
+        final int transactionId = 147483653;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
+        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
 
-//    /**
-//     * The mediator creates a new transaction upon receiving an outgoing MGCP request from an endpoint (NTFY for example). The
-//     * message is broadcast and intercepted by the observers.
-//     * <p>
-//     * The mediator shall close the existing transaction upon receiving the incoming response.
-//     * </p>
-//     */
-//    @Test
-//    public void testOutgoingRequest() {
-//        // given
-//        final int transactionId = 147483653;
-//        final MgcpRequest request = mock(MgcpRequest.class);
-//        final MgcpResponse response = mock(MgcpResponse.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-//        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
-//        final MgcpMessageObserver channel = mock(MgcpMessageObserver.class);
-//        final MgcpMessageObserver endpoint = mock(MgcpMessageObserver.class);
-//        final MgcpTransactionManager mediator = new MgcpTransactionManager(txProvider);
-//
-//        // when...then
-//        when(request.toString()).thenReturn(REQUEST);
-//        when(request.isRequest()).thenReturn(true);
-//        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-//        when(request.getTransactionId()).thenReturn(0, transactionId);
-//        when(response.toString()).thenReturn(RESPONSE);
-//        when(response.isRequest()).thenReturn(false);
-//        when(response.getTransactionId()).thenReturn(transactionId);
-//        when(txProvider.provideLocal()).thenReturn(transaction);
-//
-//        // execute
-//        mediator.observe(channel);
-//        mediator.notify(endpoint, request, MessageDirection.OUTGOING);
-//
-//        // assert
-//        assertTrue(mediator.contains(transactionId));
-//        verify(txProvider, times(1)).provideLocal();
-//        verify(channel, times(1)).onMessage(request, MessageDirection.OUTGOING);
-//
-//        // execute
-//        mediator.notify(channel, response, MessageDirection.INCOMING);
-//
-//        // assert
-//        assertFalse(mediator.contains(transactionId));
-//    }
-//
-//    @Test
-//    public void testRetransmission() {
-//        // given
-//        final int transactionId = 147483653;
-//        final MgcpRequest request = mock(MgcpRequest.class);
-//        final MgcpResponse response = mock(MgcpResponse.class);
-//        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
-//        final MgcpCommand command = mock(MgcpCommand.class);
-//        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-//        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
-//        final MgcpMessageObserver channel = mock(MgcpMessageObserver.class);
-//        final MgcpTransactionManager mediator = new MgcpTransactionManager(txProvider);
-//
-//        // when...then
-//        when(request.toString()).thenReturn(REQUEST);
-//        when(request.isRequest()).thenReturn(true);
-//        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
-//        when(request.getTransactionId()).thenReturn(transactionId);
-//        when(response.toString()).thenReturn(RESPONSE);
-//        when(response.isRequest()).thenReturn(false);
-//        when(response.getTransactionId()).thenReturn(transactionId);
-//        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
-//        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
-//
-//        doAnswer(new Answer<Object>() {
-//
-//            @Override
-//            public Object answer(InvocationOnMock invocation) throws Throwable {
-//                // assert
-//                MgcpMessage message = invocation.getArgumentAt(0, MgcpMessage.class);
-//                assertTrue(message instanceof MgcpResponse);
-//                assertEquals(MgcpResponseCode.TRANSACTION_BEING_EXECUTED.code(), ((MgcpResponse) message).getCode());
-//                return null;
-//            }
-//
-//        }).when(channel).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-//
-//        // execute
-//        mediator.observe(channel);
-//        mediator.notify(channel, request, MessageDirection.INCOMING);
-//        mediator.notify(channel, request, MessageDirection.INCOMING);
-//
-//        // assert
-//        assertTrue(mediator.contains(transactionId));
-//        verify(channel, times(1)).onMessage(any(MgcpResponse.class), eq(MessageDirection.OUTGOING));
-//    }
+        // when - request
+        when(request.toString()).thenReturn(REQUEST);
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
+        txManager.process(request, command);
+
+        // then
+        assertTrue(txManager.contains(transactionId));
+        verify(txProvider, times(1)).provideRemote(transactionId);
+        verify(command, times(1)).execute(request);
+
+        // when - response
+        when(response.toString()).thenReturn(RESPONSE);
+        when(response.isRequest()).thenReturn(false);
+        when(response.getTransactionId()).thenReturn(transactionId);
+
+        txManager.process(response);
+
+        // then
+        assertFalse(txManager.contains(transactionId));
+    }
+
+    @Test
+    public void testProcessLocalTransaction() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
+        // given
+        final int initialTransactionId = 0;
+        final int finalTransactionId = 147483653;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpTransaction transaction = new MgcpTransaction(147483653);
+        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
+
+        // when - request
+        when(request.toString()).thenReturn(REQUEST);
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(initialTransactionId, finalTransactionId);
+        when(txProvider.provideLocal()).thenReturn(transaction);
+
+        txManager.process(request, null);
+
+        // then
+        assertTrue(txManager.contains(finalTransactionId));
+        verify(txProvider, times(1)).provideLocal();
+
+        // when - response
+        when(response.toString()).thenReturn(RESPONSE);
+        when(response.isRequest()).thenReturn(false);
+        when(response.getTransactionId()).thenReturn(finalTransactionId);
+
+        txManager.process(response);
+
+        // then
+        assertFalse(txManager.contains(finalTransactionId));
+    }
+
+    @Test(expected = DuplicateMgcpTransactionException.class)
+    public void testProcessRetransmission() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
+        // given
+        final int transactionId = 147483653;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final MgcpTransaction transaction = new MgcpTransaction(transactionId);
+        final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
+
+        // when - request
+        when(request.toString()).thenReturn(REQUEST);
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
+
+        txManager.process(request, command);
+        txManager.process(request, command);
+    }
 
 }

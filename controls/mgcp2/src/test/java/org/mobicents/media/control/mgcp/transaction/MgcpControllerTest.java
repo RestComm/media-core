@@ -21,9 +21,14 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
@@ -36,7 +41,6 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -51,9 +55,6 @@ import org.mockito.stubbing.Answer;
  */
 public class MgcpControllerTest {
 
-    private static final String REQUEST = "CRCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0";
-    private static final String RESPONSE = "200 147483653 Successful Transaction";
-
     @Test
     public void testIncomingRequest() throws DuplicateMgcpTransactionException {
         // given
@@ -67,7 +68,6 @@ public class MgcpControllerTest {
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
-        when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
@@ -92,7 +92,6 @@ public class MgcpControllerTest {
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
-        when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
@@ -133,9 +132,9 @@ public class MgcpControllerTest {
         // then
         verify(transactions, times(1)).process(response);
     }
-    
+
     @Test
-    public void testIncomingRequest() throws DuplicateMgcpTransactionException {
+    public void testOutgoingRequest() throws DuplicateMgcpTransactionException, IOException {
         // given
         final int transactionId = 147483653;
         final MgcpRequest request = mock(MgcpRequest.class);
@@ -147,17 +146,79 @@ public class MgcpControllerTest {
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
-        when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
         when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
 
-        controller.onMessage(request, MessageDirection.INCOMING);
+        controller.onMessage(request, MessageDirection.OUTGOING);
 
         // then
-        verify(transactions, times(1)).process(request, command);
+        verify(transactions, times(1)).process(request, null);
+        verify(channel, times(1)).send(request);
     }
-    
+
+    @Test
+    public void testOutgoingDuplicateRequest() throws DuplicateMgcpTransactionException, IOException {
+        // given
+        final int transactionId = 147483653;
+        final MgcpRequest request = mock(MgcpRequest.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpCommand command = mock(MgcpCommand.class);
+        final MgcpChannel channel = mock(MgcpChannel.class);
+        final TransactionManager transactions = mock(TransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+
+        // when
+        when(request.isRequest()).thenReturn(true);
+        when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
+        when(request.getTransactionId()).thenReturn(transactionId);
+        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
+        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(request, null);
+
+        controller.onMessage(request, MessageDirection.OUTGOING);
+
+        // then
+        verify(transactions, times(1)).process(request, null);
+        verify(channel, never()).send(request);
+    }
+
+    @Test
+    public void testOutgoingResponse() throws MgcpTransactionNotFoundException, IOException {
+        // given
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpChannel channel = mock(MgcpChannel.class);
+        final TransactionManager transactions = mock(TransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+
+        // when
+        controller.onMessage(response, MessageDirection.OUTGOING);
+
+        // then
+        verify(transactions, times(1)).process(response);
+        verify(channel, times(1)).send(response);
+    }
+
+    @Test
+    public void testOutgoingResponseWithUnknownTransaction() throws MgcpTransactionNotFoundException, IOException {
+        // given
+        final MgcpResponse response = mock(MgcpResponse.class);
+        final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
+        final MgcpChannel channel = mock(MgcpChannel.class);
+        final TransactionManager transactions = mock(TransactionManager.class);
+        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+
+        // when
+        doThrow(new MgcpTransactionNotFoundException("")).when(transactions).process(response);
+        controller.onMessage(response, MessageDirection.OUTGOING);
+
+        // then
+        verify(transactions, times(1)).process(response);
+        verify(channel, never()).send(response);
+    }
 
 }

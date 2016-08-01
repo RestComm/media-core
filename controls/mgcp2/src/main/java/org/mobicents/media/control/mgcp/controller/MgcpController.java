@@ -171,16 +171,11 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // Start transaction
             this.transactions.process(request, null);
             // Send request to call agent
-            log.info("Sending outgoing request: " + request.toString());
-            this.channel.queueData(request.toString().getBytes());
-            // TODO FIX ME!!!!
-            try {
-                this.channel.send();
-            } catch (IOException e) {
-                log.error(e);
-            }
+            this.channel.send(request);
         } catch (DuplicateMgcpTransactionException e) {
             log.error(e.getMessage() + ". Request wont' be sent to call agent.");
+        } catch (IOException e) {
+            log.error("Could not send MGCP request to call agent: " + request.toString(), e);
         }
     }
 
@@ -198,9 +193,11 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // Close transaction
             this.transactions.process(response);
             // Send response to call agent
-            this.channel.queueData(response.toString().getBytes());
+            this.channel.send(response);
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage() + ". Response won't be sent to call agent.");
+        } catch (IOException e) {
+            log.error("Could not send MGCP response to call agent: " + response.toString(), e);
         }
     }
 
