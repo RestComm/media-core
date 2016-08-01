@@ -38,10 +38,11 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
     public InputStream getStream(URL uri) throws IOException {
         Cache<URL, AudioStreamCache> cache = getCache();
 
-        if (!cache.containsKey(uri)) {
-            cache.putIfAbsent(uri, new AudioStreamCache(uri));
+        AudioStreamCache stream = cache.get(uri);
+        if (stream == null) {
+            stream = cache.putIfAbsent(uri, new AudioStreamCache(uri));
         }
-        return new ByteArrayInputStream(cache.get(uri).getBytes());
+        return new ByteArrayInputStream(stream.getBytes());
     }
 
     private static class AudioStreamCache {
