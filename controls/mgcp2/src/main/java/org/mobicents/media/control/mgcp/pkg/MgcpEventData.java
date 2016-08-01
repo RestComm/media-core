@@ -21,8 +21,6 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-
 /**
  * Data accessor for {@link MgcpEvent}.
  * 
@@ -58,6 +56,6 @@ public interface MgcpEventData {
      * @param type The type of parameter to be returned.
      * @return The value of the parameter. Returns null if no such parameter exists.
      */
-    String getParameter(MgcpParameterType type);
+    String getParameter(String type);
 
 }

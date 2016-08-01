@@ -150,7 +150,7 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
 
         // Play announcements
         String announcement = this.playlist.next();
-        if (announcement == null) {
+        if (announcement == null || announcement.isEmpty()) {
             this.executing.set(false);
             fireOF(ReturnCode.BAD_AUDIO_ID.code());
         } else {

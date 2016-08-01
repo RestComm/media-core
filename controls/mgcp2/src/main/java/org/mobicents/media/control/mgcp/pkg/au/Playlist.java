@@ -35,16 +35,17 @@ public class Playlist {
     public Playlist(String[] segments, int iterations) {
         this.segments = segments;
         this.segmentCount = segments.length;
-        this.index = 0;
+        this.index = -1;
         this.counter = iterations == -1 ? Integer.MAX_VALUE : iterations * segmentCount;
     }
 
     public String current() {
-        return this.segments[this.index++ % this.segmentCount];
+        return this.segments[this.index % this.segmentCount];
     }
 
     public String next() {
         this.counter--;
-        return this.counter == -1 ? "" : this.segments[this.index++ % this.segmentCount];
+        this.index++;
+        return this.counter == -1 ? "" : this.segments[this.index % this.segmentCount];
     }
 }

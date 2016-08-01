@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
@@ -65,7 +63,7 @@ public class GenericMgcpEvent implements MgcpEvent {
     }
 
     @Override
-    public String getParameter(MgcpParameterType type) {
+    public String getParameter(String type) {
         return this.parameters.get(type);
     }
 
