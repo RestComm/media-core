@@ -55,8 +55,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.54</version>
+    		<artifactId>bcprov-debug-jdk15on</artifactId>
+    		<version>155b02</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-net</groupId>
@@ -79,4 +79,20 @@
 		<finalName>restcomm-mediaserver-rtp-${project.version}</finalName>
 	</build>
 
+	<repositories>
+		<repository>
+			<id>telscale-releases-repository</id>
+			<name>TelScale Releases Repository</name>
+			<url>http://telestax.artifactoryonline.com/telestax/releases</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+	
 </project>
