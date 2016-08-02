@@ -51,6 +51,13 @@
 			<groupId>jain</groupId>
 			<artifactId>jain-mgcp-ri</artifactId>
 		</dependency>
+
+		<!-- Utilities -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${version.guava}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

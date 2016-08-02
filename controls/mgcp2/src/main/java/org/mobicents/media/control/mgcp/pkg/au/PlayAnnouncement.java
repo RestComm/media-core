@@ -33,6 +33,9 @@ import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+
 /**
  * Plays an announcement in situations where there is no need for interaction with the user.
  * 
@@ -80,17 +83,10 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
         super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT, parameters);
 
         // Setup Play Parameters
-        String[] segments = getParameter(SignalParameters.ANNOUNCEMENT.symbol()).split(",");
-        String iterationsParam = getParameter(SignalParameters.ITERATIONS.symbol());
-        int iterations = iterationsParam == null ? ITERATIONS : Integer.parseInt(iterationsParam);
-        String durationParam = getParameter(SignalParameters.DURATION.symbol());
-        this.duration = (durationParam == null) ? -1L : Long.parseLong(durationParam);
-        String intervalParam = getParameter(SignalParameters.INTERVAL.symbol());
-        this.interval = ((intervalParam == null) ? INTERVAL : Long.parseLong(intervalParam)) * 1000000L;
+        this.duration = getDuration();
+        this.interval = getInterval();
+        this.playlist = new Playlist(getSegments(), getIterations());
 
-        // Setup Playlist
-        this.playlist = new Playlist(segments, iterations);
-        
         // Media Player
         this.player = player;
         this.player.setDuration(this.duration);
@@ -100,6 +96,61 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
         } catch (TooManyListenersException e) {
             log.error("Too many listeners for audio player", e);
         }
+    }
+
+    private String[] getSegments() {
+        return Optional.fromNullable(getParameter(SignalParameters.ANNOUNCEMENT.symbol())).or("").split(",");
+    }
+
+    private int getIterations() {
+        return Optional.fromNullable(getParameter(SignalParameters.ITERATIONS.symbol()))
+                .transform(new Function<String, Integer>() {
+
+                    @Override
+                    public Integer apply(String input) {
+                        try {
+                            return (input == null || input.isEmpty()) ? null : Integer.parseInt(input);
+                        } catch (Exception e) {
+                            log.error(
+                                    "Could not parse ITERATIONS=" + input + " to integer. Using default value: " + ITERATIONS);
+                            return null;
+                        }
+                    }
+
+                }).or(ITERATIONS);
+    }
+
+    private long getDuration() {
+        return Optional.fromNullable(getParameter(SignalParameters.DURATION.symbol())).transform(new Function<String, Long>() {
+
+            @Override
+            public Long apply(String input) {
+                try {
+                    return (input == null || input.isEmpty()) ? null : Long.parseLong(input);
+                } catch (Exception e) {
+                    log.error("Could not parse DURATION=" + input + " to long. Duration will be track length.");
+                    return null;
+                }
+            }
+
+        }).or(-1L);
+    }
+
+    private long getInterval() {
+        return Optional.fromNullable(getParameter(SignalParameters.INTERVAL.symbol()))
+                .transform(new Function<String, Integer>() {
+
+                    @Override
+                    public Integer apply(String input) {
+                        try {
+                            return (input == null || input.isEmpty()) ? null : Integer.parseInt(input);
+                        } catch (Exception e) {
+                            log.error("Could not parse INTERVAL=" + input + " to long. Using default value: " + INTERVAL);
+                            return null;
+                        }
+                    }
+
+                }).or(INTERVAL) * 1000000L;
     }
 
     @Override
