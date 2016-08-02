@@ -103,8 +103,8 @@ public class RequestNotificationCommandTest {
                 Assert.assertNotNull(notifiedEntity);
                 Assert.assertEquals("restcomm@10.229.72.130:2727", notifiedEntity.toString());
                 Assert.assertEquals("10", requestId);
-                Assert.assertTrue(rqnt.isListening("AU/oc(N)"));
-                Assert.assertTrue(rqnt.isListening("AU/of(N)"));
+                Assert.assertTrue(rqnt.isListening("AU/oc"));
+                Assert.assertTrue(rqnt.isListening("AU/of"));
                 Assert.assertEquals(1, rqnt.countSignals());
                 Assert.assertNotNull(rqnt.pollSignal());
                 Assert.assertNull(rqnt.pollSignal());
@@ -169,8 +169,8 @@ public class RequestNotificationCommandTest {
                 Assert.assertNotNull(notifiedEntity);
                 Assert.assertEquals("restcomm@10.229.72.130:2727", notifiedEntity.toString());
                 Assert.assertEquals("10", requestId);
-                Assert.assertTrue(rqnt.isListening("AU/oc(N)"));
-                Assert.assertTrue(rqnt.isListening("AU/of(N)"));
+                Assert.assertTrue(rqnt.isListening("AU/oc"));
+                Assert.assertTrue(rqnt.isListening("AU/of"));
                 Assert.assertEquals(2, rqnt.countSignals());
                 Assert.assertNotNull(rqnt.pollSignal());
                 Assert.assertNotNull(rqnt.pollSignal());
