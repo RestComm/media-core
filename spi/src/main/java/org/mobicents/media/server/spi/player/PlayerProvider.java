@@ -19,33 +19,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
-
-import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
-import org.mobicents.media.control.mgcp.transaction.TransactionalMgcpMessageMediator;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+package org.mobicents.media.server.spi.player;
 
 /**
+ * Provides Players.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class TransactionalMgcpMessageMediatorProvider implements Provider<TransactionalMgcpMessageMediator> {
-
-    private final MgcpCommandProvider commands;
-    private final MgcpTransactionProvider transactionProvider;
-
-    @Inject
-    public TransactionalMgcpMessageMediatorProvider(MgcpCommandProvider commands, MgcpTransactionProvider transactionProvider) {
-        this.commands = commands;
-        this.transactionProvider = transactionProvider;
-    }
-
-    @Override
-    public TransactionalMgcpMessageMediator get() {
-        return new TransactionalMgcpMessageMediator(transactionProvider, commands);
-    }
+public interface PlayerProvider {
+    
+    Player provide();
 
 }

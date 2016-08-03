@@ -21,6 +21,9 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
+import java.util.Map;
+
+import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
 import org.mobicents.media.control.mgcp.pkg.au.AudioSignalType;
 import org.mobicents.media.control.mgcp.pkg.au.PlayAnnouncement;
@@ -42,22 +45,25 @@ public class MgcpSignalProvider {
      * 
      * @param pkg The package name.
      * @param signal The signal name.
+     * @param parameters The parameters that configure the signal
+     * @param mediaGroup The media group that holds media components required for signal execution.
      * @return The MGCP signal.
      * @throws UnrecognizedMgcpPackageException When package name is unrecognized.
      * @throws UnsupportedMgcpSignalException When package does not support the specified signal.
      */
-    public static MgcpSignal provide(String pkg, String signal)
+    public MgcpSignal provide(String pkg, String signal, Map<String, String> parameters, MediaGroup mediaGroup)
             throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
-                return provideAudioSignal(signal);
+                return provideAudioSignal(signal, parameters, mediaGroup);
 
             default:
                 throw new UnrecognizedMgcpPackageException("Unrecognized package " + pkg);
         }
     }
 
-    private static MgcpSignal provideAudioSignal(String signal) throws UnsupportedMgcpSignalException {
+    private MgcpSignal provideAudioSignal(String signal, Map<String, String> parameters, MediaGroup mediaGroup)
+            throws UnsupportedMgcpSignalException {
         // Validate signal type
         AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
@@ -67,12 +73,14 @@ public class MgcpSignalProvider {
 
         switch (signalType) {
             case PLAY_ANNOUNCEMENT:
-                return new PlayAnnouncement();
+                return new PlayAnnouncement(mediaGroup.getPlayer(), parameters);
 
             case PLAY_COLLECT:
+                // TODO provide player and DTMF detector
                 return new PlayCollect();
 
             case PLAY_RECORD:
+                // TODO provide player and recorder
                 return new PlayRecord();
 
             default:

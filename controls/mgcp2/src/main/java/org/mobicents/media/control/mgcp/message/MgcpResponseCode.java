@@ -30,8 +30,8 @@ package org.mobicents.media.control.mgcp.message;
 public enum MgcpResponseCode {
 
     ACKNOWLEDGEMENT(0, "Response Acknowledgement"),
-    TRANSACTION_BEEN_EXECUTED(100, "The transaction is currently being executed"),
-    TRANSACTION_HAS_BEEN_QUEUED(101, "The transaction has been queued for execution"),
+    TRANSACTION_BEING_EXECUTED(100, "The transaction is currently being executed"),
+    TRANSACTION_BEEN_QUEUED(101, "The transaction has been queued for execution"),
     TRANSACTION_WAS_EXECUTED(200, "The requested transaction was executed normally"),
     CONNECTION_WAS_DELETED(250, "The connection was deleted"),
     TRANSIENT_ERROR(400, "The transaction could not be executed, due to some unspecified transient error"),

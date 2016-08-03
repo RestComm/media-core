@@ -31,8 +31,13 @@ import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
  */
 public class OperationFailed extends GenericMgcpEvent {
 
-    public OperationFailed() {
-        super("of");
+    public OperationFailed(String signal, int reasonCode) {
+        super(AudioPackage.PACKAGE_NAME, "of", signal);
+        
+        if(reasonCode < 300 || reasonCode > 399) {
+            throw new IllegalArgumentException("Illegal reason code: " + reasonCode);
+        }
+        setParameter("rc", String.valueOf(reasonCode));
     }
 
 }

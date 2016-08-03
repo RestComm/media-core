@@ -59,4 +59,8 @@ public class SignalRequest {
         return this.parameters.get(name);
     }
     
+    public Map<String, String> getParameters() {
+        return this.parameters;
+    }
+    
 }

@@ -22,9 +22,11 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
@@ -32,6 +34,7 @@ import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.connection.MgcpCall;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
@@ -39,7 +42,8 @@ import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.listener.MgcpCallListener;
 import org.mobicents.media.control.mgcp.listener.MgcpConnectionListener;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
@@ -57,7 +61,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     private static final Logger log = Logger.getLogger(GenericMgcpEndpoint.class);
 
     // MGCP Components
-    private final MgcpMessageSubject messageCenter;
+    private final MgcpConnectionProvider connectionProvider;
+    protected final MediaGroup mediaGroup;
 
     // Endpoint Properties
     private final String endpointId;
@@ -69,11 +74,14 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     // Events and Signals
     private NotificationRequest notificationRequest;
-    private MgcpSignal signal;
+    protected MgcpSignal signal;
 
-    public GenericMgcpEndpoint(String endpointId, MgcpMessageSubject messageCenter) {
+    // Observers
+    private final Collection<MgcpMessageObserver> observers;
+
+    public GenericMgcpEndpoint(String endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
         // MGCP Components
-        this.messageCenter = messageCenter;
+        this.connectionProvider = connectionProvider;
 
         // Endpoint Properties
         this.endpointId = endpointId;
@@ -82,11 +90,22 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
         // Endpoint State
         this.active = new AtomicBoolean(false);
+
+        // Media Components
+        this.mediaGroup = mediaGroup;
+
+        // Observers
+        this.observers = new CopyOnWriteArrayList<>();
     }
 
     @Override
     public String getEndpointId() {
         return this.endpointId;
+    }
+
+    @Override
+    public MediaGroup getMediaGroup() {
+        return this.mediaGroup;
     }
 
     public boolean hasCalls() {
@@ -127,16 +146,13 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     }
 
     @Override
-    public void addConnection(int callId, MgcpConnection connection) throws MgcpConnectionException {
-        try {
-            registerConnection(callId, connection);
-            if (!connection.isLocal()) {
-                ((MgcpRemoteConnection) connection).setConnectionListener(this);
-            }
-        } catch (IllegalArgumentException e) {
-            throw new MgcpConnectionException(
-                    "Could not add connection " + connection.getHexIdentifier() + " to " + this.endpointId, e);
+    public MgcpConnection createConnection(int callId, boolean local) {
+        MgcpConnection connection = local ? this.connectionProvider.provideLocal() : this.connectionProvider.provideRemote();
+        registerConnection(callId, connection);
+        if (!connection.isLocal()) {
+            ((MgcpRemoteConnection) connection).setConnectionListener(this);
         }
+        return connection;
     }
 
     @Override
@@ -287,48 +303,50 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public void requestNotification(NotificationRequest request) {
         if (this.signal != null) {
-            // Current signal is identical to newly request signal. Ignore.
-            if (this.signal.equals(signal)) {
-                log.warn("Endpoint " + this.endpointId + " dropping duplicate signal " + signal.toString());
-                return;
-            } else {
-                // Cancel current signal.
-                // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
-                // registered with the event.
-                this.signal.cancel();
-            }
+            // Cancel current signal.
+            // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
+            // registered with the event.
+            this.signal.cancel();
         }
 
         // Set new notification request and start executing requested signals (if any)
         this.notificationRequest = request;
         this.signal = this.notificationRequest.pollSignal();
-        if(signal != null) {
+        if (signal != null) {
+            this.signal.observe(this);
             this.signal.execute();
         }
     }
 
     @Override
     public void onMgcpEvent(MgcpEventData event) {
-        final String symbol = event.getSymbol();
-        if (this.notificationRequest.isListening(symbol)) {
-            this.signal = this.notificationRequest.pollSignal();
-            if (this.signal == null) {
-                // Build Notification
-                MgcpRequest notify = new MgcpRequest();
-                notify.setRequestType(MgcpRequestType.NTFY);
-                notify.setTransactionId(0);
-                notify.setEndpointId(this.endpointId);
-                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
-                        resolve(event.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
-                notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.getParameter(MgcpParameterType.OBSERVED_EVENT));
-                notify.addParameter(MgcpParameterType.REQUEST_ID, event.getParameter(MgcpParameterType.REQUEST_ID));
+        // Verify if endpoint is listening for such event
+        final String composedName = event.getPackage() + "/" + event.getSymbol();
+        if (this.notificationRequest.isListening(composedName)) {
+            // Unregister from current event
+            this.signal.forget(this);
 
-                // Clean notification request and send notification to call agent
-                this.notificationRequest = null;
-                this.messageCenter.notify(this, notify, MessageDirection.OUTGOING);
-            } else {
-                this.signal.execute();
-            }
+            // Build Notification
+            MgcpRequest notify = new MgcpRequest();
+            notify.setRequestType(MgcpRequestType.NTFY);
+            notify.setTransactionId(0);
+            notify.setEndpointId(this.endpointId);
+            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
+                    resolve(this.notificationRequest.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
+            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
+            notify.addParameter(MgcpParameterType.REQUEST_ID, notificationRequest.getRequestIdentifier());
+
+            // Send notification to call agent
+            notify(this, notify, MessageDirection.OUTGOING);
+        }
+
+        // Execute next event in pipeline
+        this.signal = this.notificationRequest.pollSignal();
+        if (this.signal != null) {
+            this.signal.execute();
+        } else {
+            // No further events are scheduled. Cleanup notification request.
+            this.notificationRequest = null;
         }
     }
 
@@ -341,7 +359,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     /**
      * Event that is called when a new connection is created in the endpoint. <br>
-     * <b>To be overriden by subclasses.</b>
+     * <b>To be overridden by subclasses.</b>
      * 
      * @param connection
      */
@@ -373,6 +391,28 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
      * @param connection
      */
     protected void onDeactivated() {
+    }
+
+    @Override
+    public void observe(MgcpMessageObserver observer) {
+        this.observers.add(observer);
+
+    }
+
+    @Override
+    public void forget(MgcpMessageObserver observer) {
+        this.observers.remove(observer);
+    }
+
+    @Override
+    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
+            if (observer != originator) {
+                observer.onMessage(message, direction);
+            }
+        }
     }
 
 }

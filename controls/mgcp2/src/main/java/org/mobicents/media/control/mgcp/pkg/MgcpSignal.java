@@ -28,6 +28,20 @@ package org.mobicents.media.control.mgcp.pkg;
 public interface MgcpSignal {
 
     /**
+     * Register an observer that wishes to be notified of MGCP Events.
+     * 
+     * @param observer The MGCP event observer.
+     */
+    void observe(MgcpEventListener observer);
+
+    /**
+     * Unregisters an observer that no longer wishes to be notified of MGCP Events.
+     * 
+     * @param observer The MGCP event observer.
+     */
+    void forget(MgcpEventListener observer);
+
+    /**
      * Executes the signal.
      */
     void execute();

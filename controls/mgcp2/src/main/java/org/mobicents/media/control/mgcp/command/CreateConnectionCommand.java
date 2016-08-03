@@ -23,14 +23,13 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
-import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
@@ -61,9 +60,9 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpEndpoint endpoint2;
     private MgcpConnection connection1;
     private MgcpConnection connection2;
-
-    public CreateConnectionCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
-        super(endpointManager, connectionProvider);
+    
+    public CreateConnectionCommand(MgcpEndpointManager endpointManager) {
+        super(endpointManager);
     }
 
     /**
@@ -83,15 +82,11 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint)
             throws MgcpConnectionException {
         // Create connection
-        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+        MgcpConnection connection = endpoint.createConnection(callId, false);
         // TODO set call agent
         connection.setMode(mode);
         // TODO provide local connection options
         this.localSdp = connection.halfOpen(new LocalConnectionOptions());
-
-        // Register connection under its proper call
-        endpoint.addConnection(callId, connection);
-
         return connection;
     }
 
@@ -111,17 +106,11 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
      * @return The new connection
      * @throws MgcpConnectionException If connection could not be opened
      */
-    private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, String remoteDescription,
-            MgcpEndpoint endpoint) throws MgcpConnectionException {
-        // Create connection
-        MgcpRemoteConnection connection = this.connectionProvider.provideRemote();
+    private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, String remoteDescription, MgcpEndpoint endpoint) throws MgcpConnectionException {
+        MgcpConnection connection = endpoint.createConnection(callId, false);
         // TODO set call agent
         this.localSdp = connection.open(remoteDescription);
         connection.setMode(mode);
-
-        // Register connection under its proper call
-        endpoint.addConnection(callId, connection);
-
         return connection;
     }
 
@@ -139,16 +128,10 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
      * @return The new connection
      * @throws MgcpException If connection could not be opened.
      */
-    private MgcpConnection createLocalConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint)
-            throws MgcpConnectionException {
-        // Create connection
-        MgcpLocalConnection connection = this.connectionProvider.provideLocal();
+    private MgcpConnection createLocalConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint) throws MgcpConnectionException {
+        MgcpConnection connection = endpoint.createConnection(callId, true);
         connection.open(null);
         connection.setMode(mode);
-
-        // Register connection under its proper call
-        endpoint.addConnection(callId, connection);
-
         return connection;
     }
 

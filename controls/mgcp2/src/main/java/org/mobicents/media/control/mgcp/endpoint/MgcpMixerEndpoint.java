@@ -22,7 +22,7 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBMixer;
 
@@ -38,10 +38,11 @@ public class MgcpMixerEndpoint extends GenericMgcpEndpoint {
     private final AudioMixer inbandMixer;
     private final OOBMixer outbandMixer;
 
-    public MgcpMixerEndpoint(String endpointId, AudioMixer inbandMixer, OOBMixer outbandMixer, MgcpMessageSubject messageCenter) {
-        super(endpointId, messageCenter);
+    public MgcpMixerEndpoint(String endpointId, AudioMixer inbandMixer, OOBMixer outbandMixer, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
+        super(endpointId, connectionProvider, mediaGroup);
         this.inbandMixer = inbandMixer;
         this.outbandMixer = outbandMixer;
+        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).audioComponent);
     }
 
     @Override

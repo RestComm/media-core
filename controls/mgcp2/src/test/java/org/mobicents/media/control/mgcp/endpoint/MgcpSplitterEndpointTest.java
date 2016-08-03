@@ -28,13 +28,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioSplitter;
 import org.mobicents.media.server.component.oob.OOBComponent;
@@ -54,14 +54,16 @@ public class MgcpSplitterEndpointTest {
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
         final AudioSplitter inbandMixer = mock(AudioSplitter.class);
         final OOBSplitter outbandMixer = mock(OOBSplitter.class);
-        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
-        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, messageCenter);
+        final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, connections, mediaGroup);
 
         // when - half open connection
+        when(connections.provideRemote()).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.isLocal()).thenReturn(false);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
-        endpoint.addConnection(1, connection);
+        endpoint.createConnection(1, false);
 
         // then
         verify(inbandMixer, times(1)).addOutsideComponent(any(AudioComponent.class));
@@ -81,14 +83,16 @@ public class MgcpSplitterEndpointTest {
         final MgcpLocalConnection connection = mock(MgcpLocalConnection.class);
         final AudioSplitter inbandSplitter = mock(AudioSplitter.class);
         final OOBSplitter outbandSplitter = mock(OOBSplitter.class);
-        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
-        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandSplitter, outbandSplitter, messageCenter);
+        final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandSplitter, outbandSplitter, connections, mediaGroup);
 
         // when - open connection and join it to secondary endpoint
+        when(connections.provideLocal()).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.isLocal()).thenReturn(true);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
-        endpoint.addConnection(1, connection);
+        endpoint.createConnection(1, true);
 
         // then
         verify(inbandSplitter, times(1)).addInsideComponent(any(AudioComponent.class));

@@ -22,13 +22,14 @@
 package org.mobicents.media.control.mgcp.command;
 
 import java.text.ParseException;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
@@ -55,6 +56,8 @@ import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalExcep
 public class RequestNotificationCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(RequestNotificationCommand.class);
+    
+    private final MgcpSignalProvider signalProvider;
 
     // MGCP Command Execution
     private int transactionId = 0;
@@ -62,11 +65,12 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     private MgcpEndpoint endpoint;
     private NotifiedEntity notifiedEntity;
     private String requestIdentifier;
-    private String[] requestedEvents;
+    private MgcpRequestedEvent[] requestedEvents;
     private SignalRequest[] signalRequests;
 
-    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
-        super(endpointManager, connectionProvider);
+    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
+        super(endpointManager);
+        this.signalProvider = signalProvider;
     }
 
     private void validateEndpointId(String endpointId) throws MgcpCommandException {
@@ -104,9 +108,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         String events = request.getParameter(MgcpParameterType.REQUESTED_EVENTS);
         if (events != null) {
             try {
-                // TODO maybe work with string??
-                MgcpRequestedEvent[] obj = MgcpRequestedEventsParser.parse(events);
-                this.requestedEvents = events.split(",");
+                this.requestedEvents = MgcpRequestedEventsParser.parse(events);
             } catch (UnrecognizedMgcpPackageException e) {
                 throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
             } catch (UnrecognizedMgcpEventException e) {
@@ -153,7 +155,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             for (int i = 0; i < this.signalRequests.length; i++) {
                 try {
                     SignalRequest signalRequest = this.signalRequests[i];
-                    signals[i] = MgcpSignalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType());
+                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), this.endpoint.getMediaGroup());
                 } catch (UnrecognizedMgcpPackageException e) {
                     throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(),
                             MgcpResponseCode.UNKNOWN_PACKAGE.message());
@@ -165,6 +167,15 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
 
         NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier, notifiedEntity, requestedEvents,
                 signals);
+        
+        // Make MGCP Controller observe state of the endpoint
+        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpMessageObserver observer = iterator.next();
+            this.endpoint.observe(observer);
+        }
+        
+        // Request notification to endpoint
         this.endpoint.requestNotification(rqnt);
     }
 

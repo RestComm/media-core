@@ -22,11 +22,13 @@
 package org.mobicents.media.server.bootstrap.ioc;
 
 import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.media.AudioPlayerProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.media.ChannelsManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.media.MediaChannelProviderProvider;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.spi.player.PlayerProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -42,6 +44,7 @@ public class MediaModule extends AbstractModule {
         bind(DspFactory.class).toProvider(DspProvider.class).in(Singleton.class);
         bind(ChannelsManager.class).toProvider(ChannelsManagerProvider.class).in(Singleton.class);
         bind(MediaChannelProvider.class).toProvider(MediaChannelProviderProvider.class).in(Singleton.class);
+        bind(PlayerProvider.class).toProvider(AudioPlayerProviderProvider.class).in(Singleton.class);
     }
 
 }

@@ -21,9 +21,6 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-
 /**
  * Data accessor for {@link MgcpEvent}.
  * 
@@ -33,11 +30,11 @@ import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 public interface MgcpEventData {
 
     /**
-     * Gets the name and address of the entity to be notified.
+     * Gets the package the event belongs to.
      * 
-     * @return The notified entity.
+     * @return The package symbol
      */
-    NotifiedEntity getNotifiedEntity();
+    String getPackage();
 
     /**
      * Gets the symbol representing the event.
@@ -47,11 +44,18 @@ public interface MgcpEventData {
     String getSymbol();
 
     /**
+     * Gets the name of the signal who fired the event.
+     * 
+     * @return The name of the signal
+     */
+    String getSignal();
+    
+    /**
      * Gets a parameter from the event.
      * 
      * @param type The type of parameter to be returned.
      * @return The value of the parameter. Returns null if no such parameter exists.
      */
-    String getParameter(MgcpParameterType type);
+    String getParameter(String type);
 
 }

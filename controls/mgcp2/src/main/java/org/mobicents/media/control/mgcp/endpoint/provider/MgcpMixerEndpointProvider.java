@@ -21,8 +21,9 @@
 
 package org.mobicents.media.control.mgcp.endpoint.provider;
 
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -36,17 +37,23 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<MgcpMixerEndpoint> {
 
     private final PriorityQueueScheduler mediaScheduler;
-    private final MgcpMessageSubject messageCenter;
+    private final MgcpConnectionProvider connectionProvider;
+    private final MediaGroupProvider mediaGroupProvider;
 
-    public MgcpMixerEndpointProvider(String namespace, PriorityQueueScheduler mediaScheduler, MgcpMessageSubject messageCenter) {
+    public MgcpMixerEndpointProvider(String namespace, PriorityQueueScheduler mediaScheduler, MgcpConnectionProvider connectionProvider, MediaGroupProvider mediaGroupProvider) {
         super(namespace);
         this.mediaScheduler = mediaScheduler;
-        this.messageCenter = messageCenter;
+        this.connectionProvider = connectionProvider;
+        this.mediaGroupProvider = mediaGroupProvider;
     }
 
     @Override
     public MgcpMixerEndpoint provide() {
-        return new MgcpMixerEndpoint(generateId(), new AudioMixer(mediaScheduler), new OOBMixer(mediaScheduler), messageCenter);
+        final String endpointId = generateId();
+        final AudioMixer audioMixer = new AudioMixer(this.mediaScheduler);
+        final OOBMixer oobMixer = new OOBMixer(this.mediaScheduler);
+        final MediaGroup mediaGroup = this.mediaGroupProvider.provide();
+        return new MgcpMixerEndpoint(endpointId, audioMixer, oobMixer, this.connectionProvider, mediaGroup);
     }
 
 }

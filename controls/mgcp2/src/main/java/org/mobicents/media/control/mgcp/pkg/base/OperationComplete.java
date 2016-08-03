@@ -48,8 +48,8 @@ import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
  */
 public class OperationComplete extends GenericMgcpEvent {
 
-    public OperationComplete() {
-        super("oc");
+    public OperationComplete(String pkg, String signal) {
+        super(pkg, "oc", signal);
     }
 
 }

@@ -26,8 +26,8 @@ import java.util.List;
 import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
-import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventListener;
 
 /**
@@ -45,7 +45,7 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEventListener;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpoint extends MgcpEventListener {
+public interface MgcpEndpoint extends MgcpEventListener, MgcpMessageSubject {
 
     /**
      * Gets the endpoint identifier
@@ -67,10 +67,9 @@ public interface MgcpEndpoint extends MgcpEventListener {
      * Registers a connection.
      * 
      * @param callId The identifier of the call where the connection belongs to.
-     * @param connection The connection to be registered.
-     * @throws MgcpConnectionException When connection is duplicate.
+     * @param local Whether a local or remote connection is to be created.
      */
-    void addConnection(int callId, MgcpConnection connection) throws MgcpConnectionException;
+    MgcpConnection createConnection(int callId, boolean local);
 
     /**
      * Deletes an active connection.
@@ -102,4 +101,10 @@ public interface MgcpEndpoint extends MgcpEventListener {
      */
     void requestNotification(NotificationRequest request);
 
+    /**
+     * Gets the media group that holds media components of the endpoint.
+     * 
+     * @return The media group.
+     */
+    MediaGroup getMediaGroup();
 }

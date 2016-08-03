@@ -21,8 +21,11 @@
 
 package org.mobicents.media.control.mgcp.pkg;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,15 +40,21 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final String symbol;
     private final SignalType type;
     private final Map<String, String> parameters;
+    private final List<MgcpEventListener> observers;
     protected final AtomicBoolean executing;
 
-    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, Map<String, String> parameters) {
         super();
         this.packageName = packageName;
         this.symbol = symbol;
         this.type = type;
-        this.parameters = new HashMap<>(10);
+        this.parameters = parameters;
+        this.observers = new CopyOnWriteArrayList<>();
         this.executing = new AtomicBoolean(false);
+    }
+
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
+        this(packageName, symbol, type, Collections.<String, String> emptyMap());
     }
 
     public String getSymbol() {
@@ -60,18 +69,29 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
         return this.parameters.get(name);
     }
 
-    public void addParameter(String name, String value) throws IllegalArgumentException {
-        if (!isParameterSupported(name)) {
-            throw new IllegalArgumentException("Parameter " + name + " is not supported by signal " + this.symbol);
-        }
-        this.parameters.put(name, value);
-    }
-
     protected abstract boolean isParameterSupported(String name);
 
     @Override
     public boolean isExecuting() {
         return this.executing.get();
+    }
+
+    @Override
+    public void observe(MgcpEventListener observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void forget(MgcpEventListener observer) {
+        this.observers.remove(observer);
+    }
+
+    protected void fire(MgcpEvent event) {
+        Iterator<MgcpEventListener> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpEventListener listener = iterator.next();
+            listener.onMgcpEvent(event);
+        }
     }
 
     @Override

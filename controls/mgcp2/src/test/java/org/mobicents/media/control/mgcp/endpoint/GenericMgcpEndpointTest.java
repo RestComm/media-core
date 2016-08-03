@@ -30,8 +30,9 @@ import static org.mockito.Mockito.verify;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.NotificationRequest;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
+import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 
@@ -45,11 +46,13 @@ public class GenericMgcpEndpointTest {
     public void testExecuteSignal() {
         // given
         final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
-        final String[] requestedEvents = new String[] { "AU/oc(N)", "AU/of(N)" };
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
+        
         final MgcpSignal signal = mock(MgcpSignal.class);
         final NotificationRequest rqnt = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal);
-        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", messageCenter);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", connectionProvider, mediaGroup);
 
         // when
         genericMgcpEndpoint.requestNotification(rqnt);
@@ -62,13 +65,14 @@ public class GenericMgcpEndpointTest {
     public void testExecuteSignalDuringSignalExecution() {
         // given
         final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
-        final String[] requestedEvents = new String[] { "AU/oc(N)", "AU/of(N)" };
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
         final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
         final MockSignal signal2 = new MockSignal("AU", "pc", SignalType.TIME_OUT);
         final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1);
         final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents, signal2);
-        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", messageCenter);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", connectionProvider, mediaGroup);
 
         // when
         genericMgcpEndpoint.requestNotification(rqnt1);
@@ -79,28 +83,6 @@ public class GenericMgcpEndpointTest {
         assertTrue(signal1.calledCancel);
         assertTrue(signal2.calledExecute);
         assertFalse(signal2.calledCancel);
-    }
-
-    @Test
-    public void testExecuteDuplicateSignal() {
-        // given
-        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
-        final String[] requestedEvents = new String[] { "AU/oc(N)", "AU/of(N)" };
-        final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        final MockSignal signal2 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1);
-        final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents, signal2);
-        final MgcpMessageSubject messageCenter = mock(MgcpMessageSubject.class);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", messageCenter);
-
-        // when
-        genericMgcpEndpoint.requestNotification(rqnt1);
-        genericMgcpEndpoint.requestNotification(rqnt2);
-
-        // then
-        assertTrue(signal1.calledExecute);
-        assertFalse(signal1.calledCancel);
-        assertFalse(signal2.calledExecute);
     }
 
     /**

@@ -21,9 +21,9 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
+import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 
 /**
  * Provides MGCP commands to be executed.
@@ -34,36 +34,36 @@ import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 public class MgcpCommandProvider {
 
     private final MgcpEndpointManager endpointManager;
-    private final MgcpConnectionProvider connectionProvider;
+    private final MgcpSignalProvider signalProvider;
 
-    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpConnectionProvider connectionProvider) {
+    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
         super();
         this.endpointManager = endpointManager;
-        this.connectionProvider = connectionProvider;
+        this.signalProvider = signalProvider;
     }
 
     public MgcpCommand provide(MgcpRequestType type) {
         switch (type) {
             case CRCX:
-                return new CreateConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new CreateConnectionCommand(this.endpointManager);
 
             case MDCX:
-                return new ModifyConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new ModifyConnectionCommand(this.endpointManager);
 
             case DLCX:
-                return new DeleteConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new DeleteConnectionCommand(this.endpointManager);
 
             case RQNT:
-                return new RequestNotificationCommand(this.endpointManager, this.connectionProvider);
+                return new RequestNotificationCommand(this.endpointManager, this.signalProvider);
 
             case NTFY:
-                return new NotifyCommand(this.endpointManager, this.connectionProvider);
+                return new NotifyCommand(this.endpointManager);
 
             case AUCX:
-                return new AuditConnectionCommand(this.endpointManager, this.connectionProvider);
+                return new AuditConnectionCommand(this.endpointManager);
 
             case AUEP:
-                return new AuditEndpointCommand(this.endpointManager, this.connectionProvider);
+                return new AuditEndpointCommand(this.endpointManager);
 
             default:
                 throw new IllegalArgumentException("Unsupported command type " + type.name());

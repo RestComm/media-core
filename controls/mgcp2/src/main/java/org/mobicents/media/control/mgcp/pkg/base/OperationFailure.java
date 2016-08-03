@@ -48,8 +48,8 @@ import org.mobicents.media.control.mgcp.pkg.GenericMgcpEvent;
  */
 public class OperationFailure extends GenericMgcpEvent {
 
-    public OperationFailure() {
-        super("of");
+    public OperationFailure(String pkg, String signal) {
+        super(pkg, "of", signal);
     }
 
 }

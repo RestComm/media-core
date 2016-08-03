@@ -34,7 +34,7 @@ package org.mobicents.media.control.mgcp.pkg.au;
  */
 public enum SignalParameters {
 
-    ANNOUNCEMENT("au"),
+    ANNOUNCEMENT("an"),
     INITIAL_PROMPT("ip"),
     REPROMPT("rp"),
     NO_DIGITS_REPROMPT("nd"),
