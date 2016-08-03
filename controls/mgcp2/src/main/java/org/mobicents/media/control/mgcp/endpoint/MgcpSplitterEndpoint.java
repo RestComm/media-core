@@ -37,8 +37,8 @@ public class MgcpSplitterEndpoint extends GenericMgcpEndpoint {
     private final AudioSplitter inbandSplitter;
     private final OOBSplitter outbandSplitter;
 
-    public MgcpSplitterEndpoint(String endpointId, AudioSplitter inbandSplitter, OOBSplitter outbandSplitter, MgcpConnectionProvider connectionProvider) {
-        super(endpointId, connectionProvider);
+    public MgcpSplitterEndpoint(String endpointId, AudioSplitter inbandSplitter, OOBSplitter outbandSplitter, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
+        super(endpointId, connectionProvider, mediaGroup);
         this.inbandSplitter = inbandSplitter;
         this.outbandSplitter = outbandSplitter;
     }

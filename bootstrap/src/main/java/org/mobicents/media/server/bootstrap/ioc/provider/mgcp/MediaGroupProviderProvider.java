@@ -21,23 +21,29 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
+import org.mobicents.media.server.spi.player.PlayerProvider;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpSignalProviderProvider implements Provider<MgcpSignalProvider> {
+public class MediaGroupProviderProvider implements Provider<MediaGroupProvider> {
 
-    public MgcpSignalProviderProvider() {
+    private final PlayerProvider players;
+
+    @Inject
+    public MediaGroupProviderProvider(PlayerProvider players) {
         super();
+        this.players = players;
     }
 
     @Override
-    public MgcpSignalProvider get() {
-        return new MgcpSignalProvider();
+    public MediaGroupProvider get() {
+        return new MediaGroupProvider(this.players);
     }
 
 }

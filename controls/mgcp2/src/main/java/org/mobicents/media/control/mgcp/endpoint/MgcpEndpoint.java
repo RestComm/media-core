@@ -62,7 +62,7 @@ public interface MgcpEndpoint extends MgcpEventListener, MgcpMessageSubject {
      * @return The connection matching the criteria. Returns null if no such connection exists.
      */
     MgcpConnection getConnection(int callId, int connectionId);
-    
+
     /**
      * Registers a connection.
      * 
@@ -101,4 +101,10 @@ public interface MgcpEndpoint extends MgcpEventListener, MgcpMessageSubject {
      */
     void requestNotification(NotificationRequest request);
 
+    /**
+     * Gets the media group that holds media components of the endpoint.
+     * 
+     * @return The media group.
+     */
+    MediaGroup getMediaGroup();
 }

@@ -19,25 +19,28 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
+package org.mobicents.media.control.mgcp.endpoint.provider;
 
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
-
-import com.google.inject.Provider;
+import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
+import org.mobicents.media.control.mgcp.endpoint.MediaGroupImpl;
+import org.mobicents.media.server.component.audio.AudioComponent;
+import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.spi.player.PlayerProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpSignalProviderProvider implements Provider<MgcpSignalProvider> {
+public class MediaGroupProvider {
 
-    public MgcpSignalProviderProvider() {
-        super();
+    private final PlayerProvider players;
+
+    public MediaGroupProvider(PlayerProvider players) {
+        this.players = players;
     }
 
-    @Override
-    public MgcpSignalProvider get() {
-        return new MgcpSignalProvider();
+    public MediaGroup provide() {
+        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players);
     }
 
 }

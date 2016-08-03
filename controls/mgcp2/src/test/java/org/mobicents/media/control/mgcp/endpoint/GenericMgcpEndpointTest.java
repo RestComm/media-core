@@ -51,7 +51,8 @@ public class GenericMgcpEndpointTest {
         final MgcpSignal signal = mock(MgcpSignal.class);
         final NotificationRequest rqnt = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", connectionProvider);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", connectionProvider, mediaGroup);
 
         // when
         genericMgcpEndpoint.requestNotification(rqnt);
@@ -70,7 +71,8 @@ public class GenericMgcpEndpointTest {
         final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1);
         final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents, signal2);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
-        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", connectionProvider);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint("mobicents/endpoint/1", connectionProvider, mediaGroup);
 
         // when
         genericMgcpEndpoint.requestNotification(rqnt1);

@@ -38,10 +38,11 @@ public class MgcpMixerEndpoint extends GenericMgcpEndpoint {
     private final AudioMixer inbandMixer;
     private final OOBMixer outbandMixer;
 
-    public MgcpMixerEndpoint(String endpointId, AudioMixer inbandMixer, OOBMixer outbandMixer, MgcpConnectionProvider connectionProvider) {
-        super(endpointId, connectionProvider);
+    public MgcpMixerEndpoint(String endpointId, AudioMixer inbandMixer, OOBMixer outbandMixer, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
+        super(endpointId, connectionProvider, mediaGroup);
         this.inbandMixer = inbandMixer;
         this.outbandMixer = outbandMixer;
+        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).audioComponent);
     }
 
     @Override

@@ -24,10 +24,12 @@ package org.mobicents.media.server.bootstrap.ioc;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MediaGroupProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpChannelProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpCommandProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpConnectionProviderProvider;
@@ -60,5 +62,6 @@ public class MgcpModule extends AbstractModule {
         bind(MgcpChannel.class).toProvider(MgcpChannelProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
         bind(MgcpSignalProvider.class).toProvider(MgcpSignalProviderProvider.class).in(Singleton.class);
+        bind(MediaGroupProvider.class).toProvider(MediaGroupProviderProvider.class).in(Singleton.class);
     }
 }

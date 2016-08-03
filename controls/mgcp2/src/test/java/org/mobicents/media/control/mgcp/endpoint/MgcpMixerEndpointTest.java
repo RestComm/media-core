@@ -52,7 +52,8 @@ public class MgcpMixerEndpointTest {
         final AudioMixer inbandMixer = mock(AudioMixer.class);
         final OOBMixer outbandMixer = mock(OOBMixer.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
-        final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, connections);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, connections, mediaGroup);
 
         // when - half open connection
         when(connections.provideRemote()).thenReturn(connection);

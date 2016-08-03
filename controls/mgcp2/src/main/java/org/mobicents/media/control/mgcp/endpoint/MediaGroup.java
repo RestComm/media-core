@@ -19,25 +19,27 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
+package org.mobicents.media.control.mgcp.endpoint;
 
-import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
-
-import com.google.inject.Provider;
+import org.mobicents.media.server.spi.dtmf.DtmfDetector;
+import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
+import org.mobicents.media.server.spi.player.Player;
+import org.mobicents.media.server.spi.recorder.Recorder;
 
 /**
+ * Holds media components.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpSignalProviderProvider implements Provider<MgcpSignalProvider> {
+public interface MediaGroup {
 
-    public MgcpSignalProviderProvider() {
-        super();
-    }
+    Player getPlayer();
 
-    @Override
-    public MgcpSignalProvider get() {
-        return new MgcpSignalProvider();
-    }
+    Recorder getRecorder();
+
+    DtmfDetector getDetector();
+
+    DtmfGenerator getGenerator();
 
 }

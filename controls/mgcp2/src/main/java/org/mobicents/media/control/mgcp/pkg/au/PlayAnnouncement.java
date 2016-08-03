@@ -226,6 +226,7 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
 
                 String announcement = this.playlist.next();
                 if (announcement.isEmpty() || !isExecuting()) {
+                    this.player.removeListener(this);
                     fireOC(ReturnCode.SUCCESS.code());
                 } else {
                     playAnnouncement(announcement, this.interval);
@@ -234,6 +235,7 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
 
             case PlayerEvent.FAILED:
                 if (this.executing.getAndSet(false)) {
+                    this.player.removeListener(this);
                     fireOF(ReturnCode.UNSPECIFIED_FAILURE.code());
                 }
                 break;

@@ -34,6 +34,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
+import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
@@ -69,12 +70,14 @@ public class RequestNotificationCommandTest {
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class))).thenReturn(mock(MgcpSignal.class));
+        when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
+        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class), eq(mediaGroup))).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -135,12 +138,14 @@ public class RequestNotificationCommandTest {
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class))).thenReturn(mock(MgcpSignal.class));
+        when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
+        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class), eq(mediaGroup))).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -301,12 +306,14 @@ public class RequestNotificationCommandTest {
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide(eq("AX"), eq("pa"), any(Map.class))).thenThrow(new UnrecognizedMgcpPackageException(""));
+        when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
+        when(signalProvider.provide(eq("AX"), eq("pa"), any(Map.class), eq(mediaGroup))).thenThrow(new UnrecognizedMgcpPackageException(""));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -338,12 +345,14 @@ public class RequestNotificationCommandTest {
         final MgcpMessageObserver listener = mock(MgcpMessageObserver.class);
         final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(endpointManager, signalProvider);
 
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10")).thenReturn(endpoint);
-        when(signalProvider.provide(eq("AU"), eq("xyz"), any(Map.class))).thenThrow(new UnsupportedMgcpSignalException(""));
+        when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
+        when(signalProvider.provide(eq("AU"), eq("xyz"), any(Map.class), eq(mediaGroup))).thenThrow(new UnsupportedMgcpSignalException(""));
         doAnswer(new Answer<Object>() {
 
             @Override

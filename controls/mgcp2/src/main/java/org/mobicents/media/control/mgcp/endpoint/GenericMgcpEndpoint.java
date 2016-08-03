@@ -62,7 +62,8 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     // MGCP Components
     private final MgcpConnectionProvider connectionProvider;
-    
+    protected final MediaGroup mediaGroup;
+
     // Endpoint Properties
     private final String endpointId;
     private final NotifiedEntity defaultNotifiedEntity;
@@ -73,15 +74,15 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     // Events and Signals
     private NotificationRequest notificationRequest;
-    private MgcpSignal signal;
-    
+    protected MgcpSignal signal;
+
     // Observers
     private final Collection<MgcpMessageObserver> observers;
 
-    public GenericMgcpEndpoint(String endpointId, MgcpConnectionProvider connectionProvider) {
+    public GenericMgcpEndpoint(String endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
         // MGCP Components
         this.connectionProvider = connectionProvider;
-        
+
         // Endpoint Properties
         this.endpointId = endpointId;
         this.defaultNotifiedEntity = new NotifiedEntity();
@@ -89,7 +90,10 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
         // Endpoint State
         this.active = new AtomicBoolean(false);
-        
+
+        // Media Components
+        this.mediaGroup = mediaGroup;
+
         // Observers
         this.observers = new CopyOnWriteArrayList<>();
     }
@@ -97,6 +101,11 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public String getEndpointId() {
         return this.endpointId;
+    }
+
+    @Override
+    public MediaGroup getMediaGroup() {
+        return this.mediaGroup;
     }
 
     public boolean hasCalls() {
@@ -387,7 +396,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public void observe(MgcpMessageObserver observer) {
         this.observers.add(observer);
-        
+
     }
 
     @Override
@@ -400,7 +409,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
             MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
-            if(observer != originator) {
+            if (observer != originator) {
                 observer.onMessage(message, direction);
             }
         }

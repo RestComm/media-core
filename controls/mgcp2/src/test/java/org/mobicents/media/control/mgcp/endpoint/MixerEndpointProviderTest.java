@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
@@ -42,7 +43,8 @@ public class MixerEndpointProviderTest {
         final String namespace = "ms/mock/";
         final PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
-        final MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, mediaScheduler, connections);
+        final MediaGroupProvider mediaGroupProvider = mock(MediaGroupProvider.class);
+        final MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, mediaScheduler, connections, mediaGroupProvider);
 
         // when
         MgcpMixerEndpoint endpoint1 = provider.provide();
