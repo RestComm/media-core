@@ -1,20 +1,23 @@
 [plantuml,file="mgcp-transaction-outbound-sequence.png"]
 --
-MgcpEndpoint -> MgcpMessageCenter : notify(request, OUT)
-activate MgcpEndpoint
-activate MgcpMessageCenter
-deactivate MgcpEndpoint
+MgcpEndpoint -> MgcpController : notify(request, OUT)
+activate MgcpController
+
+MgcpController -> MgcpTransactionManager : process(request)
+activate MgcpTransactionManager
 
 create MgcpTransaction
-MgcpMessageCenter -> MgcpTransaction : create
-MgcpMessageCenter -> MgcpMessageCenter : register(tx)
-activate MgcpTransaction
+MgcpTransactionManager -> MgcpTransaction : create
+MgcpTransactionManager -> MgcpTransactionManager : register(request.transactionId)
 
-MgcpMessageCenter -> MgcpChannel : onMgcpMessage(request, OUT)
-deactivate MgcpMessageCenter
+deactivate MgcpTransactionManager
+MgcpController -> MgcpChannel : send(request)
+deactivate MgcpController
+
 activate MgcpChannel
 MgcpChannel ->] : bytes
 deactivate MgcpChannel
+
 
 |||
 ... waiting for call agent to reply ...
@@ -22,12 +25,15 @@ deactivate MgcpChannel
 
 MgcpChannel <-] : bytes
 activate MgcpChannel
-MgcpChannel -> MgcpMessageCenter : notify(response, IN)
+MgcpChannel -> MgcpController : notify(response, IN)
 deactivate MgcpChannel
 
-activate MgcpMessageCenter
-MgcpMessageCenter -> MgcpMessageCenter : deregister(tx)
-deactivate MgcpTransaction
+activate MgcpController
+MgcpController -> MgcpTransactionManager : process(response)
+deactivate MgcpController
+
+activate MgcpTransactionManager
+MgcpTransactionManager -> MgcpTransactionManager : deregister(response.transactionId)
+deactivate MgcpTransactionManager
 destroy MgcpTransaction
-deactivate MgcpMessageCenter
 --

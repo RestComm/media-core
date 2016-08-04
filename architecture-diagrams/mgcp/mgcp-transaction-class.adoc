@@ -1,0 +1,39 @@
+[plantuml,file="mgcp-transaction-class.png"]
+--
+interface ListeningExecutorService {
++ ListenableFuture submit(Callable)
+}
+
+interface FutureCallback {
++ onSuccess(V)
++ onFailure(Throwable);
+}
+
+interface Callable {
++ V call()
+}
+
+class MgcpTransactionManager {
+- Collection<MgcpTransaction> transactions
++ process(MgcpRequest, MgcpCommand)
++ process(MgcpResponse)
+}
+
+class MgcpTransaction {
+- MgcpRequest request
+- MgcpResponse response
+}
+
+class MgcpCommand {
+- EndpointManager endpoints
++ V call()
+}
+
+ListeningExecutorService <-- MgcpTransactionManager : submit
+(MgcpTransactionManager, ListeningExecutorService) . MgcpCommand
+Callable <|-- MgcpCommand
+
+FutureCallback -> MgcpTransactionManager : onCommandComplete
+MgcpTransactionManager *--> MgcpTransaction
+
+--
