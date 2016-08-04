@@ -165,8 +165,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             }
         }
 
-        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier, notifiedEntity, requestedEvents,
-                signals);
+        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier, notifiedEntity, requestedEvents, signals);
         
         // Make MGCP Controller observe state of the endpoint
         Iterator<MgcpMessageObserver> iterator = this.observers.iterator();

@@ -21,14 +21,26 @@
 
 package org.mobicents.media.control.mgcp.transaction;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
+import org.mobicents.media.control.mgcp.command.MgcpCommandResult;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
  * Manages a group of MGCP transactions.
@@ -39,6 +51,10 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
 public class MgcpTransactionManager implements TransactionManager {
 
     private static final Logger log = Logger.getLogger(MgcpTransactionManager.class);
+
+    // Concurrency Components
+    private final ListeningExecutorService executor;
+    private final MgcpCommandCallback commandCallback;
 
     // MGCP Components
     private final MgcpTransactionProvider transactionProvider;
@@ -52,25 +68,35 @@ public class MgcpTransactionManager implements TransactionManager {
      * The transaction identifiers of incoming commands are compared to the transaction identifiers of the recent responses. If
      * a match is found, the MGCP entity does not execute the transaction, but simply repeats the response.
      */
-    
-    public MgcpTransactionManager(MgcpTransactionProvider transactionProvider) {
+
+    // Observers
+    private final Collection<MgcpMessageObserver> observers;
+
+    public MgcpTransactionManager(MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
+        // Concurrency Components
+        this.executor = executor;
+        this.commandCallback = new MgcpCommandCallback();
+
         // MGCP Components
         this.transactionProvider = transactionProvider;
 
         // MGCP Transaction Manager
         this.transactions = new ConcurrentHashMap<>(500);
+
+        // Observers
+        this.observers = new CopyOnWriteArrayList<>();
     }
 
     private MgcpTransaction createTransaction(MgcpRequest request) throws DuplicateMgcpTransactionException {
         int transactionId = request.getTransactionId();
-        
+
         // Create Transaction
         MgcpTransaction transaction;
         if (transactionId == 0) {
             // Transaction originated from within this Media Server (NTFY, for example)
             // to be sent out to call agent. A transaction ID must be generated
             transaction = this.transactionProvider.provideLocal();
-            
+
             // Patch transaction ID
             request.setTransactionId(transaction.getId());
             transactionId = transaction.getId();
@@ -101,8 +127,9 @@ public class MgcpTransactionManager implements TransactionManager {
     @Override
     public void process(MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException {
         createTransaction(request);
-        if(command != null) {
-            command.execute(request);
+        if (command != null) {
+            ListenableFuture<MgcpCommandResult> future = this.executor.submit(command);
+            Futures.addCallback(future, this.commandCallback);
         }
     }
 
@@ -114,6 +141,63 @@ public class MgcpTransactionManager implements TransactionManager {
         } else if (log.isDebugEnabled()) {
             log.debug("Closed transaction " + response.getTransactionId() + " with code " + response.getCode());
         }
+    }
+
+    @Override
+    public void observe(MgcpMessageObserver observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void forget(MgcpMessageObserver observer) {
+        this.observers.remove(observer);
+
+    }
+
+    @Override
+    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpMessageObserver observer = iterator.next();
+            if (observer != originator) {
+                observer.onMessage(message, direction);
+            }
+        }
+    }
+
+    /**
+     * Handles MGCP command responses after their execution.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    private final class MgcpCommandCallback implements FutureCallback<MgcpCommandResult> {
+
+        @Override
+        public void onSuccess(MgcpCommandResult result) {
+            try {
+                MgcpResponse response = buildResponse(result);
+                MgcpTransactionManager.this.process(response);
+                MgcpTransactionManager.this.notify(MgcpTransactionManager.this, response, MessageDirection.OUTGOING);
+            } catch (MgcpTransactionNotFoundException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            // TODO Auto-generated method stub
+            log.error("An error occurred processing an MGCP Command.", t);
+        }
+        
+        private MgcpResponse buildResponse(MgcpCommandResult result) {
+            MgcpResponse response = new MgcpResponse();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            response.setTransactionId(result.getTransactionId());
+            return response;
+        }
+
     }
 
 }

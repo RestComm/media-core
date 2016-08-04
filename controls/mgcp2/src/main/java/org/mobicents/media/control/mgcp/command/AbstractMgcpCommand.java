@@ -21,16 +21,10 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MessageDirection;
-import org.mobicents.media.control.mgcp.message.MgcpMessage;
-import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
 /**
  * Abstract implementation of MGCP command that forces a rollback operation when {@link MgcpCommand#execute(MgcpRequest)} fails.
@@ -44,52 +38,33 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected static final String WILDCARD_ANY = "$";
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
 
+    protected final int transactionId;
     protected final MgcpEndpointManager endpointManager;
-    protected final Collection<MgcpMessageObserver> observers;
+    protected final Map<MgcpCommandParameterType, String> parameters;
 
-    public AbstractMgcpCommand(MgcpEndpointManager endpointManager) {
+    public AbstractMgcpCommand(int transactionId, MgcpEndpointManager endpointManager, Map<MgcpCommandParameterType, String> parameters) {
+        this.transactionId = transactionId;
         this.endpointManager = endpointManager;
-        this.observers = new CopyOnWriteArrayList<>();
+        this.parameters = parameters;
     }
 
     @Override
-    public void execute(MgcpRequest request) {
-        MgcpResponse response;
+    public MgcpCommandResult call() {
+        MgcpCommandResult result;
         try {
-            response = executeRequest(request);
+            result = execute();
         } catch (MgcpCommandException e) {
-            response = rollback(request.getTransactionId(), e.getCode(), e.getMessage());
+            result = rollback(this.transactionId, e.getCode(), e.getMessage());
         } finally {
             reset();
         }
-        notify(this, response, MessageDirection.OUTGOING);
+        return result;
     }
 
-    protected abstract MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException;
+    protected abstract MgcpCommandResult execute() throws MgcpCommandException;
 
-    protected abstract MgcpResponse rollback(int transactionId, int code, String message);
+    protected abstract MgcpCommandResult rollback(int transactionId, int code, String message);
 
     protected abstract void reset();
-
-    @Override
-    public void observe(MgcpMessageObserver observer) {
-        this.observers.add(observer);
-    }
-
-    @Override
-    public void forget(MgcpMessageObserver observer) {
-        this.observers.remove(observer);
-    }
-
-    @Override
-    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
-        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
-        while (iterator.hasNext()) {
-            MgcpMessageObserver observer = iterator.next();
-            if (observer != originator) {
-                observer.onMessage(message, direction);
-            }
-        }
-    }
 
 }
