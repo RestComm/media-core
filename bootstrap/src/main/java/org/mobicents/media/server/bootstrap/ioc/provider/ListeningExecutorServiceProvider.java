@@ -19,34 +19,30 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.inject.Inject;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionManagerProvider implements Provider<TransactionManager> {
+public class ListeningExecutorServiceProvider implements Provider<ListeningExecutorService> {
 
-    private final MgcpTransactionProvider transactionProvider;
-    private final ListeningExecutorService executor;
-
-    @Inject
-    public MgcpTransactionManagerProvider(MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
-        this.transactionProvider = transactionProvider;
-        this.executor = executor;
+    public ListeningExecutorServiceProvider() {
+        super();
     }
-
+    
     @Override
-    public MgcpTransactionManager get() {
-        return new MgcpTransactionManager(transactionProvider, executor);
+    public ListeningExecutorService get() {
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("mgcp-%d").build();
+        return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(threadFactory));
     }
 
 }

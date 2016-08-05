@@ -22,8 +22,8 @@
 package org.mobicents.media.control.mgcp.message;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.mobicents.media.control.mgcp.util.Parameters;
 
 /**
  * Represents a generic MGCP message.
@@ -34,12 +34,12 @@ import java.util.Map;
 public abstract class MgcpMessage {
 
     protected int transactionId;
-    protected final Map<MgcpParameterType, String> parameters;
+    protected final Parameters<MgcpParameterType> parameters;
     protected final ByteBuffer data;
     
     public MgcpMessage() {
         this.transactionId = -1;
-        this.parameters = new HashMap<>(10);
+        this.parameters = new Parameters<>();
         this.data = ByteBuffer.allocate(8192);
     }
     
@@ -55,8 +55,12 @@ public abstract class MgcpMessage {
         return this.parameters.containsKey(MgcpParameterType.SDP);
     }
     
+    public Parameters<MgcpParameterType> getParameters() {
+        return parameters.clone();
+    }
+    
     public String getParameter(MgcpParameterType type) {
-        return this.parameters.get(type);
+        return this.parameters.getString(type).get();
     }
     
     public boolean hasParameter(MgcpParameterType type) {

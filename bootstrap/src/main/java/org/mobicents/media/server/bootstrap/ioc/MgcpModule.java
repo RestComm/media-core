@@ -29,6 +29,7 @@ import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.server.bootstrap.ioc.provider.ListeningExecutorServiceProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MediaGroupProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpChannelProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpCommandProviderProvider;
@@ -42,6 +43,7 @@ import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionMan
 import org.mobicents.media.server.bootstrap.ioc.provider.mgcp.MgcpTransactionProviderProvider;
 import org.mobicents.media.server.spi.ServerManager;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 
@@ -63,5 +65,6 @@ public class MgcpModule extends AbstractModule {
         bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
         bind(MgcpSignalProvider.class).toProvider(MgcpSignalProviderProvider.class).in(Singleton.class);
         bind(MediaGroupProvider.class).toProvider(MediaGroupProviderProvider.class).in(Singleton.class);
+        bind(ListeningExecutorService.class).toProvider(ListeningExecutorServiceProvider.class).in(Singleton.class);
     }
 }

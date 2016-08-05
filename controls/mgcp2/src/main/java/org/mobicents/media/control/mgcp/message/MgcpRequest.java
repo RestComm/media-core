@@ -23,6 +23,8 @@ package org.mobicents.media.control.mgcp.message;
 
 import java.util.Iterator;
 
+import com.google.common.base.Optional;
+
 /**
  * Represents an MGCP request.
  * 
@@ -75,15 +77,19 @@ public class MgcpRequest extends MgcpMessage {
         this.builder.setLength(0);
 
         // Build header
-        this.builder.append(this.requestType.name()).append(" ").append(this.transactionId).append(" ").append(this.endpointId)
-                .append("@127.0.0.1:2427").append(" ").append(VERSION).append(System.lineSeparator());
+        this.builder.append(this.requestType.name()).append(" ")
+                .append(this.transactionId).append(" ")
+                .append(this.endpointId).append("@127.0.0.1:2427").append(" ")
+                .append(VERSION).append(System.lineSeparator());
 
         // Build parameters
         Iterator<MgcpParameterType> keys = this.parameters.keySet().iterator();
         while (keys.hasNext()) {
             MgcpParameterType key = (MgcpParameterType) keys.next();
-            String value = this.parameters.get(key);
-            builder.append(key.getCode()).append(":").append(value).append(System.lineSeparator());
+            Optional<String> value = this.parameters.getString(key);
+            if(value.isPresent()) {
+                builder.append(key.getCode()).append(":").append(value).append(System.lineSeparator());
+            }
         }
         return builder.toString();
     }

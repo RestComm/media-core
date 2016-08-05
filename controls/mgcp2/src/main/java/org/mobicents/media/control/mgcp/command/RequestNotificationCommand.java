@@ -22,17 +22,13 @@
 package org.mobicents.media.control.mgcp.command;
 
 import java.text.ParseException;
-import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
-import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEventsParser;
@@ -45,6 +41,9 @@ import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpActionExce
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpEventException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
+import org.mobicents.media.control.mgcp.util.Parameters;
+
+import com.google.common.base.Optional;
 
 /**
  * The NotificationRequest command is used to request the gateway to send notifications upon the occurrence of specified events
@@ -56,59 +55,71 @@ import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalExcep
 public class RequestNotificationCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(RequestNotificationCommand.class);
-    
+
+    // MGCP Components
     private final MgcpSignalProvider signalProvider;
 
-    // MGCP Command Execution
-    private int transactionId = 0;
-    private String endpointId;
-    private MgcpEndpoint endpoint;
-    private NotifiedEntity notifiedEntity;
-    private String requestIdentifier;
-    private MgcpRequestedEvent[] requestedEvents;
-    private SignalRequest[] signalRequests;
-
-    public RequestNotificationCommand(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
-        super(endpointManager);
+    public RequestNotificationCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters, MgcpSignalProvider signalProvider) {
+        super(transactionId, endpointManager, parameters);
         this.signalProvider = signalProvider;
     }
 
-    private void validateEndpointId(String endpointId) throws MgcpCommandException {
-        if (endpointId.indexOf(WILDCARD_ANY) != -1) {
-            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
-                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+    private void validateParameters() throws MgcpCommandException, RuntimeException {
+        // Endpoint Name
+        Optional<String> endpointId = this.requestParameters.getString(MgcpParameterType.ENDPOINT_ID);
+        if (!endpointId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+        } else if (endpointId.get().contains(WILDCARD_ANY)) {
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+        }
+        
+        // Request Identifier
+        Optional<String> requestId = this.requestParameters.getString(MgcpParameterType.REQUEST_ID);
+        if (!requestId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
         }
     }
 
-    private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
-        this.transactionId = request.getTransactionId();
-
-        // Endpoint Name
-        this.endpointId = request.getEndpointId().substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
-        validateEndpointId(this.endpointId);
-
-        // Notified Entity
-        String callAgent = request.getParameter(MgcpParameterType.NOTIFIED_ENTITY);
-        if (callAgent != null) {
+    private void executeCommand() throws MgcpCommandException {
+        // Retrieve endpoint
+        Optional<String> endpointId = this.requestParameters.getString(MgcpParameterType.ENDPOINT_ID);
+        MgcpEndpoint endpoint = this.endpointManager.getEndpoint(endpointId.get());
+        
+        if (endpoint == null) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+        }
+        
+        // TODO Check if connection is specified (to do later down in roadmap)
+        
+        // Retrieve signal requests (if any)
+        Optional<String> requestedSignals = this.requestParameters.getString(MgcpParameterType.REQUESTED_SIGNALS);
+        Optional<MgcpSignal[]> signals = Optional.absent();
+        if (requestedSignals.isPresent()) {
             try {
-                this.notifiedEntity = NotifiedEntityParser.parse(callAgent);
-            } catch (ParseException e) {
-                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(),
-                        MgcpResponseCode.PROTOCOL_ERROR.message());
+                // Parse signals
+                SignalRequest[] signalRequests = SignalsRequestParser.parse(requestedSignals.get());
+
+                // Convert signal requests to actual signals
+                signals.or(new MgcpSignal[signalRequests.length]);
+                for (int i = 0; i < signalRequests.length; i++) {
+                    SignalRequest signalRequest = signalRequests[i];
+                    signals.get()[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), endpoint.getMediaGroup());
+                }
+            } catch (MgcpParseException e) {
+                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
+            } catch (UnrecognizedMgcpPackageException e) {
+                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
+            } catch (UnsupportedMgcpSignalException e) {
+                throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.message());
             }
         }
-
-        // Request Identifier
-        this.requestIdentifier = request.getParameter(MgcpParameterType.REQUEST_ID);
-        if (this.requestIdentifier == null || this.requestIdentifier.isEmpty()) {
-            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
-        }
-
+        
         // Requested Events
-        String events = request.getParameter(MgcpParameterType.REQUESTED_EVENTS);
-        if (events != null) {
+        Optional<String> events = this.requestParameters.getString(MgcpParameterType.REQUESTED_EVENTS);
+        Optional<MgcpRequestedEvent[]> requestedEvents = Optional.absent();
+        if (events.isPresent()) {
             try {
-                this.requestedEvents = MgcpRequestedEventsParser.parse(events);
+                requestedEvents.or(MgcpRequestedEventsParser.parse(events.get()));
             } catch (UnrecognizedMgcpPackageException e) {
                 throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
             } catch (UnrecognizedMgcpEventException e) {
@@ -119,71 +130,40 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
             }
         }
-
-        // Requested Signals
-        String signals = request.getParameter(MgcpParameterType.REQUESTED_SIGNALS);
-        if (signals != null) {
+        
+        // Request Identifier
+        Optional<String> requestIdentifier = this.requestParameters.getString(MgcpParameterType.REQUEST_ID);
+        
+        // Notified Entity
+        Optional<String> callAgent = this.requestParameters.getString(MgcpParameterType.NOTIFIED_ENTITY);
+        Optional<NotifiedEntity> notifiedEntity = Optional.absent();
+        if (callAgent.isPresent()) {
             try {
-                this.signalRequests = SignalsRequestParser.parse(signals);
-            } catch (MgcpParseException e) {
+                notifiedEntity.or(NotifiedEntityParser.parse(callAgent.get()));
+            } catch (ParseException e) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
             }
         }
-    }
-
-    private MgcpResponse buildResponse() {
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
-        response.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
-        response.setTransactionId(this.transactionId);
-        return response;
-    }
-
-    private void executeCommand() throws MgcpCommandException {
-        // Retrieve endpoint
-        this.endpoint = this.endpointManager.getEndpoint(this.endpointId);
-        if (this.endpoint == null) {
-            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
-        }
-
-        // TODO Check if connection is specified (to do later down in roadmap)
-
-        // Retrieve signal requests (if any)
-        MgcpSignal[] signals = null;
-        if (this.signalRequests != null) {
-            signals = new MgcpSignal[this.signalRequests.length];
-            for (int i = 0; i < this.signalRequests.length; i++) {
-                try {
-                    SignalRequest signalRequest = this.signalRequests[i];
-                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), this.endpoint.getMediaGroup());
-                } catch (UnrecognizedMgcpPackageException e) {
-                    throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(),
-                            MgcpResponseCode.UNKNOWN_PACKAGE.message());
-                } catch (UnsupportedMgcpSignalException e) {
-                    throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.message());
-                }
-            }
-        }
-
-        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier, notifiedEntity, requestedEvents, signals);
         
-        // Make MGCP Controller observe state of the endpoint
-        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
-        while (iterator.hasNext()) {
-            MgcpMessageObserver observer = iterator.next();
-            this.endpoint.observe(observer);
-        }
+        // Submit notification request to endpoint
+        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier.get(), notifiedEntity.get(), requestedEvents.get(), signals.get());
+        
+        // TODO Make MGCP Controller observe state of the endpoint
+        // Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        // while (iterator.hasNext()) {
+        // MgcpMessageObserver observer = iterator.next();
+        // this.endpoint.observe(observer);
+        // }
         
         // Request notification to endpoint
-        this.endpoint.requestNotification(rqnt);
+        endpoint.requestNotification(rqnt);
     }
 
     @Override
-    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
+    protected void execute() throws MgcpCommandException {
         try {
-            validateRequest(request);
+            validateParameters();
             executeCommand();
-            return buildResponse();
         } catch (MgcpCommandException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -193,23 +173,8 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    protected MgcpResponse rollback(int transactionId, int code, String message) {
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(code);
-        response.setMessage(message);
-        response.setTransactionId(transactionId);
-        return response;
-    }
-
-    @Override
-    protected void reset() {
-        this.transactionId = 0;
-        this.endpointId = null;
-        this.endpoint = null;
-        this.notifiedEntity = null;
-        this.requestIdentifier = null;
-        this.requestedEvents = null;
-        this.signalRequests = null;
+    protected void rollback() {
+        // Nothing to cleanup
     }
 
 }

@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -34,12 +35,16 @@ import com.google.common.base.Optional;
  * 
  * @param <K> The key type of the map.
  */
-public class Parameters<K> {
+public class Parameters<K> implements Cloneable {
 
     private final Map<K, String> parameters;
 
     public Parameters() {
         this.parameters = new HashMap<>(10);
+    }
+    
+    private Parameters(Map<K, String> parameters) {
+        this.parameters = parameters;
     }
 
     private String get(K key) {
@@ -52,6 +57,14 @@ public class Parameters<K> {
 
     public void put(K key, String value) {
         this.parameters.put(key, value);
+    }
+
+    public String remove(K key) {
+        return this.parameters.remove(key);
+    }
+
+    public boolean containsKey(K key) {
+        return this.parameters.containsKey(key);
     }
 
     public Optional<String> getString(K key) {
@@ -73,9 +86,18 @@ public class Parameters<K> {
     public Optional<Boolean> getBoolean(K key) {
         return get(key, ValueTransformers.STRING_TO_BOOLEAN);
     }
-    
+
     public void clear() {
         this.parameters.clear();
+    }
+    
+    public Set<K> keySet() {
+        return this.parameters.keySet();
+    }
+    
+    @Override
+    public Parameters<K> clone() {
+        return new Parameters<>(new HashMap<>(this.parameters));
     }
 
 }

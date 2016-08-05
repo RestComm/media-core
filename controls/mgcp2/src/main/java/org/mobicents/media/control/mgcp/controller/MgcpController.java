@@ -146,7 +146,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     private void onIncomingRequest(MgcpRequest request) {
         // Get command to be executed
-        MgcpCommand command = this.commands.provide(request.getRequestType());
+        MgcpCommand command = this.commands.provide(request.getTransactionId(), request.getRequestType(), request.getParameters());
 
         try {
             // Start transaction that will execute the command
