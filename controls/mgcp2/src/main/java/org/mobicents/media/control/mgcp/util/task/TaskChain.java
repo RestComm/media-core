@@ -18,33 +18,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.control.mgcp.util.task;
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.util.collections.Parameters;
+import java.util.concurrent.Callable;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AuditEndpointCommand extends AbstractMgcpCommand {
-
-    public AuditEndpointCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
-        super(transactionId, parameters, endpointManager);
-    }
-
-    @Override
-    protected void execute() throws MgcpCommandException {
-        // TODO Auto-generated method stub
-        throw new MgcpCommandException(MgcpResponseCode.ABORTED.code(), "Not yet implemented");
-    }
-
-    @Override
-    protected void rollback() {
-        // TODO Auto-generated method stub
-    }
+public interface TaskChain<V> extends Callable<V> {
+    
+    TaskChain<V> addTask(Task<?> task);
 
 }

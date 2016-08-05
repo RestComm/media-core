@@ -36,7 +36,6 @@ public class MgcpRequest extends MgcpMessage {
     public static final String VERSION = "MGCP 1.0";
 
     private MgcpRequestType requestType;
-    private String endpointId;
     private final LocalConnectionOptions lcOptions;
     private final StringBuilder builder;
 
@@ -55,11 +54,11 @@ public class MgcpRequest extends MgcpMessage {
     }
 
     public String getEndpointId() {
-        return endpointId;
+        return this.parameters.getString(MgcpParameterType.ENDPOINT_ID).orNull();
     }
 
     public void setEndpointId(String endpointId) {
-        this.endpointId = endpointId;
+        this.parameters.put(MgcpParameterType.ENDPOINT_ID, endpointId);
     }
 
     public LocalConnectionOptions getLocalConnectionOptions() {
@@ -79,7 +78,7 @@ public class MgcpRequest extends MgcpMessage {
         // Build header
         this.builder.append(this.requestType.name()).append(" ")
                 .append(this.transactionId).append(" ")
-                .append(this.endpointId).append("@127.0.0.1:2427").append(" ")
+                .append(getEndpointId()).append("@127.0.0.1:2427").append(" ")
                 .append(VERSION).append(System.lineSeparator());
 
         // Build parameters

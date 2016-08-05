@@ -71,7 +71,7 @@ public class MgcpControllerTest {
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
-        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
+        when(commands.provide(transactionId, request.getRequestType(), request.getParameters())).thenReturn(command);
 
         controller.onMessage(request, MessageDirection.INCOMING);
 
@@ -95,7 +95,7 @@ public class MgcpControllerTest {
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
-        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
+        when(commands.provide(transactionId, request.getRequestType(), request.getParameters())).thenReturn(command);
         doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(request, command);
 
         doAnswer(new Answer<Object>() {
@@ -149,7 +149,7 @@ public class MgcpControllerTest {
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
-        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
+        when(commands.provide(transactionId, request.getRequestType(), request.getParameters())).thenReturn(command);
 
         controller.onMessage(request, MessageDirection.OUTGOING);
 
@@ -174,7 +174,7 @@ public class MgcpControllerTest {
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
-        when(commands.provide(MgcpRequestType.CRCX)).thenReturn(command);
+        when(commands.provide(transactionId, request.getRequestType(), request.getParameters())).thenReturn(command);
         doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(request, null);
 
         controller.onMessage(request, MessageDirection.OUTGOING);

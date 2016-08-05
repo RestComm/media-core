@@ -28,7 +28,7 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 import com.google.common.base.Optional;
@@ -44,8 +44,8 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(ModifyConnectionCommand.class);
 
-    public ModifyConnectionCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
-        super(transactionId, endpointManager, parameters);
+    public ModifyConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+        super(transactionId, parameters, endpointManager);
     }
 
     private void validateParameters() throws MgcpCommandException, RuntimeException {
@@ -73,8 +73,14 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
 
         // Connection Mode
         Optional<String> mode = this.requestParameters.getString(MgcpParameterType.MODE);
-        if (mode.isPresent() && ConnectionMode.fromDescription(mode.get()) == null) {
+        if (!mode.isPresent()) {
             throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.message());
+        } else {
+            try {
+                ConnectionMode connectionMode = ConnectionMode.fromDescription(mode.get());
+            } catch (IllegalArgumentException e) {
+                throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.message());
+            }
         }
     }
 
@@ -88,8 +94,8 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
         }
 
         // Retrieve connection from endpoint
-        Optional<Integer> callId = this.responseParameters.getIntegerBase16(MgcpParameterType.CALL_ID);
-        Optional<Integer> connectionId = this.responseParameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
+        Optional<Integer> callId = this.requestParameters.getIntegerBase16(MgcpParameterType.CALL_ID);
+        Optional<Integer> connectionId = this.requestParameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
 
         MgcpConnection connection = endpoint.getConnection(callId.get(), connectionId.get());
         if (connection == null) {

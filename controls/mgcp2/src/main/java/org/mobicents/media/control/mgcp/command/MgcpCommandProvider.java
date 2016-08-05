@@ -25,7 +25,7 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
  * Provides MGCP commands to be executed.
@@ -44,25 +44,25 @@ public class MgcpCommandProvider {
         this.signalProvider = signalProvider;
     }
 
-    public MgcpCommand provide(int transactionId, MgcpRequestType type, Parameters<MgcpParameterType> parameters) {
+    public MgcpCommand provide(MgcpRequestType type, int transactionId, Parameters<MgcpParameterType> parameters) {
         switch (type) {
             case CRCX:
-                return new CreateConnectionCommand(transactionId, this.endpointManager, parameters);
+                return new CreateConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case MDCX:
-                return new ModifyConnectionCommand(transactionId, this.endpointManager, parameters);
+                return new ModifyConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case DLCX:
-                return new DeleteConnectionCommand(transactionId, this.endpointManager, parameters);
+                return new DeleteConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case RQNT:
-                return new RequestNotificationCommand(transactionId, this.endpointManager, parameters, this.signalProvider);
+                return new RequestNotificationCommand(transactionId, parameters, this.endpointManager, this.signalProvider);
 
             case AUCX:
-                return new AuditConnectionCommand(transactionId, this.endpointManager, parameters);
+                return new AuditConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case AUEP:
-                return new AuditEndpointCommand(transactionId, this.endpointManager, parameters);
+                return new AuditEndpointCommand(transactionId, parameters, this.endpointManager);
 
             default:
                 throw new IllegalArgumentException("Unsupported command type " + type.name());

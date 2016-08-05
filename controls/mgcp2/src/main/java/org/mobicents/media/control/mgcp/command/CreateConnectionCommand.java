@@ -34,7 +34,7 @@ import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceExcep
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 import com.google.common.base.Optional;
@@ -49,8 +49,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(CreateConnectionCommand.class);
 
-    public CreateConnectionCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
-        super(transactionId, endpointManager, parameters);
+    public CreateConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+        super(transactionId, parameters, endpointManager);
     }
 
     /**
@@ -143,7 +143,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
         // Second Endpoint Name
         Optional<String> secondEndpointId = this.requestParameters.getString(MgcpParameterType.SECOND_ENDPOINT);
-        if (!secondEndpointId.isPresent()) {
+        if (secondEndpointId.isPresent()) {
             if (secondEndpointId.get().indexOf(WILDCARD_ALL) != -1) {
                 throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
             }
@@ -157,7 +157,11 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
         // Connection Mode
         Optional<String> mode = this.requestParameters.getString(MgcpParameterType.MODE);
-        if (!mode.isPresent() || ConnectionMode.fromDescription(mode.get()) == null) {
+        try {
+            if (!mode.isPresent() || ConnectionMode.fromDescription(mode.get()) == null) {
+                throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.message());
+            }
+        } catch (IllegalArgumentException e) {
             throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.message());
         }
     }
@@ -187,7 +191,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             
             // Add parameters to response
             // XXX do not hardcode the endpoint address
-            this.requestParameters.put(MgcpParameterType.ENDPOINT_ID, endpoint1.getEndpointId() + "@127.0.0.1:2427");
+            this.responseParameters.put(MgcpParameterType.ENDPOINT_ID, endpoint1.getEndpointId() + "@127.0.0.1:2427");
             this.responseParameters.put(MgcpParameterType.CONNECTION_ID, connection.getHexIdentifier());
         } else {
             // Create two local connections between both endpoints
@@ -196,10 +200,10 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             
             // Add parameters to response
             // XXX do not hardcode the endpoint address
-            this.requestParameters.put(MgcpParameterType.ENDPOINT_ID, endpoint1.getEndpointId() + "@127.0.0.1:2427");
+            this.responseParameters.put(MgcpParameterType.ENDPOINT_ID, endpoint1.getEndpointId() + "@127.0.0.1:2427");
             this.responseParameters.put(MgcpParameterType.CONNECTION_ID, connection1.getHexIdentifier());
             // XXX do not hardcode the endpoint address
-            this.requestParameters.put(MgcpParameterType.SECOND_ENDPOINT, endpoint2.getEndpointId() + "@127.0.0.1:2427");
+            this.responseParameters.put(MgcpParameterType.SECOND_ENDPOINT, endpoint2.getEndpointId() + "@127.0.0.1:2427");
             this.responseParameters.put(MgcpParameterType.CONNECTION_ID2, connection2.getHexIdentifier());
 
             // Join connections
@@ -219,8 +223,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             endpoint = this.endpointManager.getEndpoint(localName);
 
             if (endpoint == null) {
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(),
-                        MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.message());
+                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.message());
             }
         } else {
             // Create new endpoint for a specific name space
@@ -249,7 +252,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     @Override
     protected void rollback() {
         // Retrieve Endpoints
-        int callId = this.requestParameters.getInteger(MgcpParameterType.CALL_ID).get();
+        Optional<Integer> callId = this.requestParameters.getInteger(MgcpParameterType.CALL_ID);
         Optional<String> endpointId1 = this.responseParameters.getString(MgcpParameterType.ENDPOINT_ID);
         Optional<String> endpointId2 = this.responseParameters.getString(MgcpParameterType.SECOND_ENDPOINT);
         Optional<Integer> connectionId1 = this.responseParameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
@@ -261,7 +264,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         // Delete created endpoints
         if (endpoint1 != null && connectionId1.isPresent()) {
             try {
-                endpoint1.deleteConnection(callId, connectionId1.get());
+                endpoint1.deleteConnection(callId.get(), connectionId1.get());
             } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
                 log.error("Could not delete primary connection. " + e.getMessage());
             }
@@ -269,7 +272,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
         if (endpoint2 != null && connectionId2.isPresent()) {
             try {
-                endpoint2.deleteConnection(callId, connectionId2.get());
+                endpoint2.deleteConnection(callId.get(), connectionId2.get());
             } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
                 log.error("Could not delete secondary connection. " + e.getMessage());
             }

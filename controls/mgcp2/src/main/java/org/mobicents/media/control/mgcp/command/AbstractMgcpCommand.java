@@ -25,7 +25,7 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
  * Abstract implementation of MGCP command that forces a rollback operation when {@link MgcpCommand#execute(MgcpRequest)} fails.
@@ -44,11 +44,11 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected final Parameters<MgcpParameterType> requestParameters;
     protected final Parameters<MgcpParameterType> responseParameters;
 
-    public AbstractMgcpCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
+    public AbstractMgcpCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         this.transactionId = transactionId;
-        this.endpointManager = endpointManager;
         this.requestParameters = parameters;
         this.responseParameters = new Parameters<>();
+        this.endpointManager = endpointManager;
     }
 
     @Override

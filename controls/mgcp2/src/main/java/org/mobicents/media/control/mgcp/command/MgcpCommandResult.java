@@ -22,7 +22,7 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
  * Hold the result of the execution of an MGCP Command.

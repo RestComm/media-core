@@ -41,7 +41,7 @@ import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpActionExce
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpEventException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 import com.google.common.base.Optional;
 
@@ -59,8 +59,8 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
     // MGCP Components
     private final MgcpSignalProvider signalProvider;
 
-    public RequestNotificationCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters, MgcpSignalProvider signalProvider) {
-        super(transactionId, endpointManager, parameters);
+    public RequestNotificationCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
+        super(transactionId, parameters, endpointManager);
         this.signalProvider = signalProvider;
     }
 
@@ -72,7 +72,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         } else if (endpointId.get().contains(WILDCARD_ANY)) {
             throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
         }
-        
+
         // Request Identifier
         Optional<String> requestId = this.requestParameters.getString(MgcpParameterType.REQUEST_ID);
         if (!requestId.isPresent()) {
@@ -93,17 +93,17 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         
         // Retrieve signal requests (if any)
         Optional<String> requestedSignals = this.requestParameters.getString(MgcpParameterType.REQUESTED_SIGNALS);
-        Optional<MgcpSignal[]> signals = Optional.absent();
+        MgcpSignal[] signals = new MgcpSignal[0];
         if (requestedSignals.isPresent()) {
             try {
                 // Parse signals
                 SignalRequest[] signalRequests = SignalsRequestParser.parse(requestedSignals.get());
 
                 // Convert signal requests to actual signals
-                signals.or(new MgcpSignal[signalRequests.length]);
+                signals = new MgcpSignal[signalRequests.length];
                 for (int i = 0; i < signalRequests.length; i++) {
                     SignalRequest signalRequest = signalRequests[i];
-                    signals.get()[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), endpoint.getMediaGroup());
+                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), endpoint.getMediaGroup());
                 }
             } catch (MgcpParseException e) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
@@ -116,10 +116,10 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         
         // Requested Events
         Optional<String> events = this.requestParameters.getString(MgcpParameterType.REQUESTED_EVENTS);
-        Optional<MgcpRequestedEvent[]> requestedEvents = Optional.absent();
+        MgcpRequestedEvent[] requestedEvents;
         if (events.isPresent()) {
             try {
-                requestedEvents.or(MgcpRequestedEventsParser.parse(events.get()));
+                requestedEvents = MgcpRequestedEventsParser.parse(events.get());
             } catch (UnrecognizedMgcpPackageException e) {
                 throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
             } catch (UnrecognizedMgcpEventException e) {
@@ -129,6 +129,8 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
             } catch (MgcpParseException e) {
                 throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
             }
+        } else {
+            requestedEvents = new MgcpRequestedEvent[0];
         }
         
         // Request Identifier
@@ -146,7 +148,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         }
         
         // Submit notification request to endpoint
-        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier.get(), notifiedEntity.get(), requestedEvents.get(), signals.get());
+        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier.get(), notifiedEntity.orNull(), requestedEvents.get(), signals);
         
         // TODO Make MGCP Controller observe state of the endpoint
         // Iterator<MgcpMessageObserver> iterator = this.observers.iterator();

@@ -29,7 +29,7 @@ import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 import com.google.common.base.Optional;
 
@@ -44,8 +44,8 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(DeleteConnectionCommand.class);
 
-    public DeleteConnectionCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
-        super(transactionId, endpointManager, parameters);
+    public DeleteConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+        super(transactionId, parameters, endpointManager);
     }
 
     private void validateParameters() throws MgcpCommandException, RuntimeException {

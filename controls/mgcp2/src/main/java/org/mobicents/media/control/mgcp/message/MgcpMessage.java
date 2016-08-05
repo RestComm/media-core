@@ -23,7 +23,7 @@ package org.mobicents.media.control.mgcp.message;
 
 import java.nio.ByteBuffer;
 
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
  * Represents a generic MGCP message.
@@ -60,7 +60,7 @@ public abstract class MgcpMessage {
     }
     
     public String getParameter(MgcpParameterType type) {
-        return this.parameters.getString(type).get();
+        return this.parameters.getString(type).orNull();
     }
     
     public boolean hasParameter(MgcpParameterType type) {

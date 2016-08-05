@@ -24,7 +24,9 @@ package org.mobicents.media.control.mgcp.command;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.util.Parameters;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
+import org.mobicents.media.control.mgcp.util.task.Task;
+import org.mobicents.media.control.mgcp.util.task.TaskChain;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -32,9 +34,8 @@ import org.mobicents.media.control.mgcp.util.Parameters;
  */
 public class AuditConnectionCommand extends AbstractMgcpCommand {
 
-
-    public AuditConnectionCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
-        super(transactionId, endpointManager, parameters);
+    public AuditConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+        super(transactionId, parameters, endpointManager);
     }
 
     @Override
