@@ -21,6 +21,9 @@
 
 package org.mobicents.media.control.mgcp.command;
 
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.util.Parameters;
+
 /**
  * Hold the result of the execution of an MGCP Command.
  * 
@@ -32,12 +35,14 @@ public class MgcpCommandResult {
     private final int transactionId;
     private final int code;
     private final String message;
+    private final Parameters<MgcpParameterType> parameters;
 
-    public MgcpCommandResult(int transactionId, int code, String message) {
+    public MgcpCommandResult(int transactionId, int code, String message, Parameters<MgcpParameterType> parameters) {
         super();
         this.transactionId = transactionId;
         this.code = code;
         this.message = message;
+        this.parameters = parameters;
     }
 
     public int getTransactionId() {
@@ -50,6 +55,10 @@ public class MgcpCommandResult {
 
     public String getMessage() {
         return message;
+    }
+
+    public Parameters<MgcpParameterType> getParameters() {
+        return parameters;
     }
 
 }

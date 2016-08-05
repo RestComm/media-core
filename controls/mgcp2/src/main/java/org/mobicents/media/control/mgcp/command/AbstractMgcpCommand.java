@@ -21,10 +21,11 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import java.util.Map;
-
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.util.Parameters;
 
 /**
  * Abstract implementation of MGCP command that forces a rollback operation when {@link MgcpCommand#execute(MgcpRequest)} fails.
@@ -40,31 +41,30 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
 
     protected final int transactionId;
     protected final MgcpEndpointManager endpointManager;
-    protected final Map<MgcpCommandParameterType, String> parameters;
+    protected final Parameters<MgcpParameterType> requestParameters;
+    protected final Parameters<MgcpParameterType> responseParameters;
 
-    public AbstractMgcpCommand(int transactionId, MgcpEndpointManager endpointManager, Map<MgcpCommandParameterType, String> parameters) {
+    public AbstractMgcpCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
         this.transactionId = transactionId;
         this.endpointManager = endpointManager;
-        this.parameters = parameters;
+        this.requestParameters = parameters;
+        this.responseParameters = new Parameters<>();
     }
 
     @Override
     public MgcpCommandResult call() {
-        MgcpCommandResult result;
         try {
-            result = execute();
+            execute();
+            return new MgcpCommandResult(this.transactionId, MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message(), this.responseParameters);
         } catch (MgcpCommandException e) {
-            result = rollback(this.transactionId, e.getCode(), e.getMessage());
-        } finally {
-            reset();
+            rollback();
+            this.responseParameters.clear();
+            return new MgcpCommandResult(this.transactionId, e.getCode(), e.getMessage(), this.responseParameters);
         }
-        return result;
     }
 
-    protected abstract MgcpCommandResult execute() throws MgcpCommandException;
+    protected abstract void execute() throws MgcpCommandException;
 
-    protected abstract MgcpCommandResult rollback(int transactionId, int code, String message);
-
-    protected abstract void reset();
+    protected abstract void rollback();
 
 }

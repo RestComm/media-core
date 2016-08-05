@@ -33,10 +33,11 @@ import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
 import org.mobicents.media.control.mgcp.message.LocalConnectionOptions;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.util.Parameters;
 import org.mobicents.media.server.spi.ConnectionMode;
+
+import com.google.common.base.Optional;
 
 /**
  * This command is used to create a connection between two endpoints.
@@ -48,21 +49,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(CreateConnectionCommand.class);
 
-    // MGCP Command Execution
-    private int transactionId = 0;
-    private String remoteSdp = null;
-    private String localSdp = null;
-    private int callId = 0;
-    private ConnectionMode mode = null;
-    private String endpointId;
-    private String secondaryEndpointId;
-    private MgcpEndpoint endpoint1;
-    private MgcpEndpoint endpoint2;
-    private MgcpConnection connection1;
-    private MgcpConnection connection2;
-    
-    public CreateConnectionCommand(MgcpEndpointManager endpointManager) {
-        super(endpointManager);
+    public CreateConnectionCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
+        super(transactionId, endpointManager, parameters);
     }
 
     /**
@@ -79,14 +67,14 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
      * @return The new connection
      * @throws MgcpConnectionException If connection could not be half opened.
      */
-    private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint)
-            throws MgcpConnectionException {
+    private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, MgcpEndpoint endpoint) throws MgcpConnectionException {
         // Create connection
         MgcpConnection connection = endpoint.createConnection(callId, false);
         // TODO set call agent
         connection.setMode(mode);
         // TODO provide local connection options
-        this.localSdp = connection.halfOpen(new LocalConnectionOptions());
+        String localDescription = connection.halfOpen(new LocalConnectionOptions());
+        this.responseParameters.put(MgcpParameterType.SDP, localDescription);
         return connection;
     }
 
@@ -109,7 +97,8 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     private MgcpConnection createRemoteConnection(int callId, ConnectionMode mode, String remoteDescription, MgcpEndpoint endpoint) throws MgcpConnectionException {
         MgcpConnection connection = endpoint.createConnection(callId, false);
         // TODO set call agent
-        this.localSdp = connection.open(remoteDescription);
+        String localDescription = connection.open(remoteDescription);
+        this.responseParameters.put(MgcpParameterType.SDP, localDescription);
         connection.setMode(mode);
         return connection;
     }
@@ -135,105 +124,99 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         return connection;
     }
 
-    private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
-        this.transactionId = request.getTransactionId();
-
-        String z2 = request.getParameter(MgcpParameterType.SECOND_ENDPOINT);
-        this.remoteSdp = request.getParameter(MgcpParameterType.SDP);
-
-        // Z2 and SDP must not be together in same request
-        if (z2 != null && this.remoteSdp != null) {
-            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), "Z2 and SDP present in message");
-        }
-
+    private void validateParameters() throws MgcpCommandException, RuntimeException {
         // Call ID
-        String callId = request.getParameter(MgcpParameterType.CALL_ID);
-        if (callId == null) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), "Call ID (C) is not specified");
-        } else {
-            this.callId = Integer.parseInt(callId, 16);
-        }
-
-        // Connection Mode
-        try {
-            this.mode = ConnectionMode.fromDescription(request.getParameter(MgcpParameterType.MODE));
-        } catch (IllegalArgumentException e) {
-            throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(),
-                    "Connection Mode (M) not specified");
+        Optional<Integer> callId = this.requestParameters.getIntegerBase16(MgcpParameterType.CALL_ID);
+        if (!callId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), MgcpResponseCode.INCORRECT_CALL_ID.message());
         }
 
         // Endpoint Name
-        this.endpointId = request.getEndpointId().substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
-        validateEndpointId(this.endpointId);
+        Optional<String> endpointId = this.requestParameters.getString(MgcpParameterType.ENDPOINT_ID);
+        if (!endpointId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+        }
 
-        // Secondary Endpoint Name
-        this.secondaryEndpointId = null;
-        if (z2 != null) {
-            this.secondaryEndpointId = z2.substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
-            validateEndpointId(this.secondaryEndpointId);
+        if (endpointId.get().indexOf(WILDCARD_ALL) != -1) {
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+        }
+
+        // Second Endpoint Name
+        Optional<String> secondEndpointId = this.requestParameters.getString(MgcpParameterType.SECOND_ENDPOINT);
+        if (!secondEndpointId.isPresent()) {
+            if (secondEndpointId.get().indexOf(WILDCARD_ALL) != -1) {
+                throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+            }
+        }
+
+        // Remote Description
+        Optional<String> remoteSdp = this.requestParameters.getString(MgcpParameterType.SDP);
+        if (secondEndpointId.isPresent() && remoteSdp.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), "Z2 and SDP present in message");
+        }
+
+        // Connection Mode
+        Optional<String> mode = this.requestParameters.getString(MgcpParameterType.MODE);
+        if (!mode.isPresent() || ConnectionMode.fromDescription(mode.get()) == null) {
+            throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.message());
         }
     }
 
     private void executeCommand() throws MgcpConnectionException, MgcpCommandException {
         // Retrieve Endpoints
-        this.endpoint1 = retrieveEndpoint(this.endpointId);
-        this.endpoint2 = retrieveEndpoint(this.secondaryEndpointId);
+        Optional<String> endpointId1 = this.requestParameters.getString(MgcpParameterType.ENDPOINT_ID);
+        Optional<String> endpointId2 = this.requestParameters.getString(MgcpParameterType.SECOND_ENDPOINT);
+        MgcpEndpoint endpoint1 = retrieveEndpoint(endpointId1.get());
+        MgcpEndpoint endpoint2 = endpointId2.isPresent() ? retrieveEndpoint(endpointId2.get()) : null;
 
         // Create Connections
-        if (this.endpoint2 == null) {
-            if (this.remoteSdp == null) {
+        int callId = this.requestParameters.getIntegerBase16(MgcpParameterType.CALL_ID).get();
+        ConnectionMode mode = ConnectionMode.fromDescription(this.requestParameters.getString(MgcpParameterType.MODE).get());
+        
+        if (endpoint2 == null) {
+            final Optional<String> remoteDescription = this.requestParameters.getString(MgcpParameterType.SDP);
+            
+            MgcpConnection connection;
+            if (!remoteDescription.isPresent()) {
                 // Create half-open connection
-                this.connection1 = createRemoteConnection(this.callId, this.mode, this.endpoint1);
+                connection = createRemoteConnection(callId, mode, endpoint1);
             } else {
                 // Create open connection
-                this.connection1 = createRemoteConnection(this.callId, this.mode, this.remoteSdp, this.endpoint1);
+                connection = createRemoteConnection(callId, mode, remoteDescription.get(), endpoint1);
             }
+            
+            // Add parameters to response
+            // XXX do not hardcode the endpoint address
+            this.requestParameters.put(MgcpParameterType.ENDPOINT_ID, endpoint1.getEndpointId() + "@127.0.0.1:2427");
+            this.responseParameters.put(MgcpParameterType.CONNECTION_ID, connection.getHexIdentifier());
         } else {
             // Create two local connections between both endpoints
-            this.connection1 = createLocalConnection(this.callId, mode, endpoint1);
-            this.connection2 = createLocalConnection(callId, ConnectionMode.SEND_RECV, endpoint2);
+            MgcpConnection connection1 = createLocalConnection(callId, mode, endpoint1);
+            MgcpConnection connection2 = createLocalConnection(callId, ConnectionMode.SEND_RECV, endpoint2);
+            
+            // Add parameters to response
+            // XXX do not hardcode the endpoint address
+            this.requestParameters.put(MgcpParameterType.ENDPOINT_ID, endpoint1.getEndpointId() + "@127.0.0.1:2427");
+            this.responseParameters.put(MgcpParameterType.CONNECTION_ID, connection1.getHexIdentifier());
+            // XXX do not hardcode the endpoint address
+            this.requestParameters.put(MgcpParameterType.SECOND_ENDPOINT, endpoint2.getEndpointId() + "@127.0.0.1:2427");
+            this.responseParameters.put(MgcpParameterType.CONNECTION_ID2, connection2.getHexIdentifier());
 
             // Join connections
             ((MgcpLocalConnection) connection1).join((MgcpLocalConnection) connection2);
         }
     }
 
-    private MgcpResponse buildResponse() {
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
-        response.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
-        response.setTransactionId(this.transactionId);
-        // XXX do not hardcode the endpoint address
-        response.addParameter(MgcpParameterType.ENDPOINT_ID, this.endpoint1.getEndpointId() + "@127.0.0.1:2427");
-        response.addParameter(MgcpParameterType.CONNECTION_ID, this.connection1.getHexIdentifier());
-        if (this.endpoint2 != null) {
-            // XXX do not hardcode the endpoint address
-            response.addParameter(MgcpParameterType.SECOND_ENDPOINT, this.endpoint2.getEndpointId() + "@127.0.0.1:2427");
-            response.addParameter(MgcpParameterType.CONNECTION_ID2, this.connection2.getHexIdentifier());
-        }
-        if (this.localSdp != null) {
-            response.addParameter(MgcpParameterType.SDP, this.localSdp);
-        }
-        return response;
-    }
-
-    private void validateEndpointId(String endpointId) throws MgcpCommandException {
-        if (endpointId.indexOf(WILDCARD_ALL) != -1) {
-            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
-                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
-        }
-    }
-
     private MgcpEndpoint retrieveEndpoint(String endpointId) throws MgcpCommandException {
-        if (endpointId == null || endpointId.isEmpty()) {
-            return null;
-        }
+        // Get local name
+        final int indexOfSeparator = endpointId.indexOf(ENDPOINT_ID_SEPARATOR);
+        final String localName = endpointId.substring(0, indexOfSeparator);
 
-        MgcpEndpoint endpoint;
-        int indexOfAll = endpointId.indexOf(WILDCARD_ANY);
+        final MgcpEndpoint endpoint;
+        final int indexOfAll = endpointId.indexOf(WILDCARD_ANY);
         if (indexOfAll == -1) {
             // Search for registered endpoint
-            endpoint = this.endpointManager.getEndpoint(endpointId);
+            endpoint = this.endpointManager.getEndpoint(localName);
 
             if (endpoint == null) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(),
@@ -242,7 +225,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         } else {
             // Create new endpoint for a specific name space
             try {
-                endpoint = this.endpointManager.registerEndpoint(endpointId.substring(0, indexOfAll));
+                endpoint = this.endpointManager.registerEndpoint(localName.substring(0, indexOfAll));
             } catch (UnrecognizedMgcpNamespaceException e) {
                 throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE.code(), e.getMessage());
             }
@@ -251,11 +234,10 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
+    protected void execute() throws MgcpCommandException {
         try {
-            validateRequest(request);
+            validateParameters();
             executeCommand();
-            return buildResponse();
         } catch (MgcpCommandException e) {
             throw e;
         } catch (RuntimeException | MgcpConnectionException e) {
@@ -265,42 +247,33 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    protected MgcpResponse rollback(int transactionId, int code, String message) {
-        if (endpoint1 != null && connection1 != null) {
+    protected void rollback() {
+        // Retrieve Endpoints
+        int callId = this.requestParameters.getInteger(MgcpParameterType.CALL_ID).get();
+        Optional<String> endpointId1 = this.responseParameters.getString(MgcpParameterType.ENDPOINT_ID);
+        Optional<String> endpointId2 = this.responseParameters.getString(MgcpParameterType.SECOND_ENDPOINT);
+        Optional<Integer> connectionId1 = this.responseParameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
+        Optional<Integer> connectionId2 = this.responseParameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID2);
+
+        MgcpEndpoint endpoint1 = endpointId1.isPresent() ? this.endpointManager.getEndpoint(endpointId1.get()) : null;
+        MgcpEndpoint endpoint2 = endpointId2.isPresent() ? this.endpointManager.getEndpoint(endpointId2.get()) : null;
+
+        // Delete created endpoints
+        if (endpoint1 != null && connectionId1.isPresent()) {
             try {
-                this.endpoint1.deleteConnection(this.callId, this.connection1.getIdentifier());
+                endpoint1.deleteConnection(callId, connectionId1.get());
             } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
-                log.warn("Could not delete primary connection. " + e.getMessage());
+                log.error("Could not delete primary connection. " + e.getMessage());
             }
         }
 
-        if (endpoint2 != null && connection2 != null) {
+        if (endpoint2 != null && connectionId2.isPresent()) {
             try {
-                this.endpoint2.deleteConnection(this.callId, this.connection2.getIdentifier());
+                endpoint2.deleteConnection(callId, connectionId2.get());
             } catch (MgcpCallNotFoundException | MgcpConnectionNotFound e) {
-                log.warn("Could not delete secondary connection. " + e.getMessage());
+                log.error("Could not delete secondary connection. " + e.getMessage());
             }
         }
-
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(code);
-        response.setMessage(message);
-        response.setTransactionId(transactionId);
-        return response;
-    }
-
-    protected void reset() {
-        this.transactionId = 0;
-        this.remoteSdp = null;
-        this.localSdp = null;
-        this.callId = 0;
-        this.mode = null;
-        this.endpointId = null;
-        this.secondaryEndpointId = null;
-        this.endpoint1 = null;
-        this.endpoint2 = null;
-        this.connection1 = null;
-        this.connection2 = null;
     }
 
 }

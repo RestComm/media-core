@@ -19,32 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.command;
-
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
-import org.mobicents.media.control.mgcp.util.Parameters;
+package org.mobicents.media.control.mgcp.endpoint;
 
 /**
+ * Data structure to hold an MGCP Endpoint name.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class AuditEndpointCommand extends AbstractMgcpCommand {
+public class MgcpEndpointName {
 
-    public AuditEndpointCommand(int transactionId, MgcpEndpointManager endpointManager, Parameters<MgcpParameterType> parameters) {
-        super(transactionId, endpointManager, parameters);
+    private static final String SEPARATOR = "@";
+
+    private final String localName;
+    private final String domainName;
+
+    public MgcpEndpointName(String localName, String domainName) {
+        this.localName = localName;
+        this.domainName = domainName;
+    }
+
+    public String getLocalName() {
+        return localName;
+    }
+
+    public String getDomainName() {
+        return domainName;
     }
 
     @Override
-    protected void execute() throws MgcpCommandException {
-        // TODO Auto-generated method stub
-        throw new MgcpCommandException(MgcpResponseCode.ABORTED.code(), "Not yet implemented");
-    }
-
-    @Override
-    protected void rollback() {
-        // TODO Auto-generated method stub
+    public String toString() {
+        return this.localName + SEPARATOR + this.domainName;
     }
 
 }
