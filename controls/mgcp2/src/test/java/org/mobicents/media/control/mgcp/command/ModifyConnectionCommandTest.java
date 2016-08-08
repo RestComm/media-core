@@ -37,8 +37,10 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 import org.mobicents.media.server.spi.ConnectionMode;
 
 /**
@@ -66,13 +68,18 @@ public class ModifyConnectionCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getConnection(1, 1)).thenReturn(connection);
+
         MgcpCommandResult result = mdcx.call();
 
         // then
-        assertNotNull(result);
-        assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         verify(connection, times(1)).setMode(ConnectionMode.SEND_ONLY);
         verify(connection, never()).open(any(String.class));
+
+        assertNotNull(result);
+        assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -104,14 +111,20 @@ public class ModifyConnectionCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getConnection(1, 1)).thenReturn(connection);
+        when(connection.open(any(String.class))).thenReturn("answer");
 
         MgcpCommandResult result = mdcx.call();
 
         // then
-        assertNotNull(result);
-        assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         verify(connection, times(1)).setMode(ConnectionMode.SEND_RECV);
         verify(connection, times(1)).open(builderSdp.toString());
+
+        assertNotNull(result);
+        assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(1, parameters.size());
+        assertEquals("answer", parameters.getString(MgcpParameterType.SDP).get());
     }
 
     @Test
@@ -135,6 +148,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -158,6 +174,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -180,6 +199,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -202,6 +224,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -225,6 +250,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -252,6 +280,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -278,6 +309,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -317,6 +351,9 @@ public class ModifyConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.UNSUPPORTED_SDP.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
 }

@@ -41,12 +41,10 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected final int transactionId;
     protected final MgcpEndpointManager endpointManager;
     protected final Parameters<MgcpParameterType> requestParameters;
-    protected final Parameters<MgcpParameterType> responseParameters;
 
     public AbstractMgcpCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
         this.transactionId = transactionId;
         this.requestParameters = parameters;
-        this.responseParameters = new Parameters<>();
         this.endpointManager = endpointManager;
     }
 
