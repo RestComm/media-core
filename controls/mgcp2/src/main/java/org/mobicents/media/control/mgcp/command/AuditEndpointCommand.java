@@ -23,7 +23,6 @@ package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
@@ -37,14 +36,9 @@ public class AuditEndpointCommand extends AbstractMgcpCommand {
     }
 
     @Override
-    protected void execute() throws MgcpCommandException {
+    public MgcpCommandResult call() throws Exception {
         // TODO Auto-generated method stub
-        throw new MgcpCommandException(MgcpResponseCode.ABORTED.code(), "Not yet implemented");
-    }
-
-    @Override
-    protected void rollback() {
-        // TODO Auto-generated method stub
+        return null;
     }
 
 }

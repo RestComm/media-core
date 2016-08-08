@@ -21,9 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,6 +43,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -76,10 +75,15 @@ public class DeleteConnectionCommandTest {
         MgcpCommandResult result = dlcx.call();
 
         // then
+        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         assertNotNull(result.getParameters().getString(MgcpParameterType.CONNECTION_PARAMETERS).orNull());
-        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+        
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertTrue(parameters.getString(MgcpParameterType.CONNECTION_PARAMETERS).isPresent());
+        assertEquals(1, parameters.size());
     }
 
     @Test
@@ -108,10 +112,14 @@ public class DeleteConnectionCommandTest {
         MgcpCommandResult result = dlcx.call();
 
         // then
+        verify(bridgeEndpoint, times(1)).deleteConnections(1);
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         assertNull(result.getParameters().getString(MgcpParameterType.CONNECTION_PARAMETERS).orNull());
-        verify(bridgeEndpoint, times(1)).deleteConnections(1);
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -136,9 +144,13 @@ public class DeleteConnectionCommandTest {
         MgcpCommandResult result = dlcx.call();
 
         // then
+        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(), result.getCode());
-        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());        
     }
 
     @Test
@@ -163,9 +175,13 @@ public class DeleteConnectionCommandTest {
         MgcpCommandResult result = dlcx.call();
 
         // then
+        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
-        verify(bridgeEndpoint, times(1)).deleteConnection(1, 1);
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -189,10 +205,11 @@ public class DeleteConnectionCommandTest {
         MgcpCommandResult result = dlcx.call();
 
         // then
+        verify(bridgeEndpoint, times(1)).deleteConnections(1);
+
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
         assertNull(result.getParameters().getString(MgcpParameterType.CONNECTION_PARAMETERS).orNull());
-        verify(bridgeEndpoint, times(1)).deleteConnections(1);
     }
 
     @Test
@@ -216,6 +233,9 @@ public class DeleteConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -239,6 +259,9 @@ public class DeleteConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -261,6 +284,9 @@ public class DeleteConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -281,6 +307,9 @@ public class DeleteConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -305,6 +334,9 @@ public class DeleteConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 
     @Test
@@ -329,5 +361,8 @@ public class DeleteConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.PROTOCOL_ERROR.code(), result.getCode());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
     }
 }

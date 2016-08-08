@@ -214,7 +214,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         context.setConnectionMode(loadConnectionMode(parameters));
     }
 
-    private void executeCommand(CrcxContext context, Parameters<MgcpParameterType> parameters) throws MgcpCommandException, MgcpConnectionException {
+    private void executeCommand(CrcxContext context) throws MgcpCommandException, MgcpConnectionException {
         // Retrieve Endpoints
         final String endpointId = context.getEndpointId();
         final String secondEndpointId = context.getSecondEndpointId();
@@ -324,7 +324,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             // Validate Parameters
             validateParameters(this.requestParameters, context);
             // Execute Command
-            executeCommand(context, this.responseParameters);
+            executeCommand(context);
             context.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
             context.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
         } catch (RuntimeException | MgcpConnectionException e) {
