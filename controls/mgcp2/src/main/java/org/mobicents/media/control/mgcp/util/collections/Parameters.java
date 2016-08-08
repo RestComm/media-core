@@ -95,6 +95,10 @@ public class Parameters<K> implements Cloneable {
         return this.parameters.keySet();
     }
     
+    public int size() {
+        return this.parameters.size();
+    }
+    
     @Override
     public Parameters<K> clone() {
         return new Parameters<>(new HashMap<>(this.parameters));

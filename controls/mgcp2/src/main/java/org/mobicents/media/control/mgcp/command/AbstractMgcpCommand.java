@@ -24,7 +24,6 @@ package org.mobicents.media.control.mgcp.command;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
@@ -50,21 +49,5 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
         this.responseParameters = new Parameters<>();
         this.endpointManager = endpointManager;
     }
-
-    @Override
-    public MgcpCommandResult call() {
-        try {
-            execute();
-            return new MgcpCommandResult(this.transactionId, MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message(), this.responseParameters);
-        } catch (MgcpCommandException e) {
-            rollback();
-            this.responseParameters.clear();
-            return new MgcpCommandResult(this.transactionId, e.getCode(), e.getMessage(), this.responseParameters);
-        }
-    }
-
-    protected abstract void execute() throws MgcpCommandException;
-
-    protected abstract void rollback();
 
 }
