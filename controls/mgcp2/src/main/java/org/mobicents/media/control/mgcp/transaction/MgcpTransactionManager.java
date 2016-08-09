@@ -34,9 +34,12 @@ import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundExcepti
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -151,7 +154,6 @@ public class MgcpTransactionManager implements TransactionManager {
     @Override
     public void forget(MgcpMessageObserver observer) {
         this.observers.remove(observer);
-
     }
 
     @Override
@@ -175,13 +177,8 @@ public class MgcpTransactionManager implements TransactionManager {
 
         @Override
         public void onSuccess(MgcpCommandResult result) {
-            try {
-                MgcpResponse response = buildResponse(result);
-                MgcpTransactionManager.this.process(response);
-                MgcpTransactionManager.this.notify(MgcpTransactionManager.this, response, MessageDirection.OUTGOING);
-            } catch (MgcpTransactionNotFoundException e) {
-                log.error(e.getMessage(), e);
-            }
+            MgcpResponse response = buildResponse(result);
+            MgcpTransactionManager.this.notify(MgcpTransactionManager.this, response, MessageDirection.OUTGOING);
         }
 
         @Override
@@ -195,6 +192,19 @@ public class MgcpTransactionManager implements TransactionManager {
             response.setCode(result.getCode());
             response.setMessage(result.getMessage());
             response.setTransactionId(result.getTransactionId());
+            
+            Parameters<MgcpParameterType> parameters = result.getParameters();
+            if(parameters.size() > 0) {
+                Iterator<MgcpParameterType> iterator = parameters.keySet().iterator();
+                while (iterator.hasNext()) {
+                    MgcpParameterType key = iterator.next();
+                    Optional<String> value = parameters.getString(key);
+                    if(value.isPresent()) {
+                        response.addParameter(key, value.get());
+                    }
+                }
+            }
+            
             return response;
         }
 

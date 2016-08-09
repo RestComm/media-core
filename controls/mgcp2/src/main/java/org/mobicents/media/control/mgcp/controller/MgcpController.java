@@ -83,6 +83,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             try {
                 this.channel.open();
                 this.channel.observe(this);
+                this.transactions.observe(this);
                 this.active = true;
             } catch (IOException e) {
                 // TODO throw exception
@@ -96,6 +97,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // TODO stop resources
             this.channel.close();
             this.channel.forget(this);
+            this.transactions.forget(this);
             // TODO clear transactions
             this.active = false;
         } else {
