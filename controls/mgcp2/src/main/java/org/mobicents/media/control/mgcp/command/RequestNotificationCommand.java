@@ -64,119 +64,159 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
         this.signalProvider = signalProvider;
     }
 
-    private void validateParameters() throws MgcpCommandException, RuntimeException {
+    private void validateParameters(Parameters<MgcpParameterType> parameters, RqntContext context)
+            throws MgcpCommandException, RuntimeException {
         // Endpoint Name
-        Optional<String> endpointId = this.requestParameters.getString(MgcpParameterType.ENDPOINT_ID);
+        Optional<String> endpointId = parameters.getString(MgcpParameterType.ENDPOINT_ID);
         if (!endpointId.isPresent()) {
-            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
         } else if (endpointId.get().contains(WILDCARD_ANY)) {
-            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED);
+        } else {
+            context.endpointId = endpointId.get();
         }
 
         // Request Identifier
         Optional<String> requestId = this.requestParameters.getString(MgcpParameterType.REQUEST_ID);
         if (!requestId.isPresent()) {
-            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
+            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR);
+        } else {
+            context.requestId = requestId.get();
         }
-    }
 
-    private void executeCommand() throws MgcpCommandException {
-        // Retrieve endpoint
-        Optional<String> endpointId = this.requestParameters.getString(MgcpParameterType.ENDPOINT_ID);
-        MgcpEndpoint endpoint = this.endpointManager.getEndpoint(endpointId.get());
-        
-        if (endpoint == null) {
-            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
-        }
-        
-        // TODO Check if connection is specified (to do later down in roadmap)
-        
-        // Retrieve signal requests (if any)
+        // Signal Requests (optional)
         Optional<String> requestedSignals = this.requestParameters.getString(MgcpParameterType.REQUESTED_SIGNALS);
-        MgcpSignal[] signals = new MgcpSignal[0];
         if (requestedSignals.isPresent()) {
             try {
                 // Parse signals
                 SignalRequest[] signalRequests = SignalsRequestParser.parse(requestedSignals.get());
+                context.signalRequests = signalRequests;
+            } catch (MgcpParseException e) {
+                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR);
+            }
+        }
 
+        // Requested Events (optional)
+        Optional<String> events = this.requestParameters.getString(MgcpParameterType.REQUESTED_EVENTS);
+        if (events.isPresent()) {
+            try {
+                MgcpRequestedEvent[] requestedEvents = MgcpRequestedEventsParser.parse(events.get());
+                context.requestedEvents = requestedEvents;
+            } catch (UnrecognizedMgcpPackageException e) {
+                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE);
+            } catch (UnrecognizedMgcpEventException e) {
+                throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL);
+            } catch (UnrecognizedMgcpActionException e) {
+                throw new MgcpCommandException(MgcpResponseCode.EVENT_OR_SIGNAL_PARAMETER_ERROR);
+            } catch (MgcpParseException e) {
+                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR);
+            }
+        }
+
+        // Notified Entity (optional)
+        Optional<String> callAgent = this.requestParameters.getString(MgcpParameterType.NOTIFIED_ENTITY);
+        if (callAgent.isPresent()) {
+            try {
+                NotifiedEntity notifiedEntity = NotifiedEntityParser.parse(callAgent.get());
+                context.notifiedEntity = notifiedEntity;
+            } catch (ParseException e) {
+                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR);
+            }
+        }
+    }
+
+    private void executeCommand(RqntContext context) throws MgcpCommandException {
+        // Retrieve endpoint
+        MgcpEndpoint endpoint = this.endpointManager.getEndpoint(context.endpointId);
+        if (endpoint == null) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
+        }
+
+        // TODO Check if connection is specified (to do later down in roadmap)
+
+        // Build signals (if any)
+        SignalRequest[] signalRequests = context.signalRequests;
+        MgcpSignal[] signals = new MgcpSignal[0];
+        if (signalRequests.length > 0) {
+            try {
                 // Convert signal requests to actual signals
                 signals = new MgcpSignal[signalRequests.length];
                 for (int i = 0; i < signalRequests.length; i++) {
                     SignalRequest signalRequest = signalRequests[i];
                     signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), endpoint.getMediaGroup());
                 }
-            } catch (MgcpParseException e) {
-                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
             } catch (UnrecognizedMgcpPackageException e) {
-                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
+                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE);
             } catch (UnsupportedMgcpSignalException e) {
-                throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.message());
+                throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL);
             }
         }
-        
-        // Requested Events
-        Optional<String> events = this.requestParameters.getString(MgcpParameterType.REQUESTED_EVENTS);
-        MgcpRequestedEvent[] requestedEvents;
-        if (events.isPresent()) {
-            try {
-                requestedEvents = MgcpRequestedEventsParser.parse(events.get());
-            } catch (UnrecognizedMgcpPackageException e) {
-                throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE.code(), MgcpResponseCode.UNKNOWN_PACKAGE.message());
-            } catch (UnrecognizedMgcpEventException e) {
-                throw new MgcpCommandException(MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.code(), MgcpResponseCode.NO_SUCH_EVENT_OR_SIGNAL.message());
-            } catch (UnrecognizedMgcpActionException e) {
-                throw new MgcpCommandException(MgcpResponseCode.EVENT_OR_SIGNAL_PARAMETER_ERROR.code(), MgcpResponseCode.EVENT_OR_SIGNAL_PARAMETER_ERROR.message());
-            } catch (MgcpParseException e) {
-                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
-            }
-        } else {
-            requestedEvents = new MgcpRequestedEvent[0];
-        }
-        
-        // Request Identifier
-        Optional<String> requestIdentifier = this.requestParameters.getString(MgcpParameterType.REQUEST_ID);
-        
-        // Notified Entity
-        Optional<String> callAgent = this.requestParameters.getString(MgcpParameterType.NOTIFIED_ENTITY);
-        Optional<NotifiedEntity> notifiedEntity = Optional.absent();
-        if (callAgent.isPresent()) {
-            try {
-                notifiedEntity.or(NotifiedEntityParser.parse(callAgent.get()));
-            } catch (ParseException e) {
-                throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
-            }
-        }
-        
+
         // Submit notification request to endpoint
-        NotificationRequest rqnt = new NotificationRequest(transactionId, requestIdentifier.get(), notifiedEntity.orNull(), requestedEvents.get(), signals);
-        
+        NotificationRequest rqnt = new NotificationRequest(transactionId, context.requestId, context.notifiedEntity,
+                context.requestedEvents, signals);
+
         // TODO Make MGCP Controller observe state of the endpoint
         // Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
         // while (iterator.hasNext()) {
         // MgcpMessageObserver observer = iterator.next();
         // this.endpoint.observe(observer);
         // }
-        
+
         // Request notification to endpoint
         endpoint.requestNotification(rqnt);
     }
 
-    @Override
-    protected void execute() throws MgcpCommandException {
-        try {
-            validateParameters();
-            executeCommand();
-        } catch (MgcpCommandException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            log.error("Could not process MGCP Request.", e);
-            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
-        }
+    private MgcpCommandResult respond(RqntContext context) {
+        Parameters<MgcpParameterType> parameters = new Parameters<>();
+        MgcpCommandResult result = new MgcpCommandResult(this.transactionId, context.code, context.message, parameters);
+        return result;
     }
 
     @Override
-    protected void rollback() {
-        // Nothing to cleanup
+    public MgcpCommandResult call() {
+        // Initialize empty context
+        RqntContext context = new RqntContext();
+        try {
+            // Validate Parameters
+            validateParameters(this.requestParameters, context);
+            // Execute Command
+            executeCommand(context);
+            context.code = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code();
+            context.message = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message();
+        } catch (RuntimeException e) {
+            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Rolling back.");
+            context.code = MgcpResponseCode.PROTOCOL_ERROR.code();
+            context.message = MgcpResponseCode.PROTOCOL_ERROR.message();
+        } catch (MgcpCommandException e) {
+            log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
+            context.code = e.getCode();
+            context.message = e.getMessage();
+        }
+        return respond(context);
+    }
+
+    private class RqntContext {
+
+        private String endpointId;
+        private String requestId;
+        private SignalRequest[] signalRequests;
+        private MgcpRequestedEvent[] requestedEvents;
+        private NotifiedEntity notifiedEntity;
+
+        private int code;
+        private String message;
+
+        public RqntContext() {
+            this.endpointId = "";
+            this.requestId = "";
+            this.signalRequests = new SignalRequest[0];
+            this.requestedEvents = new MgcpRequestedEvent[0];
+            this.notifiedEntity = null;
+
+            this.code = MgcpResponseCode.ABORTED.code();
+            this.message = MgcpResponseCode.ABORTED.message();
+        }
     }
 
 }
