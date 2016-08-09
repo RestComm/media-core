@@ -84,7 +84,8 @@ public class MgcpEndpointManager {
      * @return The endpoint if registered; otherwise returns null
      */
     public MgcpEndpoint getEndpoint(String endpointId) {
-        return this.endpoints.get(endpointId);
+        String localName = resolveEndpointId(endpointId);
+        return this.endpoints.get(localName);
     }
 
     /**
@@ -94,10 +95,21 @@ public class MgcpEndpointManager {
      * @throws MgcpEndpointNotFoundException If there is no registered endpoint with such ID
      */
     public void unregisterEndpoint(String endpointId) throws MgcpEndpointNotFoundException {
-        MgcpEndpoint endpoint = this.endpoints.remove(endpointId);
+        String localName = resolveEndpointId(endpointId);
+        MgcpEndpoint endpoint = this.endpoints.remove(localName);
         if (endpoint == null) {
             throw new MgcpEndpointNotFoundException("Endpoint " + endpointId + " not found");
         }
     }
+
+    // FIXME Right now only deals with localName. Should take domain into account in the future.
+    private String resolveEndpointId(String endpointId) {
+        String result = endpointId;
+        int indexOfSeparator = endpointId.indexOf("@");
+        if(indexOfSeparator > -1) {
+            result = endpointId.substring(0, indexOfSeparator);
+        }
+        return result;
+    } 
 
 }
