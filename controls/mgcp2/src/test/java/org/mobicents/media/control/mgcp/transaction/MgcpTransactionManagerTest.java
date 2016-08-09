@@ -23,10 +23,7 @@ package org.mobicents.media.control.mgcp.transaction;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
@@ -38,6 +35,7 @@ import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
 import com.google.common.util.concurrent.AbstractFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
@@ -122,6 +120,7 @@ public class MgcpTransactionManagerTest {
         assertFalse(txManager.contains(finalTransactionId));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(expected = DuplicateMgcpTransactionException.class)
     public void testProcessRetransmission() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
         // given
@@ -134,6 +133,7 @@ public class MgcpTransactionManagerTest {
         final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider, executor);
 
         // when - request
+        when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));
         when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
