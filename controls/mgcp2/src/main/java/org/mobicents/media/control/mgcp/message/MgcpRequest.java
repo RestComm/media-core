@@ -85,9 +85,11 @@ public class MgcpRequest extends MgcpMessage {
         Iterator<MgcpParameterType> keys = this.parameters.keySet().iterator();
         while (keys.hasNext()) {
             MgcpParameterType key = (MgcpParameterType) keys.next();
-            Optional<String> value = this.parameters.getString(key);
-            if(value.isPresent()) {
-                builder.append(key.getCode()).append(":").append(value).append(System.lineSeparator());
+            if(!MgcpParameterType.ENDPOINT_ID.equals(key)) {
+                Optional<String> value = this.parameters.getString(key);
+                if(value.isPresent()) {
+                    builder.append(key.getCode()).append(":").append(value.get()).append(System.lineSeparator());
+                }
             }
         }
         return builder.toString();

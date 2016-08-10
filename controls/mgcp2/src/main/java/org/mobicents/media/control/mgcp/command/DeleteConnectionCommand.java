@@ -49,29 +49,32 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
     }
 
     private void validateParameters(Parameters<MgcpParameterType> parameters, DlcxContext context) throws MgcpCommandException, RuntimeException {
-        // Call ID
-        Optional<Integer> callId = parameters.getIntegerBase16(MgcpParameterType.CALL_ID);
-        if (!callId.isPresent()) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), MgcpResponseCode.INCORRECT_CALL_ID.message());
-        } else {
-            context.callId = callId.get();
-        }
-
         // Endpoint ID
         Optional<String> endpointId = parameters.getString(MgcpParameterType.ENDPOINT_ID);
         if (!endpointId.isPresent()) {
-            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
         } else if (endpointId.get().contains(WILDCARD_ALL) || endpointId.get().contains(WILDCARD_ANY)) {
             throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
         } else {
             context.endpointId = endpointId.get();
         }
+
+        // Call ID (optional)
+        Optional<Integer> callId = parameters.getIntegerBase16(MgcpParameterType.CALL_ID);
+        if (callId.isPresent()) {
+            context.callId = callId.get();
+        }
         
-        // Connection ID
+        // Connection ID (optional)
         Optional<Integer> connectionId = this.requestParameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
         if(connectionId.isPresent()) {
             context.connectionId = connectionId.get();
-        } 
+            
+            // Call ID is mandatory in this case
+            if(!callId.isPresent()) {
+                throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID);
+            }
+        }
     }
 
     private void executeCommand(DlcxContext context) throws MgcpCommandException, MgcpCallNotFoundException, MgcpConnectionNotFound {
@@ -80,30 +83,36 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
         MgcpEndpoint endpoint = this.endpointManager.getEndpoint(endpointId);
         
         if (endpoint == null) {
-            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(), MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
         }
 
         // Decide whether delete single or multiple connections
         int callId = context.callId;
         int connectionId = context.connectionId;
         
-        if (connectionId != -1) {
-            // Delete specific connection
+        if(connectionId == -1) {
+            // Delete multiple endpoints...
+            if(callId == -1) {
+                // ... all connections in the endpoint
+                endpoint.deleteConnections();
+            } else {
+                // ... all connections involved in a particular call
+                try {
+                    endpoint.deleteConnections(callId);
+                } catch (MgcpCallNotFoundException e) {
+                    /*
+                     * https://tools.ietf.org/html/rfc3435#section-2.3.9
+                     * 
+                     * Note that the command will still succeed if there were no connections with the CallId specified, as long as
+                     * the EndpointId was valid.
+                     */
+                }
+            }
+        } else {
+            // Delete single connection bound to a specific call
             MgcpConnection deleted = endpoint.deleteConnection(callId, connectionId);
             // TODO Gather statistics from connection
             context.connectionParams = "PS=" + 0 + ", PR=" + 0;
-        } else {
-            // Bulk delete connections
-            try {
-                endpoint.deleteConnections(callId);
-            } catch (MgcpCallNotFoundException e) {
-                /*
-                 * https://tools.ietf.org/html/rfc3435#section-2.3.9
-                 * 
-                 * Note that the command will still succeed if there were no connections with the CallId specified, as long as
-                 * the EndpointId was valid.
-                 */
-            }
         }
     }
     

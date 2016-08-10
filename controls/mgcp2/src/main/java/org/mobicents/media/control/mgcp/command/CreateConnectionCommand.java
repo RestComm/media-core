@@ -300,14 +300,14 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         final int connectionId = context.getConnectionId();
         if (!endpointId.isEmpty() && connectionId > 0) {
             parameters.put(MgcpParameterType.ENDPOINT_ID, endpointId);
-            parameters.put(MgcpParameterType.CONNECTION_ID, String.valueOf(connectionId));
+            parameters.put(MgcpParameterType.CONNECTION_ID, Integer.toHexString(connectionId));
         }
         
        final String secondEndpointId = context.getSecondEndpointId();
        final int secondConnectionId = context.getSecondConnectionId();
        if(!secondEndpointId.isEmpty() && secondConnectionId > 0) {
            parameters.put(MgcpParameterType.SECOND_ENDPOINT, secondEndpointId);
-           parameters.put(MgcpParameterType.CONNECTION_ID2, String.valueOf(secondConnectionId));
+           parameters.put(MgcpParameterType.CONNECTION_ID2, Integer.toHexString(secondConnectionId));
        }
        
        final String localDescription = context.getLocalDescription();
