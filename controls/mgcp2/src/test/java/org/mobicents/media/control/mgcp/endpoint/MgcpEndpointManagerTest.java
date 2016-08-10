@@ -21,24 +21,25 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.endpoint.provider.AbstractMgcpEndpointProvider;
+import org.mobicents.media.control.mgcp.exception.MgcpEndpointNotFoundException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
+import org.mobicents.media.control.mgcp.message.MessageDirection;
+import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
 public class MgcpEndpointManagerTest {
-    
+
     private static final String NAMESPACE_BRIDGE = "mobicents/bridge/";
     private static final String NAMESPACE_IVR = "mobicents/ivr/";
     private static final String NAMESPACE_CNF = "mobicents/cnf/";
@@ -63,21 +64,21 @@ public class MgcpEndpointManagerTest {
         assertFalse(endpointManager.supportsNamespace(NAMESPACE_CNF));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testInstallDuplicateProvider() {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
         AbstractMgcpEndpointProvider<?> bridgeProvider1 = mock(AbstractMgcpEndpointProvider.class);
         AbstractMgcpEndpointProvider<?> bridgeProvider2 = mock(AbstractMgcpEndpointProvider.class);
-        
+
         // when
         when(bridgeProvider1.getNamespace()).thenReturn(NAMESPACE_BRIDGE);
         when(bridgeProvider2.getNamespace()).thenReturn(NAMESPACE_BRIDGE);
-        
+
         endpointManager.installProvider(bridgeProvider1);
         endpointManager.installProvider(bridgeProvider2);
     }
-    
+
     @Test
     public void testUninstallProvider() {
         // given
@@ -100,7 +101,7 @@ public class MgcpEndpointManagerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testRegisterEndpoint() throws UnrecognizedMgcpNamespaceException {
+    public void testEndpointRegistration() throws UnrecognizedMgcpNamespaceException, MgcpEndpointNotFoundException {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
         MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
@@ -110,21 +111,45 @@ public class MgcpEndpointManagerTest {
         when(bridgeProvider.getNamespace()).thenReturn(NAMESPACE_BRIDGE);
         when(bridgeProvider.provide()).thenReturn(bridgeEndpoint);
         when(bridgeEndpoint.getEndpointId()).thenReturn(NAMESPACE_BRIDGE + "1");
+
         endpointManager.installProvider(bridgeProvider);
         MgcpEndpoint endpoint = endpointManager.registerEndpoint(NAMESPACE_BRIDGE);
 
         // then
         assertEquals(bridgeEndpoint, endpoint);
         assertEquals(bridgeEndpoint, endpointManager.getEndpoint(bridgeEndpoint.getEndpointId()));
+        verify(bridgeEndpoint, times(1)).observe(endpointManager);
+
+        // when
+        endpointManager.unregisterEndpoint(bridgeEndpoint.getEndpointId());
+
+        // then
+        assertNull(endpointManager.getEndpoint(bridgeEndpoint.getEndpointId()));
+        verify(bridgeEndpoint, times(1)).forget(endpointManager);
     }
 
-    @Test(expected=UnrecognizedMgcpNamespaceException.class)
+    @Test(expected = UnrecognizedMgcpNamespaceException.class)
     public void testRegisterUnknownEndpoint() throws UnrecognizedMgcpNamespaceException {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
-        
+
         // when
         endpointManager.registerEndpoint(NAMESPACE_BRIDGE);
     }
 
+    @Test
+    public void testMessagePropagation() {
+        // given
+        final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
+        final MgcpMessage message = mock(MgcpMessage.class);
+        final MgcpEndpointManager endpointManager = new MgcpEndpointManager();
+
+        // when
+        endpointManager.observe(observer);
+        endpointManager.onMessage(message, MessageDirection.OUTGOING);
+
+        // then
+        verify(observer, times(1)).onMessage(message, MessageDirection.OUTGOING);
+
+    }
 }
