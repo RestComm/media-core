@@ -47,7 +47,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
-import org.mobicents.media.control.mgcp.pkg.MgcpEventData;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
 
 /**
@@ -318,38 +318,6 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         }
     }
 
-    @Override
-    public void onMgcpEvent(MgcpEventData event) {
-        // Verify if endpoint is listening for such event
-        final String composedName = event.getPackage() + "/" + event.getSymbol();
-        if (this.notificationRequest.isListening(composedName)) {
-            // Unregister from current event
-            this.signal.forget(this);
-
-            // Build Notification
-            MgcpRequest notify = new MgcpRequest();
-            notify.setRequestType(MgcpRequestType.NTFY);
-            notify.setTransactionId(0);
-            notify.setEndpointId(this.endpointId);
-            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY,
-                    resolve(this.notificationRequest.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
-            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
-            notify.addParameter(MgcpParameterType.REQUEST_ID, notificationRequest.getRequestIdentifier());
-
-            // Send notification to call agent
-            notify(this, notify, MessageDirection.OUTGOING);
-        }
-
-        // Execute next event in pipeline
-        this.signal = this.notificationRequest.pollSignal();
-        if (this.signal != null) {
-            this.signal.execute();
-        } else {
-            // No further events are scheduled. Cleanup notification request.
-            this.notificationRequest = null;
-        }
-    }
-
     private NotifiedEntity resolve(NotifiedEntity value, NotifiedEntity defaultValue) {
         if (value != null) {
             return value;
@@ -412,6 +380,37 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             if (observer != originator) {
                 observer.onMessage(message, direction);
             }
+        }
+    }
+
+    @Override
+    public void onEvent(Object originator, MgcpEvent event) {
+        // Verify if endpoint is listening for such event
+        final String composedName = event.getPackage() + "/" + event.getSymbol();
+        if (this.notificationRequest.isListening(composedName)) {
+            // Unregister from current event
+            this.signal.forget(this);
+
+            // Build Notification
+            MgcpRequest notify = new MgcpRequest();
+            notify.setRequestType(MgcpRequestType.NTFY);
+            notify.setTransactionId(0);
+            notify.setEndpointId(this.endpointId);
+            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, resolve(this.notificationRequest.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
+            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
+            notify.addParameter(MgcpParameterType.REQUEST_ID, notificationRequest.getRequestIdentifier());
+
+            // Send notification to call agent
+            notify(this, notify, MessageDirection.OUTGOING);
+        }
+
+        // Execute next event in pipeline
+        this.signal = this.notificationRequest.pollSignal();
+        if (this.signal != null) {
+            this.signal.execute();
+        } else {
+            // No further events are scheduled. Cleanup notification request.
+            this.notificationRequest = null;
         }
     }
 

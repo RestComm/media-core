@@ -22,19 +22,19 @@
 package org.mobicents.media.control.mgcp.pkg;
 
 /**
- * Listens to MGCP events.
+ * Observes MGCP Events.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventListener {
+public interface MgcpEventObserver {
 
     /**
-     * Triggered when an event is fired.<br>
-     * The listener reacts to the event only if it is interested in it.
+     * Triggered when an MGCP event is fired.
      * 
-     * @param event The fired event.
+     * @param originator The source of the event.
+     * @param event The event data.
      */
-    void onMgcpEvent(MgcpEventData event);
+    void onEvent(Object originator, MgcpEvent event);
 
 }

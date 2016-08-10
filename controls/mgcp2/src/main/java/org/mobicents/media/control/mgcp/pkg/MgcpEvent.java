@@ -25,14 +25,35 @@ package org.mobicents.media.control.mgcp.pkg;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEvent extends MgcpEventData {
+public interface MgcpEvent {
+    
+    /**
+     * Gets the package the event belongs to.
+     * 
+     * @return The package symbol
+     */
+    String getPackage();
 
     /**
-     * Fires the event.
+     * Gets the symbol representing the event.
      * 
-     * @param targets The listeners targeted by the event.
-     * @throws IllegalStateException In case the event is fired more than once.
+     * @return The event symbol
      */
-    void fire(MgcpEventListener... targets) throws IllegalStateException;
+    String getSymbol();
+
+    /**
+     * Gets the name of the signal who fired the event.
+     * 
+     * @return The name of the signal
+     */
+    String getSignal();
+    
+    /**
+     * Gets a parameter from the event.
+     * 
+     * @param type The type of parameter to be returned.
+     * @return The value of the parameter. Returns null if no such parameter exists.
+     */
+    String getParameter(String type);
 
 }

@@ -24,7 +24,6 @@ package org.mobicents.media.control.mgcp.pkg;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -35,7 +34,6 @@ public class GenericMgcpEvent implements MgcpEvent {
     private final String symbol;
     private final String signal;
     private final Map<String, String> parameters;
-    private final AtomicBoolean fired;
     private final StringBuilder builder;
 
     public GenericMgcpEvent(String pkg, String symbol, String signal) {
@@ -43,7 +41,6 @@ public class GenericMgcpEvent implements MgcpEvent {
         this.symbol = symbol;
         this.signal = signal;
         this.parameters = new HashMap<>(5);
-        this.fired = new AtomicBoolean(false);
         this.builder = new StringBuilder();
     }
 
@@ -69,26 +66,6 @@ public class GenericMgcpEvent implements MgcpEvent {
 
     public void setParameter(String key, String value) {
         this.parameters.put(key, value);
-    }
-
-    @Override
-    public void fire(MgcpEventListener... targets) {
-        if (this.fired.get()) {
-            throw new IllegalStateException("Event was already fired");
-        }
-
-        // Broadcast event across all listeners
-        this.fired.set(true);
-        for (MgcpEventListener target : targets) {
-            target.onMgcpEvent(this);
-        }
-
-        // Clean event state (since it cannot be fired twice)
-        clean();
-    }
-
-    private void clean() {
-        this.parameters.clear();
     }
 
     @Override

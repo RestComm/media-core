@@ -21,16 +21,24 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.mobicents.media.control.mgcp.pkg.MgcpEventData;
-import org.mobicents.media.control.mgcp.pkg.MgcpEventListener;
+import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.base.OperationFailure;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.player.Player;
@@ -51,7 +59,7 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
         final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
-        final MgcpEventListener observer = mock(MgcpEventListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 
         // when
@@ -60,13 +68,13 @@ public class PlayAnnouncementTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEventData event = invocation.getArgumentAt(0, MgcpEventData.class);
+                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
                 assertNotNull(event);
                 assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), event.getParameter("rc"));
                 return null;
             }
 
-        }).when(observer).onMgcpEvent(any(OperationComplete.class));
+        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
 
         signal.observe(observer);
         signal.execute();
@@ -76,7 +84,7 @@ public class PlayAnnouncementTest {
         verify(player).setInitialDelay(0);
         verify(player).setURL(parameters.get(SignalParameters.ANNOUNCEMENT.symbol()));
         verify(player).activate();
-        verify(observer).onMgcpEvent(any(OperationComplete.class));
+        verify(observer).onEvent(eq(signal), any(OperationComplete.class));
     }
 
     @Test
@@ -90,7 +98,7 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ITERATIONS.symbol(), String.valueOf(iterations));
         final Player player = mock(Player.class);
         final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
-        final MgcpEventListener observer = mock(MgcpEventListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 
         // when
@@ -99,13 +107,13 @@ public class PlayAnnouncementTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEventData event = invocation.getArgumentAt(0, MgcpEventData.class);
+                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
                 assertNotNull(event);
                 assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), event.getParameter("rc"));
                 return null;
             }
 
-        }).when(observer).onMgcpEvent(any(OperationComplete.class));
+        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
 
         signal.observe(observer);
         signal.execute();
@@ -115,7 +123,7 @@ public class PlayAnnouncementTest {
 
         // then
         verify(player, times(iterations)).activate();
-        verify(observer).onMgcpEvent(any(OperationComplete.class));
+        verify(observer).onEvent(eq(signal), any(OperationComplete.class));
     }
 
     @Test
@@ -123,7 +131,7 @@ public class PlayAnnouncementTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "");
-        final MgcpEventListener observer = mock(MgcpEventListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Player player = mock(Player.class);
         final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
 
@@ -132,20 +140,20 @@ public class PlayAnnouncementTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEventData event = invocation.getArgumentAt(0, MgcpEventData.class);
+                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
                 assertNotNull(event);
                 assertEquals(String.valueOf(ReturnCode.BAD_AUDIO_ID.code()), event.getParameter("rc"));
                 return null;
             }
 
-        }).when(observer).onMgcpEvent(any(OperationFailed.class));
+        }).when(observer).onEvent(eq(signal), any(OperationFailed.class));
 
         signal.observe(observer);
         signal.execute();
 
         // then
         verify(player, never()).activate();
-        verify(observer).onMgcpEvent(any(OperationFailed.class));
+        verify(observer).onEvent(eq(signal), any(OperationFailed.class));
     }
 
     @Test
@@ -156,7 +164,7 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.INTERVAL.symbol(), "50");
         final Player player = mock(Player.class);
         final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
-        final MgcpEventListener observer = mock(MgcpEventListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 
         // when
@@ -165,13 +173,13 @@ public class PlayAnnouncementTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEventData event = invocation.getArgumentAt(0, MgcpEventData.class);
+                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
                 assertNotNull(event);
                 assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), event.getParameter("rc"));
                 return null;
             }
 
-        }).when(observer).onMgcpEvent(any(OperationComplete.class));
+        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
 
         signal.observe(observer);
         signal.execute();
@@ -210,7 +218,7 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
         final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
-        final MgcpEventListener observer = mock(MgcpEventListener.class);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 
         // when
@@ -219,13 +227,13 @@ public class PlayAnnouncementTest {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                MgcpEventData event = invocation.getArgumentAt(0, MgcpEventData.class);
+                MgcpEvent event = invocation.getArgumentAt(1, MgcpEvent.class);
                 assertNotNull(event);
                 assertEquals(String.valueOf(ReturnCode.UNSPECIFIED_FAILURE.code()), event.getParameter("rc"));
                 return null;
             }
 
-        }).when(observer).onMgcpEvent(any(OperationComplete.class));
+        }).when(observer).onEvent(eq(signal), any(OperationComplete.class));
 
         signal.observe(observer);
         signal.execute();
@@ -235,7 +243,7 @@ public class PlayAnnouncementTest {
         verify(player).setInitialDelay(0);
         verify(player).setURL(parameters.get(SignalParameters.ANNOUNCEMENT.symbol()));
         verify(player).activate();
-        verify(observer).onMgcpEvent(any(OperationFailure.class));
+        verify(observer).onEvent(eq(signal), any(OperationFailure.class));
     }
 
 }
