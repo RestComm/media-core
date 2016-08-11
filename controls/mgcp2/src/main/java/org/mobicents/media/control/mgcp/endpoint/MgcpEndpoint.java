@@ -45,7 +45,7 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpoint extends MgcpMessageSubject, MgcpEventObserver {
+public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, MgcpEventObserver {
 
     /**
      * Gets the endpoint identifier

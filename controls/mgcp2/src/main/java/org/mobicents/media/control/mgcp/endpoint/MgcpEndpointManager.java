@@ -40,7 +40,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpEndpointManager implements MgcpMessageObserver, MgcpMessageSubject {
+public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObserver, MgcpMessageSubject {
 
     // Endpoint Management
     private final ConcurrentHashMap<String, MgcpEndpointProvider<?>> providers;
@@ -88,7 +88,8 @@ public class MgcpEndpointManager implements MgcpMessageObserver, MgcpMessageSubj
 
         // Create the endpoint and register it
         MgcpEndpoint endpoint = provider.provide();
-        endpoint.observe(this);
+        endpoint.observe((MgcpEndpointObserver) this);
+        endpoint.observe((MgcpMessageObserver) this);
         this.endpoints.put(endpoint.getEndpointId(), endpoint);
         return endpoint;
     }
@@ -116,7 +117,8 @@ public class MgcpEndpointManager implements MgcpMessageObserver, MgcpMessageSubj
         if (endpoint == null) {
             throw new MgcpEndpointNotFoundException("Endpoint " + endpointId + " not found");
         }
-        endpoint.forget(this);
+        endpoint.forget((MgcpMessageObserver) this);
+        endpoint.forget((MgcpEndpointObserver) this);
     }
 
     // FIXME Right now only deals with localName. Should take domain into account in the future.
@@ -152,6 +154,13 @@ public class MgcpEndpointManager implements MgcpMessageObserver, MgcpMessageSubj
             if (observer != originator) {
                 observer.onMessage(message, direction);
             }
+        }
+    }
+
+    @Override
+    public void onEndpointStateChanged(MgcpEndpoint endpoint, MgcpEndpointState state) {
+        if(MgcpEndpointState.INACTIVE.equals(state)) {
+            this.endpoints.remove(endpoint.getEndpointId());
         }
     }
 
