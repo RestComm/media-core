@@ -21,8 +21,10 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -34,15 +36,20 @@ import com.google.inject.Provider;
  *
  */
 public class ListeningExecutorServiceProvider implements Provider<ListeningExecutorService> {
+    
+    private static final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     public ListeningExecutorServiceProvider() {
         super();
     }
-    
+
     @Override
     public ListeningExecutorService get() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("mgcp-%d").build();
-        return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(threadFactory));
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(POOL_SIZE, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
+        executor.allowCoreThreadTimeOut(false);
+        return MoreExecutors.listeningDecorator(executor);
+        // return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(threadFactory));
     }
 
 }

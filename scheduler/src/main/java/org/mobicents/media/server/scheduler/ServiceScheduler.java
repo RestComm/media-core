@@ -46,7 +46,7 @@ public class ServiceScheduler implements Scheduler {
     
     private static final Logger LOGGER = Logger.getLogger(ServiceScheduler.class);
 
-    public static final int POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
+    public static final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     private volatile boolean started;
     private final Clock wallClock;
