@@ -87,7 +87,7 @@ public class DeleteConnectionCommandTest {
     }
 
     @Test
-    public void testDeleteMultipleConnections() throws MgcpException {
+    public void testDeleteAllCallConnections() throws MgcpException {
         // given
         final StringBuilder builder = new StringBuilder();
         builder.append("DLCX 147483653 mobicents/bridge/1@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
@@ -113,6 +113,36 @@ public class DeleteConnectionCommandTest {
 
         // then
         verify(bridgeEndpoint, times(1)).deleteConnections(1);
+
+        assertNotNull(result);
+        assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
+        assertNull(result.getParameters().getString(MgcpParameterType.CONNECTION_PARAMETERS).orNull());
+
+        Parameters<MgcpParameterType> parameters = result.getParameters();
+        assertEquals(0, parameters.size());
+    }
+
+    @Test
+    public void testDeleteAllEndpointConnections() throws MgcpException {
+        // given
+        final StringBuilder builder = new StringBuilder();
+        builder.append("DLCX 147483653 mobicents/bridge/1@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
+
+        final int transactionId = 147483653;
+        final MgcpMessageParser parser = new MgcpMessageParser();
+        final MgcpRequest request = parser.parseRequest(builder.toString());
+        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
+        final List<MgcpConnection> connections = new ArrayList<>();
+        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(transactionId, request.getParameters(), endpointManager);
+
+        // when
+        when(endpointManager.getEndpoint("mobicents/bridge/1@127.0.0.1:2427")).thenReturn(bridgeEndpoint);
+        when(bridgeEndpoint.deleteConnections()).thenReturn(connections);
+        MgcpCommandResult result = dlcx.call();
+        
+        // then
+        verify(bridgeEndpoint, times(1)).deleteConnections();
 
         assertNotNull(result);
         assertEquals(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code(), result.getCode());
@@ -284,29 +314,6 @@ public class DeleteConnectionCommandTest {
         // then
         assertNotNull(result);
         assertEquals(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), result.getCode());
-
-        Parameters<MgcpParameterType> parameters = result.getParameters();
-        assertEquals(0, parameters.size());
-    }
-
-    @Test
-    public void testValidateRequestWithoutCallId() throws MgcpException {
-        // given
-        final StringBuilder builder = new StringBuilder();
-        builder.append("DLCX 147483653 mobicents/bridge/$@127.0.0.1:2427 MGCP 1.0").append(System.lineSeparator());
-
-        final int transactionId = 147483653;
-        final MgcpMessageParser parser = new MgcpMessageParser();
-        final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
-        final DeleteConnectionCommand dlcx = new DeleteConnectionCommand(transactionId, request.getParameters(), endpointManager);
-
-        // when
-        MgcpCommandResult result = dlcx.call();
-        
-        // then
-        assertNotNull(result);
-        assertEquals(MgcpResponseCode.INCORRECT_CALL_ID.code(), result.getCode());
 
         Parameters<MgcpParameterType> parameters = result.getParameters();
         assertEquals(0, parameters.size());
