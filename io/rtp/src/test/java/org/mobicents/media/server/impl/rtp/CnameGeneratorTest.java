@@ -45,7 +45,7 @@ import org.junit.Test;
  * 
  */
 public class CnameGeneratorTest {
-    
+
     private final static Logger log = Logger.getLogger(CnameGeneratorTest.class);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
@@ -80,41 +80,38 @@ public class CnameGeneratorTest {
         cnameList.clear();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testConcurrentCnameGenerator() throws InterruptedException, ExecutionException {
         // given
-        GeneratorWorker worker1 = new GeneratorWorker("worker-1");
-        GeneratorWorker worker2 = new GeneratorWorker("worker-2");
-        GeneratorWorker worker3 = new GeneratorWorker("worker-3");
+        int threads = Runtime.getRuntime().availableProcessors() * 2;
+        Future<Set<String>>[] futures = new Future[threads];
 
         // when
-        Future<Set<String>> future1 = this.executor.submit(worker1);
-        Future<Set<String>> future2 = this.executor.submit(worker2);
-        Future<Set<String>> future3 = this.executor.submit(worker3);
-        Thread.sleep(3000L);
+        for (int i = 0; i < threads; i++) {
+            Callable<Set<String>> worker = new GeneratorWorker("worker-" + i);
+            Future<Set<String>> future = executor.submit(worker);
+            futures[i] = future;
+        }
+        Thread.sleep(5000L);
 
         // then
-        assertTrue(future1.isDone());
-        assertTrue(future2.isDone());
-        assertTrue(future3.isDone());
-        
-        Set<String> cname12 = new HashSet<>(future1.get());
-        cname12.retainAll(future2.get());
-        assertTrue(cname12.isEmpty());
-        
-        Set<String> cname13 = new HashSet<>(future1.get());
-        cname13.retainAll(future3.get());
-        assertTrue(cname13.isEmpty());
-        
-        Set<String> cname23 = new HashSet<>(future2.get());
-        cname23.retainAll(future3.get());
-        assertTrue(cname23.isEmpty());
+        for (int i = 0; i < threads; i++) {
+            Future<Set<String>> futureA = futures[i];
+            for (int j = i + 1; j < futures.length; j++) {
+                Future<Set<String>> futureB = futures[j];
+
+                HashSet<String> intersection = new HashSet<String>(futureA.get());
+                intersection.retainAll(futureB.get());
+                assertTrue(intersection.isEmpty());
+            }
+        }
     }
 
     private class GeneratorWorker implements Callable<Set<String>> {
-        
+
         private final String name;
-        
+
         public GeneratorWorker(String name) {
             this.name = name;
         }
@@ -131,8 +128,10 @@ public class CnameGeneratorTest {
                 long start = System.currentTimeMillis();
                 String cname = CnameGenerator.generateCname();
                 long time = System.currentTimeMillis() - start;
-                
-                log.info(this.name + " took " + time + "ms to generate the cname " + cname);
+
+                if (log.isInfoEnabled()) {
+                    log.info(this.name + " took " + time + "ms to generate the cname " + cname);
+                }
 
                 // then
                 // test minimum size
