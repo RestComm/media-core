@@ -23,7 +23,7 @@ package org.mobicents.media.server.impl.rtp;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-import org.bouncycastle.util.encoders.Base64;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * Generates unique CNAME between different RTP sessions.
@@ -80,7 +80,7 @@ public class CnameGenerator {
 		buffer.get(data, 0, 12);
 		
 		// convert the least 96 bits to ASCII Base64
-		return Base64.toBase64String(data);
+		return DatatypeConverter.printBase64Binary(data);
 	}
 
 }
