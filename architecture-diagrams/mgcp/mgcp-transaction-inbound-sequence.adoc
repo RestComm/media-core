@@ -3,38 +3,63 @@
 [-> MgcpChannel : bytes
 activate MgcpChannel
 
-MgcpChannel -> MgcpMessageCenter : notify(request, IN)
+MgcpChannel -> MgcpController : notify(request, IN)
 deactivate MgcpChannel
-activate MgcpMessageCenter
+activate MgcpController
+
+MgcpController -> MgcpCommandProvider : provider(request.type)
+activate MgcpCommandProvider
+create MgcpCommand
+MgcpCommandProvider -> MgcpCommand : <<create>>
+MgcpCommandProvider --> MgcpController : command
+deactivate MgcpCommandProvider
+
+MgcpController -> MgcpTransactionManager : process(request,command)
+deactivate MgcpController
+activate MgcpTransactionManager
 
 create MgcpTransaction
-MgcpMessageCenter -> MgcpTransaction : create
-MgcpMessageCenter -> MgcpMessageCenter : register(tx)
-activate MgcpTransaction
+MgcpTransactionManager -> MgcpTransaction : <<create>>
+MgcpTransactionManager -> MgcpTransactionManager : register(tx)
 
-MgcpMessageCenter -> MgcpCommandProvider : provider(requestType)
-create MgcpCommand
-MgcpCommandProvider -> MgcpCommand : create
-MgcpCommandProvider --> MgcpMessageCenter : command
-MgcpMessageCenter -> MgcpCommand : execute(request)
-deactivate MgcpMessageCenter
+MgcpTransactionManager -> ServiceExecutor : submit(command)
+activate ServiceExecutor
 
+ServiceExecutor -> MgcpCommand : call()
 activate MgcpCommand
+
+ServiceExecutor --> MgcpTransactionManager : ListenableFuture
+deactivate ServiceExecutor
+
+create FutureCallback
+MgcpTransactionManager -> FutureCallback : <<create>>
+MgcpTransactionManager -> Futures : addCallback(ListenableFuture,FutureCallback)
+deactivate MgcpTransactionManager
+
 |||
 ... executing command ...
 |||
 
-MgcpCommand -> MgcpMessageCenter : notify(response, OUT)
-activate MgcpMessageCenter
+MgcpCommand --> FutureCallback : MgcpResponse
 deactivate MgcpCommand
-destroy MgcpCommand
+activate FutureCallback
 
-MgcpMessageCenter -> MgcpMessageCenter : deregister(tx)
-deactivate MgcpTransaction
+FutureCallback -> MgcpTransactionManager : onSuccess(MgcpResponse)
+destroy MgcpCommand
+deactivate FutureCallback
+activate MgcpTransactionManager
+
+MgcpTransactionManager -> MgcpTransactionManager : deregister(tx)
 destroy MgcpTransaction
 
-MgcpMessageCenter -> MgcpChannel : onMgcpMessage(response, OUT)
+MgcpTransactionManager -> MgcpController : notify(MgcpResponse, OUT)
+deactivate MgcpTransactionManager
+activate MgcpController
+
+MgcpController -> MgcpChannel : send(MgcpResponse)
+deactivate MgcpController
 activate MgcpChannel
-[<-MgcpChannel : bytes
+
+[<- MgcpChannel : bytes
 deactivate MgcpChannel
 --

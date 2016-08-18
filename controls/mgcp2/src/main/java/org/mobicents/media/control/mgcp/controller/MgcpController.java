@@ -83,6 +83,8 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             try {
                 this.channel.open();
                 this.channel.observe(this);
+                this.transactions.observe(this);
+                this.endpoints.observe(this);
                 this.active = true;
             } catch (IOException e) {
                 // TODO throw exception
@@ -96,6 +98,8 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             // TODO stop resources
             this.channel.close();
             this.channel.forget(this);
+            this.transactions.forget(this);
+            this.endpoints.forget(this);
             // TODO clear transactions
             this.active = false;
         } else {
@@ -146,10 +150,7 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     private void onIncomingRequest(MgcpRequest request) {
         // Get command to be executed
-        MgcpCommand command = this.commands.provide(request.getRequestType());
-
-        // Observe command so we get notified upon execution
-        command.observe(this);
+        MgcpCommand command = this.commands.provide(request.getRequestType(), request.getTransactionId(), request.getParameters());
 
         try {
             // Start transaction that will execute the command

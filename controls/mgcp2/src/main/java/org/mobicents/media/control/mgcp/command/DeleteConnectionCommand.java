@@ -28,9 +28,10 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
+
+import com.google.common.base.Optional;
 
 /**
  * This command is used to terminate a single connection or multiple connections at the same time.<br>
@@ -43,127 +44,148 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(DeleteConnectionCommand.class);
 
-    // MGCP Command Execution
-    private int transactionId = 0;
-    private int callId = 0;
-    private int connectionId = 0;
-    private String endpointId;
-    private MgcpEndpoint endpoint;
-    private int rxPackets = 0;
-    private int txPackets = 0;
-
-    public DeleteConnectionCommand(MgcpEndpointManager endpointManager) {
-        super(endpointManager);
+    public DeleteConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+        super(transactionId, parameters, endpointManager);
     }
 
-    private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
-        this.transactionId = request.getTransactionId();
-
-        // Call Identifier
-        final String callIdHex = request.getParameter(MgcpParameterType.CALL_ID);
-        if (callIdHex == null) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(),
-                    MgcpResponseCode.INCORRECT_CALL_ID.message());
+    private void validateParameters(Parameters<MgcpParameterType> parameters, DlcxContext context) throws MgcpCommandException, RuntimeException {
+        // Endpoint ID
+        Optional<String> endpointId = parameters.getString(MgcpParameterType.ENDPOINT_ID);
+        if (!endpointId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
+        } else if (endpointId.get().contains(WILDCARD_ALL) || endpointId.get().contains(WILDCARD_ANY)) {
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(), MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
         } else {
-            this.callId = Integer.parseInt(callIdHex, 16);
+            context.endpointId = endpointId.get();
         }
 
-        // Connection Identifier
-        final String connectionIdHex = request.getParameter(MgcpParameterType.CONNECTION_ID);
-        if (connectionIdHex != null) {
-            this.connectionId = Integer.parseInt(connectionIdHex, 16);
+        // Call ID (optional)
+        Optional<Integer> callId = parameters.getIntegerBase16(MgcpParameterType.CALL_ID);
+        if (callId.isPresent()) {
+            context.callId = callId.get();
         }
-
-        // Endpoint Identifier
-        final String endpointName = request.getEndpointId();
-        if (endpointName.indexOf(WILDCARD_ANY) != -1) {
-            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
-                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
-        } else if (connectionIdHex != null && endpointName.indexOf(WILDCARD_ALL) != -1) {
-            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
-                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
-        } else {
-            this.endpointId = endpointName.substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
-        }
-    }
-
-    private void executeCommand() throws MgcpCommandException, MgcpCallNotFoundException, MgcpConnectionNotFound {
-        // Retrieve endpoint
-        this.endpoint = this.endpointManager.getEndpoint(this.endpointId);
-        if (this.endpoint == null) {
-            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(),
-                    MgcpResponseCode.ENDPOINT_UNKNOWN.message());
-        }
-
-        if (this.connectionId > 0) {
-            // Delete specific connection
-            MgcpConnection deleted = this.endpoint.deleteConnection(this.callId, this.connectionId);
-            // TODO Gather statistics from connection
-        } else {
-            // Bulk delete connections
-            try {
-                this.endpoint.deleteConnections(this.callId);
-            } catch (MgcpCallNotFoundException e) {
-                /*
-                 * https://tools.ietf.org/html/rfc3435#section-2.3.9
-                 * 
-                 * Note that the command will still succeed if there were no connections with the CallId specified, as long as
-                 * the EndpointId was valid.
-                 */
+        
+        // Connection ID (optional)
+        Optional<Integer> connectionId = this.requestParameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
+        if(connectionId.isPresent()) {
+            context.connectionId = connectionId.get();
+            
+            // Call ID is mandatory in this case
+            if(!callId.isPresent()) {
+                throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID);
             }
         }
     }
 
-    private MgcpResponse buildResponse() {
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
-        response.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
-        response.setTransactionId(this.transactionId);
-
-        if (this.connectionId > 0) {
-            response.addParameter(MgcpParameterType.CONNECTION_PARAMETERS, "PS=" + txPackets + ", PR=" + rxPackets);
+    private void executeCommand(DlcxContext context) throws MgcpCommandException, MgcpCallNotFoundException, MgcpConnectionNotFound {
+        // Retrieve endpoint
+        String endpointId = context.endpointId;
+        MgcpEndpoint endpoint = this.endpointManager.getEndpoint(endpointId);
+        
+        if (endpoint == null) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
         }
-        return response;
+
+        // Decide whether delete single or multiple connections
+        int callId = context.callId;
+        int connectionId = context.connectionId;
+        
+        if(connectionId == -1) {
+            // Delete multiple endpoints...
+            if(callId == -1) {
+                // ... all connections in the endpoint
+                endpoint.deleteConnections();
+            } else {
+                // ... all connections involved in a particular call
+                try {
+                    endpoint.deleteConnections(callId);
+                } catch (MgcpCallNotFoundException e) {
+                    /*
+                     * https://tools.ietf.org/html/rfc3435#section-2.3.9
+                     * 
+                     * Note that the command will still succeed if there were no connections with the CallId specified, as long as
+                     * the EndpointId was valid.
+                     */
+                }
+            }
+        } else {
+            // Delete single connection bound to a specific call
+            MgcpConnection deleted = endpoint.deleteConnection(callId, connectionId);
+            // TODO Gather statistics from connection
+            context.connectionParams = "PS=" + 0 + ", PR=" + 0;
+        }
+    }
+    
+    private MgcpCommandResult respond(DlcxContext context) {
+        Parameters<MgcpParameterType> parameters = new Parameters<>();
+        MgcpCommandResult result = new MgcpCommandResult(this.transactionId, context.code, context.message, parameters);
+        boolean successful = context.code < 300;
+        
+        if(successful) {
+            translateContext(context, parameters);
+        }
+        return result;
+    }
+    
+    private void translateContext(DlcxContext context, Parameters<MgcpParameterType> parameters) {
+       // Primary endpoint and connection
+       final String connectionParams = context.connectionParams;
+       if(!connectionParams.isEmpty()) {
+           parameters.put(MgcpParameterType.CONNECTION_PARAMETERS, connectionParams);
+       }
     }
 
     @Override
-    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
+    public MgcpCommandResult call() {
+        // Initialize empty context
+        DlcxContext context = new DlcxContext();
         try {
-            validateRequest(request);
-            executeCommand();
-            return buildResponse();
-        } catch (MgcpConnectionNotFound e) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(),
-                    MgcpResponseCode.INCORRECT_CONNECTION_ID.message());
-        } catch (MgcpCallNotFoundException e) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(),
-                    MgcpResponseCode.INCORRECT_CALL_ID.message());
-        } catch (MgcpCommandException e) {
-            throw e;
+            // Validate Parameters
+            validateParameters(this.requestParameters, context);
+            // Execute Command
+            executeCommand(context);
+            context.code = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code();
+            context.message = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message();
         } catch (RuntimeException e) {
-            log.warn("Could not process MGCP Request.", e);
-            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
+            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Rolling back.");
+            context.code = MgcpResponseCode.PROTOCOL_ERROR.code();
+            context.message = MgcpResponseCode.PROTOCOL_ERROR.message();
+        } catch (MgcpCallNotFoundException e) {
+            log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
+            context.code = MgcpResponseCode.INCORRECT_CALL_ID.code();
+            context.message = MgcpResponseCode.INCORRECT_CALL_ID.message();
+        } catch (MgcpConnectionNotFound e) {
+            log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
+            context.code = MgcpResponseCode.INCORRECT_CONNECTION_ID.code();
+            context.message = MgcpResponseCode.INCORRECT_CONNECTION_ID.message();
+        }  catch (MgcpCommandException e) {
+            log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
+            context.code = e.getCode();
+            context.message = e.getMessage();
         }
+        // Build response
+        return respond(context);
     }
 
-    @Override
-    protected MgcpResponse rollback(int transactionId, int code, String message) {
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(code);
-        response.setMessage(message);
-        response.setTransactionId(transactionId);
-        return response;
-    }
-
-    @Override
-    protected void reset() {
-        this.transactionId = 0;
-        this.callId = 0;
-        this.connectionId = 0;
-        this.endpointId = null;
-        this.endpoint = null;
-        this.rxPackets = 0;
-        this.txPackets = 0;
+    private class DlcxContext {
+        
+        private int callId;
+        private String endpointId;
+        private int connectionId;
+        private String connectionParams;
+        
+        private int code;
+        private String message;
+        
+        public DlcxContext() {
+            this.callId = -1;
+            this.endpointId = "";
+            this.connectionId = -1;
+            this.connectionParams = "";
+            
+            this.code = MgcpResponseCode.ABORTED.code();
+            this.message = MgcpResponseCode.ABORTED.message();
+        }
     }
 
 }

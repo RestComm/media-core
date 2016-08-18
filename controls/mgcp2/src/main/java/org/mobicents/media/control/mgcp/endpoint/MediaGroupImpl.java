@@ -37,8 +37,8 @@ import org.mobicents.media.server.spi.recorder.Recorder;
 public class MediaGroupImpl implements MediaGroup {
 
     // Media Components
-    protected final AudioComponent audioComponent;
-    protected final OOBComponent oobComponent;
+    private final AudioComponent audioComponent;
+    private final OOBComponent oobComponent;
 
     private final Player player;
     private final Recorder recorder;
@@ -87,4 +87,11 @@ public class MediaGroupImpl implements MediaGroup {
         return this.generator;
     }
 
+    public AudioComponent getAudioComponent() {
+        return audioComponent;
+    }
+
+    public OOBComponent getOobComponent() {
+        return oobComponent;
+    }
 }

@@ -25,21 +25,7 @@ package org.mobicents.media.control.mgcp.pkg;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpSignal {
-
-    /**
-     * Register an observer that wishes to be notified of MGCP Events.
-     * 
-     * @param observer The MGCP event observer.
-     */
-    void observe(MgcpEventListener observer);
-
-    /**
-     * Unregisters an observer that no longer wishes to be notified of MGCP Events.
-     * 
-     * @param observer The MGCP event observer.
-     */
-    void forget(MgcpEventListener observer);
+public interface MgcpSignal extends MgcpEventSubject {
 
     /**
      * Executes the signal.

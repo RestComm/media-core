@@ -27,10 +27,11 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 import org.mobicents.media.server.spi.ConnectionMode;
+
+import com.google.common.base.Optional;
 
 /**
  * This command is used to modify the characteristics of a gateway's "view" of a connection.<br>
@@ -43,142 +44,155 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(ModifyConnectionCommand.class);
 
-    // MGCP Command Execution
-    private int transactionId = 0;
-    private int callId = 0;
-    private int connectionId = 0;
-    private String remoteSdp = null;
-    private String localSdp = null;
-    private ConnectionMode mode = null;
-    private String endpointId;
-    private MgcpEndpoint endpoint;
-    private MgcpConnection connection;
-
-    public ModifyConnectionCommand(MgcpEndpointManager endpointManager) {
-        super(endpointManager);
+    public ModifyConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+        super(transactionId, parameters, endpointManager);
     }
 
-    private void validateRequest(MgcpRequest request) throws MgcpCommandException, RuntimeException {
-        this.transactionId = request.getTransactionId();
-
-        // Endpoint ID
-        final String endpointName = request.getEndpointId();
-        if (endpointName.indexOf(WILDCARD_ALL) != -1 || endpointName.indexOf(WILDCARD_ANY) != -1) {
-            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED.code(),
-                    MgcpResponseCode.WILDCARD_TOO_COMPLICATED.message());
+    private void validateParameters(Parameters<MgcpParameterType> parameters, MdcxContext context) throws MgcpCommandException, RuntimeException {
+        // Call ID
+        Optional<Integer> callId = parameters.getIntegerBase16(MgcpParameterType.CALL_ID);
+        if (!callId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID);
         } else {
-            this.endpointId = endpointName.substring(0, request.getEndpointId().indexOf(ENDPOINT_ID_SEPARATOR));
+            context.callId = callId.get();
         }
 
-        // Call ID
-        final String callIdHex = request.getParameter(MgcpParameterType.CALL_ID);
-        if (callIdHex == null) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CALL_ID.code(), "Call ID (C) is not specified");
+        // Endpoint ID
+        Optional<String> endpointId = parameters.getString(MgcpParameterType.ENDPOINT_ID);
+        if (!endpointId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
+        } else if (endpointId.get().contains(WILDCARD_ALL) || endpointId.get().contains(WILDCARD_ANY)) {
+            throw new MgcpCommandException(MgcpResponseCode.WILDCARD_TOO_COMPLICATED);
         } else {
-            this.callId = Integer.parseInt(callIdHex, 16);
+            context.endpointId = endpointId.get();
         }
 
         // TODO Local Connection Options
 
         // Connection ID
-        final String connectionIdHex = request.getParameter(MgcpParameterType.CONNECTION_ID);
-        if (connectionIdHex == null || connectionIdHex.isEmpty()) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(),
-                    MgcpResponseCode.INCORRECT_CONNECTION_ID.message());
+        Optional<Integer> connectionId = parameters.getIntegerBase16(MgcpParameterType.CONNECTION_ID);
+        if(!connectionId.isPresent()) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID);
         } else {
-            this.connectionId = Integer.parseInt(connectionIdHex, 16);
+            context.connectionId = connectionId.get();
         }
 
-        // Connection Mode
-        final String connectionMode = request.getParameter(MgcpParameterType.MODE);
-        if (connectionMode != null) {
+        // Connection Mode (optional)
+        Optional<String> mode = parameters.getString(MgcpParameterType.MODE);
+        if (mode.isPresent()) {
             try {
-                this.mode = ConnectionMode.fromDescription(connectionMode);
+                ConnectionMode connectionMode = ConnectionMode.fromDescription(mode.get());
+                context.mode = connectionMode;
             } catch (IllegalArgumentException e) {
-                throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.code(),
-                        MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE.message());
+                throw new MgcpCommandException(MgcpResponseCode.INVALID_OR_UNSUPPORTED_MODE);
             }
         }
-
-        // Remote Description
-        this.remoteSdp = request.getParameter(MgcpParameterType.SDP);
+        
+        // Remote Description (optional)
+        context.remoteDescription = parameters.getString(MgcpParameterType.SDP).or("");
     }
 
-    private void executeCommand() throws MgcpCommandException {
+    private void executeCommand(MdcxContext context) throws MgcpCommandException {
         // Retrieve endpoint
-        this.endpoint = this.endpointManager.getEndpoint(this.endpointId);
-        if (this.endpoint == null) {
-            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN.code(),
-                    MgcpResponseCode.ENDPOINT_UNKNOWN.message());
+        String endpointId = context.endpointId;
+        MgcpEndpoint endpoint = this.endpointManager.getEndpoint(endpointId);
+
+        if (endpoint == null) {
+            throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
         }
 
         // Retrieve connection from endpoint
-        this.connection = this.endpoint.getConnection(this.callId, this.connectionId);
-        if (this.connection == null) {
-            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID.code(),
-                    MgcpResponseCode.INCORRECT_CONNECTION_ID.message());
+        int callId = context.callId;
+        int connectionId = context.connectionId;
+
+        MgcpConnection connection = endpoint.getConnection(callId, connectionId);
+        if (connection == null) {
+            throw new MgcpCommandException(MgcpResponseCode.INCORRECT_CONNECTION_ID);
         }
 
         // Set Mode (if specified)
-        if (this.mode != null) {
-            this.connection.setMode(this.mode);
+        ConnectionMode mode = context.mode;
+        if (mode != null) {
+            connection.setMode(mode);
         }
 
         // Set Remote Description (if defined)
-        if (this.remoteSdp != null) {
+        String remoteSdp = context.remoteDescription;
+        if (!remoteSdp.isEmpty()) {
             try {
-                this.localSdp = this.connection.open(this.remoteSdp);
+                String localSdp = connection.open(remoteSdp);
+                context.localDescription = localSdp;
             } catch (MgcpConnectionException e) {
-                throw new MgcpCommandException(MgcpResponseCode.UNSUPPORTED_SDP.code(),
-                        MgcpResponseCode.UNSUPPORTED_SDP.message());
+                throw new MgcpCommandException(MgcpResponseCode.UNSUPPORTED_SDP);
             }
         }
     }
-
-    private MgcpResponse buildResponse() {
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
-        response.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
-        response.setTransactionId(this.transactionId);
-        if (this.localSdp != null) {
-            response.addParameter(MgcpParameterType.SDP, this.localSdp);
+    
+    private MgcpCommandResult respond(MdcxContext context) {
+        Parameters<MgcpParameterType> parameters = new Parameters<>();
+        MgcpCommandResult result = new MgcpCommandResult(this.transactionId, context.code, context.message, parameters);
+        boolean successful = context.code < 300;
+        
+        if(successful) {
+            translateContext(context, parameters);
         }
-        return response;
+        return result;
+    }
+    
+    private void translateContext(MdcxContext context, Parameters<MgcpParameterType> parameters) {
+        // Local Description (optional)
+        String localDescription = context.localDescription;
+        if(!localDescription.isEmpty()) {
+            parameters.put(MgcpParameterType.SDP, localDescription);
+        }
     }
 
     @Override
-    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
+    public MgcpCommandResult call() {
+        // Initialize empty context
+        MdcxContext context = new MdcxContext();
         try {
-            validateRequest(request);
-            executeCommand();
-            return buildResponse();
-        } catch (MgcpCommandException e) {
-            throw e;
+            // Validate Parameters
+            validateParameters(this.requestParameters, context);
+            // Execute Command
+            executeCommand(context);
+            context.code = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code();
+            context.message = MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message();
         } catch (RuntimeException e) {
-            log.error("Could not process MGCP Request.", e);
-            throw new MgcpCommandException(MgcpResponseCode.PROTOCOL_ERROR.code(), MgcpResponseCode.PROTOCOL_ERROR.message());
+            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Rolling back.");
+            context.code = MgcpResponseCode.PROTOCOL_ERROR.code();
+            context.message = MgcpResponseCode.PROTOCOL_ERROR.message();
+        } catch (MgcpCommandException e) {
+            log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
+            context.code = e.getCode();
+            context.message = e.getMessage();
         }
+        return respond(context);
     }
 
-    @Override
-    protected MgcpResponse rollback(int transactionId, int code, String message) {
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(code);
-        response.setMessage(message);
-        response.setTransactionId(transactionId);
-        return response;
-    }
+    private class MdcxContext {
 
-    @Override
-    protected void reset() {
-        this.transactionId = 0;
-        this.callId = 0;
-        this.connectionId = 0;
-        this.remoteSdp = null;
-        this.localSdp = null;
-        this.mode = null;
-        this.endpoint = null;
-        this.connection = null;
+        private int callId;
+        private String endpointId;
+        private int connectionId;
+        private ConnectionMode mode;
+        private String remoteDescription;
+        private String localDescription;
+        
+        private int code;
+        private String message;
+
+        public MdcxContext() {
+            this.callId = -1;
+            this.endpointId = "";
+            this.connectionId = -1;
+            this.remoteDescription = "";
+            this.localDescription = "";
+            this.mode = null;
+
+            this.code = MgcpResponseCode.ABORTED.code();
+            this.message = MgcpResponseCode.ABORTED.message();
+        }
     }
 
 }

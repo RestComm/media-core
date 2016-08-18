@@ -22,9 +22,8 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
-import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -32,30 +31,14 @@ import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
  */
 public class AuditConnectionCommand extends AbstractMgcpCommand {
 
-    public AuditConnectionCommand(MgcpEndpointManager endpointManager) {
-        super(endpointManager);
+    public AuditConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+        super(transactionId, parameters, endpointManager);
     }
 
     @Override
-    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
-        // TODO Auto-generated method stub
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(MgcpResponseCode.ABORTED.code());
-        response.setMessage("Not yet implemented");
-        response.setTransactionId(request.getTransactionId());
-        return response;
-    }
-
-    @Override
-    protected MgcpResponse rollback(int transactionId, int code, String message) {
+    public MgcpCommandResult call() throws Exception {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    protected void reset() {
-        // TODO Auto-generated method stub
-
     }
 
 }

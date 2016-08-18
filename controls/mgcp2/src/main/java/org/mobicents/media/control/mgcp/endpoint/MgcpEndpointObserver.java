@@ -19,41 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg;
+package org.mobicents.media.control.mgcp.endpoint;
 
 /**
+ * Observes state changes in MGCP endpoints.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEvent {
-    
-    /**
-     * Gets the package the event belongs to.
-     * 
-     * @return The package symbol
-     */
-    String getPackage();
+public interface MgcpEndpointObserver {
 
     /**
-     * Gets the symbol representing the event.
+     * Fired when an endpoint state changes.
+     * <p>
+     * An endpoint becomes ACTIVE when it contains at least one connection. Its Mixer is active and consumes CPU.<br>
+     * An endpoint becomes INACTIVE when it contains no connections. Its Mixer is inactive and does not consume CPU.
+     * </p>
      * 
-     * @return The event symbol
+     * @param endpoint The endpoint whose state changed.
+     * @param state The new state of the endpoint.
      */
-    String getSymbol();
-
-    /**
-     * Gets the name of the signal who fired the event.
-     * 
-     * @return The name of the signal
-     */
-    String getSignal();
-    
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(String type);
+    void onEndpointStateChanged(MgcpEndpoint endpoint, MgcpEndpointState state);
 
 }

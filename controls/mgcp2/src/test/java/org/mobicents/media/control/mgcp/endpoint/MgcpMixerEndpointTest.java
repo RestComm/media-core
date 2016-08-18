@@ -22,10 +22,7 @@
 package org.mobicents.media.control.mgcp.endpoint;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
@@ -52,17 +49,18 @@ public class MgcpMixerEndpointTest {
         final AudioMixer inbandMixer = mock(AudioMixer.class);
         final OOBMixer outbandMixer = mock(OOBMixer.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
-        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final MediaGroup mediaGroup = mock(MediaGroupImpl.class);
         final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, connections, mediaGroup);
 
         // when - half open connection
         when(connections.provideRemote()).thenReturn(connection);
         when(connection.getIdentifier()).thenReturn(1);
         when(connection.getMode()).thenReturn(ConnectionMode.SEND_RECV);
+
         endpoint.createConnection(1, false);
 
         // then
-        verify(inbandMixer, times(1)).addComponent(any(AudioComponent.class));
+        verify(inbandMixer, times(2)).addComponent(any(AudioComponent.class));
         verify(outbandMixer, times(1)).addComponent(any(OOBComponent.class));
 
         // when - close connection

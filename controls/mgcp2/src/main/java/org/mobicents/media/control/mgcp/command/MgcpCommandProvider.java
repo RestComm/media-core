@@ -22,8 +22,10 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
  * Provides MGCP commands to be executed.
@@ -42,28 +44,25 @@ public class MgcpCommandProvider {
         this.signalProvider = signalProvider;
     }
 
-    public MgcpCommand provide(MgcpRequestType type) {
+    public MgcpCommand provide(MgcpRequestType type, int transactionId, Parameters<MgcpParameterType> parameters) {
         switch (type) {
             case CRCX:
-                return new CreateConnectionCommand(this.endpointManager);
+                return new CreateConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case MDCX:
-                return new ModifyConnectionCommand(this.endpointManager);
+                return new ModifyConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case DLCX:
-                return new DeleteConnectionCommand(this.endpointManager);
+                return new DeleteConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case RQNT:
-                return new RequestNotificationCommand(this.endpointManager, this.signalProvider);
-
-            case NTFY:
-                return new NotifyCommand(this.endpointManager);
+                return new RequestNotificationCommand(transactionId, parameters, this.endpointManager, this.signalProvider);
 
             case AUCX:
-                return new AuditConnectionCommand(this.endpointManager);
+                return new AuditConnectionCommand(transactionId, parameters, this.endpointManager);
 
             case AUEP:
-                return new AuditEndpointCommand(this.endpointManager);
+                return new AuditEndpointCommand(transactionId, parameters, this.endpointManager);
 
             default:
                 throw new IllegalArgumentException("Unsupported command type " + type.name());

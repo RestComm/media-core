@@ -40,7 +40,7 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final String symbol;
     private final SignalType type;
     private final Map<String, String> parameters;
-    private final List<MgcpEventListener> observers;
+    private final List<MgcpEventObserver> observers;
     protected final AtomicBoolean executing;
 
     public AbstractMgcpSignal(String packageName, String symbol, SignalType type, Map<String, String> parameters) {
@@ -77,20 +77,23 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     }
 
     @Override
-    public void observe(MgcpEventListener observer) {
+    public void observe(MgcpEventObserver observer) {
         this.observers.add(observer);
     }
 
     @Override
-    public void forget(MgcpEventListener observer) {
+    public void forget(MgcpEventObserver observer) {
         this.observers.remove(observer);
     }
-
-    protected void fire(MgcpEvent event) {
-        Iterator<MgcpEventListener> iterator = this.observers.iterator();
+    
+    @Override
+    public void notify(Object originator, MgcpEvent event) {
+        Iterator<MgcpEventObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
-            MgcpEventListener listener = iterator.next();
-            listener.onMgcpEvent(event);
+            MgcpEventObserver observer = iterator.next();
+            if(observer != originator) {
+                observer.onEvent(originator, event);
+            }
         }
     }
 

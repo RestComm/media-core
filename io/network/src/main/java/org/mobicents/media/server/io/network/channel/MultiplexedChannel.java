@@ -216,25 +216,27 @@ public class MultiplexedChannel implements Channel {
 
 	@Override
 	public void send() throws IOException {
-		while (!this.pendingData.isEmpty()) {
-			// Get pending data into the proper buffer
-			this.pendingDataBuffer.clear();
-			this.pendingDataBuffer.put(this.pendingData.get(0));
-			this.pendingDataBuffer.flip();
-			
-			// Send data over the channel
-			this.dataChannel.send(this.pendingDataBuffer, this.dataChannel.getRemoteAddress());
-
-			if (this.pendingDataBuffer.remaining() > 0) {
-				// Channel buffer is full
-				// Data will be written in the next write operation
-				break;
-			} else {
-				// All data was passed to the channel
-				// Remove empty buffer
-				this.pendingData.remove(0);
-			}
-		}
+	    synchronized (this.pendingData) {
+	        while (!this.pendingData.isEmpty()) {
+	            // Get pending data into the proper buffer
+	            this.pendingDataBuffer.clear();
+	            this.pendingDataBuffer.put(this.pendingData.get(0));
+	            this.pendingDataBuffer.flip();
+	            
+	            // Send data over the channel
+	            this.dataChannel.send(this.pendingDataBuffer, this.dataChannel.getRemoteAddress());
+	            
+	            if (this.pendingDataBuffer.remaining() > 0) {
+	                // Channel buffer is full
+	                // Data will be written in the next write operation
+	                break;
+	            } else {
+	                // All data was passed to the channel
+	                // Remove empty buffer
+	                this.pendingData.remove(0);
+	            }
+	        }
+        }
 	}
 	
 	@Override

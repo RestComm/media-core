@@ -42,7 +42,8 @@ public class MgcpMixerEndpoint extends GenericMgcpEndpoint {
         super(endpointId, connectionProvider, mediaGroup);
         this.inbandMixer = inbandMixer;
         this.outbandMixer = outbandMixer;
-        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).audioComponent);
+        // FIXME Solve the need for casting
+        this.inbandMixer.addComponent(((MediaGroupImpl) this.mediaGroup).getAudioComponent());
     }
 
     @Override

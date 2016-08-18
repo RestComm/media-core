@@ -19,34 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
+package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionManager;
-import org.mobicents.media.control.mgcp.transaction.MgcpTransactionProvider;
-import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.inject.Inject;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpTransactionManagerProvider implements Provider<TransactionManager> {
+public class ListeningExecutorServiceProvider implements Provider<ListeningExecutorService> {
+    
+    private static final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
-    private final MgcpTransactionProvider transactionProvider;
-    private final ListeningExecutorService executor;
-
-    @Inject
-    public MgcpTransactionManagerProvider(MgcpTransactionProvider transactionProvider, ListeningExecutorService executor) {
-        this.transactionProvider = transactionProvider;
-        this.executor = executor;
+    public ListeningExecutorServiceProvider() {
+        super();
     }
 
     @Override
-    public MgcpTransactionManager get() {
-        return new MgcpTransactionManager(transactionProvider, executor);
+    public ListeningExecutorService get() {
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("mgcp-%d").build();
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(POOL_SIZE, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
+        executor.allowCoreThreadTimeOut(false);
+        return MoreExecutors.listeningDecorator(executor);
+        // return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(threadFactory));
     }
 
 }

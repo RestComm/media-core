@@ -19,43 +19,37 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.pkg;
+package org.mobicents.media.control.mgcp.endpoint;
 
 /**
- * Data accessor for {@link MgcpEvent}.
+ * Data structure to hold an MGCP Endpoint name.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEventData {
+public class MgcpEndpointName {
 
-    /**
-     * Gets the package the event belongs to.
-     * 
-     * @return The package symbol
-     */
-    String getPackage();
+    private static final String SEPARATOR = "@";
 
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
+    private final String localName;
+    private final String domainName;
 
-    /**
-     * Gets the name of the signal who fired the event.
-     * 
-     * @return The name of the signal
-     */
-    String getSignal();
-    
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(String type);
+    public MgcpEndpointName(String localName, String domainName) {
+        this.localName = localName;
+        this.domainName = domainName;
+    }
+
+    public String getLocalName() {
+        return localName;
+    }
+
+    public String getDomainName() {
+        return domainName;
+    }
+
+    @Override
+    public String toString() {
+        return this.localName + SEPARATOR + this.domainName;
+    }
 
 }

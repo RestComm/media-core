@@ -22,7 +22,9 @@
 package org.mobicents.media.control.mgcp.message;
 
 import java.util.Iterator;
-import java.util.Map.Entry;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 
 /**
  * Represents an MGCP response.
@@ -83,19 +85,33 @@ public class MgcpResponse extends MgcpMessage {
         this.builder.append(this.code).append(" ").append(getTransactionId()).append(" ").append(this.message);
 
         // Append Parameters
-        Iterator<Entry<MgcpParameterType, String>> parameters = this.parameters.entrySet().iterator();
-        while (parameters.hasNext()) {
-            Entry<MgcpParameterType, String> parameter = parameters.next();
-            if (!parameter.getKey().equals(MgcpParameterType.SDP)) {
-                builder.append(System.lineSeparator()).append(parameter.getKey().getCode()).append(":")
-                        .append(parameter.getValue());
+        Iterator<MgcpParameterType> iterator = this.parameters.keySet().iterator();
+        while (iterator.hasNext()) {
+            MgcpParameterType key = iterator.next();
+            Optional<String> value = parameters.getString(key);
+            if(value.isPresent() && !key.equals(MgcpParameterType.SDP)) {
+                String effectiveValue;
+                // XXX HACKING endpoint domain name
+                if(MgcpParameterType.ENDPOINT_ID.equals(key) || MgcpParameterType.SECOND_ENDPOINT.equals(key)) {
+                    effectiveValue = value.transform(new Function<String, String>() {
+
+                        @Override
+                        public String apply(String input) {
+                            return input + "@127.0.0.1:2427";
+                        }
+                        
+                    }).get();
+                } else {
+                    effectiveValue = value.get();
+                }
+                builder.append(System.lineSeparator()).append(key.getCode()).append(":").append(effectiveValue);
             }
         }
 
         // Append SDP last (if available)
-        String sdp = this.parameters.get(MgcpParameterType.SDP);
-        if (sdp != null) {
-            builder.append(System.lineSeparator()).append(System.lineSeparator()).append(sdp);
+        Optional<String> sdp = this.parameters.getString(MgcpParameterType.SDP);
+        if (sdp.isPresent()) {
+            builder.append(System.lineSeparator()).append(System.lineSeparator()).append(sdp.get());
         }
 
         return this.builder.toString();

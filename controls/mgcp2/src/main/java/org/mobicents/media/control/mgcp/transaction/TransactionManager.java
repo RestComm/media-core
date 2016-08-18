@@ -24,6 +24,7 @@ package org.mobicents.media.control.mgcp.transaction;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
+import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 
@@ -31,7 +32,7 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface TransactionManager {
+public interface TransactionManager extends MgcpMessageSubject {
     
     void process(MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException;
     

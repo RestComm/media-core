@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.command;
 
 import org.mobicents.media.control.mgcp.exception.MgcpException;
+import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -32,6 +33,10 @@ public class MgcpCommandException extends MgcpException {
     private static final long serialVersionUID = 5590775200776881061L;
 
     private final int code;
+    
+    public MgcpCommandException(MgcpResponseCode response) {
+        this(response.code(), response.message());
+    }
 
     public MgcpCommandException(int code, String message) {
         super(message);

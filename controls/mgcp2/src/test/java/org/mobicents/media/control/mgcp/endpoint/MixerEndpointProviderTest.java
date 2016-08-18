@@ -23,12 +23,13 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpMixerEndpointProvider;
+import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 /**
@@ -45,8 +46,13 @@ public class MixerEndpointProviderTest {
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
         final MediaGroupProvider mediaGroupProvider = mock(MediaGroupProvider.class);
         final MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, mediaScheduler, connections, mediaGroupProvider);
+        final MediaGroupImpl mediaGroup = mock(MediaGroupImpl.class);
+        final AudioComponent audioComponent = mock(AudioComponent.class);
 
         // when
+        when(mediaGroup.getAudioComponent()).thenReturn(audioComponent);
+        when(mediaGroupProvider.provide()).thenReturn(mediaGroup);
+
         MgcpMixerEndpoint endpoint1 = provider.provide();
         MgcpMixerEndpoint endpoint2 = provider.provide();
         MgcpMixerEndpoint endpoint3 = provider.provide();

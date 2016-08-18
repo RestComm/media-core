@@ -22,38 +22,17 @@
 package org.mobicents.media.control.mgcp.pkg;
 
 /**
+ * Subscribes observers to receive notifications about MGCP Events.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEvent {
+public interface MgcpEventSubject {
     
-    /**
-     * Gets the package the event belongs to.
-     * 
-     * @return The package symbol
-     */
-    String getPackage();
-
-    /**
-     * Gets the symbol representing the event.
-     * 
-     * @return The event symbol
-     */
-    String getSymbol();
-
-    /**
-     * Gets the name of the signal who fired the event.
-     * 
-     * @return The name of the signal
-     */
-    String getSignal();
+    void observe(MgcpEventObserver observer);
     
-    /**
-     * Gets a parameter from the event.
-     * 
-     * @param type The type of parameter to be returned.
-     * @return The value of the parameter. Returns null if no such parameter exists.
-     */
-    String getParameter(String type);
+    void forget(MgcpEventObserver observer);
+    
+    void notify(Object originator, MgcpEvent event);
 
 }

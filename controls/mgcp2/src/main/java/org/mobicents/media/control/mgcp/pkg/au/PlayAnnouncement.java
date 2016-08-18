@@ -247,11 +247,11 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     }
 
     private void fireOC(int code) {
-        fire(new OperationComplete(getSymbol(), code));
+        notify(this, new OperationComplete(getSymbol(), code));
     }
 
     private void fireOF(int code) {
-        fire(new OperationFailed(getSymbol(), code));
+        notify(this, new OperationFailed(getSymbol(), code));
     }
 
 }

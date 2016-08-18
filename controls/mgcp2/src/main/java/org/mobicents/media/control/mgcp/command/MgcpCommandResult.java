@@ -21,41 +21,44 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
-import org.mobicents.media.control.mgcp.message.MgcpRequest;
-import org.mobicents.media.control.mgcp.message.MgcpResponse;
-import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
 /**
+ * Hold the result of the execution of an MGCP Command.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class NotifyCommand extends AbstractMgcpCommand {
+public class MgcpCommandResult {
 
-    public NotifyCommand(MgcpEndpointManager endpointManager) {
-        super(endpointManager);
+    private final int transactionId;
+    private final int code;
+    private final String message;
+    private final Parameters<MgcpParameterType> parameters;
+
+    public MgcpCommandResult(int transactionId, int code, String message, Parameters<MgcpParameterType> parameters) {
+        super();
+        this.transactionId = transactionId;
+        this.code = code;
+        this.message = message;
+        this.parameters = parameters;
     }
 
-    @Override
-    protected MgcpResponse executeRequest(MgcpRequest request) throws MgcpCommandException {
-        // TODO Auto-generated method stub
-        MgcpResponse response = new MgcpResponse();
-        response.setCode(MgcpResponseCode.ABORTED.code());
-        response.setMessage("Not yet implemented");
-        response.setTransactionId(request.getTransactionId());
-        return response;
+    public int getTransactionId() {
+        return transactionId;
     }
 
-    @Override
-    protected MgcpResponse rollback(int transactionId, int code, String message) {
-        // TODO Auto-generated method stub
-        return null;
+    public int getCode() {
+        return code;
     }
 
-    @Override
-    protected void reset() {
-        // TODO Auto-generated method stub
+    public String getMessage() {
+        return message;
+    }
 
+    public Parameters<MgcpParameterType> getParameters() {
+        return parameters;
     }
 
 }

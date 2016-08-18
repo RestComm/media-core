@@ -23,18 +23,20 @@ package org.mobicents.media.control.mgcp.transaction;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
+import org.mobicents.media.control.mgcp.command.MgcpCommandResult;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
+
+import com.google.common.util.concurrent.AbstractFuture;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -54,7 +56,8 @@ public class MgcpTransactionManagerTest {
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
+        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -62,12 +65,13 @@ public class MgcpTransactionManagerTest {
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
         when(txProvider.provideRemote(transactionId)).thenReturn(transaction);
+        when(executor.submit(command)).thenReturn(new AbstractFuture<MgcpCommandResult>() {});
         txManager.process(request, command);
 
         // then
         assertTrue(txManager.contains(transactionId));
         verify(txProvider, times(1)).provideRemote(transactionId);
-        verify(command, times(1)).execute(request);
+        verify(executor, times(1)).submit(command);
 
         // when - response
         when(response.toString()).thenReturn(RESPONSE);
@@ -89,7 +93,8 @@ public class MgcpTransactionManagerTest {
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpTransaction transaction = new MgcpTransaction(147483653);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
+        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider, executor);
 
         // when - request
         when(request.toString()).thenReturn(REQUEST);
@@ -115,6 +120,7 @@ public class MgcpTransactionManagerTest {
         assertFalse(txManager.contains(finalTransactionId));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(expected = DuplicateMgcpTransactionException.class)
     public void testProcessRetransmission() throws DuplicateMgcpTransactionException, MgcpTransactionNotFoundException {
         // given
@@ -123,9 +129,11 @@ public class MgcpTransactionManagerTest {
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpTransaction transaction = new MgcpTransaction(transactionId);
         final MgcpTransactionProvider txProvider = mock(MgcpTransactionProvider.class);
-        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider);
+        final ListeningExecutorService executor = mock(ListeningExecutorService.class);
+        final MgcpTransactionManager txManager = new MgcpTransactionManager(txProvider, executor);
 
         // when - request
+        when(executor.submit(command)).thenReturn(mock(ListenableFuture.class));
         when(request.toString()).thenReturn(REQUEST);
         when(request.isRequest()).thenReturn(true);
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
