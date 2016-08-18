@@ -1,0 +1,33 @@
+[plantuml,file="mgcp-classes-endpoint-manager.png"]
+--
+class EndpointName {
+- String name
+- String domain
+}
+
+class MgcpEndpoint {
+- EndpointName name
+}
+
+interface MgcpEndpointManager {
++ MgcpEndpoint registerEndpoint(String)
++ MgcpEndpoint getEndpoint(String)
++ void unregisterEndpoint(String)
+}
+
+class SubMgcpEndpointManager {
+- Map<String, MgcpEndpoint> endpoints
+}
+
+class RootMgcpEndpointManager {
+- Map<String, MgcpEndpointManager> managers
+}
+
+MgcpEndpointManager <|-- RootMgcpEndpointManager
+MgcpEndpointManager <|-- SubMgcpEndpointManager
+RootMgcpEndpointManager *-> SubMgcpEndpointManager : key = domain
+
+SubMgcpEndpointManager *--> MgcpEndpoint
+
+MgcpEndpoint -> EndpointName
+--
