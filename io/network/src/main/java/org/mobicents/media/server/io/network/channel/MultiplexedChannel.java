@@ -208,27 +208,17 @@ public class MultiplexedChannel implements Channel {
 		}
 	}
 
-	@Override
-	public void send() throws IOException {
-	    ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-	    send(buffer);
-	}
-	
-	private void send(ByteBuffer buffer) throws IOException {
-	    byte[] data = this.pendingData.poll();
-	    if(data != null) {
-	        // Fill buffer with data
-	        buffer.clear();
-	        buffer.put(data);
-	        buffer.flip();
-	        
-	        // Send data over channel
-	        this.dataChannel.send(buffer, this.dataChannel.getRemoteAddress());
-	        
-	        // Keep sending queued data, recursive style
-	        send(buffer);
-	    }
-	}
+    @Override
+    public void send() throws IOException {
+        byte[] data = this.pendingData.poll();
+        if (data != null) {
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            this.dataChannel.send(buffer, this.dataChannel.getRemoteAddress());
+
+            // Keep sending queued data, recursive style
+            send();
+        }
+    }
 	
 	@Override
 	public boolean isOpen() {
