@@ -210,118 +210,119 @@ public class JitterBuffer implements Serializable {
      * @param packet the packet to accept
      */
 	public void write(RtpPacket packet, RTPFormat format) {
-		// checking format
-		if (format == null) {
-			logger.warn("No format specified. Packet dropped!");
-			return;
-		}
+		try {
+			LOCK.lock();
+			// checking format
+			if (format == null) {
+				logger.warn("No format specified. Packet dropped!");
+				return;
+			}
 
-		if (this.format == null || this.format.getID() != format.getID()) {
-			this.format = format;
-			logger.info("Format has been changed: " + this.format.toString());
-		}
+			if (this.format == null || this.format.getID() != format.getID()) {
+				this.format = format;
+				logger.info("Format has been changed: " + this.format.toString());
+			}
 
-		// if this is first packet then synchronize clock
-		if (isn == -1) {
-			rtpClock.synchronize(packet.getTimestamp());
-			isn = packet.getSeqNumber();
-			initJitter(packet);
-		} else {
-			estimateJitter(packet);
-		}
-
-		// update clock rate
-		rtpClock.setClockRate(this.format.getClockRate());
-
-		// drop outstanding packets
-		// packet is outstanding if its timestamp of arrived packet is less
-		// then consumer media time
-		if (packet.getTimestamp() < this.arrivalDeadLine) {
-			logger.warn("drop packet: dead line=" + arrivalDeadLine + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber() + ", payload length=" + packet.getPayloadLength() + ", format=" + this.format.toString());
-			dropCount++;
-
-			// checking if not dropping too much
-			droppedInRaw++;
-			if (droppedInRaw == QUEUE_SIZE / 2 || queue.size() == 0) {
-				arrivalDeadLine = 0;
+			// if this is first packet then synchronize clock
+			if (isn == -1) {
+				rtpClock.synchronize(packet.getTimestamp());
+				isn = packet.getSeqNumber();
+				initJitter(packet);
 			} else {
-				return;
-			}
-		}
-
-		Frame f = Memory.allocate(packet.getPayloadLength());
-		// put packet into buffer irrespective of its sequence number
-		f.setHeader(null);
-		f.setSequenceNumber(packet.getSeqNumber());
-		// here time is in milliseconds
-		f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
-		f.setOffset(0);
-		f.setLength(packet.getPayloadLength());
-		packet.getPayload(f.getData(), 0);
-
-		// set format
-		f.setFormat(this.format.getFormat());
-		
-		// make checks only if have packet
-		if (f != null) {
-		    LOCK.lock();
-
-		    droppedInRaw = 0;
-
-			// find correct position to insert a packet
-			// use timestamp since its always positive
-			int currIndex = queue.size() - 1;
-			while (currIndex >= 0 && queue.get(currIndex).getTimestamp() > f.getTimestamp()) {
-				currIndex--;
+				estimateJitter(packet);
 			}
 
-			// check for duplicate packet
-			if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
-			    LOCK.unlock();
-				return;
-			}
+			// update clock rate
+			rtpClock.setClockRate(this.format.getClockRate());
 
-			queue.add(currIndex + 1, f);
-
-			// recalculate duration of each frame in queue and overall duration
-			// since we could insert the frame in the middle of the queue
-			duration = 0;
-			if (queue.size() > 1) {
-				duration = queue.get(queue.size() - 1).getTimestamp() - queue.get(0).getTimestamp();
-			}
-
-			for (int i = 0; i < queue.size() - 1; i++) {
-				// duration measured by wall clock
-				long d = queue.get(i + 1).getTimestamp() - queue.get(i).getTimestamp();
-				// in case of RFC2833 event timestamp remains same
-				queue.get(i).setDuration(d > 0 ? d : 0);
-			}
-
-			// if overall duration is negative we have some mess here,try to
-			// reset
-			if (duration < 0 && queue.size() > 1) {
-				logger.warn("Something messy happened. Reseting jitter buffer!");
-				reset();
-				LOCK.unlock();
-				return;
-			}
-
-			// overflow?
-			// only now remove packet if overflow , possibly the same packet we just received
-			if (queue.size() > QUEUE_SIZE) {
-				logger.warn("Buffer overflow!");
+			// drop outstanding packets
+			// packet is outstanding if its timestamp of arrived packet is less
+			// then consumer media time
+			if (packet.getTimestamp() < this.arrivalDeadLine) {
+				logger.warn("drop packet: dead line=" + arrivalDeadLine + ", packet time=" + packet.getTimestamp() + ", seq=" + packet.getSeqNumber() + ", payload length=" + packet.getPayloadLength() + ", format=" + this.format.toString());
 				dropCount++;
-				queue.remove(0).recycle();
-			}
-			LOCK.unlock();
 
-			// check if this buffer already full
-			if (!ready) {
-				ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
-				if (ready && listener != null) {
-					listener.onFill();
+				// checking if not dropping too much
+				droppedInRaw++;
+				if (droppedInRaw == QUEUE_SIZE / 2 || queue.size() == 0) {
+					arrivalDeadLine = 0;
+				} else {
+					return;
 				}
 			}
+
+			Frame f = Memory.allocate(packet.getPayloadLength());
+			// put packet into buffer irrespective of its sequence number
+			f.setHeader(null);
+			f.setSequenceNumber(packet.getSeqNumber());
+			// here time is in milliseconds
+			f.setTimestamp(rtpClock.convertToAbsoluteTime(packet.getTimestamp()));
+			f.setOffset(0);
+			f.setLength(packet.getPayloadLength());
+			packet.getPayload(f.getData(), 0);
+
+			// set format
+			f.setFormat(this.format.getFormat());
+
+			// make checks only if have packet
+			if (f != null) {
+
+				droppedInRaw = 0;
+
+				// find correct position to insert a packet
+				// use timestamp since its always positive
+				int currIndex = queue.size() - 1;
+				while (currIndex >= 0 && queue.get(currIndex).getTimestamp() > f.getTimestamp()) {
+					currIndex--;
+				}
+
+				// check for duplicate packet
+				if (currIndex >= 0 && queue.get(currIndex).getSequenceNumber() == f.getSequenceNumber()) {
+					return;
+				}
+
+				queue.add(currIndex + 1, f);
+
+				// recalculate duration of each frame in queue and overall duration
+				// since we could insert the frame in the middle of the queue
+				duration = 0;
+				if (queue.size() > 1) {
+					duration = queue.get(queue.size() - 1).getTimestamp() - queue.get(0).getTimestamp();
+				}
+
+				for (int i = 0; i < queue.size() - 1; i++) {
+					// duration measured by wall clock
+					long d = queue.get(i + 1).getTimestamp() - queue.get(i).getTimestamp();
+					// in case of RFC2833 event timestamp remains same
+					queue.get(i).setDuration(d > 0 ? d : 0);
+				}
+
+				// if overall duration is negative we have some mess here,try to
+				// reset
+				if (duration < 0 && queue.size() > 1) {
+					logger.warn("Something messy happened. Reseting jitter buffer!");
+					reset();
+					return;
+				}
+
+				// overflow?
+				// only now remove packet if overflow , possibly the same packet we just received
+				if (queue.size() > QUEUE_SIZE) {
+					logger.warn("Buffer overflow!");
+					dropCount++;
+					queue.remove(0).recycle();
+				}
+
+				// check if this buffer already full
+				if (!ready) {
+					ready = !useBuffer || (duration >= jitterBufferSize && queue.size() > 1);
+					if (ready && listener != null) {
+						listener.onFill();
+					}
+				}
+			}
+		} finally {
+			LOCK.unlock();
 		}
 	}     
 
@@ -332,41 +333,49 @@ public class JitterBuffer implements Serializable {
      * @return the media frame.
      */
     public Frame read(long timestamp) {
-    	if (queue.size()==0) {
-    		this.ready = false;
-    		return null;
-    	}
-    	
-    	LOCK.lock();
-    	
-    	//extract packet
-    	Frame frame = queue.remove(0);
-    		
-    	//buffer empty now? - change ready flag.
-    	if (queue.size() == 0) {
-    		this.ready = false;
-    		//arrivalDeadLine = 0;
-    		//set it as 1 ms since otherwise will be dropped by pipe
-    		frame.setDuration(1);
-    	}
-    	
-    	LOCK.unlock();
-    		
-    	arrivalDeadLine = rtpClock.convertToRtpTime(frame.getTimestamp() + frame.getDuration());
-    	
-    	//convert duration to nanoseconds
-    	frame.setDuration(frame.getDuration() * 1000000L);
-    	frame.setTimestamp(frame.getTimestamp() * 1000000L);
-        
-    	return frame;    	
+		try {
+			LOCK.lock();
+			if (queue.size() == 0) {
+				this.ready = false;
+				return null;
+			}
+
+
+			//extract packet
+			Frame frame = queue.remove(0);
+
+			//buffer empty now? - change ready flag.
+			if (queue.size() == 0) {
+				this.ready = false;
+				//arrivalDeadLine = 0;
+				//set it as 1 ms since otherwise will be dropped by pipe
+				frame.setDuration(1);
+			}
+
+
+			arrivalDeadLine = rtpClock.convertToRtpTime(frame.getTimestamp() + frame.getDuration());
+
+			//convert duration to nanoseconds
+			frame.setDuration(frame.getDuration() * 1000000L);
+			frame.setTimestamp(frame.getTimestamp() * 1000000L);
+
+			return frame;
+		} finally {
+			LOCK.unlock();
+		}
     }
     
     /**
      * Resets buffer.
      */
     public void reset() {
-    	while(queue.size()>0)
-    		queue.remove(0).recycle();
+		try {
+			LOCK.lock();
+			while (queue.size() > 0)
+				queue.remove(0).recycle();
+		} finally {
+			LOCK.unlock();
+		}
     }
     
     public void restart() {

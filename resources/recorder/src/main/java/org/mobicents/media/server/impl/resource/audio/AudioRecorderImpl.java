@@ -22,12 +22,11 @@
 
 package org.mobicents.media.server.impl.resource.audio;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.ComponentType;
@@ -51,6 +50,7 @@ import org.mobicents.media.server.spi.recorder.RecorderListener;
 /**
  * @author yulian oifa
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @author Pavel Chlupacek (pchlupacek)
  */
 public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledObject {
 
@@ -66,12 +66,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     }
 
     private String recordDir;
-    private FileOutputStream fout;
-    // file for recording
-    private File file;
-
-    // temp file for raw data
-    private File temp;
+    private AtomicReference<RecorderFileSink> sink = new AtomicReference<>(null);
 
     // if set ti true the record will terminate recording when silence detected
     private long postSpeechTimer = -1L;
@@ -79,7 +74,6 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
     // samples
     private ByteBuffer byteBuffer = ByteBuffer.allocateDirect(8192);
-    private ByteBuffer headerBuffer = ByteBuffer.allocateDirect(44);
     private byte[] data;
     private int offset;
     private int len;
@@ -177,7 +171,13 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
             this.heartbeat.cancel();
 
-            writeToWaveFile();
+            // deactivate can be concurrently invoked from  multiple threads (MediaGroup, KillRecording for example).
+            // to make sure the sink is closed only once, we set the sink ref to null and proceed to commit only if obtained reference is not null.
+
+            RecorderFileSink snk = sink.getAndSet(null);
+            if (snk != null) {
+                snk.commit();
+            }
         } catch (Exception e) {
             logger.error("Error writing to file", e);
         } finally {
@@ -230,7 +230,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
         byteBuffer.limit(len - offset);
         byteBuffer.put(data, offset, len - offset);
         byteBuffer.rewind();
-        fout.getChannel().write(byteBuffer);
+        RecorderFileSink snk = sink.get();
+        if (snk != null) snk.write(byteBuffer);
 
         if (this.postSpeechTimer > 0 || this.preSpeechTimer > 0) {
             // detecting silence
@@ -252,174 +253,11 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     public void setRecordFile(String uri, boolean append) throws IOException {
         // calculate the full path
         String path = uri.startsWith("file:") ? uri.replaceAll("file://", "") : this.recordDir + "/" + uri;
+        Path file = Paths.get(path);
 
-        // create file for recording and temp file
-        file = new File(path);
-        temp = new File(path + "~");
-
-        // open stream to temporary file
-        fout = new FileOutputStream(temp);
-
-        // if append specified and file really exist copy data from the current
-        // file to temp
-        if (append && file.exists()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("..............>>>>>Copying samples from " + file);
-            }
-            copySamples(file, fout);
-        }
-    }
-
-    /**
-     * Writes samples to file following WAVE format.
-     * 
-     * @throws IOException
-     */
-    private void writeToWaveFile() throws IOException {
-        if (logger.isInfoEnabled()) {
-            logger.info("!!!!!!!!!! Writting to file......................");
-        }
-
-        // stop called on inactive recorder
-        if (fout == null) {
-            return;
-        }
-
-        fout.flush();
-        fout.close();
-
-        FileInputStream fin = new FileInputStream(temp);
-        fout = new FileOutputStream(file);
-
-        int size = fin.available();
-        if (logger.isInfoEnabled()) {
-            logger.info("!!!!!!!!!! Size=" + size);
-        }
-
-        headerBuffer.clear();
-        // RIFF
-        headerBuffer.put((byte) 0x52);
-        headerBuffer.put((byte) 0x49);
-        headerBuffer.put((byte) 0x46);
-        headerBuffer.put((byte) 0x46);
-
-        int length = size + 36;
-
-        // Length
-        headerBuffer.put((byte) (length));
-        headerBuffer.put((byte) (length >> 8));
-        headerBuffer.put((byte) (length >> 16));
-        headerBuffer.put((byte) (length >> 24));
-
-        // WAVE
-        headerBuffer.put((byte) 0x57);
-        headerBuffer.put((byte) 0x41);
-        headerBuffer.put((byte) 0x56);
-        headerBuffer.put((byte) 0x45);
-
-        // fmt
-        headerBuffer.put((byte) 0x66);
-        headerBuffer.put((byte) 0x6d);
-        headerBuffer.put((byte) 0x74);
-        headerBuffer.put((byte) 0x20);
-
-        headerBuffer.put((byte) 0x10);
-        headerBuffer.put((byte) 0x00);
-        headerBuffer.put((byte) 0x00);
-        headerBuffer.put((byte) 0x00);
-
-        // format - PCM
-        headerBuffer.put((byte) 0x01);
-        headerBuffer.put((byte) 0x00);
-
-        // format - MONO
-        headerBuffer.put((byte) 0x01);
-        headerBuffer.put((byte) 0x00);
-
-        // sample rate:8000
-        headerBuffer.put((byte) 0x40);
-        headerBuffer.put((byte) 0x1F);
-        headerBuffer.put((byte) 0x00);
-        headerBuffer.put((byte) 0x00);
-
-        // byte rate
-        headerBuffer.put((byte) 0x80);
-        headerBuffer.put((byte) 0x3E);
-        headerBuffer.put((byte) 0x00);
-        headerBuffer.put((byte) 0x00);
-
-        // Block align
-        headerBuffer.put((byte) 0x02);
-        headerBuffer.put((byte) 0x00);
-
-        // Bits per sample: 16
-        headerBuffer.put((byte) 0x10);
-        headerBuffer.put((byte) 0x00);
-
-        // "data"
-        headerBuffer.put((byte) 0x64);
-        headerBuffer.put((byte) 0x61);
-        headerBuffer.put((byte) 0x74);
-        headerBuffer.put((byte) 0x61);
-
-        // len
-        headerBuffer.put((byte) (size));
-        headerBuffer.put((byte) (size >> 8));
-        headerBuffer.put((byte) (size >> 16));
-        headerBuffer.put((byte) (size >> 24));
-
-        headerBuffer.rewind();
-
-        // lets write header
-        FileChannel outChannel = fout.getChannel();
-        outChannel.write(headerBuffer);
-        outChannel.force(true);
-
-        // lets write data
-        FileChannel inChannel = fin.getChannel();
-        outChannel.transferFrom(fin.getChannel(), 44, inChannel.size());
-        if (logger.isInfoEnabled()) {
-            logger.info("!!!!!!!!!! Was copied " + inChannel.size() + " bytes");
-        }
-
-        fout.flush();
-        fout.close();
-
-        fin.close();
-        temp.delete();
-    }
-
-    /**
-     * Copies samples from source wav file to temporary raw destination.
-     * 
-     * @param src wav source file
-     * @param dst raw destination file.
-     */
-    private void copySamples(File src, FileOutputStream out) throws IOException {
-        FileInputStream in = new FileInputStream(src);
-        FileChannel inChannel = in.getChannel();
-        FileChannel outChannel = out.getChannel();
-
-        try {
-            this.copyData(inChannel, 44, outChannel);
-        } finally {
-            in.close();
-        }
-    }
-
-    /**
-     * Copies data from specified input to specified destination.
-     * 
-     * @param in the input of data
-     * @param offset the first position of data to read
-     * @param out destination
-     * @throws IOException
-     */
-    private void copyData(FileChannel inChannel, int offset, FileChannel outChannel) throws IOException {
-        long count = inChannel.size() - (long) offset;
-        inChannel.transferTo(offset, count, outChannel);
-        if (logger.isInfoEnabled()) {
-            logger.info("Was copied " + count + " bytes");
+        RecorderFileSink snk = sink.getAndSet(new RecorderFileSink(file,append));
+        if (snk != null) {
+            logger.error("Sink for the recording is not cleaned properly, found " + snk);
         }
     }
 
@@ -458,48 +296,24 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
     
     @Override
     public void checkIn() {
-//        // clear listeners
-//        clearAllListeners();
-//        
-//        // close stream
-//        if(fout != null) {
-//            try {
-//                fout.flush();
-//                fout.close();
-//            } catch (IOException e) {
-//                logger.warn("Could not flush or close the recording stream.");
-//            } finally {
-//                fout = null;
-//            }
-//        }
-//        
-//        // clean temp file 
-//        if(file != null) {
-//            file = null;
-//        }
-//        if(temp != null) {
-//            if(temp.exists()) {
-//                temp.delete();
-//            }
-//            temp = null;
-//        }
-//        
-//        // clean buffers
-//        this.byteBuffer.clear();
-//        this.headerBuffer.clear();
-//        this.data = null;
-//        this.offset = 0;
-//        this.len = 0;
-//        
-//        // reset internal state
-//        this.recordDir = "";
-//        this.postSpeechTimer = -1L;
-//        this.preSpeechTimer = -1L;
-//        this.lastPacketData = 0L;
-//        this.startTime = 0L;
-//        this.maxRecordTime = -1L;
-//        this.qualifier = 0;
-//        this.speechDetected = false;
+        // clear listeners
+        clearAllListeners();
+
+        // clean buffers
+        this.byteBuffer.clear();
+        this.data = null;
+        this.offset = 0;
+        this.len = 0;
+        
+        // reset internal state
+        this.recordDir = "";
+        this.postSpeechTimer = -1L;
+        this.preSpeechTimer = -1L;
+        this.lastPacketData = 0L;
+        this.startTime = 0L;
+        this.maxRecordTime = -1L;
+        this.qualifier = 0;
+        this.speechDetected = false;
     }
 
     @Override
@@ -651,7 +465,8 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
             toneBuffer.limit(DtmfTonesData.buffer[data[0]].length);
             toneBuffer.put(DtmfTonesData.buffer[data[0]]);
             toneBuffer.rewind();
-            fout.getChannel().write(toneBuffer);
+            RecorderFileSink snk = sink.get();
+            if (snk != null) snk.write(toneBuffer);
         }
 
         @Override
