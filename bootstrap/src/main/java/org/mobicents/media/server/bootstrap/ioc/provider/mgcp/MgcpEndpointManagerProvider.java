@@ -24,7 +24,7 @@ package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 import java.util.List;
 
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 
 import com.google.inject.Inject;
@@ -34,7 +34,7 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpEndpointManagerProvider implements Provider<MgcpEndpointManager> {
+public class MgcpEndpointManagerProvider implements Provider<RootMgcpEndpointManager> {
 
     private final List<MgcpEndpointProvider<? extends MgcpEndpoint>> endpointProviders;
 
@@ -44,8 +44,8 @@ public class MgcpEndpointManagerProvider implements Provider<MgcpEndpointManager
     }
 
     @Override
-    public MgcpEndpointManager get() {
-        MgcpEndpointManager manager = new MgcpEndpointManager();
+    public RootMgcpEndpointManager get() {
+        RootMgcpEndpointManager manager = new RootMgcpEndpointManager();
         for (MgcpEndpointProvider<? extends MgcpEndpoint> endpointProvider : this.endpointProviders) {
             manager.installProvider(endpointProvider);
         }

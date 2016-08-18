@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.controller.MgcpController;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
@@ -64,7 +64,7 @@ public class MgcpControllerTest {
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
         final TransactionManager transactions = mock(TransactionManager.class);
-        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpoints = mock(RootMgcpEndpointManager.class);
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
@@ -88,7 +88,7 @@ public class MgcpControllerTest {
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
         final TransactionManager transactions = mock(TransactionManager.class);
-        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpoints = mock(RootMgcpEndpointManager.class);
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
@@ -123,7 +123,7 @@ public class MgcpControllerTest {
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
         final TransactionManager transactions = mock(TransactionManager.class);
-        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpoints = mock(RootMgcpEndpointManager.class);
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
@@ -142,7 +142,7 @@ public class MgcpControllerTest {
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
         final TransactionManager transactions = mock(TransactionManager.class);
-        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpoints = mock(RootMgcpEndpointManager.class);
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
@@ -167,7 +167,7 @@ public class MgcpControllerTest {
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
         final TransactionManager transactions = mock(TransactionManager.class);
-        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpoints = mock(RootMgcpEndpointManager.class);
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
@@ -191,7 +191,7 @@ public class MgcpControllerTest {
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
         final TransactionManager transactions = mock(TransactionManager.class);
-        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpoints = mock(RootMgcpEndpointManager.class);
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when
@@ -209,7 +209,7 @@ public class MgcpControllerTest {
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
         final TransactionManager transactions = mock(TransactionManager.class);
-        final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpoints = mock(RootMgcpEndpointManager.class);
         final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
 
         // when

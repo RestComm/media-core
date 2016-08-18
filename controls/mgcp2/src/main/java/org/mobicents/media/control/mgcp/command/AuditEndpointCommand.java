@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
 
@@ -31,7 +31,7 @@ import org.mobicents.media.control.mgcp.util.collections.Parameters;
  */
 public class AuditEndpointCommand extends AbstractMgcpCommand {
 
-    public AuditEndpointCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+    public AuditEndpointCommand(int transactionId, Parameters<MgcpParameterType> parameters, RootMgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);
     }
 

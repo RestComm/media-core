@@ -24,7 +24,7 @@ package org.mobicents.media.control.mgcp.command;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
@@ -44,7 +44,7 @@ public class DeleteConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(DeleteConnectionCommand.class);
 
-    public DeleteConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+    public DeleteConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, RootMgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);
     }
 

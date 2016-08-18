@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
@@ -35,10 +35,10 @@ import org.mobicents.media.control.mgcp.util.collections.Parameters;
  */
 public class MgcpCommandProvider {
 
-    private final MgcpEndpointManager endpointManager;
+    private final RootMgcpEndpointManager endpointManager;
     private final MgcpSignalProvider signalProvider;
 
-    public MgcpCommandProvider(MgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
+    public MgcpCommandProvider(RootMgcpEndpointManager endpointManager, MgcpSignalProvider signalProvider) {
         super();
         this.endpointManager = endpointManager;
         this.signalProvider = signalProvider;

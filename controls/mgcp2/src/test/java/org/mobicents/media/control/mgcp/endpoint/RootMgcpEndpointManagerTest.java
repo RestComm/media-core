@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.endpoint.provider.AbstractMgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.exception.MgcpEndpointNotFoundException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
@@ -38,7 +38,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpEndpointManagerTest {
+public class RootMgcpEndpointManagerTest {
 
     private static final String NAMESPACE_BRIDGE = "mobicents/bridge/";
     private static final String NAMESPACE_IVR = "mobicents/ivr/";
@@ -47,7 +47,7 @@ public class MgcpEndpointManagerTest {
     @Test
     public void testInstallProvider() {
         // given
-        MgcpEndpointManager endpointManager = new MgcpEndpointManager();
+        RootMgcpEndpointManager endpointManager = new RootMgcpEndpointManager();
         AbstractMgcpEndpointProvider<?> bridgeProvider = mock(AbstractMgcpEndpointProvider.class);
         AbstractMgcpEndpointProvider<?> ivrProvider = mock(AbstractMgcpEndpointProvider.class);
 
@@ -67,7 +67,7 @@ public class MgcpEndpointManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testInstallDuplicateProvider() {
         // given
-        MgcpEndpointManager endpointManager = new MgcpEndpointManager();
+        RootMgcpEndpointManager endpointManager = new RootMgcpEndpointManager();
         AbstractMgcpEndpointProvider<?> bridgeProvider1 = mock(AbstractMgcpEndpointProvider.class);
         AbstractMgcpEndpointProvider<?> bridgeProvider2 = mock(AbstractMgcpEndpointProvider.class);
 
@@ -82,7 +82,7 @@ public class MgcpEndpointManagerTest {
     @Test
     public void testUninstallProvider() {
         // given
-        MgcpEndpointManager endpointManager = new MgcpEndpointManager();
+        RootMgcpEndpointManager endpointManager = new RootMgcpEndpointManager();
         AbstractMgcpEndpointProvider<?> bridgeProvider = mock(AbstractMgcpEndpointProvider.class);
         AbstractMgcpEndpointProvider<?> ivrProvider = mock(AbstractMgcpEndpointProvider.class);
 
@@ -103,7 +103,7 @@ public class MgcpEndpointManagerTest {
     @SuppressWarnings("unchecked")
     public void testEndpointRegistration() throws UnrecognizedMgcpNamespaceException, MgcpEndpointNotFoundException {
         // given
-        MgcpEndpointManager endpointManager = new MgcpEndpointManager();
+        RootMgcpEndpointManager endpointManager = new RootMgcpEndpointManager();
         MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         AbstractMgcpEndpointProvider<MgcpEndpoint> bridgeProvider = mock(AbstractMgcpEndpointProvider.class);
 
@@ -133,7 +133,7 @@ public class MgcpEndpointManagerTest {
     @Test(expected = UnrecognizedMgcpNamespaceException.class)
     public void testRegisterUnknownEndpoint() throws UnrecognizedMgcpNamespaceException {
         // given
-        MgcpEndpointManager endpointManager = new MgcpEndpointManager();
+        RootMgcpEndpointManager endpointManager = new RootMgcpEndpointManager();
 
         // when
         endpointManager.registerEndpoint(NAMESPACE_BRIDGE);
@@ -144,7 +144,7 @@ public class MgcpEndpointManagerTest {
         // given
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpMessage message = mock(MgcpMessage.class);
-        final MgcpEndpointManager endpointManager = new MgcpEndpointManager();
+        final RootMgcpEndpointManager endpointManager = new RootMgcpEndpointManager();
 
         // when
         endpointManager.observe(observer);

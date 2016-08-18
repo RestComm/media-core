@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.command;
 
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.util.collections.Parameters;
@@ -39,10 +39,10 @@ public abstract class AbstractMgcpCommand implements MgcpCommand {
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
 
     protected final int transactionId;
-    protected final MgcpEndpointManager endpointManager;
+    protected final RootMgcpEndpointManager endpointManager;
     protected final Parameters<MgcpParameterType> requestParameters;
 
-    public AbstractMgcpCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+    public AbstractMgcpCommand(int transactionId, Parameters<MgcpParameterType> parameters, RootMgcpEndpointManager endpointManager) {
         this.transactionId = transactionId;
         this.requestParameters = parameters;
         this.endpointManager = endpointManager;

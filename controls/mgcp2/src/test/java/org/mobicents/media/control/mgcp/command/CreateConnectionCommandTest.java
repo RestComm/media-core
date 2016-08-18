@@ -35,7 +35,7 @@ import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpRemoteConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
@@ -64,7 +64,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpEndpoint ivrEndpoint = mock(MgcpEndpoint.class);
@@ -115,7 +115,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
@@ -168,7 +168,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpRemoteConnection connection = mock(MgcpRemoteConnection.class);
@@ -223,7 +223,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
@@ -246,7 +246,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
@@ -270,7 +270,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
@@ -294,7 +294,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
@@ -318,7 +318,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
@@ -342,7 +342,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
         // when
@@ -368,7 +368,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final CreateConnectionCommand crcx = new CreateConnectionCommand(transactionId, request.getParameters(), endpointManager);
 
@@ -397,7 +397,7 @@ public class CreateConnectionCommandTest {
 
         final int transactionId = 147483655;
         final MgcpRequest request = new MgcpMessageParser().parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
         final MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
         final MgcpEndpoint ivrEndpoint = mock(MgcpEndpoint.class);

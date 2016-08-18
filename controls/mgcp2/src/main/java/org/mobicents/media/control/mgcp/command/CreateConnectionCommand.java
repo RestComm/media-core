@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.connection.MgcpLocalConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpCallNotFoundException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionNotFound;
@@ -53,7 +53,7 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
     protected static final String WILDCARD_ANY = "$";
     protected static final String ENDPOINT_ID_SEPARATOR = "@";
 
-    public CreateConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+    public CreateConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, RootMgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);
     }
 

@@ -40,7 +40,7 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObserver, MgcpMessageSubject {
+public class RootMgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObserver, MgcpMessageSubject {
 
     // Endpoint Management
     private final ConcurrentHashMap<String, MgcpEndpointProvider<?>> providers;
@@ -49,7 +49,7 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
     // Message Passing
     private final Collection<MgcpMessageObserver> observers;
 
-    public MgcpEndpointManager() {
+    public RootMgcpEndpointManager() {
         // Endpoint Management
         this.endpoints = new ConcurrentHashMap<>(100);
         this.providers = new ConcurrentHashMap<>(5);

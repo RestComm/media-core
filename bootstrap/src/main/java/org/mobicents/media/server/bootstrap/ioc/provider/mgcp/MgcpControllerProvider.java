@@ -23,7 +23,7 @@ package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.command.MgcpCommandProvider;
 import org.mobicents.media.control.mgcp.controller.MgcpController;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
 
@@ -38,11 +38,11 @@ public class MgcpControllerProvider implements Provider<MgcpController> {
 
     private final MgcpChannel channel;
     private final TransactionManager transactions;
-    private final MgcpEndpointManager endpoints;
+    private final RootMgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
     @Inject
-    public MgcpControllerProvider(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public MgcpControllerProvider(MgcpChannel channel, TransactionManager transactions, RootMgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         this.channel = channel;
         this.transactions = transactions;
         this.endpoints = endpoints;

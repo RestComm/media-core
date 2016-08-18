@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.param.NotifiedEntity;
 import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
@@ -66,7 +66,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
@@ -124,7 +124,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
@@ -179,7 +179,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
@@ -204,7 +204,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
@@ -230,7 +230,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
 
@@ -256,7 +256,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
@@ -286,7 +286,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
@@ -315,7 +315,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
@@ -341,7 +341,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
@@ -367,7 +367,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
@@ -392,7 +392,7 @@ public class RequestNotificationCommandTest {
         builder.append("R:AU/oc(N),AU/of(N");
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpEndpoint endpoint = mock(MgcpEndpoint.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
@@ -418,7 +418,7 @@ public class RequestNotificationCommandTest {
 
         final MgcpMessageParser parser = new MgcpMessageParser();
         final MgcpRequest request = parser.parseRequest(builder.toString());
-        final MgcpEndpointManager endpointManager = mock(MgcpEndpointManager.class);
+        final RootMgcpEndpointManager endpointManager = mock(RootMgcpEndpointManager.class);
         final MgcpSignalProvider signalProvider = mock(MgcpSignalProvider.class);
         final RequestNotificationCommand rqnt = new RequestNotificationCommand(request.getTransactionId(), request.getParameters(), endpointManager, signalProvider);
 

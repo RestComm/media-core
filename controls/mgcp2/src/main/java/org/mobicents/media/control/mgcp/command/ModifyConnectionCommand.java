@@ -24,7 +24,7 @@ package org.mobicents.media.control.mgcp.command;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.connection.MgcpConnection;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
+import org.mobicents.media.control.mgcp.endpoint.RootMgcpEndpointManager;
 import org.mobicents.media.control.mgcp.exception.MgcpConnectionException;
 import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
@@ -44,7 +44,7 @@ public class ModifyConnectionCommand extends AbstractMgcpCommand {
 
     private static final Logger log = Logger.getLogger(ModifyConnectionCommand.class);
 
-    public ModifyConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, MgcpEndpointManager endpointManager) {
+    public ModifyConnectionCommand(int transactionId, Parameters<MgcpParameterType> parameters, RootMgcpEndpointManager endpointManager) {
         super(transactionId, parameters, endpointManager);
     }
 
