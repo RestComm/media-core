@@ -54,6 +54,11 @@ public class CnameGeneratorTest {
         executor.shutdown();
     }
 
+    @Test(timeout = 10)
+    public void testCnameGeneratorSpeed() {
+        CnameGenerator.generateCname();
+    }
+
     @Test
     public void testCnameGenerator() {
         // given
