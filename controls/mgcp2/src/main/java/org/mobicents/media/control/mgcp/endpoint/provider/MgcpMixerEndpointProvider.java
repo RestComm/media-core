@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.endpoint.provider;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpMixerEndpoint;
 import org.mobicents.media.server.component.audio.AudioMixer;
@@ -40,8 +41,8 @@ public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<Mgcp
     private final MgcpConnectionProvider connectionProvider;
     private final MediaGroupProvider mediaGroupProvider;
 
-    public MgcpMixerEndpointProvider(String namespace, PriorityQueueScheduler mediaScheduler, MgcpConnectionProvider connectionProvider, MediaGroupProvider mediaGroupProvider) {
-        super(namespace);
+    public MgcpMixerEndpointProvider(String namespace, String domain, PriorityQueueScheduler mediaScheduler, MgcpConnectionProvider connectionProvider, MediaGroupProvider mediaGroupProvider) {
+        super(namespace, domain);
         this.mediaScheduler = mediaScheduler;
         this.connectionProvider = connectionProvider;
         this.mediaGroupProvider = mediaGroupProvider;
@@ -49,7 +50,7 @@ public class MgcpMixerEndpointProvider extends AbstractMgcpEndpointProvider<Mgcp
 
     @Override
     public MgcpMixerEndpoint provide() {
-        final String endpointId = generateId();
+        final EndpointIdentifier endpointId = new EndpointIdentifier(generateId(), getDomain());
         final AudioMixer audioMixer = new AudioMixer(this.mediaScheduler);
         final OOBMixer oobMixer = new OOBMixer(this.mediaScheduler);
         final MediaGroup mediaGroup = this.mediaGroupProvider.provide();

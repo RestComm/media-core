@@ -19,35 +19,33 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
-
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
+package org.mobicents.media.control.mgcp.endpoint;
 
 /**
+ * Parses identifiers of MGCP Endpoints.
+ * 
+ * <p>
+ * Endpoint identifiers have the format [localName]@[domain].
+ * </p>
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpointProvider<T extends MgcpEndpoint> {
+public class EndpointIdentifierParser {
 
-    /**
-     * Gets the name space associated with the provided endpoints.
-     * 
-     * @return The name space.
-     */
-    String getNamespace();
+    private static final String SEPARATOR = "@";
 
-    /**
-     * Gets the domain of the media gateway.
-     * 
-     * @return The domain of the media gateway
-     */
-    String getDomain();
+    public static EndpointIdentifier parse(String identifier) throws IllegalArgumentException {
+        // Validate identifier
+        int index = identifier.indexOf(SEPARATOR);
+        if (index <= 0) {
+            throw new IllegalArgumentException("The endpoint identifier " + identifier +" is malformed.");
+        }
 
-    /**
-     * Provides a new endpoint.
-     * 
-     * @return The newly created endpoint
-     */
-    T provide();
+        // Parse and return identifier object
+        String localName = identifier.substring(0, index);
+        String domain = identifier.substring(index + 1);
+        return new EndpointIdentifier(localName, domain);
+    }
 
 }

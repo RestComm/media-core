@@ -65,7 +65,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     protected final MediaGroup mediaGroup;
 
     // Endpoint Properties
-    private final String endpointId;
+    private final EndpointIdentifier endpointId;
     private final NotifiedEntity defaultNotifiedEntity;
     private final ConcurrentHashMap<Integer, MgcpCall> calls;
 
@@ -80,7 +80,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     private final Collection<MgcpEndpointObserver> endpointObservers;
     private final Collection<MgcpMessageObserver> messageObservers;
 
-    public GenericMgcpEndpoint(String endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
+    public GenericMgcpEndpoint(EndpointIdentifier endpointId, MgcpConnectionProvider connectionProvider, MediaGroup mediaGroup) {
         // MGCP Components
         this.connectionProvider = connectionProvider;
 
@@ -101,7 +101,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     }
 
     @Override
-    public String getEndpointId() {
+    public EndpointIdentifier getEndpointId() {
         return this.endpointId;
     }
 
@@ -396,7 +396,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             MgcpRequest notify = new MgcpRequest();
             notify.setRequestType(MgcpRequestType.NTFY);
             notify.setTransactionId(0);
-            notify.setEndpointId(this.endpointId);
+            notify.setEndpointId(this.endpointId.toString());
             notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, resolve(this.notificationRequest.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
             notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
             notify.addParameter(MgcpParameterType.REQUEST_ID, notificationRequest.getRequestIdentifier());

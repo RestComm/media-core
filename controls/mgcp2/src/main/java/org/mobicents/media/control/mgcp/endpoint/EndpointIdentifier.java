@@ -27,14 +27,14 @@ package org.mobicents.media.control.mgcp.endpoint;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpEndpointName {
+public class EndpointIdentifier {
 
     private static final String SEPARATOR = "@";
 
     private final String localName;
     private final String domainName;
 
-    public MgcpEndpointName(String localName, String domainName) {
+    public EndpointIdentifier(String localName, String domainName) {
         this.localName = localName;
         this.domainName = domainName;
     }

@@ -34,10 +34,12 @@ import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 public abstract class AbstractMgcpEndpointProvider<T extends MgcpEndpoint> implements MgcpEndpointProvider<T> {
     
     private final String namespace;
+    private final String domain;
     private final AtomicInteger idGenerator;
     
-    public AbstractMgcpEndpointProvider(String namespace) {
+    public AbstractMgcpEndpointProvider(String namespace, String domain) {
         this.namespace = namespace;
+        this.domain = domain;
         this.idGenerator = new AtomicInteger(0);
     }
 
@@ -46,8 +48,18 @@ public abstract class AbstractMgcpEndpointProvider<T extends MgcpEndpoint> imple
         return this.namespace;
     }
     
+    @Override
+    public String getDomain() {
+        return this.domain;
+    }
+    
     protected String generateId() {
-        return this.namespace + this.idGenerator.incrementAndGet();
+        return this.namespace + nextId();
+    }
+    
+    private int nextId() {
+        this.idGenerator.compareAndSet(Integer.MAX_VALUE, 0);
+        return this.idGenerator.incrementAndGet();
     }
 
 }

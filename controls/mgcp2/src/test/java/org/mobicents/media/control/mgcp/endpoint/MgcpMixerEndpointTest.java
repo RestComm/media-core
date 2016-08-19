@@ -50,7 +50,8 @@ public class MgcpMixerEndpointTest {
         final OOBMixer outbandMixer = mock(OOBMixer.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroupImpl.class);
-        final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, connections, mediaGroup);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/mock/1", "127.0.0.1:2427");
+        final MgcpMixerEndpoint endpoint = new MgcpMixerEndpoint(endpointId, inbandMixer, outbandMixer, connections, mediaGroup);
 
         // when - half open connection
         when(connections.provideRemote()).thenReturn(connection);

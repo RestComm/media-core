@@ -78,7 +78,7 @@ public class MgcpRequest extends MgcpMessage {
         // Build header
         this.builder.append(this.requestType.name()).append(" ")
                 .append(this.transactionId).append(" ")
-                .append(getEndpointId()).append("@127.0.0.1:2427").append(" ")
+                .append(getEndpointId()).append(" ")
                 .append(VERSION).append(System.lineSeparator());
 
         // Build parameters

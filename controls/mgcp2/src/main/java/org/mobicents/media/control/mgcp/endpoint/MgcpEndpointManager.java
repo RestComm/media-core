@@ -90,7 +90,7 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
         MgcpEndpoint endpoint = provider.provide();
         endpoint.observe((MgcpEndpointObserver) this);
         endpoint.observe((MgcpMessageObserver) this);
-        this.endpoints.put(endpoint.getEndpointId(), endpoint);
+        this.endpoints.put(endpoint.getEndpointId().toString(), endpoint);
         return endpoint;
     }
 
@@ -101,8 +101,7 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
      * @return The endpoint if registered; otherwise returns null
      */
     public MgcpEndpoint getEndpoint(String endpointId) {
-        String localName = resolveEndpointId(endpointId);
-        return this.endpoints.get(localName);
+        return this.endpoints.get(endpointId);
     }
 
     /**
@@ -112,23 +111,12 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
      * @throws MgcpEndpointNotFoundException If there is no registered endpoint with such ID
      */
     public void unregisterEndpoint(String endpointId) throws MgcpEndpointNotFoundException {
-        String localName = resolveEndpointId(endpointId);
-        MgcpEndpoint endpoint = this.endpoints.remove(localName);
+        MgcpEndpoint endpoint = this.endpoints.remove(endpointId);
         if (endpoint == null) {
             throw new MgcpEndpointNotFoundException("Endpoint " + endpointId + " not found");
         }
         endpoint.forget((MgcpMessageObserver) this);
         endpoint.forget((MgcpEndpointObserver) this);
-    }
-
-    // FIXME Right now only deals with localName. Should take domain into account in the future.
-    private String resolveEndpointId(String endpointId) {
-        String result = endpointId;
-        int indexOfSeparator = endpointId.indexOf("@");
-        if (indexOfSeparator > -1) {
-            result = endpointId.substring(0, indexOfSeparator);
-        }
-        return result;
     }
 
     @Override

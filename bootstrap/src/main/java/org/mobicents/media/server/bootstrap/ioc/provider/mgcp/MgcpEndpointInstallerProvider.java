@@ -64,7 +64,8 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
         final MgcpControllerConfiguration controller = this.configuration.getControllerConfiguration();
         final Iterator<MgcpEndpointConfiguration> iterator = controller.getEndpoints();
         final List<MgcpEndpointProvider<? extends MgcpEndpoint>> providers = new ArrayList<>(controller.countEndpoints());
-
+        final String domain = this.configuration.getControllerConfiguration().getAddress();
+        
         while (iterator.hasNext()) {
             final MgcpEndpointConfiguration endpoint = iterator.next();
             final MgcpEndpointProvider<? extends MgcpEndpoint> provider;
@@ -72,11 +73,11 @@ public class MgcpEndpointInstallerProvider implements Provider<List<MgcpEndpoint
 
             switch (endpoint.getRelayType()) {
                 case MIXER:
-                    provider = new MgcpMixerEndpointProvider(namespace, this.mediaScheduler, this.connectionProvider, this.MediaGroupProvider);
+                    provider = new MgcpMixerEndpointProvider(namespace, domain, this.mediaScheduler, this.connectionProvider, this.MediaGroupProvider);
                     break;
 
                 case SPLITTER:
-                    provider = new MgcpSplitterEndpointProvider(namespace, this.mediaScheduler, this.connectionProvider, this.MediaGroupProvider);
+                    provider = new MgcpSplitterEndpointProvider(namespace, domain, this.mediaScheduler, this.connectionProvider, this.MediaGroupProvider);
                     break;
 
                 default:

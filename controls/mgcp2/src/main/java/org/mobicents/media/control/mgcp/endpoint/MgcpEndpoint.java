@@ -52,7 +52,7 @@ public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, M
      * 
      * @return The endpoint ID
      */
-    String getEndpointId();
+    EndpointIdentifier getEndpointId();
 
     /**
      * Gets a connection by identifier.

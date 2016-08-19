@@ -41,10 +41,11 @@ public class MgcpSplitterEndpointProviderTest {
     public void testProvide() {
         // given
         final String namespace = "ms/mock/";
+        final String domain = "restcomm.com";
         final PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
         final MediaGroupProvider mediaGroupProvider = mock(MediaGroupProvider.class);
-        final MgcpSplitterEndpointProvider provider = new MgcpSplitterEndpointProvider(namespace, mediaScheduler, connections, mediaGroupProvider);
+        final MgcpSplitterEndpointProvider provider = new MgcpSplitterEndpointProvider(namespace, domain, mediaScheduler, connections, mediaGroupProvider);
 
         // when
         MgcpSplitterEndpoint endpoint1 = provider.provide();
@@ -52,11 +53,11 @@ public class MgcpSplitterEndpointProviderTest {
         MgcpSplitterEndpoint endpoint3 = provider.provide();
 
         // then
-        assertEquals(namespace + 1, endpoint1.getEndpointId());
+        assertEquals(namespace + 1 + "@" + domain, endpoint1.getEndpointId().toString());
         assertFalse(endpoint1.isActive());
-        assertEquals(namespace + 2, endpoint2.getEndpointId());
+        assertEquals(namespace + 2 + "@" + domain, endpoint2.getEndpointId().toString());
         assertFalse(endpoint2.isActive());
-        assertEquals(namespace + 3, endpoint3.getEndpointId());
+        assertEquals(namespace + 3 + "@" + domain, endpoint3.getEndpointId().toString());
         assertFalse(endpoint3.isActive());
     }
 

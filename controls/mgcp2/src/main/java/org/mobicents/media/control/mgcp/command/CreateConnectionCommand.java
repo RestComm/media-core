@@ -118,10 +118,10 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         final int indexOfAll = endpointId.indexOf(WILDCARD_ANY);
         if (indexOfAll == -1) {
             // Search for registered endpoint
-            endpoint = this.endpointManager.getEndpoint(localName);
+            endpoint = this.endpointManager.getEndpoint(endpointId);
 
             if (endpoint == null) {
-                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_NOT_AVAILABLE);
+                throw new MgcpCommandException(MgcpResponseCode.ENDPOINT_UNKNOWN);
             }
         } else {
             // Create new endpoint for a specific name space
@@ -222,9 +222,9 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         final MgcpEndpoint endpoint2 = secondEndpointId.isEmpty() ? null : retrieveEndpoint(secondEndpointId);
         
         // Update context with endpoint ID (in case they new endpoints were created)
-        context.setEndpointId(endpoint1.getEndpointId());
+        context.setEndpointId(endpoint1.getEndpointId().toString());
         if(endpoint2 != null) {
-            context.setSecondEndpointId(endpoint2.getEndpointId());
+            context.setSecondEndpointId(endpoint2.getEndpointId().toString());
         }
 
         // Create Connections

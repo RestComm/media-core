@@ -23,7 +23,6 @@ package org.mobicents.media.control.mgcp.message;
 
 import java.util.Iterator;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
 /**
@@ -90,21 +89,7 @@ public class MgcpResponse extends MgcpMessage {
             MgcpParameterType key = iterator.next();
             Optional<String> value = parameters.getString(key);
             if(value.isPresent() && !key.equals(MgcpParameterType.SDP)) {
-                String effectiveValue;
-                // XXX HACKING endpoint domain name
-                if(MgcpParameterType.ENDPOINT_ID.equals(key) || MgcpParameterType.SECOND_ENDPOINT.equals(key)) {
-                    effectiveValue = value.transform(new Function<String, String>() {
-
-                        @Override
-                        public String apply(String input) {
-                            return input + "@127.0.0.1:2427";
-                        }
-                        
-                    }).get();
-                } else {
-                    effectiveValue = value.get();
-                }
-                builder.append(System.lineSeparator()).append(key.getCode()).append(":").append(effectiveValue);
+                builder.append(System.lineSeparator()).append(key.getCode()).append(":").append(value.get());
             }
         }
 
