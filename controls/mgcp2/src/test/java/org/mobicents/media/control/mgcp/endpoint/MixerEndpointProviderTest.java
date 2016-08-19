@@ -42,10 +42,11 @@ public class MixerEndpointProviderTest {
     public void testProvide() {
         // given
         final String namespace = "ms/mock/";
+        final String domain = "restcomm.com";
         final PriorityQueueScheduler mediaScheduler = mock(PriorityQueueScheduler.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
         final MediaGroupProvider mediaGroupProvider = mock(MediaGroupProvider.class);
-        final MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, mediaScheduler, connections, mediaGroupProvider);
+        final MgcpMixerEndpointProvider provider = new MgcpMixerEndpointProvider(namespace, domain, mediaScheduler, connections, mediaGroupProvider);
         final MediaGroupImpl mediaGroup = mock(MediaGroupImpl.class);
         final AudioComponent audioComponent = mock(AudioComponent.class);
 
@@ -58,11 +59,11 @@ public class MixerEndpointProviderTest {
         MgcpMixerEndpoint endpoint3 = provider.provide();
 
         // then
-        assertEquals(namespace + 1, endpoint1.getEndpointId());
+        assertEquals(namespace + 1 + "@" + domain, endpoint1.getEndpointId().toString());
         assertFalse(endpoint1.isActive());
-        assertEquals(namespace + 2, endpoint2.getEndpointId());
+        assertEquals(namespace + 2 + "@" + domain, endpoint2.getEndpointId().toString());
         assertFalse(endpoint2.isActive());
-        assertEquals(namespace + 3, endpoint3.getEndpointId());
+        assertEquals(namespace + 3 + "@" + domain, endpoint3.getEndpointId().toString());
         assertFalse(endpoint3.isActive());
     }
 

@@ -19,35 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
+package org.mobicents.media.control.mgcp.endpoint;
 
-import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
+import org.mobicents.media.control.mgcp.exception.MgcpEndpointException;
 
 /**
+ * Thrown when an MGCP Endpoint Identifier is malformed.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface MgcpEndpointProvider<T extends MgcpEndpoint> {
+public class MalformedMgcpEndpointIdentifier extends MgcpEndpointException {
 
-    /**
-     * Gets the name space associated with the provided endpoints.
-     * 
-     * @return The name space.
-     */
-    String getNamespace();
+    private static final long serialVersionUID = -5090718013826757327L;
 
-    /**
-     * Gets the domain of the media gateway.
-     * 
-     * @return The domain of the media gateway
-     */
-    String getDomain();
+    public MalformedMgcpEndpointIdentifier(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    /**
-     * Provides a new endpoint.
-     * 
-     * @return The newly created endpoint
-     */
-    T provide();
+    public MalformedMgcpEndpointIdentifier(String message) {
+        super(message);
+    }
 
 }

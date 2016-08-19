@@ -105,27 +105,29 @@ public class MgcpEndpointManagerTest {
         // given
         MgcpEndpointManager endpointManager = new MgcpEndpointManager();
         MgcpEndpoint bridgeEndpoint = mock(MgcpEndpoint.class);
+        EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/bridge/1", "127.0.0.1:2427");
         AbstractMgcpEndpointProvider<MgcpEndpoint> bridgeProvider = mock(AbstractMgcpEndpointProvider.class);
 
         // when
         when(bridgeProvider.getNamespace()).thenReturn(NAMESPACE_BRIDGE);
+        when(bridgeProvider.getDomain()).thenReturn("127.0.0.1:2427");
         when(bridgeProvider.provide()).thenReturn(bridgeEndpoint);
-        when(bridgeEndpoint.getEndpointId()).thenReturn(NAMESPACE_BRIDGE + "1");
+        when(bridgeEndpoint.getEndpointId()).thenReturn(endpointId);
 
         endpointManager.installProvider(bridgeProvider);
         MgcpEndpoint endpoint = endpointManager.registerEndpoint(NAMESPACE_BRIDGE);
 
         // then
         assertEquals(bridgeEndpoint, endpoint);
-        assertEquals(bridgeEndpoint, endpointManager.getEndpoint(bridgeEndpoint.getEndpointId()));
+        assertEquals(bridgeEndpoint, endpointManager.getEndpoint(bridgeEndpoint.getEndpointId().toString()));
         // TODO Fix me!!
 //        verify(bridgeEndpoint, times(1)).observe(endpointManager);
 
         // when
-        endpointManager.unregisterEndpoint(bridgeEndpoint.getEndpointId());
+        endpointManager.unregisterEndpoint(bridgeEndpoint.getEndpointId().toString());
 
         // then
-        assertNull(endpointManager.getEndpoint(bridgeEndpoint.getEndpointId()));
+        assertNull(endpointManager.getEndpoint(bridgeEndpoint.getEndpointId().toString()));
         // TODO Fix me!!
 //        verify(bridgeEndpoint, times(1)).forget(endpointManager);
     }

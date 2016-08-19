@@ -56,7 +56,8 @@ public class MgcpSplitterEndpointTest {
         final OOBSplitter outbandMixer = mock(OOBSplitter.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandMixer, outbandMixer, connections, mediaGroup);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/mock/1", "127.0.0.1");
+        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint(endpointId, inbandMixer, outbandMixer, connections, mediaGroup);
 
         // when - half open connection
         when(connections.provideRemote()).thenReturn(connection);
@@ -85,7 +86,8 @@ public class MgcpSplitterEndpointTest {
         final OOBSplitter outbandSplitter = mock(OOBSplitter.class);
         final MgcpConnectionProvider connections = mock(MgcpConnectionProvider.class);
         final MediaGroup mediaGroup = mock(MediaGroup.class);
-        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint("restcomm/mock/1", inbandSplitter, outbandSplitter, connections, mediaGroup);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/mock/1", "127.0.0.1");
+        final MgcpSplitterEndpoint endpoint = new MgcpSplitterEndpoint(endpointId, inbandSplitter, outbandSplitter, connections, mediaGroup);
 
         // when - open connection and join it to secondary endpoint
         when(connections.provideLocal()).thenReturn(connection);

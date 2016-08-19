@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.endpoint.provider;
 
 import org.mobicents.media.control.mgcp.connection.MgcpConnectionProvider;
+import org.mobicents.media.control.mgcp.endpoint.EndpointIdentifier;
 import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.endpoint.MgcpSplitterEndpoint;
 import org.mobicents.media.server.component.audio.AudioSplitter;
@@ -40,8 +41,8 @@ public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<M
     private final MgcpConnectionProvider connectionProvider;
     private final MediaGroupProvider mediaGroupProvider;
 
-    public MgcpSplitterEndpointProvider(String namespace, PriorityQueueScheduler mediaScheduler, MgcpConnectionProvider connectionProvider, MediaGroupProvider mediaGroupProvider) {
-        super(namespace);
+    public MgcpSplitterEndpointProvider(String namespace, String domain, PriorityQueueScheduler mediaScheduler, MgcpConnectionProvider connectionProvider, MediaGroupProvider mediaGroupProvider) {
+        super(namespace, domain);
         this.mediaScheduler = mediaScheduler;
         this.connectionProvider = connectionProvider;
         this.mediaGroupProvider = mediaGroupProvider;
@@ -49,7 +50,7 @@ public class MgcpSplitterEndpointProvider extends AbstractMgcpEndpointProvider<M
 
     @Override
     public MgcpSplitterEndpoint provide() {
-        final String endpointId = generateId();
+        final EndpointIdentifier endpointId = new EndpointIdentifier(generateId(), getDomain());
         final AudioSplitter audioSplitter = new AudioSplitter(this.mediaScheduler);
         final OOBSplitter oobSplitter = new OOBSplitter(this.mediaScheduler);
         final MediaGroup mediaGroup = this.mediaGroupProvider.provide();
