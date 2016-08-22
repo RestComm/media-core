@@ -60,8 +60,11 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final Playlist failureAnnouncement;
     private final Playlist successAnnouncement;
 
+    // Options
     private final boolean nonInterruptibleAudio;
     private final boolean clearDigitBuffer;
+    private final boolean includeEndInputKey;
+    private final int numAttempts;
     private final int minDigits;
     private final int maxDigits;
     private final String digitPattern;
@@ -69,6 +72,12 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final int interDigitTimer;
     private final int extraDigitTimer;
     private final String restartKey;
+    private final String reinputKey;
+    private final String returnKey;
+    private final String positionKey;
+    private final String stopKey;
+    private final String startInputKeys;
+    private final String endInputKey;
 
     public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters) {
         super(AudioPackage.PACKAGE_NAME, "pc", SignalType.TIME_OUT, parameters);
@@ -84,14 +93,24 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.failureAnnouncement = new Playlist(getFailureAnnouncement(), 1);
         this.successAnnouncement = new Playlist(getSuccessAnnouncement(), 1);
 
+        // Options
         this.nonInterruptibleAudio = getNonInterruptibleAudio();
         this.clearDigitBuffer = getClearDigitBuffer();
+        this.includeEndInputKey = getIncludeEndInputKey();
+        this.numAttempts = getNumberOfAttempts();
         this.minDigits = getMinimumDigits();
         this.maxDigits = getMaximumDigits();
         this.digitPattern = getDigitPattern();
         this.firstDigitTimer = getFirstDigitTimer();
         this.interDigitTimer = getInterDigitTimer();
         this.extraDigitTimer = getExtraDigitTimer();
+        this.restartKey = getRestartKey();
+        this.reinputKey = getReinputKey();
+        this.returnKey = getReturnKey();
+        this.positionKey = getPositionKey();
+        this.stopKey = getStopKey();
+        this.startInputKeys = getStartInputKeys();
+        this.endInputKey = getEndInputKey();
     }
 
     /**
