@@ -56,6 +56,7 @@ public class RtpConnectionPoolTest {
         this.taskScheduler = new ServiceScheduler(clock);
         this.udpManager = new UdpManager(taskScheduler);
         this.connectionFactory = new ChannelsManager(udpManager);
+        this.connectionFactory.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         this.dspFactory = new DspFactoryImpl();
         
         this.mediaScheduler.setClock(clock);

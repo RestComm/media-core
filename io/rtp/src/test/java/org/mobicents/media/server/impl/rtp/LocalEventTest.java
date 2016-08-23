@@ -99,6 +99,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         udpManager.start();
         
         channelsManager = new ChannelsManager(udpManager);
+        this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
         
         detector = new DetectorImpl("dtmf", mediaScheduler);

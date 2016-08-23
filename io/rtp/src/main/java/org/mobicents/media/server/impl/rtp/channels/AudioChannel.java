@@ -20,15 +20,12 @@
 
 package org.mobicents.media.server.impl.rtp.channels;
 
-import java.util.Iterator;
-
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.io.sdp.format.RTPFormat;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.scheduler.Clock;
-import org.mobicents.media.server.spi.format.FormatFactory;
 
 /**
  * Media channel responsible for audio processing.
@@ -43,45 +40,37 @@ public class AudioChannel extends MediaChannel {
 	public AudioChannel(Clock wallClock, ChannelsManager channelsManager) {
 		super(MEDIA_TYPE, wallClock, channelsManager);
 //		super.supportedFormats = super.buildRTPMap(AVProfile.audio);
-		//super.supportedFormats = AVProfile.audio;
 		this.supportedFormats = new RTPFormats();
-		Iterator<String> codecs = channelsManager.getCodecs();
-		while(codecs.hasNext()) {
+		String[] codecs = channelsManager.getCodecs();
+		for(String codec : codecs) {
 			
-			switch (codecs.next()) {
+			switch (codec) {
 			case "pcmu":
-				RTPFormat pcmu = new RTPFormat(0, FormatFactory.createAudioFormat("pcmu", 8000, 8, 1), 8000);
-				supportedFormats.add(pcmu);
+				supportedFormats.add(AVProfile.getFormat(0));
 				break;
 				
 			case "pcma":
-				RTPFormat pcma = new RTPFormat(8, FormatFactory.createAudioFormat("pcma", 8000, 8, 1), 8000);
-				supportedFormats.add(pcma);
+				supportedFormats.add(AVProfile.getFormat(8));
 				break;
 				
 			case "gsm":
-				RTPFormat gsm = new RTPFormat(3, FormatFactory.createAudioFormat("gsm", 8000), 8000);
-				supportedFormats.add(gsm);
+				supportedFormats.add(AVProfile.getFormat(8));
 				break;
 				
 			case "g729":
-				RTPFormat g729 = new RTPFormat(18, FormatFactory.createAudioFormat("g729", 8000), 8000);
-				supportedFormats.add(g729);
+				supportedFormats.add(AVProfile.getFormat(18));
 				break;
 				
 			case "l16":
-				RTPFormat l16 = new RTPFormat(97, FormatFactory.createAudioFormat("l16", 8000, 16, 1), 8000);
-				supportedFormats.add(l16);
+				supportedFormats.add(AVProfile.getFormat(97));
 				break;				
 				
 			case "ilbc":
-				RTPFormat ilbc = new RTPFormat(102, FormatFactory.createAudioFormat("ilbc", 8000, 16, 1), 8000);
-				supportedFormats.add(ilbc);
+				supportedFormats.add(AVProfile.getFormat(102));
 				break;
 				
 			case "linear":
-				RTPFormat linear = new RTPFormat(150, FormatFactory.createAudioFormat("linear", 8000, 16, 1), 8000);
-				supportedFormats.add(linear);
+				supportedFormats.add(AVProfile.getFormat(150));
 				break;
 
 			default:
@@ -91,10 +80,8 @@ public class AudioChannel extends MediaChannel {
 		}
 		
 		//Adding DTMF support
-		RTPFormat dtmf = new RTPFormat(101, FormatFactory.createAudioFormat("telephone-event", 8000), 8000);
-		supportedFormats.add(dtmf);
-		RTPFormat dtmf126 = new RTPFormat(126, FormatFactory.createAudioFormat("telephone-event", 8000), 8000);
-		supportedFormats.add(dtmf126);
+		supportedFormats.add(AVProfile.getFormat(101));
+		supportedFormats.add(AVProfile.getFormat(126));
 		
 		super.setFormats(this.supportedFormats);
 	}

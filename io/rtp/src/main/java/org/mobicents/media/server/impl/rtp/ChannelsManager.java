@@ -23,7 +23,6 @@
 package org.mobicents.media.server.impl.rtp;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
@@ -59,7 +58,7 @@ public class ChannelsManager {
     private int jitterBufferSize=50;
     
     //Supported Formats --> It contains only codecs actually configured
-    private Iterator<String> codecs;
+    private String[] codecs;
     
     //channel id generator
     private AtomicInteger channelIndex = new AtomicInteger(100);
@@ -116,12 +115,12 @@ public class ChannelsManager {
     	this.jitterBufferSize=jitterBufferSize;
     }        
     
-    public Iterator<String> getCodecs() {
+    public String[] getCodecs() {
 		return codecs;
 	}
     
-    public void setCodecs(Iterator<String> iterator) {
-    	this.codecs = iterator;
+    public void setCodecs(String[] strings) {
+    	this.codecs = strings;
     }
     
     public UdpManager getUdpManager() {

@@ -109,6 +109,7 @@ public class ReclaimingTest {
         mediaScheduler.start();
 
         channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()));
+        this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);        
 
         // Resource
