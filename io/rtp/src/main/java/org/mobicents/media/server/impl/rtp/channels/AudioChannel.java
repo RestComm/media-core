@@ -54,7 +54,7 @@ public class AudioChannel extends MediaChannel {
 				break;
 				
 			case "gsm":
-				supportedFormats.add(AVProfile.getFormat(8));
+				supportedFormats.add(AVProfile.getFormat(3));
 				break;
 				
 			case "g729":
