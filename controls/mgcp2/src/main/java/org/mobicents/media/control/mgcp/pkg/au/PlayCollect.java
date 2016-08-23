@@ -22,6 +22,8 @@
 package org.mobicents.media.control.mgcp.pkg.au;
 
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -30,7 +32,10 @@ import org.mobicents.media.control.mgcp.pkg.SignalType;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
+import org.mobicents.media.server.spi.listener.Event;
 import org.mobicents.media.server.spi.player.Player;
+import org.mobicents.media.server.spi.player.PlayerEvent;
+import org.mobicents.media.server.spi.player.PlayerListener;
 
 import com.google.common.base.Optional;
 
@@ -51,7 +56,7 @@ import com.google.common.base.Optional;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayCollect extends AbstractMgcpSignal implements DtmfDetectorListener {
+public class PlayCollect extends AbstractMgcpSignal {
 
     private static final Logger log = Logger.getLogger(PlayCollect.class);
 
@@ -89,8 +94,9 @@ public class PlayCollect extends AbstractMgcpSignal implements DtmfDetectorListe
     private final char stopKey;
     private final String startInputKeys;
     private final char endInputKey;
-    
+
     // Runtime Context
+    private final Queue<Event<?>> events;
     private final AtomicInteger eventCount;
     private final StringBuffer sequence;
     private final AtomicInteger attempts;
@@ -127,8 +133,9 @@ public class PlayCollect extends AbstractMgcpSignal implements DtmfDetectorListe
         this.stopKey = getStopKey();
         this.startInputKeys = getStartInputKeys();
         this.endInputKey = getEndInputKey();
-        
+
         // Runtime Context
+        this.events = new ConcurrentLinkedQueue<>();
         this.eventCount = new AtomicInteger(0);
         this.sequence = new StringBuffer();
         this.attempts = new AtomicInteger(0);
@@ -510,48 +517,6 @@ public class PlayCollect extends AbstractMgcpSignal implements DtmfDetectorListe
         }
     }
 
-    /**
-     * Initializes resources for DTMF detection.<br>
-     * At this stage the DTMF detector is started but the local buffer is not assigned yet as a listener.
-     */
-    private void prepareCollectPhase() {
-
-    }
-
-    @Override
-    public void process(DtmfEvent event) {
-        if (this.executing.get()) {
-            // Make sure tone is not empty
-            if(event.getTone().isEmpty()) {
-                log.warn("Received empty tone. Discarded.");
-                return;
-            }
-
-            final char tone = event.getTone().charAt(0);
-            if (log.isInfoEnabled()) {
-                log.info("Received tone " + tone);
-            }
-
-            if (onTone(tone)) {
-                // Process tone
-                this.sequence.append(tone);
-                if (!this.digitPattern.isEmpty() && this.digitPattern.matches(this.sequence.toString())) {
-                    // Sequence matches the digit pattern.
-                    // Stop collecting digits and fire OC event
-                    // TODO fireOC(200, sequence)
-                }
-            }
-        }
-    }
-
-    private boolean onTone(char tone) {
-        if(this.maxDigits > 0 && tone == this.endInputKey && this.sequence.length() >= this.minDigits) {
-            
-        }
-        
-        return true;
-    }
-
     @Override
     public void execute() {
         if (this.executing.getAndSet(true)) {
@@ -569,12 +534,64 @@ public class PlayCollect extends AbstractMgcpSignal implements DtmfDetectorListe
 
     }
 
-    private void fireOC(int code) {
-        notify(this, new OperationComplete(getSymbol(), code));
+    /**
+     * Listens to events coming from Player and puts them in the events queue.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    private class PlayerProducer implements PlayerListener {
+
+        @Override
+        public void process(PlayerEvent event) {
+            if (PlayCollect.this.executing.get()) {
+                PlayCollect.this.events.offer(event);
+            }
+        }
+
     }
 
-    private void fireOF(int code) {
-        notify(this, new OperationFailed(getSymbol(), code));
+    /**
+     * Listens to events coming from DTMF Detector and puts them in the events queue.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    private class DetectorProducer implements DtmfDetectorListener {
+
+        @Override
+        public void process(DtmfEvent event) {
+            if (PlayCollect.this.executing.get()) {
+                PlayCollect.this.events.offer(event);
+            }
+        }
+
+    }
+
+    private class EventConsumer implements Runnable {
+
+        @Override
+        public void run() {
+            if (PlayCollect.this.executing.get()) {
+                Event<?> event = PlayCollect.this.events.poll();
+                if (event != null) {
+                    if (event instanceof DtmfEvent) {
+                        onDtmfEvent((DtmfEvent) event);
+                    } else if (event instanceof PlayerEvent) {
+                        onPlayerEvent((PlayerEvent) event);
+                    }
+                }
+            }
+        }
+
+        private void onDtmfEvent(DtmfEvent event) {
+            // TODO implement onDtmfEvent
+        }
+
+        private void onPlayerEvent(PlayerEvent event) {
+            // TODO implement onPlayerEvent
+        }
+
     }
 
 }
