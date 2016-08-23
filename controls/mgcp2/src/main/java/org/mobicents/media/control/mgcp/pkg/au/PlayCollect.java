@@ -22,10 +22,14 @@
 package org.mobicents.media.control.mgcp.pkg.au;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
+import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
+import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.player.Player;
 
 import com.google.common.base.Optional;
@@ -47,7 +51,14 @@ import com.google.common.base.Optional;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayCollect extends AbstractMgcpSignal {
+public class PlayCollect extends AbstractMgcpSignal implements DtmfDetectorListener {
+
+    private static final Logger log = Logger.getLogger(PlayCollect.class);
+
+    /**
+     * Specified in units of 100 milliseconds. Defaults to 10 (1 second).
+     */
+    private static final long INTERVAL = 10 * 1000000L;
 
     // Media Components
     private final Player player;
@@ -71,13 +82,18 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final int firstDigitTimer;
     private final int interDigitTimer;
     private final int extraDigitTimer;
-    private final String restartKey;
-    private final String reinputKey;
-    private final String returnKey;
-    private final String positionKey;
-    private final String stopKey;
+    private final char restartKey;
+    private final char reinputKey;
+    private final char returnKey;
+    private final char positionKey;
+    private final char stopKey;
     private final String startInputKeys;
-    private final String endInputKey;
+    private final char endInputKey;
+    
+    // Runtime Context
+    private final AtomicInteger eventCount;
+    private final StringBuffer sequence;
+    private final AtomicInteger attempts;
 
     public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters) {
         super(AudioPackage.PACKAGE_NAME, "pc", SignalType.TIME_OUT, parameters);
@@ -111,6 +127,11 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.stopKey = getStopKey();
         this.startInputKeys = getStartInputKeys();
         this.endInputKey = getEndInputKey();
+        
+        // Runtime Context
+        this.eventCount = new AtomicInteger(0);
+        this.sequence = new StringBuffer();
+        this.attempts = new AtomicInteger(0);
     }
 
     /**
@@ -235,8 +256,9 @@ public class PlayCollect extends AbstractMgcpSignal {
     }
 
     /**
-     * A legal digit map as described in section 7.1.14 of the Megaco protocol using the DTMF mappings associated with the
-     * Megaco DTMF Detection Package described in the Megaco protocol document.
+     * A legal digit map as described in <a href="https://tools.ietf.org/html/rfc2885#section-7.1.14">section 7.1.14</a> of the
+     * MEGACO protocol using the DTMF mappings associated with the Megaco DTMF Detection Package described in the Megaco
+     * protocol document.
      * <p>
      * <b>This parameter should not be specified if one or both of the Minimum # Of Digits parameter and the Maximum Number Of
      * Digits parameter is present.</b>
@@ -245,7 +267,14 @@ public class PlayCollect extends AbstractMgcpSignal {
      * @return The digit pattern or an empty String if not specified.
      */
     private String getDigitPattern() {
-        return Optional.fromNullable(getParameter(SignalParameters.DIGIT_PATTERN.symbol())).or("");
+        String pattern = Optional.fromNullable(getParameter(SignalParameters.DIGIT_PATTERN.symbol())).or("");
+        if (!pattern.isEmpty()) {
+            // Replace pattern to comply with MEGACO digitMap
+            pattern.replace(".", "+");
+            pattern.replace("x", "\\d");
+            pattern.replace("*", "\\*");
+        }
+        return pattern;
     }
 
     /**
@@ -306,8 +335,9 @@ public class PlayCollect extends AbstractMgcpSignal {
      * 
      * @return
      */
-    private String getRestartKey() {
-        return Optional.fromNullable(getParameter(SignalParameters.RESTART_KEY.symbol())).or("");
+    private char getRestartKey() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.RESTART_KEY.symbol())).or("");
+        return value.isEmpty() ? ' ' : value.charAt(0);
     }
 
     /**
@@ -326,8 +356,9 @@ public class PlayCollect extends AbstractMgcpSignal {
      * 
      * @return
      */
-    private String getReinputKey() {
-        return Optional.fromNullable(getParameter(SignalParameters.REINPUT_KEY.symbol())).or("");
+    private char getReinputKey() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.REINPUT_KEY.symbol())).or("");
+        return value.isEmpty() ? ' ' : value.charAt(0);
     }
 
     /**
@@ -344,8 +375,9 @@ public class PlayCollect extends AbstractMgcpSignal {
      * 
      * @return
      */
-    private String getReturnKey() {
-        return Optional.fromNullable(getParameter(SignalParameters.RETURN_KEY.symbol())).or("");
+    private char getReturnKey() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.RETURN_KEY.symbol())).or("");
+        return value.isEmpty() ? ' ' : value.charAt(0);
     }
 
     /**
@@ -357,8 +389,9 @@ public class PlayCollect extends AbstractMgcpSignal {
      * 
      * @return
      */
-    private String getPositionKey() {
-        return Optional.fromNullable(getParameter(SignalParameters.POSITION_KEY.symbol())).or("");
+    private char getPositionKey() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.POSITION_KEY.symbol())).or("");
+        return value.isEmpty() ? ' ' : value.charAt(0);
     }
 
     /**
@@ -369,8 +402,9 @@ public class PlayCollect extends AbstractMgcpSignal {
      * 
      * @return
      */
-    private String getStopKey() {
-        return Optional.fromNullable(getParameter(SignalParameters.STOP_KEY.symbol())).or("");
+    private char getStopKey() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.STOP_KEY.symbol())).or("");
+        return value.isEmpty() ? ' ' : value.charAt(0);
     }
 
     /**
@@ -403,8 +437,9 @@ public class PlayCollect extends AbstractMgcpSignal {
      * 
      * @return
      */
-    private String getEndInputKey() {
-        return Optional.fromNullable(getParameter(SignalParameters.END_INPUT_KEY.symbol())).or("#");
+    private char getEndInputKey() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.END_INPUT_KEY.symbol())).or("");
+        return value.isEmpty() ? '#' : value.charAt(0);
     }
 
     /**
@@ -475,9 +510,56 @@ public class PlayCollect extends AbstractMgcpSignal {
         }
     }
 
+    /**
+     * Initializes resources for DTMF detection.<br>
+     * At this stage the DTMF detector is started but the local buffer is not assigned yet as a listener.
+     */
+    private void prepareCollectPhase() {
+
+    }
+
+    @Override
+    public void process(DtmfEvent event) {
+        if (this.executing.get()) {
+            // Make sure tone is not empty
+            if(event.getTone().isEmpty()) {
+                log.warn("Received empty tone. Discarded.");
+                return;
+            }
+
+            final char tone = event.getTone().charAt(0);
+            if (log.isInfoEnabled()) {
+                log.info("Received tone " + tone);
+            }
+
+            if (onTone(tone)) {
+                // Process tone
+                this.sequence.append(tone);
+                if (!this.digitPattern.isEmpty() && this.digitPattern.matches(this.sequence.toString())) {
+                    // Sequence matches the digit pattern.
+                    // Stop collecting digits and fire OC event
+                    // TODO fireOC(200, sequence)
+                }
+            }
+        }
+    }
+
+    private boolean onTone(char tone) {
+        if(this.maxDigits > 0 && tone == this.endInputKey && this.sequence.length() >= this.minDigits) {
+            
+        }
+        
+        return true;
+    }
+
     @Override
     public void execute() {
-        // TODO Auto-generated method stub
+        if (this.executing.getAndSet(true)) {
+            throw new IllegalStateException("Already executing.");
+        }
+
+        // TODO Play announcement (if any)
+        // TODO Start collect phase
 
     }
 
@@ -485,6 +567,14 @@ public class PlayCollect extends AbstractMgcpSignal {
     public void cancel() {
         // TODO Auto-generated method stub
 
+    }
+
+    private void fireOC(int code) {
+        notify(this, new OperationComplete(getSymbol(), code));
+    }
+
+    private void fireOF(int code) {
+        notify(this, new OperationFailed(getSymbol(), code));
     }
 
 }
