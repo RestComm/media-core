@@ -107,7 +107,7 @@ public class MediaConfiguration {
     }
 
     public String[] getCodecs() {
-        return this.codecs.toArray(new String[]{});
+        return this.codecs.toArray(new String[codecs.size()]);
     }
     
     public boolean hasCodec(String codec) {
