@@ -70,7 +70,7 @@ public class PlayCollect extends AbstractMgcpSignal {
     /**
      * Specified in units of 100 milliseconds. Defaults to 10 (1 second).
      */
-    private static final long INTERVAL = 10 * 1000000L;
+    private static final long INTERVAL = 10 * 100L;
 
     // Concurrency Components
     private final ListeningExecutorService executor;
@@ -89,12 +89,11 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final Playlist successAnnouncement;
 
     // Runtime Context
-    private final PlayerProducer playerListener;
-    private final DetectorProducer dtmfListener;
+    final PlayerProducer playerListener; // XXX gave default visibility for testing purposes
+    final DetectorProducer dtmfListener; // XXX gave default visibility for testing purposes
     private final EventConsumer consumer;
 
     private final Queue<Event<?>> events;
-    private final AtomicInteger eventCount;
     private final StringBuilder sequence;
     private final AtomicInteger attempt;
     private final ConsumerCallback consumerCallback;
@@ -133,7 +132,6 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.consumerCallback = new ConsumerCallback();
 
         this.events = new ConcurrentLinkedQueue<>();
-        this.eventCount = new AtomicInteger(0);
         this.sequence = new StringBuilder();
         this.attempt = new AtomicInteger(0);
     }
@@ -581,7 +579,8 @@ public class PlayCollect extends AbstractMgcpSignal {
      * @author Henrique Rosa (henrique.rosa@telestax.com)
      *
      */
-    private class PlayerProducer implements PlayerListener {
+    // XXX gave default visibility for testing purposes
+    class PlayerProducer implements PlayerListener {
 
         @Override
         public void process(PlayerEvent event) {
@@ -598,7 +597,8 @@ public class PlayCollect extends AbstractMgcpSignal {
      * @author Henrique Rosa (henrique.rosa@telestax.com)
      *
      */
-    private class DetectorProducer implements DtmfDetectorListener {
+    // XXX gave default visibility for testing purposes
+    class DetectorProducer implements DtmfDetectorListener {
 
         @Override
         public void process(DtmfEvent event) {
