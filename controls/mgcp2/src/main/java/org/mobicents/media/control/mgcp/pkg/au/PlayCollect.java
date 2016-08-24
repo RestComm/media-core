@@ -33,6 +33,7 @@ import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.listener.Event;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
@@ -76,29 +77,14 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final Playlist failureAnnouncement;
     private final Playlist successAnnouncement;
 
-    // Options
-    private final boolean nonInterruptibleAudio;
-    private final boolean clearDigitBuffer;
-    private final boolean includeEndInputKey;
-    private final int numAttempts;
-    private final int minDigits;
-    private final int maxDigits;
-    private final String digitPattern;
-    private final int firstDigitTimer;
-    private final int interDigitTimer;
-    private final int extraDigitTimer;
-    private final char restartKey;
-    private final char reinputKey;
-    private final char returnKey;
-    private final char positionKey;
-    private final char stopKey;
-    private final String startInputKeys;
-    private final char endInputKey;
-
     // Runtime Context
+    private final PlayerProducer playerListener;
+    private final DetectorProducer dtmfListener;
+    private final EventConsumer consumer;
+
     private final Queue<Event<?>> events;
     private final AtomicInteger eventCount;
-    private final StringBuffer sequence;
+    private final StringBuilder sequence;
     private final AtomicInteger attempts;
 
     public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters) {
@@ -115,29 +101,14 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.failureAnnouncement = new Playlist(getFailureAnnouncement(), 1);
         this.successAnnouncement = new Playlist(getSuccessAnnouncement(), 1);
 
-        // Options
-        this.nonInterruptibleAudio = getNonInterruptibleAudio();
-        this.clearDigitBuffer = getClearDigitBuffer();
-        this.includeEndInputKey = getIncludeEndInputKey();
-        this.numAttempts = getNumberOfAttempts();
-        this.minDigits = getMinimumDigits();
-        this.maxDigits = getMaximumDigits();
-        this.digitPattern = getDigitPattern();
-        this.firstDigitTimer = getFirstDigitTimer();
-        this.interDigitTimer = getInterDigitTimer();
-        this.extraDigitTimer = getExtraDigitTimer();
-        this.restartKey = getRestartKey();
-        this.reinputKey = getReinputKey();
-        this.returnKey = getReturnKey();
-        this.positionKey = getPositionKey();
-        this.stopKey = getStopKey();
-        this.startInputKeys = getStartInputKeys();
-        this.endInputKey = getEndInputKey();
-
         // Runtime Context
+        this.playerListener = new PlayerProducer();
+        this.dtmfListener = new DetectorProducer();
+        this.consumer = new EventConsumer();
+
         this.events = new ConcurrentLinkedQueue<>();
         this.eventCount = new AtomicInteger(0);
-        this.sequence = new StringBuffer();
+        this.sequence = new StringBuilder();
         this.attempts = new AtomicInteger(0);
     }
 
@@ -294,7 +265,7 @@ public class PlayCollect extends AbstractMgcpSignal {
      */
     private int getFirstDigitTimer() {
         String value = Optional.fromNullable(getParameter(SignalParameters.FIRST_DIGIT_TIMER.symbol())).or("50");
-        return Integer.parseInt(value);
+        return Integer.parseInt(value) * 100;
     }
 
     /**
@@ -307,7 +278,7 @@ public class PlayCollect extends AbstractMgcpSignal {
      */
     private int getInterDigitTimer() {
         String value = Optional.fromNullable(getParameter(SignalParameters.INTER_DIGIT_TIMER.symbol())).or("30");
-        return Integer.parseInt(value);
+        return Integer.parseInt(value) * 100;
     }
 
     /**
@@ -325,7 +296,7 @@ public class PlayCollect extends AbstractMgcpSignal {
      */
     private int getExtraDigitTimer() {
         String value = Optional.fromNullable(getParameter(SignalParameters.EXTRA_DIGIT_TIMER.symbol())).or("");
-        return Integer.parseInt(value);
+        return Integer.parseInt(value) * 100;
     }
 
     /**
@@ -439,7 +410,7 @@ public class PlayCollect extends AbstractMgcpSignal {
      * string "null".
      * <p>
      * <b>The default behavior not to return the End Input Key in the digits returned to the call agent.</b> This behavior can
-     * be overidden by the Include End Input Key (eik) parameter.
+     * be overridden by the Include End Input Key (eik) parameter.
      * </p>
      * 
      * @return
@@ -516,6 +487,33 @@ public class PlayCollect extends AbstractMgcpSignal {
                 return false;
         }
     }
+    
+    private void startCollectPhase(int timeout) {
+        // Register DTMF listener to receive incoming tones
+        try {
+            this.detector.addListener(this.dtmfListener);
+        } catch (TooManyListenersException e) {
+            log.error("Could not add listener to DTMF Detector: Too many listeners.");
+        }
+        
+        // TODO set timer to expire in [timeout] ms
+        
+        // Activate DTMF Detector
+        this.detector.activate();
+        
+        if(log.isInfoEnabled()) {
+            log.info("Started collect phase.");
+        }
+    }
+    
+    private void stopCollectPhase() {
+        this.detector.deactivate();
+        this.detector.removeListener(this.dtmfListener);
+        
+        if(log.isInfoEnabled()) {
+            log.info("Stopped collect phase.");
+        }
+    }
 
     @Override
     public void execute() {
@@ -523,8 +521,12 @@ public class PlayCollect extends AbstractMgcpSignal {
             throw new IllegalStateException("Already executing.");
         }
 
-        // TODO Play announcement (if any)
-        // TODO Start collect phase
+        String prompt = this.initialPrompt.next();
+        if (!prompt.isEmpty()) {
+            // XXX Start prompt phase
+        } else {
+            startCollectPhase(getFirstDigitTimer());
+        }
 
     }
 
