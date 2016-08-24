@@ -39,6 +39,10 @@ import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.Monitor;
+import com.google.common.util.concurrent.Monitor.Guard;
 
 /**
  * Plays a prompt and collects DTMF digits entered by a user.
@@ -66,6 +70,11 @@ public class PlayCollect extends AbstractMgcpSignal {
      */
     private static final long INTERVAL = 10 * 1000000L;
 
+    // Concurrency Components
+    private final ListeningExecutorService executor;
+    private final Monitor monitor;
+    private final Guard hasEvents;
+
     // Media Components
     private final Player player;
     private final DtmfDetector detector;
@@ -85,10 +94,23 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final Queue<Event<?>> events;
     private final AtomicInteger eventCount;
     private final StringBuilder sequence;
-    private final AtomicInteger attempts;
+    private final AtomicInteger attempt;
 
-    public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters) {
+    public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters,
+            ListeningExecutorService executor) {
         super(AudioPackage.PACKAGE_NAME, "pc", SignalType.TIME_OUT, parameters);
+
+        // Concurrency Components
+        this.executor = executor;
+        this.monitor = new Monitor(true);
+        this.hasEvents = new Guard(this.monitor) {
+
+            @Override
+            public boolean isSatisfied() {
+                return !PlayCollect.this.events.isEmpty();
+            }
+
+        };
 
         // Media Components
         this.player = player;
@@ -109,7 +131,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.events = new ConcurrentLinkedQueue<>();
         this.eventCount = new AtomicInteger(0);
         this.sequence = new StringBuilder();
-        this.attempts = new AtomicInteger(0);
+        this.attempt = new AtomicInteger(0);
     }
 
     /**
@@ -487,7 +509,7 @@ public class PlayCollect extends AbstractMgcpSignal {
                 return false;
         }
     }
-    
+
     private void startCollectPhase(int timeout) {
         // Register DTMF listener to receive incoming tones
         try {
@@ -495,24 +517,32 @@ public class PlayCollect extends AbstractMgcpSignal {
         } catch (TooManyListenersException e) {
             log.error("Could not add listener to DTMF Detector: Too many listeners.");
         }
-        
+
         // TODO set timer to expire in [timeout] ms
-        
+
         // Activate DTMF Detector
         this.detector.activate();
-        
-        if(log.isInfoEnabled()) {
-            log.info("Started collect phase.");
+        this.attempt.incrementAndGet();
+
+        if (log.isInfoEnabled()) {
+            log.info("Started collect phase. Attempt: " + this.attempt.get());
         }
     }
-    
+
     private void stopCollectPhase() {
         this.detector.deactivate();
         this.detector.removeListener(this.dtmfListener);
-        
-        if(log.isInfoEnabled()) {
+
+        if (log.isInfoEnabled()) {
             log.info("Stopped collect phase.");
         }
+    }
+
+    private void fireOC(int code, int attempts, String digitsCollected) {
+        final OperationComplete operationComplete = new OperationComplete(getSymbol(), code);
+        operationComplete.setParameter("na", String.valueOf(attempts));
+        operationComplete.setParameter("dc", digitsCollected);
+        notify(this, operationComplete);
     }
 
     @Override
@@ -521,13 +551,15 @@ public class PlayCollect extends AbstractMgcpSignal {
             throw new IllegalStateException("Already executing.");
         }
 
+        // Initialize event consumer thread
+        ListenableFuture<?> consumerFuture = this.executor.submit(this.consumer);
+
         String prompt = this.initialPrompt.next();
         if (!prompt.isEmpty()) {
             // XXX Start prompt phase
         } else {
             startCollectPhase(getFirstDigitTimer());
         }
-
     }
 
     @Override
@@ -570,24 +602,59 @@ public class PlayCollect extends AbstractMgcpSignal {
 
     }
 
+    /**
+     * Consumes events from the {@link PlayCollect#events} queue.
+     * <p>
+     * Runs on separate thread and waits until at least one event is available in the queue to be consumed.<b>Can be
+     * interrupted.</b>
+     * </p>
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
     private class EventConsumer implements Runnable {
 
         @Override
         public void run() {
             if (PlayCollect.this.executing.get()) {
-                Event<?> event = PlayCollect.this.events.poll();
-                if (event != null) {
-                    if (event instanceof DtmfEvent) {
-                        onDtmfEvent((DtmfEvent) event);
-                    } else if (event instanceof PlayerEvent) {
-                        onPlayerEvent((PlayerEvent) event);
+
+                try {
+                    PlayCollect.this.monitor.enterWhen(hasEvents);
+                    try {
+                        Event<?> event = PlayCollect.this.events.poll();
+                        if (event != null) {
+                            if (event instanceof DtmfEvent) {
+                                onDtmfEvent((DtmfEvent) event);
+                            } else if (event instanceof PlayerEvent) {
+                                onPlayerEvent((PlayerEvent) event);
+                            }
+                        }
+                    } finally {
+                        PlayCollect.this.monitor.leave();
                     }
+                } catch (InterruptedException e) {
+                    log.warn("Event consumer was interrupted. Event may have been canceled.");
                 }
             }
         }
 
         private void onDtmfEvent(DtmfEvent event) {
-            // TODO implement onDtmfEvent
+            final char tone = event.getTone().charAt(0);
+
+            if (log.isInfoEnabled()) {
+                log.info("Received tone " + event.getTone());
+            }
+
+            // Stop collect phase if EndInput key was pressed
+            if (tone == getEndInputKey()) {
+                PlayCollect.this.executing.set(false);
+                stopCollectPhase();
+                if (getIncludeEndInputKey()) {
+                    PlayCollect.this.sequence.append(tone);
+                }
+                fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
+            }
+
         }
 
         private void onPlayerEvent(PlayerEvent event) {
