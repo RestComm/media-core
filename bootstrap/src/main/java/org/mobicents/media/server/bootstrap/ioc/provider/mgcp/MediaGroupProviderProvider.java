@@ -22,6 +22,7 @@
 package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
+import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
 import org.mobicents.media.server.spi.player.PlayerProvider;
 
 import com.google.inject.Inject;
@@ -34,16 +35,18 @@ import com.google.inject.Provider;
 public class MediaGroupProviderProvider implements Provider<MediaGroupProvider> {
 
     private final PlayerProvider players;
+    private final DtmfDetectorProvider detectors;
 
     @Inject
-    public MediaGroupProviderProvider(PlayerProvider players) {
+    public MediaGroupProviderProvider(PlayerProvider players, DtmfDetectorProvider detectors) {
         super();
         this.players = players;
+        this.detectors = detectors;
     }
 
     @Override
     public MediaGroupProvider get() {
-        return new MediaGroupProvider(this.players);
+        return new MediaGroupProvider(this.players, this.detectors);
     }
 
 }

@@ -39,6 +39,8 @@ import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.player.PlayerListener;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.Monitor;
@@ -95,6 +97,7 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final AtomicInteger eventCount;
     private final StringBuilder sequence;
     private final AtomicInteger attempt;
+    private final ConsumerCallback consumerCallback;
 
     public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters,
             ListeningExecutorService executor) {
@@ -127,6 +130,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.playerListener = new PlayerProducer();
         this.dtmfListener = new DetectorProducer();
         this.consumer = new EventConsumer();
+        this.consumerCallback = new ConsumerCallback();
 
         this.events = new ConcurrentLinkedQueue<>();
         this.eventCount = new AtomicInteger(0);
@@ -552,7 +556,8 @@ public class PlayCollect extends AbstractMgcpSignal {
         }
 
         // Initialize event consumer thread
-        ListenableFuture<?> consumerFuture = this.executor.submit(this.consumer);
+        ListenableFuture<?> future = this.executor.submit(this.consumer);
+        Futures.addCallback(future, this.consumerCallback);
 
         String prompt = this.initialPrompt.next();
         if (!prompt.isEmpty()) {
@@ -564,7 +569,9 @@ public class PlayCollect extends AbstractMgcpSignal {
 
     @Override
     public void cancel() {
-        // TODO Auto-generated method stub
+        if (!this.executing.getAndSet(false)) {
+            throw new IllegalStateException("Already canceled.");
+        }
 
     }
 
@@ -618,8 +625,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         public void run() {
             if (PlayCollect.this.executing.get()) {
 
-                try {
-                    PlayCollect.this.monitor.enterWhen(hasEvents);
+                if (PlayCollect.this.monitor.enterIf(hasEvents)) {
                     try {
                         Event<?> event = PlayCollect.this.events.poll();
                         if (event != null) {
@@ -632,8 +638,6 @@ public class PlayCollect extends AbstractMgcpSignal {
                     } finally {
                         PlayCollect.this.monitor.leave();
                     }
-                } catch (InterruptedException e) {
-                    log.warn("Event consumer was interrupted. Event may have been canceled.");
                 }
             }
         }
@@ -645,20 +649,51 @@ public class PlayCollect extends AbstractMgcpSignal {
                 log.info("Received tone " + event.getTone());
             }
 
-            // Stop collect phase if EndInput key was pressed
             if (tone == getEndInputKey()) {
+                // Stop collect phase if EndInput key was pressed
                 PlayCollect.this.executing.set(false);
                 stopCollectPhase();
                 if (getIncludeEndInputKey()) {
                     PlayCollect.this.sequence.append(tone);
                 }
                 fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
+            } else {
+                // Collect tone and add it to list of pressed digits
+                PlayCollect.this.sequence.append(tone);
             }
 
         }
 
         private void onPlayerEvent(PlayerEvent event) {
             // TODO implement onPlayerEvent
+        }
+
+    }
+
+    /**
+     * Listens to termination of {@link EventConsumer} execution.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    private class ConsumerCallback implements FutureCallback<Object> {
+
+        @Override
+        public void onSuccess(Object result) {
+            if (PlayCollect.this.executing.get()) {
+                ListenableFuture<?> future = executor.submit(consumer);
+                Futures.addCallback(future, consumerCallback);
+            }
+
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            log.error("Could not process event", t);
+            if (PlayCollect.this.executing.get()) {
+                ListenableFuture<?> future = executor.submit(consumer);
+                Futures.addCallback(future, consumerCallback);
+            }
         }
 
     }

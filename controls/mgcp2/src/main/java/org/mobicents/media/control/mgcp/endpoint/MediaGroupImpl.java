@@ -23,8 +23,10 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
+import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
 import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerProvider;
@@ -46,14 +48,15 @@ public class MediaGroupImpl implements MediaGroup {
     private final DtmfGenerator generator;
 
     // TODO Add list of enum that declare which media components are created in the media group
-    public MediaGroupImpl(AudioComponent audioComponent, OOBComponent oobComponent, PlayerProvider players) {
+    public MediaGroupImpl(AudioComponent audioComponent, OOBComponent oobComponent, PlayerProvider players,
+            DtmfDetectorProvider detectors) {
         // Media Components
         this.audioComponent = audioComponent;
         this.oobComponent = oobComponent;
 
         this.player = initializePlayer(players);
         this.recorder = null;
-        this.detector = null;
+        this.detector = initializeDetector(detectors);
         this.generator = null;
     }
 
@@ -62,9 +65,24 @@ public class MediaGroupImpl implements MediaGroup {
         AudioPlayerImpl player = (AudioPlayerImpl) players.provide();
         this.audioComponent.addInput(player.getAudioInput());
         // readComponents++;
-        audioComponent.updateMode(true,false);
+        audioComponent.updateMode(true, false);
         // updateEndpoint(1,0);
         return player;
+    }
+
+    private DtmfDetector initializeDetector(DtmfDetectorProvider detectors) {
+        // TODO try getting rid of DetectorImpl cast
+        DetectorImpl detector = (DetectorImpl) detectors.provide();
+        this.audioComponent.addOutput(detector.getAudioOutput());
+        this.oobComponent.addOutput(detector.getOOBOutput());
+        // writeComponents++
+        // writeDtmfComponents++
+        // audioComponent.updateMode(readComponents!=0,true);
+        // oobComponent.updateMode(readDtmfComponents!=0,true);
+        this.audioComponent.updateMode(true, true);
+        this.oobComponent.updateMode(true, true);
+        // updateEndpoint(0,1)
+        return detector;
     }
 
     @Override

@@ -19,31 +19,39 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
+package org.mobicents.media.server.impl.resource.dtmf;
 
-import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
-import org.mobicents.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
+import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaGroupProvider {
+public class DetectorProvider implements DtmfDetectorProvider {
 
-    private final PlayerProvider players;
-    private final DtmfDetectorProvider detectors;
+    private final PriorityQueueScheduler scheduler;
+    private final AtomicInteger id;
+    private final int volume;
 
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors) {
-        this.players = players;
-        this.detectors = detectors;
+    public DetectorProvider(PriorityQueueScheduler scheduler, int volume) {
+        this.scheduler = scheduler;
+        this.id = new AtomicInteger(0);
+        this.volume = volume;
     }
 
-    public MediaGroup provide() {
-        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, detectors);
+    @Override
+    public DtmfDetector provide() {
+        DetectorImpl detector = new DetectorImpl(nextId(), this.scheduler);
+        detector.setVolume(this.volume);
+        return detector;
+    }
+
+    private String nextId() {
+        return "dtmf-detector" + id.getAndIncrement();
     }
 
 }

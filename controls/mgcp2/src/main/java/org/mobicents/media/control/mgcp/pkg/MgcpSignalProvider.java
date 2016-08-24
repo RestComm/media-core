@@ -32,6 +32,8 @@ import org.mobicents.media.control.mgcp.pkg.au.PlayRecord;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
+
 /**
  * Provides MGCP signals by package.
  * 
@@ -39,6 +41,13 @@ import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalExcep
  *
  */
 public class MgcpSignalProvider {
+
+    private final ListeningExecutorService executor;
+
+    public MgcpSignalProvider(ListeningExecutorService executor) {
+        super();
+        this.executor = executor;
+    }
 
     /**
      * Provides an MGCP Signal to be executed.
@@ -55,20 +64,21 @@ public class MgcpSignalProvider {
             throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
-                return provideAudioSignal(signal, parameters, mediaGroup);
+                return provideAudioSignal(signal, parameters, mediaGroup, this.executor);
 
             default:
                 throw new UnrecognizedMgcpPackageException("Unrecognized package " + pkg);
         }
     }
 
-    private MgcpSignal provideAudioSignal(String signal, Map<String, String> parameters, MediaGroup mediaGroup)
+    private MgcpSignal provideAudioSignal(String signal, Map<String, String> parameters, MediaGroup mediaGroup, ListeningExecutorService executor)
             throws UnsupportedMgcpSignalException {
         // Validate signal type
         AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
         if (signalType == null) {
-            throw new UnsupportedMgcpSignalException("Package " + AudioPackage.PACKAGE_NAME + " does not support signal " + signal);
+            throw new UnsupportedMgcpSignalException(
+                    "Package " + AudioPackage.PACKAGE_NAME + " does not support signal " + signal);
         }
 
         switch (signalType) {
@@ -76,8 +86,7 @@ public class MgcpSignalProvider {
                 return new PlayAnnouncement(mediaGroup.getPlayer(), parameters);
 
             case PLAY_COLLECT:
-                // TODO provide player and DTMF detector
-                return new PlayCollect();
+                return new PlayCollect(mediaGroup.getPlayer(), mediaGroup.getDetector(), parameters, executor);
 
             case PLAY_RECORD:
                 // TODO provide player and recorder

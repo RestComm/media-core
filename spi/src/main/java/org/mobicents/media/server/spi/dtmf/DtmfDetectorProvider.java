@@ -19,31 +19,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
-
-import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
-import org.mobicents.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
+package org.mobicents.media.server.spi.dtmf;
 
 /**
+ * Provides DTMF Detectors.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaGroupProvider {
+public interface DtmfDetectorProvider {
 
-    private final PlayerProvider players;
-    private final DtmfDetectorProvider detectors;
-
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors) {
-        this.players = players;
-        this.detectors = detectors;
-    }
-
-    public MediaGroup provide() {
-        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, detectors);
-    }
-
+    DtmfDetector provide();
+    
 }

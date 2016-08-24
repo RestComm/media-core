@@ -19,31 +19,36 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
+package org.mobicents.media.server.bootstrap.ioc.provider.media;
 
-import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
-import org.mobicents.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.impl.resource.dtmf.DetectorProvider;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaGroupProvider {
+public class DtmfDetectorProviderProvider implements Provider<DtmfDetectorProvider> {
 
-    private final PlayerProvider players;
-    private final DtmfDetectorProvider detectors;
+    private final PriorityQueueScheduler scheduler;
+    private final MediaServerConfiguration configuration;
 
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors) {
-        this.players = players;
-        this.detectors = detectors;
+    @Inject
+    public DtmfDetectorProviderProvider(PriorityQueueScheduler scheduler, MediaServerConfiguration configuration) {
+        super();
+        this.scheduler = scheduler;
+        this.configuration = configuration;
     }
 
-    public MediaGroup provide() {
-        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, detectors);
+    @Override
+    public DtmfDetectorProvider get() {
+        int volume = this.configuration.getResourcesConfiguration().getDtmfDetectorDbi();
+        return new DetectorProvider(scheduler, volume);
     }
 
 }
