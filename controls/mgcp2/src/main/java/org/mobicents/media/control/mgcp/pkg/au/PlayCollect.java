@@ -524,7 +524,6 @@ public class PlayCollect extends AbstractMgcpSignal {
 
         // Activate DTMF Detector
         this.detector.activate();
-        this.attempt.incrementAndGet();
 
         if (log.isInfoEnabled()) {
             log.info("Started collect phase. Attempt: " + this.attempt.get());
@@ -547,11 +546,19 @@ public class PlayCollect extends AbstractMgcpSignal {
         notify(this, operationComplete);
     }
 
+    private void fireOF(int code) {
+        final OperationFailed operationFailed = new OperationFailed(getSymbol(), code);
+        notify(this, operationFailed);
+    }
+
     @Override
     public void execute() {
         if (this.executing.getAndSet(true)) {
             throw new IllegalStateException("Already executing.");
         }
+
+        // First attempt
+        this.attempt.incrementAndGet();
 
         // Initialize event consumer thread
         ListenableFuture<?> future = this.executor.submit(this.consumer);
@@ -651,17 +658,34 @@ public class PlayCollect extends AbstractMgcpSignal {
 
             if (tone == getEndInputKey()) {
                 // Stop collect phase if EndInput key was pressed
-                PlayCollect.this.executing.set(false);
                 stopCollectPhase();
-                if (getIncludeEndInputKey()) {
-                    PlayCollect.this.sequence.append(tone);
+
+                if (getMinimumDigits() > sequence.length()) {
+                    // Minimum number of digits was NOT collected
+                    // Try new attempt if possible or send OperationFailed event
+                    if (attempt.get() < getNumberOfAttempts()) {
+                        attempt.incrementAndGet();
+                        startCollectPhase(getFirstDigitTimer());
+                    } else {
+                        // Not enough digits collected
+                        // Stop executing signal and send OperationFailed event
+                        PlayCollect.this.executing.set(false);
+                        fireOF(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                    }
+                } else {
+                    // Minimum number of digits was collected
+                    // Stop executing signal and send OperationComplete event
+                    PlayCollect.this.executing.set(false);
+                    if (getIncludeEndInputKey()) {
+                        PlayCollect.this.sequence.append(tone);
+                    }
+                    fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
                 }
-                fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
             } else {
                 // Collect tone and add it to list of pressed digits
                 PlayCollect.this.sequence.append(tone);
-                
-                if(getMaximumDigits() == sequence.length()) {
+
+                if (getMaximumDigits() == sequence.length()) {
                     // Stop collect phase if maximum number of digits was reached
                     PlayCollect.this.executing.set(false);
                     stopCollectPhase();

@@ -65,7 +65,6 @@ public class PlayCollectTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "100");
         parameters.put("eik", "A");
-        parameters.put("iek", "false");
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
@@ -92,6 +91,39 @@ public class PlayCollectTest {
         assertEquals("123", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
+    @Test
+    public void testCollectWithMinimumNumberOfDigitsNotSatisfied() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "3");
+        parameters.put("mn", "3");
+        parameters.put("eik", "#");
+        parameters.put("na", "1");
+
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "#", -30));
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
     @Test
@@ -166,27 +198,27 @@ public class PlayCollectTest {
     public void testCollectWithDefaultMaximumNumberOfDigits() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
-        
+
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
-        
+
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-        
+
         pc.observe(observer);
         pc.execute();
-        
+
         pc.dtmfListener.process(new DtmfEventImpl(detector, "1", -30));
         // mx parameter defaults to 1
-        
+
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
-        
+
         assertEquals("1", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
