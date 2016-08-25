@@ -93,6 +93,10 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
     private PacketTransformer srtpDecoder;
     private PacketTransformer srtcpEncoder;
     private PacketTransformer srtcpDecoder;
+    
+    // DTLS Logging
+    private static final String HEX_CHARS = "0123456789ABCDEF";
+    private long launchTimestamp = System.currentTimeMillis();
 
     public DtlsHandler() {
         this.pipelinePriority = 0;
@@ -389,12 +393,16 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
             throw new IllegalStateException("Handshake is taking too long! (>" + MAX_DELAY + "ms");
         }
 
-        int attempts = 20;
+        int attempts = waitMillis;
         do {
             ByteBuffer data = this.rxQueue.poll();
             if (data != null) {
                 data.get(buf, off, data.limit());
-                return data.limit();
+                int limit = data.limit();
+                if(limit > 0) {
+                    dumpDatagram("Received ", buf, off, len);
+                }
+                return limit;
             }
 
             try {
@@ -407,19 +415,48 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
         } while (attempts > 0);
 
         // Throw IO exception if no data was received in this interval. Restarts outbound flight.
+        logger.warn("Reseting DTLS flight after waiting " + waitMillis + " for incoming message.");
         throw new SocketTimeoutException("Could not receive DTLS packet in " + waitMillis);
     }
 
     @Override
     public void send(byte[] buf, int off, int len) throws IOException {
         if (!hasTimeout()) {
+            if(logger.isInfoEnabled()) {
+                dumpDatagram("Sending ", buf, off, len);
+            }
             if (this.channel != null && this.channel.isOpen() && this.channel.isConnected()) {
                 this.channel.send(ByteBuffer.wrap(buf, off, len), channel.getRemoteAddress());
+                if(logger.isInfoEnabled()) {
+                    logger.info("Sent DTLS packet to remote peer.");
+                }
             } else {
                 logger.warn("Handler skipped send operation because channel is not open or connected.");
             }
         } else {
             logger.warn("Handler has timed out so send operation will be skipped.");
+        }
+    }
+    
+    private void dumpDatagram(String verb, byte[] buf, int off, int len) throws IOException {
+        if (logger.isInfoEnabled()) {
+            long timestamp = System.currentTimeMillis() - launchTimestamp;
+            StringBuilder sb = new StringBuilder("(+").append(timestamp).append("ms ").append(verb).append(" ").append(len)
+                    .append(" byte datagram:");
+            for (int pos = 0; pos < len; ++pos) {
+                if (pos % 16 == 0) {
+                    sb.append(System.lineSeparator());
+                    sb.append("    ");
+                } else if (pos % 16 == 8) {
+                    sb.append('-');
+                } else {
+                    sb.append(' ');
+                }
+                int val = buf[off + pos] & 0xFF;
+                sb.append(HEX_CHARS.charAt(val >> 4));
+                sb.append(HEX_CHARS.charAt(val & 0xF));
+            }
+            logger.info(sb.toString());
         }
     }
 
@@ -437,6 +474,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
     private class HandshakeWorker implements Runnable {
 
         public void run() {
+            launchTimestamp = System.currentTimeMillis();
             SecureRandom secureRandom = new SecureRandom();
             DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
 
