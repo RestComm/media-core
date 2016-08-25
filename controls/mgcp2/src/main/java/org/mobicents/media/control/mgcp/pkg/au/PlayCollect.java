@@ -660,6 +660,13 @@ public class PlayCollect extends AbstractMgcpSignal {
             } else {
                 // Collect tone and add it to list of pressed digits
                 PlayCollect.this.sequence.append(tone);
+                
+                if(getMaximumDigits() == sequence.length()) {
+                    // Stop collect phase if maximum number of digits was reached
+                    PlayCollect.this.executing.set(false);
+                    stopCollectPhase();
+                    fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
+                }
             }
 
         }

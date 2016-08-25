@@ -52,17 +52,18 @@ import com.google.common.util.concurrent.MoreExecutors;
  */
 public class PlayCollectTest {
 
-    private static final ExecutorService threadPool = Executors.newFixedThreadPool(3);
+    private static final ExecutorService threadPool = Executors.newFixedThreadPool(5);
 
     @AfterClass
     public static void cleanup() {
         threadPool.shutdown();
     }
-    
+
     @Test
     public void testCollectWithEndInputKey() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "100");
         parameters.put("eik", "A");
         parameters.put("iek", "false");
 
@@ -71,7 +72,7 @@ public class PlayCollectTest {
         final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
-        
+
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
 
@@ -82,12 +83,12 @@ public class PlayCollectTest {
         pc.dtmfListener.process(new DtmfEventImpl(detector, "2", -30));
         pc.dtmfListener.process(new DtmfEventImpl(detector, "3", -30));
         pc.dtmfListener.process(new DtmfEventImpl(detector, "A", -30));
-        
+
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
-        
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
         assertEquals("123", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
@@ -97,7 +98,74 @@ public class PlayCollectTest {
     public void testCollectWithIncludeEndInputKey() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "100");
         parameters.put("iek", "true");
+
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "3", -30));
+        // # is default EndInput key
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "#", -30));
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals("123#", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
+    @Test
+    public void testCollectWithMaximumNumberOfDigits() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "3");
+        parameters.put("iek", "false");
+
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "3", -30));
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals("123", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
+    @Test
+    public void testCollectWithDefaultMaximumNumberOfDigits() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
         
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
@@ -112,17 +180,14 @@ public class PlayCollectTest {
         pc.execute();
         
         pc.dtmfListener.process(new DtmfEventImpl(detector, "1", -30));
-        pc.dtmfListener.process(new DtmfEventImpl(detector, "2", -30));
-        pc.dtmfListener.process(new DtmfEventImpl(detector, "3", -30));
-        // # is default EndInput key
-        pc.dtmfListener.process(new DtmfEventImpl(detector, "#", -30));
+        // mx parameter defaults to 1
         
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
         
-        assertEquals("123#", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
