@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -31,8 +31,8 @@ import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -44,6 +44,7 @@ import org.mobicents.media.server.spi.player.Player;
 import org.mockito.ArgumentCaptor;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 /**
@@ -52,7 +53,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  */
 public class PlayCollectTest {
 
-    private static final ExecutorService threadPool = Executors.newFixedThreadPool(5);
+    private static final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
 
     @AfterClass
     public static void cleanup() {
@@ -68,7 +69,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -104,7 +105,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -135,7 +136,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -170,7 +171,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -201,7 +202,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -232,7 +233,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -265,7 +266,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -301,7 +302,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -339,7 +340,7 @@ public class PlayCollectTest {
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
 
@@ -372,7 +373,7 @@ public class PlayCollectTest {
         
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
         
@@ -395,6 +396,34 @@ public class PlayCollectTest {
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("9AC", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
+    
+    @Test
+    public void testCollectTimeoutFirstDigit() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("fdt", "10");
+        
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pc.observe(observer);
+        pc.execute();
+        
+        Thread.sleep(10 * 100);
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
 }

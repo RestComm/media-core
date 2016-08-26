@@ -32,7 +32,7 @@ import org.mobicents.media.control.mgcp.pkg.au.PlayRecord;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
 /**
  * Provides MGCP signals by package.
@@ -42,9 +42,9 @@ import com.google.common.util.concurrent.ListeningExecutorService;
  */
 public class MgcpSignalProvider {
 
-    private final ListeningExecutorService executor;
+    private final ListeningScheduledExecutorService executor;
 
-    public MgcpSignalProvider(ListeningExecutorService executor) {
+    public MgcpSignalProvider(ListeningScheduledExecutorService executor) {
         super();
         this.executor = executor;
     }
@@ -71,7 +71,7 @@ public class MgcpSignalProvider {
         }
     }
 
-    private MgcpSignal provideAudioSignal(String signal, Map<String, String> parameters, MediaGroup mediaGroup, ListeningExecutorService executor)
+    private MgcpSignal provideAudioSignal(String signal, Map<String, String> parameters, MediaGroup mediaGroup, ListeningScheduledExecutorService executor)
             throws UnsupportedMgcpSignalException {
         // Validate signal type
         AudioSignalType signalType = AudioSignalType.fromSymbol(signal);

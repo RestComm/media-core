@@ -24,7 +24,9 @@ package org.mobicents.media.control.mgcp.pkg.au;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
@@ -42,7 +44,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.Monitor;
 import com.google.common.util.concurrent.Monitor.Guard;
 
@@ -73,7 +75,7 @@ public class PlayCollect extends AbstractMgcpSignal {
     private static final long INTERVAL = 10 * 100L;
 
     // Concurrency Components
-    private final ListeningExecutorService executor;
+    private final ListeningScheduledExecutorService executor;
     private final Monitor monitor;
     private final Guard hasEvents;
 
@@ -97,9 +99,10 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final StringBuilder sequence;
     private final AtomicInteger attempt;
     private final ConsumerCallback consumerCallback;
+    private final AtomicLong lastToneDate;
 
     public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters,
-            ListeningExecutorService executor) {
+            ListeningScheduledExecutorService executor) {
         super(AudioPackage.PACKAGE_NAME, "pc", SignalType.TIME_OUT, parameters);
 
         // Concurrency Components
@@ -134,6 +137,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.events = new ConcurrentLinkedQueue<>();
         this.sequence = new StringBuilder();
         this.attempt = new AtomicInteger(0);
+        this.lastToneDate = new AtomicLong(0L);
     }
 
     /**
@@ -514,7 +518,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         }
     }
 
-    private void startCollectPhase(int timeout) {
+    private void startCollectPhase() {
         // Register DTMF listener to receive incoming tones
         try {
             this.detector.addListener(this.dtmfListener);
@@ -570,7 +574,10 @@ public class PlayCollect extends AbstractMgcpSignal {
         if (!prompt.isEmpty()) {
             // XXX Start prompt phase
         } else {
-            startCollectPhase(getFirstDigitTimer());
+            // Activate timer for first digit
+            this.executor.schedule(new DtmfTimerWorker(), getFirstDigitTimer(), TimeUnit.MILLISECONDS);
+            // Start collect phase
+            startCollectPhase();
         }
     }
 
@@ -642,6 +649,8 @@ public class PlayCollect extends AbstractMgcpSignal {
                                 onDtmfEvent((DtmfEvent) event);
                             } else if (event instanceof PlayerEvent) {
                                 onPlayerEvent((PlayerEvent) event);
+                            } else if (event instanceof DtmfTimeoutEvent) {
+                                onDtmfTimeoutEvent((DtmfTimeoutEvent) event);
                             }
                         }
                     } finally {
@@ -652,6 +661,8 @@ public class PlayCollect extends AbstractMgcpSignal {
         }
 
         private void onDtmfEvent(DtmfEvent event) {
+            // Update timestamp of last received tone. Needed for timeout operation.
+            PlayCollect.this.lastToneDate.set(System.currentTimeMillis());
             final char tone = event.getTone().charAt(0);
 
             if (log.isInfoEnabled()) {
@@ -663,7 +674,6 @@ public class PlayCollect extends AbstractMgcpSignal {
                 stopCollectPhase();
 
                 if (hasDigitPattern()) {
-                    log.info(sequence + " matches " + getDigitPattern() + "? " + sequence.toString().matches(getDigitPattern()));
                     if (sequence.toString().matches(getDigitPattern())) {
                         // Collect failed because digit pattern does not match collected digits
                         PlayCollect.this.executing.set(false);
@@ -680,7 +690,7 @@ public class PlayCollect extends AbstractMgcpSignal {
                             // Reset buffer and try a new attempt
                             attempt.incrementAndGet();
                             sequence.setLength(0);
-                            startCollectPhase(getFirstDigitTimer());
+                            startCollectPhase();
                         } else {
                             // No more attempts
                             // Stop executing signal and send OperationFailed event
@@ -700,30 +710,55 @@ public class PlayCollect extends AbstractMgcpSignal {
             } else {
                 // Make sure first digit matches StartInputKey
                 if (sequence.length() == 0 && getStartInputKeys().indexOf(tone) == -1) {
-                    log.info("Dropping tone " + tone + " because it does not match any of StartInputKeys " + getStartInputKeys());
+                    log.info("Dropping tone " + tone + " because it does not match any of StartInputKeys "
+                            + getStartInputKeys());
                     return;
                 }
 
                 // Collect tone and add it to list of pressed digits
                 PlayCollect.this.sequence.append(tone);
 
-                if (hasDigitPattern()) {
-
-                } else {
-                    if (getMaximumDigits() == sequence.length()) {
-                        // Stop collect phase if maximum number of digits was reached
-                        PlayCollect.this.executing.set(false);
-                        stopCollectPhase();
-                        fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
-                    }
+                if (!hasDigitPattern() && getMaximumDigits() == sequence.length()) {
+                    // Stop collect phase if maximum number of digits was reached
+                    PlayCollect.this.executing.set(false);
+                    stopCollectPhase();
+                    fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
                 }
             }
+        }
+
+        private void onDtmfTimeoutEvent(DtmfTimeoutEvent event) {
+            log.info("DTMF collection timed out with digits: " + event.getDigits());
+            
+            // Stop signal execution
+            PlayCollect.this.executing.set(false);
+            stopCollectPhase();
+            
+            final String collected = event.getDigits();
+            if(hasDigitPattern()) {
+                // Verify if digit pattern matches collected digits and send according event
+                if(collected.matches(getDigitPattern())) {
+                    fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), collected);
+                } else {
+                    // TODO Check if a new attempt is available
+                    fireOF(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
+                }
+            } else {
+                if(getMinimumDigits() <= collected.length()) {
+                    // Minimum number of digits collected. Collect completed successfully.
+                    fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), collected);
+                } else {
+                    // TODO Check if a new attempt is available
+                    fireOF(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                }
+            }
+
         }
 
         private void onPlayerEvent(PlayerEvent event) {
             // TODO implement onPlayerEvent
         }
-        
+
     }
 
     /**
@@ -750,6 +785,47 @@ public class PlayCollect extends AbstractMgcpSignal {
                 ListenableFuture<?> future = executor.submit(consumer);
                 Futures.addCallback(future, consumerCallback);
             }
+        }
+
+    }
+
+    private class DtmfTimerWorker implements Runnable {
+
+        private final long createdOn;
+
+        public DtmfTimerWorker() {
+            this.createdOn = System.currentTimeMillis();
+        }
+
+        @Override
+        public void run() {
+            if (PlayCollect.this.lastToneDate.get() <= this.createdOn) {
+                log.info("Timing out collect operation.");
+                events.offer(new DtmfTimeoutEvent(this, sequence.toString()));
+            } else {
+                log.info("Aborting timeout operation because a tone has been received in the meantime.");
+            }
+        }
+    }
+
+    private class DtmfTimeoutEvent implements Event<DtmfTimerWorker> {
+
+        private final DtmfTimerWorker source;
+        private final String digits;
+
+        public DtmfTimeoutEvent(DtmfTimerWorker source, String digits) {
+            super();
+            this.source = source;
+            this.digits = digits;
+        }
+
+        @Override
+        public DtmfTimerWorker getSource() {
+            return this.source;
+        }
+
+        public String getDigits() {
+            return this.digits;
         }
 
     }
