@@ -424,7 +424,7 @@ public class PlayCollect extends AbstractMgcpSignal {
      * @return
      */
     private String getStartInputKeys() {
-        return Optional.fromNullable(getParameter(SignalParameters.START_INPUT_KEY.symbol())).or("0-9");
+        return Optional.fromNullable(getParameter(SignalParameters.START_INPUT_KEY.symbol())).or("0123456789");
     }
 
     /**
@@ -662,12 +662,13 @@ public class PlayCollect extends AbstractMgcpSignal {
 
                 if (getMinimumDigits() > sequence.length()) {
                     // Minimum number of digits was NOT collected
-                    // Try new attempt if possible or send OperationFailed event
                     if (attempt.get() < getNumberOfAttempts()) {
+                        // Reset buffer and try a new attempt
                         attempt.incrementAndGet();
+                        sequence.setLength(0);
                         startCollectPhase(getFirstDigitTimer());
                     } else {
-                        // Not enough digits collected
+                        // No more attempts
                         // Stop executing signal and send OperationFailed event
                         PlayCollect.this.executing.set(false);
                         fireOF(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
@@ -682,6 +683,12 @@ public class PlayCollect extends AbstractMgcpSignal {
                     fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
                 }
             } else {
+                // Make sure first digit matches StartInputKey
+                if(sequence.length() == 0 && getStartInputKeys().indexOf(tone) == -1) {
+                    log.info("Dropping tone " + tone + " because it does not match any of StartInputKeys " + getStartInputKeys());
+                    return;
+                }
+
                 // Collect tone and add it to list of pressed digits
                 PlayCollect.this.sequence.append(tone);
 

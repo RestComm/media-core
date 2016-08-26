@@ -21,7 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -220,6 +220,39 @@ public class PlayCollectTest {
         verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
         assertEquals("1", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+    
+    @Test
+    public void testCollectWithStartInputKeys() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("sik", "345");
+
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "A", -30));
+        pc.dtmfListener.process(new DtmfEventImpl(detector, "4", -30));
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals("4", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
