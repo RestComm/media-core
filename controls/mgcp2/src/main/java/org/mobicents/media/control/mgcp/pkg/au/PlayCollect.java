@@ -272,11 +272,13 @@ public class PlayCollect extends AbstractMgcpSignal {
         String pattern = Optional.fromNullable(getParameter(SignalParameters.DIGIT_PATTERN.symbol())).or("");
         if (!pattern.isEmpty()) {
             // Replace pattern to comply with MEGACO digitMap
-            pattern.replace(".", "+");
-            pattern.replace("x", "\\d");
-            pattern.replace("*", "\\*");
+            pattern = pattern.replace(".", "*").replace("x", "\\d");
         }
         return pattern;
+    }
+
+    private boolean hasDigitPattern() {
+        return !Optional.fromNullable(getParameter(SignalParameters.DIGIT_PATTERN.symbol())).or("").isEmpty();
     }
 
     /**
@@ -660,31 +662,44 @@ public class PlayCollect extends AbstractMgcpSignal {
                 // Stop collect phase if EndInput key was pressed
                 stopCollectPhase();
 
-                if (getMinimumDigits() > sequence.length()) {
-                    // Minimum number of digits was NOT collected
-                    if (attempt.get() < getNumberOfAttempts()) {
-                        // Reset buffer and try a new attempt
-                        attempt.incrementAndGet();
-                        sequence.setLength(0);
-                        startCollectPhase(getFirstDigitTimer());
-                    } else {
-                        // No more attempts
-                        // Stop executing signal and send OperationFailed event
+                if (hasDigitPattern()) {
+                    log.info(sequence + " matches " + getDigitPattern() + "? " + sequence.toString().matches(getDigitPattern()));
+                    if (sequence.toString().matches(getDigitPattern())) {
+                        // Collect failed because digit pattern does not match collected digits
                         PlayCollect.this.executing.set(false);
-                        fireOF(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                        fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
+                    } else {
+                        // Collect was successful because digit pattern matches collected digits
+                        PlayCollect.this.executing.set(false);
+                        fireOF(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
                     }
                 } else {
-                    // Minimum number of digits was collected
-                    // Stop executing signal and send OperationComplete event
-                    PlayCollect.this.executing.set(false);
-                    if (getIncludeEndInputKey()) {
-                        PlayCollect.this.sequence.append(tone);
+                    if (getMinimumDigits() > sequence.length()) {
+                        // Minimum number of digits was NOT collected
+                        if (attempt.get() < getNumberOfAttempts()) {
+                            // Reset buffer and try a new attempt
+                            attempt.incrementAndGet();
+                            sequence.setLength(0);
+                            startCollectPhase(getFirstDigitTimer());
+                        } else {
+                            // No more attempts
+                            // Stop executing signal and send OperationFailed event
+                            PlayCollect.this.executing.set(false);
+                            fireOF(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                        }
+                    } else {
+                        // Minimum number of digits was collected
+                        // Stop executing signal and send OperationComplete event
+                        PlayCollect.this.executing.set(false);
+                        if (getIncludeEndInputKey()) {
+                            PlayCollect.this.sequence.append(tone);
+                        }
+                        fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
                     }
-                    fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
                 }
             } else {
                 // Make sure first digit matches StartInputKey
-                if(sequence.length() == 0 && getStartInputKeys().indexOf(tone) == -1) {
+                if (sequence.length() == 0 && getStartInputKeys().indexOf(tone) == -1) {
                     log.info("Dropping tone " + tone + " because it does not match any of StartInputKeys " + getStartInputKeys());
                     return;
                 }
@@ -692,20 +707,23 @@ public class PlayCollect extends AbstractMgcpSignal {
                 // Collect tone and add it to list of pressed digits
                 PlayCollect.this.sequence.append(tone);
 
-                if (getMaximumDigits() == sequence.length()) {
-                    // Stop collect phase if maximum number of digits was reached
-                    PlayCollect.this.executing.set(false);
-                    stopCollectPhase();
-                    fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
+                if (hasDigitPattern()) {
+
+                } else {
+                    if (getMaximumDigits() == sequence.length()) {
+                        // Stop collect phase if maximum number of digits was reached
+                        PlayCollect.this.executing.set(false);
+                        stopCollectPhase();
+                        fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
+                    }
                 }
             }
-
         }
 
         private void onPlayerEvent(PlayerEvent event) {
             // TODO implement onPlayerEvent
         }
-
+        
     }
 
     /**
