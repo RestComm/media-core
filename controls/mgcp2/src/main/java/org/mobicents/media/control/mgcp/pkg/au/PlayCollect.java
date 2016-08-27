@@ -723,6 +723,9 @@ public class PlayCollect extends AbstractMgcpSignal {
                     PlayCollect.this.executing.set(false);
                     stopCollectPhase();
                     fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), PlayCollect.this.sequence.toString());
+                } else {
+                    // Wait for more key tones. Start a timer for inter digits
+                    executor.schedule(new DtmfTimerWorker(), getInterDigitTimer(), TimeUnit.MILLISECONDS);
                 }
             }
         }
