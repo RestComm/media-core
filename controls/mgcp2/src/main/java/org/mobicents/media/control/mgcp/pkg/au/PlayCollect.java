@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
+import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -31,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
@@ -100,6 +102,7 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final AtomicInteger attempt;
     private final ConsumerCallback consumerCallback;
     private final AtomicLong lastToneDate;
+    private Playlist currentPlayList;
 
     public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters,
             ListeningScheduledExecutorService executor) {
@@ -138,6 +141,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.sequence = new StringBuilder();
         this.attempt = new AtomicInteger(0);
         this.lastToneDate = new AtomicLong(0L);
+        this.currentPlayList = this.initialPrompt;
     }
 
     /**
@@ -545,6 +549,26 @@ public class PlayCollect extends AbstractMgcpSignal {
         }
     }
 
+    private void playAnnouncement(String segment, long delay) {
+        if (log.isInfoEnabled()) {
+            log.info("Playing announcement " + segment);
+        }
+
+        try {
+            this.player.addListener(this.playerListener);
+            this.player.setInitialDelay(delay);
+            this.player.setURL(segment);
+            this.player.activate();
+        } catch (MalformedURLException e) {
+            log.error("Cannot play audio track. Malformed URL: " + segment);
+            fireOF(ReturnCode.BAD_AUDIO_ID.code());
+        } catch (ResourceUnavailableException e) {
+            fireOF(ReturnCode.MISMATCH_BETWEEN_PLAY_SPECIFICATION_AND_PROVISIONED_DATA.code());
+        } catch (TooManyListenersException e) {
+            fireOF(ReturnCode.UNSPECIFIED_FAILURE.code());
+        }
+    }
+
     private void fireOC(int code, int attempts, String digitsCollected) {
         final OperationComplete operationComplete = new OperationComplete(getSymbol(), code);
         operationComplete.setParameter("na", String.valueOf(attempts));
@@ -572,7 +596,8 @@ public class PlayCollect extends AbstractMgcpSignal {
 
         String prompt = this.initialPrompt.next();
         if (!prompt.isEmpty()) {
-            // XXX Start prompt phase
+            // Play announcements
+            playAnnouncement(prompt, 0L);
         } else {
             // Activate timer for first digit
             this.executor.schedule(new DtmfTimerWorker(), getFirstDigitTimer(), TimeUnit.MILLISECONDS);
@@ -732,22 +757,22 @@ public class PlayCollect extends AbstractMgcpSignal {
 
         private void onDtmfTimeoutEvent(DtmfTimeoutEvent event) {
             log.info("DTMF collection timed out with digits: " + event.getDigits());
-            
+
             // Stop signal execution
             PlayCollect.this.executing.set(false);
             stopCollectPhase();
-            
+
             final String collected = event.getDigits();
-            if(hasDigitPattern()) {
+            if (hasDigitPattern()) {
                 // Verify if digit pattern matches collected digits and send according event
-                if(collected.matches(getDigitPattern())) {
+                if (collected.matches(getDigitPattern())) {
                     fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), collected);
                 } else {
                     // TODO Check if a new attempt is available
                     fireOF(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
                 }
             } else {
-                if(getMinimumDigits() <= collected.length()) {
+                if (getMinimumDigits() <= collected.length()) {
                     // Minimum number of digits collected. Collect completed successfully.
                     fireOC(ReturnCode.SUCCESS.code(), PlayCollect.this.attempt.get(), collected);
                 } else {
@@ -759,7 +784,36 @@ public class PlayCollect extends AbstractMgcpSignal {
         }
 
         private void onPlayerEvent(PlayerEvent event) {
-            // TODO implement onPlayerEvent
+            switch (event.getID()) {
+                case PlayerEvent.STOP:
+                    if (log.isInfoEnabled()) {
+                        log.info("Announcement " + currentPlayList.current() + " has completed.");
+                    }
+
+                    String announcement = currentPlayList.next();
+                    if(announcement.isEmpty() || !PlayCollect.this.executing.get()) {
+                        // No more segments in the announcement left to be played.
+                        if(currentPlayList == initialPrompt) {
+                            // Stop playing phase
+                            player.removeListener(playerListener);
+
+                            // Start collect phase
+                            startCollectPhase();
+                        }
+                    } else {
+                        // Play next segment of the announcement
+                        playAnnouncement(announcement, INTERVAL);
+                    }
+
+                    break;
+                    
+                case PlayerEvent.FAILED: 
+                    // TODO handle player failure
+                    break;
+
+                default:
+                    break;
+            }
         }
 
     }
