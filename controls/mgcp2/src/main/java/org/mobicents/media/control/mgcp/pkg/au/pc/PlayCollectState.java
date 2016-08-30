@@ -19,12 +19,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
         
-package org.mobicents.media.control.mgcp.pkg.au;
+package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayCollectFsm {
+public enum PlayCollectState {
 
+    READY, COLLECTING, SUCCEEDED, FAILED, CANCELED;
+    
 }

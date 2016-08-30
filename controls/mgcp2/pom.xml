@@ -64,9 +64,9 @@
 			<version>${version.guava}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.oxo42</groupId>
-			<artifactId>stateless4j</artifactId>
-			<version>2.5.0</version>
+			<groupId>org.squirrelframework</groupId>
+			<artifactId>squirrel-foundation</artifactId>
+			<version>0.3.8</version>
 		</dependency>
 	</dependencies>
 
