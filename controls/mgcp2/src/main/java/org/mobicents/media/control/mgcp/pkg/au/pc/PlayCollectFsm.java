@@ -22,30 +22,12 @@
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.TransitionType;
-import org.squirrelframework.foundation.fsm.annotation.State;
-import org.squirrelframework.foundation.fsm.annotation.States;
-import org.squirrelframework.foundation.fsm.annotation.Transit;
-import org.squirrelframework.foundation.fsm.annotation.Transitions;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-//@States({ 
-//    @State(name = "ready", initialState = true),
-//    @State(name = "collecting", entryCallMethod = "enterCollecting", exitCallMethod = "exitCollecting"),
-//    @State(name = "succeeded", entryCallMethod = "enterSucceeded", isFinal = true),
-//    @State(name = "failed", entryCallMethod = "enterFailed", isFinal = true),
-//    @State(name = "canceled", entryCallMethod = "enterCanceled", isFinal = true)
-//})
-//@Transitions({ 
-//    @Transit(from = "ready", to = "collecting", on = "execute"), 
-//    @Transit(from = "collecting", to = "collecting", on = "dtmf_tone", type=TransitionType.INTERNAL, callMethod = "onCollecting"),
-//    @Transit(from = "collecting", to = "succeeded", on = "endInputKey"),
-//    @Transit(from = "collecting", to = "failed", on = "endInputKey"),
-//})
-public interface PlayCollectFSM extends StateMachine<PlayCollectFSM, PlayCollectState, Object, PlayCollectContext> {
+public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> {
 
     void enterCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 

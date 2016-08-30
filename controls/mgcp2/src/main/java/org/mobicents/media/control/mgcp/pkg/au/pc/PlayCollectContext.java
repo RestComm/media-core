@@ -56,7 +56,7 @@ public class PlayCollectContext {
         this.collectedDigits = new StringBuilder("");
         this.lastCollectedDigitOn = 0L;
         this.returnCode = 0;
-        this.attempt = 0;
+        this.attempt = 1;
     }
     
     /*

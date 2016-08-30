@@ -24,23 +24,17 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
-import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
-import org.mobicents.media.control.mgcp.pkg.au.OperationFailed;
-import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.control.mgcp.pkg.au.SignalParameters;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
-import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
-import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
@@ -65,10 +59,10 @@ public class PlayCollect extends AbstractMgcpSignal {
 
     private static final Logger log = Logger.getLogger(PlayCollect.class);
 
-    private static final String SYMBOL = "pc";
+    static final String SYMBOL = "pc";
 
     // Finite State Machine
-    private final PlayCollectFSM fsm;
+    private final PlayCollectFsm fsm;
 
     // Media Components
     private final DtmfDetector detector;
@@ -82,9 +76,36 @@ public class PlayCollect extends AbstractMgcpSignal {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, parameters);
 
         // Finite State Machine
-        StateMachineBuilder<PlayCollectFSM, PlayCollectState, Object, PlayCollectContext> builder = StateMachineBuilderFactory
-                .<PlayCollectFSM, PlayCollectState, Object, PlayCollectContext> create(StateMachine.class,
+        StateMachineBuilder<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> builder = StateMachineBuilderFactory
+                .<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> create(PlayCollectFsmImpl.class,
                         PlayCollectState.class, Object.class, PlayCollectContext.class, MgcpEventSubject.class);
+        
+        builder.onEntry(PlayCollectState.READY);
+        builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
+        builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
+        builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
+        builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
+
+        builder.externalTransition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(ExecuteEvent.INSTANCE);
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_0).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_1).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_2).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_3).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_4).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_5).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_6).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_7).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_8).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_9).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_A).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_B).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_C).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_D).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_HASH).callMethod("onCollecting");
+        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_STAR).callMethod("onCollecting");
+        builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(SuccessEvent.INSTANCE);
+        builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(FailureEvent.INSTANCE);
+        
         this.fsm = builder.newStateMachine(PlayCollectState.READY, this);
 
         // Media Components
@@ -138,28 +159,15 @@ public class PlayCollect extends AbstractMgcpSignal {
 
     @Override
     public void execute() {
-        final PlayCollectState currentState = this.fsm.getCurrentState();
-        switch (currentState) {
-            case READY:
-                fsm.fire(ExecuteEvent.INSTANCE, this.context);
-                break;
-
-            default:
-                throw new IllegalStateException("Signal is already being executed.");
+        if(!this.fsm.isStarted()) {
+            this.fsm.fire(ExecuteEvent.INSTANCE, this.context);
         }
     }
 
     @Override
     public void cancel() {
-        final PlayCollectState currentState = this.fsm.getCurrentState();
-        switch (currentState) {
-            case READY:
-            case COLLECTING:
-                fsm.fire(CancelEvent.INSTANCE, this.context);
-                break;
-
-            default:
-                throw new IllegalStateException("Signal has already terminated.");
+        if(this.fsm.isStarted()) {
+            fsm.fire(CancelEvent.INSTANCE, this.context);
         }
     }
 
@@ -170,80 +178,6 @@ public class PlayCollect extends AbstractMgcpSignal {
             final char tone = event.getTone().charAt(0);
             final DtmfToneEvent dtmfToneEvent = DtmfToneEvent.fromTone(tone);
             fsm.fire(dtmfToneEvent, PlayCollect.this.context);
-        }
-
-    }
-
-    private static class StateMachine extends AbstractStateMachine<PlayCollectFSM, PlayCollectState, Object, PlayCollectContext> implements PlayCollectFSM {
-
-        private final MgcpEventSubject mgcpEventSubject;
-
-        public StateMachine(MgcpEventSubject mgcpEventSubject) {
-            super();
-            this.mgcpEventSubject = mgcpEventSubject;
-        }
-
-        @Override
-        public void enterCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-            final DtmfDetector dtmfDetector = context.getDetector();
-            final DtmfDetectorListener dtmfDetectorListener = context.getDetectorListener();
-
-            try {
-                // Activate DTMF detector and bind listener
-                dtmfDetector.addListener(dtmfDetectorListener);
-                dtmfDetector.activate();
-            } catch (TooManyListenersException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void exitCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-            final DtmfDetector dtmfDetector = context.getDetector();
-            final DtmfDetectorListener dtmfDetectorListener = context.getDetectorListener();
-
-            // Deactivate DTMF detector and release listener
-            dtmfDetector.removeListener(dtmfDetectorListener);
-            dtmfDetector.deactivate();
-        }
-
-        @Override
-        public void onCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-            final DtmfToneEvent dtmfToneEvent = (DtmfToneEvent) event;
-            final char endInputKey = context.getEndInputKey();
-
-            if (endInputKey == dtmfToneEvent.tone()) {
-                // TODO fix attempts
-                context.setReturnCode(ReturnCode.SUCCESS.code());
-                fire(PlayCollectEvent.SUCCEED, context);
-            } else {
-                context.collectDigit(dtmfToneEvent.tone());
-            }
-        }
-
-        @Override
-        public void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-            log.info("Canceled!!!");
-            // TODO Auto-generated method stub
-        }
-
-        @Override
-        public void enterSucceeded(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-            final int returnCode = context.getReturnCode();
-            final String collectedDigits = context.getCollectedDigits();
-            final int attempt = context.getAttempt();
-
-            final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, returnCode);
-            operationComplete.setParameter("na", String.valueOf(attempt));
-            operationComplete.setParameter("dc", collectedDigits);
-            this.mgcpEventSubject.notify(this, operationComplete);
-        }
-
-        @Override
-        public void enterFailed(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-            final OperationFailed operationFailed = new OperationFailed(PlayCollect.SYMBOL, context.getReturnCode());
-            this.mgcpEventSubject.notify(this, operationFailed);
         }
 
     }

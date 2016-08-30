@@ -18,16 +18,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +48,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  *
  */
 public class PlayCollectTest {
-    
+
     private static final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
 
     @AfterClass
@@ -65,7 +61,7 @@ public class PlayCollectTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("mx", "100");
-        parameters.put("eik", "A");
+        parameters.put("eik", "#");
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
@@ -82,12 +78,12 @@ public class PlayCollectTest {
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "3", -30));
-        pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
 
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
-        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
 
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("123", eventCaptor.getValue().getParameter("dc"));

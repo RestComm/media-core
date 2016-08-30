@@ -25,11 +25,11 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SucessEvent {
+public class SuccessEvent {
     
-    static final SucessEvent INSTANCE = new SucessEvent();
+    static final SuccessEvent INSTANCE = new SuccessEvent();
     
-    private SucessEvent() {
+    private SuccessEvent() {
         super();
     }
 
