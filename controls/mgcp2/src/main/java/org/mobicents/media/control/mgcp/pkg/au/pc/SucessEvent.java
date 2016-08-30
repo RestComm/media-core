@@ -25,16 +25,12 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class TimeoutContext {
-
-    private final long firedOn;
-
-    public TimeoutContext(long firedOn) {
-        this.firedOn = firedOn;
-    }
-
-    public long getFiredOn() {
-        return firedOn;
+public class SucessEvent {
+    
+    static final SucessEvent INSTANCE = new SucessEvent();
+    
+    private SucessEvent() {
+        super();
     }
 
 }

@@ -18,23 +18,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class FailureContext implements PlayCollectContext {
-
-    private final int returnCode;
-
-    public FailureContext(int returnCode) {
-        this.returnCode = returnCode;
-    }
-
-    public int getReturnCode() {
-        return returnCode;
+public class FailureEvent {
+    
+    static final FailureEvent INSTANCE = new FailureEvent();
+    
+    private FailureEvent() {
+        super();
     }
 
 }

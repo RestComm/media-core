@@ -18,36 +18,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class SuccessContext implements PlayCollectContext {
-
-    private final String collectedDigits;
-    private final int attempts;
-    private final int returnCode;
-
-    public SuccessContext(String collectedDigits, int attempts, int returnCode) {
+public class ExecuteEvent {
+    
+    static final ExecuteEvent INSTANCE = new ExecuteEvent();
+    
+    private ExecuteEvent() {
         super();
-        this.collectedDigits = collectedDigits;
-        this.attempts = attempts;
-        this.returnCode = returnCode;
-    }
-
-    public String getCollectedDigits() {
-        return collectedDigits;
-    }
-
-    public int getAttempts() {
-        return attempts;
-    }
-
-    public int getReturnCode() {
-        return returnCode;
     }
 
 }

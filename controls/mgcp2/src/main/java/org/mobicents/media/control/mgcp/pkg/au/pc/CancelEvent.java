@@ -25,6 +25,12 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class EmptyContext implements PlayCollectContext {
+public class CancelEvent {
+    
+    static final CancelEvent INSTANCE = new CancelEvent();
+    
+    private CancelEvent() {
+        super();
+    }
 
 }
