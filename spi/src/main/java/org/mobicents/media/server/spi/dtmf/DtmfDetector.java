@@ -68,6 +68,17 @@ public interface DtmfDetector extends MediaSink {
      * @return the value in dBm0
      */
     public int getVolume();
+
+    /**
+     * Indicates, that the decoder will handle RFC2833 telephony events only.
+     * @param flag true to detect only telephony events, false otherwise
+     */
+    public void setRFC2833EventsOnly(boolean flag);
+
+    /**
+     * Returns true, if this detector detects RFC 2833 Events only, false otherwise.
+     */
+    public boolean getRFC2833EventsOnly();
     
     /**
      * Starts media processing.

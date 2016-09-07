@@ -60,6 +60,7 @@ import org.mobicents.media.server.spi.pooling.PooledObject;
  * @author yulian oifa
  * @author amit bhayani
  * @author Henrique Rosa (henrique.rosa@telestax.com)
+ * @author Pavel Chlupacek (pavel.chlupacek@spinoco.com)
  */
 public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledObject {
 
@@ -114,6 +115,9 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
     private OOBDetector oobDetector;
 
     private static final Logger logger = Logger.getLogger(DetectorImpl.class);
+
+    // indication that only rfc2833 are detected
+    private boolean rfc2833EventsOnly;
 
     public DetectorImpl(String name, PriorityQueueScheduler scheduler) {
         super(name);
@@ -186,36 +190,38 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
 
     @Override
     public void onMediaTransfer(Frame buffer) throws IOException {
-        byte[] data = buffer.getData();
+        if (!rfc2833EventsOnly) {
+            byte[] data = buffer.getData();
 
-        int M = buffer.getLength();
-        int k = 0;
-        while (k < M) {
-            while (offset < N && k < M - 1) {
-                double s = ((data[k++] & 0xff) | (data[k++] << 8));
-                double sa = Math.abs(s);
-                if (sa > maxAmpl) {
-                    maxAmpl = sa;
+            int M = buffer.getLength();
+            int k = 0;
+            while (k < M) {
+                while (offset < N && k < M - 1) {
+                    double s = ((data[k++] & 0xff) | (data[k++] << 8));
+                    double sa = Math.abs(s);
+                    if (sa > maxAmpl) {
+                        maxAmpl = sa;
+                    }
+                    signal[offset++] = s;
                 }
-                signal[offset++] = s;
-            }
 
-            // if dtmf buffer full check signal
-            if (offset == N) {
-                offset = 0;
+                // if dtmf buffer full check signal
+                if (offset == N) {
+                    offset = 0;
 
-                // and if max amplitude of signal is greater theshold
-                // try to detect tone.
-                if (maxAmpl >= threshold) {
-                    maxAmpl = 0;
+                    // and if max amplitude of signal is greater theshold
+                    // try to detect tone.
+                    if (maxAmpl >= threshold) {
+                        maxAmpl = 0;
 
-                    getPower(lowFreqFilters, signal, 0, p);
-                    getPower(highFreqFilters, signal, 0, P);
+                        getPower(lowFreqFilters, signal, 0, p);
+                        getPower(highFreqFilters, signal, 0, P);
 
-                    String tone = getTone(p, P);
+                        String tone = getTone(p, P);
 
-                    if (tone != null)
-                        dtmfBuffer.push(tone);
+                        if (tone != null)
+                            dtmfBuffer.push(tone);
+                    }
                 }
             }
         }
@@ -462,6 +468,16 @@ public class DetectorImpl extends AbstractSink implements DtmfDetector, PooledOb
         public void deactivate() {
 
         }
+    }
+
+    @Override
+    public void setRFC2833EventsOnly(boolean flag) {
+        rfc2833EventsOnly = flag;
+    }
+
+    @Override
+    public boolean getRFC2833EventsOnly() {
+        return rfc2833EventsOnly;
     }
 
     @Override

@@ -55,7 +55,7 @@
 		<remoteConnection poolSize="50" />
 		<player poolSize="50" />
 		<recorder poolSize="50" />
-		<dtmfDetector poolSize="50" dbi="-35" />
+		<dtmfDetector poolSize="50" dbi="-35" rfc2833Only="false" />
 		<dtmfGenerator poolSize="50" toneVolume="-20" toneDuration="80" />
 		<signalDetector poolSize="0" />
 		<signalGenerator poolSize="0" />

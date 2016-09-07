@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -32,20 +33,24 @@ import com.google.inject.TypeLiteral;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- *
+ * @author Pavel Chlupacek (pavel.chlupacek@spinoco.com)
  */
 public class DtmfDetectorFactoryProvider implements Provider<DtmfDetectorFactory> {
 
+    private final MediaServerConfiguration config;
     private final PriorityQueueScheduler mediaScheduler;
 
     @Inject
-    public DtmfDetectorFactoryProvider(PriorityQueueScheduler mediaScheduler) {
+    public DtmfDetectorFactoryProvider(MediaServerConfiguration config, PriorityQueueScheduler mediaScheduler) {
+        this.config = config;
         this.mediaScheduler = mediaScheduler;
     }
 
     @Override
     public DtmfDetectorFactory get() {
-        return new DtmfDetectorFactory(this.mediaScheduler);
+        int volume = config.getResourcesConfiguration().getDtmfDetectorDbi();
+        boolean rfc2833 = config.getResourcesConfiguration().isDtmfDetectorRFC2833Only();
+        return new DtmfDetectorFactory(this.mediaScheduler, volume, rfc2833);
     }
 
     public static final class DtmfDetectorFactoryType extends TypeLiteral<PooledObjectFactory<DetectorImpl>> {
