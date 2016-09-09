@@ -67,6 +67,7 @@ public class UdpManager {
     private String bindAddress;
     private String localBindAddress;
     private String externalAddress;
+    private String webRTCAddress;
 
     private byte[] localNetwork;
     private IPAddressType currNetworkType;
@@ -154,6 +155,15 @@ public class UdpManager {
 
     public void setExternalAddress(String externalAddress) {
         this.externalAddress = externalAddress;
+    }
+
+    /** gets and sets address used in WebRTC **/
+    public String getWebRTCAddress() {
+        return webRTCAddress;
+    }
+
+    public void setWebRTCAddress(String webRTCAddress) {
+        this.webRTCAddress = webRTCAddress;
     }
 
     /**
