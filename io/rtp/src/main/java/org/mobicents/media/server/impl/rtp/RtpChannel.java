@@ -407,6 +407,10 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
         return this.udpManager.getExternalAddress();
     }
 
+    public String getWebRTCAddress() {
+        return this.udpManager.getWebRTCAddress();
+    }
+
     public boolean hasExternalAddress() {
         return notEmpty(this.udpManager.getExternalAddress());
     }

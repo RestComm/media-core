@@ -181,6 +181,17 @@ public abstract class MediaChannel {
         }
         return "";
     }
+
+    public String getWebRTCAddress() {
+		if (this.rtpChannel.isBound()) {
+			if (this.rtpChannel.getWebRTCAddress() != null && !this.rtpChannel.getWebRTCAddress().isEmpty()) {
+				return this.rtpChannel.getWebRTCAddress();
+			} else {
+				return this.rtpChannel.getExternalAddress();
+			}
+		}
+		return "";
+	}
 	
 	/**
 	 * Gets the address the RTP channel is bound to.

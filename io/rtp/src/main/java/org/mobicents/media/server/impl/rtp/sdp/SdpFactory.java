@@ -156,13 +156,13 @@ public class SdpFactory {
 			if(!channel.isRtcpMux()) {
 			    md.addCandidate(processHostCandidate(channel, IceComponent.RTCP_ID));
 			}
-			
-			if(channel.getExternalAddress() != null && !channel.getExternalAddress().isEmpty()) {
-			    // Add SRFLX candidate
-			    md.addCandidate(processSrflxCandidate(channel, IceComponent.RTP_ID));
-			    if(!channel.isRtcpMux()) {
-			        md.addCandidate(processSrflxCandidate(channel, IceComponent.RTCP_ID));
-			    }
+
+			if(channel.getWebRTCAddress() != null && !channel.getWebRTCAddress().isEmpty()) {
+				// Add SRFLX candidate from WebRTC address
+				md.addCandidate(processSrflxCandidate(channel, IceComponent.RTP_ID));
+				if(!channel.isRtcpMux()) {
+					md.addCandidate(processSrflxCandidate(channel, IceComponent.RTCP_ID));
+				}
 			}
 			
 //			List<LocalCandidateWrapper> rtpCandidates = channel.getRtpCandidates();
@@ -299,7 +299,7 @@ public class SdpFactory {
 	private static CandidateAttribute processSrflxCandidate(MediaChannel candidate, short componentId) {
 	    CandidateAttribute candidateSdp = processHostCandidate(candidate, componentId);
 	    candidateSdp.setCandidateType(CandidateAttribute.TYP_SRFLX);
-        candidateSdp.setAddress(candidate.getExternalAddress());
+        candidateSdp.setAddress(candidate.getWebRTCAddress());
         
         switch (componentId) {
             case IceComponent.RTP_ID:
