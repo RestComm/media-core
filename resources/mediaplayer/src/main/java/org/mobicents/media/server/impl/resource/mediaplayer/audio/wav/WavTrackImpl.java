@@ -30,6 +30,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.resource.mediaplayer.Track;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.RemoteStreamProvider;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -64,8 +65,8 @@ public class WavTrackImpl implements Track {
     private final static byte[] factBytes = new byte[] { 0x66, 0x61, 0x63, 0x74 };
     private byte paddingByte = PCM_PADDING_BYTE;
 
-    public WavTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {
-        inStream = url.openStream();
+    public WavTrackImpl(URL url, RemoteStreamProvider streamProvider) throws UnsupportedAudioFileException, IOException {
+        inStream = streamProvider.getStream(url);
 
         getFormat(inStream);
         if (format == null) {
