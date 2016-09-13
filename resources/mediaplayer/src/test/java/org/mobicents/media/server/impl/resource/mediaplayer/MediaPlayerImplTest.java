@@ -27,24 +27,21 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
-import org.mobicents.media.server.spi.MediaType;
-import org.mobicents.media.server.spi.memory.Frame;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
-import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.WallClock;
 
 /**
- *
  * @author yulian oifa
  */
 public class MediaPlayerImplTest {
-	//
+    //
     private AudioPlayerImpl audioPlayer;
-    
+
     private PriorityQueueScheduler scheduler;
+
     public MediaPlayerImplTest() {
     }
 
@@ -57,27 +54,28 @@ public class MediaPlayerImplTest {
     }
 
     @Before
-    public void setUp() throws Exception {    	
-    	scheduler = new PriorityQueueScheduler();
-    	scheduler.setClock(new WallClock());
+    public void setUp() throws Exception {
+        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(100);
+        scheduler = new PriorityQueueScheduler();
+        scheduler.setClock(new WallClock());
         scheduler.start();
-        
-        audioPlayer = new AudioPlayerImpl("test", scheduler);
+
+        audioPlayer = new AudioPlayerImpl("test", scheduler, cache);
     }
 
     @After
-    public void tearDown() {    	
+    public void tearDown() {
 //        server.stop();
-    	scheduler.stop();    	
-    	audioPlayer = null;
-    	
+        scheduler.stop();
+        audioPlayer = null;
+
     }
 
     /**
      * Test of getMediaTypes method, of class MediaPlayerImpl.
      */
     @Test
-    public void testAudio() throws Exception {    	
+    public void testAudio() throws Exception {
     }
 
     /**

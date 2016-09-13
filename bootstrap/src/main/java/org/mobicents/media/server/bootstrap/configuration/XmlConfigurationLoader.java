@@ -27,6 +27,7 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationRuntimeException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
@@ -136,6 +137,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
         dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
         dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
+        configurePlayer(src, dst);
     }
 
     private static void configureDtls(HierarchicalConfiguration<ImmutableNode> src, DtlsConfiguration dst){
@@ -147,4 +149,21 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setAlgorithmCertificate(src.getString("certificate[@algorithm]", DtlsConfiguration.ALGORITHM_CERTIFICATE));
     }
 
+    private static void configurePlayer(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
+        HierarchicalConfiguration<ImmutableNode> player = src.configurationAt("player");
+        dst.setPlayerCount(player.getInt("[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
+
+        HierarchicalConfiguration<ImmutableNode> cache;
+        try {
+            cache = player.configurationAt("cache");
+        } catch (ConfigurationRuntimeException exception) {
+            log.info("No cache was specified for player");
+            return;
+        }
+        dst.setPlayerCache(
+                cache.getBoolean("cacheEnabled", ResourcesConfiguration.PLAYER_CACHE_ENABLED),
+                cache.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE)
+        );
+
+    }
 }
