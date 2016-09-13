@@ -66,6 +66,7 @@ public class RTPEnvironment {
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager);
+        this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
     }
     
