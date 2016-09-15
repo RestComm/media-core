@@ -113,7 +113,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.detectorListener = new DetectorListener();
 
         // Execution Context
-        this.context = new PlayCollectContext(detector, detectorListener);
+        this.context = new PlayCollectContext(detector, detectorListener, parameters);
     }
 
     @Override
