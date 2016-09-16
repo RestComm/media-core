@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -36,8 +37,12 @@ import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfEventImpl;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerEvent;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.player.Player;
+import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mockito.ArgumentCaptor;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
@@ -454,6 +459,43 @@ public class PlayCollectTest {
         verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
 
         assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
+    @Test
+    public void testPromptAndCollect() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ip", "dummy1.wav,dummy2.wav");
+        
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pc.observe(observer);
+        pc.execute();
+        
+        // Simulate playback time to assure FirstDigitTimer is not interrupting
+        Thread.sleep(25 * 100);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        Thread.sleep(25 * 100);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, times(2)).activate();
+        verify(player, times(1)).setURL("dummy1.wav");
+        verify(player, times(1)).setURL("dummy2.wav");
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+        
+        assertEquals("9", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
 }
