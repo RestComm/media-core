@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
@@ -31,6 +33,8 @@ import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
@@ -40,11 +44,13 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     private static final Logger log = Logger.getLogger(PlayCollectFsmImpl.class);
 
+    private final ListeningScheduledExecutorService executor;
     private final MgcpEventSubject mgcpEventSubject;
 
-    public PlayCollectFsmImpl(MgcpEventSubject mgcpEventSubject) {
+    public PlayCollectFsmImpl(MgcpEventSubject mgcpEventSubject, ListeningScheduledExecutorService executor) {
         super();
         this.mgcpEventSubject = mgcpEventSubject;
+        this.executor = executor;
     }
 
     @Override
@@ -56,6 +62,13 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             // Activate DTMF detector and bind listener
             dtmfDetector.addListener(dtmfDetectorListener);
             dtmfDetector.activate();
+
+            if (log.isInfoEnabled()) {
+                log.info("Started collect phase. Attempt: " + context.getAttempt());
+            }
+
+            // Activate timer for first digit
+            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
         } catch (TooManyListenersException e) {
             log.error("Too many DTMF listeners", e);
         }
@@ -69,6 +82,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         // Deactivate DTMF detector and release listener
         dtmfDetector.removeListener(dtmfDetectorListener);
         dtmfDetector.deactivate();
+
+        if (log.isInfoEnabled()) {
+            log.info("Stopped collect phase. Attempt: " + context.getAttempt());
+        }
     }
 
     @Override
@@ -138,7 +155,42 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                 context.setReturnCode(ReturnCode.SUCCESS.code());
                 fire(SuccessEvent.INSTANCE, context);
             } else {
-                // TODO start interdigit timer
+                // Start interdigit timer
+                this.executor.schedule(new DetectorTimer(context), context.getInterDigitTimer(), TimeUnit.MILLISECONDS);
+            }
+        }
+    }
+    
+    @Override
+    public void enterTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if (context.hasDigitPattern()) {
+            // Check if list of collected digits match the digit pattern
+            if (context.getCollectedDigits().matches(context.getDigitPattern())) {
+                // Fire success event
+                context.setReturnCode(ReturnCode.SUCCESS.code());
+                fire(SuccessEvent.INSTANCE, context);
+            } else {
+                // TODO fix attempts
+
+                // Fire failure event
+                context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
+                fire(FailureEvent.INSTANCE, context);
+            }
+        } else {
+            // Check if minimum number of digits was collected
+            if (context.getMinimumDigits() <= context.countCollectedDigits()) {
+                // Minimum number of digits was collected
+                // Fire success event
+                context.setReturnCode(ReturnCode.SUCCESS.code());
+                fire(SuccessEvent.INSTANCE, context);
+            } else {
+                // Minimum number of digits was NOT collected
+
+                // TODO fix attempts
+
+                // Fire failure event
+                context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                fire(FailureEvent.INSTANCE, context);
             }
         }
     }
@@ -165,6 +217,39 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     public void enterFailed(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         final OperationFailed operationFailed = new OperationFailed(PlayCollect.SYMBOL, context.getReturnCode());
         this.mgcpEventSubject.notify(this.mgcpEventSubject, operationFailed);
+    }
+
+    /**
+     * Timer that defines interval the system will wait for user's input. May interrupt Collect process.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    private final class DetectorTimer implements Runnable {
+
+        private final long timestamp;
+        private final PlayCollectContext context;
+
+        public DetectorTimer(PlayCollectContext context) {
+            this.timestamp = System.currentTimeMillis();
+            this.context = context;
+        }
+
+        @Override
+        public void run() {
+            if (context.getLastCollectedDigitOn() <= this.timestamp) {
+                if (log.isInfoEnabled()) {
+                    log.info("Timing out Collect operation.");
+                }
+                fire(TimeoutEvent.INSTANCE, context);
+            } else {
+                if (log.isInfoEnabled()) {
+                    log.info("Aborting timeout operation because a tone has been received in the meantime.");
+                }
+            }
+
+        }
+
     }
 
 }

@@ -78,14 +78,15 @@ public class PlayCollect extends AbstractMgcpSignal {
         // Finite State Machine
         StateMachineBuilder<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> builder = StateMachineBuilderFactory
                 .<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> create(PlayCollectFsmImpl.class,
-                        PlayCollectState.class, Object.class, PlayCollectContext.class, MgcpEventSubject.class);
+                        PlayCollectState.class, Object.class, PlayCollectContext.class, MgcpEventSubject.class, ListeningScheduledExecutorService.class);
         
         builder.onEntry(PlayCollectState.READY);
         builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
+        builder.onEntry(PlayCollectState.TIMING_OUT).callMethod("enterTimingOut");
         builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
         builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
-
+        
         builder.externalTransition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(ExecuteEvent.INSTANCE);
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_0).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_1).callMethod("onCollecting");
@@ -105,8 +106,10 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_STAR).callMethod("onCollecting");
         builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(SuccessEvent.INSTANCE);
         builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(FailureEvent.INSTANCE);
-        
-        this.fsm = builder.newStateMachine(PlayCollectState.READY, this);
+        builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMING_OUT).on(TimeoutEvent.INSTANCE);
+        builder.externalTransition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.SUCCEEDED).on(SuccessEvent.INSTANCE);
+        builder.externalTransition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.FAILED).on(FailureEvent.INSTANCE);
+        this.fsm = builder.newStateMachine(PlayCollectState.READY, this, executor);
 
         // Media Components
         this.detector = detector;

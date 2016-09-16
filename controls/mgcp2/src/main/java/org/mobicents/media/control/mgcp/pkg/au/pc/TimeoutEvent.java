@@ -18,15 +18,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum PlayCollectState {
+public class TimeoutEvent {
 
-    READY, COLLECTING, TIMING_OUT, SUCCEEDED, FAILED, CANCELED;
-    
+    static final TimeoutEvent INSTANCE = new TimeoutEvent();
+
+    private TimeoutEvent() {
+        super();
+    }
+
 }

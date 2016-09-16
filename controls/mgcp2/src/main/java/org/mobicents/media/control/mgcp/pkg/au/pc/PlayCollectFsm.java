@@ -34,6 +34,8 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     void onCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void exitCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    
+    void enterTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 

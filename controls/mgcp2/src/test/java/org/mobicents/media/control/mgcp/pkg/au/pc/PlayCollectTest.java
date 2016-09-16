@@ -290,23 +290,24 @@ public class PlayCollectTest {
     }
 
     @Test
-    public void testSuccessfulCollectWithDigitPatternOfAtLeastOneDigitFollowedByTwoDistinctLetters() throws InterruptedException {
+    public void testSuccessfulCollectWithDigitPatternOfAtLeastOneDigitFollowedByTwoDistinctLetters()
+            throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "x.AB");
-        
+
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
-        
+
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-        
+
         pc.observe(observer);
         pc.execute();
-        
+
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "3", -30));
@@ -315,44 +316,45 @@ public class PlayCollectTest {
         pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "B", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
-        
+
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
-        
+
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("12345AB", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
-    public void testSuccessfulCollectWithDigitPatternOfNineFollowedByAnyDigitFollowedByOptionalLetter() throws InterruptedException {
+    public void testSuccessfulCollectWithDigitPatternOfNineFollowedByAnyDigitFollowedByOptionalLetter()
+            throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "9xA*");
-        
+
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
-        
+
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-        
+
         pc.observe(observer);
         pc.execute();
-        
+
         pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
-        
+
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
-        
+
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("91", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
@@ -363,32 +365,95 @@ public class PlayCollectTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "9xA*|9AC");
-        
+
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
-        
+
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-        
+
         pc.observe(observer);
         pc.execute();
-        
+
         pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "C", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
-        
+
         // then
         verify(detector, times(1)).activate();
         verify(player, never()).activate();
         verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
-        
+
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("9AC", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
+
+    @Test
+    public void testCollectTimeoutFirstDigit() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("fdt", "10");
+
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        Thread.sleep(10 * 100);
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
+    @Test
+    public void testCollectTimeoutInterDigit() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "5");
+        parameters.put("mn", "2");
+        parameters.put("fdt", "50");
+        parameters.put("idt", "30");
+
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        Thread.sleep(40 * 100);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
+
+        Thread.sleep(31 * 100);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
 }
