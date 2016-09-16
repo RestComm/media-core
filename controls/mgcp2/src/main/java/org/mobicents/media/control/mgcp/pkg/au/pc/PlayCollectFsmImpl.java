@@ -21,16 +21,21 @@
 
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
+import java.net.MalformedURLException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
 import org.mobicents.media.control.mgcp.pkg.au.OperationFailed;
+import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.listener.TooManyListenersException;
+import org.mobicents.media.server.spi.player.Player;
+import org.mobicents.media.server.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
@@ -44,24 +49,103 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     private static final Logger log = Logger.getLogger(PlayCollectFsmImpl.class);
 
+    // Scheduler
     private final ListeningScheduledExecutorService executor;
+
+    // Event Listener
     private final MgcpEventSubject mgcpEventSubject;
 
-    public PlayCollectFsmImpl(MgcpEventSubject mgcpEventSubject, ListeningScheduledExecutorService executor) {
+    // Media Components
+    private final DtmfDetector detector;
+    final DtmfDetectorListener detectorListener;
+
+    private final Player player;
+    final PlayerListener playerListener;
+
+    // Execution Context
+    private final PlayCollectContext context;
+
+    public PlayCollectFsmImpl(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,
+            PlayerListener playerListener, MgcpEventSubject mgcpEventSubject, ListeningScheduledExecutorService executor,
+            PlayCollectContext context) {
         super();
-        this.mgcpEventSubject = mgcpEventSubject;
+        // Scheduler
         this.executor = executor;
+
+        // Event Listener
+        this.mgcpEventSubject = mgcpEventSubject;
+
+        // Media Components
+        this.detector = detector;
+        this.detectorListener = detectorListener;
+
+        this.player = player;
+        this.playerListener = playerListener;
+
+        // Execution Context
+        this.context = context;
+    }
+
+    private void playAnnouncement(String url, long delay) {
+        try {
+            this.player.setInitialDelay(delay);
+            this.player.setURL(url);
+            this.player.activate();
+
+            if (log.isInfoEnabled()) {
+                log.info("Playing announcement " + url);
+            }
+        } catch (MalformedURLException e) {
+            log.error("Could not play malformed segment " + url, e);
+            context.setReturnCode(ReturnCode.BAD_AUDIO_ID.code());
+            fire(PlayCollectEvent.FAIL, context);
+            // TODO create transition from PROMPTING to FAILED
+        } catch (ResourceUnavailableException e) {
+            log.error("Could not play unavailable segment " + url, e);
+            context.setReturnCode(ReturnCode.BAD_AUDIO_ID.code());
+            fire(PlayCollectEvent.FAIL, context);
+            // TODO create transition from PROMPTING to FAILED
+        }
+    }
+
+    @Override
+    public void enterPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        final Playlist prompt = context.getInitialPrompt();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(prompt.next(), 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
+    }
+
+    @Override
+    public void onPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        final Playlist prompt = context.getInitialPrompt();
+        final String next = prompt.next();
+
+        if (next.isEmpty()) {
+            // No more announcements to play
+            fire(PlayCollectEvent.COLLECT, context);
+        } else {
+            playAnnouncement(next, 10 * 100);
+        }
+    }
+
+    @Override
+    public void exitPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
     public void enterCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        final DtmfDetector dtmfDetector = context.getDetector();
-        final DtmfDetectorListener dtmfDetectorListener = context.getDetectorListener();
-
         try {
             // Activate DTMF detector and bind listener
-            dtmfDetector.addListener(dtmfDetectorListener);
-            dtmfDetector.activate();
+            this.detector.addListener(this.detectorListener);
+            this.detector.activate();
 
             if (log.isInfoEnabled()) {
                 log.info("Started collect phase. Attempt: " + context.getAttempt());
@@ -76,12 +160,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void exitCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        final DtmfDetector dtmfDetector = context.getDetector();
-        final DtmfDetectorListener dtmfDetectorListener = context.getDetectorListener();
-
         // Deactivate DTMF detector and release listener
-        dtmfDetector.removeListener(dtmfDetectorListener);
-        dtmfDetector.deactivate();
+        this.detector.removeListener(this.detectorListener);
+        this.detector.deactivate();
 
         if (log.isInfoEnabled()) {
             log.info("Stopped collect phase. Attempt: " + context.getAttempt());
@@ -108,13 +189,13 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
                     // Fire success event
                     context.setReturnCode(ReturnCode.SUCCESS.code());
-                    fire(SuccessEvent.INSTANCE, context);
+                    fire(PlayCollectEvent.SUCCEED, context);
                 } else {
                     // TODO fix attempts
 
                     // Fire failure event
                     context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                    fire(FailureEvent.INSTANCE, context);
+                    fire(PlayCollectEvent.FAIL, context);
                 }
             } else {
                 // Check if minimum number of digits was collected
@@ -127,7 +208,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
                     // Fire success event
                     context.setReturnCode(ReturnCode.SUCCESS.code());
-                    fire(SuccessEvent.INSTANCE, context);
+                    fire(PlayCollectEvent.SUCCEED, context);
                 } else {
                     // Minimum number of digits was NOT collected
 
@@ -135,7 +216,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
                     // Fire failure event
                     context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                    fire(FailureEvent.INSTANCE, context);
+                    fire(PlayCollectEvent.FAIL, context);
                 }
             }
         } else {
@@ -153,28 +234,32 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             if (!context.hasDigitPattern() && context.getMaximumDigits() == context.countCollectedDigits()) {
                 // Fire success event
                 context.setReturnCode(ReturnCode.SUCCESS.code());
-                fire(SuccessEvent.INSTANCE, context);
+                fire(PlayCollectEvent.SUCCEED, context);
             } else {
                 // Start interdigit timer
                 this.executor.schedule(new DetectorTimer(context), context.getInterDigitTimer(), TimeUnit.MILLISECONDS);
             }
         }
     }
-    
+
     @Override
     public void enterTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if (log.isInfoEnabled()) {
+            log.info("Timing out Collect operation.");
+        }
+
         if (context.hasDigitPattern()) {
             // Check if list of collected digits match the digit pattern
             if (context.getCollectedDigits().matches(context.getDigitPattern())) {
                 // Fire success event
                 context.setReturnCode(ReturnCode.SUCCESS.code());
-                fire(SuccessEvent.INSTANCE, context);
+                fire(PlayCollectEvent.SUCCEED, context);
             } else {
                 // TODO fix attempts
 
                 // Fire failure event
                 context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                fire(FailureEvent.INSTANCE, context);
+                fire(PlayCollectEvent.FAIL, context);
             }
         } else {
             // Check if minimum number of digits was collected
@@ -182,7 +267,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                 // Minimum number of digits was collected
                 // Fire success event
                 context.setReturnCode(ReturnCode.SUCCESS.code());
-                fire(SuccessEvent.INSTANCE, context);
+                fire(PlayCollectEvent.SUCCEED, context);
             } else {
                 // Minimum number of digits was NOT collected
 
@@ -190,7 +275,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
                 // Fire failure event
                 context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                fire(FailureEvent.INSTANCE, context);
+                fire(PlayCollectEvent.FAIL, context);
             }
         }
     }
@@ -238,10 +323,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         @Override
         public void run() {
             if (context.getLastCollectedDigitOn() <= this.timestamp) {
-                if (log.isInfoEnabled()) {
-                    log.info("Timing out Collect operation.");
-                }
-                fire(TimeoutEvent.INSTANCE, context);
+                fire(PlayCollectEvent.TIME_OUT, context);
             } else {
                 if (log.isInfoEnabled()) {
                     log.info("Aborting timeout operation because a tone has been received in the meantime.");

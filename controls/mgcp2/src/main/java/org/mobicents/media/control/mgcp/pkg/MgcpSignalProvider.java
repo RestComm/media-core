@@ -27,8 +27,8 @@ import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
 import org.mobicents.media.control.mgcp.pkg.au.AudioSignalType;
 import org.mobicents.media.control.mgcp.pkg.au.PlayAnnouncement;
-import org.mobicents.media.control.mgcp.pkg.au.PlayCollect;
 import org.mobicents.media.control.mgcp.pkg.au.PlayRecord;
+import org.mobicents.media.control.mgcp.pkg.au.pc.PlayCollect;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 

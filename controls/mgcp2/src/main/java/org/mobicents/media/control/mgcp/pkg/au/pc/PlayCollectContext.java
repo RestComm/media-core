@@ -23,6 +23,7 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 import java.util.Map;
 
+import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.mobicents.media.control.mgcp.pkg.au.SignalParameters;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
@@ -35,53 +36,48 @@ import com.google.common.base.Optional;
  */
 public class PlayCollectContext {
 
-    // Media Components
-    private final DtmfDetector detector;
-    private final DtmfDetectorListener detectorListener;
-    
     // Signal options
     private final Map<String, String> parameters;
-    
+
+    // Playlists
+    private final Playlist initialPrompt;
+    private final Playlist reprompt;
+    private final Playlist noDigitsReprompt;
+    private final Playlist failureAnnouncement;
+    private final Playlist successAnnouncement;
+
     // Runtime data
     private final StringBuilder collectedDigits;
     private long lastCollectedDigitOn;
     private int attempt;
-    
+
     private int returnCode;
-    
+
     public PlayCollectContext(DtmfDetector detector, DtmfDetectorListener detectorListener, Map<String, String> parameters) {
-        // Media Components
-        this.detector = detector;
-        this.detectorListener = detectorListener;
-        
         // Signal Options
         this.parameters = parameters;
-        
+
+        // Playlists
+        this.initialPrompt = new Playlist(getInitialPromptSegments(), 1);
+        this.reprompt = new Playlist(getRepromptSegments(), 1);
+        this.noDigitsReprompt = new Playlist(getNoDigitsRepromptSegments(), 1);
+        this.failureAnnouncement = new Playlist(getFailureAnnouncementSegments(), 1);
+        this.successAnnouncement = new Playlist(getSuccessAnnouncementSegments(), 1);
+
         // Runtime Data
         this.collectedDigits = new StringBuilder("");
         this.lastCollectedDigitOn = 0L;
         this.returnCode = 0;
         this.attempt = 1;
     }
-    
-    /*
-     * Media Components
-     */
-    public DtmfDetector getDetector() {
-        return detector;
-    }
-    
-    public DtmfDetectorListener getDetectorListener() {
-        return detectorListener;
-    }
-    
+
     /*
      * Signal Options
      */
     private String getParameter(String name) {
         return this.parameters.get(name);
     }
-    
+
     /**
      * The initial announcement prompting the user to either enter DTMF digits or to speak.
      * <p>
@@ -91,8 +87,13 @@ public class PlayCollectContext {
      * 
      * @return The array of audio prompts. Array will be empty if none is specified.
      */
-    public String[] getInitialPrompt() {
-        return Optional.fromNullable(getParameter(SignalParameters.INITIAL_PROMPT.symbol())).or("").split(",");
+    private String[] getInitialPromptSegments() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.INITIAL_PROMPT.symbol())).or("");
+        return value.isEmpty() ? new String[0] : value.split(",");
+    }
+
+    public Playlist getInitialPrompt() {
+        return initialPrompt;
     }
 
     /**
@@ -103,12 +104,16 @@ public class PlayCollectContext {
      * 
      * @return The array of audio prompts. Array will be empty if none is specified.
      */
-    public String[] getReprompt() {
+    private String[] getRepromptSegments() {
         String segments = Optional.fromNullable(getParameter(SignalParameters.REPROMPT.symbol())).or("");
         if (segments.isEmpty()) {
             segments = Optional.fromNullable(getParameter(SignalParameters.INITIAL_PROMPT.symbol())).or("");
         }
         return segments.split(",");
+    }
+
+    public Playlist getReprompt() {
+        return reprompt;
     }
 
     /**
@@ -119,12 +124,16 @@ public class PlayCollectContext {
      * 
      * @return The array of audio prompts. Array will be empty if none is specified.
      */
-    public String[] getNoDigitsReprompt() {
+    private String[] getNoDigitsRepromptSegments() {
         String segments = Optional.fromNullable(getParameter(SignalParameters.NO_DIGITS_REPROMPT.symbol())).or("");
         if (segments.isEmpty()) {
             segments = Optional.fromNullable(getParameter(SignalParameters.REPROMPT.symbol())).or("");
         }
         return segments.split(",");
+    }
+
+    public Playlist getNoDigitsReprompt() {
+        return noDigitsReprompt;
     }
 
     /**
@@ -135,8 +144,13 @@ public class PlayCollectContext {
      * 
      * @return The array of audio prompts. Array will be empty if none is specified.
      */
-    public String[] getFailureAnnouncement() {
-        return Optional.fromNullable(getParameter(SignalParameters.FAILURE_ANNOUNCEMENT.symbol())).or("").split(",");
+    private String[] getFailureAnnouncementSegments() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.FAILURE_ANNOUNCEMENT.symbol())).or("");
+        return value.isEmpty() ? new String[0] : value.split(",");
+    }
+
+    public Playlist getFailureAnnouncement() {
+        return failureAnnouncement;
     }
 
     /**
@@ -147,8 +161,12 @@ public class PlayCollectContext {
      * 
      * @return The array of audio prompts. Array will be empty if none is specified.
      */
-    public String[] getSuccessAnnouncement() {
+    public String[] getSuccessAnnouncementSegments() {
         return Optional.fromNullable(getParameter(SignalParameters.FAILURE_ANNOUNCEMENT.symbol())).or("").split(",");
+    }
+
+    public Playlist getSuccessAnnouncement() {
+        return successAnnouncement;
     }
 
     /**
@@ -418,7 +436,7 @@ public class PlayCollectContext {
         String value = Optional.fromNullable(getParameter(SignalParameters.NUMBER_OF_ATTEMPTS.symbol())).or("1");
         return Integer.parseInt(value);
     }
-    
+
     /*
      * Runtime Data
      */
@@ -426,7 +444,7 @@ public class PlayCollectContext {
         this.collectedDigits.append(digit);
         this.lastCollectedDigitOn = System.currentTimeMillis();
     }
-    
+
     public String getCollectedDigits() {
         return collectedDigits.toString();
     }
@@ -434,19 +452,19 @@ public class PlayCollectContext {
     public int countCollectedDigits() {
         return collectedDigits.length();
     }
-    
+
     public long getLastCollectedDigitOn() {
         return lastCollectedDigitOn;
     }
-    
+
     public int getAttempt() {
         return attempt;
     }
-    
+
     public int getReturnCode() {
         return returnCode;
     }
-    
+
     protected void setReturnCode(int returnCode) {
         this.returnCode = returnCode;
     }

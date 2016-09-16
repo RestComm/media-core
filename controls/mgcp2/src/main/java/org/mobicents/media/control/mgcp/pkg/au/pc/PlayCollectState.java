@@ -27,6 +27,6 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
  */
 public enum PlayCollectState {
 
-    READY, COLLECTING, TIMING_OUT, SUCCEEDED, FAILED, CANCELED;
+    READY, PROMPTING, COLLECTING, TIMING_OUT, SUCCEEDED, FAILED, CANCELED;
     
 }

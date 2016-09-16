@@ -33,6 +33,8 @@ import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.dtmf.DtmfEvent;
 import org.mobicents.media.server.spi.player.Player;
+import org.mobicents.media.server.spi.player.PlayerEvent;
+import org.mobicents.media.server.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 
@@ -56,7 +58,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  *
  */
 public class PlayCollect extends AbstractMgcpSignal {
-
+    
     private static final Logger log = Logger.getLogger(PlayCollect.class);
 
     static final String SYMBOL = "pc";
@@ -68,26 +70,46 @@ public class PlayCollect extends AbstractMgcpSignal {
     private final DtmfDetector detector;
     final DtmfDetectorListener detectorListener;
 
+    private final Player player;
+    final PlayerListener playerListener;
+
     // Execution Context
     private final PlayCollectContext context;
 
     public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters,
             ListeningScheduledExecutorService executor) {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, parameters);
+        
+        // Media Components
+        this.detector = detector;
+        this.detectorListener = new DetectorListener();
+
+        this.player = player;
+        this.playerListener = new AudioPlayerListener();
+
+        // Execution Context
+        this.context = new PlayCollectContext(detector, detectorListener, parameters);
 
         // Finite State Machine
         StateMachineBuilder<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> builder = StateMachineBuilderFactory
                 .<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> create(PlayCollectFsmImpl.class,
-                        PlayCollectState.class, Object.class, PlayCollectContext.class, MgcpEventSubject.class, ListeningScheduledExecutorService.class);
-        
+                        PlayCollectState.class, Object.class, PlayCollectContext.class, DtmfDetector.class,
+                        DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
+                        ListeningScheduledExecutorService.class, PlayCollectContext.class);
+
         builder.onEntry(PlayCollectState.READY);
+        builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
+        builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
         builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
         builder.onEntry(PlayCollectState.TIMING_OUT).callMethod("enterTimingOut");
         builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
         builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
-        
-        builder.externalTransition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(ExecuteEvent.INSTANCE);
+
+        builder.transition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
+        builder.transition().from(PlayCollectState.READY).to(PlayCollectState.PROMPTING).on(PlayCollectEvent.PROMPT);
+        builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.PLAYER_STOP).callMethod("onPrompting");
+        builder.transition().from(PlayCollectState.PROMPTING).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_0).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_1).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_2).callMethod("onCollecting");
@@ -104,19 +126,12 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_D).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_HASH).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_STAR).callMethod("onCollecting");
-        builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(SuccessEvent.INSTANCE);
-        builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(FailureEvent.INSTANCE);
-        builder.externalTransition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMING_OUT).on(TimeoutEvent.INSTANCE);
-        builder.externalTransition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.SUCCEEDED).on(SuccessEvent.INSTANCE);
-        builder.externalTransition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.FAILED).on(FailureEvent.INSTANCE);
-        this.fsm = builder.newStateMachine(PlayCollectState.READY, this, executor);
-
-        // Media Components
-        this.detector = detector;
-        this.detectorListener = new DetectorListener();
-
-        // Execution Context
-        this.context = new PlayCollectContext(detector, detectorListener, parameters);
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMING_OUT).on(PlayCollectEvent.TIME_OUT);
+        builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+        this.fsm = builder.newStateMachine(PlayCollectState.READY, this.detector, this.detectorListener, this.player, this.playerListener, this, executor, this.context);
     }
 
     @Override
@@ -162,18 +177,28 @@ public class PlayCollect extends AbstractMgcpSignal {
 
     @Override
     public void execute() {
-        if(!this.fsm.isStarted()) {
-            this.fsm.fire(ExecuteEvent.INSTANCE, this.context);
+        if (!this.fsm.isStarted()) {
+            if(this.context.getInitialPrompt().isEmpty()) {
+                this.fsm.fire(PlayCollectEvent.COLLECT, this.context);
+            } else {
+                this.fsm.fire(PlayCollectEvent.PROMPT, this.context);
+            }
         }
     }
 
     @Override
     public void cancel() {
-        if(this.fsm.isStarted()) {
-            fsm.fire(CancelEvent.INSTANCE, this.context);
+        if (this.fsm.isStarted()) {
+            fsm.fire(PlayCollectEvent.CANCEL, this.context);
         }
     }
 
+    /**
+     * Listens to DTMF events raised by the DTMF Detector.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
     private final class DetectorListener implements DtmfDetectorListener {
 
         @Override
@@ -183,6 +208,31 @@ public class PlayCollect extends AbstractMgcpSignal {
             fsm.fire(dtmfToneEvent, PlayCollect.this.context);
         }
 
+    }
+
+    /**
+     * Listen to Play events raised by the Player.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    private final class AudioPlayerListener implements PlayerListener {
+
+        @Override
+        public void process(PlayerEvent event) {
+            switch (event.getID()) {
+                case PlayerEvent.STOP:
+                    fsm.fire(PlayCollectEvent.PLAYER_STOP, context);
+                    break;
+                    
+                case PlayerEvent.FAILED: 
+                    // TODO handle player failure
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
 }

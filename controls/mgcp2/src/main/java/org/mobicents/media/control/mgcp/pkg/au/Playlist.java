@@ -43,9 +43,21 @@ public class Playlist {
         return this.segments[this.index % this.segmentCount];
     }
 
+    public boolean isOngoing() {
+        return this.index != -1;
+    }
+
+    public boolean isEmpty() {
+        return this.segmentCount == 0;
+    }
+
     public String next() {
-        this.counter--;
-        this.index++;
-        return this.counter == -1 ? "" : this.segments[this.index % this.segmentCount];
+        if (isEmpty()) {
+            return "";
+        } else {
+            this.counter--;
+            this.index++;
+            return this.counter == -1 ? "" : this.segments[this.index % this.segmentCount];
+        }
     }
 }
