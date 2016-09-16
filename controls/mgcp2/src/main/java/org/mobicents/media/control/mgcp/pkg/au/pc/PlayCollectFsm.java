@@ -28,11 +28,13 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  *
  */
 public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> {
-    
+
+    void onReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
     void enterPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
-    
+
     void onPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
-    
+
     void exitPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void enterCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
@@ -40,8 +42,8 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     void onCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void exitCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
-    
-    void enterTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
+    void onTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 

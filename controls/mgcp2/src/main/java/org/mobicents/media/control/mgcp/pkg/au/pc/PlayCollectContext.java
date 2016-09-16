@@ -469,4 +469,17 @@ public class PlayCollectContext {
         this.returnCode = returnCode;
     }
 
+    /**
+     * Resets the collected digits and increments the attempts counter.
+     */
+    protected void newAttempt() {
+        this.attempt++;
+        this.collectedDigits.setLength(0);
+        this.initialPrompt.rewind();
+        this.reprompt.rewind();
+        this.noDigitsReprompt.rewind();
+        this.successAnnouncement.rewind();
+        this.failureAnnouncement.rewind();
+    }
+
 }

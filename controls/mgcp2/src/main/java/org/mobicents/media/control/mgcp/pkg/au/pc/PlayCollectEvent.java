@@ -27,6 +27,6 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
  */
 public enum PlayCollectEvent {
 
-    EXECUTE, PROMPT, PLAYER_STOP, COLLECT, TIME_OUT, CANCEL, SUCCEED, FAIL; 
+    EXECUTE, PROMPT, PLAYER_STOP, COLLECT, TIME_OUT, CANCEL, SUCCEED, FAIL, RESTART; 
 
 }

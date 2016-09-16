@@ -29,12 +29,14 @@ public class Playlist {
 
     private final String[] segments;
     private final int segmentCount;
+    private final int iterations;
     private int index;
     private int counter;
 
     public Playlist(String[] segments, int iterations) {
         this.segments = segments;
         this.segmentCount = segments.length;
+        this.iterations = iterations;
         this.index = -1;
         this.counter = iterations == -1 ? Integer.MAX_VALUE : iterations * segmentCount;
     }
@@ -60,4 +62,10 @@ public class Playlist {
             return this.counter == -1 ? "" : this.segments[this.index % this.segmentCount];
         }
     }
+    
+    public void rewind() {
+        this.index = -1;
+        this.counter = iterations == -1 ? Integer.MAX_VALUE : iterations * segmentCount;
+    }
+    
 }

@@ -109,6 +109,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     }
 
     @Override
+    public void onReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        this.context.newAttempt();
+        if(this.context.getInitialPrompt().isEmpty()) {
+            fire(PlayCollectEvent.COLLECT, this.context);
+        } else {
+            fire(PlayCollectEvent.PROMPT, this.context);
+        }
+    }
+
+    @Override
     public void enterPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         final Playlist prompt = context.getInitialPrompt();
         try {
@@ -191,11 +201,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                     context.setReturnCode(ReturnCode.SUCCESS.code());
                     fire(PlayCollectEvent.SUCCEED, context);
                 } else {
-                    // TODO fix attempts
-
-                    // Fire failure event
-                    context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                    fire(PlayCollectEvent.FAIL, context);
+                    // Retry if more attempts are available. If not, fail.
+                    if (context.getAttempt() < context.getNumberOfAttempts()) {
+                        // Restart collect
+                        fire(PlayCollectEvent.RESTART, context);
+                    } else {
+                        // Fire failure event
+                        context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
+                        fire(PlayCollectEvent.FAIL, context);
+                    }
                 }
             } else {
                 // Check if minimum number of digits was collected
@@ -211,12 +225,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                     fire(PlayCollectEvent.SUCCEED, context);
                 } else {
                     // Minimum number of digits was NOT collected
-
-                    // TODO fix attempts
-
-                    // Fire failure event
-                    context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                    fire(PlayCollectEvent.FAIL, context);
+                    // Retry if more attempts are available. If not, fail.
+                    if (context.getAttempt() < context.getNumberOfAttempts()) {
+                        // Restart collect
+                        fire(PlayCollectEvent.RESTART, context);
+                    } else {
+                        // Fire failure event
+                        context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                        fire(PlayCollectEvent.FAIL, context);
+                    }
                 }
             }
         } else {
@@ -243,7 +260,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     }
 
     @Override
-    public void enterTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+    public void onTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         if (log.isInfoEnabled()) {
             log.info("Timing out Collect operation.");
         }
@@ -255,11 +272,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                 context.setReturnCode(ReturnCode.SUCCESS.code());
                 fire(PlayCollectEvent.SUCCEED, context);
             } else {
-                // TODO fix attempts
-
-                // Fire failure event
-                context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                fire(PlayCollectEvent.FAIL, context);
+                // Retry if more attempts are available. If not, fail.
+                if (context.getAttempt() < context.getNumberOfAttempts()) {
+                    // Restart collect
+                    fire(PlayCollectEvent.RESTART, context);
+                } else {
+                    // Fire failure event
+                    context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
+                    fire(PlayCollectEvent.FAIL, context);
+                }
             }
         } else {
             // Check if minimum number of digits was collected
@@ -270,12 +291,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                 fire(PlayCollectEvent.SUCCEED, context);
             } else {
                 // Minimum number of digits was NOT collected
-
-                // TODO fix attempts
-
-                // Fire failure event
-                context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                fire(PlayCollectEvent.FAIL, context);
+                // Retry if more attempts are available. If not, fail.
+                if (context.getAttempt() < context.getNumberOfAttempts()) {
+                    // Restart collect
+                    fire(PlayCollectEvent.RESTART, context);
+                } else {
+                    // Fire failure event
+                    context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                    fire(PlayCollectEvent.FAIL, context);
+                }
             }
         }
     }

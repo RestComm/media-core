@@ -97,12 +97,10 @@ public class PlayCollect extends AbstractMgcpSignal {
                         DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
                         ListeningScheduledExecutorService.class, PlayCollectContext.class);
 
-        builder.onEntry(PlayCollectState.READY);
         builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
         builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
         builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
-        builder.onEntry(PlayCollectState.TIMING_OUT).callMethod("enterTimingOut");
         builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
         builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
 
@@ -128,9 +126,11 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_STAR).callMethod("onCollecting");
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMING_OUT).on(PlayCollectEvent.TIME_OUT);
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMING_OUT).on(PlayCollectEvent.TIME_OUT).callMethod("onTimingOut");
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART).callMethod("onReady");
         builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
         builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+        builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART).callMethod("onReady");
         this.fsm = builder.newStateMachine(PlayCollectState.READY, this.detector, this.detectorListener, this.player, this.playerListener, this, executor, this.context);
     }
 
