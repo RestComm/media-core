@@ -27,8 +27,10 @@ import java.util.Vector;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x509.Certificate;
+import org.bouncycastle.crypto.tls.AlertDescription;
 import org.bouncycastle.crypto.tls.AlertLevel;
 import org.bouncycastle.crypto.tls.CertificateRequest;
+import org.bouncycastle.crypto.tls.CipherSuite;
 import org.bouncycastle.crypto.tls.ClientCertificateType;
 import org.bouncycastle.crypto.tls.DefaultTlsServer;
 import org.bouncycastle.crypto.tls.ExporterLabel;
@@ -37,10 +39,13 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SRTPProtectionProfile;
 import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.bouncycastle.crypto.tls.SignatureAndHashAlgorithm;
+import org.bouncycastle.crypto.tls.TlsECCUtils;
 import org.bouncycastle.crypto.tls.TlsEncryptionCredentials;
+import org.bouncycastle.crypto.tls.TlsFatalAlert;
 import org.bouncycastle.crypto.tls.TlsSRTPUtils;
 import org.bouncycastle.crypto.tls.TlsSignerCredentials;
 import org.bouncycastle.crypto.tls.UseSRTPData;
+import org.bouncycastle.util.Arrays;
 
 /**
  * 
@@ -59,8 +64,8 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     private static final Logger LOGGER = Logger.getLogger(DtlsSrtpServer.class);
 
     // Certificate resources
-	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem", "x509-ca.pem" };
-	private static final String KEY_RESOURCE = "x509-server-key.pem";
+	private static final String[] CERT_RESOURCES = new String[] { "x509-server-ecdsa.pem" };
+	private static final String KEY_RESOURCE = "x509-server-key-ecdsa.pem";
 	
 	private String hashFunction = "";
     
@@ -87,6 +92,40 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
         LOGGER.log(logLevel, String.format("DTLS server received alert (AlertLevel.%d, AlertDescription.%d)", alertLevel, alertDescription));
     }
+    
+    @Override
+    protected int[] getCipherSuites() {
+        return new int[] { CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 };
+    }
+    
+    @Override
+    public int getSelectedCipherSuite() throws IOException {
+        /*
+         * TODO RFC 5246 7.4.3. In order to negotiate correctly, the server MUST check any candidate cipher suites against the
+         * "signature_algorithms" extension before selecting them. This is somewhat inelegant but is a compromise designed to
+         * minimize changes to the original cipher suite design.
+         */
+
+        /*
+         * RFC 4429 5.1. A server that receives a ClientHello containing one or both of these extensions MUST use the client's
+         * enumerated capabilities to guide its selection of an appropriate cipher suite. One of the proposed ECC cipher suites
+         * must be negotiated only if the server can successfully complete the handshake while using the curves and point
+         * formats supported by the client [...].
+         */
+        boolean eccCipherSuitesEnabled = supportsClientECCCapabilities(this.namedCurves, this.clientECPointFormats);
+
+        int[] cipherSuites = getCipherSuites();
+        for (int i = 0; i < cipherSuites.length; ++i) {
+            int cipherSuite = cipherSuites[i];
+
+            if (Arrays.contains(this.offeredCipherSuites, cipherSuite)
+                    && (eccCipherSuitesEnabled || !TlsECCUtils.isECCCipherSuite(cipherSuite))
+                    && org.bouncycastle.crypto.tls.TlsUtils.isValidCipherSuiteForVersion(cipherSuite, serverVersion)) {
+                return this.selectedCipherSuite = cipherSuite;
+            }
+        }
+        throw new TlsFatalAlert(AlertDescription.handshake_failure);
+    }
 
     public CertificateRequest getCertificateRequest() {
 		Vector<SignatureAndHashAlgorithm> serverSigAlgs = null;
@@ -101,7 +140,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 				}
 			}
 		}
-		return new CertificateRequest(new short[] { ClientCertificateType.rsa_sign }, serverSigAlgs, null);
+		return new CertificateRequest(new short[] { ClientCertificateType.ecdsa_sign }, serverSigAlgs, null);
     }
 
     public void notifyClientCertificate(org.bouncycastle.crypto.tls.Certificate clientCertificate) throws IOException {
@@ -121,7 +160,13 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     protected ProtocolVersion getMinimumVersion() {
         return ProtocolVersion.DTLSv10;
     }
-
+    
+    @Override
+    protected TlsSignerCredentials getECDSASignerCredentials() throws IOException {
+        return TlsUtils.loadSignerCredentials(context, CERT_RESOURCES, KEY_RESOURCE, new SignatureAndHashAlgorithm(HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
+    }
+    
+    @Override
     protected TlsEncryptionCredentials getRSAEncryptionCredentials() throws IOException {
         return TlsUtils.loadEncryptionCredentials(context, CERT_RESOURCES, KEY_RESOURCE);
     }
@@ -149,6 +194,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         }
         return TlsUtils.loadSignerCredentials(context, new String[]{"x509-server.pem", "x509-ca.pem"}, "x509-server-key.pem", signatureAndHashAlgorithm);
     }
+    
     
     @SuppressWarnings("unchecked")
 	@Override
