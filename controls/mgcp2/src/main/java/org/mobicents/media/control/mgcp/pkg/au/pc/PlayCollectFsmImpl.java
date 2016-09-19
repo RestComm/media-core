@@ -183,12 +183,25 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     public void onCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         final char tone = ((DtmfToneEvent) event).tone();
         final char endInputKey = context.getEndInputKey();
+        final char restartKey = context.getRestartKey();
 
         if (log.isInfoEnabled()) {
             log.info("Received tone " + tone);
         }
 
-        if (endInputKey == tone) {
+        if(restartKey == tone) {
+            if(context.getAttempt() < context.getNumberOfAttempts()) {
+                // Tell context that a key was received to cancel any timeout.
+                context.collectDigit(tone);
+
+                // Restart Collect operation
+                fire(PlayCollectEvent.RESTART, context);
+            } else {
+                // Max number of attempts reached. Fail.
+                context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                fire(PlayCollectEvent.FAIL, context);
+            }
+        } else if (endInputKey == tone) {
             if (context.hasDigitPattern()) {
                 // Check if list of collected digits match the digit pattern
                 if (context.getCollectedDigits().matches(context.getDigitPattern())) {
