@@ -460,6 +460,9 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
     private class HandshakeWorker implements Runnable {
 
         public void run() {
+            logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler$HandshakeWorker.run threadId="+Thread.currentThread().getId()+" startTime="+DtlsHandler.this.startTime+" rxQueue(beforeClear)="+DtlsHandler.this.rxQueue.size());
+            DtlsHandler.this.rxQueue.clear();
+            logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler$HandshakeWorker.run threadId="+Thread.currentThread().getId()+" startTime="+DtlsHandler.this.startTime+" rxQueue(afterClear)="+DtlsHandler.this.rxQueue.size());
             SecureRandom secureRandom = new SecureRandom();
             DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
             logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler$HandshakeWorker.run threadId="+Thread.currentThread().getId()+" startTime="+DtlsHandler.this.startTime);
