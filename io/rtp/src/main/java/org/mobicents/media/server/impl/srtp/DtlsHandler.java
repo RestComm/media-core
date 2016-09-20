@@ -312,6 +312,14 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
 
     public void reset() {
         // XXX try not to create the server every time!
+        logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler.reset threadId="+Thread.currentThread().getId()+" HIT RESET! HIT RESET! HIT RESET! HIT RESET!");
+        StringBuilder sb = new StringBuilder();
+        sb.append("#############################<RESET>#############################").append("\n");
+        for (StackTraceElement s : Thread.currentThread().getStackTrace()) {
+            sb.append(s).append("\n");
+        }
+        sb.append("#############################</RESET>#############################").append("\n");
+        logger.info(sb);
         this.server = new DtlsSrtpServer();
         this.channel = null;
         this.srtcpDecoder = null;
@@ -384,6 +392,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
     public int receive(byte[] buf, int off, int len, int waitMillis) throws IOException {
         // MEDIA-48: DTLS handshake thread does not terminate
         // https://telestax.atlassian.net/browse/MEDIA-48
+        logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler.receive threadId="+Thread.currentThread().getId());
         if (this.hasTimeout()) {
             close();
             throw new IllegalStateException("Handshake is taking too long! (>" + MAX_DELAY + "ms");
@@ -394,7 +403,12 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
             ByteBuffer data = this.rxQueue.poll();
             if (data != null) {
                 data.get(buf, off, data.limit());
-                return data.limit();
+                int i = data.limit();
+                if(i < 20){
+                    logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler.receive threadId="+Thread.currentThread().getId() + " ######## WARNING: POTENTIAL FATAL ALERT! ######## ");
+                }
+                logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler.receive threadId="+Thread.currentThread().getId() + " received="+i);
+                return i;
             }
 
             try {
@@ -425,12 +439,21 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
 
     @Override
     public void close() throws IOException {
+        logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler.close threadId="+Thread.currentThread().getId()+" HIT CLOSE! HIT CLOSE! HIT CLOSE! HIT CLOSE!");
+        StringBuilder sb = new StringBuilder();
+        sb.append("#############################<CLOSE>#############################").append("\n");
+        for (StackTraceElement s : Thread.currentThread().getStackTrace()) {
+            sb.append(s).append("\n");
+        }
+        sb.append("#############################</CLOSE>#############################").append("\n");
+        logger.info(sb);
         this.rxQueue.clear();
         this.startTime = 0L;
         this.channel = null;
     }
 
     private boolean hasTimeout() {
+        logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler.hasTimeout threadId="+Thread.currentThread().getId() + " startTime="+this.startTime+ " MAX_DELAY="+this.MAX_DELAY);
         return (System.currentTimeMillis() - this.startTime) > MAX_DELAY;
     }
 
@@ -439,7 +462,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
         public void run() {
             SecureRandom secureRandom = new SecureRandom();
             DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
-
+            logger.info("BC-DTLS-TIMEOUT: "+System.currentTimeMillis()+" DtlsHandler$HandshakeWorker.run threadId="+Thread.currentThread().getId()+" startTime="+DtlsHandler.this.startTime);
             try {
                 // Perform the handshake in a non-blocking fashion
                 serverProtocol.accept(server, DtlsHandler.this);
