@@ -54,9 +54,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.bouncycastle</groupId>
-    		<artifactId>bcprov-debug-jdk15on</artifactId>
-    		<version>1.54</version>
+			<groupId>bcprov-debug-jdk15on</groupId>
+			<artifactId>bcprov-debug-jdk15on</artifactId>
+			<version>1.54</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-net</groupId>
