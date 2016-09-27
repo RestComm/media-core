@@ -35,6 +35,7 @@ import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.core.configuration.MgcpEndpointConfiguration;
 import org.mobicents.media.core.configuration.NetworkConfiguration;
 import org.mobicents.media.core.configuration.ResourcesConfiguration;
+import org.mobicents.media.core.configuration.SecurityConfiguration;
 
 /**
  * Loads Media Server configurations from an XML file.
@@ -79,6 +80,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
             configureController(xml.configurationAt("controller"), configuration.getControllerConfiguration());
             configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
             configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
+            configureSecurity(xml.configurationAt("security"), configuration.getSecurityConfiguration());
         } catch (ConfigurationException | IllegalArgumentException e) {
             log.error("Could not load configuration from " + filepath + ". Using default values. Reason: " + e.getMessage());
         }
@@ -137,6 +139,12 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
         dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
         dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
+    }
+    
+    private static void configureSecurity(HierarchicalConfiguration<ImmutableNode> src, SecurityConfiguration dst){
+        dst.setCipherSuite(src.getString("cipherSuite", SecurityConfiguration.CIPHER_SUITE));
+        dst.setCertificatePath(src.getString("certificatePath", SecurityConfiguration.CERTIFICATE_PATH));
+        dst.setKeyPath(src.getString("keyPath", SecurityConfiguration.KEY_PATH));
     }
 
 }

@@ -31,12 +31,14 @@ public class MediaServerConfiguration {
     private final MgcpControllerConfiguration controllerConfiguration;
     private final MediaConfiguration mediaConfiguration;
     private final ResourcesConfiguration resourcesConfiguration;
+    private final SecurityConfiguration securityConfiguration;
 
     public MediaServerConfiguration() {
         this.networkConfiguration = new NetworkConfiguration();
         this.controllerConfiguration = new MgcpControllerConfiguration();
         this.mediaConfiguration = new MediaConfiguration();
         this.resourcesConfiguration = new ResourcesConfiguration();
+        this.securityConfiguration = new SecurityConfiguration();
     }
 
     public NetworkConfiguration getNetworkConfiguration() {
@@ -53,6 +55,10 @@ public class MediaServerConfiguration {
 
     public ResourcesConfiguration getResourcesConfiguration() {
         return resourcesConfiguration;
+    }
+    
+    public SecurityConfiguration getSecurityConfiguration(){
+        return securityConfiguration;
     }
 
 }

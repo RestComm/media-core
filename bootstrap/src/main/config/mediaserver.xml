@@ -60,4 +60,10 @@
 		<signalDetector poolSize="0" />
 		<signalGenerator poolSize="0" />
 	</resources>
+	
+	<security>
+		<ciphersuite>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</ciphersuite>
+		<certificatePath>x509-server-ecdsa.pem</certificatePath>
+		<keyPath>x509-server-key-ecdsa.pem</keyPath>
+	</security>
 </mediaserver>
