@@ -93,7 +93,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             this.player.activate();
 
             if (log.isInfoEnabled()) {
-                log.info("Playing announcement " + url);
+                log.info("Playing announcement " + url + ", attempt " + context.getAttempt());
             }
         } catch (MalformedURLException e) {
             log.error("Could not play malformed segment " + url, e);
@@ -111,7 +111,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     @Override
     public void onReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         this.context.newAttempt();
-        if(this.context.getInitialPrompt().isEmpty()) {
+        if (this.context.getInitialPrompt().isEmpty()) {
             fire(PlayCollectEvent.COLLECT, this.context);
         } else {
             fire(PlayCollectEvent.PROMPT, this.context);
@@ -120,10 +120,14 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void enterPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        final Playlist prompt = context.getInitialPrompt();
+        final int attempt = context.getAttempt();
+        final Playlist prompt = (attempt == 1) ? context.getInitialPrompt() : context.getReprompt();
+        prompt.rewind(); // Need to rewind playlist list since we're restarting
+        final String next = prompt.next();
+
         try {
             this.player.addListener(this.playerListener);
-            playAnnouncement(prompt.next(), 0L);
+            playAnnouncement(next, 0L);
         } catch (TooManyListenersException e) {
             log.error("Too many player listeners", e);
             context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
@@ -133,7 +137,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void onPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        final Playlist prompt = context.getInitialPrompt();
+        final int attempt = context.getAttempt();
+        final Playlist prompt = (attempt == 1) ? context.getInitialPrompt() : context.getReprompt();
         final String next = prompt.next();
 
         if (next.isEmpty()) {
@@ -189,8 +194,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.info("Received tone " + tone);
         }
 
-        if(restartKey == tone) {
-            if(context.getAttempt() < context.getNumberOfAttempts()) {
+        if (restartKey == tone) {
+            if (context.getAttempt() < context.getNumberOfAttempts()) {
                 // Tell context that a key was received to cancel any timeout.
                 context.collectDigit(tone);
 
