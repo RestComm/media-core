@@ -890,4 +890,228 @@ public class PlayCollectTest {
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
+    @Test
+    public void testNoDigitsRepromptWhenTimeoutWithoutMinDigitsCollected()
+            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("na", "3");
+        parameters.put("ip", "prompt.wav");
+        parameters.put("nd", "nodigits1.wav,nodigits2.wav");
+        parameters.put("mn", "2");
+        parameters.put("mx", "2");
+        parameters.put("fdt", "5");
+        parameters.put("idt", "3");
+
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        // Play initial prompt
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect no digits and wait for timeout
+        Thread.sleep(6 * 100);
+
+        // Play reprompt
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect no digits and wait for timeout
+        Thread.sleep(6 * 100);
+
+        // Play reprompt
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect two digits
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
+
+        // then
+        verify(detector, times(3)).activate();
+        verify(player, times(5)).activate();
+        verify(player, times(1)).setURL("prompt.wav");
+        verify(player, times(2)).setURL("nodigits1.wav");
+        verify(player, times(2)).setURL("nodigits2.wav");
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("25", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("3", eventCaptor.getValue().getParameter("na"));
+    }
+
+    @Test
+    public void testNoDigitsRepromptWhenTimeoutWithoutMatchingDigitsPattern()
+            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("na", "2");
+        parameters.put("ip", "prompt.wav");
+        parameters.put("nd", "nodigits.wav");
+        parameters.put("dp", "xxA");
+        parameters.put("fdt", "5");
+        parameters.put("idt", "5");
+
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        // Play initial prompt
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect no digits and timeout
+        Thread.sleep(6 * 100);
+
+        // Play reprompt
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect two digits and end input
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
+        Thread.sleep(5 * 100);
+
+        // then
+        verify(detector, times(2)).activate();
+        verify(player, times(2)).activate();
+        verify(player, times(1)).setURL("prompt.wav");
+        verify(player, times(1)).setURL("nodigits.wav");
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("12A", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
+    }
+
+    @Test
+    public void testNoDigitsRepromptWhenEndingInputWithoutMinDigitsCollected()
+            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("na", "2");
+        parameters.put("ip", "prompt.wav");
+        parameters.put("nd", "nodigits.wav");
+        parameters.put("mn", "2");
+        parameters.put("mx", "3");
+
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        // Play initial prompt
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect no digits and end input
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+
+        // Play reprompt
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect two digits and end input
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "4", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+
+        // then
+        verify(detector, times(2)).activate();
+        verify(player, times(2)).activate();
+        verify(player, times(1)).setURL("prompt.wav");
+        verify(player, times(1)).setURL("nodigits.wav");
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("24", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
+    }
+
+    @Test
+    public void testNoDigitsRepromptWhenEndingInputWithoutMatchingDigitsPattern()
+            throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("na", "2");
+        parameters.put("ip", "prompt.wav");
+        parameters.put("nd", "nodigits.wav");
+        parameters.put("dp", "xxA");
+
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pc.observe(observer);
+        pc.execute();
+
+        // Play initial prompt
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect no digits and end input
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+
+        // Play reprompt
+        Thread.sleep(20);
+        pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+
+        // Collect two digits and end input
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+
+        // then
+        verify(detector, times(2)).activate();
+        verify(player, times(2)).activate();
+        verify(player, times(1)).setURL("prompt.wav");
+        verify(player, times(1)).setURL("nodigits.wav");
+        verify(observer, timeout(50)).onEvent(eq(pc), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("12A", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
+    }
+
 }

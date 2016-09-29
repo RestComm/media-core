@@ -106,10 +106,7 @@ public class PlayCollectContext {
      */
     private String[] getRepromptSegments() {
         String segments = Optional.fromNullable(getParameter(SignalParameters.REPROMPT.symbol())).or("");
-        if (segments.isEmpty()) {
-            segments = Optional.fromNullable(getParameter(SignalParameters.INITIAL_PROMPT.symbol())).or("");
-        }
-        return segments.split(",");
+        return segments.isEmpty() ? getInitialPromptSegments() : segments.split(",");
     }
 
     public Playlist getReprompt() {
@@ -126,10 +123,7 @@ public class PlayCollectContext {
      */
     private String[] getNoDigitsRepromptSegments() {
         String segments = Optional.fromNullable(getParameter(SignalParameters.NO_DIGITS_REPROMPT.symbol())).or("");
-        if (segments.isEmpty()) {
-            segments = Optional.fromNullable(getParameter(SignalParameters.REPROMPT.symbol())).or("");
-        }
-        return segments.split(",");
+        return segments.isEmpty() ? getRepromptSegments() : segments.split(",");
     }
 
     public Playlist getNoDigitsReprompt() {
