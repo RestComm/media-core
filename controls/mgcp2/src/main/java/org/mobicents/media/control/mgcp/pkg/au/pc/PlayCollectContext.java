@@ -460,6 +460,10 @@ public class PlayCollectContext {
     public int getAttempt() {
         return attempt;
     }
+    
+    public boolean hasMoreAttempts() {
+        return this.attempt < getNumberOfAttempts();
+    }
 
     public int getReturnCode() {
         return returnCode;

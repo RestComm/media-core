@@ -45,6 +45,12 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
 
     void onTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
+    void enterReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
+    void onReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
+    void exitReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    
     void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void enterSucceeded(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);

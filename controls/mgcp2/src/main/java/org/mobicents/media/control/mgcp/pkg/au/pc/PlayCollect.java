@@ -99,6 +99,8 @@ public class PlayCollect extends AbstractMgcpSignal {
 
         builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
         builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
+        builder.onEntry(PlayCollectState.REPROMPTING).callMethod("enterReprompting");
+        builder.onExit(PlayCollectState.REPROMPTING).callMethod("exitReprompting");
         builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
         builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
@@ -128,9 +130,13 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMING_OUT).on(PlayCollectEvent.TIME_OUT).callMethod("onTimingOut");
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART).callMethod("onReady");
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
         builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
         builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
         builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART).callMethod("onReady");
+        builder.transition().from(PlayCollectState.TIMING_OUT).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
+        builder.transition().from(PlayCollectState.REPROMPTING).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
+        builder.internalTransition().within(PlayCollectState.REPROMPTING).on(PlayCollectEvent.PLAYER_STOP).callMethod("onReprompting");
         this.fsm = builder.newStateMachine(PlayCollectState.READY, this.detector, this.detectorListener, this.player, this.playerListener, this, executor, this.context);
     }
 
