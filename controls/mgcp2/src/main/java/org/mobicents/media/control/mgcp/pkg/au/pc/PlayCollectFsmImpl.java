@@ -184,12 +184,22 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         final char tone = ((DtmfToneEvent) event).tone();
         final char endInputKey = context.getEndInputKey();
         final char restartKey = context.getRestartKey();
+        final char reinputKey = context.getReinputKey();
 
         if (log.isInfoEnabled()) {
             log.info("Received tone " + tone);
         }
-
-        if (restartKey == tone) {
+        
+        if(reinputKey == tone) {
+            // Force collection to cancel any scheduled timeout
+            context.collectDigit(tone);
+            
+            // Clear collected digits
+            context.clearCollectedDigits();
+            
+            // Start first digit timer
+            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
+        } else if (restartKey == tone) {
             if (context.hasMoreAttempts()) {
                 // Tell context that a key was received to cancel any timeout.
                 context.collectDigit(tone);

@@ -447,6 +447,10 @@ public class PlayCollectContext {
         this.collectedDigits.append(digit);
         this.lastCollectedDigitOn = System.currentTimeMillis();
     }
+    
+    public void clearCollectedDigits() {
+        this.collectedDigits.setLength(0);
+    }
 
     public String getCollectedDigits() {
         return collectedDigits.toString();

@@ -96,6 +96,45 @@ public class PlayCollectTest {
     }
 
     @Test
+    public void testCollectWithReinputKeyAndEndInputKey() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "100");
+        parameters.put("eik", "#");
+        parameters.put("rik", "A");
+        
+        final Player player = mock(Player.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pc.observe(observer);
+        pc.execute();
+        
+        pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "2", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "3", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "A", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "4", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "6", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, never()).activate();
+        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("456", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
+
+    @Test
     public void testCollectWithIncludeEndInputKey() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
