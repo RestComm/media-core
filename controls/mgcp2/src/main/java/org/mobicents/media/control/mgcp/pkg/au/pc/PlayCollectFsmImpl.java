@@ -199,7 +199,11 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             } else {
                 // Max number of attempts reached. Fail.
                 context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                fire(PlayCollectEvent.FAIL, context);
+                if (context.hasFailureAnnouncement()) {
+                    fire(PlayCollectEvent.PLAY_FAILURE, context);
+                } else {
+                    fire(PlayCollectEvent.FAIL, context);
+                }
             }
         } else if (endInputKey == tone) {
             if (context.hasDigitPattern()) {
@@ -210,14 +214,17 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                         context.collectDigit(tone);
                     }
 
-                    // Fire success event
-                    context.setReturnCode(ReturnCode.SUCCESS.code());
-                    fire(PlayCollectEvent.SUCCEED, context);
+                    // Digit Collection succeeded
+                    if (context.hasSuccessAnnouncement()) {
+                        fire(PlayCollectEvent.PLAY_SUCCESS, context);
+                    } else {
+                        fire(PlayCollectEvent.SUCCEED, context);
+                    }
                 } else {
                     // Retry if more attempts are available. If not, fail.
                     if (context.hasMoreAttempts()) {
                         // Clear digits and play reprompt
-                        if(context.countCollectedDigits() == 0) {
+                        if (context.countCollectedDigits() == 0) {
                             fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
                         } else {
                             fire(PlayCollectEvent.REPROMPT, context);
@@ -225,7 +232,11 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                     } else {
                         // Fire failure event
                         context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                        fire(PlayCollectEvent.FAIL, context);
+                        if (context.hasFailureAnnouncement()) {
+                            fire(PlayCollectEvent.PLAY_FAILURE, context);
+                        } else {
+                            fire(PlayCollectEvent.FAIL, context);
+                        }
                     }
                 }
             } else {
@@ -237,15 +248,18 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                         context.collectDigit(tone);
                     }
 
-                    // Fire success event
-                    context.setReturnCode(ReturnCode.SUCCESS.code());
-                    fire(PlayCollectEvent.SUCCEED, context);
+                    // Digit Collection succeeded
+                    if (context.hasSuccessAnnouncement()) {
+                        fire(PlayCollectEvent.PLAY_SUCCESS, context);
+                    } else {
+                        fire(PlayCollectEvent.SUCCEED, context);
+                    }
                 } else {
                     // Minimum number of digits was NOT collected
                     // Retry if more attempts are available. If not, fail.
                     if (context.hasMoreAttempts()) {
                         // Clear digits and play reprompt
-                        if(context.countCollectedDigits() == 0) {
+                        if (context.countCollectedDigits() == 0) {
                             fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
                         } else {
                             fire(PlayCollectEvent.REPROMPT, context);
@@ -253,7 +267,11 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                     } else {
                         // Fire failure event
                         context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                        fire(PlayCollectEvent.FAIL, context);
+                        if (context.hasFailureAnnouncement()) {
+                            fire(PlayCollectEvent.PLAY_FAILURE, context);
+                        } else {
+                            fire(PlayCollectEvent.FAIL, context);
+                        }
                     }
                 }
             }
@@ -270,9 +288,12 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
             // Verify if number of max digits was reached
             if (!context.hasDigitPattern() && context.getMaximumDigits() == context.countCollectedDigits()) {
-                // Fire success event
-                context.setReturnCode(ReturnCode.SUCCESS.code());
-                fire(PlayCollectEvent.SUCCEED, context);
+                // Digit Collection succeeded
+                if (context.hasSuccessAnnouncement()) {
+                    fire(PlayCollectEvent.PLAY_SUCCESS, context);
+                } else {
+                    fire(PlayCollectEvent.SUCCEED, context);
+                }
             } else {
                 // Start interdigit timer
                 this.executor.schedule(new DetectorTimer(context), context.getInterDigitTimer(), TimeUnit.MILLISECONDS);
@@ -289,14 +310,17 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if (context.hasDigitPattern()) {
             // Check if list of collected digits match the digit pattern
             if (context.getCollectedDigits().matches(context.getDigitPattern())) {
-                // Fire success event
-                context.setReturnCode(ReturnCode.SUCCESS.code());
-                fire(PlayCollectEvent.SUCCEED, context);
+                // Digit Collection succeeded
+                if (context.hasSuccessAnnouncement()) {
+                    fire(PlayCollectEvent.PLAY_SUCCESS, context);
+                } else {
+                    fire(PlayCollectEvent.SUCCEED, context);
+                }
             } else {
                 // Retry if more attempts are available. If not, fail.
                 if (context.hasMoreAttempts()) {
                     // Clear digits and play reprompt
-                    if(context.countCollectedDigits() == 0) {
+                    if (context.countCollectedDigits() == 0) {
                         fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
                     } else {
                         fire(PlayCollectEvent.REPROMPT, context);
@@ -304,22 +328,29 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                 } else {
                     // Fire failure event
                     context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                    fire(PlayCollectEvent.FAIL, context);
+                    if (context.hasFailureAnnouncement()) {
+                        fire(PlayCollectEvent.PLAY_FAILURE, context);
+                    } else {
+                        fire(PlayCollectEvent.FAIL, context);
+                    }
                 }
             }
         } else {
             // Check if minimum number of digits was collected
             if (context.getMinimumDigits() <= context.countCollectedDigits()) {
                 // Minimum number of digits was collected
-                // Fire success event
-                context.setReturnCode(ReturnCode.SUCCESS.code());
-                fire(PlayCollectEvent.SUCCEED, context);
+                // Digit Collection succeeded
+                if (context.hasSuccessAnnouncement()) {
+                    fire(PlayCollectEvent.PLAY_SUCCESS, context);
+                } else {
+                    fire(PlayCollectEvent.SUCCEED, context);
+                }
             } else {
                 // Minimum number of digits was NOT collected
                 // Retry if more attempts are available. If not, fail.
                 if (context.hasMoreAttempts()) {
                     // Clear digits and play reprompt
-                    if(context.countCollectedDigits() == 0) {
+                    if (context.countCollectedDigits() == 0) {
                         fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
                     } else {
                         fire(PlayCollectEvent.REPROMPT, context);
@@ -327,7 +358,11 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                 } else {
                     // Fire failure event
                     context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                    fire(PlayCollectEvent.FAIL, context);
+                    if (context.hasFailureAnnouncement()) {
+                        fire(PlayCollectEvent.PLAY_FAILURE, context);
+                    } else {
+                        fire(PlayCollectEvent.FAIL, context);
+                    }
                 }
             }
         }
@@ -448,15 +483,116 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     }
 
     @Override
+    public void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        final Playlist prompt = context.getSuccessAnnouncement();
+        final String track = prompt.next();
+
+        log.info("enterPlayingSuccess::atempt=" + context.getAttempt() + ", track=" + track);
+
+        // Register player listener
+        try {
+            this.player.addListener(this.playerListener);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
+
+        // Play reprompt or move to collect state if no prompt is defined
+        if (track.isEmpty()) {
+            fire(PlayCollectEvent.SUCCEED, context);
+        } else {
+            playAnnouncement(track, 0L);
+        }
+
+    }
+
+    @Override
+    public void onPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        final Playlist prompt = context.getSuccessAnnouncement();
+        final String track = prompt.next();
+
+        log.info("onPlayingSuccess::atempt=" + context.getAttempt() + ", track=" + track);
+
+        // Play reprompt or move to collect state if no prompt is defined
+        if (track.isEmpty()) {
+            fire(PlayCollectEvent.SUCCEED, context);
+        } else {
+            playAnnouncement(track, 0L);
+        }
+    }
+
+    @Override
+    public void exitPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        log.info("exitPlayingSuccess::atempt=" + context.getAttempt());
+
+        // Deregister player listener
+        this.player.removeListener(this.playerListener);
+
+        // Deactivate player
+        this.player.deactivate();
+    }
+
+    @Override
     public void enterSucceeded(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        final int returnCode = context.getReturnCode();
         final String collectedDigits = context.getCollectedDigits();
         final int attempt = context.getAttempt();
 
-        final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, returnCode);
+        final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, ReturnCode.SUCCESS.code());
         operationComplete.setParameter("na", String.valueOf(attempt));
         operationComplete.setParameter("dc", collectedDigits);
         this.mgcpEventSubject.notify(this.mgcpEventSubject, operationComplete);
+    }
+
+    @Override
+    public void enterPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        final Playlist prompt = context.getFailureAnnouncement();
+        final String track = prompt.next();
+
+        log.info("enterPlayingFailure::atempt=" + context.getAttempt() + ", track=" + track);
+
+        // Register player listener
+        try {
+            this.player.addListener(this.playerListener);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
+
+        // Play reprompt or move to collect state if no prompt is defined
+        if (track.isEmpty()) {
+            fire(PlayCollectEvent.FAIL, context);
+        } else {
+            playAnnouncement(track, 0L);
+        }
+
+    }
+
+    @Override
+    public void onPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        final Playlist prompt = context.getFailureAnnouncement();
+        final String track = prompt.next();
+
+        log.info("onPlayingFailure::atempt=" + context.getAttempt() + ", track=" + track);
+
+        // Play reprompt or move to collect state if no prompt is defined
+        if (track.isEmpty()) {
+            fire(PlayCollectEvent.FAIL, context);
+        } else {
+            playAnnouncement(track, 0L);
+        }
+    }
+
+    @Override
+    public void exitPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        log.info("exitPlayingFailure::atempt=" + context.getAttempt());
+
+        // Deregister player listener
+        this.player.removeListener(this.playerListener);
+
+        // Deactivate player
+        this.player.deactivate();
     }
 
     @Override

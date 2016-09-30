@@ -105,9 +105,12 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.onExit(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("exitNoDigitsReprompting");
         builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
+        builder.onEntry(PlayCollectState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
+        builder.onExit(PlayCollectState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
+        builder.onEntry(PlayCollectState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
+        builder.onExit(PlayCollectState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
         builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
         builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
-
         builder.transition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
         builder.transition().from(PlayCollectState.READY).to(PlayCollectState.PROMPTING).on(PlayCollectEvent.PROMPT);
         builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.PLAYER_STOP).callMethod("onPrompting");
@@ -128,13 +131,17 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_D).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_HASH).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_STAR).callMethod("onCollecting");
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMED_OUT).on(PlayCollectEvent.TIME_OUT).callMethod("onTimingOut");
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART).callMethod("onReady");
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
         builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
         builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
         builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART).callMethod("onReady");
         builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
@@ -143,6 +150,10 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.internalTransition().within(PlayCollectState.REPROMPTING).on(PlayCollectEvent.PLAYER_STOP).callMethod("onReprompting");
         builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
         builder.internalTransition().within(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.PLAYER_STOP).callMethod("onNoDigitsReprompting");
+        builder.internalTransition().within(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAYER_STOP).callMethod("onPlayingSuccess");
+        builder.transition().from(PlayCollectState.PLAYING_SUCCESS).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.internalTransition().within(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAYER_STOP).callMethod("onPlayingFailure");
+        builder.transition().from(PlayCollectState.PLAYING_FAILURE).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
         this.fsm = builder.newStateMachine(PlayCollectState.READY, this.detector, this.detectorListener, this.player, this.playerListener, this, executor, this.context);
     }
 

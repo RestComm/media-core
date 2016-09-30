@@ -146,6 +146,10 @@ public class PlayCollectContext {
     public Playlist getFailureAnnouncement() {
         return failureAnnouncement;
     }
+    
+    public boolean hasFailureAnnouncement() {
+        return !this.failureAnnouncement.isEmpty();
+    }
 
     /**
      * Played when all data entry attempts have succeeded.
@@ -155,12 +159,17 @@ public class PlayCollectContext {
      * 
      * @return The array of audio prompts. Array will be empty if none is specified.
      */
-    public String[] getSuccessAnnouncementSegments() {
-        return Optional.fromNullable(getParameter(SignalParameters.FAILURE_ANNOUNCEMENT.symbol())).or("").split(",");
+    private String[] getSuccessAnnouncementSegments() {
+        String value = Optional.fromNullable(getParameter(SignalParameters.SUCCESS_ANNOUNCEMENT.symbol())).or("");
+        return value.isEmpty() ? new String[0] : value.split(",");
     }
 
     public Playlist getSuccessAnnouncement() {
         return successAnnouncement;
+    }
+    
+    public boolean hasSuccessAnnouncement() {
+        return !this.successAnnouncement.isEmpty();
     }
 
     /**

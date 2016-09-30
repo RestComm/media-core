@@ -50,16 +50,28 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     void onReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void exitReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
-    
+
     void enterNoDigitsReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
-    
+
     void onNoDigitsReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
-    
+
     void exitNoDigitsReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
-    
+
     void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
+    void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
+    void onPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
+    void exitPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
     void enterSucceeded(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    
+    void enterPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
+    void onPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
+    void exitPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void enterFailed(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
