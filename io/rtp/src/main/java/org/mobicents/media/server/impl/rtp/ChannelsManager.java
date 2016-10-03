@@ -57,9 +57,6 @@ public class ChannelsManager {
     
     private int jitterBufferSize=50;
     
-    //Supported Formats --> It contains only codecs actually configured
-    private String[] codecs;
-    
     //channel id generator
     private AtomicInteger channelIndex = new AtomicInteger(100);
     
@@ -114,14 +111,6 @@ public class ChannelsManager {
     public void setJitterBufferSize(int jitterBufferSize) {
     	this.jitterBufferSize=jitterBufferSize;
     }        
-    
-    public String[] getCodecs() {
-		return codecs;
-	}
-    
-    public void setCodecs(String[] strings) {
-    	this.codecs = strings;
-    }
     
     public UdpManager getUdpManager() {
     	return this.udpManager;

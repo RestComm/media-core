@@ -130,7 +130,6 @@ public class MediaGroupTest {
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager);
-        this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
 
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");

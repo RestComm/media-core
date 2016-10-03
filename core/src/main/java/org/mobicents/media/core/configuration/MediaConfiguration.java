@@ -22,6 +22,7 @@
 package org.mobicents.media.core.configuration;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -106,8 +107,8 @@ public class MediaConfiguration {
         this.codecs.add(codec.toLowerCase());
     }
 
-    public String[] getCodecs() {
-        return this.codecs.toArray(new String[codecs.size()]);
+    public Iterator<String> getCodecs() {
+        return this.codecs.iterator();
     }
     
     public boolean hasCodec(String codec) {
