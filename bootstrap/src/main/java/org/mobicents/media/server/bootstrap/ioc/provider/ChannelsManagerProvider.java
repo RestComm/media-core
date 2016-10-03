@@ -51,7 +51,6 @@ public class ChannelsManagerProvider implements Provider<ChannelsManager> {
         ChannelsManager channelsManager = new ChannelsManager(this.udpManager);
         channelsManager.setScheduler(mediaScheduler);
         channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
-        channelsManager.setCodecs(config.getMediaConfiguration().getCodecs());
         return channelsManager;
     }
 

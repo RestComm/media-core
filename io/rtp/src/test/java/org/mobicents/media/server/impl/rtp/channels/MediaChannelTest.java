@@ -63,7 +63,6 @@ public class MediaChannelTest {
 		this.scheduler = new ServiceScheduler();
 		this.udpManager = new UdpManager(scheduler);
 		this.channelsManager = new ChannelsManager(udpManager);
-		this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
 		this.channelsManager.setScheduler(this.mediaScheduler);
 		
 		this.factory = new ChannelFactory();
