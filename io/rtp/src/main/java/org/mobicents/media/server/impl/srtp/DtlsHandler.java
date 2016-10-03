@@ -437,6 +437,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
     private class HandshakeWorker implements Runnable {
 
         public void run() {
+            DtlsHandler.this.rxQueue.clear();
             SecureRandom secureRandom = new SecureRandom();
             DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
 
