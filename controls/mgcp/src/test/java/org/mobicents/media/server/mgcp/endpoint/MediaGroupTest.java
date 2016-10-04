@@ -132,8 +132,8 @@ public class MediaGroupTest {
         channelsManager = new ChannelsManager(udpManager);
         channelsManager.setScheduler(mediaScheduler);
 
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
 
         // Resource
         this.rtpConnectionFactory = new RtpConnectionFactory(channelsManager, dspFactory);
