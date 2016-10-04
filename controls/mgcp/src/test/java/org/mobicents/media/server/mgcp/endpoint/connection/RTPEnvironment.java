@@ -52,8 +52,8 @@ public class RTPEnvironment {
         //use default clock
         clock = new WallClock();
 
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder");
-        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");
+        dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder");
         
         //create single thread scheduler
         mediaScheduler = new PriorityQueueScheduler();

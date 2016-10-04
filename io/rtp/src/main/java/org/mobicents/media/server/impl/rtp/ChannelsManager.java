@@ -30,6 +30,8 @@ import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -60,8 +62,35 @@ public class ChannelsManager {
     //channel id generator
     private AtomicInteger channelIndex = new AtomicInteger(100);
     
+    private final RTPFormats codecs;
+    
+    /**
+     * Creates a new channels manager with a subset of supported codecs.
+     * 
+     * @param udpManager The network manager.
+     * @param codecs The list of supported codecs
+     */
+    public ChannelsManager(UdpManager udpManager, RTPFormats codecs) {
+        this.udpManager = udpManager;
+        this.codecs = codecs;
+    }
+
+    /**
+     * Creates a new channels manager that supports every codec as assigned to {@link AVProfile#audio}.
+     * 
+     * @param udpManager The network manager.
+     */
     public ChannelsManager(UdpManager udpManager) {
-        this.udpManager = udpManager;         
+        this(udpManager, AVProfile.audio);
+    }
+
+    /**
+     * Gets list of supported codecs
+     * 
+     * @return The collection of supported codecs.
+     */
+    public RTPFormats getCodecs() {
+        return codecs;
     }
 
     public void setSS7Manager(SS7Manager ss7Manager) {
