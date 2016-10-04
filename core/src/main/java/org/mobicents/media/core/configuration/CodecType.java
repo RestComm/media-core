@@ -29,20 +29,27 @@ package org.mobicents.media.core.configuration;
  */
 public enum CodecType {
     
-    L16("l16", "org.mobicents.media.server.impl.dsp.audio.l16.Encoder", "org.mobicents.media.server.impl.dsp.audio.l16.Decoder"),
-    PCMU("pcmu", "org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder", "org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder"), 
-    PCMA("pcma", "org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder", "org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder"), 
-    GSM("gsm", "org.mobicents.media.server.impl.dsp.audio.gsm.Encoder", "org.mobicents.media.server.impl.dsp.audio.gsm.Decoder"), 
-    G729("g729", "org.mobicents.media.server.impl.dsp.audio.g729.Encoder", "org.mobicents.media.server.impl.dsp.audio.g729.Decoder");
+    PCMU(0, "pcmu", "org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Encoder", "org.mobicents.media.server.impl.dsp.audio.g711.ulaw.Decoder"), 
+    PCMA(8, "pcma", "org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder", "org.mobicents.media.server.impl.dsp.audio.g711.alaw.Decoder"), 
+    GSM(3, "gsm", "org.mobicents.media.server.impl.dsp.audio.gsm.Encoder", "org.mobicents.media.server.impl.dsp.audio.gsm.Decoder"), 
+    L16(97, "l16", "org.mobicents.media.server.impl.dsp.audio.l16.Encoder", "org.mobicents.media.server.impl.dsp.audio.l16.Decoder"),
+    G729(18, "g729", "org.mobicents.media.server.impl.dsp.audio.g729.Encoder", "org.mobicents.media.server.impl.dsp.audio.g729.Decoder"),
+    ILBC(102, "ilbc", "org.mobicents.media.server.impl.dsp.audio.ilbc.Encoder", "org.mobicents.media.server.impl.dsp.audio.ilbc.Decoder");
 
+    private final int payloadType;
     private final String name;
     private final String encoder;
     private final String decoder;
 
-    private CodecType(String name, String encoder, String decoder) {
+    private CodecType(int payloadType, String name, String encoder, String decoder) {
+        this.payloadType = payloadType;
         this.name = name;
         this.encoder = encoder;
         this.decoder = decoder;
+    }
+    
+    public int getPayloadType() {
+        return payloadType;
     }
 
     public String getName() {

@@ -21,9 +21,15 @@
         
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
+import java.util.Iterator;
+
+import org.mobicents.media.core.configuration.CodecType;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mobicents.media.server.io.sdp.format.RTPFormat;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 import com.google.inject.Inject;
@@ -38,17 +44,30 @@ public class ChannelsManagerProvider implements Provider<ChannelsManager> {
     private final UdpManager udpManager;
     private final PriorityQueueScheduler mediaScheduler;
     private final MediaServerConfiguration config;
+    private final RTPFormats supportedCodecs;
     
     @Inject
     public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager, PriorityQueueScheduler mediaScheduler) {
         this.udpManager = udpManager;
         this.mediaScheduler = mediaScheduler;
         this.config = config;
+        this.supportedCodecs = new RTPFormats(this.config.getMediaConfiguration().countCodecs());
+        
+        final Iterator<String> codecs = this.config.getMediaConfiguration().getCodecs();
+        while (codecs.hasNext()) {
+            CodecType codec = CodecType.fromName(codecs.next());
+            if(codec != null) {
+                RTPFormat format = AVProfile.audio.find(codec.getPayloadType());
+                if(format != null) {
+                    this.supportedCodecs.add(format);
+                }
+            }
+        }
     }
     
     @Override
     public ChannelsManager get() {
-        ChannelsManager channelsManager = new ChannelsManager(this.udpManager);
+        ChannelsManager channelsManager = new ChannelsManager(this.udpManager, this.supportedCodecs);
         channelsManager.setScheduler(mediaScheduler);
         channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
         return channelsManager;
