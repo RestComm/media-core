@@ -29,12 +29,14 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.core.configuration.MediaConfiguration;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.core.configuration.MgcpEndpointConfiguration;
 import org.mobicents.media.core.configuration.NetworkConfiguration;
 import org.mobicents.media.core.configuration.ResourcesConfiguration;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 
 /**
  * Loads Media Server configurations from an XML file.
@@ -79,6 +81,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
             configureController(xml.configurationAt("controller"), configuration.getControllerConfiguration());
             configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
             configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
+            configureDtls(xml.configurationAt("dtls"), configuration.getDtlsConfiguration());
         } catch (ConfigurationException | IllegalArgumentException e) {
             log.error("Could not load configuration from " + filepath + ". Using default values. Reason: " + e.getMessage());
         }
@@ -137,6 +140,11 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
         dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
         dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
+    }
+
+    private static void configureDtls(HierarchicalConfiguration<ImmutableNode> src, DtlsConfiguration dst){
+        String cipherSuite = src.getString("cipherSuites", DtlsConfiguration.CIPHER_SUITES.get(0).name());
+        dst.setCipherSuite(cipherSuite.split(","));
     }
 
 }

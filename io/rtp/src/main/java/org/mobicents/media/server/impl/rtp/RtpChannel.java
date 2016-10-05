@@ -35,6 +35,7 @@ import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtcp.RtcpHandler;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
@@ -116,7 +117,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
     private RtpListener rtpListener;
 
     protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock,
-            PriorityQueueScheduler scheduler, UdpManager udpManager) {
+            PriorityQueueScheduler scheduler, UdpManager udpManager, DtlsSrtpServerProvider tlsServerProvider) {
         // Initialize MultiplexedChannel elements
         super();
 
@@ -138,7 +139,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
         this.rtpHandler.setPipelinePriority(RTP_PRIORITY);
         this.rtcpHandler = new RtcpHandler(this.udpManager.getScheduler(), statistics);
         this.rtpHandler.setPipelinePriority(RTCP_PRIORITY);
-        this.dtlsHandler = new DtlsHandler();
+        this.dtlsHandler = new DtlsHandler(tlsServerProvider);
         this.rtpHandler.setPipelinePriority(DTLS_PRIORITY);
         this.stunHandler = new IceHandler(IceComponent.RTP_ID, this);
         this.stunHandler.setPipelinePriority(STUN_PRIORITY);

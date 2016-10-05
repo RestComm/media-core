@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.channels.AudioChannel;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -62,9 +63,12 @@ public class ChannelsManager {
     
     //channel id generator
     private AtomicInteger channelIndex = new AtomicInteger(100);
-    
-    public ChannelsManager(UdpManager udpManager) {
-        this.udpManager = udpManager;         
+
+    private DtlsSrtpServerProvider tlsServerProvider;
+
+    public ChannelsManager(UdpManager udpManager, DtlsSrtpServerProvider tlsServerProvider) {
+        this.udpManager = udpManager;
+        this.tlsServerProvider = tlsServerProvider;
     }
 
     public void setSS7Manager(SS7Manager ss7Manager) {
@@ -129,15 +133,15 @@ public class ChannelsManager {
     
     @Deprecated
     public RTPDataChannel getChannel() {
-        return new RTPDataChannel(this,channelIndex.incrementAndGet());
+        return new RTPDataChannel(this,channelIndex.incrementAndGet(), this.tlsServerProvider);
     }
     
     public RtpChannel getRtpChannel(RtpStatistics statistics, RtpClock clock, RtpClock oobClock) {
-    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager);
+    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager, tlsServerProvider);
     }
 
     public RtcpChannel getRtcpChannel(RtpStatistics statistics) {
-    	return new RtcpChannel(channelIndex.incrementAndGet(), statistics, udpManager);
+        return new RtcpChannel(channelIndex.incrementAndGet(), statistics, udpManager, tlsServerProvider);
     }
     
     public LocalDataChannel getLocalChannel() {

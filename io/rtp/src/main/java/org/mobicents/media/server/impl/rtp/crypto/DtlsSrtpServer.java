@@ -22,6 +22,7 @@ package org.mobicents.media.server.impl.rtp.crypto;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Level;
@@ -77,7 +78,9 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	// Policies
 	private SRTPPolicy srtpPolicy;
 	private SRTPPolicy srtcpPolicy;
-	
+
+	private List<CipherSuite> cipherSuites;
+
 	public void notifyAlertRaised(short alertLevel, short alertDescription, String message, Exception cause) {
     	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
         LOGGER.log(logLevel, String.format("DTLS server raised alert (AlertLevel.%d, AlertDescription.%d, message='%s')", alertLevel, alertDescription, message), cause);
@@ -291,5 +294,18 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 			return "";
 		}
 	}
-    
+
+    public void setCipherSuites(List<CipherSuite> cipherSuites) {
+        this.cipherSuites = cipherSuites;
+    }
+
+    @Override
+    public int[] getCipherSuites() {
+        int[] cipherSuites = new int[this.cipherSuites.size()];
+        for (int i = 0; i < this.cipherSuites.size(); i++) {
+            cipherSuites[i] = this.cipherSuites.get(i).getValue();
+        }
+        return cipherSuites;
+    }
+
 }
