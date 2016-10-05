@@ -19,19 +19,24 @@
  */
 package org.mobicents.media.server.impl.rtp.channels;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.RtpChannel;
+import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
+import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
@@ -205,6 +210,32 @@ public class MediaChannelTest {
 		assertEquals(localPort, remoteChannel.rtpChannel.getRemotePort());
 		assertFalse(remoteChannel.rtcpChannel.isOpen());
 	}
+	
+    @Test
+    public void testSupportedCodecsFiltering() {
+        // given
+        final RTPFormats codecs = new RTPFormats(3);
+        codecs.add(AVProfile.audio.find(0));
+        codecs.add(AVProfile.audio.find(8));
+        codecs.add(AVProfile.audio.find(3));
+        codecs.add(AVProfile.audio.find(101));
+
+        final ChannelsManager channelProvider = mock(ChannelsManager.class);
+        final RtpChannel rtpChannel = mock(RtpChannel.class);
+        final RtcpChannel rtcpChannel = mock(RtcpChannel.class);
+        final Clock clock = mock(Clock.class);
+
+        // when
+        when(channelProvider.getCodecs()).thenReturn(codecs);
+        when(channelProvider.getRtpChannel(any(RtpStatistics.class), any(RtpClock.class), any(RtpClock.class))).thenReturn(rtpChannel);
+        when(channelProvider.getRtcpChannel(any(RtpStatistics.class))).thenReturn(rtcpChannel);
+
+        final AudioChannel audioChannel = new AudioChannel(clock, channelProvider);
+        RTPFormats supportedCodecs = audioChannel.getFormats();
+
+        // then
+        assertEquals(codecs, supportedCodecs);
+    }
 	
 	/**
 	 * Produces Media Channels
