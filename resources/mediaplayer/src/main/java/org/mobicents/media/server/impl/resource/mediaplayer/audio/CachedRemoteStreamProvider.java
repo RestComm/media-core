@@ -8,6 +8,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -20,15 +21,27 @@ import org.ehcache.config.units.MemoryUnit;
  */
 public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
+    private final static Logger log = Logger.getLogger(CachedRemoteStreamProvider.class);
+
     private CacheManager cacheManager;
 
+    private ByteStreamCache.ISizeChangedListener sizeChangedListener;
+
     public CachedRemoteStreamProvider(int size) {
+        log.info("Create AudioCache with size: " + size + "Mb");
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache("preConfigured",
                         CacheConfigurationBuilder.newCacheConfigurationBuilder(URL.class, ByteStreamCache.class,
                                 ResourcePoolsBuilder.newResourcePoolsBuilder().heap(size, MemoryUnit.MB))
                                 .build())
                 .build(true);
+        sizeChangedListener = new ByteStreamCache.ISizeChangedListener() {
+            @Override
+            public void onSizeChanged(final URL uri, final ByteStreamCache self) {
+                log.debug("onSizeChanged for " + uri);
+                getCache().put(uri, self);
+            }
+        };
     }
 
     private Cache<URL, ByteStreamCache> getCache() {
@@ -46,7 +59,7 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
                 stream = exists;
             }
         }
-        return new ByteArrayInputStream(stream.getBytes(uri));
+        return new ByteArrayInputStream(stream.getBytes(uri, sizeChangedListener));
     }
 
     private static class ByteStreamCache {
@@ -55,19 +68,24 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
         private volatile byte[] bytes;
 
-        public byte[] getBytes(URL uri) throws IOException {
+        public byte[] getBytes(final URL uri, final ISizeChangedListener listener) throws IOException {
             if (bytes == null) {
                 lock.lock();
                 try {
                     //need to check twice
                     if (bytes == null) {
                         bytes = IOUtils.toByteArray(uri.openStream());
+                        listener.onSizeChanged(uri, this);
                     }
                 } finally {
                     lock.unlock();
                 }
             }
             return bytes;
+        }
+
+        interface ISizeChangedListener {
+            void onSizeChanged(URL uri, ByteStreamCache self);
         }
     }
 }
