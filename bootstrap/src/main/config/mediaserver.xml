@@ -57,7 +57,7 @@
 		<player poolSize="50">
 			<cache>
 				<cacheSize>100</cacheSize>
-				<cacheEnabled>true</cacheEnabled>
+				<cacheEnabled>false</cacheEnabled>
 			</cache>
 		</player>
 		<recorder poolSize="50" />
