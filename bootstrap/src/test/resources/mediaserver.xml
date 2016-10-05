@@ -41,6 +41,7 @@
 			<codec name="pcma" />
 			<codec name="gsm" />
 			<codec name="g729" />
+			<codec name="telephone-event" />
 		</codecs>
 	</media>
 

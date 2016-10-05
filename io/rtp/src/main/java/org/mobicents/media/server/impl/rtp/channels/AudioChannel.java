@@ -37,8 +37,6 @@ public class AudioChannel extends MediaChannel {
 
 	public AudioChannel(Clock wallClock, ChannelsManager channelsManager) {
 		super(MEDIA_TYPE, wallClock, channelsManager);
-		this.supportedFormats = channelsManager.getCodecs();
-		super.setFormats(this.supportedFormats);
 	}
 
 	public AudioComponent getAudioComponent() {

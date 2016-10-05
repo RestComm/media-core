@@ -34,7 +34,8 @@ public enum CodecType {
     GSM(3, "gsm", "org.mobicents.media.server.impl.dsp.audio.gsm.Encoder", "org.mobicents.media.server.impl.dsp.audio.gsm.Decoder"), 
     L16(97, "l16", "org.mobicents.media.server.impl.dsp.audio.l16.Encoder", "org.mobicents.media.server.impl.dsp.audio.l16.Decoder"),
     G729(18, "g729", "org.mobicents.media.server.impl.dsp.audio.g729.Encoder", "org.mobicents.media.server.impl.dsp.audio.g729.Decoder"),
-    ILBC(102, "ilbc", "org.mobicents.media.server.impl.dsp.audio.ilbc.Encoder", "org.mobicents.media.server.impl.dsp.audio.ilbc.Decoder");
+    ILBC(102, "ilbc", "org.mobicents.media.server.impl.dsp.audio.ilbc.Encoder", "org.mobicents.media.server.impl.dsp.audio.ilbc.Decoder"),
+    DTMF(101, "telephone-event", "", "");
 
     private final int payloadType;
     private final String name;
