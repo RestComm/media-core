@@ -109,12 +109,26 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     }
 
     @Override
-    public void onReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        this.context.newAttempt();
+    public void enterReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered READY state");
+        }
+        
+        if (PlayCollectEvent.RESTART.equals(event)) {
+            this.context.newAttempt();
+        }
+
         if (this.context.getInitialPrompt().isEmpty()) {
             fire(PlayCollectEvent.COLLECT, this.context);
         } else {
             fire(PlayCollectEvent.PROMPT, this.context);
+        }
+    }
+
+    @Override
+    public void exitReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited READY state");
         }
     }
 
@@ -189,14 +203,14 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if (log.isInfoEnabled()) {
             log.info("Received tone " + tone);
         }
-        
-        if(reinputKey == tone) {
+
+        if (reinputKey == tone) {
             // Force collection to cancel any scheduled timeout
             context.collectDigit(tone);
-            
+
             // Clear collected digits
             context.clearCollectedDigits();
-            
+
             // Start first digit timer
             this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
         } else if (restartKey == tone) {
