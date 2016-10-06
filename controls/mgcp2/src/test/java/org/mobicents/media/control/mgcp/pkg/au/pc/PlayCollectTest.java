@@ -1620,4 +1620,39 @@ public class PlayCollectTest {
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
+    @Test
+    public void testCancelWhenPlayingFailureAnnouncement() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "3");
+        parameters.put("mn", "2");
+        parameters.put("fa", "failure1.wav,failure2.wav,failure3.wav");
+        
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pc.observe(observer);
+        pc.execute();
+        
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        Thread.sleep(10);
+        pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
+        pc.cancel();
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(player, times(2)).activate();
+        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
 }
