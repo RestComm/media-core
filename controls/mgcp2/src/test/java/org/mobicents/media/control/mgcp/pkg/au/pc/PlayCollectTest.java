@@ -1554,7 +1554,7 @@ public class PlayCollectTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("dp", "xABCx");
-        parameters.put("pa", "success.wav");
+        parameters.put("sa", "success.wav");
         
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
@@ -1582,6 +1582,42 @@ public class PlayCollectTest {
         verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
         
         assertEquals(String.valueOf(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
+    @Test
+    public void testCancelWhenPlayingSuccessAnnouncement() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("sa", "success1.wav,success2.wav,success3.wav");
+        
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pc.observe(observer);
+        pc.execute();
+        
+        Thread.sleep(10);
+        pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
+        Thread.sleep(10);
+        pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
+        pc.cancel();
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(detector, times(1)).deactivate();
+        verify(player, times(2)).activate();
+        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
 }
