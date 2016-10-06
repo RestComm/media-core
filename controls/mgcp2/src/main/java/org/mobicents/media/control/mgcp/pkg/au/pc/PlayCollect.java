@@ -125,20 +125,20 @@ public class PlayCollect extends AbstractMgcpSignal {
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.TIME_OUT).perform(EvaluateDtmf.INSTANCE);
+        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMED_OUT).on(PlayCollectEvent.TIMEOUT).perform(EvaluateDtmf.INSTANCE);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
         builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
         builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
 
-        builder.onEntry(PlayCollectState.EVALUATING).callMethod("enterEvaluating");
-        builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
-        builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
-        builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
-        builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-        builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
-        builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
-        builder.onExit(PlayCollectState.EVALUATING).callMethod("exitEvaluating");
+        builder.onEntry(PlayCollectState.TIMED_OUT).callMethod("enterTimedOut");
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
+        builder.onExit(PlayCollectState.TIMED_OUT).callMethod("exitTimedOut");
 
         builder.onEntry(PlayCollectState.REPROMPTING).callMethod("enterReprompting");
         builder.transition().from(PlayCollectState.REPROMPTING).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);

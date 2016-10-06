@@ -57,9 +57,9 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
 
     void exitNoDigitsReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
-    void enterEvaluating(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    void enterTimedOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
     
-    void exitEvaluating(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    void exitTimedOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
     
     void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 

@@ -452,16 +452,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     }
     
     @Override
-    public void enterEvaluating(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+    public void enterTimedOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         if(log.isTraceEnabled()) {
-            log.trace("Entered EVALUATING state");
+            log.trace("Entered TIMED OUT state");
         }
     }
     
     @Override
-    public void exitEvaluating(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+    public void exitTimedOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         if(log.isTraceEnabled()) {
-            log.trace("Exited EVALUATING state");
+            log.trace("Exited TIMED OUT state");
         }
     }
 
@@ -627,7 +627,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
                     if(log.isDebugEnabled()) {
                         log.debug("Timing out collect operation!");
                     }
-                    fire(PlayCollectEvent.TIME_OUT, context);
+                    fire(PlayCollectEvent.TIMEOUT, context);
                 }
             } else {
                 if (log.isTraceEnabled()) {
