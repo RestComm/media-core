@@ -91,17 +91,13 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             this.player.setInitialDelay(delay);
             this.player.setURL(url);
             this.player.activate();
-
-            if (log.isInfoEnabled()) {
-                log.info("Playing announcement " + url);
-            }
         } catch (MalformedURLException e) {
-            log.error("Could not play malformed segment " + url, e);
+            log.warn("Could not play malformed segment " + url);
             context.setReturnCode(ReturnCode.BAD_AUDIO_ID.code());
             fire(PlayCollectEvent.FAIL, context);
             // TODO create transition from PROMPTING to FAILED
         } catch (ResourceUnavailableException e) {
-            log.error("Could not play unavailable segment " + url, e);
+            log.warn("Could not play unavailable segment " + url);
             context.setReturnCode(ReturnCode.BAD_AUDIO_ID.code());
             fire(PlayCollectEvent.FAIL, context);
             // TODO create transition from PROMPTING to FAILED
@@ -134,6 +130,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void enterPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered PROMPTING state");
+        }
+        
         final Playlist prompt = context.getInitialPrompt();
         try {
             this.player.addListener(this.playerListener);
@@ -147,6 +147,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void onPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("On PROMPTING state");
+        }
+        
         final Playlist prompt = context.getInitialPrompt();
         final String next = prompt.next();
 
@@ -160,20 +164,24 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void exitPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited PROMPTING state");
+        }
+        
         this.player.removeListener(this.playerListener);
         this.player.deactivate();
     }
 
     @Override
     public void enterCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered COLLECTING state");
+        }
+        
         try {
             // Activate DTMF detector and bind listener
             this.detector.addListener(this.detectorListener);
             this.detector.activate();
-
-            if (log.isInfoEnabled()) {
-                log.info("Started collect phase. Attempt: " + context.getAttempt());
-            }
 
             // Activate timer for first digit
             this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
@@ -184,13 +192,13 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void exitCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited COLLECTING state");
+        }
+        
         // Deactivate DTMF detector and release listener
         this.detector.removeListener(this.detectorListener);
         this.detector.deactivate();
-
-        if (log.isInfoEnabled()) {
-            log.info("Stopped collect phase. Attempt: " + context.getAttempt());
-        }
     }
 
     @Override
@@ -200,8 +208,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         final char restartKey = context.getRestartKey();
         final char reinputKey = context.getReinputKey();
 
-        if (log.isInfoEnabled()) {
-            log.info("Received tone " + tone);
+        if (log.isTraceEnabled()) {
+            log.trace("On COLLECTING state:::tone=" + tone);
         }
 
         if (reinputKey == tone) {
@@ -326,81 +334,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     }
 
     @Override
-    public void onTimingOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        if (log.isInfoEnabled()) {
-            log.info("Timing out Collect operation.");
-        }
-
-        if (context.hasDigitPattern()) {
-            // Check if list of collected digits match the digit pattern
-            if (context.getCollectedDigits().matches(context.getDigitPattern())) {
-                // Digit Collection succeeded
-                if (context.hasSuccessAnnouncement()) {
-                    fire(PlayCollectEvent.PLAY_SUCCESS, context);
-                } else {
-                    fire(PlayCollectEvent.SUCCEED, context);
-                }
-            } else {
-                // Retry if more attempts are available. If not, fail.
-                if (context.hasMoreAttempts()) {
-                    // Clear digits and play reprompt
-                    if (context.countCollectedDigits() == 0) {
-                        fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
-                    } else {
-                        fire(PlayCollectEvent.REPROMPT, context);
-                    }
-                } else {
-                    // Fire failure event
-                    context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                    if (context.hasFailureAnnouncement()) {
-                        fire(PlayCollectEvent.PLAY_FAILURE, context);
-                    } else {
-                        fire(PlayCollectEvent.FAIL, context);
-                    }
-                }
-            }
-        } else {
-            // Check if minimum number of digits was collected
-            if (context.getMinimumDigits() <= context.countCollectedDigits()) {
-                // Minimum number of digits was collected
-                // Digit Collection succeeded
-                if (context.hasSuccessAnnouncement()) {
-                    fire(PlayCollectEvent.PLAY_SUCCESS, context);
-                } else {
-                    fire(PlayCollectEvent.SUCCEED, context);
-                }
-            } else {
-                // Minimum number of digits was NOT collected
-                // Retry if more attempts are available. If not, fail.
-                if (context.hasMoreAttempts()) {
-                    // Clear digits and play reprompt
-                    if (context.countCollectedDigits() == 0) {
-                        fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
-                    } else {
-                        fire(PlayCollectEvent.REPROMPT, context);
-                    }
-                } else {
-                    // Fire failure event
-                    context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                    if (context.hasFailureAnnouncement()) {
-                        fire(PlayCollectEvent.PLAY_FAILURE, context);
-                    } else {
-                        fire(PlayCollectEvent.FAIL, context);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     public void enterReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         // Clear collected digits and rewind playlists
         context.newAttempt();
 
         final Playlist prompt = context.getReprompt();
         final String track = prompt.next();
-
-        log.info("enterReprompting::atempt=" + context.getAttempt() + ", track=" + track);
+        
+        if(log.isTraceEnabled()) {
+            log.trace("Entered REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
+        }
 
         // Register player listener
         try {
@@ -424,7 +367,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         final Playlist prompt = context.getReprompt();
         final String track = prompt.next();
 
-        log.info("onReprompting::atempt=" + context.getAttempt() + ", track=" + track);
+        if(log.isTraceEnabled()) {
+            log.trace("On REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
+        }
 
         // Play reprompt or move to collect state if no prompt is defined
         if (track.isEmpty()) {
@@ -436,8 +381,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void exitReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-
-        log.info("exitReprompting::atempt=" + context.getAttempt());
+        if(log.isTraceEnabled()) {
+            log.trace("Exited REPROMPTING state");
+        }
 
         // Deregister player listener
         this.player.removeListener(this.playerListener);
@@ -453,8 +399,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
         final Playlist prompt = context.getNoDigitsReprompt();
         final String track = prompt.next();
-
-        log.info("enterNoDigitsReprompting::atempt=" + context.getAttempt() + ", track=" + track);
+        
+        if(log.isTraceEnabled()) {
+            log.trace("Entered NO DIGITS REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
+        }
 
         // Register player listener
         try {
@@ -477,8 +425,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     public void onNoDigitsReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         final Playlist prompt = context.getNoDigitsReprompt();
         final String track = prompt.next();
-
-        log.info("onNoDigitsReprompting::atempt=" + context.getAttempt() + ", track=" + track);
+        
+        if(log.isTraceEnabled()) {
+            log.trace("On NO DIGITS REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
+        }
 
         // Play reprompt or move to collect state if no prompt is defined
         if (track.isEmpty()) {
@@ -490,8 +440,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void exitNoDigitsReprompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-
-        log.info("exitNoDigitsReprompting::atempt=" + context.getAttempt());
+        if(log.isTraceEnabled()) {
+            log.trace("Exited NO DIGITS REPROMPTING state");
+        }
 
         // Deregister player listener
         this.player.removeListener(this.playerListener);
@@ -499,11 +450,19 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         // Deactivate player
         this.player.deactivate();
     }
-
+    
     @Override
-    public void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        log.info("Canceled!!!");
-        // TODO Auto-generated method stub
+    public void enterEvaluating(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered EVALUATING state");
+        }
+    }
+    
+    @Override
+    public void exitEvaluating(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited EVALUATING state");
+        }
     }
 
     @Override
@@ -511,7 +470,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         final Playlist prompt = context.getSuccessAnnouncement();
         final String track = prompt.next();
 
-        log.info("enterPlayingSuccess::atempt=" + context.getAttempt() + ", track=" + track);
+        if(log.isTraceEnabled()) {
+            log.trace("Entered PLAYING SUCCESS state");
+        }
 
         // Register player listener
         try {
@@ -536,7 +497,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         final Playlist prompt = context.getSuccessAnnouncement();
         final String track = prompt.next();
 
-        log.info("onPlayingSuccess::atempt=" + context.getAttempt() + ", track=" + track);
+        if(log.isTraceEnabled()) {
+            log.trace("On PLAYING SUCCESS state::atempt=" + context.getAttempt() + ", track=" + track);
+        }
 
         // Play reprompt or move to collect state if no prompt is defined
         if (track.isEmpty()) {
@@ -548,7 +511,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void exitPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        log.info("exitPlayingSuccess::atempt=" + context.getAttempt());
+        if(log.isTraceEnabled()) {
+            log.trace("Exited PLAYING SUCCESS state");
+        }
 
         // Deregister player listener
         this.player.removeListener(this.playerListener);
@@ -562,6 +527,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         final String collectedDigits = context.getCollectedDigits();
         final int attempt = context.getAttempt();
 
+        if(log.isTraceEnabled()) {
+            log.trace("Entered SUCCEEDED state::attempt=" + attempt + ", digits=" + collectedDigits);
+        }
+
         final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, ReturnCode.SUCCESS.code());
         operationComplete.setParameter("na", String.valueOf(attempt));
         operationComplete.setParameter("dc", collectedDigits);
@@ -573,7 +542,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         final Playlist prompt = context.getFailureAnnouncement();
         final String track = prompt.next();
 
-        log.info("enterPlayingFailure::atempt=" + context.getAttempt() + ", track=" + track);
+        if(log.isTraceEnabled()) {
+            log.trace("Entered PLAYING FAILURE state");
+        }
 
         // Register player listener
         try {
@@ -597,8 +568,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     public void onPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         final Playlist prompt = context.getFailureAnnouncement();
         final String track = prompt.next();
-
-        log.info("onPlayingFailure::atempt=" + context.getAttempt() + ", track=" + track);
+        
+        if(log.isTraceEnabled()) {
+            log.trace("On PLAYING FAILURE state");
+        }
 
         // Play reprompt or move to collect state if no prompt is defined
         if (track.isEmpty()) {
@@ -610,7 +583,9 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void exitPlayingFailure(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        log.info("exitPlayingFailure::atempt=" + context.getAttempt());
+        if(log.isTraceEnabled()) {
+            log.trace("Exited PLAYING FAILURE state");
+        }
 
         // Deregister player listener
         this.player.removeListener(this.playerListener);
@@ -621,6 +596,10 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
     @Override
     public void enterFailed(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered FAILED state");
+        }
+
         final OperationFailed operationFailed = new OperationFailed(PlayCollect.SYMBOL, context.getReturnCode());
         this.mgcpEventSubject.notify(this.mgcpEventSubject, operationFailed);
     }
@@ -644,10 +623,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         @Override
         public void run() {
             if (context.getLastCollectedDigitOn() <= this.timestamp) {
-                fire(PlayCollectEvent.TIME_OUT, context);
+                if(PlayCollectState.COLLECTING.equals(getCurrentState())) {
+                    if(log.isDebugEnabled()) {
+                        log.debug("Timing out collect operation!");
+                    }
+                    fire(PlayCollectEvent.TIME_OUT, context);
+                }
             } else {
-                if (log.isInfoEnabled()) {
-                    log.info("Aborting timeout operation because a tone has been received in the meantime.");
+                if (log.isTraceEnabled()) {
+                    log.trace("Aborting timeout operation because a tone has been received in the meantime.");
                 }
             }
 
