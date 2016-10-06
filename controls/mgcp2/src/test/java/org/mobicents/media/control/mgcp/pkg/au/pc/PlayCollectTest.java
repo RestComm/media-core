@@ -1412,4 +1412,40 @@ public class PlayCollectTest {
         assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
+    @Test
+    public void testCancelWhenPrompting() throws InterruptedException, MalformedURLException, ResourceUnavailableException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "3");
+        parameters.put("mn", "2");
+        parameters.put("ip", "prompt1.wav,prompt2.wav");
+        parameters.put("fa", "failure.wav");
+        
+        final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final ListeningScheduledExecutorService executor = MoreExecutors.listeningDecorator(threadPool);
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final PlayCollect pc = new PlayCollect(player, detector, parameters, executor);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pc.observe(observer);
+        pc.execute();
+        
+        Thread.sleep(10);
+        pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
+        pc.cancel();
+
+        // then
+        verify(detector, never()).activate();
+        verify(player, times(2)).activate();
+        verify(player, times(1)).setURL("prompt1.wav");
+        verify(player, times(1)).setURL("prompt2.wav");
+        verify(player, never()).setURL("failure.wav");
+        verify(observer, timeout(100)).onEvent(eq(pc), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
+    }
+
 }

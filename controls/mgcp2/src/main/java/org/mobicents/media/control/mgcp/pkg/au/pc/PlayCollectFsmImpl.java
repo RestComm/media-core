@@ -464,6 +464,20 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Exited TIMED OUT state");
         }
     }
+    
+    @Override
+    public void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered CANCELED state");
+        }
+    }
+    
+    @Override
+    public void exitCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited CANCELED state");
+        }
+    }
 
     @Override
     public void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {

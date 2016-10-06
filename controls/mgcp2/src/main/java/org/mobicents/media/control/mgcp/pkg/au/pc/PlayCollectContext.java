@@ -50,7 +50,7 @@ public class PlayCollectContext {
     private final StringBuilder collectedDigits;
     private long lastCollectedDigitOn;
     private int attempt;
-
+    private boolean canceled;
     private int returnCode;
 
     public PlayCollectContext(DtmfDetector detector, DtmfDetectorListener detectorListener, Map<String, String> parameters) {
@@ -69,6 +69,7 @@ public class PlayCollectContext {
         this.lastCollectedDigitOn = 0L;
         this.returnCode = 0;
         this.attempt = 1;
+        this.canceled = false;
     }
 
     /*
@@ -478,6 +479,14 @@ public class PlayCollectContext {
 
     protected void setReturnCode(int returnCode) {
         this.returnCode = returnCode;
+    }
+    
+    public boolean isCanceled() {
+        return canceled;
+    }
+    
+    protected void cancel() {
+        this.canceled = true;
     }
 
     /**

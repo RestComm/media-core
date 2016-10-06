@@ -29,20 +29,20 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class EvaluateDtmf extends AnonymousAction<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> {
+public class TimeoutAction extends AnonymousAction<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> {
     
-    private static final Logger log = Logger.getLogger(EvaluateDtmf.class);
+    private static final Logger log = Logger.getLogger(TimeoutAction.class);
     
-    public static EvaluateDtmf INSTANCE = new EvaluateDtmf();
+    public static TimeoutAction INSTANCE = new TimeoutAction();
     
-    private EvaluateDtmf() {
+    private TimeoutAction() {
         super();
     }
 
     @Override
     public void execute(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context, PlayCollectFsm stateMachine) {
         if (log.isDebugEnabled()) {
-            log.debug("Evaluating collected digits");
+            log.debug("Evaluating collected digits for timeout");
         }
 
         if (context.hasDigitPattern()) {

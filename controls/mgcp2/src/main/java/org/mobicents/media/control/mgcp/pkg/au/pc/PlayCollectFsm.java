@@ -61,6 +61,10 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     
     void exitTimedOut(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
     
+    void enterCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    
+    void exitCanceled(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    
     void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void onPlayingSuccess(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
