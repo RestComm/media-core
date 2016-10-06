@@ -64,11 +64,11 @@ public class ChannelsManager {
     //channel id generator
     private AtomicInteger channelIndex = new AtomicInteger(100);
 
-    private DtlsSrtpServerProvider tlsServerProvider;
+    private DtlsSrtpServerProvider dtlsServerProvider;
 
-    public ChannelsManager(UdpManager udpManager, DtlsSrtpServerProvider tlsServerProvider) {
+    public ChannelsManager(UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
         this.udpManager = udpManager;
-        this.tlsServerProvider = tlsServerProvider;
+        this.dtlsServerProvider = dtlsServerProvider;
     }
 
     public void setSS7Manager(SS7Manager ss7Manager) {
@@ -133,15 +133,15 @@ public class ChannelsManager {
     
     @Deprecated
     public RTPDataChannel getChannel() {
-        return new RTPDataChannel(this,channelIndex.incrementAndGet(), this.tlsServerProvider);
+        return new RTPDataChannel(this,channelIndex.incrementAndGet(), this.dtlsServerProvider);
     }
     
     public RtpChannel getRtpChannel(RtpStatistics statistics, RtpClock clock, RtpClock oobClock) {
-    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager, tlsServerProvider);
+    	return new RtpChannel(channelIndex.incrementAndGet(), jitterBufferSize, statistics, clock, oobClock, scheduler, udpManager, dtlsServerProvider);
     }
 
     public RtcpChannel getRtcpChannel(RtpStatistics statistics) {
-        return new RtcpChannel(channelIndex.incrementAndGet(), statistics, udpManager, tlsServerProvider);
+        return new RtcpChannel(channelIndex.incrementAndGet(), statistics, udpManager, dtlsServerProvider);
     }
     
     public LocalDataChannel getLocalChannel() {

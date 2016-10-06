@@ -22,7 +22,6 @@
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
-import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 
 import com.google.inject.Inject;

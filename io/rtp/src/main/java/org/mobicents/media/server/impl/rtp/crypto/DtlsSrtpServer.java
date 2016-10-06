@@ -79,7 +79,11 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	private SRTPPolicy srtpPolicy;
 	private SRTPPolicy srtcpPolicy;
 
-	private List<CipherSuite> cipherSuites;
+	private final CipherSuite[] cipherSuites;
+	
+	public DtlsSrtpServer(CipherSuite[] cipherSuites){
+	    this.cipherSuites = cipherSuites;
+	}
 
 	public void notifyAlertRaised(short alertLevel, short alertDescription, String message, Exception cause) {
     	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
@@ -295,15 +299,11 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 		}
 	}
 
-    public void setCipherSuites(List<CipherSuite> cipherSuites) {
-        this.cipherSuites = cipherSuites;
-    }
-
     @Override
     public int[] getCipherSuites() {
-        int[] cipherSuites = new int[this.cipherSuites.size()];
-        for (int i = 0; i < this.cipherSuites.size(); i++) {
-            cipherSuites[i] = this.cipherSuites.get(i).getValue();
+        int[] cipherSuites = new int[this.cipherSuites.length];
+        for (int i = 0; i < this.cipherSuites.length; i++) {
+            cipherSuites[i] = this.cipherSuites[i].getValue();
         }
         return cipherSuites;
     }

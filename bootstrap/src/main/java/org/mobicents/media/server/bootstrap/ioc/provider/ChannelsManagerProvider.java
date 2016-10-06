@@ -39,20 +39,20 @@ public class ChannelsManagerProvider implements Provider<ChannelsManager> {
     private final UdpManager udpManager;
     private final PriorityQueueScheduler mediaScheduler;
     private final MediaServerConfiguration config;
-    private final DtlsSrtpServerProvider tlsServerProvider;
+    private final DtlsSrtpServerProvider dtlsServerProvider;
 
     @Inject
     public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager,
-            PriorityQueueScheduler mediaScheduler, DtlsSrtpServerProvider tlsServerProvider) {
+            PriorityQueueScheduler mediaScheduler, DtlsSrtpServerProvider dtlsServerProvider) {
         this.udpManager = udpManager;
         this.mediaScheduler = mediaScheduler;
         this.config = config;
-        this.tlsServerProvider = tlsServerProvider;
+        this.dtlsServerProvider = dtlsServerProvider;
     }
 
     @Override
     public ChannelsManager get() {
-        ChannelsManager channelsManager = new ChannelsManager(this.udpManager, this.tlsServerProvider);
+        ChannelsManager channelsManager = new ChannelsManager(this.udpManager, this.dtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);
         channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
         channelsManager.setCodecs(config.getMediaConfiguration().getCodecs());

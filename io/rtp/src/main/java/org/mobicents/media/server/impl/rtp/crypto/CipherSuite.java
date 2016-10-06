@@ -295,11 +295,9 @@ public enum CipherSuite {
     TLS_DHE_PSK_WITH_SALSA20_SHA1(0xE41D),
     TLS_DHE_RSA_WITH_ESTREAM_SALSA20_SHA1(0xE41E),
     TLS_DHE_RSA_WITH_SALSA20_SHA1(0xE41F),
-    TLS_FALLBACK_SCSV(0x5600),
+    TLS_FALLBACK_SCSV(0x5600);
 
-    ;
-
-    private int value;
+    private final int value;
 
     CipherSuite(int value){
         this.value = value;
@@ -309,6 +307,12 @@ public enum CipherSuite {
         return value;
     }
 
+    /**
+     * Search for the enumerator that correspondent to the informed value inside {@link CipherSuite} enumeration
+     *
+     * @param value the value of the enumerator
+     * @return a {@link CipherSuite} enumerator with the informed value, null if there is no enumerator with the informed value
+     */
     public static CipherSuite getEnum(int value) {
         for (CipherSuite cs : CipherSuite.values()) {
             if (cs.getValue() == value) {

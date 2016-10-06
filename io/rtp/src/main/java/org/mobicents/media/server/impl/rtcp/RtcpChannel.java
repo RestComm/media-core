@@ -74,7 +74,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener, Ice
 	// Listeners
 	private RtpListener rtpListener;
 
-	public RtcpChannel(int channelId, RtpStatistics statistics, UdpManager udpManager, DtlsSrtpServerProvider tlsServerProvider) {
+	public RtcpChannel(int channelId, RtpStatistics statistics, UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
 		// Initialize MultiplexedChannel elements
 		super();
 
@@ -87,7 +87,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener, Ice
 
 		// Protocol Handler pipeline
 		this.rtcpHandler = new RtcpHandler(udpManager.getScheduler(), statistics);
-        this.dtlsHandler = new DtlsHandler(tlsServerProvider);
+        this.dtlsHandler = new DtlsHandler(dtlsServerProvider);
         this.stunHandler = new IceHandler(IceComponent.RTCP_ID, this);
 		
 		// WebRTC

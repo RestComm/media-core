@@ -21,22 +21,20 @@
 
 package org.mobicents.media.server.impl.rtp.crypto;
 
-import java.util.List;
 
 /**
  * @author guilherme.jansen@telestax.com
  */
 public class DtlsSrtpServerProvider {
 
-    private List<CipherSuite> cipherSuites;
+    private CipherSuite[] cipherSuites;
 
-    public DtlsSrtpServerProvider(List<CipherSuite> cipherSuites) {
+    public DtlsSrtpServerProvider(CipherSuite[] cipherSuites) {
         this.cipherSuites = cipherSuites;
     }
 
     public DtlsSrtpServer provide(){
-        DtlsSrtpServer server = new DtlsSrtpServer();
-        server.setCipherSuites(cipherSuites);
+        DtlsSrtpServer server = new DtlsSrtpServer(cipherSuites);
         return server;
     }
 

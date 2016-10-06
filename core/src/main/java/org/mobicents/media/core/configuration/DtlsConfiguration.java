@@ -21,10 +21,6 @@
 
 package org.mobicents.media.core.configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 
 /**
@@ -32,29 +28,37 @@ import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
  */
 public class DtlsConfiguration {
 
-    public static final List<CipherSuite> CIPHER_SUITES = Arrays.asList(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
+    public static final String CIPHER_SUITES = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, "
+            + "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, "
+            + "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, "
+            + "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_128_GCM_SHA256, "
+            + "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_128_CBC_SHA256, "
+            + "TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, "
+            + "TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_RSA_WITH_AES_128_GCM_SHA256, "
+            + "TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA256, "
+            + "TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256";
 
-    private List<CipherSuite> cipherSuite;
+    private CipherSuite[] cipherSuites;
 
     public DtlsConfiguration() {
-        this.cipherSuite = CIPHER_SUITES;
+        setCipherSuites(CIPHER_SUITES.split(","));
     }
 
-    public List<CipherSuite> getCipherSuites() {
-        return cipherSuite;
+    public CipherSuite[] getCipherSuites() {
+        return cipherSuites;
     }
 
-    public void setCipherSuites(List<CipherSuite> cipherSuites) {
-        this.cipherSuite = cipherSuites;
+    public void setCipherSuites(CipherSuite[] cipherSuites) {
+        this.cipherSuites = cipherSuites;
     }
 
-    public void setCipherSuite(String values[]) {
-        ArrayList<CipherSuite> cipherSuiteTemp = new ArrayList<CipherSuite>();
+    public void setCipherSuites(String[] values) {
+        CipherSuite[] cipherSuiteTemp = new CipherSuite[values.length];
         for (int i = 0; i < values.length; i++) {
-            cipherSuiteTemp.add(CipherSuite.valueOf(values[i].trim()));
+            cipherSuiteTemp[i] = CipherSuite.valueOf(values[i].trim());
         }
-        if (cipherSuiteTemp.size() > 0) {
-            this.cipherSuite = cipherSuiteTemp;
+        if (cipherSuiteTemp.length > 0) {
+            this.cipherSuites = cipherSuiteTemp;
         }
     }
 

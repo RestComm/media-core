@@ -133,7 +133,7 @@ public class RTPDataChannel {
 	private boolean isWebRtc = false;
 	private DtlsHandler webRtcHandler;
 	
-	private DtlsSrtpServerProvider tlsServerProvider;
+	private DtlsSrtpServerProvider dtlsServerProvider;
 
 	/**
 	 * Create RTP channel instance.
@@ -142,7 +142,7 @@ public class RTPDataChannel {
 	 *            Channel manager
 	 * 
 	 */
-	protected RTPDataChannel(ChannelsManager channelsManager, int channelId, DtlsSrtpServerProvider tlsServerProvider) {
+	protected RTPDataChannel(ChannelsManager channelsManager, int channelId, DtlsSrtpServerProvider dtlsServerProvider) {
 		this.channelsManager = channelsManager;
 		this.jitterBufferSize = channelsManager.getJitterBufferSize();
 
@@ -178,7 +178,7 @@ public class RTPDataChannel {
 		oobComponent = new OOBComponent(channelId);
 		oobComponent.addInput(dtmfInput.getOOBInput());
 		oobComponent.addOutput(dtmfOutput.getOOBOutput());
-		this.tlsServerProvider = tlsServerProvider;
+		this.dtlsServerProvider = dtlsServerProvider;
 	}
 
 	public AudioComponent getAudioComponent() {
@@ -834,7 +834,7 @@ public class RTPDataChannel {
 	public void enableWebRTC(Text remotePeerFingerprint) {
 		this.isWebRtc = true;
 		if (this.webRtcHandler == null) {
-			this.webRtcHandler = new DtlsHandler(this.tlsServerProvider);
+			this.webRtcHandler = new DtlsHandler(this.dtlsServerProvider);
 		}
 		this.webRtcHandler.setRemoteFingerprint("sha-256", remotePeerFingerprint.toString());
 	}

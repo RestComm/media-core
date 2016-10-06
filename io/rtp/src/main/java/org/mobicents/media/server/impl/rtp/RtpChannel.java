@@ -117,7 +117,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
     private RtpListener rtpListener;
 
     protected RtpChannel(int channelId, int jitterBufferSize, RtpStatistics statistics, RtpClock clock, RtpClock oobClock,
-            PriorityQueueScheduler scheduler, UdpManager udpManager, DtlsSrtpServerProvider tlsServerProvider) {
+            PriorityQueueScheduler scheduler, UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
         // Initialize MultiplexedChannel elements
         super();
 
@@ -139,7 +139,7 @@ public class RtpChannel extends MultiplexedChannel implements DtlsListener, IceE
         this.rtpHandler.setPipelinePriority(RTP_PRIORITY);
         this.rtcpHandler = new RtcpHandler(this.udpManager.getScheduler(), statistics);
         this.rtpHandler.setPipelinePriority(RTCP_PRIORITY);
-        this.dtlsHandler = new DtlsHandler(tlsServerProvider);
+        this.dtlsHandler = new DtlsHandler(dtlsServerProvider);
         this.rtpHandler.setPipelinePriority(DTLS_PRIORITY);
         this.stunHandler = new IceHandler(IceComponent.RTP_ID, this);
         this.stunHandler.setPipelinePriority(STUN_PRIORITY);
