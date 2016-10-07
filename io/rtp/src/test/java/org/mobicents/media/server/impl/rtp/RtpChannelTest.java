@@ -33,6 +33,7 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProviderTool;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
@@ -118,7 +119,7 @@ public class RtpChannelTest {
         scheduler.start();
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, DtlsSrtpServerProviderTool.getNewProvider());
         this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
 

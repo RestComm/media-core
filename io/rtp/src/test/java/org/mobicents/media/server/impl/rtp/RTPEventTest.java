@@ -45,6 +45,7 @@ import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProviderTool;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.scheduler.Clock;
@@ -127,7 +128,7 @@ public class RTPEventTest implements DtmfDetectorListener {
         scheduler.start();
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, DtlsSrtpServerProviderTool.getNewProvider());
         this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
         

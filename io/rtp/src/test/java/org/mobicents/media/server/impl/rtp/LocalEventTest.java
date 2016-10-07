@@ -40,6 +40,7 @@ import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProviderTool;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -98,7 +99,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         scheduler.start();
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, DtlsSrtpServerProviderTool.getNewProvider());
         this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
         

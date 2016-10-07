@@ -29,6 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProviderTool;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.fields.MediaDescriptionField;
@@ -62,7 +63,7 @@ public class MediaChannelTest {
 		this.mediaScheduler.setClock(this.wallClock);
 		this.scheduler = new ServiceScheduler();
 		this.udpManager = new UdpManager(scheduler);
-		this.channelsManager = new ChannelsManager(udpManager);
+		this.channelsManager = new ChannelsManager(udpManager, DtlsSrtpServerProviderTool.getNewProvider());
 		this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
 		this.channelsManager.setScheduler(this.mediaScheduler);
 		

@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
@@ -51,6 +52,8 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionFactory;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionPool;
@@ -78,6 +81,10 @@ public class LocalJoiningTest {
     //clock and scheduler
     private Clock clock;
     private PriorityQueueScheduler mediaScheduler;
+    
+    //Dtls Server Provider
+    protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(cipherSuites);
 
     //endpoint and connection
     private MyTestEndpoint endpoint1;
@@ -118,7 +125,7 @@ public class LocalJoiningTest {
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()));
+        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()), dtlsServerProvider);
         this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
         

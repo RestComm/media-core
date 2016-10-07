@@ -23,6 +23,7 @@ package org.mobicents.media.server.bootstrap.configuration;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.core.configuration.MediaConfiguration;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
@@ -97,6 +98,13 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(-25, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(10, resources.getSignalDetectorCount());
         Assert.assertEquals(10, resources.getSignalGeneratorCount());
+
+        DtlsConfiguration dtls = config.getDtlsConfiguration();
+        String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
+        Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
+        for (int i = 0; i < dtls.getCipherSuites().length; i++) {
+            Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
+        }
     }
 
     /**
@@ -145,6 +153,13 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
+
+        DtlsConfiguration dtls = config.getDtlsConfiguration();
+        String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
+        Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
+        for (int i = 0; i < dtls.getCipherSuites().length; i++) {
+            Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
+        }
     }
 
     @Test
@@ -190,6 +205,13 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
+        
+        DtlsConfiguration dtls = config.getDtlsConfiguration();
+        String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
+        Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
+        for (int i = 0; i < dtls.getCipherSuites().length; i++) {
+            Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
+        }
     }
 
 }

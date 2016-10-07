@@ -22,6 +22,7 @@
 package org.mobicents.media.server.impl.srtp;
 
 import org.junit.Test;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProviderTool;
 
 import junit.framework.Assert;
 
@@ -57,7 +58,7 @@ public class DtlsHandlerTest {
     @Test
     public void testCanHandle() {
         // given
-        DtlsHandler dtlsHandler = new DtlsHandler();
+        DtlsHandler dtlsHandler = new DtlsHandler(DtlsSrtpServerProviderTool.getNewProvider());
 
         // when
         boolean canHandleHelloClient = dtlsHandler.canHandle(HELLO_CLIENT);
