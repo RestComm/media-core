@@ -29,7 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.server.impl.rtcp.RtcpChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
-import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProviderTool;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.RtpChannel;
 import org.mobicents.media.server.impl.rtp.RtpClock;
 import org.mobicents.media.server.impl.rtp.sdp.SdpFactory;
@@ -62,13 +63,25 @@ public class MediaChannelTest {
 	private final AudioChannel localChannel;
 	private final AudioChannel remoteChannel;
 	
+    private static final int cipherSuites[] = { 0xc030, 0xc02f, 0xc028, 0xc027, 0xc014, 0xc013, 0x009f, 0x009e, 0x006b, 0x0067,
+            0x0039, 0x0033, 0x009d, 0x009c, 0x003d, 0x003c, 0x0035, 0x002f, 0xc02b };
+	
 	public MediaChannelTest() throws IOException {
+	    // given
+	    DtlsSrtpServerProvider mockedDtlsServerProvider = mock(DtlsSrtpServerProvider.class);
+	    DtlsSrtpServer mockedDtlsSrtpServer = mock(DtlsSrtpServer.class);
+	    
+	    // when
+	    when(mockedDtlsServerProvider.provide()).thenReturn(mockedDtlsSrtpServer);
+	    when(mockedDtlsSrtpServer.getCipherSuites()).thenReturn(cipherSuites);
+	    
+	    // then
 		this.wallClock = new WallClock();
 		this.mediaScheduler = new PriorityQueueScheduler();
 		this.mediaScheduler.setClock(this.wallClock);
 		this.scheduler = new ServiceScheduler();
 		this.udpManager = new UdpManager(scheduler);
-		this.channelsManager = new ChannelsManager(udpManager, DtlsSrtpServerProviderTool.getNewProvider());
+		this.channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
 		this.channelsManager.setScheduler(this.mediaScheduler);
 		
 		this.factory = new ChannelFactory();

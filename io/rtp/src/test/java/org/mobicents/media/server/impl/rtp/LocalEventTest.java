@@ -28,6 +28,8 @@
 package org.mobicents.media.server.impl.rtp;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.net.SocketException;
 
@@ -40,7 +42,8 @@ import org.mobicents.media.server.component.oob.OOBInput;
 import org.mobicents.media.server.component.oob.OOBSplitter;
 import org.mobicents.media.server.impl.AbstractSource;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
-import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProviderTool;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -81,12 +84,24 @@ public class LocalEventTest implements DtmfDetectorListener {
     
     private int count=0;
     
+    private static final int cipherSuites[] = { 0xc030, 0xc02f, 0xc028, 0xc027, 0xc014, 0xc013, 0x009f, 0x009e, 0x006b, 0x0067,
+            0x0039, 0x0033, 0x009d, 0x009c, 0x003d, 0x003c, 0x0035, 0x002f, 0xc02b };
+    
     public LocalEventTest() {
         scheduler = new ServiceScheduler();
     }
 
     @Before
     public void setUp() throws Exception {
+        // given
+        DtlsSrtpServerProvider mockedDtlsServerProvider = mock(DtlsSrtpServerProvider.class);
+        DtlsSrtpServer mockedDtlsSrtpServer = mock(DtlsSrtpServer.class);
+
+        // when
+        when(mockedDtlsServerProvider.provide()).thenReturn(mockedDtlsSrtpServer);
+        when(mockedDtlsSrtpServer.getCipherSuites()).thenReturn(cipherSuites);
+
+        // then
     	//use default clock
         clock = new WallClock();
 
@@ -99,7 +114,7 @@ public class LocalEventTest implements DtmfDetectorListener {
         scheduler.start();
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager, DtlsSrtpServerProviderTool.getNewProvider());
+        channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);
         
         detector = new DetectorImpl("dtmf", mediaScheduler);
