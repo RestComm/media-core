@@ -88,7 +88,6 @@ public class LocalChannelTest {
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager, DtlsSrtpServerProviderTool.getNewProvider());
-        this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);
 
         source1 = new Sine(mediaScheduler);

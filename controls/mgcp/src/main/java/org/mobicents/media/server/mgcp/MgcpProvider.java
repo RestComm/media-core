@@ -307,7 +307,7 @@ public class MgcpProvider extends MultiplexedChannel {
          */
         protected void setAddress(SocketAddress address) {
             InetSocketAddress a = (InetSocketAddress) address;
-            this.address = new InetSocketAddress(a.getHostName(), a.getPort());
+            this.address = new InetSocketAddress(a.getAddress().getHostAddress(), a.getPort());
         }
     }
 }

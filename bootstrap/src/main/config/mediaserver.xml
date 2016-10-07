@@ -47,6 +47,7 @@
 				require a license fee and/or royalty fee. For more information please visit 
 				http://www.sipro.com/G-729.html -->
 			<codec name="g729" />
+			<codec name="telephone-event" />
 		</codecs>
 	</media>
 

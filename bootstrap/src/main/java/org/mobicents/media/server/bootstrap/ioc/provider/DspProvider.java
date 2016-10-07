@@ -21,6 +21,8 @@
         
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
+import java.util.Iterator;
+
 import org.mobicents.media.core.configuration.CodecType;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -44,10 +46,10 @@ public class DspProvider implements Provider<DspFactoryImpl> {
     @Override
     public DspFactoryImpl get() {
         DspFactoryImpl dsp = new DspFactoryImpl();
-        String[] codecs = this.config.getMediaConfiguration().getCodecs();
-        for(String c : codecs) {
-        	CodecType codec = CodecType.fromName(c);
-            if(codec != null) {
+        Iterator<String> codecs = this.config.getMediaConfiguration().getCodecs();
+        while (codecs.hasNext()) {
+            CodecType codec = CodecType.fromName(codecs.next());
+            if(codec != null && !codec.getEncoder().isEmpty() && !codec.getDecoder().isEmpty()) {
                 dsp.addCodec(codec.getDecoder());
                 dsp.addCodec(codec.getEncoder());
             }

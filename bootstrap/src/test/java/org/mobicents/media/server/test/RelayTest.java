@@ -108,7 +108,6 @@ public class RelayTest {
         udpManager.start();
 
         channelsManager = new ChannelsManager(udpManager, dtlsServerProvider);
-        this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(scheduler);
         
         resourcesPool=new ResourcesPool(null, null, null, null, null, null, null, null);

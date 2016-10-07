@@ -31,6 +31,8 @@ import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.io.network.PortManager;
 import org.mobicents.media.server.io.network.UdpManager;
+import org.mobicents.media.server.io.sdp.format.AVProfile;
+import org.mobicents.media.server.io.sdp.format.RTPFormats;
 import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.io.ss7.SS7Manager;
 import org.mobicents.media.server.scheduler.Clock;
@@ -58,17 +60,42 @@ public class ChannelsManager {
     
     private int jitterBufferSize=50;
     
-    //Supported Formats --> It contains only codecs actually configured
-    private String[] codecs;
-    
     //channel id generator
     private AtomicInteger channelIndex = new AtomicInteger(100);
-
+    
+    private final RTPFormats codecs;
     private DtlsSrtpServerProvider dtlsServerProvider;
-
-    public ChannelsManager(UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
+    
+    /**
+     * Creates a new channels manager with a subset of supported codecs.
+     * 
+     * @param udpManager The network manager.
+     * @param codecs The list of supported codecs
+     * @param dtlsServerProvider The provider of DtlsSrtpServer instances
+     */
+    public ChannelsManager(UdpManager udpManager, RTPFormats codecs, DtlsSrtpServerProvider dtlsServerProvider) {
         this.udpManager = udpManager;
+        this.codecs = codecs;
         this.dtlsServerProvider = dtlsServerProvider;
+    }
+
+    /**
+     * Creates a new channels manager that supports every codec as assigned to {@link AVProfile#audio}.
+     * 
+     * @param udpManager The network manager.
+     * @param dtlsServerProvider The provider of DtlsSrtpServer instances
+     */
+    public ChannelsManager(UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
+        this(udpManager, AVProfile.audio, dtlsServerProvider);
+    }
+
+    /**
+     * Gets list of supported codecs
+     * 
+     * @return The collection of supported codecs.
+     */
+    public RTPFormats getCodecs() {
+        return codecs;
     }
 
     public void setSS7Manager(SS7Manager ss7Manager) {
@@ -118,14 +145,6 @@ public class ChannelsManager {
     public void setJitterBufferSize(int jitterBufferSize) {
     	this.jitterBufferSize=jitterBufferSize;
     }        
-    
-    public String[] getCodecs() {
-		return codecs;
-	}
-    
-    public void setCodecs(String[] strings) {
-    	this.codecs = strings;
-    }
     
     public UdpManager getUdpManager() {
     	return this.udpManager;

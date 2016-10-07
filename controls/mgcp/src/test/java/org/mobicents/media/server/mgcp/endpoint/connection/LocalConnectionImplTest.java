@@ -114,7 +114,6 @@ public class LocalConnectionImplTest {
         mediaScheduler.start();
 
         channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()), dtlsServerProvider);
-        this.channelsManager.setCodecs(new String[]{"pcmu", "pcma", "gsm", "g729"});
         channelsManager.setScheduler(mediaScheduler);        
 
         // Resource
