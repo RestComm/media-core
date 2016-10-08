@@ -28,6 +28,8 @@
 package org.mobicents.media.server.impl.rtp;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +38,8 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.audio.Sine;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
@@ -68,12 +72,24 @@ public class LocalChannelTest {
     private AudioMixer audioMixer1,audioMixer2;
     private AudioComponent component1,component2;
     
+    private static final int cipherSuites[] = { 0xc030, 0xc02f, 0xc028, 0xc027, 0xc014, 0xc013, 0x009f, 0x009e, 0x006b, 0x0067,
+            0x0039, 0x0033, 0x009d, 0x009c, 0x003d, 0x003c, 0x0035, 0x002f, 0xc02b };
+    
     public LocalChannelTest() {
         scheduler = new ServiceScheduler();
     }
 
     @Before
     public void setUp() throws Exception {
+        // given
+        DtlsSrtpServerProvider mockedDtlsServerProvider = mock(DtlsSrtpServerProvider.class);
+        DtlsSrtpServer mockedDtlsSrtpServer = mock(DtlsSrtpServer.class);
+        
+        // when
+        when(mockedDtlsServerProvider.provide()).thenReturn(mockedDtlsSrtpServer);
+        when(mockedDtlsSrtpServer.getCipherSuites()).thenReturn(cipherSuites);
+        
+        // then
     	//use default clock
         clock = new WallClock();
 
@@ -86,7 +102,7 @@ public class LocalChannelTest {
         scheduler.start();
         udpManager.start();
 
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, mockedDtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);
 
         source1 = new Sine(mediaScheduler);

@@ -33,8 +33,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint;
 import org.mobicents.media.server.mgcp.endpoint.IvrEndpoint;
@@ -62,7 +65,11 @@ public class RelayTest {
     protected Clock clock;
     protected PriorityQueueScheduler scheduler;
     protected ServiceScheduler serviceScheduler = new ServiceScheduler();
-
+    
+    //Dtls Server Provider
+    protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(cipherSuites);
+    
     protected ChannelsManager channelsManager;
 
     private ResourcesPool resourcesPool;
@@ -100,7 +107,7 @@ public class RelayTest {
         serviceScheduler.start();
         udpManager.start();
 
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dtlsServerProvider);
         channelsManager.setScheduler(scheduler);
         
         resourcesPool=new ResourcesPool(null, null, null, null, null, null, null, null);

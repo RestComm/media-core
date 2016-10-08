@@ -26,6 +26,7 @@ import java.util.Iterator;
 import org.mobicents.media.core.configuration.CodecType;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.io.sdp.format.AVProfile;
 import org.mobicents.media.server.io.sdp.format.RTPFormat;
@@ -44,13 +45,17 @@ public class ChannelsManagerProvider implements Provider<ChannelsManager> {
     private final UdpManager udpManager;
     private final PriorityQueueScheduler mediaScheduler;
     private final MediaServerConfiguration config;
+    private final DtlsSrtpServerProvider dtlsServerProvider;
+
     private final RTPFormats supportedCodecs;
     
     @Inject
-    public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager, PriorityQueueScheduler mediaScheduler) {
+    public ChannelsManagerProvider(MediaServerConfiguration config, UdpManager udpManager,
+            PriorityQueueScheduler mediaScheduler, DtlsSrtpServerProvider dtlsServerProvider) {
         this.udpManager = udpManager;
         this.mediaScheduler = mediaScheduler;
         this.config = config;
+        this.dtlsServerProvider = dtlsServerProvider;
         this.supportedCodecs = new RTPFormats(this.config.getMediaConfiguration().countCodecs());
         
         final Iterator<String> codecs = this.config.getMediaConfiguration().getCodecs();
@@ -64,10 +69,10 @@ public class ChannelsManagerProvider implements Provider<ChannelsManager> {
             }
         }
     }
-    
+
     @Override
     public ChannelsManager get() {
-        ChannelsManager channelsManager = new ChannelsManager(this.udpManager, this.supportedCodecs);
+        ChannelsManager channelsManager = new ChannelsManager(this.udpManager, this.supportedCodecs, this.dtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);
         channelsManager.setJitterBufferSize(config.getMediaConfiguration().getJitterBufferSize());
         return channelsManager;

@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderPool;
@@ -51,6 +52,8 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionFactory;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionPool;
@@ -84,6 +87,10 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
     private Clock clock;
     private PriorityQueueScheduler mediaScheduler;
     protected ServiceScheduler scheduler = new ServiceScheduler();
+    
+    //Dtls Server Provider
+    protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(cipherSuites);
 
     //RTP
     private ChannelsManager channelsManager;
@@ -130,7 +137,7 @@ public class LocalMediaGroupTest implements DtmfDetectorListener {
         scheduler.start();
         udpManager.start();
         
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);        
 
         dspFactory.addCodec("org.mobicents.media.server.impl.dsp.audio.g711.alaw.Encoder");

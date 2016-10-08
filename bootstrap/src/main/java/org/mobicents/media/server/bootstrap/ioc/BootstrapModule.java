@@ -28,6 +28,7 @@ import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryPro
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.ChannelsManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtlsSrtpServerProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider;
@@ -65,6 +66,8 @@ import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoo
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider.RtpConnectionFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionPoolProvider.RtpConnectionPoolType;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
@@ -116,6 +119,7 @@ public class BootstrapModule extends AbstractModule {
         bind(ResourcesPool.class).toProvider(ResourcesPoolProvider.class).in(Singleton.class);
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
+        bind(DtlsSrtpServerProvider.class).toProvider(DtlsSrtpServerProviderProvider.class).in(Singleton.class);
     }
 
 }
