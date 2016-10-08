@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.bootstrap.configuration;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
@@ -100,6 +101,8 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(10, resources.getSignalGeneratorCount());
 
         DtlsConfiguration dtls = config.getDtlsConfiguration();
+        Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
+        Assert.assertEquals(ProtocolVersion.DTLSv12, dtls.getMaxVersion());
         String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
         Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
         for (int i = 0; i < dtls.getCipherSuites().length; i++) {
@@ -155,6 +158,8 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
 
         DtlsConfiguration dtls = config.getDtlsConfiguration();
+        Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
+        Assert.assertEquals(ProtocolVersion.DTLSv12, dtls.getMaxVersion());
         String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
         Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
         for (int i = 0; i < dtls.getCipherSuites().length; i++) {
@@ -207,6 +212,8 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
         
         DtlsConfiguration dtls = config.getDtlsConfiguration();
+        Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
+        Assert.assertEquals(ProtocolVersion.DTLSv12, dtls.getMaxVersion());
         String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
         Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
         for (int i = 0; i < dtls.getCipherSuites().length; i++) {

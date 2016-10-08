@@ -79,9 +79,13 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	private SRTPPolicy srtpPolicy;
 	private SRTPPolicy srtcpPolicy;
 
+	private final ProtocolVersion minVersion;
+	private final ProtocolVersion maxVersion;
 	private final CipherSuite[] cipherSuites;
 	
-	public DtlsSrtpServer(CipherSuite[] cipherSuites){
+	public DtlsSrtpServer(ProtocolVersion minVersion, ProtocolVersion maxVersion, CipherSuite[] cipherSuites){
+	    this.minVersion = minVersion;
+	    this.maxVersion = maxVersion;
 	    this.cipherSuites = cipherSuites;
 	}
 
@@ -122,11 +126,11 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     }
 
     protected ProtocolVersion getMaximumVersion() {
-        return ProtocolVersion.DTLSv12;
+        return maxVersion;
     }
 
     protected ProtocolVersion getMinimumVersion() {
-        return ProtocolVersion.DTLSv10;
+        return minVersion;
     }
 
     protected TlsEncryptionCredentials getRSAEncryptionCredentials() throws IOException {
