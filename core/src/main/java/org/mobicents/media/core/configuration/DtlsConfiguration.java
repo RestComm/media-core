@@ -72,9 +72,9 @@ public class DtlsConfiguration {
     }
 
     private ProtocolVersion getVersionFromString(String version) {
-        if (version.equals("1.0")) {
+        if ("1.0".equals(version)) {
             return ProtocolVersion.DTLSv10;
-        } else if (version.equals("1.2")) {
+        } else if ("1.2".equals(version)) {
             return ProtocolVersion.DTLSv12;
         } else {
             throw new IllegalArgumentException("Invalid DTLS version");
