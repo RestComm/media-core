@@ -488,9 +488,7 @@ public class PlayCollectTest {
 
         Thread.sleep(40 * 100);
         pc.detectorListener.process(new DtmfEventImpl(detector, "9", -30));
-
         Thread.sleep(31 * 100);
-        pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
 
         // then
         verify(detector, times(1)).activate();
@@ -636,7 +634,6 @@ public class PlayCollectTest {
 
         Thread.sleep(10);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
-        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
 
         // then
         verify(detector, times(2)).activate();
