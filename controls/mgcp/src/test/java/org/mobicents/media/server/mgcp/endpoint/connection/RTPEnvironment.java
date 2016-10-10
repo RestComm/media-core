@@ -23,6 +23,7 @@ package org.mobicents.media.server.mgcp.endpoint.connection;
 
 import java.io.IOException;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
@@ -47,8 +48,10 @@ public class RTPEnvironment {
     protected final Scheduler scheduler = new ServiceScheduler();
     
     //Dtls Server Provider
+    protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
+    protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
     protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
-    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(cipherSuites);
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites);
 
     protected ChannelsManager channelsManager;
 

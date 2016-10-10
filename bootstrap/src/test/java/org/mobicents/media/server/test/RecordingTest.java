@@ -27,6 +27,7 @@
 
 package org.mobicents.media.server.test;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,8 +66,10 @@ public class RecordingTest {
     protected ServiceScheduler serviceScheduler = new ServiceScheduler();
     
     //Dtls Server Provider
+    protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
+    protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
     protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
-    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(cipherSuites);
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites);
 
     protected ChannelsManager channelsManager;
 

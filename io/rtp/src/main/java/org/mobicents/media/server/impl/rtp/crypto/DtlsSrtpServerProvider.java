@@ -21,20 +21,25 @@
 
 package org.mobicents.media.server.impl.rtp.crypto;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 
 /**
  * @author guilherme.jansen@telestax.com
  */
 public class DtlsSrtpServerProvider {
 
+    private ProtocolVersion minVersion;
+    private ProtocolVersion maxVersion;
     private CipherSuite[] cipherSuites;
 
-    public DtlsSrtpServerProvider(CipherSuite[] cipherSuites) {
+    public DtlsSrtpServerProvider(ProtocolVersion minVersion, ProtocolVersion maxVersion, CipherSuite[] cipherSuites) {
+        this.minVersion = minVersion;
+        this.maxVersion = maxVersion;
         this.cipherSuites = cipherSuites;
     }
 
-    public DtlsSrtpServer provide(){
-        DtlsSrtpServer server = new DtlsSrtpServer(cipherSuites);
+    public DtlsSrtpServer provide() {
+        DtlsSrtpServer server = new DtlsSrtpServer(minVersion, maxVersion, cipherSuites);
         return server;
     }
 

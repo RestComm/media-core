@@ -143,8 +143,9 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
     }
 
     private static void configureDtls(HierarchicalConfiguration<ImmutableNode> src, DtlsConfiguration dst){
-        String cipherSuite = src.getString("cipherSuites", DtlsConfiguration.CIPHER_SUITES);
-        dst.setCipherSuites(cipherSuite.split(","));
+        dst.setMinVersion(src.getString("minVersion", DtlsConfiguration.MIN_VERSION));
+        dst.setMaxVersion(src.getString("maxVersion", DtlsConfiguration.MAX_VERSION));
+        dst.setCipherSuites(src.getString("cipherSuites", DtlsConfiguration.CIPHER_SUITES).split(","));
     }
 
 }

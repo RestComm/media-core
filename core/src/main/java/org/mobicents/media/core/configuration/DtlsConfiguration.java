@@ -21,6 +21,7 @@
 
 package org.mobicents.media.core.configuration;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 
 /**
@@ -28,6 +29,8 @@ import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
  */
 public class DtlsConfiguration {
 
+    public static final String MIN_VERSION = "1.0";
+    public static final String MAX_VERSION = "1.2";
     public static final String CIPHER_SUITES = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, "
             + "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, "
             + "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, "
@@ -38,18 +41,44 @@ public class DtlsConfiguration {
             + "TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA256, "
             + "TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256";
 
+    private ProtocolVersion minVersion;
+    private ProtocolVersion maxVersion;
     private CipherSuite[] cipherSuites;
 
     public DtlsConfiguration() {
+        setMinVersion(MIN_VERSION);
+        setMaxVersion(MAX_VERSION);
         setCipherSuites(CIPHER_SUITES.split(","));
+    }
+
+    public ProtocolVersion getMinVersion() {
+        return minVersion;
+    }
+
+    public ProtocolVersion getMaxVersion() {
+        return maxVersion;
     }
 
     public CipherSuite[] getCipherSuites() {
         return cipherSuites;
     }
 
-    public void setCipherSuites(CipherSuite[] cipherSuites) {
-        this.cipherSuites = cipherSuites;
+    public void setMinVersion(String minVersion) {
+        this.minVersion = getVersionFromString(minVersion);
+    }
+
+    public void setMaxVersion(String maxVersion) {
+        this.maxVersion = getVersionFromString(maxVersion);
+    }
+
+    private ProtocolVersion getVersionFromString(String version) {
+        if ("1.0".equals(version)) {
+            return ProtocolVersion.DTLSv10;
+        } else if ("1.2".equals(version)) {
+            return ProtocolVersion.DTLSv12;
+        } else {
+            throw new IllegalArgumentException("Invalid DTLS version");
+        }
     }
 
     public void setCipherSuites(String[] values) {

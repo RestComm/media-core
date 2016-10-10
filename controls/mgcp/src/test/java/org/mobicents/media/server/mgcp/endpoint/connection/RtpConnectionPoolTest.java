@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.mgcp.endpoint.connection;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.Test;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -50,8 +51,13 @@ public class RtpConnectionPoolTest {
     private final PriorityQueueScheduler mediaScheduler;
     private final Scheduler taskScheduler;
     private final UdpManager udpManager;
+    
+    // Dtls provider
+    protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
+    protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
     protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
-    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(cipherSuites);
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites);
+    
     private final ChannelsManager connectionFactory;
     private final DspFactory dspFactory;
     

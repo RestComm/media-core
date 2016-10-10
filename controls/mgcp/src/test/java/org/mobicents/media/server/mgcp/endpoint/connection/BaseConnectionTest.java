@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,8 +110,10 @@ public class BaseConnectionTest implements ConnectionListener {
     private PhoneSignalGeneratorPool signalGeneratorPool;
     
     //Dtls Server Provider
+    protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
+    protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
     protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
-    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(cipherSuites);
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites);
     
     private ChannelsManager channelsManager;
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();

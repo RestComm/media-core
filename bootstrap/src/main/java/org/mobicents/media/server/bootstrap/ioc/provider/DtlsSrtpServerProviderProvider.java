@@ -41,7 +41,8 @@ public class DtlsSrtpServerProviderProvider implements Provider<DtlsSrtpServerPr
 
     @Override
     public DtlsSrtpServerProvider get() {
-        return new DtlsSrtpServerProvider(config.getDtlsConfiguration().getCipherSuites());
+        return new DtlsSrtpServerProvider(config.getDtlsConfiguration().getMinVersion(), config.getDtlsConfiguration()
+                .getMaxVersion(), config.getDtlsConfiguration().getCipherSuites());
     }
 
 }
