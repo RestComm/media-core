@@ -135,6 +135,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setRecorderCount(src.getInt("recorder[@poolSize]", ResourcesConfiguration.RECORDER_COUNT));
         dst.setDtmfDetectorCount(src.getInt("dtmfDetector[@poolSize]", ResourcesConfiguration.DTMF_DETECTOR_COUNT));
         dst.setDtmfDetectorDbi(src.getInt("dtmfDetector[@dbi]", ResourcesConfiguration.DTMF_DETECTOR_DBI));
+        dst.setDtmfDetectorRFC2833Only(src.getBoolean("dtmfDetector[@rfc2833Only]", ResourcesConfiguration.RFC2833_ONLY));
         dst.setDtmfGeneratorCount(src.getInt("dtmfGenerator[@poolSize]", ResourcesConfiguration.DTMF_GENERATOR_COUNT));
         dst.setDtmfGeneratorToneVolume(src.getInt("dtmfGenerator[@toneVolume]", ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME));
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));

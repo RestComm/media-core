@@ -41,10 +41,12 @@ public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
 
     private final PriorityQueueScheduler mediaScheduler;
     private int volume;
+    private boolean rfc2833Only;
 
-    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume) {
+    public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler, int volume, boolean rfc2833Only) {
         this.mediaScheduler = mediaScheduler;
         this.volume = volume;
+        this.rfc2833Only = rfc2833Only;
     }
 
     public DtmfDetectorFactory(PriorityQueueScheduler mediaScheduler) {
@@ -56,6 +58,7 @@ public class DtmfDetectorFactory implements PooledObjectFactory<DetectorImpl> {
     public DetectorImpl produce() {
         DetectorImpl detector = new DetectorImpl("detector-" + ID.getAndIncrement(), mediaScheduler);
         detector.setVolume(this.volume);
+        detector.setRFC2833EventsOnly(this.rfc2833Only);
         return detector;
     }
 

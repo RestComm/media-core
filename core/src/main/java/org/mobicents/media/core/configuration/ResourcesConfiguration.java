@@ -40,6 +40,7 @@ public class ResourcesConfiguration {
     public static final int DTMF_GENERATOR_TONE_DURATION = 80;
     public static final int SIGNAL_DETECTOR_COUNT = 0;
     public static final int SIGNAL_GENERATOR_COUNT = 0;
+    public static final boolean RFC2833_ONLY = false;
 
     private int localConnectionCount;
     private int remoteConnectionCount;
@@ -47,6 +48,7 @@ public class ResourcesConfiguration {
     private int recorderCount;
     private int dtmfDetectorCount;
     private int dtmfDetectorDbi;
+    private boolean dtmfDetectorRFC2833Only;
     private int dtmfGeneratorCount;
     private int dtmfGeneratorToneVolume;
     private int dtmfGeneratorToneDuration;
@@ -131,6 +133,14 @@ public class ResourcesConfiguration {
             throw new IllegalArgumentException("DTMF Detector Dbi must be negative and greater than -36");
         }
         this.dtmfDetectorDbi = dtmfDetectorDbi;
+    }
+
+    public boolean isDtmfDetectorRFC2833Only() {
+        return dtmfDetectorRFC2833Only;
+    }
+
+    public void setDtmfDetectorRFC2833Only(boolean dtmfDetectorRFC2833Only) {
+        this.dtmfDetectorRFC2833Only = dtmfDetectorRFC2833Only;
     }
 
     public int getDtmfGeneratorCount() {
