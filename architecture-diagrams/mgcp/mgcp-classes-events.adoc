@@ -1,104 +1,45 @@
-[plantuml,file="mgcp-classes-events.png"]
+[plantuml,file="mgcp-pkg-au-playcollect-state.png"]
 --
-class NotificationRequestCommand {
-}
+[*] --> Prompting
+Prompting : player.play(initialPrompt.next())
 
-interface MgcpMessageProcessor {
-+ process(MgcpMessage, Direction)
-}
+Prompting --> Collecting : PlayerEvent.STOP
+Collecting : DtmfDetector.activate()
 
-class MgcpEndpoint {
-- NotifiedEntity notifiedEntity
-}
+Collecting -left-> Reprompting : (timeout OR endInputKey) AND digits.length = 0
+Reprompting -right-> Collecting : PlayerEvent.STOP
+Reprompting : detector.deactivate
+Reprompting : digits.clear()
+Reprompting : attempt++
+Reprompting : play(reprompt.next())
 
-class NotificationRequest {
-- Signal[] requestedSignals
-- String[] requestedEvents
-- NotifiedEntity notifiedEntity
-}
+Collecting -right-> NoDigitsReprompting : (timeout OR endInputKey) AND digits.length > 0
+NoDigitsReprompting -left-> Collecting : PlayerEvent.STOP
+NoDigitsReprompting : detector.deactivate
+NoDigitsReprompting : digits.clear()
+NoDigitsReprompting : attempt++
+NoDigitsReprompting : play(noDigitsReprompt.next())
 
-abstract class MgcpPackage {
-- String symbol
-- List<String> signals
-}
+Collecting -down-> AnnouncingSuccess : success AND attempt < maxAttempts
+AnnouncingSuccess : detector.deactivate()
+AnnouncingSuccess : player.play(successAnnouncement.next())
 
-class AudioPackage {
-+ String PACKAGE_NAME = "AU"
-}
+Collecting -down-> Stopping : success OR failure
 
-interface MgcpEvent {
-+ fire(MgcpEventListener[])
-}
+Collecting -down-> AnnouncingFailure : failure AND attempt == maxAttempts
+AnnouncingFailure : detector.deactivate()
+AnnouncingFailure : player.play(failureAnnouncement.next())
 
-abstract class AbstractMgcpEvent {
-- String symbol
-- Map<String, String> parameters
-- List<MgcpEventListener> listeners
-- AtomicBoolean fired
-+ getSymbol()
-+ getParameter(String)
-+ addParameter(String, String)
-}
-
-class OperationComplete {
-
-}
-
-class OperationFailure {
-
-}
-
-interface MgcpEventListener {
-+ listen(String[])
-+ onMgcpEvent(MgcpEvent)
-}
-
-interface MgcpSignalExecutor {
-+ execute(Signal[])
-}
-
-interface MgcpSignalFactory {
-+ MgcpSignal produce(String)
-}
-
-interface MgcpSignal {
-+ execute()
-+ cancel()
-}
-
-abstract class AbstractMgcpSignal {
-- String package
-- String symbol
-- Map<String, String> parameters
-- AtomicBoolean executing
-+ addParameter(String, String)
-+ String getParameter()
-# boolean isParameterSupported(String)
-}
-
-NotificationRequestCommand --> MgcpEndpoint : request notification
-(NotificationRequestCommand,MgcpEndpoint) . NotificationRequest
-
-MgcpMessageProcessor <- MgcpEndpoint
-(MgcpMessageProcessor, MgcpEndpoint) .. NotifyCommand 
-MgcpEndpoint --|> MgcpEventListener
-MgcpEndpoint --|> MgcpSignalExecutor
-MgcpSignalExecutor --> MgcpSignal : executes
-MgcpEventListener <-- MgcpEvent : notifies
-MgcpEvent <- MgcpSignal : fires
-
-MgcpSignal <|-- AbstractMgcpSignal
-AbstractMgcpSignal <|-- PlayAnnouncement
-AbstractMgcpSignal <|-- PlayCollect
-AbstractMgcpSignal <|-- PlayRecord
-
-MgcpEvent <|-- AbstractMgcpEvent
-AbstractMgcpEvent <|-- OperationComplete
-AbstractMgcpEvent <|-- OperationFailure
-
-MgcpPackage <|-- AudioPackage
-MgcpSignalFactory <- MgcpPackage
-MgcpSignal <- MgcpSignalFactory : produces
+AnnouncingSuccess -down-> Stopping : PlayerEvent.STOP OR PlayerEvent.FAILURE
+AnnouncingFailure -down-> Stopping : PlayerEvent.STOP OR PlayerEvent.FAILURE
+Reprompting -down-> Stopping : PlayerEvent.FAILURE
+NoDigitsReprompting -down-> Stopping : PlayerEvent.FAILURE
+Prompting -down-> Stopping : PlayerEvent.FAILURE
+Stopping : detector.deactivate()
+Stopping : executing.set(false)
+Stopping : fire(int returnCode, String attempts, String digits)
+Stopping -down-> [*]
 --
+
 
 

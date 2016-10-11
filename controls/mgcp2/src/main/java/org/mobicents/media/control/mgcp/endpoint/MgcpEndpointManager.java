@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.endpoint.provider.MgcpEndpointProvider;
 import org.mobicents.media.control.mgcp.exception.MgcpEndpointNotFoundException;
 import org.mobicents.media.control.mgcp.exception.UnrecognizedMgcpNamespaceException;
@@ -41,6 +42,8 @@ import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
  *
  */
 public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObserver, MgcpMessageSubject {
+    
+    private static final Logger log = Logger.getLogger(MgcpEndpointManager.class);
 
     // Endpoint Management
     private final ConcurrentHashMap<String, MgcpEndpointProvider<?>> providers;
@@ -148,7 +151,12 @@ public class MgcpEndpointManager implements MgcpEndpointObserver, MgcpMessageObs
     @Override
     public void onEndpointStateChanged(MgcpEndpoint endpoint, MgcpEndpointState state) {
         if(MgcpEndpointState.INACTIVE.equals(state)) {
-            this.endpoints.remove(endpoint.getEndpointId());
+            final String endpointId = endpoint.getEndpointId().toString();
+            try {
+                unregisterEndpoint(endpointId);
+            } catch (MgcpEndpointNotFoundException e) {
+                log.warn("Could not unregister endpoint " + endpointId +": Not found.");
+            }
         }
     }
 

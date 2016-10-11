@@ -23,6 +23,8 @@ package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 
 import org.mobicents.media.control.mgcp.pkg.MgcpSignalProvider;
 
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
@@ -31,13 +33,16 @@ import com.google.inject.Provider;
  */
 public class MgcpSignalProviderProvider implements Provider<MgcpSignalProvider> {
 
-    public MgcpSignalProviderProvider() {
-        super();
+    private final ListeningScheduledExecutorService executor;
+
+    @Inject
+    public MgcpSignalProviderProvider(ListeningScheduledExecutorService executor) {
+        this.executor = executor;
     }
 
     @Override
     public MgcpSignalProvider get() {
-        return new MgcpSignalProvider();
+        return new MgcpSignalProvider(this.executor);
     }
 
 }

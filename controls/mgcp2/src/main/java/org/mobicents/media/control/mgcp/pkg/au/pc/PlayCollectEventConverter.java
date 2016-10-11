@@ -18,32 +18,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+        
+package org.mobicents.media.control.mgcp.pkg.au.pc;
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
-
-import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
-import org.mobicents.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
+import org.squirrelframework.foundation.fsm.Converter;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaGroupProvider {
+public class PlayCollectEventConverter implements Converter<PlayCollectEvent> {
 
-    private final PlayerProvider players;
-    private final DtmfDetectorProvider detectors;
-
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors) {
-        this.players = players;
-        this.detectors = detectors;
+    @Override
+    public String convertToString(PlayCollectEvent obj) {
+        return obj.name();
     }
 
-    public MediaGroup provide() {
-        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, detectors);
+    @Override
+    public PlayCollectEvent convertFromString(String name) {
+        return PlayCollectEvent.valueOf(name);
     }
 
 }

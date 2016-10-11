@@ -21,12 +21,11 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Provider;
@@ -35,21 +34,25 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class ListeningExecutorServiceProvider implements Provider<ListeningExecutorService> {
-    
+public class ListeningScheduledExecutorServiceProvider implements Provider<ListeningScheduledExecutorService> {
+
     private static final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
-    public ListeningExecutorServiceProvider() {
+    public ListeningScheduledExecutorServiceProvider() {
         super();
     }
 
     @Override
-    public ListeningExecutorService get() {
+    public ListeningScheduledExecutorService get() {
         ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("mgcp-%d").build();
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(POOL_SIZE, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), threadFactory);
-        executor.allowCoreThreadTimeOut(false);
+        // ThreadPoolExecutor executor = new ThreadPoolExecutor(POOL_SIZE, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new
+        // SynchronousQueue<Runnable>(), threadFactory);
+        // executor.allowCoreThreadTimeOut(false);
+        // Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
+        // return MoreExecutors.listeningDecorator(executor);
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(POOL_SIZE, threadFactory);
         return MoreExecutors.listeningDecorator(executor);
-        // return MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(threadFactory));
     }
 
 }

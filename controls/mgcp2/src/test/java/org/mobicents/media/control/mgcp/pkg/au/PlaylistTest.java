@@ -43,7 +43,7 @@ public class PlaylistTest {
         String segmentB = playlist.next();
         String segmentC = playlist.next();
         String segmentD = playlist.next();
-        
+
         // then
         assertEquals(segments[0], segmentA);
         assertEquals(segments[1], segmentB);
@@ -54,17 +54,17 @@ public class PlaylistTest {
     @Test
     public void testPlaylistWithMultipleIterations() {
         // given
-        final String[] segments = new String[] { "a", "b"};
+        final String[] segments = new String[] { "a", "b" };
         final int iterations = 2;
         final Playlist playlist = new Playlist(segments, iterations);
-        
+
         // when
         String segmentA = playlist.next();
         String segmentB = playlist.next();
         String segmentC = playlist.next();
         String segmentD = playlist.next();
         String segmentE = playlist.next();
-        
+
         // then
         assertEquals(segments[0], segmentA);
         assertEquals(segments[1], segmentB);

@@ -19,31 +19,48 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.control.mgcp.endpoint.provider;
-
-import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
-import org.mobicents.media.control.mgcp.endpoint.MediaGroupImpl;
-import org.mobicents.media.server.component.audio.AudioComponent;
-import org.mobicents.media.server.component.oob.OOBComponent;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
+package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaGroupProvider {
+public enum DtmfToneEvent {
 
-    private final PlayerProvider players;
-    private final DtmfDetectorProvider detectors;
+    DTMF_0('0'),
+    DTMF_1('1'),
+    DTMF_2('2'),
+    DTMF_3('3'),
+    DTMF_4('4'),
+    DTMF_5('5'),
+    DTMF_6('6'),
+    DTMF_7('7'),
+    DTMF_8('8'),
+    DTMF_9('9'),
+    DTMF_A('A'),
+    DTMF_B('B'),
+    DTMF_C('C'),
+    DTMF_D('D'),
+    DTMF_HASH('#'),
+    DTMF_STAR('*');
 
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors) {
-        this.players = players;
-        this.detectors = detectors;
+    private final char tone;
+
+    private DtmfToneEvent(char tone) {
+        this.tone = tone;
     }
 
-    public MediaGroup provide() {
-        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, detectors);
+    public char tone() {
+        return tone;
+    }
+
+    public static final DtmfToneEvent fromTone(char tone) {
+        for (DtmfToneEvent event : values()) {
+            if (event.tone == tone) {
+                return event;
+            }
+        }
+        return null;
     }
 
 }
