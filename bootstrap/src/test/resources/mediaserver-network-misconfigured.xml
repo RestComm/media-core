@@ -68,5 +68,6 @@
 			TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA256,
 			TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA,
 			TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</cipherSuites>
+		<certificate path="x509-server.pem" key="x509-server-key.pem" algorithm="rsa"/>
 	</dtls>
 </mediaserver>

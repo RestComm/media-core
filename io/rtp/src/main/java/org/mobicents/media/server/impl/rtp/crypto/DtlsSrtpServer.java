@@ -60,8 +60,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     // Certificate resources
     private final String[] certificateResources;
     private final String keyResource;
-    private final short signatureAlgorithm;
-    private final short clientCertificateType;
+    private final AlgorithmCertificate algorithmCertificate;
 
 	private String hashFunction = "";
     
@@ -84,14 +83,13 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	private final CipherSuite[] cipherSuites;
 
     public DtlsSrtpServer(ProtocolVersion minVersion, ProtocolVersion maxVersion, CipherSuite[] cipherSuites,
-            String[] certificatesPath, String keyPath, short signatureAlgorithm, short clientCertificateType) {
+            String[] certificatesPath, String keyPath, AlgorithmCertificate algorithmCertificate) {
         this.minVersion = minVersion;
         this.maxVersion = maxVersion;
         this.cipherSuites = cipherSuites;
         this.certificateResources = certificatesPath;
         this.keyResource = keyPath;
-        this.signatureAlgorithm = signatureAlgorithm;
-        this.clientCertificateType = clientCertificateType;
+        this.algorithmCertificate = algorithmCertificate;
     }
 
 	public void notifyAlertRaised(short alertLevel, short alertDescription, String message, Exception cause) {
@@ -108,7 +106,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 		Vector<SignatureAndHashAlgorithm> serverSigAlgs = null;
 		if (org.bouncycastle.crypto.tls.TlsUtils.isSignatureAlgorithmsExtensionAllowed(serverVersion)) {
 			short[] hashAlgorithms = new short[] { HashAlgorithm.sha512, HashAlgorithm.sha384, HashAlgorithm.sha256, HashAlgorithm.sha224, HashAlgorithm.sha1 };
-			short[] signatureAlgorithms = new short[] { signatureAlgorithm, SignatureAlgorithm.ecdsa };
+			short[] signatureAlgorithms = new short[] { algorithmCertificate.getSignatureAlgorithm(), SignatureAlgorithm.ecdsa };
 
 			serverSigAlgs = new Vector<SignatureAndHashAlgorithm>();
 			for (int i = 0; i < hashAlgorithms.length; ++i) {
@@ -117,7 +115,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 				}
 			}
 		}
-		return new CertificateRequest(new short[] { clientCertificateType }, serverSigAlgs, null);
+		return new CertificateRequest(new short[] { algorithmCertificate.getClientCertificate() }, serverSigAlgs, null);
     }
 
     public void notifyClientCertificate(org.bouncycastle.crypto.tls.Certificate clientCertificate) throws IOException {
@@ -153,7 +151,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
         if (sigAlgs != null) {
             for (int i = 0; i < sigAlgs.size(); ++i) {
                 SignatureAndHashAlgorithm sigAlg = sigAlgs.elementAt(i);
-                if (sigAlg.getSignature() == signatureAlgorithm) {
+                if (sigAlg.getSignature() == algorithmCertificate.getSignatureAlgorithm()) {
                     signatureAndHashAlgorithm = sigAlg;
                     break;
                 }

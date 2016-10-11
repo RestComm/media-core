@@ -44,7 +44,7 @@ public class DtlsSrtpServerProviderProvider implements Provider<DtlsSrtpServerPr
         return new DtlsSrtpServerProvider(config.getDtlsConfiguration().getMinVersion(), config.getDtlsConfiguration()
                 .getMaxVersion(), config.getDtlsConfiguration().getCipherSuites(), config.getDtlsConfiguration()
                 .getCertificatePath(), config.getDtlsConfiguration().getKeyPath(), config.getDtlsConfiguration()
-                .getSignatureAlgorithm(), config.getDtlsConfiguration().getClientCertificateType());
+                .getAlgorithmCertificate());
     }
 
 }

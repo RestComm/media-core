@@ -33,23 +33,21 @@ public class DtlsSrtpServerProvider {
     private CipherSuite[] cipherSuites;
     private String[] certificatePaths;
     private String keyPath;
-    private short signatureAlgorithm;
-    private short clientCertificateType;
+    private AlgorithmCertificate algorithmCertificate;
 
     public DtlsSrtpServerProvider(ProtocolVersion minVersion, ProtocolVersion maxVersion, CipherSuite[] cipherSuites,
-            String certificatePath, String keyPath, short signatureAlgorithm, short clientCertificateType) {
+            String certificatePath, String keyPath, AlgorithmCertificate algorithmCertificate) {
         this.minVersion = minVersion;
         this.maxVersion = maxVersion;
         this.cipherSuites = cipherSuites;
         this.certificatePaths = new String[] { certificatePath };
         this.keyPath = keyPath;
-        this.signatureAlgorithm = signatureAlgorithm;
-        this.clientCertificateType = clientCertificateType;
+        this.algorithmCertificate = algorithmCertificate;
     }
 
     public DtlsSrtpServer provide() {
         DtlsSrtpServer server = new DtlsSrtpServer(minVersion, maxVersion, cipherSuites, certificatePaths, keyPath,
-                signatureAlgorithm, clientCertificateType);
+                algorithmCertificate);
         return server;
     }
 

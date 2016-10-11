@@ -51,6 +51,7 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -113,7 +114,11 @@ public class BaseConnectionTest implements ConnectionListener {
     protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
     protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
     protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
-    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites);
+    protected String certificatePath = DtlsConfiguration.CERTIFICATE_PATH;
+    protected String keyPath = DtlsConfiguration.KEY_PATH;
+    protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.rsa;
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
+            certificatePath, keyPath, algorithmCertificate);
     
     private ChannelsManager channelsManager;
     protected DspFactoryImpl dspFactory = new DspFactoryImpl();

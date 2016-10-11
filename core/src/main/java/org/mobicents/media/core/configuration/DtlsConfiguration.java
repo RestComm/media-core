@@ -21,9 +21,8 @@
 
 package org.mobicents.media.core.configuration;
 
-import org.bouncycastle.crypto.tls.ClientCertificateType;
 import org.bouncycastle.crypto.tls.ProtocolVersion;
-import org.bouncycastle.crypto.tls.SignatureAlgorithm;
+import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 
 /**
@@ -44,24 +43,22 @@ public class DtlsConfiguration {
             + "TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256";
     public static final String CERTIFICATE_PATH = "x509-server.pem";
     public static final String KEY_PATH = "x509-server-key.pem";
-    public static final String SIGNATURE_ALGORITHM = "rsa";
-    public static final short CLIENT_CERTIFICATE_TYPE = ClientCertificateType.rsa_sign;
+    public static final String ALGORITHM_CERTIFICATE = AlgorithmCertificate.rsa.name();
 
     private ProtocolVersion minVersion;
     private ProtocolVersion maxVersion;
     private CipherSuite[] cipherSuites;
     private String certificatePath;
     private String keyPath;
-    private short signatureAlgorithm;
-    private short clientCertificateType;
+    private AlgorithmCertificate algorithmCertificate;
 
     public DtlsConfiguration() {
         setMinVersion(MIN_VERSION);
         setMaxVersion(MAX_VERSION);
-        setCipherSuites(CIPHER_SUITES.split(","));
+        setCipherSuites(CIPHER_SUITES);
         this.certificatePath = CERTIFICATE_PATH;
         this.keyPath = KEY_PATH;
-        setSignatureAlgorithm(SIGNATURE_ALGORITHM);
+        setAlgorithmCertificate(ALGORITHM_CERTIFICATE);
     }
 
     public ProtocolVersion getMinVersion() {
@@ -84,12 +81,8 @@ public class DtlsConfiguration {
         return keyPath;
     }
 
-    public short getSignatureAlgorithm() {
-        return signatureAlgorithm;
-    }
-
-    public short getClientCertificateType() {
-        return clientCertificateType;
+    public AlgorithmCertificate getAlgorithmCertificate() {
+        return algorithmCertificate;
     }
 
     public void setMinVersion(String minVersion) {
@@ -110,7 +103,8 @@ public class DtlsConfiguration {
         }
     }
 
-    public void setCipherSuites(String[] values) {
+    public void setCipherSuites(String cipherSuites) {
+        String[] values = cipherSuites.split(",");
         CipherSuite[] cipherSuiteTemp = new CipherSuite[values.length];
         for (int i = 0; i < values.length; i++) {
             cipherSuiteTemp[i] = CipherSuite.valueOf(values[i].trim());
@@ -128,15 +122,7 @@ public class DtlsConfiguration {
         this.keyPath = keyPath;
     }
 
-    public void setSignatureAlgorithm(String algorithm) {
-        if ("rsa".equals(algorithm)) {
-            this.signatureAlgorithm = SignatureAlgorithm.rsa;
-            this.clientCertificateType = ClientCertificateType.rsa_sign;
-        } else if ("ecdsa".equals(algorithm)) {
-            this.signatureAlgorithm = SignatureAlgorithm.ecdsa;
-            this.clientCertificateType = ClientCertificateType.ecdsa_sign;
-        } else {
-            throw new IllegalArgumentException("Invalid algorithm name");
-        }
+    public void setAlgorithmCertificate(String algorithmCertificate) {
+        this.algorithmCertificate = AlgorithmCertificate.valueOf(algorithmCertificate);
     }
 }
