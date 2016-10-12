@@ -26,5 +26,7 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
  *
  */
 public enum PlayRecordEvent {
+    
+    START, NEXT_TRACK, PROMPT_END, DTMF_TONE, END_COLLECT, EVALUATE, TIMEOUT;
 
 }

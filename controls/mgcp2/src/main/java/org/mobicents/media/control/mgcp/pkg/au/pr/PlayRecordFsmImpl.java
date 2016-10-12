@@ -21,6 +21,7 @@
 
 package org.mobicents.media.control.mgcp.pkg.au.pr;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
@@ -36,6 +37,8 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
  */
 public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext>
         implements PlayRecordFsm {
+    
+    private static final Logger log = Logger.getLogger(PlayRecordFsmImpl.class);
 
     // Event Listener
     private final MgcpEventSubject mgcpEventSubject;
@@ -72,6 +75,104 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
 
         // Execution Context
         this.context = context;
+    }
+
+    @Override
+    public void enterReady(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered READY state");
+        }
+    }
+
+    @Override
+    public void exitReady(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited READY state");
+        }        
+    }
+
+    @Override
+    public void enterActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered ACTIVE state");
+        }
+        
+    }
+
+    @Override
+    public void exitActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited ACTIVE state");
+        }
+        
+    }
+
+    @Override
+    public void enterPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered PROMPTING state");
+        }
+        
+    }
+
+    @Override
+    public void exitPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited PROMPTING state");
+        }
+        
+    }
+
+    @Override
+    public void enterPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered PROMPTED state");
+        }
+        
+    }
+
+    @Override
+    public void exitPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited PROMPTED state");
+        }
+        
+    }
+
+    @Override
+    public void enterCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered COLLECTING state");
+        }
+        
+    }
+
+    @Override
+    public void exitCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited COLLECTING state");
+        }        
+    }
+
+    @Override
+    public void enterCollected(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered COLLECTED state");
+        }        
+    }
+
+    @Override
+    public void exitCollected(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited COLLECTED state");
+        }             
+    }
+    
+    @Override
+    public void enterTimedOut(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered TIMED OUT state");
+        }    
     }
 
 }

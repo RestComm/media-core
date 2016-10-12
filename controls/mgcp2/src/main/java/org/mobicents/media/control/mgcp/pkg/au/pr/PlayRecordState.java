@@ -26,5 +26,7 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
  *
  */
 public enum PlayRecordState {
+    
+    READY, ACTIVE, PROMPT, _PROMPTING, _PROMPTED, COLLECT, _COLLECTING, _COLLECTED, TIMED_OUT;
 
 }

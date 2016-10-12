@@ -28,5 +28,30 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  *
  */
 public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext> {
+    
+    void enterReady(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
+    void exitReady(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void enterActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void exitActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void enterPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void exitPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void enterPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void exitPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void enterCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void exitCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void enterCollected(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void exitCollected(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
+    void enterTimedOut(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 }
