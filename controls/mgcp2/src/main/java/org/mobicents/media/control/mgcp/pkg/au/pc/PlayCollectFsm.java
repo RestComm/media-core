@@ -33,6 +33,10 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
 
     void exitReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
+    void enterActive(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+    
+    void exitActive(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
+
     void enterPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);
 
     void onPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context);

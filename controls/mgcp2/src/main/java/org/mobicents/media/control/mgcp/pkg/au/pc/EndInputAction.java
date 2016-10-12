@@ -18,15 +18,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.mobicents.media.control.mgcp.pkg.au.pc;
+
+import org.apache.log4j.Logger;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum PlayCollectEvent {
+public class EndInputAction extends AnonymousAction<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> {
+    
+    private static final Logger log = Logger.getLogger(EndInputAction.class);
+    
+    static final EndInputAction INSTANCE = new EndInputAction();
+    
+    private EndInputAction() {
+        super();
+    }
 
-    PROMPT, REPROMPT, NO_DIGITS_REPROMPT, NEXT_TRACK, END_PROMPT, COLLECT, END_INPUT, EVALUATE, TIMEOUT, CANCEL, RESTART, PLAY_SUCCESS, PLAY_FAILURE, SUCCEED, FAIL; 
+    @Override
+    public void execute(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context,
+            PlayCollectFsm stateMachine) {
+        if(log.isTraceEnabled()) {
+            log.trace("Evaluating collected digits.");
+        }
+        
+    }
 
 }

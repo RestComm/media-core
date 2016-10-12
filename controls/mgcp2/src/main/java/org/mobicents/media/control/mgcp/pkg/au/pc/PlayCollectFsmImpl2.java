@@ -44,10 +44,10 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext>
+public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext>
         implements PlayCollectFsm {
 
-    private static final Logger log = Logger.getLogger(PlayCollectFsmImpl.class);
+    private static final Logger log = Logger.getLogger(PlayCollectFsmImpl2.class);
 
     // Scheduler
     private final ListeningScheduledExecutorService executor;
@@ -65,7 +65,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     // Execution Context
     private final PlayCollectContext context;
 
-    public PlayCollectFsmImpl(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,
+    public PlayCollectFsmImpl2(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,
             PlayerListener playerListener, MgcpEventSubject mgcpEventSubject, ListeningScheduledExecutorService executor,
             PlayCollectContext context) {
         super();
@@ -109,16 +109,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Entered READY state");
         }
-        
-        if (PlayCollectEvent.RESTART.equals(event)) {
-            this.context.newAttempt();
-        }
-
-        if (this.context.getInitialPrompt().isEmpty()) {
-            fire(PlayCollectEvent.COLLECT, this.context);
-        } else {
-            fire(PlayCollectEvent.PROMPT, this.context);
-        }
     }
 
     @Override
@@ -129,19 +119,23 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     }
 
     @Override
+    public void enterActive(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered ACTIVE state");
+        }
+    }
+    
+    @Override
+    public void exitActive(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Exited ACTIVE state");
+        }
+    }
+
+    @Override
     public void enterPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         if(log.isTraceEnabled()) {
             log.trace("Entered PROMPTING state");
-        }
-        
-        final Playlist prompt = context.getInitialPrompt();
-        try {
-            this.player.addListener(this.playerListener);
-            playAnnouncement(prompt.next(), 0L);
-        } catch (TooManyListenersException e) {
-            log.error("Too many player listeners", e);
-            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
-            fire(PlayCollectEvent.FAIL, context);
         }
     }
 
@@ -150,16 +144,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("On PROMPTING state");
         }
-        
-        final Playlist prompt = context.getInitialPrompt();
-        final String next = prompt.next();
-
-        if (next.isEmpty()) {
-            // No more announcements to play
-            fire(PlayCollectEvent.COLLECT, context);
-        } else {
-            playAnnouncement(next, 10 * 100);
-        }
     }
 
     @Override
@@ -167,26 +151,12 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Exited PROMPTING state");
         }
-        
-        this.player.removeListener(this.playerListener);
-        this.player.deactivate();
     }
 
     @Override
     public void enterCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         if(log.isTraceEnabled()) {
             log.trace("Entered COLLECTING state");
-        }
-        
-        try {
-            // Activate DTMF detector and bind listener
-            this.detector.addListener(this.detectorListener);
-            this.detector.activate();
-
-            // Activate timer for first digit
-            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
-        } catch (TooManyListenersException e) {
-            log.error("Too many DTMF listeners", e);
         }
     }
 
@@ -195,10 +165,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Exited COLLECTING state");
         }
-        
-        // Deactivate DTMF detector and release listener
-        this.detector.removeListener(this.detectorListener);
-        this.detector.deactivate();
     }
 
     @Override
@@ -210,126 +176,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
         if (log.isTraceEnabled()) {
             log.trace("On COLLECTING state:::tone=" + tone);
-        }
-
-        if (reinputKey == tone) {
-            // Force collection to cancel any scheduled timeout
-            context.collectDigit(tone);
-
-            // Clear collected digits
-            context.clearCollectedDigits();
-
-            // Start first digit timer
-            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
-        } else if (restartKey == tone) {
-            if (context.hasMoreAttempts()) {
-                // Tell context that a key was received to cancel any timeout.
-                context.collectDigit(tone);
-
-                // Restart Collect operation
-                fire(PlayCollectEvent.RESTART, context);
-            } else {
-                // Max number of attempts reached. Fail.
-                context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                if (context.hasFailureAnnouncement()) {
-                    fire(PlayCollectEvent.PLAY_FAILURE, context);
-                } else {
-                    fire(PlayCollectEvent.FAIL, context);
-                }
-            }
-        } else if (endInputKey == tone) {
-            if (context.hasDigitPattern()) {
-                // Check if list of collected digits match the digit pattern
-                if (context.getCollectedDigits().matches(context.getDigitPattern())) {
-                    // Append endInputKey (if required)
-                    if (context.getIncludeEndInputKey()) {
-                        context.collectDigit(tone);
-                    }
-
-                    // Digit Collection succeeded
-                    if (context.hasSuccessAnnouncement()) {
-                        fire(PlayCollectEvent.PLAY_SUCCESS, context);
-                    } else {
-                        fire(PlayCollectEvent.SUCCEED, context);
-                    }
-                } else {
-                    // Retry if more attempts are available. If not, fail.
-                    if (context.hasMoreAttempts()) {
-                        // Clear digits and play reprompt
-                        if (context.countCollectedDigits() == 0) {
-                            fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
-                        } else {
-                            fire(PlayCollectEvent.REPROMPT, context);
-                        }
-                    } else {
-                        // Fire failure event
-                        context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
-                        if (context.hasFailureAnnouncement()) {
-                            fire(PlayCollectEvent.PLAY_FAILURE, context);
-                        } else {
-                            fire(PlayCollectEvent.FAIL, context);
-                        }
-                    }
-                }
-            } else {
-                // Check if minimum number of digits was collected
-                if (context.getMinimumDigits() <= context.countCollectedDigits()) {
-                    // Minimum number of digits was collected
-                    // Append endInputKey (if required)
-                    if (context.getIncludeEndInputKey()) {
-                        context.collectDigit(tone);
-                    }
-
-                    // Digit Collection succeeded
-                    if (context.hasSuccessAnnouncement()) {
-                        fire(PlayCollectEvent.PLAY_SUCCESS, context);
-                    } else {
-                        fire(PlayCollectEvent.SUCCEED, context);
-                    }
-                } else {
-                    // Minimum number of digits was NOT collected
-                    // Retry if more attempts are available. If not, fail.
-                    if (context.hasMoreAttempts()) {
-                        // Clear digits and play reprompt
-                        if (context.countCollectedDigits() == 0) {
-                            fire(PlayCollectEvent.NO_DIGITS_REPROMPT, context);
-                        } else {
-                            fire(PlayCollectEvent.REPROMPT, context);
-                        }
-                    } else {
-                        // Fire failure event
-                        context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
-                        if (context.hasFailureAnnouncement()) {
-                            fire(PlayCollectEvent.PLAY_FAILURE, context);
-                        } else {
-                            fire(PlayCollectEvent.FAIL, context);
-                        }
-                    }
-                }
-            }
-        } else {
-            // Make sure first digit matches StartInputKey
-            if (context.countCollectedDigits() == 0 && context.getStartInputKeys().indexOf(tone) == -1) {
-                log.info("Dropping tone " + tone + " because it does not match any of StartInputKeys "
-                        + context.getStartInputKeys());
-                return;
-            }
-
-            // Append tone to list of collected digits
-            context.collectDigit(tone);
-
-            // Verify if number of max digits was reached
-            if (!context.hasDigitPattern() && context.getMaximumDigits() == context.countCollectedDigits()) {
-                // Digit Collection succeeded
-                if (context.hasSuccessAnnouncement()) {
-                    fire(PlayCollectEvent.PLAY_SUCCESS, context);
-                } else {
-                    fire(PlayCollectEvent.SUCCEED, context);
-                }
-            } else {
-                // Start interdigit timer
-                this.executor.schedule(new DetectorTimer(context), context.getInterDigitTimer(), TimeUnit.MILLISECONDS);
-            }
         }
     }
 
@@ -344,22 +190,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Entered REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
         }
-
-        // Register player listener
-        try {
-            this.player.addListener(this.playerListener);
-        } catch (TooManyListenersException e) {
-            log.error("Too many player listeners", e);
-            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
-            fire(PlayCollectEvent.FAIL, context);
-        }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.COLLECT, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
     }
 
     @Override
@@ -370,13 +200,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("On REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
         }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.COLLECT, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
     }
 
     @Override
@@ -384,12 +207,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Exited REPROMPTING state");
         }
-
-        // Deregister player listener
-        this.player.removeListener(this.playerListener);
-
-        // Deactivate player
-        this.player.deactivate();
     }
 
     @Override
@@ -403,22 +220,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Entered NO DIGITS REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
         }
-
-        // Register player listener
-        try {
-            this.player.addListener(this.playerListener);
-        } catch (TooManyListenersException e) {
-            log.error("Too many player listeners", e);
-            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
-            fire(PlayCollectEvent.FAIL, context);
-        }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.COLLECT, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
     }
 
     @Override
@@ -429,13 +230,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("On NO DIGITS REPROMPTING state::attempt=" + context.getAttempt() + ", track=" + track);
         }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.COLLECT, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
     }
 
     @Override
@@ -443,12 +237,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Exited NO DIGITS REPROMPTING state");
         }
-
-        // Deregister player listener
-        this.player.removeListener(this.playerListener);
-
-        // Deactivate player
-        this.player.deactivate();
     }
     
     @Override
@@ -487,23 +275,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Entered PLAYING SUCCESS state");
         }
-
-        // Register player listener
-        try {
-            this.player.addListener(this.playerListener);
-        } catch (TooManyListenersException e) {
-            log.error("Too many player listeners", e);
-            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
-            fire(PlayCollectEvent.FAIL, context);
-        }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.SUCCEED, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
-
     }
 
     @Override
@@ -514,13 +285,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("On PLAYING SUCCESS state::atempt=" + context.getAttempt() + ", track=" + track);
         }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.SUCCEED, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
     }
 
     @Override
@@ -528,12 +292,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Exited PLAYING SUCCESS state");
         }
-
-        // Deregister player listener
-        this.player.removeListener(this.playerListener);
-
-        // Deactivate player
-        this.player.deactivate();
     }
 
     @Override
@@ -544,11 +302,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Entered SUCCEEDED state::attempt=" + attempt + ", digits=" + collectedDigits);
         }
-
-        final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, ReturnCode.SUCCESS.code());
-        operationComplete.setParameter("na", String.valueOf(attempt));
-        operationComplete.setParameter("dc", collectedDigits);
-        this.mgcpEventSubject.notify(this.mgcpEventSubject, operationComplete);
     }
 
     @Override
@@ -559,23 +312,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Entered PLAYING FAILURE state");
         }
-
-        // Register player listener
-        try {
-            this.player.addListener(this.playerListener);
-        } catch (TooManyListenersException e) {
-            log.error("Too many player listeners", e);
-            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
-            fire(PlayCollectEvent.FAIL, context);
-        }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.FAIL, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
-
     }
 
     @Override
@@ -586,13 +322,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("On PLAYING FAILURE state");
         }
-
-        // Play reprompt or move to collect state if no prompt is defined
-        if (track.isEmpty()) {
-            fire(PlayCollectEvent.FAIL, context);
-        } else {
-            playAnnouncement(track, 0L);
-        }
     }
 
     @Override
@@ -600,12 +329,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Exited PLAYING FAILURE state");
         }
-
-        // Deregister player listener
-        this.player.removeListener(this.playerListener);
-
-        // Deactivate player
-        this.player.deactivate();
     }
 
     @Override
@@ -613,9 +336,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if(log.isTraceEnabled()) {
             log.trace("Entered FAILED state");
         }
-
-        final OperationFailed operationFailed = new OperationFailed(PlayCollect.SYMBOL, context.getReturnCode());
-        this.mgcpEventSubject.notify(this.mgcpEventSubject, operationFailed);
     }
 
     /**
@@ -651,18 +371,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
 
         }
 
-    }
-
-    @Override
-    public void enterActive(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void exitActive(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
-        
     }
 
 }
