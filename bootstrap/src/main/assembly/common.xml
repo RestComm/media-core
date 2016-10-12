@@ -91,6 +91,22 @@
                 <source>src/main/config/dtls/x509-server-key.pem</source>
                 <destName>conf/dtls/x509-server-key.pem</destName>
             </file>
+            <file>
+                <source>src/main/config/dtls/x509-client-ecdsa.pem</source>
+                <destName>conf/dtls/x509-client-ecdsa.pem</destName>
+            </file>
+            <file>
+                <source>src/main/config/dtls/x509-client-key-ecdsa.pem</source>
+                <destName>conf/dtls/x509-client-key-ecdsa.pem</destName>
+            </file>
+                        <file>
+                <source>src/main/config/dtls/x509-server-ecdsa.pem</source>
+                <destName>conf/dtls/x509-server-ecdsa.pem</destName>
+            </file>
+            <file>
+                <source>src/main/config/dtls/x509-server-key-ecdsa.pem</source>
+                <destName>conf/dtls/x509-server-key-ecdsa.pem</destName>
+            </file>
 
         </files>
 </component>

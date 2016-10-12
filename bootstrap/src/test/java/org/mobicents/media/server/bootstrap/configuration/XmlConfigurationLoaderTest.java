@@ -112,8 +112,8 @@ public class XmlConfigurationLoaderTest {
         }
         Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
         Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
-        Assert.assertEquals(SignatureAlgorithm.rsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
-        Assert.assertEquals(ClientCertificateType.rsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
     /**
@@ -173,8 +173,8 @@ public class XmlConfigurationLoaderTest {
         }
         Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
         Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
-        Assert.assertEquals(SignatureAlgorithm.rsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
-        Assert.assertEquals(ClientCertificateType.rsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
     @Test
@@ -231,8 +231,8 @@ public class XmlConfigurationLoaderTest {
         }
         Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
         Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
-        Assert.assertEquals(SignatureAlgorithm.rsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
-        Assert.assertEquals(ClientCertificateType.rsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
 }

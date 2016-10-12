@@ -202,8 +202,8 @@ public class TlsUtils {
 	}
 
 	static PemObject loadPemResource(String resource) throws IOException {
-        try (InputStream s = new FileInputStream(resource)) {
-            PemReader p = new PemReader(new InputStreamReader(s));
+	    InputStream s = new FileInputStream(resource);
+	    try (PemReader p = new PemReader(new InputStreamReader(s))) {
             PemObject o = p.readPemObject();
             p.close();
             return o;
