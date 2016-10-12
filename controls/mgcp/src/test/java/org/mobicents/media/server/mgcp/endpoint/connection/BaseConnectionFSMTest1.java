@@ -34,6 +34,7 @@ import java.io.IOException;
 import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
@@ -73,6 +74,7 @@ import org.mobicents.media.server.spi.TooManyConnectionsException;
  * @author yulian oifa
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
+@Ignore
 public class BaseConnectionFSMTest1 {
 
     // clock and scheduler
