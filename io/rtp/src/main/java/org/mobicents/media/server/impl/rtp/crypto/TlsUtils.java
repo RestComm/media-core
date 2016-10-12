@@ -20,6 +20,7 @@
 
 package org.mobicents.media.server.impl.rtp.crypto;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -201,14 +202,12 @@ public class TlsUtils {
 	}
 
 	static PemObject loadPemResource(String resource) throws IOException {
-		InputStream s = TlsUtils.class.getResourceAsStream(resource);
-        if (s == null) {
-            s = new FileInputStream(resource);
+        try (InputStream s = new FileInputStream(resource)) {
+            PemReader p = new PemReader(new InputStreamReader(s));
+            PemObject o = p.readPemObject();
+            p.close();
+            return o;
         }
-		PemReader p = new PemReader(new InputStreamReader(s));
-		PemObject o = p.readPemObject();
-		p.close();
-		return o;
 	}
 
 }

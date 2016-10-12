@@ -83,7 +83,7 @@ public class RtpConnectionImplTest {
     protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
     protected String certificatePath = DtlsConfiguration.CERTIFICATE_PATH;
     protected String keyPath = DtlsConfiguration.KEY_PATH;
-    protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.rsa;
+    protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.RSA;
     protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
             certificatePath, keyPath, algorithmCertificate);
 

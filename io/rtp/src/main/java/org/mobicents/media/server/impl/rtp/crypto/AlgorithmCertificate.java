@@ -29,15 +29,15 @@ import org.bouncycastle.crypto.tls.SignatureAlgorithm;
  */
 public enum AlgorithmCertificate {
 
-    rsa(SignatureAlgorithm.rsa, ClientCertificateType.rsa_sign),
-    rsa_fixed_dh(SignatureAlgorithm.rsa, ClientCertificateType.rsa_fixed_dh),
-    rsa_ephemeral_dh_reserved(SignatureAlgorithm.rsa, ClientCertificateType.rsa_ephemeral_dh_RESERVED),
-    rsa_fixed_ecdh(SignatureAlgorithm.rsa, ClientCertificateType.rsa_fixed_ecdh),
-    dsa(SignatureAlgorithm.dsa, ClientCertificateType.dss_sign),
-    dsa_fixed_dh(SignatureAlgorithm.dsa, ClientCertificateType.dss_fixed_dh),
-    dsa_ephemeral_dh_reserved(SignatureAlgorithm.dsa, ClientCertificateType.dss_ephemeral_dh_RESERVED),
-    ecdsa(SignatureAlgorithm.ecdsa, ClientCertificateType.ecdsa_sign),
-    ecdsa_fixed_ecdh(SignatureAlgorithm.ecdsa, ClientCertificateType.ecdsa_fixed_ecdh);
+    RSA(SignatureAlgorithm.rsa, ClientCertificateType.rsa_sign),
+    RSA_FIXED_DH(SignatureAlgorithm.rsa, ClientCertificateType.rsa_fixed_dh),
+    RSA_EPHEMERAL_DH_RESERVED(SignatureAlgorithm.rsa, ClientCertificateType.rsa_ephemeral_dh_RESERVED),
+    RSA_FIXED_ECDH(SignatureAlgorithm.rsa, ClientCertificateType.rsa_fixed_ecdh),
+    DSA(SignatureAlgorithm.dsa, ClientCertificateType.dss_sign),
+    DSA_FIXED_DH(SignatureAlgorithm.dsa, ClientCertificateType.dss_fixed_dh),
+    DSA_EPHEMERAL_DH_RESERVED(SignatureAlgorithm.dsa, ClientCertificateType.dss_ephemeral_dh_RESERVED),
+    ECDSA(SignatureAlgorithm.ecdsa, ClientCertificateType.ecdsa_sign),
+    ECDSA_FIXED_ECDH(SignatureAlgorithm.ecdsa, ClientCertificateType.ecdsa_fixed_ecdh);
 
     private short signatureAlgorithm;
     private short clientCertificate;

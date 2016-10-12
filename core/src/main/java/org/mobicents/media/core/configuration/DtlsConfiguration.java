@@ -41,9 +41,9 @@ public class DtlsConfiguration {
             + "TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_RSA_WITH_AES_128_GCM_SHA256, "
             + "TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA256, "
             + "TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256";
-    public static final String CERTIFICATE_PATH = "x509-server.pem";
-    public static final String KEY_PATH = "x509-server-key.pem";
-    public static final String ALGORITHM_CERTIFICATE = AlgorithmCertificate.rsa.name();
+    public static final String CERTIFICATE_PATH = "../conf/dtls/x509-server.pem";
+    public static final String KEY_PATH = "../conf/dtls/x509-server-key.pem";
+    public static final String ALGORITHM_CERTIFICATE = AlgorithmCertificate.RSA.name();
 
     private ProtocolVersion minVersion;
     private ProtocolVersion maxVersion;
@@ -123,6 +123,6 @@ public class DtlsConfiguration {
     }
 
     public void setAlgorithmCertificate(String algorithmCertificate) {
-        this.algorithmCertificate = AlgorithmCertificate.valueOf(algorithmCertificate);
+        this.algorithmCertificate = AlgorithmCertificate.valueOf(algorithmCertificate.toUpperCase());
     }
 }
