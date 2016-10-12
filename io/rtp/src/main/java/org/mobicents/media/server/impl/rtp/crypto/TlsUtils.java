@@ -205,7 +205,6 @@ public class TlsUtils {
 	    InputStream s = new FileInputStream(resource);
 	    try (PemReader p = new PemReader(new InputStreamReader(s))) {
             PemObject o = p.readPemObject();
-            p.close();
             return o;
         }
 	}

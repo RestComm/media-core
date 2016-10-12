@@ -32,7 +32,7 @@ public class DtlsConfiguration {
 
     public static final String MIN_VERSION = "1.0";
     public static final String MAX_VERSION = "1.2";
-    public static final String CIPHER_SUITES = "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256";
+    public static final String CIPHER_SUITES = "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
     public static final String CERTIFICATE_PATH = "../conf/dtls/x509-server-ecdsa.pem";
     public static final String KEY_PATH = "../conf/dtls/x509-server-key-ecdsa.pem";
     public static final String ALGORITHM_CERTIFICATE = AlgorithmCertificate.ECDSA.name();
