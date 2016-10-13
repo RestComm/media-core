@@ -40,9 +40,10 @@ public class XmlConfigurationLoaderTest {
 
     /**
      * Test all information from a valid and complete configuration file is loaded properly into memory.
+     * @throws Exception
      */
     @Test
-    public void testLoadConfiguration() {
+    public void testLoadConfiguration() throws Exception {
         // given
         String filepath = "mediaserver.xml";
         XmlConfigurationLoader loader = new XmlConfigurationLoader();
@@ -112,9 +113,10 @@ public class XmlConfigurationLoaderTest {
 
     /**
      * Test default configuration is loaded into memory after failing to locate a configuration file.
+     * @throws Exception
      */
-    @Test
-    public void testFileNotFound() {
+    @Test(expected = Exception.class)
+    public void testFileNotFound() throws Exception {
         // given
         String filepath = "not-found.xml";
         XmlConfigurationLoader loader = new XmlConfigurationLoader();
@@ -167,8 +169,8 @@ public class XmlConfigurationLoaderTest {
         }
     }
 
-    @Test
-    public void testFileNetworkMisconfigured() {
+    @Test(expected = Exception.class)
+    public void testFileNetworkMisconfigured() throws Exception {
         // given
         String filepath = "media-server-network-misconfigured.xml";
         XmlConfigurationLoader loader = new XmlConfigurationLoader();

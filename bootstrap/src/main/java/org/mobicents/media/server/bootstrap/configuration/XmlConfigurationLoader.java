@@ -57,7 +57,7 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
     }
 
     @Override
-    public MediaServerConfiguration load(String filepath) {
+    public MediaServerConfiguration load(String filepath) throws Exception {
         // Default configuration
         MediaServerConfiguration configuration = new MediaServerConfiguration();
 
@@ -82,8 +82,9 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
             configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
             configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
             configureDtls(xml.configurationAt("dtls"), configuration.getDtlsConfiguration());
-        } catch (ConfigurationException | IllegalArgumentException e) {
-            log.error("Could not load configuration from " + filepath + ". Using default values. Reason: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Could not load configuration from " + filepath + ". Reason: " + e.getMessage());
+            throw e;
         }
         return configuration;
     }
