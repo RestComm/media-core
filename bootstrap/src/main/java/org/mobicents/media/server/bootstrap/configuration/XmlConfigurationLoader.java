@@ -64,28 +64,23 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         // Read configuration from file
         XMLConfiguration xml;
         try {
-            try {
-                // Load from configured path (relative path)
-                xml = this.configurations.xml(filepath);
-            } catch (ConfigurationException e) {
-                log.warn("Could not load configuration from " + filepath);
-                // If failed using configured path, try to use default path (absolute path)
-                final String mmsHome = System.getProperty(MMS_HOME);
-                filepath = mmsHome + DEFAULT_PATH;
-                xml = this.configurations.xml(filepath);
-                log.warn("Configuration file found at " + filepath);
-            }
-
-            // Overwrite default configurations
-            configureNetwork(xml.configurationAt("network"), configuration.getNetworkConfiguration());
-            configureController(xml.configurationAt("controller"), configuration.getControllerConfiguration());
-            configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
-            configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
-            configureDtls(xml.configurationAt("dtls"), configuration.getDtlsConfiguration());
-        } catch (Exception e) {
-            log.error("Could not load configuration from " + filepath + ". Reason: " + e.getMessage());
-            throw e;
+            // Load from configured path (relative path)
+            xml = this.configurations.xml(filepath);
+        } catch (ConfigurationException e) {
+            log.warn("Could not load configuration from " + filepath);
+            // If failed using configured path, try to use default path (absolute path)
+            final String mmsHome = System.getProperty(MMS_HOME);
+            filepath = mmsHome + DEFAULT_PATH;
+            xml = this.configurations.xml(filepath);
+            log.warn("Configuration file found at " + filepath);
         }
+
+        // Overwrite default configurations
+        configureNetwork(xml.configurationAt("network"), configuration.getNetworkConfiguration());
+        configureController(xml.configurationAt("controller"), configuration.getControllerConfiguration());
+        configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
+        configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
+        configureDtls(xml.configurationAt("dtls"), configuration.getDtlsConfiguration());
         return configuration;
     }
 

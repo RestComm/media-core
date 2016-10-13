@@ -57,7 +57,7 @@ public class Bootstrapper {
             this.mediaServer = injector.getInstance(RestCommMediaServer.class);
             this.mediaServer.start();
         } catch (Exception e) {
-            log.error("Bootstrap aborted.");
+            log.error("Bootstrap aborted. Reason: " + e.getMessage());
         }
     }
 
