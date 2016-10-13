@@ -62,7 +62,9 @@ public class Bootstrapper {
     }
 
     public void stop() {
-        this.mediaServer.stop();
+        if (mediaServer != null) {
+            this.mediaServer.stop();
+        }
     }
 
 }
