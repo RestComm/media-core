@@ -21,7 +21,9 @@
 
 package org.mobicents.media.server.bootstrap.configuration;
 
+import org.bouncycastle.crypto.tls.ClientCertificateType;
 import org.bouncycastle.crypto.tls.ProtocolVersion;
+import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
@@ -108,6 +110,10 @@ public class XmlConfigurationLoaderTest {
         for (int i = 0; i < dtls.getCipherSuites().length; i++) {
             Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
         }
+        Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
+        Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
     /**
@@ -165,6 +171,10 @@ public class XmlConfigurationLoaderTest {
         for (int i = 0; i < dtls.getCipherSuites().length; i++) {
             Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
         }
+        Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
+        Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
     @Test
@@ -219,6 +229,10 @@ public class XmlConfigurationLoaderTest {
         for (int i = 0; i < dtls.getCipherSuites().length; i++) {
             Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
         }
+        Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
+        Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
 }

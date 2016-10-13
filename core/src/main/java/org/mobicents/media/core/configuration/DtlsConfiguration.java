@@ -22,6 +22,7 @@
 package org.mobicents.media.core.configuration;
 
 import org.bouncycastle.crypto.tls.ProtocolVersion;
+import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 
 /**
@@ -31,24 +32,25 @@ public class DtlsConfiguration {
 
     public static final String MIN_VERSION = "1.0";
     public static final String MAX_VERSION = "1.2";
-    public static final String CIPHER_SUITES = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, "
-            + "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, "
-            + "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, "
-            + "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_128_GCM_SHA256, "
-            + "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_128_CBC_SHA256, "
-            + "TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, "
-            + "TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_RSA_WITH_AES_128_GCM_SHA256, "
-            + "TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA256, "
-            + "TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256";
+    public static final String CIPHER_SUITES = "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA";
+    public static final String CERTIFICATE_PATH = "../conf/dtls/x509-server-ecdsa.pem";
+    public static final String KEY_PATH = "../conf/dtls/x509-server-key-ecdsa.pem";
+    public static final String ALGORITHM_CERTIFICATE = AlgorithmCertificate.ECDSA.name();
 
     private ProtocolVersion minVersion;
     private ProtocolVersion maxVersion;
     private CipherSuite[] cipherSuites;
+    private String certificatePath;
+    private String keyPath;
+    private AlgorithmCertificate algorithmCertificate;
 
     public DtlsConfiguration() {
         setMinVersion(MIN_VERSION);
         setMaxVersion(MAX_VERSION);
-        setCipherSuites(CIPHER_SUITES.split(","));
+        setCipherSuites(CIPHER_SUITES);
+        this.certificatePath = CERTIFICATE_PATH;
+        this.keyPath = KEY_PATH;
+        setAlgorithmCertificate(ALGORITHM_CERTIFICATE);
     }
 
     public ProtocolVersion getMinVersion() {
@@ -61,6 +63,18 @@ public class DtlsConfiguration {
 
     public CipherSuite[] getCipherSuites() {
         return cipherSuites;
+    }
+
+    public String getCertificatePath() {
+        return certificatePath;
+    }
+
+    public String getKeyPath() {
+        return keyPath;
+    }
+
+    public AlgorithmCertificate getAlgorithmCertificate() {
+        return algorithmCertificate;
     }
 
     public void setMinVersion(String minVersion) {
@@ -81,7 +95,8 @@ public class DtlsConfiguration {
         }
     }
 
-    public void setCipherSuites(String[] values) {
+    public void setCipherSuites(String cipherSuites) {
+        String[] values = cipherSuites.split(",");
         CipherSuite[] cipherSuiteTemp = new CipherSuite[values.length];
         for (int i = 0; i < values.length; i++) {
             cipherSuiteTemp[i] = CipherSuite.valueOf(values[i].trim());
@@ -91,4 +106,15 @@ public class DtlsConfiguration {
         }
     }
 
+    public void setCertificatePath(String certificatePath) {
+        this.certificatePath = certificatePath;
+    }
+
+    public void setKeyPath(String keyPath) {
+        this.keyPath = keyPath;
+    }
+
+    public void setAlgorithmCertificate(String algorithmCertificate) {
+        this.algorithmCertificate = AlgorithmCertificate.valueOf(algorithmCertificate.toUpperCase());
+    }
 }

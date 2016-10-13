@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
 import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -56,7 +57,11 @@ public class RtpConnectionPoolTest {
     protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
     protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
     protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
-    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites);
+    protected String certificatePath = DtlsConfiguration.CERTIFICATE_PATH;
+    protected String keyPath = DtlsConfiguration.KEY_PATH;
+    protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.RSA;
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
+            certificatePath, keyPath, algorithmCertificate);
     
     private final ChannelsManager connectionFactory;
     private final DspFactory dspFactory;
