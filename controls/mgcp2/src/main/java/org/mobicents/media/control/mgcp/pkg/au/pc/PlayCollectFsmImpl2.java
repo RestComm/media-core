@@ -26,8 +26,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
-import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
-import org.mobicents.media.control.mgcp.pkg.au.OperationFailed;
 import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -87,6 +85,10 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
     }
 
     private void playAnnouncement(String url, long delay) {
+        if(log.isDebugEnabled()) {
+            log.debug("Playing announcement " + url);
+        }
+
         try {
             this.player.setInitialDelay(delay);
             this.player.setURL(url);
@@ -106,9 +108,9 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
 
     @Override
     public void enterReady(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        if(log.isTraceEnabled()) {
-            log.trace("Entered READY state");
-        }
+        // TODO if event == RESTART then increase attempt
+        // TODO make choice between PROMPT, REPROMPT and NO_DIGITS_REPROMPT
+//        fire(PlayCollectEvent.PROMPT, context);
     }
 
     @Override
@@ -137,12 +139,33 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         if(log.isTraceEnabled()) {
             log.trace("Entered PROMPTING state");
         }
+        
+        final Playlist prompt = context.getInitialPrompt();
+        final String track = prompt.next();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(track, 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
     }
 
     @Override
     public void onPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         if(log.isTraceEnabled()) {
             log.trace("On PROMPTING state");
+        }
+
+        final Playlist prompt = context.getInitialPrompt();
+        final String track = prompt.next();
+
+        if (track.isEmpty()) {
+            // No more announcements to play
+            fire(PlayCollectEvent.END_PROMPT, context);
+        } else {
+            playAnnouncement(track, 10 * 100);
         }
     }
 
@@ -151,12 +174,26 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         if(log.isTraceEnabled()) {
             log.trace("Exited PROMPTING state");
         }
+        
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
     public void enterCollecting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
         if(log.isTraceEnabled()) {
             log.trace("Entered COLLECTING state");
+        }
+        
+        try {
+            // Activate DTMF detector and bind listener
+            this.detector.addListener(this.detectorListener);
+            this.detector.activate();
+
+            // Activate timer for first digit
+            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
+        } catch (TooManyListenersException e) {
+            log.error("Too many DTMF listeners", e);
         }
     }
 
@@ -165,6 +202,10 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         if(log.isTraceEnabled()) {
             log.trace("Exited COLLECTING state");
         }
+        
+        // Deactivate DTMF detector and release listener
+        this.detector.removeListener(this.detectorListener);
+        this.detector.deactivate();
     }
 
     @Override
@@ -176,6 +217,13 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
 
         if (log.isTraceEnabled()) {
             log.trace("On COLLECTING state:::tone=" + tone);
+        }
+        
+        if(endInputKey == tone) {
+            fire(PlayCollectEvent.END_INPUT, context);
+            // TODO check if end prompt is enabled
+        } else {
+            context.collectDigit(tone);
         }
     }
 

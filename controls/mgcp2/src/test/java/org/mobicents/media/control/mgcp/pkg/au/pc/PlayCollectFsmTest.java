@@ -57,7 +57,9 @@ public class PlayCollectFsmTest {
     public void testCollectWithEndInputKey() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
-        parameters.put("mx", "100");
+        parameters.put("mx", "5");
+        parameters.put("mx", "1");
+        parameters.put("ip", "prompt1.wav,prompt2.wav,prompt3.wav,prompt4.wav,prompt5.wav");
         parameters.put("eik", "#");
 
         final Player player = mock(Player.class);
@@ -73,8 +75,11 @@ public class PlayCollectFsmTest {
         // when
         fsm.start(context);
         fsm.fire(PlayCollectEvent.PROMPT, context);
-        fsm.fire(PlayCollectEvent.END_PROMPT, context);
-        fsm.fire(PlayCollectEvent.END_INPUT, context);
+        fsm.fire(PlayCollectEvent.NEXT_TRACK, context);
+        fsm.fire(PlayCollectEvent.NEXT_TRACK, context);
+        fsm.fire(PlayCollectEvent.NEXT_TRACK, context);
+        fsm.fire(DtmfToneEvent.DTMF_1, context);
+        fsm.fire(DtmfToneEvent.DTMF_HASH, context);
         fsm.terminate();
     }
 

@@ -26,8 +26,10 @@ import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerListener;
+import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 import org.squirrelframework.foundation.fsm.TransitionPriority;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
@@ -45,7 +47,7 @@ public class PlayerCollectFsmBuilder {
     private PlayerCollectFsmBuilder() {
         // Finite State Machine
         this.builder = StateMachineBuilderFactory.<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> create(
-                PlayCollectFsmImpl.class, PlayCollectState.class, Object.class, PlayCollectContext.class, DtmfDetector.class,
+                PlayCollectFsmImpl2.class, PlayCollectState.class, Object.class, PlayCollectContext.class, DtmfDetector.class,
                 DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
                 ListeningScheduledExecutorService.class, PlayCollectContext.class);
 
@@ -61,7 +63,7 @@ public class PlayerCollectFsmBuilder {
 
         builder.defineSequentialStatesOn(PlayCollectState.PROMPT, PlayCollectState.PROMPTING, PlayCollectState.PROMPTED);
         builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
-        builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK);
+        builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPrompting");
         builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
         builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
         
@@ -86,7 +88,9 @@ public class PlayerCollectFsmBuilder {
         builder.transition().from(PlayCollectState.COLLECTING).toFinal(PlayCollectState.COLLECTED).on(PlayCollectEvent.END_INPUT);
         builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
         
-        builder.onEntry(PlayCollectState.EVALUATING).perform(EndInputAction.INSTANCE);
+        builder.onEntry(PlayCollectState.EVALUATING).perform(EvaluateInputAction.INSTANCE);
+        builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
         
 //        builder.onEntry(PlayCollectState.READY).callMethod("enterReady");
 //        builder.transition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
@@ -174,7 +178,7 @@ public class PlayerCollectFsmBuilder {
     }
     
     public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler, PlayCollectContext context) {
-        return builder.newStateMachine(PlayCollectState.READY, detector, detectorListener, player, playerListener, eventSubject, scheduler, context);
+        return builder.newStateMachine(PlayCollectState.READY, StateMachineConfiguration.getInstance().enableDebugMode(true), detector, detectorListener, player, playerListener, eventSubject, scheduler, context);
     }
 
 }
