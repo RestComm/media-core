@@ -55,6 +55,7 @@ public class WavTrackImpl implements Track{
     /*Buffer, Channel, Header */
     private final static int BUFFER_SIZE = 1024;
     private ReadableByteChannel rbChannel;
+    private int bytesReadFromChannel;
     private ByteBuffer buff = ByteBuffer.allocate(BUFFER_SIZE);
     private int headerSize = 72 ; // assuming  we have extensible format including Fact chunk
     private byte[] header = new byte[headerSize];
@@ -91,19 +92,11 @@ public class WavTrackImpl implements Track{
         int bytesRead = 0;
         int bytesCount = 0;
         int byteIndex = 0;
-        int bytesReadFromChannel=rbc.read(buff);
+        bytesReadFromChannel=rbc.read(buff);
         
         buff.position(0);
+        buff.get(header, 0, header.length);
         
-        while (bytesCount < header.length && buff.remaining() > 0) {
-            
-            bytesRead = rbc.read(buff.get(header, 0, header.length));
-            if (bytesRead == -1) {
-                return;
-            }
-            bytesCount = bytesReadFromChannel - bytesRead; 
-
-        }
         buff.order(ByteOrder.LITTLE_ENDIAN);
 
         // ckSize 16,17,18,19
@@ -122,8 +115,11 @@ public class WavTrackImpl implements Track{
         sizeOfData = (header[4] & 0xFF) | ((header[5] & 0xFF) << 8) 
                      | ((header[6] & 0xFF) << 16) | ((header[7] & 0xFF) << 24);
         
-        sizeOfData -= 12;
-        sizeOfData -= ckSize;
+        int sampleData = (header[41] & 0xFF) | ((header[42] & 0xFF) << 8) 
+                     | ((header[43] & 0xFF) << 16) | ((header[44] & 0xFF) << 24);
+        
+        
+        sizeOfData -= (bytesReadFromChannel-8);
         
         this.getFormat(formatValue,channels,bitsPerSample,sampleRate);
         
@@ -132,16 +128,9 @@ public class WavTrackImpl implements Track{
         
         headerEnd = new byte[8 + ckSize - 16];
         buff.position(header.length - headerEnd.length);
-        bytesCount = 0;
-       
-        while (bytesCount < headerEnd.length && buff.remaining()> 0) {
+        //bytesCount = 0;
             
-            bytesRead = rbc.read(buff.get(headerEnd, 0, headerEnd.length));
-            if (bytesRead == -1){
-                return;
-            }
-            bytesCount = bytesReadFromChannel - bytesRead; 
-        }
+        buff.get(headerEnd, 0, headerEnd.length);
         
         byteIndex = headerEnd.length - 4 - factBytes.length;
         boolean hasFact = true;
@@ -158,15 +147,10 @@ public class WavTrackImpl implements Track{
             headerEnd = new byte[12];
             buff.position(header.length);
             bytesCount = 0;
-            
-            while (bytesCount < headerEnd.length && buff.remaining() > 0) {
-
-                bytesRead = rbc.read(buff.get(headerEnd, 0, headerEnd.length));
-                if (bytesRead == -1) {
-                    return;
-                }
-                bytesCount = bytesReadFromChannel - bytesRead;                
-            }
+            //buffTemp.clear();
+                
+            buff.get(headerEnd, 0, headerEnd.length);
+           
         }
         // don't close the channel
     }
@@ -242,26 +226,25 @@ public class WavTrackImpl implements Track{
     public int readPacket(byte[] packet, int offset, int psize) throws IOException {
         
         int length = 0;
-        offset += headerSize;
-        int packetSize = psize + offset;
+        int len=0;
+       
+        int packetSize = psize + offset + headerSize;
         
         if (buff.capacity()< psize){
             ByteBuffer newBuff = ByteBuffer.allocate(packetSize); 
             newBuff.put((ByteBuffer) buff.flip()); 
             buff = newBuff;
-            
         }
         
         try {
             buff.position(offset);
-            while (length < psize && buff.remaining() > 0) {
-
-                int len = rbChannel.read(ByteBuffer.wrap(packet,0,psize));
-                if (len == -1){
-                    return length;
-                }
-                length += len;
+            len = rbChannel.read(ByteBuffer.wrap(packet,offset,psize));
+            if (len == -1){
+                return length;
             }
+            length += len;
+            
+            
             return length;
         } catch (Exception e) {
             logger.error(e);
@@ -316,10 +299,14 @@ public class WavTrackImpl implements Track{
         }
 
         int len = readPacket(data, 0, frameSize);
-        totalRead += len;
-        if (len == 0) {
-            eom = true;
-        }
+        totalRead = totalRead + len;
+        
+        logger.info("Total Read");
+        logger.info(totalRead);
+        logger.info("Size of data");
+        logger.info(sizeOfData);
+        logger.info("Diff");
+        logger.info(sizeOfData-totalRead);
 
         if (len < frameSize) {
             padding(data, frameSize - len);
