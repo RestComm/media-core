@@ -15,6 +15,7 @@ import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
+import org.ehcache.sizeof.annotations.IgnoreSizeOf;
 
 /**
  * Created by achikin on 5/9/16.
@@ -64,6 +65,7 @@ public class CachedRemoteStreamProvider implements RemoteStreamProvider {
 
     private static class ByteStreamCache {
 
+        @IgnoreSizeOf
         private Lock lock = new ReentrantLock();
 
         private volatile byte[] bytes;

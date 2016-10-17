@@ -6,14 +6,18 @@ import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteSt
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.DirectRemoteStreamProvider;
 import org.mobicents.media.server.spi.format.EncodingName;
 import org.mobicents.media.server.spi.format.Format;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.mockito.verification.VerificationMode;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -72,6 +76,34 @@ public class WavTrackCacheTest {
         assertEquals(expectedDuration, track3.getDuration());
 
         verify(mockConnection).getInputStream();
+    }
+
+    @Test
+    public void testCacheOverflow() throws IOException, UnsupportedAudioFileException {
+        //file size is 61712 bytes
+        //1Mb cache contains have 15 full files
+        int cacheSize = 1;
+        double fileSize = 61712d;
+        int iteration = (int) Math.floor(cacheSize * 1024d * 1024d / fileSize) - 1;
+
+        CachedRemoteStreamProvider cache = new CachedRemoteStreamProvider(1);
+
+        for (int j = 0; j < 10; j++) {
+            for (int i = 0; i < iteration; i++) {
+                URL url = new URL(null, "http://test" + i + ".wav", handler);
+                WavTrackImpl track = new WavTrackImpl(url, cache);
+                assertEquals(expectedFormat.getName(), track.getFormat().getName());
+                assertEquals(expectedDuration, track.getDuration());
+            }
+        }
+        verify(mockConnection, Mockito.times(iteration)).getInputStream();
+        for (int i = iteration; i < 2 * iteration; i++) {
+            URL url = new URL(null, "http://test" + i + ".wav", handler);
+            WavTrackImpl track = new WavTrackImpl(url, cache);
+            assertEquals(expectedFormat.getName(), track.getFormat().getName());
+            assertEquals(expectedDuration, track.getDuration());
+        }
+        verify(mockConnection, Mockito.times(2 * iteration)).getInputStream();
     }
 
     @Test
