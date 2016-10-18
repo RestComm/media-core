@@ -26,11 +26,10 @@ import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerListener;
-import org.omg.PortableInterceptor.SUCCESSFUL;
+import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
-import org.squirrelframework.foundation.fsm.TransitionPriority;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
@@ -59,15 +58,16 @@ public class PlayCollectFsmBuilder {
 
         builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
         builder.defineParallelStatesOn(PlayCollectState.PROCESSING, PlayCollectState.PROMPT, PlayCollectState.COLLECT);
-        builder.transition().from(PlayCollectState.PROCESSING).toFinal(PlayCollectState.EVALUATING).on(PlayCollectEvent.EVALUATE);
+        builder.transition().from(PlayCollectState.PROCESSING).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.EVALUATE);
+        builder.transition().from(PlayCollectState.PROCESSING).to(PlayCollectState.TIMED_OUT).on(PlayCollectEvent.TIMEOUT);
 
-        builder.defineSequentialStatesOn(PlayCollectState.PROMPT, PlayCollectState.PROMPTING, PlayCollectState.PROMPTED);
+        builder.defineSequentialStatesOn(PlayCollectState.PROMPT, HistoryType.DEEP, PlayCollectState.PROMPTING, PlayCollectState.PROMPTED);
         builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
         builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPrompting");
         builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
         builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
         
-        builder.defineSequentialStatesOn(PlayCollectState.COLLECT, PlayCollectState.COLLECTING, PlayCollectState.COLLECTED);
+        builder.defineSequentialStatesOn(PlayCollectState.COLLECT, HistoryType.DEEP, PlayCollectState.COLLECTING, PlayCollectState.COLLECTED);
         builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_0).callMethod("onCollecting");
         builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_1).callMethod("onCollecting");
@@ -91,7 +91,17 @@ public class PlayCollectFsmBuilder {
         builder.onEntry(PlayCollectState.EVALUATING).perform(EvaluateInputAction.INSTANCE);
         builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
         builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-
+        
+        builder.onEntry(PlayCollectState.TIMED_OUT).perform(TimeoutAction.INSTANCE);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
+        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+//      builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
+//      builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
+//      builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.TIMED_OUT).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL).perform(CancelAction.INSTANCE);
+//      builder.onExit(PlayCollectState.TIMED_OUT).callMethod("exitTimedOut");
+        
         builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
         builder.defineState(PlayCollectState.SUCCEEDED).setFinal(true);
 

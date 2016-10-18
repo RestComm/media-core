@@ -227,7 +227,16 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
             fire(PlayCollectEvent.END_PROMPT, context);
         }
         
-        if(endInputKey == tone) {
+        if (reinputKey == tone) {
+            // Force collection to cancel any scheduled timeout
+            context.collectDigit(tone);
+
+            // Clear collected digits
+            context.clearCollectedDigits();
+
+            // Start first digit timer
+            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
+        } if(endInputKey == tone) {
             fire(PlayCollectEvent.END_INPUT, context);
             // TODO check if end prompt is enabled
         } else {
@@ -428,7 +437,8 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         @Override
         public void run() {
             if (context.getLastCollectedDigitOn() <= this.timestamp) {
-                if(PlayCollectState.COLLECTING.equals(getCurrentState())) {
+                // TODO replace with child state COLLECTING
+                if(PlayCollectState.PROCESSING.equals(getCurrentState())) {
                     if(log.isDebugEnabled()) {
                         log.debug("Timing out collect operation!");
                     }
