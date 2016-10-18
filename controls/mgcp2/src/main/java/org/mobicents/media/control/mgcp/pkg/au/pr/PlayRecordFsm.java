@@ -39,6 +39,8 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
     
     void enterPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
     
+    void onPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
     void exitPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
     
     void enterPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
@@ -46,6 +48,8 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
     void exitPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
     
     void enterCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void onCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
     
     void exitCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
     

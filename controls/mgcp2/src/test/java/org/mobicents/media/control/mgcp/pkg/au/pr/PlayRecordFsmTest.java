@@ -54,9 +54,12 @@ public class PlayRecordFsmTest {
         // when
         fsm.start();
         fsm.fire(PlayRecordEvent.START, context);
-        fsm.fire(PlayRecordEvent.PROMPT_END, context);
+        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
+        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
+        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
+        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
         fsm.fire(PlayRecordEvent.END_COLLECT, context);
-        fsm.fire(PlayRecordEvent.TIMEOUT, context);
+        fsm.fire(PlayRecordEvent.PROMPT_END, context);
     }
 
     @Test

@@ -114,6 +114,12 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         }
         
     }
+    
+    @Override
+    public void onPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        // TODO Auto-generated method stub
+        
+    }
 
     @Override
     public void exitPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
@@ -144,6 +150,12 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         if(log.isTraceEnabled()) {
             log.trace("Entered COLLECTING state");
         }
+        
+    }
+    
+    @Override
+    public void onCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        // TODO Auto-generated method stub
         
     }
 
