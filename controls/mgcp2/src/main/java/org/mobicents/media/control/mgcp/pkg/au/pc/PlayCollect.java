@@ -84,7 +84,7 @@ public class PlayCollect extends AbstractMgcpSignal {
         this.context = new PlayCollectContext(detector, detectorListener, parameters);
 
         // Build FSM
-        this.fsm = PlayerCollectFsmBuilder.INSTANCE.build(detector, detectorListener, player, playerListener, this, executor, context);
+        this.fsm = PlayCollectFsmBuilder.INSTANCE.build(detector, detectorListener, player, playerListener, this, executor, context);
     }
 
     @Override

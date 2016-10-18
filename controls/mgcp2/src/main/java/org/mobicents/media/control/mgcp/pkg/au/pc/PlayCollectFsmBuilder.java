@@ -38,24 +38,24 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayerCollectFsmBuilder {
+public class PlayCollectFsmBuilder {
     
-    public static final PlayerCollectFsmBuilder INSTANCE = new PlayerCollectFsmBuilder();
+    public static final PlayCollectFsmBuilder INSTANCE = new PlayCollectFsmBuilder();
 
     private final StateMachineBuilder<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> builder;
 
-    private PlayerCollectFsmBuilder() {
+    private PlayCollectFsmBuilder() {
         // Finite State Machine
         this.builder = StateMachineBuilderFactory.<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> create(
                 PlayCollectFsmImpl2.class, PlayCollectState.class, Object.class, PlayCollectContext.class, DtmfDetector.class,
                 DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
                 ListeningScheduledExecutorService.class, PlayCollectContext.class);
 
-        builder.onEntry(PlayCollectState.READY).callMethod("enterReady");
-        builder.transition().from(PlayCollectState.READY).to(PlayCollectState.PROCESSING).on(PlayCollectEvent.PROMPT);
+        // builder.onEntry(PlayCollectState.READY).callMethod("enterReady");
+        // builder.transition().from(PlayCollectState.READY).to(PlayCollectState.PROCESSING).on(PlayCollectEvent.PROMPT);
         // builder.transition().from(PlayCollectState.READY).to(PlayCollectState.ACTIVE).on(PlayCollectEvent.REPROMPT);
         // builder.transition().from(PlayCollectState.READY).to(PlayCollectState.ACTIVE).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
-        builder.onExit(PlayCollectState.READY).callMethod("exitReady");
+        // builder.onExit(PlayCollectState.READY).callMethod("exitReady");
 
         builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
         builder.defineParallelStatesOn(PlayCollectState.PROCESSING, PlayCollectState.PROMPT, PlayCollectState.COLLECT);
@@ -91,6 +91,12 @@ public class PlayerCollectFsmBuilder {
         builder.onEntry(PlayCollectState.EVALUATING).perform(EvaluateInputAction.INSTANCE);
         builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
         builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+
+        builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
+        builder.defineState(PlayCollectState.SUCCEEDED).setFinal(true);
+
+        builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
+        builder.defineState(PlayCollectState.FAILED).setFinal(true);
         
 //        builder.onEntry(PlayCollectState.READY).callMethod("enterReady");
 //        builder.transition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
@@ -178,7 +184,7 @@ public class PlayerCollectFsmBuilder {
     }
     
     public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler, PlayCollectContext context) {
-        return builder.newStateMachine(PlayCollectState.READY, StateMachineConfiguration.getInstance().enableDebugMode(true), detector, detectorListener, player, playerListener, eventSubject, scheduler, context);
+        return builder.newStateMachine(PlayCollectState.PROCESSING, StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player, playerListener, eventSubject, scheduler, context);
     }
 
 }

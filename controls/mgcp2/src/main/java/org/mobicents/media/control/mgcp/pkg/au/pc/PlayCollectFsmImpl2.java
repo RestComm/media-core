@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
+import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
+import org.mobicents.media.control.mgcp.pkg.au.OperationFailed;
 import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -171,10 +173,10 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
 
     @Override
     public void exitPrompting(PlayCollectState from, PlayCollectState to, Object event, PlayCollectContext context) {
-        if(log.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
             log.trace("Exited PROMPTING state");
         }
-        
+
         this.player.removeListener(this.playerListener);
         this.player.deactivate();
     }
@@ -202,7 +204,7 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         if(log.isTraceEnabled()) {
             log.trace("Exited COLLECTING state");
         }
-        
+
         // Deactivate DTMF detector and release listener
         this.detector.removeListener(this.detectorListener);
         this.detector.deactivate();
@@ -218,12 +220,25 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         if (log.isTraceEnabled()) {
             log.trace("On COLLECTING state:::tone=" + tone);
         }
+
+        // Stop current prompt IF is interruptible
+        if(!context.getNonInterruptibleAudio()) {
+            // TODO check if child state PROMPTING is currently active
+            fire(PlayCollectEvent.END_PROMPT, context);
+        }
         
         if(endInputKey == tone) {
             fire(PlayCollectEvent.END_INPUT, context);
             // TODO check if end prompt is enabled
         } else {
             context.collectDigit(tone);
+            
+            if(context.countCollectedDigits() == context.getMaximumDigits()) {
+                if(log.isTraceEnabled()) {
+                    log.trace("Maximum numbers of digits. Stopping collecting operation.");
+                }
+                fire(PlayCollectEvent.END_INPUT, context);
+            }
         }
     }
 
@@ -347,9 +362,14 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         final String collectedDigits = context.getCollectedDigits();
         final int attempt = context.getAttempt();
 
-        if(log.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
             log.trace("Entered SUCCEEDED state::attempt=" + attempt + ", digits=" + collectedDigits);
         }
+
+        final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, ReturnCode.SUCCESS.code());
+        operationComplete.setParameter("na", String.valueOf(attempt));
+        operationComplete.setParameter("dc", collectedDigits);
+        this.mgcpEventSubject.notify(this.mgcpEventSubject, operationComplete);
     }
 
     @Override
@@ -384,6 +404,9 @@ public class PlayCollectFsmImpl2 extends AbstractStateMachine<PlayCollectFsm, Pl
         if(log.isTraceEnabled()) {
             log.trace("Entered FAILED state");
         }
+
+        final OperationFailed operationFailed = new OperationFailed(PlayCollect.SYMBOL, context.getReturnCode());
+        this.mgcpEventSubject.notify(this.mgcpEventSubject, operationFailed);
     }
 
     /**
