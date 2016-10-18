@@ -57,7 +57,7 @@ public class WavTrackImpl implements Track{
     private ReadableByteChannel rbChannel;
     private int bytesReadFromChannel;
     private ByteBuffer buff = ByteBuffer.allocate(BUFFER_SIZE);
-    private int headerSize = 72 ; // assuming  we have extensible format including Fact chunk
+    private int headerSize = 46 ; // assuming  we have cannonical format
     private byte[] header = new byte[headerSize];
     private byte[] headerEnd = null;
     private int buffPos = 0;
@@ -89,35 +89,48 @@ public class WavTrackImpl implements Track{
 
     private void getAudioFormat(ReadableByteChannel rbc) throws IOException, UnsupportedAudioFileException {
         
-        int bytesRead = 0;
-        int bytesCount = 0;
         int byteIndex = 0;
-        bytesReadFromChannel=rbc.read(buff);
         
+        // Initial buffer read, set position to 0 and fill the header
+        bytesReadFromChannel=rbc.read(buff);
         buff.position(0);
         buff.get(header, 0, header.length);
-        
         buff.order(ByteOrder.LITTLE_ENDIAN);
 
-        // ckSize 16,17,18,19
+        // Determines the Subchunk size, value for pcm is 18
+        // ckSize bytes: 16,17,18,19
         int ckSize = (header[16] & 0xFF) | ((header[17] & 0xFF) << 8) 
                      | ((header[18] & 0xFF) << 16) | ((header[19] & 0xFF) << 24);
-        // format 20,21
+        
+        // Format bytes:20,21
+        // Value for pcm(mono) is 1. 
+        // Values other than 1 indicate some form of compression.
         int formatValue = (header[20] & 0xFF) | ((header[21] & 0xFF) << 8);
-        // channels 22,23
+        
+        // Number of channels bytes: 22,23
+        // Mono=1, Stereo=2.
         int channels = (header[22] & 0xFF) | ((header[23] & 0xFF) << 8);
-        // bits per sample 34,35
+        
+        // Bits per sample bytes: 34,35
+        // Value for pcm is 16 bit/sample
         int bitsPerSample = (header[34] & 0xFF) | ((header[35] & 0xFF) << 8);
-        // sample rate 24,25,26,27
+        
+        // Sample rate bytes: 24,25,26,27
+        // Labeled also as nSamplesPerSec(F). 
+        // Value for pcm(mono) is 8000 and stereo 44100
         int sampleRate = (header[24] & 0xFF) | ((header[25] & 0xFF) << 8) 
                          | ((header[26] & 0xFF) << 16) | ((header[27] & 0xFF) << 24);
-        // size of data bytes 4,5,6,7
+        
+        // chunkSize bytes: 4,5,6,7
+        // This is the size of the entire file in bytes minus 8 bytes for the
+        // two fields not included in this count:ChunkIDand ChunkSize.
         sizeOfData = (header[4] & 0xFF) | ((header[5] & 0xFF) << 8) 
                      | ((header[6] & 0xFF) << 16) | ((header[7] & 0xFF) << 24);
         
-        int sampleData = (header[41] & 0xFF) | ((header[42] & 0xFF) << 8) 
-                     | ((header[43] & 0xFF) << 16) | ((header[44] & 0xFF) << 24);
-        
+        // SubChunk2Size bytes: 40,41,42,43
+        // M*Nc*Ns (Nc = channels, Ns = total number of blocks, Nc= block samples)
+        int sampleData = (header[40] & 0xFF) | ((header[41] & 0xFF) << 8) 
+                     | ((header[42] & 0xFF) << 16) | ((header[43] & 0xFF) << 24);
         
         sizeOfData -= (bytesReadFromChannel-8);
         
@@ -128,8 +141,6 @@ public class WavTrackImpl implements Track{
         
         headerEnd = new byte[8 + ckSize - 16];
         buff.position(header.length - headerEnd.length);
-        //bytesCount = 0;
-            
         buff.get(headerEnd, 0, headerEnd.length);
         
         byteIndex = headerEnd.length - 4 - factBytes.length;
@@ -141,14 +152,14 @@ public class WavTrackImpl implements Track{
             }
         }
 
+        // All compressed non-PCM formats have fact chunk.
+        // Fuct chunk is 12 bytes long.
+
         if (hasFact) {
             // skip fact chunk
             sizeOfData -= 12;
             headerEnd = new byte[12];
             buff.position(header.length);
-            bytesCount = 0;
-            //buffTemp.clear();
-                
             buff.get(headerEnd, 0, headerEnd.length);
            
         }
@@ -301,13 +312,6 @@ public class WavTrackImpl implements Track{
         int len = readPacket(data, 0, frameSize);
         totalRead = totalRead + len;
         
-        logger.info("Total Read");
-        logger.info(totalRead);
-        logger.info("Size of data");
-        logger.info(sizeOfData);
-        logger.info("Diff");
-        logger.info(sizeOfData-totalRead);
-
         if (len < frameSize) {
             padding(data, frameSize - len);
             eom = true;
