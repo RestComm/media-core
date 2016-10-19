@@ -45,8 +45,6 @@ public class AudioMixer {
 	// The pool of components
 	private ConcurrentMap<AudioComponent> components = new ConcurrentMap<AudioComponent>();
 
-	Iterator<AudioComponent> activeComponents;
-
 	private long period = 20000000L;
 	private int packetSize = (int) (period / 1000000) * format.getSampleRate() / 1000 * format.getSampleSize() / 8;
 
@@ -124,7 +122,7 @@ public class AudioMixer {
 		public long perform() {
 			// summarize all
 			sourcesCount = 0;
-			activeComponents = components.valuesIterator();
+			Iterator<AudioComponent> activeComponents = components.valuesIterator();
 			while (activeComponents.hasNext()) {
 				AudioComponent component = activeComponents.next();
 				component.perform();

@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.tls.DTLSServerProtocol;
 import org.bouncycastle.crypto.tls.DatagramTransport;
 import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.crypto.PacketTransformer;
 import org.mobicents.media.server.impl.rtp.crypto.SRTPPolicy;
 import org.mobicents.media.server.impl.rtp.crypto.SRTPTransformEngine;
@@ -94,7 +95,9 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
     private PacketTransformer srtcpEncoder;
     private PacketTransformer srtcpDecoder;
 
-    public DtlsHandler() {
+    private DtlsSrtpServerProvider tlsServerProvider;
+
+    public DtlsHandler(DtlsSrtpServerProvider tlsServerProvider) {
         this.pipelinePriority = 0;
 
         // Network properties
@@ -103,7 +106,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
         this.sendLimit = Math.max(0, mtu - MAX_IP_OVERHEAD - UDP_OVERHEAD);
 
         // Handshake properties
-        this.server = new DtlsSrtpServer();
+        this.server = tlsServerProvider.provide();
         this.rxQueue = new ConcurrentLinkedQueue<>();
         this.handshakeComplete = false;
         this.handshakeFailed = false;
@@ -115,6 +118,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
         this.startTime = 0L;
 
         this.listeners = new ArrayList<DtlsListener>();
+        this.tlsServerProvider = tlsServerProvider;
     }
 
     public void setChannel(DatagramChannel channel) {
@@ -312,7 +316,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
 
     public void reset() {
         // XXX try not to create the server every time!
-        this.server = new DtlsSrtpServer();
+        this.server = this.tlsServerProvider.provide();
         this.channel = null;
         this.srtcpDecoder = null;
         this.srtcpEncoder = null;
@@ -389,7 +393,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
             throw new IllegalStateException("Handshake is taking too long! (>" + MAX_DELAY + "ms");
         }
 
-        int attempts = 20;
+        int attempts = waitMillis;
         do {
             ByteBuffer data = this.rxQueue.poll();
             if (data != null) {
@@ -437,6 +441,7 @@ public class DtlsHandler implements PacketHandler, DatagramTransport {
     private class HandshakeWorker implements Runnable {
 
         public void run() {
+            DtlsHandler.this.rxQueue.clear();
             SecureRandom secureRandom = new SecureRandom();
             DTLSServerProtocol serverProtocol = new DTLSServerProtocol(secureRandom);
 

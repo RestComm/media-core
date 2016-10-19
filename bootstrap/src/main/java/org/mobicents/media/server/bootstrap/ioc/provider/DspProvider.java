@@ -49,7 +49,7 @@ public class DspProvider implements Provider<DspFactoryImpl> {
         Iterator<String> codecs = this.config.getMediaConfiguration().getCodecs();
         while (codecs.hasNext()) {
             CodecType codec = CodecType.fromName(codecs.next());
-            if(codec != null) {
+            if(codec != null && !codec.getEncoder().isEmpty() && !codec.getDecoder().isEmpty()) {
                 dsp.addCodec(codec.getDecoder());
                 dsp.addCodec(codec.getEncoder());
             }

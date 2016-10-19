@@ -26,8 +26,8 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 
@@ -53,13 +53,11 @@ public class MultiplexedChannel implements Channel {
 	private final ByteBuffer receiveBuffer;
 	
 	// Data that is pending for writing
-	private final List<byte[]> pendingData;
-	private final ByteBuffer pendingDataBuffer;
+	private final Queue<byte[]> pendingData;
 
 	public MultiplexedChannel() {
 		this.handlers = new PacketHandlerPipeline();
-		this.pendingData = new ArrayList<byte[]>();
-		this.pendingDataBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+		this.pendingData = new ConcurrentLinkedQueue<>();
 		this.receiveBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 	}
 	
@@ -127,19 +125,15 @@ public class MultiplexedChannel implements Channel {
 		this.dataChannel = channel;
 	}
 	
-	protected void queueData(final byte[] data) {
-		if (data != null && data.length > 0) {
-			synchronized (this.pendingData) {
-				this.pendingData.add(data);	
-			}
-		}
-	}
+    protected void queueData(final byte[] data) {
+        if (data != null && data.length > 0) {
+            this.pendingData.offer(data);
+        }
+    }
 	
 	@Override
 	public boolean hasPendingData() {
-		synchronized (this.pendingData) {
-			return !this.pendingData.isEmpty();
-		}
+	    return !this.pendingData.isEmpty();
 	}
 	
     protected void flush() {
@@ -214,28 +208,17 @@ public class MultiplexedChannel implements Channel {
 		}
 	}
 
-	@Override
-	public void send() throws IOException {
-		while (!this.pendingData.isEmpty()) {
-			// Get pending data into the proper buffer
-			this.pendingDataBuffer.clear();
-			this.pendingDataBuffer.put(this.pendingData.get(0));
-			this.pendingDataBuffer.flip();
-			
-			// Send data over the channel
-			this.dataChannel.send(this.pendingDataBuffer, this.dataChannel.getRemoteAddress());
+    @Override
+    public void send() throws IOException {
+        byte[] data = this.pendingData.poll();
+        if (data != null) {
+            ByteBuffer buffer = ByteBuffer.wrap(data);
+            this.dataChannel.send(buffer, this.dataChannel.getRemoteAddress());
 
-			if (this.pendingDataBuffer.remaining() > 0) {
-				// Channel buffer is full
-				// Data will be written in the next write operation
-				break;
-			} else {
-				// All data was passed to the channel
-				// Remove empty buffer
-				this.pendingData.remove(0);
-			}
-		}
-	}
+            // Keep sending queued data, recursive style
+            send();
+        }
+    }
 	
 	@Override
 	public boolean isOpen() {

@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.bootstrap;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.server.bootstrap.configuration.ConfigurationLoader;
 import org.mobicents.media.server.bootstrap.configuration.XmlConfigurationLoader;
@@ -39,6 +40,7 @@ import com.google.inject.Injector;
  */
 public class Bootstrapper {
 
+    private static final Logger log = Logger.getLogger(Bootstrapper.class);
     private final String filepath;
     private final ConfigurationLoader configurationLoader;
     private MediaServer mediaServer;
@@ -49,14 +51,20 @@ public class Bootstrapper {
     }
 
     public void start() {
-        MediaServerConfiguration conf = configurationLoader.load(this.filepath);
-        Injector injector = Guice.createInjector(new BootstrapModule(conf));
-        this.mediaServer = injector.getInstance(RestCommMediaServer.class);
-        this.mediaServer.start();
+        try {
+            MediaServerConfiguration conf = configurationLoader.load(this.filepath);
+            Injector injector = Guice.createInjector(new BootstrapModule(conf));
+            this.mediaServer = injector.getInstance(RestCommMediaServer.class);
+            this.mediaServer.start();
+        } catch (Exception e) {
+            log.error("Bootstrap aborted. Reason: " + e.getMessage());
+        }
     }
 
     public void stop() {
-        this.mediaServer.stop();
+        if (mediaServer != null) {
+            this.mediaServer.stop();
+        }
     }
 
 }

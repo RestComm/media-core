@@ -27,14 +27,17 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.ex.ConfigurationRuntimeException;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.log4j.Logger;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.core.configuration.MediaConfiguration;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.core.configuration.MgcpEndpointConfiguration;
 import org.mobicents.media.core.configuration.NetworkConfiguration;
 import org.mobicents.media.core.configuration.ResourcesConfiguration;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
 
 /**
  * Loads Media Server configurations from an XML file.
@@ -45,6 +48,8 @@ import org.mobicents.media.core.configuration.ResourcesConfiguration;
 public class XmlConfigurationLoader implements ConfigurationLoader {
     
     private static final Logger log = Logger.getLogger(XmlConfigurationLoader.class);
+    private static final String MMS_HOME = "mms.home.dir";
+    private static final String DEFAULT_PATH = "/conf/mediaserver.xml";
 
     private final Configurations configurations;
 
@@ -53,23 +58,30 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
     }
 
     @Override
-    public MediaServerConfiguration load(String filepath) {
+    public MediaServerConfiguration load(String filepath) throws Exception {
         // Default configuration
         MediaServerConfiguration configuration = new MediaServerConfiguration();
 
         // Read configuration from file
         XMLConfiguration xml;
         try {
+            // Load from configured path (relative path)
             xml = this.configurations.xml(filepath);
-
-            // Overwrite default configurations
-            configureNetwork(xml.configurationAt("network"), configuration.getNetworkConfiguration());
-            configureController(xml.configurationAt("controller"), configuration.getControllerConfiguration());
-            configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
-            configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
-        } catch (ConfigurationException | IllegalArgumentException e) {
-            log.error("Could not load configuration from " + filepath + ". Using default values.");
+        } catch (ConfigurationException e) {
+            log.warn("Could not load configuration from " + filepath);
+            // If failed using configured path, try to use default path (absolute path)
+            final String mmsHome = System.getProperty(MMS_HOME);
+            filepath = mmsHome + DEFAULT_PATH;
+            xml = this.configurations.xml(filepath);
+            log.warn("Configuration file found at " + filepath);
         }
+
+        // Overwrite default configurations
+        configureNetwork(xml.configurationAt("network"), configuration.getNetworkConfiguration());
+        configureController(xml.configurationAt("controller"), configuration.getControllerConfiguration());
+        configureMedia(xml.configurationAt("media"), configuration.getMediaConfiguration());
+        configureResource(xml.configurationAt("resources"), configuration.getResourcesConfiguration());
+        configureDtls(xml.configurationAt("dtls"), configuration.getDtlsConfiguration());
         return configuration;
     }
 
@@ -125,6 +137,33 @@ public class XmlConfigurationLoader implements ConfigurationLoader {
         dst.setDtmfGeneratorToneDuration(src.getInt("dtmfGenerator[@toneDuration]", ResourcesConfiguration.DTMF_GENERATOR_TONE_DURATION));
         dst.setSignalDetectorCount(src.getInt("signalDetector[@poolSize]", ResourcesConfiguration.SIGNAL_DETECTOR_COUNT));
         dst.setSignalGeneratorCount(src.getInt("signalGenerator[@poolSize]", ResourcesConfiguration.SIGNAL_GENERATOR_COUNT));
+        configurePlayer(src, dst);
     }
 
+    private static void configureDtls(HierarchicalConfiguration<ImmutableNode> src, DtlsConfiguration dst){
+        dst.setMinVersion(src.getString("minVersion", DtlsConfiguration.MIN_VERSION));
+        dst.setMaxVersion(src.getString("maxVersion", DtlsConfiguration.MAX_VERSION));
+        dst.setCipherSuites(src.getString("cipherSuites", DtlsConfiguration.CIPHER_SUITES));
+        dst.setCertificatePath(src.getString("certificate[@path]", DtlsConfiguration.CERTIFICATE_PATH));
+        dst.setKeyPath(src.getString("certificate[@key]", DtlsConfiguration.KEY_PATH));
+        dst.setAlgorithmCertificate(src.getString("certificate[@algorithm]", DtlsConfiguration.ALGORITHM_CERTIFICATE));
+    }
+
+    private static void configurePlayer(HierarchicalConfiguration<ImmutableNode> src, ResourcesConfiguration dst) {
+        HierarchicalConfiguration<ImmutableNode> player = src.configurationAt("player");
+        dst.setPlayerCount(player.getInt("[@poolSize]", ResourcesConfiguration.PLAYER_COUNT));
+
+        HierarchicalConfiguration<ImmutableNode> cache;
+        try {
+            cache = player.configurationAt("cache");
+        } catch (ConfigurationRuntimeException exception) {
+            log.info("No cache was specified for player");
+            return;
+        }
+        dst.setPlayerCache(
+                cache.getBoolean("cacheEnabled", ResourcesConfiguration.PLAYER_CACHE_ENABLED),
+                cache.getInt("cacheSize", ResourcesConfiguration.PLAYER_CACHE_SIZE)
+        );
+
+    }
 }

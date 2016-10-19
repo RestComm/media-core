@@ -22,12 +22,14 @@
 package org.mobicents.media.server.bootstrap.ioc;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.bootstrap.ioc.provider.DirectRemoteStreamProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.ChannelsManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtlsSrtpServerProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider;
@@ -65,6 +67,8 @@ import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoo
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider.RtpConnectionFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionPoolProvider.RtpConnectionPoolType;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
@@ -72,6 +76,8 @@ import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.spi.ServerManager;
 import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.bootstrap.ioc.provider.CachedRemoteStreamProvider;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.RemoteStreamProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -116,6 +122,13 @@ public class BootstrapModule extends AbstractModule {
         bind(ResourcesPool.class).toProvider(ResourcesPoolProvider.class).in(Singleton.class);
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
         bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
+        bind(DtlsSrtpServerProvider.class).toProvider(DtlsSrtpServerProviderProvider.class).in(Singleton.class);
+        Class remoteStreamProvider;
+        if (this.config.getResourcesConfiguration().getPlayerCacheEnabled()) {
+            remoteStreamProvider = CachedRemoteStreamProvider.class;
+        } else {
+            remoteStreamProvider = DirectRemoteStreamProvider.class;
+        }
+        bind(RemoteStreamProvider.class).toProvider(remoteStreamProvider).in(Singleton.class);
     }
-
 }

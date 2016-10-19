@@ -133,8 +133,7 @@ if [ "x$SERVER_SET" = "x" ]; then
 fi
 
 # Setup MMS specific properties
-JAVA_OPTS="-Dprogram.name=$PROGNAME $JAVA_OPTS"
-#JAVA_OPTS="$JAVA_OPTS -Xms256m -Xmx512m -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000"
+JAVA_OPTS="-Dprogram.name=$PROGNAME -Xms3400m -Xmx3400m -XX:+UseG1GC -XX:ParallelGCThreads=8 -XX:ConcGCThreads=8 -XX:G1RSetUpdatingPauseTimePercent=10 -XX:+ParallelRefProcEnabled -XX:G1HeapRegionSize=4m -XX:G1HeapWastePercent=5 -XX:InitiatingHeapOccupancyPercent=85 -XX:+UnlockExperimentalVMOptions -XX:G1MixedGCLiveThresholdPercent=85 -XX:+AlwaysPreTouch -XX:+UseCompressedOops -Djava.net.preferIPv4Stack=true -Dorg.jboss.resolver.warning=true -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Dhttp.keepAlive=false $JAVA_OPTS"
 #JAVA_OPTS="$JAVA_OPTS -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n"
 
 # Setup the java endorsed dirs
@@ -161,7 +160,7 @@ if $cygwin; then
 fi
 
 # Display our environment
-echo "========================================================================="
+echo "=============================================================================="
 echo ""
 echo "  MMS Bootstrap Environment"
 echo ""
@@ -173,7 +172,19 @@ echo "  JAVA_OPTS: $JAVA_OPTS"
 echo ""
 echo "  CLASSPATH: $MMS_CLASSPATH"
 echo ""
-echo "========================================================================="
+echo "=============================================================================="
+echo ""
+echo "=============================================================================="
+echo "==                                                                          =="
+echo "==          RestComm Media Server ships with G.729 codec.                   =="
+echo "==      G.729 includes patents from several companies and is licensed by    =="
+echo "==      Sipro Lab Telecom. Sipro Lab Telecom is the authorized Intellectual =="
+echo "==      Property Licensing Administrator for G.729 technology and patent    =="
+echo "==      pool. In a number of countries, the use of G.729 may require        =="
+echo "==      a license fee and/or royalty fee. For more information please visit =="
+echo "==                       http://www.sipro.com/G-729.html                    =="
+echo "==                                                                          =="
+echo "=============================================================================="
 echo ""
 
       "$JAVA" $JAVA_OPTS \

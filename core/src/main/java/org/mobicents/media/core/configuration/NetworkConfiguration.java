@@ -65,9 +65,6 @@ public class NetworkConfiguration {
     }
 
     public void setExternalAddress(String externalAddress) {
-        if (externalAddress == null || externalAddress.isEmpty()) {
-            throw new IllegalArgumentException("ExternalAddress cannot be empty.");
-        }
         this.externalAddress = externalAddress;
     }
 

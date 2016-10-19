@@ -23,6 +23,7 @@
 package org.mobicents.media.server.component.oob;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -33,31 +34,31 @@ import org.mobicents.media.server.spi.memory.Frame;
  * Implements compound oob splitter , one of core components of mms 3.0
  * 
  * @author Yulian Oifa
+ * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
 public class OOBSplitter {
-	// scheduler for mixer job scheduling
-	private PriorityQueueScheduler scheduler;
 
-	// The pools of components
-	private ConcurrentMap<OOBComponent> insideComponents = new ConcurrentMap<OOBComponent>();
-	private ConcurrentMap<OOBComponent> outsideComponents = new ConcurrentMap<OOBComponent>();
+	// Mixing Scheduler
+	private final PriorityQueueScheduler scheduler;
 
-	private Iterator<OOBComponent> insideRIterator = insideComponents.valuesIterator();
-	private Iterator<OOBComponent> insideSIterator = insideComponents.valuesIterator();
+	// Components Pool
+	private final ConcurrentMap<OOBComponent> insideComponents;
+	private final ConcurrentMap<OOBComponent> outsideComponents;
 
-	private Iterator<OOBComponent> outsideRIterator = outsideComponents.valuesIterator();
-	private Iterator<OOBComponent> outsideSIterator = outsideComponents.valuesIterator();
-
-	private InsideMixTask insideMixer;
-	private OutsideMixTask outsideMixer;
-	private volatile boolean started = false;
+	// Mixing Tasks
+	private final InsideMixTask insideMixer;
+	private final OutsideMixTask outsideMixer;
+	private final AtomicBoolean started;
 
 	protected long mixCount = 0;
 
 	public OOBSplitter(PriorityQueueScheduler scheduler) {
 		this.scheduler = scheduler;
+		this.insideComponents = new ConcurrentMap<OOBComponent>();
+		this.outsideComponents = new ConcurrentMap<OOBComponent>();
 		this.insideMixer = new InsideMixTask();
 		this.outsideMixer = new OutsideMixTask();
+		this.started = new AtomicBoolean(false);
 	}
 
 	public void addInsideComponent(OOBComponent component) {
@@ -88,21 +89,20 @@ public class OOBSplitter {
 
 	public void start() {
 		mixCount = 0;
-		started = true;
+		started.set(true);
 		scheduler.submit(insideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 		scheduler.submit(outsideMixer, PriorityQueueScheduler.MIXER_MIX_QUEUE);
 	}
 
 	public void stop() {
-		started = false;
+		started.set(false);
 		insideMixer.cancel();
 		outsideMixer.cancel();
 	}
 
 	private class InsideMixTask extends Task {
-		private Frame current;
 
-		public InsideMixTask() {
+	    public InsideMixTask() {
 			super();
 		}
 
@@ -113,9 +113,10 @@ public class OOBSplitter {
 
 		@Override
 		public long perform() {
-			// summarize all
-			current = null;
-			insideRIterator = insideComponents.valuesIterator();
+		    Frame current = null;
+
+		    // summarize all
+		    final Iterator<OOBComponent> insideRIterator = insideComponents.valuesIterator();
 			while (insideRIterator.hasNext()) {
 				OOBComponent component = insideRIterator.next();
 				component.perform();
@@ -132,7 +133,7 @@ public class OOBSplitter {
 			}
 
 			// get data for each component
-			outsideSIterator = outsideComponents.valuesIterator();
+			final Iterator<OOBComponent> outsideSIterator = outsideComponents.valuesIterator();
 			while (outsideSIterator.hasNext()) {
 				OOBComponent component = outsideSIterator.next();
 				if (!outsideSIterator.hasNext()) {
@@ -149,7 +150,6 @@ public class OOBSplitter {
 	}
 
 	private class OutsideMixTask extends Task {
-		private Frame current;
 
 		public OutsideMixTask() {
 			super();
@@ -162,9 +162,10 @@ public class OOBSplitter {
 
 		@Override
 		public long perform() {
+		    Frame current = null;
+		    
 			// summarize all
-			current = null;
-			outsideRIterator = outsideComponents.valuesIterator();
+			final Iterator<OOBComponent> outsideRIterator = outsideComponents.valuesIterator();
 			while (outsideRIterator.hasNext()) {
 				OOBComponent component = outsideRIterator.next();
 				component.perform();
@@ -181,7 +182,7 @@ public class OOBSplitter {
 			}
 
 			// get data for each component
-			insideSIterator = insideComponents.valuesIterator();
+			final Iterator<OOBComponent> insideSIterator = insideComponents.valuesIterator();
 			while (insideSIterator.hasNext()) {
 				OOBComponent component = insideSIterator.next();
 				if (!insideSIterator.hasNext()) {

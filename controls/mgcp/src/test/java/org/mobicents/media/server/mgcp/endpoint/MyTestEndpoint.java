@@ -120,4 +120,9 @@ public class MyTestEndpoint extends BaseMixerEndpointImpl {
 	public void releaseResource(MediaType mediaType, ComponentType componentType) {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+
+    @Override
+    public String toString() {
+        return "MyTest";
+    }
 }

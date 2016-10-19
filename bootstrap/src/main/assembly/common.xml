@@ -74,6 +74,39 @@
                 <source>src/main/config/mgcp-conf.xml</source>
                 <destName>conf/mgcp-conf.xml</destName>
             </file>
+<!-- dtls -->
+            <file>
+                <source>src/main/config/dtls/x509-ca.pem</source>
+                <destName>conf/dtls/x509-ca.pem</destName>
+            </file>
+            <file>
+                <source>src/main/config/dtls/x509-ca-key.pem</source>
+                <destName>conf/dtls/x509-ca-key.pem</destName>
+            </file>
+                        <file>
+                <source>src/main/config/dtls/x509-server.pem</source>
+                <destName>conf/dtls/x509-server.pem</destName>
+            </file>
+            <file>
+                <source>src/main/config/dtls/x509-server-key.pem</source>
+                <destName>conf/dtls/x509-server-key.pem</destName>
+            </file>
+            <file>
+                <source>src/main/config/dtls/x509-client-ecdsa.pem</source>
+                <destName>conf/dtls/x509-client-ecdsa.pem</destName>
+            </file>
+            <file>
+                <source>src/main/config/dtls/x509-client-key-ecdsa.pem</source>
+                <destName>conf/dtls/x509-client-key-ecdsa.pem</destName>
+            </file>
+                        <file>
+                <source>src/main/config/dtls/x509-server-ecdsa.pem</source>
+                <destName>conf/dtls/x509-server-ecdsa.pem</destName>
+            </file>
+            <file>
+                <source>src/main/config/dtls/x509-server-key-ecdsa.pem</source>
+                <destName>conf/dtls/x509-server-key-ecdsa.pem</destName>
+            </file>
 
         </files>
 </component>

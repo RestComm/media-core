@@ -37,6 +37,6 @@ public interface ConfigurationLoader {
      * @param filepath The file to be read
      * @return The Media Server configuration
      */
-    MediaServerConfiguration load(String filepath);
+    MediaServerConfiguration load(String filepath) throws Exception;
 
 }

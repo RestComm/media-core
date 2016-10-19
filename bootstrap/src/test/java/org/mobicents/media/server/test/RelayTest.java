@@ -29,12 +29,17 @@ package org.mobicents.media.server.test;
 
 import java.io.IOException;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.endpoint.ConferenceEndpoint;
 import org.mobicents.media.server.mgcp.endpoint.IvrEndpoint;
@@ -62,7 +67,17 @@ public class RelayTest {
     protected Clock clock;
     protected PriorityQueueScheduler scheduler;
     protected ServiceScheduler serviceScheduler = new ServiceScheduler();
-
+    
+    //Dtls Server Provider
+    protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
+    protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
+    protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
+    protected String certificatePath = DtlsConfiguration.CERTIFICATE_PATH;
+    protected String keyPath = DtlsConfiguration.KEY_PATH;
+    protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.RSA;
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
+            certificatePath, keyPath, algorithmCertificate);
+    
     protected ChannelsManager channelsManager;
 
     private ResourcesPool resourcesPool;
@@ -100,7 +115,7 @@ public class RelayTest {
         serviceScheduler.start();
         udpManager.start();
 
-        channelsManager = new ChannelsManager(udpManager);
+        channelsManager = new ChannelsManager(udpManager, dtlsServerProvider);
         channelsManager.setScheduler(scheduler);
         
         resourcesPool=new ResourcesPool(null, null, null, null, null, null, null, null);

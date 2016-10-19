@@ -28,3 +28,6 @@ classes
 media-server-docs/sources-mobicents/src
 media-server-docs/sources-telscale/src
 client/jsr-309/tck/tck-run
+
+/**/*.iml
+.idea

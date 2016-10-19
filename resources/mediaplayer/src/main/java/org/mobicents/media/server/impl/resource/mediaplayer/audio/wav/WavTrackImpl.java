@@ -31,6 +31,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.impl.resource.mediaplayer.Track;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.RemoteStreamProvider;
 import org.mobicents.media.server.spi.format.AudioFormat;
 import org.mobicents.media.server.spi.format.Format;
 import org.mobicents.media.server.spi.format.FormatFactory;
@@ -68,6 +69,7 @@ public class WavTrackImpl implements Track{
     private final static byte ULAW_PADDING_BYTE = (byte) 0xFF;
     private final static byte[] factBytes = new byte[] { 0x66, 0x61, 0x63, 0x74 };
     private byte paddingByte = PCM_PADDING_BYTE;
+<<<<<<< HEAD
     private static final Logger logger = Logger.getLogger(WavTrackImpl.class);
     
     
@@ -76,6 +78,65 @@ public class WavTrackImpl implements Track{
         rbChannel = Channels.newChannel(url.openStream());
         getAudioFormat(rbChannel);
        
+=======
+
+    public WavTrackImpl(URL url, RemoteStreamProvider streamProvider) throws UnsupportedAudioFileException, IOException {
+        inStream = streamProvider.getStream(url);
+
+        getFormat(inStream);
+        if (format == null) {
+            throw new UnsupportedAudioFileException();
+        }
+    }
+
+    public void setPeriod(int period) {
+        this.period = period;
+        frameSize = (int) (period * format.getChannels() * format.getSampleSize() * format.getSampleRate() / 8000);
+    }
+
+    public int getPeriod() {
+        return period;
+    }
+
+    @Override
+    public long getMediaTime() {
+        return 0;// timestamp * 1000000L;
+    }
+
+    @Override
+    public long getDuration() {
+        return duration;
+    }
+
+    @Override
+    public void setMediaTime(long timestamp) {
+        // this.timestamp = timestamp/1000000L;
+        // try {
+        // long offset = frameSize * (timestamp / period);
+        // byte[] skip = new byte[(int)offset];
+        // stream.read(skip);
+        // } catch (IOException e) {
+        // }
+    }
+
+    private void skip(long timestamp) {
+        try {
+            long offset = frameSize * (timestamp / period / 1000000L);
+            byte[] skip = new byte[(int) offset];
+            int bytesRead = 0;
+            while (bytesRead < skip.length && inStream.available() > 0) {
+                int len = inStream.read(skip, bytesRead, skip.length - bytesRead);
+                if (len == -1)
+                    return;
+
+                totalRead += len;
+                bytesRead += len;
+            }
+
+        } catch (IOException e) {
+            logger.error(e);
+        }
+>>>>>>> af5790a104da1fcb750f68723d16837d89936743
     }
     
     /**

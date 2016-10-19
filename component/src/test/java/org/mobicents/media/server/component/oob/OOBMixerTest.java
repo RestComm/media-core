@@ -133,7 +133,7 @@ public class OOBMixerTest {
         sender3.deactivate();
         receiver.deactivate();
         
-        System.out.println("mix execution count: " + mixer.mixCount);
+        System.out.println("mix execution count: " + mixer.getMixCount());
         
         int res = receiver.getPacketsCount();
         System.out.println("Received packets count:" + res);

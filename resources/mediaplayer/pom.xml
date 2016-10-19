@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.resources</groupId>
         <artifactId>resources</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>player</artifactId>
@@ -91,6 +91,7 @@
             <version>${version.freetts}</version>
         </dependency>
         <dependency>
+<<<<<<< HEAD
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <version>1.9.3</version>
@@ -103,6 +104,22 @@
             <scope>test</scope>
         </dependency>
 
+=======
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+>>>>>>> af5790a104da1fcb750f68723d16837d89936743
     </dependencies>
 
     <build>
