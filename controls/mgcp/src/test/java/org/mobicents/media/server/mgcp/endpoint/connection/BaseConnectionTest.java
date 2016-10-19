@@ -44,6 +44,7 @@ import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
@@ -109,7 +110,7 @@ public class BaseConnectionTest implements ConnectionListener {
     private PhoneSignalDetectorPool signalDetectorPool;
     private PhoneSignalGeneratorFactory signalGeneratorFactory;
     private PhoneSignalGeneratorPool signalGeneratorPool;
-    
+
     //Dtls Server Provider
     protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
     protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
@@ -126,6 +127,7 @@ public class BaseConnectionTest implements ConnectionListener {
     @Before
     public void setUp() throws ResourceUnavailableException, IOException, TooManyConnectionsException {
         //use default clock
+
         clock = new WallClock();
         
         //create single thread scheduler 
@@ -141,7 +143,7 @@ public class BaseConnectionTest implements ConnectionListener {
         this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
         this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
-        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory);
+        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory, new CachedRemoteStreamProvider(100));
         this.playerPool = new AudioPlayerPool(0, playerFactory);
         this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);

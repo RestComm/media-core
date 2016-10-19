@@ -21,6 +21,7 @@
 
 package org.mobicents.media.server.bootstrap.ioc.provider;
 
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.RemoteStreamProvider;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
@@ -39,16 +40,18 @@ public class AudioPlayerFactoryProvider implements Provider<AudioPlayerFactory> 
 
     private final PriorityQueueScheduler mediaScheduler;
     private final DspFactory dspFactory;
+    private final RemoteStreamProvider remoteStreamProvider;
 
     @Inject
-    public AudioPlayerFactoryProvider(PriorityQueueScheduler mediaScheduler, DspFactory dspFactory) {
+    public AudioPlayerFactoryProvider(PriorityQueueScheduler mediaScheduler, DspFactory dspFactory, RemoteStreamProvider remoteStreamProvider) {
         this.mediaScheduler = mediaScheduler;
         this.dspFactory = dspFactory;
+        this.remoteStreamProvider = remoteStreamProvider;
     }
 
     @Override
     public AudioPlayerFactory get() {
-        return new AudioPlayerFactory(mediaScheduler, dspFactory);
+        return new AudioPlayerFactory(mediaScheduler, dspFactory, remoteStreamProvider);
     }
 
     public static final class AudioPlayerFactoryType extends TypeLiteral<PooledObjectFactory<AudioPlayerImpl>> {

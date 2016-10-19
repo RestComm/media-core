@@ -54,7 +54,12 @@
 	<resources>
 		<localConnection poolSize="100" />
 		<remoteConnection poolSize="50" />
-		<player poolSize="50" />
+		<player poolSize="50">
+			<cache>
+				<cacheSize>100</cacheSize>
+				<cacheEnabled>false</cacheEnabled>
+			</cache>
+		</player>
 		<recorder poolSize="50" />
 		<dtmfDetector poolSize="50" dbi="-35" />
 		<dtmfGenerator poolSize="50" toneVolume="-20" toneDuration="80" />
