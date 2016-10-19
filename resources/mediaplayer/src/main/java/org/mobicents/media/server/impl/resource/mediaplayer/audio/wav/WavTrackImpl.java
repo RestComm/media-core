@@ -43,7 +43,6 @@ import org.mobicents.media.server.spi.memory.Memory;
 public class WavTrackImpl implements Track{
     
     /*Audio stream*/
-    private InputStream inStream;
     private AudioFormat format;
     private int period = 20;
     private boolean eom;
@@ -54,11 +53,10 @@ public class WavTrackImpl implements Track{
     protected int totalRead = 0;
     
     /*Buffer, Channel, Header */
-    private final static int BUFFER_SIZE = 1024;
     private ReadableByteChannel rbChannel;
     private int bytesReadFromChannel;
-    private ByteBuffer buff = ByteBuffer.allocate(BUFFER_SIZE);
     private int headerSize = 46 ; // assuming  we have cannonical format
+    private ByteBuffer buff = ByteBuffer.allocate(headerSize);
     private byte[] header = new byte[headerSize];
     private byte[] headerEnd = null;
     private int buffPos = 0;
@@ -74,8 +72,7 @@ public class WavTrackImpl implements Track{
     
     public WavTrackImpl (URL url, RemoteStreamProvider streamProvider) throws IOException, UnsupportedAudioFileException {
         
-        inStream = streamProvider.getStream(url);
-        rbChannel = Channels.newChannel(inStream);
+        rbChannel = Channels.newChannel(streamProvider.getStream(url));
         getAudioFormat(rbChannel);
        
     }
