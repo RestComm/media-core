@@ -109,8 +109,6 @@ public class PlayRecordFsmBuilder {
         this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
         this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
-        
-        
     }
 
     public PlayRecordFsm build(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,

@@ -26,5 +26,18 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
  *
  */
 public class PlayRecordContext {
+    
+    
+    // Runtime Data
+    private char tone;
+    
+    
+    public char getTone() {
+        return tone;
+    }
+    
+    public void setTone(char tone) {
+        this.tone = tone;
+    }
 
 }

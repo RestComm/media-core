@@ -18,12 +18,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.mobicents.media.control.mgcp.pkg.au.pr;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
-import org.junit.Test;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import org.junit.AfterClass;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
@@ -36,10 +39,16 @@ import org.mobicents.media.server.spi.recorder.RecorderListener;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayRecordFsmTest {
+public class PlayRecordTest {
+    
+    private static final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
 
-    @Test
-    public void testPromptCollect() {
+    @AfterClass
+    public static void cleanup() {
+        threadPool.shutdown();
+    }
+    
+    public void testPlayRecordWithEndInputKey() {
         // given
         final MgcpEventSubject mgcpEventSubject = mock(MgcpEventSubject.class);
         final Recorder recorder = mock(Recorder.class);
@@ -49,7 +58,7 @@ public class PlayRecordFsmTest {
         final Player player = mock(Player.class);
         final PlayerListener playerListener = mock(PlayerListener.class);
         final PlayRecordContext context = new PlayRecordContext();
-        final PlayRecordFsm fsm = PlayRecordFsmBuilder.INSTANCE.build(mgcpEventSubject, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
+        final PlayRecordFsmImpl playRecord = new PlayRecordFsmImpl(mgcpEventSubject, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
 
         // when
         fsm.start();
@@ -59,26 +68,6 @@ public class PlayRecordFsmTest {
         fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
         fsm.fire(PlayRecordEvent.END_COLLECT, context);
         fsm.fire(PlayRecordEvent.PROMPT_END, context);
-    }
-
-    @Test
-    public void testPromptWhenTimeout() {
-        // given
-        final MgcpEventSubject mgcpEventSubject = mock(MgcpEventSubject.class);
-        final Recorder recorder = mock(Recorder.class);
-        final RecorderListener recorderListener = mock(RecorderListener.class);
-        final DtmfDetector detector = mock(DtmfDetector.class);
-        final DtmfDetectorListener detectorListener = mock(DtmfDetectorListener.class);
-        final Player player = mock(Player.class);
-        final PlayerListener playerListener = mock(PlayerListener.class);
-        final PlayRecordContext context = new PlayRecordContext();
-        final PlayRecordFsm fsm = PlayRecordFsmBuilder.INSTANCE.build(mgcpEventSubject, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
-        
-        // when
-        fsm.start();
-        fsm.fire(PlayRecordEvent.PROMPT_END, context);
-        // fsm.fire(PlayRecordEvent.END_COLLECT, context);
-        fsm.fire(PlayRecordEvent.TIMEOUT, context);
     }
 
 }
