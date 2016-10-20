@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.pkg.au.pr;
 
 /**
@@ -26,7 +26,12 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
  *
  */
 public enum PlayRecordState {
-    
-    READY, ACTIVE, PROMPT, _PROMPTING, _PROMPTED, COLLECT, _COLLECTING, _COLLECTED, TIMED_OUT;
+
+    ACTIVE, 
+    PROMPT, PROMPTING, PROMPTED, 
+    COLLECT, COLLECTING, COLLECTED, 
+    RECORD, RECORDING, RECORDED, 
+    EVALUATING, TIMED_OUT, CANCELED, 
+    PLAYING_SUCCESS, SUCCEEDED, PLAYING_FAILURE, FAILED;
 
 }

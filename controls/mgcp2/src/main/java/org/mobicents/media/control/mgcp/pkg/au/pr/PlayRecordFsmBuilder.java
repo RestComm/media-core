@@ -50,42 +50,75 @@ public class PlayRecordFsmBuilder {
 
         this.builder.defineFinishEvent(PlayRecordEvent.EVALUATE);
 
-        this.builder.onEntry(PlayRecordState.READY).callMethod("enterReady");
-        this.builder.transition().from(PlayRecordState.READY).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.START);
-        this.builder.onExit(PlayRecordState.READY).callMethod("exitReady");
-
         this.builder.onEntry(PlayRecordState.ACTIVE).callMethod("enterActive");
-        this.builder.transition().from(PlayRecordState.ACTIVE).to(PlayRecordState.READY).on(PlayRecordEvent.EVALUATE);
-        this.builder.transition().from(PlayRecordState.ACTIVE).toFinal(PlayRecordState.TIMED_OUT).on(PlayRecordEvent.TIMEOUT);
+        this.builder.defineParallelStatesOn(PlayRecordState.ACTIVE, PlayRecordState.RECORD, PlayRecordState.COLLECT, PlayRecordState.PROMPT);
+        this.builder.transition().from(PlayRecordState.ACTIVE).to(PlayRecordState.TIMED_OUT).on(PlayRecordEvent.TIMEOUT);
+        this.builder.transition().from(PlayRecordState.ACTIVE).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
+        this.builder.transition().from(PlayRecordState.ACTIVE).to(PlayRecordState.EVALUATING).on(PlayRecordEvent.EVALUATE);
         this.builder.onExit(PlayRecordState.ACTIVE).callMethod("exitActive");
-        this.builder.defineParallelStatesOn(PlayRecordState.ACTIVE, PlayRecordState.COLLECT, PlayRecordState.PROMPT);
 
-        this.builder.defineSequentialStatesOn(PlayRecordState.PROMPT, PlayRecordState._PROMPTING, PlayRecordState._PROMPTED);
-        this.builder.onEntry(PlayRecordState._PROMPTING).callMethod("enterPrompting");
-        this.builder.internalTransition().within(PlayRecordState._PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPrompting");
-        this.builder.transition().from(PlayRecordState._PROMPTING).toFinal(PlayRecordState._PROMPTED).on(PlayRecordEvent.PROMPT_END);
-        this.builder.onExit(PlayRecordState._PROMPTING).callMethod("exitPrompting");
+        this.builder.defineSequentialStatesOn(PlayRecordState.PROMPT, PlayRecordState.PROMPTING, PlayRecordState.PROMPTED);
+        this.builder.onEntry(PlayRecordState.PROMPTING).callMethod("enterPrompting");
+        this.builder.internalTransition().within(PlayRecordState.PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPrompting");
+        this.builder.transition().from(PlayRecordState.PROMPTING).toFinal(PlayRecordState.PROMPTED).on(PlayRecordEvent.PROMPT_END);
+        this.builder.onExit(PlayRecordState.PROMPTING).callMethod("exitPrompting");
 
-        this.builder.onEntry(PlayRecordState._PROMPTED).callMethod("enterPrompted");
-        this.builder.onExit(PlayRecordState._PROMPTED).callMethod("exitPrompted");
+        this.builder.onEntry(PlayRecordState.PROMPTED).callMethod("enterPrompted");
 
-        this.builder.defineSequentialStatesOn(PlayRecordState.COLLECT, PlayRecordState._COLLECTING, PlayRecordState._COLLECTED);
-        this.builder.onEntry(PlayRecordState._COLLECTING).callMethod("enterCollecting");
-        this.builder.internalTransition().within(PlayRecordState._COLLECTING).on(PlayRecordEvent.DTMF_TONE).callMethod("onCollecting");
-        this.builder.transition().from(PlayRecordState._COLLECTING).toFinal(PlayRecordState._COLLECTED).on(PlayRecordEvent.END_COLLECT);
-        this.builder.onExit(PlayRecordState._COLLECTING).callMethod("exitCollecting");
+        this.builder.defineSequentialStatesOn(PlayRecordState.COLLECT, PlayRecordState.COLLECTING, PlayRecordState.COLLECTED);
+        this.builder.onEntry(PlayRecordState.COLLECTING).callMethod("enterCollecting");
+        this.builder.internalTransition().within(PlayRecordState.COLLECTING).on(PlayRecordEvent.DTMF_TONE).callMethod("onCollecting");
+        this.builder.transition().from(PlayRecordState.COLLECTING).toFinal(PlayRecordState.COLLECTED).on(PlayRecordEvent.END_COLLECT);
+        this.builder.onExit(PlayRecordState.COLLECTING).callMethod("exitCollecting");
 
-        this.builder.onEntry(PlayRecordState._COLLECTED).callMethod("enterCollected");
-        this.builder.onExit(PlayRecordState._COLLECTED).callMethod("exitCollected");
+        this.builder.onEntry(PlayRecordState.COLLECTED).callMethod("enterCollected");
+
+        this.builder.defineSequentialStatesOn(PlayRecordState.RECORD, PlayRecordState.RECORDING, PlayRecordState.RECORDED);
+        this.builder.onEntry(PlayRecordState.RECORDING).callMethod("enterRecording");
+        this.builder.transition().from(PlayRecordState.RECORDING).toFinal(PlayRecordState.RECORDED).on(PlayRecordEvent.END_RECORD);
+        this.builder.onExit(PlayRecordState.RECORDING).callMethod("exitRecording");
+
+        this.builder.onEntry(PlayRecordState.RECORDED).callMethod("enterRecord");
         
         this.builder.onEntry(PlayRecordState.TIMED_OUT).callMethod("enterTimedOut");
+        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.REPROMPT);
+        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.NO_SPEECH);
+        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.PLAY_SUCCESS);
+        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PLAY_FAILURE);
+        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
+
+        this.builder.onEntry(PlayRecordState.CANCELED).callMethod("enterCanceled");
+        this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
+        
+        this.builder.onEntry(PlayRecordState.EVALUATING).callMethod("enterEvaluating");
+        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.REPROMPT);
+        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.NO_SPEECH);
+        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.PLAY_SUCCESS);
+        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PLAY_FAILURE);
+        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
+
+        this.builder.onEntry(PlayRecordState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
+        this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
+        this.builder.onExit(PlayRecordState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
+
+        this.builder.onEntry(PlayRecordState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
+        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
+        this.builder.onExit(PlayRecordState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
+        
+        
     }
 
     public PlayRecordFsm build(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
             DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
             PlayRecordContext context) {
-        return this.builder.newStateMachine(PlayRecordState.READY, StateMachineConfiguration.getInstance().enableDebugMode(true), mgcpEventSubject, recorder, recorderListener, detector,
-                detectorListener, player, playerListener, context);
+        return this.builder.newStateMachine(PlayRecordState.ACTIVE,
+                StateMachineConfiguration.getInstance().enableDebugMode(true), mgcpEventSubject, recorder, recorderListener,
+                detector, detectorListener, player, playerListener, context);
     }
 
 }
