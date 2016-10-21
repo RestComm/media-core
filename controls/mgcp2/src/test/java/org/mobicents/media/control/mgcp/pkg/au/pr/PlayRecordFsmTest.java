@@ -23,6 +23,8 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
 
 import static org.mockito.Mockito.*;
 
+import java.util.HashMap;
+
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
@@ -41,6 +43,7 @@ public class PlayRecordFsmTest {
     @Test
     public void testPromptCollect() {
         // given
+        final HashMap<String, String> parameters = new HashMap<>(5);
         final MgcpEventSubject mgcpEventSubject = mock(MgcpEventSubject.class);
         final Recorder recorder = mock(Recorder.class);
         final RecorderListener recorderListener = mock(RecorderListener.class);
@@ -48,7 +51,7 @@ public class PlayRecordFsmTest {
         final DtmfDetectorListener detectorListener = mock(DtmfDetectorListener.class);
         final Player player = mock(Player.class);
         final PlayerListener playerListener = mock(PlayerListener.class);
-        final PlayRecordContext context = new PlayRecordContext();
+        final PlayRecordContext context = new PlayRecordContext(parameters);
         final PlayRecordFsm fsm = PlayRecordFsmBuilder.INSTANCE.build(mgcpEventSubject, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
 
         // when
@@ -64,6 +67,7 @@ public class PlayRecordFsmTest {
     @Test
     public void testPromptWhenTimeout() {
         // given
+        final HashMap<String, String> parameters = new HashMap<>(5);
         final MgcpEventSubject mgcpEventSubject = mock(MgcpEventSubject.class);
         final Recorder recorder = mock(Recorder.class);
         final RecorderListener recorderListener = mock(RecorderListener.class);
@@ -71,7 +75,7 @@ public class PlayRecordFsmTest {
         final DtmfDetectorListener detectorListener = mock(DtmfDetectorListener.class);
         final Player player = mock(Player.class);
         final PlayerListener playerListener = mock(PlayerListener.class);
-        final PlayRecordContext context = new PlayRecordContext();
+        final PlayRecordContext context = new PlayRecordContext(parameters);
         final PlayRecordFsm fsm = PlayRecordFsmBuilder.INSTANCE.build(mgcpEventSubject, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
         
         // when

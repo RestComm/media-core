@@ -21,10 +21,17 @@
 
 package org.mobicents.media.control.mgcp.pkg.au.pr;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
+import org.mobicents.media.control.mgcp.pkg.au.Playlist;
+import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
+import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerListener;
 import org.mobicents.media.server.spi.recorder.Recorder;
@@ -77,11 +84,31 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         this.context = context;
     }
 
+    private void playAnnouncement(String url, long delay) {
+        try {
+            this.player.setInitialDelay(delay);
+            this.player.setURL(url);
+            this.player.activate();
+        } catch (MalformedURLException e) {
+            log.warn("Could not play malformed segment " + url);
+            context.setReturnCode(ReturnCode.BAD_AUDIO_ID.code());
+            fire(PlayRecordEvent.FAIL, context);
+            // TODO create transition from PROMPTING to FAILED
+        } catch (ResourceUnavailableException e) {
+            log.warn("Could not play unavailable segment " + url);
+            context.setReturnCode(ReturnCode.BAD_AUDIO_ID.code());
+            fire(PlayRecordEvent.FAIL, context);
+            // TODO create transition from PROMPTING to FAILED
+        }
+    }
+
     @Override
     public void enterActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
         if (log.isTraceEnabled()) {
             log.trace("Entered ACTIVE state");
         }
+
+        // TODO context.newAttempt()
 
     }
 
@@ -99,12 +126,33 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Entered PROMPTING state");
         }
 
+        final Playlist prompt = context.getInitialPrompt();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(prompt.next(), 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayRecordEvent.FAIL, context);
+        }
+
     }
 
     @Override
     public void onPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On PROMPTING state");
+        }
 
+        final Playlist prompt = context.getInitialPrompt();
+        final String next = prompt.next();
+
+        if (next.isEmpty()) {
+            // No more announcements to play
+            fire(PlayRecordEvent.PROMPT_END, context);
+        } else {
+            playAnnouncement(next, 10 * 100);
+        }
     }
 
     @Override
@@ -113,6 +161,8 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Exited PROMPTING state");
         }
 
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
@@ -129,11 +179,22 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Entered COLLECTING state");
         }
 
+        try {
+            // Activate DTMF detector and bind listener
+            this.detector.addListener(this.detectorListener);
+            this.detector.activate();
+        } catch (TooManyListenersException e) {
+            log.error("Too many DTMF listeners", e);
+        }
     }
 
     @Override
     public void onCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On COLLECTING state");
+        }
+
+        // TODO Make decision when DTMF is collected
 
     }
 
@@ -142,6 +203,10 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         if (log.isTraceEnabled()) {
             log.trace("Exited COLLECTING state");
         }
+
+        // Deactivate DTMF detector and release listener
+        this.detector.removeListener(this.detectorListener);
+        this.detector.deactivate();
     }
 
     @Override
@@ -153,19 +218,43 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
 
     @Override
     public void enterRecording(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered RECORDING state");
+        }
 
+        try {
+            this.recorder.setMaxRecordTime(context.getTotalRecordingLengthTimer());
+            this.recorder.setPreSpeechTimer(context.getPreSpeechTimer());
+            this.recorder.setPostSpeechTimer(context.getPostSpeechTimer());
+            this.recorder.setRecordFile(context.getRecordId(), false);
+            this.recorder.addListener(this.recorderListener);
+            this.recorder.activate();
+        } catch (IOException e) {
+            log.error("Recording URL cannot be found:" + context.getRecordId(), e);
+            context.setReturnCode(ReturnCode.BAD_AUDIO_ID.code());
+            fire(PlayRecordEvent.FAIL, context);
+        } catch (TooManyListenersException e) {
+            log.error("Too many recorder listeners.");
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayRecordEvent.FAIL, context);
+        }
     }
 
     @Override
     public void exitRecording(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        // TODO Auto-generated method stub
-
+        if (log.isTraceEnabled()) {
+            log.trace("Exited RECORDING state");
+        }
+        
+        recorder.deactivate();
+        recorder.removeListener(this.recorderListener);
     }
 
     @Override
     public void enterRecorded(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered RECORDED state");
+        }
 
     }
 

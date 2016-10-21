@@ -75,7 +75,7 @@ public class PlayRecord extends AbstractMgcpSignal {
         this.recorderListener = new AudioRecorderListener();
 
         // Execution Context
-        this.context = new PlayRecordContext();
+        this.context = new PlayRecordContext(parameters);
 
         // Finite State Machine
         this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player, playerListener, context);

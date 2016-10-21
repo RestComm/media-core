@@ -65,7 +65,8 @@ public enum SignalParameters {
     START_INPUT_KEY("sik"),
     END_INPUT_KEY("eik"),
     INCLUDE_END_INPUT_KEY("iek"),
-    NUMBER_OF_ATTEMPTS("na");
+    NUMBER_OF_ATTEMPTS("na"), 
+    RECORD_ID("ri");
 
     private final String symbol;
 

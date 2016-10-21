@@ -170,6 +170,15 @@ public class PlayRecordContext {
     }
 
     /**
+     * Gets the path where the recording will be stored.
+     * 
+     * @return
+     */
+    public String getRecordId() {
+        return getParameter(SignalParameters.RECORD_ID.symbol());
+    }
+
+    /**
      * If set to true, initial prompt is not interruptible by either voice or digits.
      * <p>
      * <b>Defaults to false.</b> Valid values are the text strings "true" and "false".
@@ -193,6 +202,39 @@ public class PlayRecordContext {
     public boolean getClearDigitBuffer() {
         String value = Optional.fromNullable(getParameter(SignalParameters.CLEAR_DIGIT_BUFFER.symbol())).or("false");
         return Boolean.parseBoolean(value);
+    }
+    
+    /**
+     * The amount of time to wait for the user to initially speak.<br>
+     * Specified in units of 100 milliseconds.<b>Defaults to 30 (3 seconds).</b>
+     * 
+     * @return The pre-speech timer duration.
+     */
+    public int getPreSpeechTimer() {
+        final String value = Optional.fromNullable(getParameter(SignalParameters.PRE_SPEECH_TIMER.symbol())).or("30");
+        return Integer.parseInt(value) * 100;
+    }
+
+    /**
+     * The amount of silence necessary after the end of the last speech segment for the recording to be considered complete.<br>
+     * Specified in units of 100 milliseconds. <b>Defaults to 20 (2 seconds).</b>
+     * 
+     * @return The pre-speech timer duration.
+     */
+    public int getPostSpeechTimer() {
+        final String value = Optional.fromNullable(getParameter(SignalParameters.POST_SPEECH_TIMER.symbol())).or("20");
+        return Integer.parseInt(value) * 100;
+    }
+    
+    /**
+     * The maximum allowable length of the recording, not including pre or post speech silence.<br>
+     * Specified in units of 100 milliseconds. <b>This parameter is mandatory.</b>
+     * 
+     * @return The value of the recording length.
+     */
+    public int getTotalRecordingLengthTimer() {
+        final String value = getParameter(SignalParameters.TOTAL_RECORDING_LENGTH_TIMER.symbol());
+        return Integer.parseInt(value) * 100;
     }
 
     /**

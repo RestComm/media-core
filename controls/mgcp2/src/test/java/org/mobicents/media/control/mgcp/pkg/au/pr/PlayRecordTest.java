@@ -63,7 +63,7 @@ public class PlayRecordTest {
         final DtmfDetectorListener detectorListener = mock(DtmfDetectorListener.class);
         final Player player = mock(Player.class);
         final PlayerListener playerListener = mock(PlayerListener.class);
-        final PlayRecordContext context = new PlayRecordContext();
+        final PlayRecordContext context = new PlayRecordContext(parameters);
         final PlayRecord playRecord = new PlayRecord(player, detector, recorder, parameters);
     }
 
