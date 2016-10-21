@@ -23,6 +23,8 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
 
 import static org.mockito.Mockito.mock;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -50,6 +52,10 @@ public class PlayRecordTest {
     
     public void testPlayRecordWithEndInputKey() {
         // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("mx", "100");
+        parameters.put("eik", "#");
+        
         final MgcpEventSubject mgcpEventSubject = mock(MgcpEventSubject.class);
         final Recorder recorder = mock(Recorder.class);
         final RecorderListener recorderListener = mock(RecorderListener.class);
@@ -58,16 +64,7 @@ public class PlayRecordTest {
         final Player player = mock(Player.class);
         final PlayerListener playerListener = mock(PlayerListener.class);
         final PlayRecordContext context = new PlayRecordContext();
-        final PlayRecordFsmImpl playRecord = new PlayRecordFsmImpl(mgcpEventSubject, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
-
-        // when
-        fsm.start();
-        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
-        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
-        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
-        fsm.fire(PlayRecordEvent.NEXT_TRACK, context);
-        fsm.fire(PlayRecordEvent.END_COLLECT, context);
-        fsm.fire(PlayRecordEvent.PROMPT_END, context);
+        final PlayRecord playRecord = new PlayRecord(player, detector, recorder, parameters);
     }
 
 }
