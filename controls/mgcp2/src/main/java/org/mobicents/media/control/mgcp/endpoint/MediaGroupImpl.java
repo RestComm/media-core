@@ -21,8 +21,12 @@
 
 package org.mobicents.media.control.mgcp.endpoint;
 
+import javax.sound.sampled.spi.AudioFileReader;
+
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DetectorImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
@@ -31,6 +35,7 @@ import org.mobicents.media.server.spi.dtmf.DtmfGenerator;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerProvider;
 import org.mobicents.media.server.spi.recorder.Recorder;
+import org.mobicents.media.server.spi.recorder.RecorderProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -49,13 +54,13 @@ public class MediaGroupImpl implements MediaGroup {
 
     // TODO Add list of enum that declare which media components are created in the media group
     public MediaGroupImpl(AudioComponent audioComponent, OOBComponent oobComponent, PlayerProvider players,
-            DtmfDetectorProvider detectors) {
+            RecorderProvider recorders, DtmfDetectorProvider detectors) {
         // Media Components
         this.audioComponent = audioComponent;
         this.oobComponent = oobComponent;
 
         this.player = initializePlayer(players);
-        this.recorder = null;
+        this.recorder = initializeRecorder(recorders);
         this.detector = initializeDetector(detectors);
         this.generator = null;
     }
@@ -83,6 +88,21 @@ public class MediaGroupImpl implements MediaGroup {
         this.oobComponent.updateMode(true, true);
         // updateEndpoint(0,1)
         return detector;
+    }
+
+    private Recorder initializeRecorder(RecorderProvider recorders) {
+        // TODO try getting rid of AudioRecorderImpl cast
+        AudioRecorderImpl recorder = (AudioRecorderImpl) recorders.provide();
+        audioComponent.addOutput(recorder.getAudioOutput());
+        oobComponent.addOutput(recorder.getOOBOutput());
+        // writeComponents++;
+        // writeDtmfComponents++;
+        // audioComponent.updateMode(readComponents!=0,true);
+        // oobComponent.updateMode(readDtmfComponents!=0,true);
+        audioComponent.updateMode(false, true);
+        oobComponent.updateMode(false, true);
+        // updateEndpoint(0,1);
+        return recorder;
     }
 
     @Override

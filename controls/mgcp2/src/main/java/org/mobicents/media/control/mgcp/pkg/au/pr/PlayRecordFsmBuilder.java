@@ -76,6 +76,8 @@ public class PlayRecordFsmBuilder {
         this.builder.defineSequentialStatesOn(PlayRecordState.RECORD, PlayRecordState.RECORDING, PlayRecordState.RECORDED);
         this.builder.onEntry(PlayRecordState.RECORDING).callMethod("enterRecording");
         this.builder.transition().from(PlayRecordState.RECORDING).toFinal(PlayRecordState.RECORDED).on(PlayRecordEvent.END_RECORD);
+        this.builder.transition().from(PlayRecordState.COLLECTING).toFinal(PlayRecordState.RECORDED).on(PlayRecordEvent.END_RECORD);
+        this.builder.transition().from(PlayRecordState.PROMPTING).toFinal(PlayRecordState.RECORDED).on(PlayRecordEvent.END_RECORD);
         this.builder.onExit(PlayRecordState.RECORDING).callMethod("exitRecording");
 
         this.builder.onEntry(PlayRecordState.RECORDED).callMethod("enterRecord");

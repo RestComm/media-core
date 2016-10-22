@@ -223,9 +223,9 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         }
 
         try {
-            this.recorder.setMaxRecordTime(context.getTotalRecordingLengthTimer());
-            this.recorder.setPreSpeechTimer(context.getPreSpeechTimer());
-            this.recorder.setPostSpeechTimer(context.getPostSpeechTimer());
+            this.recorder.setMaxRecordTime(context.getTotalRecordingLengthTimer() * 1000000L);
+            this.recorder.setPreSpeechTimer(context.getPreSpeechTimer() * 1000000L);
+            this.recorder.setPostSpeechTimer(context.getPostSpeechTimer() * 1000000L);
             this.recorder.setRecordFile(context.getRecordId(), false);
             this.recorder.addListener(this.recorderListener);
             this.recorder.activate();
