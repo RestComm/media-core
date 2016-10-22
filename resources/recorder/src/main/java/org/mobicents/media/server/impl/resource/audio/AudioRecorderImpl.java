@@ -237,6 +237,9 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
             // detecting silence
             if (!this.checkForSilence(data, offset, len)) {
                 this.lastPacketData = scheduler.getClock().getTime();
+                if(!this.speechDetected) {
+                    fireEvent(new RecorderEventImpl(RecorderEvent.SPEECH_DETECTED, this));
+                }
                 this.speechDetected = true;
             }
         } else {
@@ -270,13 +273,25 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
      * @return true if silence detected
      */
     private boolean checkForSilence(byte[] data, int offset, int len) {
+        int[] correllation = new int[len];
         for (int i = offset; i < len - 1; i += 2) {
-            int s = (data[i] & 0xff) | (data[i + 1] << 8);
-            if (s > SILENCE_LEVEL) {
-                return false;
-            }
+            correllation[i] = (data[i] & 0xff) | (data[i + 1] << 8);
+        }
+
+        double mean = mean(correllation);
+        if(mean > SILENCE_LEVEL) {
+            System.out.println("NOISE IDENTIFIED!!!!!!!!!! MEAN IS " + mean);
+            return false;
         }
         return true;
+    }
+    
+    public double mean(int[] m) {
+        double sum = 0;
+        for (int i = 0; i < m.length; i++) {
+            sum += m[i];
+        }
+        return sum / m.length;
     }
 
     @Override

@@ -239,6 +239,20 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             fire(PlayRecordEvent.FAIL, context);
         }
     }
+    
+    @Override
+    public void onRecording(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("on RECORDING state");
+        }
+        
+        if(PlayRecordEvent.SPEECH_DETECTED.equals(event)) {
+            // AND  && !context.getNonInterruptibleAudio()
+            log.info("SPEECH DETECTED !!!!!!!!");
+            fire(PlayRecordEvent.PROMPT_END, context);
+        }
+        
+    }
 
     @Override
     public void exitRecording(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {

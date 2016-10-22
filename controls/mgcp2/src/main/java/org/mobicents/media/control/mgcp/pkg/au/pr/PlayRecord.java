@@ -78,7 +78,8 @@ public class PlayRecord extends AbstractMgcpSignal {
         this.context = new PlayRecordContext(parameters);
 
         // Finite State Machine
-        this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player, playerListener, context);
+        this.fsm = PlayRecordFsmBuilder.INSTANCE.build(this, recorder, recorderListener, detector, detectorListener, player,
+                playerListener, context);
     }
 
     @Override
@@ -185,6 +186,10 @@ public class PlayRecord extends AbstractMgcpSignal {
         @Override
         public void process(RecorderEvent event) {
             switch (event.getID()) {
+                case RecorderEvent.SPEECH_DETECTED:
+                    fsm.fire(PlayRecordEvent.SPEECH_DETECTED, PlayRecord.this.context);
+                    break;
+
                 case RecorderEvent.STOP:
                     switch (event.getQualifier()) {
                         case RecorderEvent.NO_SPEECH:

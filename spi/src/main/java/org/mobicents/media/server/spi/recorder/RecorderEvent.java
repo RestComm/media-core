@@ -32,6 +32,7 @@ public interface RecorderEvent extends Event<Recorder> {
     public static final int START = 1;
     public static final int STOP = 2;
     public static final int FAILED = 3;
+    public static final int SPEECH_DETECTED = 4;
     
     public static final int MAX_DURATION_EXCEEDED = 1;
     public static final int NO_SPEECH = 2;
