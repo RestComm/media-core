@@ -18,15 +18,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-        
+
 package org.mobicents.media.control.mgcp.pkg.au.pr;
+
+import org.apache.log4j.Logger;
+import org.jboss.util.file.Files;
+import org.squirrelframework.foundation.fsm.AnonymousAction;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public enum PlayRecordEvent {
-    
-    NEXT_TRACK, PROMPT_END, DTMF_TONE, END_COLLECT, SPEECH_DETECTED, END_RECORD, REINPUT, EVALUATE, TIMEOUT, CANCEL, PROMPT, REPROMPT, NO_SPEECH, NO_PROMPT, PLAY_SUCCESS, SUCCEED, PLAY_FAILURE, FAIL;
+public class DeleteRecordAction extends AnonymousAction<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext> {
+
+    private static final Logger log = Logger.getLogger(DeleteRecordAction.class);
+
+    @Override
+    public void execute(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context,
+            PlayRecordFsm stateMachine) {
+        final String filename = context.getRecordId();
+        Files.delete(filename);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Deleted recording " + filename);
+        }
+    }
 
 }
