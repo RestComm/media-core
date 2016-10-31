@@ -22,16 +22,5 @@ verifyXmlstarlet() {
     fi
 }
 
-verifyIpcalc() {
-    if [ -z "$(which ipcalc)" ]; then
-        echo "IP Calc dependency is missing."
-        echo "CentOS/RHEL: yum install ipcalc"
-        echo "Debian/Ubuntu: apt-get install ipcalc"
-        echo "macOS: brew install ipcalc"
-        exit 1
-    fi
-}
-
 verifyScreen
-verifyIpcalc
 verifyXmlstarlet
