@@ -2,7 +2,7 @@
 ## Description: Starts Media Server with auto-configuration.
 ## Author     : Henrique Rosa (henrique.rosa@telestax.com)
 
-MS_HOME=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+export MS_HOME=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 
 verifyDependencies() {
     source $MS_HOME/.autoconfig/verify-dependencies.sh
@@ -18,12 +18,12 @@ configureMediaServer() {
 
 startMediaServer() {
     echo 'Starting RestComm Media Server...'
-    if [ screen -ls | grep -q 'mediaserver' ]; then
-        echo '... already running a GNU Screen session named "mediaserver"! Aborted.'
+    if tmux ls | grep -q 'mediaserver'; then
+        echo '... already running a session named "mediaserver"! Aborted.'
         exit 1
     else
-        screen -dmS 'mediaserver' $MS_HOME/bin/run.sh
-        echo '...RestComm Media Server started running on GNU Screen session name "mediaserver"!'
+        tmux new -s mediaserver -d bin/run.sh
+        echo '...RestComm Media Server started running on session named "mediaserver"!'
     fi
 }
 

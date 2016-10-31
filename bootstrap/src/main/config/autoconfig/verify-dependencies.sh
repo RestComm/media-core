@@ -3,11 +3,11 @@
 ## Author: Henrique Rosa (henrique.rosa@telestax.com)
 
 verifyScreen() {
-    if [ -z "$(which screen)" ]; then
-        echo "GNU Screen dependency is missing."
-        echo "CentOS/RHEL: yum install screen"
-        echo "Debian/Ubuntu: apt-get install screen"
-        echo "macOS: brew install homebrew/dupes/screen"
+    if [ -z "$(which tmux)" ]; then
+        echo "tmux dependency is missing."
+        echo "CentOS/RHEL: yum install tmux"
+        echo "Debian/Ubuntu: apt-get install tmux"
+        echo "macOS: brew install tmux"
         exit 1
     fi
 }

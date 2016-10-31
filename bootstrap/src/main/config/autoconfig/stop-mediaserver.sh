@@ -6,12 +6,12 @@ MS_HOME=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 
 stopMediaServer() {
     echo 'Stopping RestComm Media Server...'
-    if [ screen -ls | grep -q 'mediaserver' ]; then
-        screen -S 'mediaserver' -p 0 -X 'quit'
-        echo '...stopped RestComm Media Server instance running on GNU Screen session "mediaserver".'
+    if tmux ls | grep -q 'mediaserver'; then
+        tmux kill-session -t mediaserver
+        echo '...stopped RestComm Media Server instance running on session "mediaserver".'
         exit 0
     else
-        echo '...could not find any active Media Server session on GNU Screen!'
+        echo '...could not find any active "mediaserver" session!'
         exit 1
     fi
 }
