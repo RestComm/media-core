@@ -3,6 +3,17 @@
 
 [[_ctms_configuring_the_media_server_manual]]
 == Manual Configuration
+
+The RestComm Media Server features an extensible configuration file, allowing users to have some control over several aspects of its behavior.
+
+Users can configure the Media Server by editing the file located at _$MS_HOME/conf/mediaserver.xml_. The XML file is divided into several main nodes, each one representing a specific aspect of the Media Server:
+
+* *Network* refers to the network configuration. Depends on network topology of the machine where Media Server is installed.
+* *Media* refers to the media processing and RTP configuration.
+* *Controller* refers to the Media Server Controller configuration. Defines which control protocol is used so that Media Server can communicate with Call Agents.
+* *Resources* refers to the resource pooling configuration. Depends on expected load on the server.
+* *DTLS* refers to configuration of security layer for media.
+
 === Network Configuration
 
 .Network configuration
@@ -130,7 +141,7 @@ The Bridge endpoint, a Splitter type, is useful in the scenarios shown below:
 
 image::images/bridge-endpoint-ivr-conference.png[]
 
-In this scenario, both IVR and Conference endpoints will be connected by a pair of Local Connections to the Bridge Endpoint. This is considered a good practice as there will be no cross over of IVR Resources (player , recorder , etc ) to conference.
+In this scenario, both IVR and Conference endpoints will be connected by a pair of Local Connections to the Bridge Endpoint. This is considered a good practice as there will be no cross over of IVR Resources (player , recorder , etc) to conference.
 The same applies to any conference traffic, it will not cross over to IVR.
 This is useful for recording RTP data for specific groups of users. 
 
@@ -475,4 +486,55 @@ Kills the active tmux session named _mediaserver_.
 |.autoconfig/verify-dependencies.sh|Script responsible for verifying if all dependencies are installed in the system. Interrupts auto-configuration process if not all requirements are met.
 ||
 |===
+
+[[_ctms_configuring_the_media_server_automatic_running]]
+=== Running
+
+To use the automatic configuration and bootstrapping mechanism, users simply need to edit _mediaserver.conf_ file according to their environment and then execute the _start-mediaserver.sh_ script.
+
+[source,shell]
+----
+bash-3.2# ./start-mediaserver.sh 
+Media Server automatic configuration started:
+Configuring MGCP Controller [Address=192.168.0.182, Port=2427, Expected Load=200]
+Configuring DTLS [Min Version=1.2, Max Version=1.2, Certificate=conf/dtls/x509-server-ecdsa.pem, Key=conf/dtls/x509-server-key-ecdsa.pem, Algorithm=ecdsa, Cipher Suite=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA]
+Configuring MGCP Media [Timeout=10, Lowest Port=44534, Highest Port=55534, Jitter Size=60]
+Configuring Media Codecs [pcmu,pcma,telephone-event]
+Configuring Network [BindAddress=192.168.0.182, ExternalAddress=5.158.17.91, Network=192.168.0.254, Subnet=192.168.0.255, Use SBC=false]
+Configuring Resource Pools [Local Connections=400, Remote Connections=200, Players=200, Recorders=200, DTMF Detectors=200, DTMF Generators=200]
+Configuring Audio Cache [Enabled=true, Size=50]
+Configuring DTMF Detector [Dbi=-25]
+Media Server automatic configuration finished!
+Starting RestComm Media Server...
+...RestComm Media Server started running on session named "mediaserver"!
+----
+
+From the Terminal output, we see the script configuring the Media Server according to the values of _mediaserver.conf_. Then, is created a tmux session named _mediaserver_ where the Media Server process will be running.
+
+[source,shell]
+----
+bash-3.2# tmux ls
+mediaserver: 1 windows (created Wed Nov  2 22:05:14 2016) [160x35]
+----
+
+To access the _mediaserver_ session we just need to run the following command:
+
+[source,shell]
+----
+bash-3.2# tmux attach -t mediaserver
+----
+
+To detach from tmux session, just press `ctrl+b d` from within tmux console.
+
+To stop the Media Server process and kill the tmux session, the user simply needs to execute the stop-mediaserver.sh script.
+
+[source,shell]
+----
+bash-3.2# ./stop-mediaserver.sh 
+Stopping RestComm Media Server...
+...stopped RestComm Media Server instance running on session "mediaserver".
+bash-3.2# tmux ls
+no server running on /private/tmp/tmux-501/default
+----
+
 
