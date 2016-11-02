@@ -1,7 +1,9 @@
 [[_ctms_configuring_the_media_server]]
 = Configuring the Media Server
 
-== Network Configuration
+[[_ctms_configuring_the_media_server_manual]]
+== Manual Configuration
+=== Network Configuration
 
 .Network configuration
 ====
@@ -40,7 +42,7 @@ If the Media Server detects that the IP address and port in SDP are within the l
 This is similar to when *sbc* is set to false.
 
 
-== Controller Configuration
+=== Controller Configuration
 
 This configuration subset defines the default Media Server Controller, the core component that processes incoming requests and manages media resources.
 
@@ -66,7 +68,7 @@ The default controller is based on MGCP protocol. Enabling MGCP is always requir
 ----
 ====
 
-=== Network
+==== Network
 
 The *Address* parameter defines the address of the network interface to which the controller is bound to. The control channel is open on this address.
 
@@ -74,7 +76,7 @@ The *Port* parameter defines the port where the control channel will listen to f
 
 The *PoolSize* parameter defines the number of MGCP requests that Media Server can handle concurrently.
 
-=== Endpoints
+==== Endpoints
 
 The *Endpoints* configuration allows you to configure all MGCP endpoint groups you want to use with the Media Server instance.
 
@@ -142,7 +144,7 @@ That means that any SS7 channel data will be sent to any connection and signal d
 In order to configure multiple groups of endpoints of the same type per Media Server instance, you must change the name of each group. 
 ====
 
-== Media Configuration
+=== Media Configuration
 
 The media configuration contains definitions that have an impact on the media channels.
 
@@ -166,7 +168,7 @@ The media configuration contains definitions that have an impact on the media ch
 ----
 ====
 
-=== RTP Channels
+==== RTP Channels
 
 The *LowPort* and *HighPort* define the port range reserved for RTP channels.
 These values should be an even number, since odd ports are reserved for RTCP channels.
@@ -174,7 +176,7 @@ These values should be an even number, since odd ports are reserved for RTCP cha
 The *JitterBuffer* size parameter sets the maximum capacity of the jitter buffer, in milliseconds.
 Jitter Buffers are commonly configured to hold up to 50-60ms of audio.
 
-=== RTP Timeout
+==== RTP Timeout
 
 Most SIP UA do not support any type of keep-alive between 200 OK and BYE.
 Therefore, in case the network goes down while a call is established, the call may hang forever.
@@ -206,7 +208,7 @@ Control Server ---> 200 ----> UA
 In case of 180 or 183 without SDP response , intermediate MDCX is not required. 
 
 
-=== Codecs
+==== Codecs
 
 Currently media server supports five codecs : G711 A/U, Linear PCM Raw, GSM, ILBC and G.729.
 
@@ -220,7 +222,7 @@ This is useful only in case of a one way activity.
 NOTE: L16 codec is useful only in server to server communication where you have enough network bandwidth.
 It is not recommended to allow L16 codec for UA – server connections, this can lead to degradation of the signal quality due to increased jitter and packet loss.
 
-== Resources Configuration
+=== Resources Configuration
 
 In the current Media Server release, a global pool of resources is used to decrease garbage collection and allow for faster resource allocation.
 
@@ -279,7 +281,7 @@ The more resources you have pre-configured on startup in the resource pool, the 
 It is up to the user to decide the best trade-off for the setup (greater memory usage on startup vs slower response when new resources are required in runtime).
 ====
 
-== DTLS Configuration
+=== DTLS Configuration
 
 The DTLS configuration allows to define some properties that are used by WebRTC resources, through the DTLS protocol. Since the nature of this configuration is strongly related with security principles, *some of the default values of this configuration need to be replaced by the user's private information, ensuring that no vulnerabilities could be exploited by someone else.* This refers mainly to the *certificate*, that is shipped with mediaserver for demonstration purposes only, and its better explained in the *Certificate* subsection.
 
@@ -301,11 +303,11 @@ The DTLS configuration allows to define some properties that are used by WebRTC 
 ----
 ====
 
-=== DTLS Version
+==== DTLS Version
 
 The properties *minVersion* and *maxVersion* define the supported minimum and maximum version of the DTLS protocol, respectively. The possible values suported by each property is *1.0* or *1.2*. 
 
-=== Cipher suites
+==== Cipher suites
 
 The *cipherSuites* property allows to inform one or more cipher suites to be used by DTLS. The names of the suites follows the https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#ciphersuites[JSSE cipher suite naming standard] and must be separated by comma.
 The following examples show how to set the cipher suites can be configured using *RSA* and *ECDSA*.
@@ -350,7 +352,7 @@ The following examples show how to set the cipher suites can be configured using
 ----
 ====
 
-=== Certificate
+==== Certificate
 
 This property allows to set the absolute or relative path of the certificate and key files. The path for the certificate file must be informed in the *path* property, and the path for the key file must be informed in the *key* property. The signature algorithm used for the certificates must be informed at the *algorithm* property, which supports the values *rsa* and *ecdsa*. The default certificate files must be replaced by certificates generated by the user, as described by the following warning:
 
@@ -408,3 +410,69 @@ The following examples show how to properly set up mediaserver according to the 
 </dtls>
 ----
 ====
+
+[[_ctms_configuring_the_media_server_automatic]]
+== Automatic Configuration
+
+The RestComm Media Server features an automatic configuration mechanism to free the users from the burden of manually configuring every aspect of the platform.
+
+Not only users can inject configuration parameters in a very simple format, this mechanism allows for automatization and easy management and multiplexing of processes.
+
+[[_ctms_configuring_the_media_server_automatic_dependencies]]
+=== Requirements
+
+The automatic configuration mechanism requires the following dependencies:
+
+. http://xmlstar.sourceforge.net[XML Starlet], a set of command line utilities (tools) which can be used to transform, query, validate, and edit XML documents and files using simple set of shell commands.
++
+[source,shell]
+----
+# CentOS/RHEL
+yum install xmlstarlet
+
+# Ubuntu/Debian
+apt-get install xmlstarlet
+
+# macOS
+homebrew install xmlstarlet
+----
+
+. https://tmux.github.io[TMux], a terminal multiplexer that lets you switch easily between several programs in one terminal, detach them (they keep running in the background) and reattach them to a different terminal.
++
+----
+# CentOS/RHEL
+yum install tmux
+
+# Ubuntu/Debian
+apt-get install tmux
+
+# macOS
+homebrew install tmux
+----
+
+[[_ctms_configuring_the_media_server_automatic_file_structure]]
+=== File Structure
+
+[[_ctms_configuring_the_media_server_automatic_file_structure_table]]
+.Automatic Configuration File Set
+[cols="1,1", frame="all", options="header"]
+|===
+| File Name and Location | Description
+|mediaserver.conf|Configuration file containing the list of parameters used to configure the Media Server.
+Users must override the values of this file according to their preferences and environment.
+|start-mediaserver.sh| Shell script that auto-configures the Media Server and bootstraps the Media Server. Loads values from _mediaserver.conf_ file.
+Initiates a new session on tmux named _mediaserver_.
+|stop-mediaserver.sh| Shell script that stops the Media Server.
+Kills the active tmux session named _mediaserver_.
+|.autoconfig|Hidden folder in the root directory of the media server. Contains all scripts responsible for auto-configuration magic.
+|.autoconfig/autoconfig.d|Directory that contains all scripts responsible for configuring specific areas of the Media Server.
+|.autoconfig/autoconfig.d/config-network.sh|Script responsible for configuring Network aspects of the Media Server.
+|.autoconfig/autoconfig.d/config-controller-mgcp.sh|Script responsible for configuring the MGCP Controller of the Media Server.
+|.autoconfig/autoconfig.d/config-media.sh|Script responsible for configuring Media aspects of the Media Server.
+|.autoconfig/autoconfig.d/config-resources.sh|Script responsible for configuring Resource Pooling aspects of the Media Server.
+|.autoconfig/autoconfig.d/config-dtls.sh|Script responsible for configuring DTLS aspects of the Media Server.
+|.autoconfig/autoconfigure.sh|Script responsible for invoking all configuration scripts within autoconfig.d directory.
+|.autoconfig/verify-dependencies.sh|Script responsible for verifying if all dependencies are installed in the system. Interrupts auto-configuration process if not all requirements are met.
+||
+|===
+
