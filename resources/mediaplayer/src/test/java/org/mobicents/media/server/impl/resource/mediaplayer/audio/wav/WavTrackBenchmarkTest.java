@@ -60,7 +60,10 @@ public class WavTrackBenchmarkTest {
     private static Logger logger = Logger.getLogger(WavTrackBenchmarkTest.class);
     private static URL url = WavTrackBenchmarkTest.class.getClassLoader().getResource("welcome.wav");
     private ReadableByteChannel rbc;
-    
+    private WavTrackImpl wavTrackImpl;
+    private WavTrack wavTrack;
+    private CachedRemoteStreamProvider rsp;
+            
     public WavTrackBenchmarkTest() {
         
     }
@@ -88,26 +91,31 @@ public class WavTrackBenchmarkTest {
     
     @Benchmark
     public void benchNioWavTrack() throws Exception {   
-        CachedRemoteStreamProvider rsp = new CachedRemoteStreamProvider(10);
-        WavTrackImpl wavTrackImpl = new WavTrackImpl(url, rsp);
-        boolean isEOMReached = false;
-        while (!isEOMReached) {
-            Frame process = wavTrackImpl.process(0);
-            isEOMReached = process.isEOM();
+        try {
+            rsp = new CachedRemoteStreamProvider(10);
+            wavTrackImpl = new WavTrackImpl(url, rsp);
+            boolean isEOMReached = false;
+            while (!isEOMReached) {
+                Frame process = wavTrackImpl.process(0);
+                isEOMReached = process.isEOM();
+            }
+        }finally {
+            wavTrackImpl.close();
         }
-        wavTrackImpl.close();
-        
     }
 
     @Benchmark
     public void benchWavTrack() throws Exception {      
-        WavTrack wavTrack = new WavTrack(url);
-        boolean isEOMReached = false;
-        while (!isEOMReached) {
-            Frame process = wavTrack.process(0);
-            isEOMReached = process.isEOM();
+        try {
+            wavTrack = new WavTrack(url);
+            boolean isEOMReached = false;
+            while (!isEOMReached) {
+                Frame process = wavTrack.process(0);
+                isEOMReached = process.isEOM();
+            }
+        }finally {
+             wavTrack.close();
         }
-        wavTrack.close();
     }
     
     
