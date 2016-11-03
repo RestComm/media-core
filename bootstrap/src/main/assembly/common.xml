@@ -26,6 +26,48 @@
                 <destName>conf/mgcp-conf.properties</destName>
             </file>
 
+	<!-- Auto-configuration -->
+	<file>
+		<source>src/main/config/autoconfig/start-mediaserver.sh</source>
+		<destName>start-mediaserver.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/stop-mediaserver.sh</source>
+		<destName>stop-mediaserver.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/mediaserver.conf</source>
+		<destName>mediaserver.conf</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/verify-dependencies.sh</source>
+		<destName>.autoconfig/verify-dependencies.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/autoconfigure.sh</source>
+		<destName>.autoconfig/autoconfigure.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/config-network.sh</source>
+		<destName>.autoconfig/autoconfig.d/config-network.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/config-controller-mgcp.sh</source>
+		<destName>.autoconfig/autoconfig.d/config-controller-mgcp.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/config-media.sh</source>
+		<destName>.autoconfig/autoconfig.d/config-media.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/config-resources.sh</source>
+		<destName>.autoconfig/autoconfig.d/config-resources.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/config-dtls.sh</source>
+		<destName>.autoconfig/autoconfig.d/config-dtls.sh</destName>
+	</file>
+
 <!-- Deploy -->
             <!-- file>
                 <source>src/main/config/avprofile-beans.xml</source>
@@ -83,7 +125,7 @@
                 <source>src/main/config/dtls/x509-ca-key.pem</source>
                 <destName>conf/dtls/x509-ca-key.pem</destName>
             </file>
-                        <file>
+           <file>
                 <source>src/main/config/dtls/x509-server.pem</source>
                 <destName>conf/dtls/x509-server.pem</destName>
             </file>
@@ -107,6 +149,5 @@
                 <source>src/main/config/dtls/x509-server-key-ecdsa.pem</source>
                 <destName>conf/dtls/x509-server-key-ecdsa.pem</destName>
             </file>
-
         </files>
 </component>
