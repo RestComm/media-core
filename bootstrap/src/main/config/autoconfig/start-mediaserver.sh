@@ -3,6 +3,7 @@
 ## Author     : Henrique Rosa (henrique.rosa@telestax.com)
 
 export MS_HOME=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+local override_conf=$1
 
 verifyDependencies() {
     source $MS_HOME/.autoconfig/verify-dependencies.sh
@@ -10,6 +11,9 @@ verifyDependencies() {
 
 loadConfigurationParams() {
     source $MS_HOME/mediaserver.conf
+    if [ -z $override_conf ]; then
+        source $override_conf
+    fi
 }
 
 configureMediaServer() {
