@@ -6,7 +6,7 @@
 	<parent>
 	    <artifactId>mobicents-mms-docs</artifactId>
 	    <groupId>org.mobicents.media.docs</groupId>
-	    <version>5.1.0-SNAPSHOT</version>
+	    <version>5.1.0.21</version>
 	  </parent>
 
 	  <artifactId>mobicents-mms-docs-sources-asciidoc</artifactId>
