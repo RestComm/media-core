@@ -18,6 +18,10 @@ loadConfigurationParams() {
     fi
 }
 
+loadLoggingParams() {
+    source $MS_HOME/logger.conf
+}
+
 configureMediaServer() {
     source $MS_HOME/.autoconfig/autoconfigure.sh
 }
@@ -35,5 +39,6 @@ startMediaServer() {
 
 verifyDependencies
 loadConfigurationParams $1
+loadLoggingParams
 configureMediaServer
 startMediaServer

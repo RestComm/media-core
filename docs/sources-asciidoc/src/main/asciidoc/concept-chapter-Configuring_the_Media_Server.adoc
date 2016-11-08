@@ -471,6 +471,7 @@ homebrew install tmux
 | File Name and Location | Description
 |mediaserver.conf|Configuration file containing the list of parameters used to configure the Media Server.
 Users must override the values of this file according to their preferences and environment.
+|logger.conf|Configuration file containing the list of appenders and categories to configure the Logger.
 |start-mediaserver.sh| Shell script that auto-configures the Media Server and bootstraps the Media Server. Loads values from _mediaserver.conf_ file.
 Initiates a new session on tmux named _mediaserver_.
 |stop-mediaserver.sh| Shell script that stops the Media Server.
@@ -482,10 +483,47 @@ Kills the active tmux session named _mediaserver_.
 |.autoconfig/autoconfig.d/config-media.sh|Script responsible for configuring Media aspects of the Media Server.
 |.autoconfig/autoconfig.d/config-resources.sh|Script responsible for configuring Resource Pooling aspects of the Media Server.
 |.autoconfig/autoconfig.d/config-dtls.sh|Script responsible for configuring DTLS aspects of the Media Server.
+|.autoconfig/autoconfig.d/config-logger.sh|Script responsible for configuring the Logger of the Media Server.
 |.autoconfig/autoconfigure.sh|Script responsible for invoking all configuration scripts within autoconfig.d directory.
 |.autoconfig/verify-dependencies.sh|Script responsible for verifying if all dependencies are installed in the system. Interrupts auto-configuration process if not all requirements are met.
 ||
 |===
+
+[[_ctms_configuring_the_media_server_automatic_logger]]
+=== Configuring the logger
+
+The Media Server Logger features two static *Appenders*, one that outputs to the Terminal console and the other for the log file located at `MS_HOME/log/server.log`. The user can define the minimum logging threshold for each appender, which will filter logging statements.
+
+If the user which to have more control over the logging threshold for a specific component of the Media Server, he can do so by defining logging *Categories*.
+A logging Category follows the format `<package_name>:<log_threshold>`, where _package_name_ refers to the Media Server package to which the Logger will impose the _log_threshold_.
+
+In the following example, the Logger will output RTP-related traces with DEBUG level or higher.
+
+[NOTE]
+====
+Note that even though DEBUG traces are enabled for RTP stack, the Console and File appenders still impose a threshold of INFO for any other traces.
+====
+
+.Configuration for Logger
+====
+[source,shell]
+----
+# Valid logging thresholds: TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+# Appenders
+LOG_APPENDER_CONSOLE=INFO
+LOG_APPENDER_FILE=INFO
+
+# Categories
+LOG_CATEGORY_RTP='org.mobicents.media.server.impl.rtp:DEBUG'
+----
+====
+
+If the user wished to, for example, define a logging threshold for the MGCP stack, he could do by adding a new Category as shown below:
+
+[source,shell]
+----
+LOG_CATEGORY_MGCP='org.mobicents.media.server.mgcp:DEBUG'
+----
 
 [[_ctms_configuring_the_media_server_automatic_running]]
 === Running
@@ -525,6 +563,9 @@ bash-3.2# tmux attach -t mediaserver
 ----
 
 To detach from tmux session, just press `ctrl+b d` from within tmux console.
+
+[[_ctms_configuring_the_media_server_automatic_stopping]]
+=== Stopping
 
 To stop the Media Server process and kill the tmux session, the user simply needs to execute the stop-mediaserver.sh script.
 
