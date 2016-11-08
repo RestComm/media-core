@@ -38,7 +38,7 @@ configCategories() {
             local category_name=$(echo "$category_value" | sed -e 's|\(.*\):.*|\1|')
             local category_threshold=$(echo "$category_value" | sed -e 's|.*:\(.*\)|\1|')
 
-            echo "Setting category $category_name to $category_threshold"
+            echo "Setting LOG_CATEGORY $category_name to $category_threshold"
 
             xmlstarlet ed --inplace --pf \
                 -s "/log4j:configuration" -t elem -n "category" -v "" \

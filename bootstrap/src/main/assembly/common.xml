@@ -40,6 +40,10 @@
 		<destName>mediaserver.conf</destName>
 	</file>
 	<file>
+		<source>src/main/config/autoconfig/logger.conf</source>
+		<destName>logger.conf</destName>
+	</file>
+	<file>
 		<source>src/main/config/autoconfig/verify-dependencies.sh</source>
 		<destName>.autoconfig/verify-dependencies.sh</destName>
 	</file>
@@ -66,6 +70,10 @@
 	<file>
 		<source>src/main/config/autoconfig/config-dtls.sh</source>
 		<destName>.autoconfig/autoconfig.d/config-dtls.sh</destName>
+	</file>
+	<file>
+		<source>src/main/config/autoconfig/config-logger.sh</source>
+		<destName>.autoconfig/autoconfig.d/config-logger.sh</destName>
 	</file>
 
 <!-- Deploy -->

@@ -19,7 +19,7 @@ loadConfigurationParams() {
 }
 
 loadLoggingParams() {
-    source $MS_HOME/logger.info
+    source $MS_HOME/logger.conf
 }
 
 configureMediaServer() {
