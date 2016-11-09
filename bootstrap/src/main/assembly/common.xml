@@ -75,6 +75,10 @@
 		<source>src/main/config/autoconfig/config-logger.sh</source>
 		<destName>.autoconfig/autoconfig.d/config-logger.sh</destName>
 	</file>
+	<file>
+		<source>src/main/config/autoconfig/config-java-opts.sh</source>
+		<destName>.autoconfig/autoconfig.d/config-java-opts.sh</destName>
+	</file>
 
 <!-- Deploy -->
             <!-- file>
