@@ -484,6 +484,7 @@ Kills the active tmux session named _mediaserver_.
 |.autoconfig/autoconfig.d/config-resources.sh|Script responsible for configuring Resource Pooling aspects of the Media Server.
 |.autoconfig/autoconfig.d/config-dtls.sh|Script responsible for configuring DTLS aspects of the Media Server.
 |.autoconfig/autoconfig.d/config-logger.sh|Script responsible for configuring the Logger of the Media Server.
+|.autoconfig/autoconfig.d/config-java-opts.sh|Script responsible for configuring the JAVA_OPTS of the Media Server process.
 |.autoconfig/autoconfigure.sh|Script responsible for invoking all configuration scripts within autoconfig.d directory.
 |.autoconfig/verify-dependencies.sh|Script responsible for verifying if all dependencies are installed in the system. Interrupts auto-configuration process if not all requirements are met.
 ||
