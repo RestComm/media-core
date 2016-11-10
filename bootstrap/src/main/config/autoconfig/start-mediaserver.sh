@@ -12,14 +12,14 @@ verifyDependencies() {
 loadConfigurationParams() {
     local override_conf=$1
 
+    # load default configuration files
     source $MS_HOME/mediaserver.conf
+    source $MS_HOME/logger.conf
+
+    # load file to override configuration (if any)
     if [ -n "$override_conf" ]; then
         source $override_conf
     fi
-}
-
-loadLoggingParams() {
-    source $MS_HOME/logger.conf
 }
 
 configureMediaServer() {
@@ -39,6 +39,5 @@ startMediaServer() {
 
 verifyDependencies
 loadConfigurationParams $1
-loadLoggingParams
 configureMediaServer
 startMediaServer
