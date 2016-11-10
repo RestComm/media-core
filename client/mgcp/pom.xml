@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>client</artifactId>
-        <version>5.1.0-SNAPSHOT</version>
+        <version>5.1.0.27</version>
     </parent>
 
     <groupId>org.mobicents.media.client</groupId>
