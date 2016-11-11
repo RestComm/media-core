@@ -95,21 +95,11 @@ public class PlayRecordFsmBuilder {
 
         this.builder.onEntry(PlayRecordState.RECORDED).callMethod("enterRecord");
         
-        this.builder.onEntry(PlayRecordState.TIMED_OUT).callMethod("enterTimedOut");
-        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.REPROMPT);
-        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.NO_SPEECH);
-        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.PLAY_SUCCESS);
-        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
-        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PLAY_FAILURE);
-        this.builder.transition().from(PlayRecordState.TIMED_OUT).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
-
         this.builder.onEntry(PlayRecordState.CANCELED).callMethod("enterCanceled");
         this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
         this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
         
         this.builder.onEntry(PlayRecordState.EVALUATING).callMethod("enterEvaluating");
-        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.REPROMPT);
-        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.ACTIVE).on(PlayRecordEvent.NO_SPEECH);
         this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.PLAY_SUCCESS);
         this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
         this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PLAY_FAILURE);
@@ -129,7 +119,7 @@ public class PlayRecordFsmBuilder {
     public PlayRecordFsm build(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
             DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
             PlayRecordContext context) {
-        return this.builder.newStateMachine(PlayRecordState.ACTIVE,
+        return this.builder.newStateMachine(PlayRecordState.LOADING_PLAYLIST,
                 StateMachineConfiguration.getInstance().enableDebugMode(true), mgcpEventSubject, recorder, recorderListener,
                 detector, detectorListener, player, playerListener, context);
     }

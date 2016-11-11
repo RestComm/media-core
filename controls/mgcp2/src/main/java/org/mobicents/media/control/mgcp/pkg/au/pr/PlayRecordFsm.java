@@ -33,6 +33,8 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
 
     void exitActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
+    void enterLoadingPlaylist(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
     void enterPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void onPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);

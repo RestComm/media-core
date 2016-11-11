@@ -33,6 +33,12 @@ public class DeleteRecordAction extends AnonymousAction<PlayRecordFsm, PlayRecor
 
     private static final Logger log = Logger.getLogger(DeleteRecordAction.class);
 
+    static final DeleteRecordAction INSTANCE = new DeleteRecordAction();
+
+    public DeleteRecordAction() {
+        super();
+    }
+
     @Override
     public void execute(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context,
             PlayRecordFsm stateMachine) {
