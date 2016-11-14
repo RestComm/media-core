@@ -29,19 +29,15 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  */
 public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext> {
 
-    void enterActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
-
-    void exitActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
-
     void enterLoadingPlaylist(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+    
+    void exitLoadingPlaylist(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void enterPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void onPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void exitPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
-
-    void enterPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void enterCollecting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
@@ -58,5 +54,7 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
     void exitRecording(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void enterRecorded(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
+    void enterEvaluating(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
 }

@@ -50,13 +50,13 @@ public class PlayRecordFsmBuilder {
 
         this.builder.defineFinishEvent(PlayRecordEvent.EVALUATE);
         
-        this.builder.onEntry(PlayRecordState.LOADING_PLAYLIST).callMethod("enterLoadingPlaylist");
+        this.builder.onEntry(PlayRecordState.LOADING_PLAYLIST).perform(LoadPlaylistAction.INSTANCE);
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.PROMPTING).on(PlayRecordEvent.PROMPT);
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.REPROMPTING).on(PlayRecordEvent.REPROMPT);
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.NO_SPEECH_PROMPTING).on(PlayRecordEvent.NO_SPEECH);
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.NO_PROMPT);
         this.builder.onExit(PlayRecordState.LOADING_PLAYLIST).callMethod("exitLoadingPlaylist");
-        
+
         this.builder.onEntry(PlayRecordState.PROMPTING).callMethod("enterPrompting");
         this.builder.internalTransition().within(PlayRecordState.PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPrompting");
         this.builder.transition().from(PlayRecordState.PROMPTING).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.PROMPT_END);
@@ -71,13 +71,13 @@ public class PlayRecordFsmBuilder {
         this.builder.internalTransition().within(PlayRecordState.NO_SPEECH_PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onNoSpeechprompting");
         this.builder.transition().from(PlayRecordState.NO_SPEECH_PROMPTING).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.PROMPT_END);
         this.builder.onExit(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("exitNoSpeechPrompting");
-        
-        this.builder.onEntry(PlayRecordState.COLLECT_RECORD).callMethod("enterCollectRecord");
+
+//        this.builder.onEntry(PlayRecordState.COLLECT_RECORD).callMethod("enterCollectRecord");
         this.builder.defineParallelStatesOn(PlayRecordState.COLLECT_RECORD, PlayRecordState.RECORD, PlayRecordState.COLLECT);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.REINPUT).perform(DeleteRecordAction.INSTANCE);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.EVALUATING).on(PlayRecordEvent.EVALUATE);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
-        this.builder.onExit(PlayRecordState.COLLECT_RECORD).callMethod("exitCollectRecord");
+//        this.builder.onExit(PlayRecordState.COLLECT_RECORD).callMethod("exitCollectRecord");
 
         this.builder.defineSequentialStatesOn(PlayRecordState.COLLECT, PlayRecordState.COLLECTING, PlayRecordState.COLLECTED);
         this.builder.onEntry(PlayRecordState.COLLECTING).callMethod("enterCollecting");
@@ -89,11 +89,10 @@ public class PlayRecordFsmBuilder {
         this.builder.defineSequentialStatesOn(PlayRecordState.RECORD, PlayRecordState.RECORDING, PlayRecordState.RECORDED);
         this.builder.onEntry(PlayRecordState.RECORDING).callMethod("enterRecording");
         this.builder.transition().from(PlayRecordState.RECORDING).toFinal(PlayRecordState.RECORDED).on(PlayRecordEvent.END_RECORD);
-        this.builder.transition().from(PlayRecordState.COLLECTING).toFinal(PlayRecordState.RECORDED).on(PlayRecordEvent.END_RECORD);
-        this.builder.transition().from(PlayRecordState.PROMPTING).toFinal(PlayRecordState.RECORDED).on(PlayRecordEvent.END_RECORD);
+        this.builder.transition().from(PlayRecordState.COLLECTING).toFinal(PlayRecordState.COLLECTED).on(PlayRecordEvent.END_RECORD);
         this.builder.onExit(PlayRecordState.RECORDING).callMethod("exitRecording");
 
-        this.builder.onEntry(PlayRecordState.RECORDED).callMethod("enterRecord");
+        this.builder.onEntry(PlayRecordState.RECORDED).callMethod("enterRecorded");
         
         this.builder.onEntry(PlayRecordState.CANCELED).callMethod("enterCanceled");
         this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);

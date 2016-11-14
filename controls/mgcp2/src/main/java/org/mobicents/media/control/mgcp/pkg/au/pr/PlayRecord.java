@@ -201,6 +201,7 @@ public class PlayRecord extends AbstractMgcpSignal {
                             break;
 
                         default:
+                            fsm.fire(PlayRecordEvent.END_RECORD, PlayRecord.this.context);
                             break;
                     }
                     break;

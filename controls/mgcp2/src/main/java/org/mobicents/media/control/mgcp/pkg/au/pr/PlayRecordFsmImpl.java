@@ -103,21 +103,19 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     }
 
     @Override
-    public void enterActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+    public void enterLoadingPlaylist(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
+            PlayRecordContext context) {
         if (log.isTraceEnabled()) {
-            log.trace("Entered ACTIVE state");
+            log.trace("Entered LOADING PLAYLIST state");
         }
-
-        // TODO context.newAttempt()
-
     }
 
     @Override
-    public void exitActive(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+    public void exitLoadingPlaylist(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
+            PlayRecordContext context) {
         if (log.isTraceEnabled()) {
-            log.trace("Exited ACTIVE state");
+            log.trace("Exited LOADING PLAYLIST state");
         }
-
     }
 
     @Override
@@ -135,7 +133,6 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
             fire(PlayRecordEvent.FAIL, context);
         }
-
     }
 
     @Override
@@ -163,14 +160,6 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
 
         this.player.removeListener(this.playerListener);
         this.player.deactivate();
-    }
-
-    @Override
-    public void enterPrompted(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        if (log.isTraceEnabled()) {
-            log.trace("Entered PROMPTED state");
-        }
-
     }
 
     @Override
@@ -239,19 +228,18 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             fire(PlayRecordEvent.FAIL, context);
         }
     }
-    
+
     @Override
     public void onRecording(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        if(log.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
             log.trace("on RECORDING state");
         }
-        
-        if(PlayRecordEvent.SPEECH_DETECTED.equals(event)) {
-            // AND  && !context.getNonInterruptibleAudio()
+
+        if (PlayRecordEvent.SPEECH_DETECTED.equals(event)) {
+            // AND && !context.getNonInterruptibleAudio()
             log.info("SPEECH DETECTED !!!!!!!!");
-            fire(PlayRecordEvent.PROMPT_END, context);
         }
-        
+
     }
 
     @Override
@@ -259,7 +247,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         if (log.isTraceEnabled()) {
             log.trace("Exited RECORDING state");
         }
-        
+
         recorder.deactivate();
         recorder.removeListener(this.recorderListener);
     }
@@ -268,6 +256,13 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     public void enterRecorded(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
         if (log.isTraceEnabled()) {
             log.trace("Entered RECORDED state");
+        }
+    }
+
+    @Override
+    public void enterEvaluating(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered EVALUATING state");
         }
 
     }
