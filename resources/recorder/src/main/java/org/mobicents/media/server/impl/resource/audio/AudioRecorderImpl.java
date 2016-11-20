@@ -389,23 +389,26 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
         @Override
         public long perform() {
-            long currTime = scheduler.getClock().getTime();
+            final long currentTime = scheduler.getClock().getTime();
+            final long idleTime = currentTime - lastPacketData;
 
-            if (preSpeechTimer > 0 && !speechDetected && currTime - lastPacketData > preSpeechTimer) {
+            // Abort recording operation if user did not speak during initial detection period
+            if (preSpeechTimer > 0 && !speechDetected && idleTime > preSpeechTimer) {
                 qualifier = RecorderEvent.NO_SPEECH;
                 scheduler.submit(killRecording, PriorityQueueScheduler.INPUT_QUEUE);
                 return 0;
             }
 
-            if (postSpeechTimer > 0 && speechDetected && currTime - lastPacketData > postSpeechTimer) {
-                qualifier = RecorderEvent.NO_SPEECH;
+            // Abort recording operation if user did not speak for a while
+            if (postSpeechTimer > 0 && speechDetected && idleTime > postSpeechTimer) {
+                qualifier = RecorderEvent.POST_SPEECH_TIMEOUT;
                 scheduler.submit(killRecording, PriorityQueueScheduler.INPUT_QUEUE);
                 return 0;
             }
 
-            // check max time and stop recording if exeeds limit
-            if (maxRecordTime > 0 && currTime - startTime >= maxRecordTime) {
-                // set qualifier
+            // Abort recording if maximum time limit is reached
+            final long duration = currentTime - startTime;
+            if (maxRecordTime > 0 && duration >= maxRecordTime) {
                 qualifier = RecorderEvent.MAX_DURATION_EXCEEDED;
                 scheduler.submit(killRecording, PriorityQueueScheduler.INPUT_QUEUE);
                 return 0;
