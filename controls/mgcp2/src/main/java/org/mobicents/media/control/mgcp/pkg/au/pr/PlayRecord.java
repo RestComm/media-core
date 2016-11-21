@@ -197,7 +197,7 @@ public class PlayRecord extends AbstractMgcpSignal {
                             break;
 
                         case RecorderEvent.MAX_DURATION_EXCEEDED:
-                            fsm.fire(PlayRecordEvent.END_RECORD, PlayRecord.this.context);
+                            fsm.fire(PlayRecordEvent.MAX_DURATION_EXCEEDED, PlayRecord.this.context);
                             break;
 
                         default:

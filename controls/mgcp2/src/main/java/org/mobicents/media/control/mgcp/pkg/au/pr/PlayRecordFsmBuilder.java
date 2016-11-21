@@ -76,6 +76,7 @@ public class PlayRecordFsmBuilder {
         this.builder.defineParallelStatesOn(PlayRecordState.COLLECT_RECORD, PlayRecordState.RECORD, PlayRecordState.COLLECT);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.REINPUT).perform(DeleteRecordAction.INSTANCE);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.SUCCEEDING).on(PlayRecordEvent.EVALUATE);
+        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.MAX_DURATION_EXCEEDED);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
 //        this.builder.onExit(PlayRecordState.COLLECT_RECORD).callMethod("exitCollectRecord");
 

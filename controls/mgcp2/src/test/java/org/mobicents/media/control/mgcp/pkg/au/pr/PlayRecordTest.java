@@ -146,6 +146,42 @@ public class PlayRecordTest {
         assertEquals("false", eventCaptor.getValue().getParameter("vi"));
         assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
     }
+    
+    @Test
+    public void testMaxDurationExceeded() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("eik", "#");
+        parameters.put("rlt", "100");
+
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pr.observe(observer);
+        pr.execute();
+
+        RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.MAX_DURATION_EXCEEDED);
+        pr.recorderListener.process(recorderStop);
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(recorder, times(1)).activate();
+        verify(player, never()).activate();
+        verify(detector, times(1)).deactivate();
+        verify(recorder, times(1)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.SPOKE_TOO_LONG.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
 
     public void testPlayRecordWithEndInputKey() {
         // given

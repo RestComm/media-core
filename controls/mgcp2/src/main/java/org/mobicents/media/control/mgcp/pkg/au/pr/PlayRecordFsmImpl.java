@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
+import org.mobicents.media.control.mgcp.pkg.au.OperationFailed;
 import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -314,6 +315,16 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Entered FAILING state");
         }
         
+        switch (event) {
+            case MAX_DURATION_EXCEEDED:
+                context.setReturnCode(ReturnCode.SPOKE_TOO_LONG.code());
+                break;
+
+            default:
+                context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+                break;
+        }
+        
         final Playlist playlist = context.getFailureAnnouncement();
         if(playlist.isEmpty()) {
             fire(PlayRecordEvent.NO_PROMPT, context);
@@ -344,8 +355,14 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
 
     @Override
     public void enterFailed(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        // TODO Auto-generated method stub
+        if(log.isTraceEnabled()) {
+            log.trace("Entered FAILED state");
+        }
         
+        final OperationFailed of = new OperationFailed(PlayRecord.SYMBOL, context.getReturnCode());
+        of.setParameter("na", String.valueOf(context.getAttempt()));
+
+        this.mgcpEventSubject.notify(this.mgcpEventSubject, of);
     }
 
 }
