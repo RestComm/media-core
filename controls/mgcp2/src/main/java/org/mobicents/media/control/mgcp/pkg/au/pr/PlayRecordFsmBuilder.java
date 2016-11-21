@@ -119,8 +119,9 @@ public class PlayRecordFsmBuilder {
         this.builder.onExit(PlayRecordState.FAILING).callMethod("exitFailing");
 
         this.builder.onEntry(PlayRecordState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
-        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.PROMPT_END);
-        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
+        this.builder.internalTransition().within(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPlayingFailure");
+        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.FAILED).on(PlayRecordEvent.PROMPT_END);
+        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.FAILED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
 
         this.builder.onEntry(PlayRecordState.FAILED).callMethod("enterFailed");

@@ -379,14 +379,46 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     @Override
     public void enterPlayingFailure(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
             PlayRecordContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered PLAYING FAILURE state");
+        }
+
+        final Playlist prompt = context.getFailureAnnouncement();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(prompt.next(), 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayRecordEvent.FAIL, context);
+        }
+    }
+
+    @Override
+    public void onPlayingFailure(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("On PLAYING FAILURE state");
+        }
         
+        final Playlist prompt = context.getFailureAnnouncement();
+        final String next = prompt.next();
+
+        if (next.isEmpty()) {
+            // No more announcements to play
+            fire(PlayRecordEvent.PROMPT_END, context);
+        } else {
+            playAnnouncement(next, 10 * 100);
+        }
     }
 
     @Override
     public void exitPlayingFailure(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
-        // TODO Auto-generated method stub
-        
+        if (log.isTraceEnabled()) {
+            log.trace("Exited PLAYING FAILURE state");
+        }
+
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
