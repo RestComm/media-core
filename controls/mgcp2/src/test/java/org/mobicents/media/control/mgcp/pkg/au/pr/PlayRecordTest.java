@@ -66,7 +66,7 @@ public class PlayRecordTest {
     }
 
     @Test
-    public void testNoInitialPrompt() throws InterruptedException {
+    public void testRecord() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
@@ -86,7 +86,7 @@ public class PlayRecordTest {
         pr.execute();
 
         RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
-        recorderStop.setQualifier(RecorderEvent.POST_SPEECH_TIMEOUT);
+        recorderStop.setQualifier(RecorderEvent.SUCCESS);
         pr.recorderListener.process(recorderStop);
 
         // then
@@ -129,7 +129,7 @@ public class PlayRecordTest {
         pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
         
         RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
-        recorderStop.setQualifier(RecorderEvent.POST_SPEECH_TIMEOUT);
+        recorderStop.setQualifier(RecorderEvent.SUCCESS);
         pr.recorderListener.process(recorderStop);
         
         // then
@@ -148,7 +148,7 @@ public class PlayRecordTest {
     }
     
     @Test
-    public void testMaxDurationExceeded() throws InterruptedException {
+    public void testRecordWithMaxDurationExceeded() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
@@ -184,7 +184,7 @@ public class PlayRecordTest {
     }
 
     @Test
-    public void testNoSpeech() throws InterruptedException {
+    public void testRecordWithNoSpeech() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
@@ -217,6 +217,50 @@ public class PlayRecordTest {
         
         assertEquals(String.valueOf(ReturnCode.NO_SPEECH.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
+
+    @Test
+    public void testRecordWithSuccessAnnouncement() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("eik", "#");
+        parameters.put("rlt", "100");
+        parameters.put("sa", "success1.wav,success2.wav,success3.wav");
+        
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pr.observe(observer);
+        pr.execute();
+        
+        RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.SUCCESS);
+        pr.recorderListener.process(recorderStop);
+        
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(recorder, times(1)).activate();
+        verify(player, times(3)).activate();
+        verify(detector, times(1)).deactivate();
+        verify(recorder, times(1)).deactivate();
+        verify(player, times(1)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals("false", eventCaptor.getValue().getParameter("vi"));
+        assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
     }
 
     public void testPlayRecordWithEndInputKey() {

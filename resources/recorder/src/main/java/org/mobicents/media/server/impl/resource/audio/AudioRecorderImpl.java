@@ -401,7 +401,7 @@ public class AudioRecorderImpl extends AbstractSink implements Recorder, PooledO
 
             // Abort recording operation if user did not speak for a while
             if (postSpeechTimer > 0 && speechDetected && idleTime > postSpeechTimer) {
-                qualifier = RecorderEvent.POST_SPEECH_TIMEOUT;
+                qualifier = RecorderEvent.SUCCESS;
                 scheduler.submit(killRecording, PriorityQueueScheduler.INPUT_QUEUE);
                 return 0;
             }

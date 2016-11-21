@@ -61,6 +61,8 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
 
     void enterPlayingSuccess(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
     
+    void onPlayingSuccess(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
     void exitPlayingSuccess(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void enterSucceeded(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
@@ -74,4 +76,5 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
     void exitPlayingFailure(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void enterFailed(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
 }
