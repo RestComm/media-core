@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
+import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
 import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
@@ -260,11 +261,91 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     }
 
     @Override
-    public void enterEvaluating(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+    public void enterSucceeding(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
         if (log.isTraceEnabled()) {
-            log.trace("Entered EVALUATING state");
+            log.trace("Entered SUCCEEDING state");
         }
+        
+        final Playlist playlist = context.getSuccessAnnouncement();
+        if(playlist.isEmpty()) {
+            fire(PlayRecordEvent.NO_PROMPT, context);
+        } else {
+            fire(PlayRecordEvent.PROMPT, context);
+        }
+    }
+    
+    @Override
+    public void exitSucceeding(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Exited SUCCEEDING state");
+        }
+    }
 
+    @Override
+    public void enterPlayingSuccess(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
+            PlayRecordContext context) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void exitPlayingSuccess(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void enterSucceeded(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if(log.isTraceEnabled()) {
+            log.trace("Entered SUCCEEDED state");
+        }
+        
+        final OperationComplete oc = new OperationComplete(PlayRecord.SYMBOL, ReturnCode.SUCCESS.code());
+        oc.setParameter("na", String.valueOf(context.getAttempt()));
+        oc.setParameter("vi", Boolean.FALSE.toString());
+        oc.setParameter("ri", context.getRecordId());
+
+        this.mgcpEventSubject.notify(this.mgcpEventSubject, oc);
+    }
+    
+    @Override
+    public void enterFailing(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered FAILING state");
+        }
+        
+        final Playlist playlist = context.getFailureAnnouncement();
+        if(playlist.isEmpty()) {
+            fire(PlayRecordEvent.NO_PROMPT, context);
+        } else {
+            fire(PlayRecordEvent.PROMPT, context);
+        }
+    }
+    
+    @Override
+    public void exitFailing(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Exited FAILING state");
+        }
+    }
+
+    @Override
+    public void enterPlayingFailure(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
+            PlayRecordContext context) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void exitPlayingFailure(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void enterFailed(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

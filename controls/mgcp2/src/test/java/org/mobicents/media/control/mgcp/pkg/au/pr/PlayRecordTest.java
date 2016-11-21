@@ -67,6 +67,7 @@ public class PlayRecordTest {
     public void testNoInitialPrompt() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
         parameters.put("eik", "#");
         parameters.put("rlt", "100");
 
@@ -83,7 +84,7 @@ public class PlayRecordTest {
         pr.execute();
 
         RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
-        recorderStop.setQualifier(RecorderEvent.MAX_DURATION_EXCEEDED);
+        recorderStop.setQualifier(RecorderEvent.POST_SPEECH_TIMEOUT);
         pr.recorderListener.process(recorderStop);
 
         // then
@@ -95,8 +96,9 @@ public class PlayRecordTest {
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
 
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
-        assertEquals("123", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals("false", eventCaptor.getValue().getParameter("vi"));
+        assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
     }
 
     public void testPlayRecordWithEndInputKey() {

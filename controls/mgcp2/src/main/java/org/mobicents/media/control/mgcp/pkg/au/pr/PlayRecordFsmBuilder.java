@@ -75,7 +75,7 @@ public class PlayRecordFsmBuilder {
 //        this.builder.onEntry(PlayRecordState.COLLECT_RECORD).callMethod("enterCollectRecord");
         this.builder.defineParallelStatesOn(PlayRecordState.COLLECT_RECORD, PlayRecordState.RECORD, PlayRecordState.COLLECT);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.REINPUT).perform(DeleteRecordAction.INSTANCE);
-        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.EVALUATING).on(PlayRecordEvent.EVALUATE);
+        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.SUCCEEDING).on(PlayRecordEvent.EVALUATE);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
 //        this.builder.onExit(PlayRecordState.COLLECT_RECORD).callMethod("exitCollectRecord");
 
@@ -98,21 +98,29 @@ public class PlayRecordFsmBuilder {
         this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
         this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
         
-        this.builder.onEntry(PlayRecordState.EVALUATING).callMethod("enterEvaluating");
-        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.PLAY_SUCCESS);
-        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
-        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PLAY_FAILURE);
-        this.builder.transition().from(PlayRecordState.EVALUATING).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
+        this.builder.onEntry(PlayRecordState.SUCCEEDING).callMethod("enterSucceeding");
+        this.builder.transition().from(PlayRecordState.SUCCEEDING).to(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.PROMPT);
+        this.builder.transition().from(PlayRecordState.SUCCEEDING).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.onExit(PlayRecordState.SUCCEEDING).callMethod("exitSucceeding");
+        
+        this.builder.onEntry(PlayRecordState.SUCCEEDED).callMethod("enterSucceeded");
 
         this.builder.onEntry(PlayRecordState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
-        this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.PROMPT_END);
         this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
 
+        this.builder.onEntry(PlayRecordState.FAILING).callMethod("enterFailing");
+        this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PROMPT);
+        this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.FAILED).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.onExit(PlayRecordState.FAILING).callMethod("exitFailing");
+
         this.builder.onEntry(PlayRecordState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
-        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.PROMPT_END);
         this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
+
+        this.builder.onEntry(PlayRecordState.FAILED).callMethod("enterFailed");
     }
 
     public PlayRecordFsm build(MgcpEventSubject mgcpEventSubject, Recorder recorder, RecorderListener recorderListener,
