@@ -319,6 +319,10 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             case MAX_DURATION_EXCEEDED:
                 context.setReturnCode(ReturnCode.SPOKE_TOO_LONG.code());
                 break;
+                
+            case NO_SPEECH:
+                context.setReturnCode(ReturnCode.NO_SPEECH.code());
+                break;
 
             default:
                 context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());

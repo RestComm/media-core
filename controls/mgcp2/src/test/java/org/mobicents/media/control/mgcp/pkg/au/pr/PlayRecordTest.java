@@ -183,6 +183,42 @@ public class PlayRecordTest {
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
+    @Test
+    public void testNoSpeech() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("eik", "#");
+        parameters.put("rlt", "100");
+        
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pr.observe(observer);
+        pr.execute();
+        
+        RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.NO_SPEECH);
+        pr.recorderListener.process(recorderStop);
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(recorder, times(1)).activate();
+        verify(player, never()).activate();
+        verify(detector, times(1)).deactivate();
+        verify(recorder, times(1)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.NO_SPEECH.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
+
     public void testPlayRecordWithEndInputKey() {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
