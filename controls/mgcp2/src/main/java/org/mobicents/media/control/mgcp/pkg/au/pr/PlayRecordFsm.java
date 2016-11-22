@@ -39,6 +39,12 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
 
     void exitPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
+    void enterReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
+    void onReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
+    void exitReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
     void enterNoSpeechReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
     
     void onNoSpeechReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);

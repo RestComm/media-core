@@ -38,18 +38,14 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
-import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.impl.resource.audio.RecorderEventImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerEvent;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
-import org.mobicents.media.server.spi.player.PlayerListener;
 import org.mobicents.media.server.spi.recorder.Recorder;
 import org.mobicents.media.server.spi.recorder.RecorderEvent;
-import org.mobicents.media.server.spi.recorder.RecorderListener;
 import org.mockito.ArgumentCaptor;
 
 /**
@@ -306,12 +302,13 @@ public class PlayRecordTest {
     }
 
     @Test
-    public void testSuccessfulRecordingAfterNoSpeechFailure() throws InterruptedException {
+    public void testNoSpeechReprompt() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
         parameters.put("eik", "#");
         parameters.put("rlt", "100");
+        parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
         parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
         parameters.put("sa", "success1.wav,success2.wav,success3.wav");
         parameters.put("na", "2");
@@ -361,21 +358,61 @@ public class PlayRecordTest {
         assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
     }
 
-    public void testPlayRecordWithEndInputKey() {
+    @Test
+    public void testRepromptAfterMaxDurationExceeded() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
-        parameters.put("mx", "100");
+        parameters.put("ri", "RE0001");
         parameters.put("eik", "#");
-
-        final MgcpEventSubject mgcpEventSubject = mock(MgcpEventSubject.class);
+        parameters.put("rlt", "100");
+        parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
+        parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
+        parameters.put("sa", "success1.wav,success2.wav,success3.wav");
+        parameters.put("na", "2");
+        
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Recorder recorder = mock(Recorder.class);
-        final RecorderListener recorderListener = mock(RecorderListener.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
-        final DtmfDetectorListener detectorListener = mock(DtmfDetectorListener.class);
         final Player player = mock(Player.class);
-        final PlayerListener playerListener = mock(PlayerListener.class);
-        final PlayRecordContext context = new PlayRecordContext(parameters);
-        final PlayRecord playRecord = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pr.observe(observer);
+        pr.execute();
+        
+        // no speech
+        RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.MAX_DURATION_EXCEEDED);
+        pr.recorderListener.process(recorderStop);
+        
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        
+        // restart
+        recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.SUCCESS);
+        pr.recorderListener.process(recorderStop);
+        
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        
+        // then
+        verify(detector, times(2)).activate();
+        verify(recorder, times(2)).activate();
+        verify(player, times(6)).activate();
+        verify(detector, times(2)).deactivate();
+        verify(recorder, times(2)).deactivate();
+        verify(player, times(2)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
+        assertEquals("false", eventCaptor.getValue().getParameter("vi"));
+        assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
     }
 
 }

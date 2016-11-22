@@ -182,6 +182,50 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     }
     
     @Override
+    public void enterReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered REPROMPTING state");
+        }
+        
+        final Playlist prompt = context.getReprompt();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(prompt.next(), 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayRecordEvent.FAIL, context);
+        }
+    }
+    
+    @Override
+    public void onReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("On REPROMPTING state");
+        }
+        
+        final Playlist prompt = context.getReprompt();
+        final String next = prompt.next();
+        
+        if (next.isEmpty()) {
+            // No more announcements to play
+            fire(PlayRecordEvent.PROMPT_END, context);
+        } else {
+            playAnnouncement(next, 10 * 100);
+        }
+    }
+    
+    @Override
+    public void exitReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Exited REPROMPTING state");
+        }
+        
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
+    }
+    
+    @Override
     public void enterNoSpeechReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
             PlayRecordContext context) {
         if (log.isTraceEnabled()) {
@@ -416,7 +460,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         if(context.hasMoreAttempts()) {
             context.newAttempt();
             deleteRecording();
-            fire(PlayRecordEvent.NO_SPEECH, context);
+            fire(event, context);
         } else {
             switch (event) {
                 case MAX_DURATION_EXCEEDED:

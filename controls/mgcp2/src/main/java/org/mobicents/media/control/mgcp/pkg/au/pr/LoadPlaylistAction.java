@@ -21,7 +21,6 @@
 
 package org.mobicents.media.control.mgcp.pkg.au.pr;
 
-import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 
@@ -30,8 +29,6 @@ import org.squirrelframework.foundation.fsm.AnonymousAction;
  *
  */
 public class LoadPlaylistAction extends AnonymousAction<PlayRecordFsm, PlayRecordState, PlayRecordEvent, PlayRecordContext> {
-
-    private static final Logger log = Logger.getLogger(LoadPlaylistAction.class);
 
     static final LoadPlaylistAction INSTANCE = new LoadPlaylistAction();
 
@@ -69,7 +66,14 @@ public class LoadPlaylistAction extends AnonymousAction<PlayRecordFsm, PlayRecor
                         stateMachine.fire(PlayRecordEvent.NO_SPEECH, context);
                     }
                     break;
+
                 default:
+                    final Playlist reprompt = context.getReprompt();
+                    if (reprompt.isEmpty()) {
+                        stateMachine.fire(PlayRecordEvent.NO_PROMPT, context);
+                    } else {
+                        stateMachine.fire(PlayRecordEvent.REPROMPT, context);
+                    }
                     break;
             }
         }
