@@ -74,8 +74,9 @@ public class PlayRecordFsmBuilder {
 
 //        this.builder.onEntry(PlayRecordState.COLLECT_RECORD).callMethod("enterCollectRecord");
         this.builder.defineParallelStatesOn(PlayRecordState.COLLECT_RECORD, PlayRecordState.RECORD, PlayRecordState.COLLECT);
-        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.REINPUT).perform(DeleteRecordAction.INSTANCE);
+//        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.REINPUT).perform(DeleteRecordAction.INSTANCE);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.SUCCEEDING).on(PlayRecordEvent.EVALUATE);
+        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.REINPUT);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.RESTART);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.MAX_DURATION_EXCEEDED);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.NO_SPEECH);
@@ -117,6 +118,7 @@ public class PlayRecordFsmBuilder {
         this.builder.onEntry(PlayRecordState.FAILING).callMethod("enterFailing");
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PROMPT);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.FAILED).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.REINPUT);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.RESTART);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.NO_SPEECH);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.MAX_DURATION_EXCEEDED);

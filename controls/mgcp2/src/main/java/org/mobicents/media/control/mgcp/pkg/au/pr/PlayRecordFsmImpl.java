@@ -299,8 +299,9 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         final char tone = context.getTone();
         if(context.getRestartKey() == tone) {
             fire(PlayRecordEvent.RESTART, context);
+        } else if(context.getReinputKey() == tone) {
+            fire(PlayRecordEvent.REINPUT, context);
         }
-
     }
 
     @Override
@@ -476,6 +477,7 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
                     break;
                     
                 case RESTART:
+                case REINPUT:
                     context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
                     break;
 

@@ -185,7 +185,6 @@ public class PlayRecordTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
-        parameters.put("eik", "#");
         parameters.put("rlt", "100");
         
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
@@ -221,7 +220,6 @@ public class PlayRecordTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
-        parameters.put("eik", "#");
         parameters.put("rlt", "100");
         parameters.put("sa", "success1.wav,success2.wav,success3.wav");
         
@@ -265,7 +263,6 @@ public class PlayRecordTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
-        parameters.put("eik", "#");
         parameters.put("rlt", "100");
         parameters.put("fa", "failure1.wav,failure2.wav,failure3.wav");
         
@@ -307,7 +304,6 @@ public class PlayRecordTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
-        parameters.put("eik", "#");
         parameters.put("rlt", "100");
         parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
         parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
@@ -364,7 +360,6 @@ public class PlayRecordTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
-        parameters.put("eik", "#");
         parameters.put("rlt", "100");
         parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
         parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
@@ -422,7 +417,6 @@ public class PlayRecordTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
         parameters.put("rsk", "*");
-        parameters.put("eik", "#");
         parameters.put("rlt", "100");
         parameters.put("ip", "prompt1.wav,prompt2.wav,prompt3.wav");
         parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
@@ -480,7 +474,6 @@ public class PlayRecordTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
         parameters.put("rsk", "*");
-        parameters.put("eik", "#");
         parameters.put("rlt", "100");
         parameters.put("ip", "prompt1.wav,prompt2.wav,prompt3.wav");
         parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
@@ -517,6 +510,104 @@ public class PlayRecordTest {
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
         
+        assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
+    
+    @Test
+    public void testReinput() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("rik", "*");
+        parameters.put("rlt", "100");
+        parameters.put("ip", "prompt1.wav,prompt2.wav,prompt3.wav");
+        parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
+        parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
+        parameters.put("na", "2");
+        
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pr.observe(observer);
+        pr.execute();
+        
+        // initial prompt and recording    
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        
+        // re-input
+        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        
+        RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.SUCCESS);
+        pr.recorderListener.process(recorderStop);
+        
+        // then
+        verify(detector, times(2)).activate();
+        verify(recorder, times(2)).activate();
+        verify(player, times(3)).activate();
+        verify(player, times(1)).deactivate();
+        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
+        verify(detector, times(2)).deactivate();
+        verify(recorder, times(2)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
+        assertEquals("false", eventCaptor.getValue().getParameter("vi"));
+        assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
+    }
+    
+    @Test
+    public void testReinputExceedsMaximumAttempts() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("rik", "*");
+        parameters.put("rlt", "100");
+        parameters.put("ip", "prompt1.wav,prompt2.wav,prompt3.wav");
+        parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
+        parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
+        parameters.put("na", "1");
+        
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pr.observe(observer);
+        pr.execute();
+        
+        // initial prompt and recording    
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        
+        // restart
+        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(recorder, times(1)).activate();
+        verify(player, times(3)).activate();
+        verify(player, times(1)).deactivate();
+        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
+        verify(detector, times(1)).deactivate();
+        verify(recorder, times(1)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+
         assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
