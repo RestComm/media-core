@@ -305,6 +305,62 @@ public class PlayRecordTest {
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
+    @Test
+    public void testSuccessfulRecordingAfterNoSpeechFailure() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("eik", "#");
+        parameters.put("rlt", "100");
+        parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
+        parameters.put("sa", "success1.wav,success2.wav,success3.wav");
+        parameters.put("na", "2");
+        
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pr.observe(observer);
+        pr.execute();
+        
+        // no speech
+        RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.NO_SPEECH);
+        pr.recorderListener.process(recorderStop);
+        
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        
+        // restart
+        recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.SUCCESS);
+        pr.recorderListener.process(recorderStop);
+        
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        
+        // then
+        verify(detector, times(2)).activate();
+        verify(recorder, times(2)).activate();
+        verify(player, times(6)).activate();
+        verify(detector, times(2)).deactivate();
+        verify(recorder, times(2)).deactivate();
+        verify(player, times(2)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
+        assertEquals("false", eventCaptor.getValue().getParameter("vi"));
+        assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
+    }
+
     public void testPlayRecordWithEndInputKey() {
         // given
         final Map<String, String> parameters = new HashMap<>(5);

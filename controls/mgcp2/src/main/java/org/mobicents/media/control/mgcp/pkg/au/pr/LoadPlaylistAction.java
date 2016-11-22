@@ -42,11 +42,36 @@ public class LoadPlaylistAction extends AnonymousAction<PlayRecordFsm, PlayRecor
     @Override
     public void execute(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context,
             PlayRecordFsm stateMachine) {
-        final Playlist prompt = context.getInitialPrompt();
-        if (prompt.isEmpty()) {
-            stateMachine.fire(PlayRecordEvent.NO_PROMPT, context);
+        // Initial event. Play initial prompt, if any.
+        if(event == null) {
+            final Playlist prompt = context.getInitialPrompt();
+            if (prompt.isEmpty()) {
+                stateMachine.fire(PlayRecordEvent.NO_PROMPT, context);
+            } else {
+                stateMachine.fire(PlayRecordEvent.PROMPT, context);
+            }
         } else {
-            stateMachine.fire(PlayRecordEvent.PROMPT, context);
+            switch (event) {
+                case PROMPT:
+                    final Playlist prompt = context.getInitialPrompt();
+                    if (prompt.isEmpty()) {
+                        stateMachine.fire(PlayRecordEvent.NO_PROMPT, context);
+                    } else {
+                        stateMachine.fire(PlayRecordEvent.PROMPT, context);
+                    }
+                    break;
+
+                case NO_SPEECH:
+                    final Playlist noSpeechReprompt = context.getNoSpeechReprompt();
+                    if (noSpeechReprompt.isEmpty()) {
+                        stateMachine.fire(PlayRecordEvent.NO_PROMPT, context);
+                    } else {
+                        stateMachine.fire(PlayRecordEvent.NO_SPEECH, context);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

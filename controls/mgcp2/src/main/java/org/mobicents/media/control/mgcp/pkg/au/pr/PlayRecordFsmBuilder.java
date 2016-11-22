@@ -67,10 +67,10 @@ public class PlayRecordFsmBuilder {
         this.builder.transition().from(PlayRecordState.REPROMPTING).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.PROMPT_END);
         this.builder.onExit(PlayRecordState.REPROMPTING).callMethod("exitReprompting");
 
-        this.builder.onEntry(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("enterNoSpeechPrompting");
-        this.builder.internalTransition().within(PlayRecordState.NO_SPEECH_PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onNoSpeechprompting");
+        this.builder.onEntry(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("enterNoSpeechReprompting");
+        this.builder.internalTransition().within(PlayRecordState.NO_SPEECH_PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onNoSpeechReprompting");
         this.builder.transition().from(PlayRecordState.NO_SPEECH_PROMPTING).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.PROMPT_END);
-        this.builder.onExit(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("exitNoSpeechPrompting");
+        this.builder.onExit(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("exitNoSpeechReprompting");
 
 //        this.builder.onEntry(PlayRecordState.COLLECT_RECORD).callMethod("enterCollectRecord");
         this.builder.defineParallelStatesOn(PlayRecordState.COLLECT_RECORD, PlayRecordState.RECORD, PlayRecordState.COLLECT);
@@ -116,6 +116,7 @@ public class PlayRecordFsmBuilder {
         this.builder.onEntry(PlayRecordState.FAILING).callMethod("enterFailing");
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PROMPT);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.FAILED).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.NO_SPEECH);
         this.builder.onExit(PlayRecordState.FAILING).callMethod("exitFailing");
 
         this.builder.onEntry(PlayRecordState.PLAYING_FAILURE).callMethod("enterPlayingFailure");

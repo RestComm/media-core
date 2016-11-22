@@ -23,6 +23,9 @@ package org.mobicents.media.control.mgcp.pkg.au.pr;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
@@ -103,6 +106,20 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             // TODO create transition from PROMPTING to FAILED
         }
     }
+    
+    private void deleteRecording() {
+        try {
+            Path path = Paths.get(context.getRecordId());
+            if(Files.exists(path)) {
+                Files.delete(path);
+            }
+            if(log.isTraceEnabled()) {
+                log.trace("Deleted temporary recording file before restart.");
+            }
+        } catch (IOException e) {
+            log.warn("Failed to delete temporary recording file before restart.", e);
+        }
+    }
 
     @Override
     public void enterLoadingPlaylist(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
@@ -158,6 +175,55 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
     public void exitPrompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
         if (log.isTraceEnabled()) {
             log.trace("Exited PROMPTING state");
+        }
+
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
+    }
+    
+    @Override
+    public void enterNoSpeechReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
+            PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered NO SPEECH REPROMPTING state");
+        }
+
+        final Playlist prompt = context.getNoSpeechReprompt();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(prompt.next(), 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayRecordEvent.FAIL, context);
+        }
+        
+    }
+    
+    @Override
+    public void onNoSpeechReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
+            PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("On NO SPEECH REPROMPTING state");
+        }
+
+        final Playlist prompt = context.getNoSpeechReprompt();
+        final String next = prompt.next();
+
+        if (next.isEmpty()) {
+            // No more announcements to play
+            fire(PlayRecordEvent.PROMPT_END, context);
+        } else {
+            playAnnouncement(next, 10 * 100);
+        }
+        
+    }
+    
+    @Override
+    public void exitNoSpeechReprompting(PlayRecordState from, PlayRecordState to, PlayRecordEvent event,
+            PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Exited NO SPEECH REPROMPTING state");
         }
 
         this.player.removeListener(this.playerListener);
@@ -347,25 +413,31 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Entered FAILING state");
         }
         
-        switch (event) {
-            case MAX_DURATION_EXCEEDED:
-                context.setReturnCode(ReturnCode.SPOKE_TOO_LONG.code());
-                break;
-                
-            case NO_SPEECH:
-                context.setReturnCode(ReturnCode.NO_SPEECH.code());
-                break;
-
-            default:
-                context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
-                break;
-        }
-        
-        final Playlist playlist = context.getFailureAnnouncement();
-        if(playlist.isEmpty()) {
-            fire(PlayRecordEvent.NO_PROMPT, context);
+        if(context.hasMoreAttempts()) {
+            context.newAttempt();
+            deleteRecording();
+            fire(PlayRecordEvent.NO_SPEECH, context);
         } else {
-            fire(PlayRecordEvent.PROMPT, context);
+            switch (event) {
+                case MAX_DURATION_EXCEEDED:
+                    context.setReturnCode(ReturnCode.SPOKE_TOO_LONG.code());
+                    break;
+                    
+                case NO_SPEECH:
+                    context.setReturnCode(ReturnCode.NO_SPEECH.code());
+                    break;
+
+                default:
+                    context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+                    break;
+            }
+            
+            final Playlist playlist = context.getFailureAnnouncement();
+            if(playlist.isEmpty()) {
+                fire(PlayRecordEvent.NO_PROMPT, context);
+            } else {
+                fire(PlayRecordEvent.PROMPT, context);
+            }
         }
     }
     
