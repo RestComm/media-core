@@ -296,6 +296,10 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
         }
 
         // TODO Make decision when DTMF is collected
+        final char tone = context.getTone();
+        if(context.getRestartKey() == tone) {
+            fire(PlayRecordEvent.RESTART, context);
+        }
 
     }
 
@@ -469,6 +473,10 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
                     
                 case NO_SPEECH:
                     context.setReturnCode(ReturnCode.NO_SPEECH.code());
+                    break;
+                    
+                case RESTART:
+                    context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
                     break;
 
                 default:

@@ -49,7 +49,7 @@ public class LoadPlaylistAction extends AnonymousAction<PlayRecordFsm, PlayRecor
             }
         } else {
             switch (event) {
-                case PROMPT:
+                case RESTART:
                     final Playlist prompt = context.getInitialPrompt();
                     if (prompt.isEmpty()) {
                         stateMachine.fire(PlayRecordEvent.NO_PROMPT, context);
