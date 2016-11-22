@@ -43,6 +43,7 @@ import org.mobicents.media.server.impl.resource.audio.RecorderEventImpl;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfEventImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerEvent;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
+import org.mobicents.media.server.spi.format.audio.DTMFFormat;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerEvent;
 import org.mobicents.media.server.spi.recorder.Recorder;
@@ -610,6 +611,43 @@ public class PlayRecordTest {
 
         assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
+    }
+    
+    @Test
+    public void testStopKey() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("stk", "*");
+        parameters.put("rlt", "100");
+
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+
+        pr.observe(observer);
+        pr.execute();
+
+        pr.detectorListener.process(new DtmfEventImpl(detector, "*", 0));
+
+        // then
+        verify(detector, times(1)).activate();
+        verify(recorder, times(1)).activate();
+        verify(player, never()).activate();
+        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
+        verify(detector, times(1)).deactivate();
+        verify(recorder, times(1)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+
+        assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals("false", eventCaptor.getValue().getParameter("vi"));
+        assertEquals("RE0001", eventCaptor.getValue().getParameter("ri"));
     }
 
 }

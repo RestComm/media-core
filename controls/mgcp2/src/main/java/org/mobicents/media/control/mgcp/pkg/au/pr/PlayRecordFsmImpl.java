@@ -301,6 +301,8 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             fire(PlayRecordEvent.RESTART, context);
         } else if(context.getReinputKey() == tone) {
             fire(PlayRecordEvent.REINPUT, context);
+        } else if(context.getStopKey() == tone) {
+            fire(PlayRecordEvent.END_RECORD, context);
         }
     }
 
