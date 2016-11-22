@@ -187,7 +187,7 @@ public class PlayRecord extends AbstractMgcpSignal {
         public void process(RecorderEvent event) {
             switch (event.getID()) {
                 case RecorderEvent.SPEECH_DETECTED:
-//                    fsm.fire(PlayRecordEvent.SPEECH_DETECTED, PlayRecord.this.context);
+                    context.setSpeechDetected(true);
                     break;
 
                 case RecorderEvent.STOP:

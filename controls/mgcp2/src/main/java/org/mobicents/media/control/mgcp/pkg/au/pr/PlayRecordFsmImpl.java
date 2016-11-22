@@ -377,6 +377,27 @@ public class PlayRecordFsmImpl extends AbstractStateMachine<PlayRecordFsm, PlayR
             log.trace("Entered RECORDED state");
         }
     }
+    
+    @Override
+    public void enterCanceled(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered CANCELED state");
+        }
+        
+        if(context.isSpeechDetected()) {
+            fire(PlayRecordEvent.SUCCEED, context);
+        } else {
+            context.setReturnCode(ReturnCode.NO_SPEECH.code());
+            fire(PlayRecordEvent.FAIL, context);
+        }
+    }
+    
+    @Override
+    public void exitCanceled(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Exited CANCELED state");
+        }
+    }
 
     @Override
     public void enterSucceeding(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context) {

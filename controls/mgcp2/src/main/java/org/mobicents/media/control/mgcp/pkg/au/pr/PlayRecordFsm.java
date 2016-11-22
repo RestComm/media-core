@@ -67,6 +67,10 @@ public interface PlayRecordFsm extends StateMachine<PlayRecordFsm, PlayRecordSta
 
     void enterRecorded(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
+    void enterCanceled(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
+    void exitCanceled(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
+
     void enterSucceeding(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);
 
     void exitSucceeding(PlayRecordState from, PlayRecordState to, PlayRecordEvent event, PlayRecordContext context);

@@ -31,6 +31,7 @@ import org.mobicents.media.server.spi.recorder.RecorderListener;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
+import org.squirrelframework.foundation.fsm.TransitionPriority;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -55,16 +56,19 @@ public class PlayRecordFsmBuilder {
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.REPROMPTING).on(PlayRecordEvent.REPROMPT);
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.NO_SPEECH_PROMPTING).on(PlayRecordEvent.NO_SPEECH);
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.LOADING_PLAYLIST).callMethod("exitLoadingPlaylist");
 
         this.builder.onEntry(PlayRecordState.PROMPTING).callMethod("enterPrompting");
         this.builder.internalTransition().within(PlayRecordState.PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPrompting");
         this.builder.transition().from(PlayRecordState.PROMPTING).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.PROMPT_END);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.PROMPTING).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PROMPTING).callMethod("exitPrompting");
 
         this.builder.onEntry(PlayRecordState.REPROMPTING).callMethod("enterReprompting");
         this.builder.internalTransition().within(PlayRecordState.REPROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onReprompting");
         this.builder.transition().from(PlayRecordState.REPROMPTING).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.PROMPT_END);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.REPROMPTING).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.REPROMPTING).callMethod("exitReprompting");
 
         this.builder.onEntry(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("enterNoSpeechReprompting");
@@ -80,7 +84,7 @@ public class PlayRecordFsmBuilder {
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.RESTART);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.MAX_DURATION_EXCEEDED);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.NO_SPEECH);
-        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
 //        this.builder.onExit(PlayRecordState.COLLECT_RECORD).callMethod("exitCollectRecord");
 
         this.builder.defineSequentialStatesOn(PlayRecordState.COLLECT, PlayRecordState.COLLECTING, PlayRecordState.COLLECTED);
@@ -99,25 +103,27 @@ public class PlayRecordFsmBuilder {
         this.builder.onEntry(PlayRecordState.RECORDED).callMethod("enterRecorded");
         
         this.builder.onEntry(PlayRecordState.CANCELED).callMethod("enterCanceled");
-        this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
-        this.builder.transition().from(PlayRecordState.CANCELED).to(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
+        this.builder.transition().from(PlayRecordState.CANCELED).toFinal(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.SUCCEED);
+        this.builder.transition().from(PlayRecordState.CANCELED).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.FAIL);
+        this.builder.onExit(PlayRecordState.CANCELED).callMethod("exitCanceled");
         
         this.builder.onEntry(PlayRecordState.SUCCEEDING).callMethod("enterSucceeding");
         this.builder.transition().from(PlayRecordState.SUCCEEDING).to(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.PROMPT);
-        this.builder.transition().from(PlayRecordState.SUCCEEDING).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.transition().from(PlayRecordState.SUCCEEDING).toFinal(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.SUCCEEDING).toFinal(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.SUCCEEDING).callMethod("exitSucceeding");
         
         this.builder.onEntry(PlayRecordState.SUCCEEDED).callMethod("enterSucceeded");
 
         this.builder.onEntry(PlayRecordState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
         this.builder.internalTransition().within(PlayRecordState.PLAYING_SUCCESS).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPlayingSuccess");
-        this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.PROMPT_END);
-        this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).to(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
+        this.builder.transition().from(PlayRecordState.PLAYING_SUCCESS).toFinal(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.PROMPT_END);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.PLAYING_SUCCESS).toFinal(PlayRecordState.SUCCEEDED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
 
         this.builder.onEntry(PlayRecordState.FAILING).callMethod("enterFailing");
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.PROMPT);
-        this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.FAILED).on(PlayRecordEvent.NO_PROMPT);
+        this.builder.transition().from(PlayRecordState.FAILING).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.NO_PROMPT);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.REINPUT);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.RESTART);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.NO_SPEECH);
@@ -126,8 +132,8 @@ public class PlayRecordFsmBuilder {
 
         this.builder.onEntry(PlayRecordState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
         this.builder.internalTransition().within(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPlayingFailure");
-        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.FAILED).on(PlayRecordEvent.PROMPT_END);
-        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).to(PlayRecordState.FAILED).on(PlayRecordEvent.CANCEL);
+        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.PROMPT_END);
+        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
 
         this.builder.onEntry(PlayRecordState.FAILED).callMethod("enterFailed");

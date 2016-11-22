@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.pkg.au.pr;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.mobicents.media.control.mgcp.pkg.au.Playlist;
@@ -47,8 +49,8 @@ public class PlayRecordContext {
     // Runtime data
     private char tone;
     private int attempt;
-    private boolean canceled;
     private int returnCode;
+    private boolean speechDetected;
 
     public PlayRecordContext(Map<String, String> parameters) {
         // Signal Parameters
@@ -64,8 +66,8 @@ public class PlayRecordContext {
         // Runtime Data
         this.returnCode = 0;
         this.attempt = 1;
-        this.canceled = false;
         this.tone = ' ';
+        this.speechDetected = false;
     }
 
     /*
@@ -176,6 +178,14 @@ public class PlayRecordContext {
      */
     public String getRecordId() {
         return getParameter(SignalParameters.RECORD_ID.symbol());
+    }
+    
+    /**
+     * Gets whether the recording file exists in the file system.
+     * @return
+     */
+    public boolean hasRecording() {
+        return Files.exists(Paths.get(getRecordId()));
     }
 
     /**
@@ -379,13 +389,13 @@ public class PlayRecordContext {
     protected void setReturnCode(int returnCode) {
         this.returnCode = returnCode;
     }
-
-    public boolean isCanceled() {
-        return canceled;
+    
+    public boolean isSpeechDetected() {
+        return speechDetected;
     }
-
-    protected void cancel() {
-        this.canceled = true;
+    
+    public void setSpeechDetected(boolean speechDetected) {
+        this.speechDetected = speechDetected;
     }
 
     /**
@@ -399,6 +409,7 @@ public class PlayRecordContext {
         this.successAnnouncement.rewind();
         this.failureAnnouncement.rewind();
         this.tone = ' ';
+        this.speechDetected = false;
     }
 
 }
