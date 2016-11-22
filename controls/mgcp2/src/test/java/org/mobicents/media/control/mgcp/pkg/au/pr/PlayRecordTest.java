@@ -618,7 +618,7 @@ public class PlayRecordTest {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ri", "RE0001");
-        parameters.put("stk", "*");
+        parameters.put("eik", "*");
         parameters.put("rlt", "100");
 
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
