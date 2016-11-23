@@ -2,6 +2,24 @@
 ## Description: Configures the Logger of the Media Server.
 ## Author: Henrique Rosa (henrique.rosa@telestax.com)
 
+patchPath() {
+    if [[ "$1" = /* ]]; then
+        echo "$1"
+    else
+        echo $MS_HOME/$1
+    fi
+}
+
+configLogPath() {
+    local log_path=${1-log/server.log}
+
+    echo "Setting LOG FILE PATH to $(patchPath $log_path)"
+
+    xmlstarlet ed --inplace --pf \
+        -u "/log4j:configuration/appender[@name='FILE']/param[@name='File']/@value" -v "$(patchPath $log_path)" \
+        $MS_HOME/conf/log4j.xml
+}
+
 getAppenders() {
     ( set -o posix ; set ) | grep LOG_APPENDER_ | sed -e 's|LOG_APPENDER_\(.*\)=.*|\1|'
 }
@@ -58,5 +76,6 @@ formatFile() {
 
 configAppenders
 configCategories
+configLogPath $LOG_FILE_URL
 formatFile
 
