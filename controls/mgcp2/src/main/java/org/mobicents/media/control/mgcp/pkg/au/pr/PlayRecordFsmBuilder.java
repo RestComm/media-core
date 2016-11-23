@@ -126,12 +126,13 @@ public class PlayRecordFsmBuilder {
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.RESTART);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.NO_SPEECH);
         this.builder.transition().from(PlayRecordState.FAILING).to(PlayRecordState.LOADING_PLAYLIST).on(PlayRecordEvent.MAX_DURATION_EXCEEDED);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.FAILING).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.FAILING).callMethod("exitFailing");
 
         this.builder.onEntry(PlayRecordState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
         this.builder.internalTransition().within(PlayRecordState.PLAYING_FAILURE).on(PlayRecordEvent.NEXT_TRACK).callMethod("onPlayingFailure");
         this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.PROMPT_END);
-        this.builder.transition().from(PlayRecordState.PLAYING_FAILURE).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.CANCEL);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.PLAYING_FAILURE).toFinal(PlayRecordState.FAILED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
 
         this.builder.onEntry(PlayRecordState.FAILED).callMethod("enterFailed");
