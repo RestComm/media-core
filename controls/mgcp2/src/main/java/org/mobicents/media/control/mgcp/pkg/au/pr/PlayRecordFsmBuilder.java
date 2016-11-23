@@ -49,7 +49,7 @@ public class PlayRecordFsmBuilder {
                 MgcpEventSubject.class, Recorder.class, RecorderListener.class, DtmfDetector.class, DtmfDetectorListener.class,
                 Player.class, PlayerListener.class, PlayRecordContext.class);
 
-        this.builder.defineFinishEvent(PlayRecordEvent.EVALUATE);
+        this.builder.defineFinishEvent(PlayRecordEvent.RECORD_SUCCESS);
         
         this.builder.onEntry(PlayRecordState.LOADING_PLAYLIST).perform(LoadPlaylistAction.INSTANCE);
         this.builder.transition().from(PlayRecordState.LOADING_PLAYLIST).to(PlayRecordState.PROMPTING).on(PlayRecordEvent.PROMPT);
@@ -78,7 +78,7 @@ public class PlayRecordFsmBuilder {
         this.builder.onExit(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("exitNoSpeechReprompting");
 
         this.builder.defineParallelStatesOn(PlayRecordState.COLLECT_RECORD, PlayRecordState.RECORD, PlayRecordState.COLLECT);
-        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.SUCCEEDING).on(PlayRecordEvent.EVALUATE);
+        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.SUCCEEDING).on(PlayRecordEvent.RECORD_SUCCESS);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.REINPUT);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.RESTART);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.MAX_DURATION_EXCEEDED);
