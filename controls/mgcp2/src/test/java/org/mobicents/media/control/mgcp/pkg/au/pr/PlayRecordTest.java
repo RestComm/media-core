@@ -939,6 +939,48 @@ public class PlayRecordTest {
         assertEquals(String.valueOf(ReturnCode.NO_SPEECH.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
-
+    
+    @Test
+    public void testCancelOnNoSpeechReprompt() throws InterruptedException {
+        // given
+        final Map<String, String> parameters = new HashMap<>(5);
+        parameters.put("ri", "RE0001");
+        parameters.put("rlt", "100");
+        parameters.put("rp", "reprompt1.wav,reprompt2.wav,reprompt3.wav");
+        parameters.put("ns", "nospeech1.wav,nospeech2.wav,nospeech3.wav");
+        parameters.put("sa", "success1.wav,success2.wav,success3.wav");
+        parameters.put("na", "2");
+        
+        final MgcpEventObserver observer = mock(MgcpEventObserver.class);
+        final Recorder recorder = mock(Recorder.class);
+        final DtmfDetector detector = mock(DtmfDetector.class);
+        final Player player = mock(Player.class);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        
+        // when
+        final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
+        
+        pr.observe(observer);
+        pr.execute();
+        
+        RecorderEventImpl recorderStop = new RecorderEventImpl(RecorderEvent.STOP, recorder);
+        recorderStop.setQualifier(RecorderEvent.NO_SPEECH);
+        pr.recorderListener.process(recorderStop);
+        
+        pr.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        pr.cancel();
+        
+        // then
+        verify(detector, times(1)).activate();
+        verify(recorder, times(1)).activate();
+        verify(player, times(2)).activate();
+        verify(detector, times(1)).deactivate();
+        verify(recorder, times(1)).deactivate();
+        verify(player, times(1)).deactivate();
+        verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
+        
+        assertEquals(String.valueOf(ReturnCode.NO_SPEECH.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
+    }
 
 }

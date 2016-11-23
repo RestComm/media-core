@@ -74,18 +74,16 @@ public class PlayRecordFsmBuilder {
         this.builder.onEntry(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("enterNoSpeechReprompting");
         this.builder.internalTransition().within(PlayRecordState.NO_SPEECH_PROMPTING).on(PlayRecordEvent.NEXT_TRACK).callMethod("onNoSpeechReprompting");
         this.builder.transition().from(PlayRecordState.NO_SPEECH_PROMPTING).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.PROMPT_END);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.NO_SPEECH_PROMPTING).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
         this.builder.onExit(PlayRecordState.NO_SPEECH_PROMPTING).callMethod("exitNoSpeechReprompting");
 
-//        this.builder.onEntry(PlayRecordState.COLLECT_RECORD).callMethod("enterCollectRecord");
         this.builder.defineParallelStatesOn(PlayRecordState.COLLECT_RECORD, PlayRecordState.RECORD, PlayRecordState.COLLECT);
-//        this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.COLLECT_RECORD).on(PlayRecordEvent.REINPUT).perform(DeleteRecordAction.INSTANCE);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.SUCCEEDING).on(PlayRecordEvent.EVALUATE);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.REINPUT);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.RESTART);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.MAX_DURATION_EXCEEDED);
         this.builder.transition().from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.FAILING).on(PlayRecordEvent.NO_SPEECH);
         this.builder.transition(TransitionPriority.HIGHEST).from(PlayRecordState.COLLECT_RECORD).to(PlayRecordState.CANCELED).on(PlayRecordEvent.CANCEL);
-//        this.builder.onExit(PlayRecordState.COLLECT_RECORD).callMethod("exitCollectRecord");
 
         this.builder.defineSequentialStatesOn(PlayRecordState.COLLECT, PlayRecordState.COLLECTING, PlayRecordState.COLLECTED);
         this.builder.onEntry(PlayRecordState.COLLECTING).callMethod("enterCollecting");
