@@ -15,6 +15,7 @@ loadConfigurationParams() {
     # load default configuration files
     source $MS_HOME/mediaserver.conf
     source $MS_HOME/logger.conf
+    source $MS_HOME/ssl.conf
 
     # load file to override configuration (if any)
     if [ -n "$override_conf" ]; then
