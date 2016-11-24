@@ -24,7 +24,10 @@ loadConfigurationParams() {
 }
 
 configureMediaServer() {
+    # Configure media server
     source $MS_HOME/.autoconfig/autoconfigure.sh
+    # Set permissions of run script because it may have been overwritten by commands like sed
+    chmod 755 $MS_HOME/bin/run.sh
 }
 
 startMediaServer() {

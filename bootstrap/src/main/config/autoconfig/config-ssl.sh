@@ -5,7 +5,7 @@
 configSsl() {
     local config_file=$MS_HOME/bin/run.sh
     local ssl_enabled=${1-false}
-    local ssl_keystore=$2
+    local ssl_keystore=$(patchPath "$2")
     local ssl_password=$3
 
     # Enable or disable SSL
@@ -16,7 +16,7 @@ configSsl() {
         mv $config_file.bak $config_file
     else
         sed -e "/# SSL Configuration/ {
-            N; s|JAVA_OPTS=|#JAVA_OPTS=|
+            n; s|^JAVA_OPTS=|#JAVA_OPTS=|
         }" $config_file > $config_file.bak
         mv $config_file.bak $config_file
     fi
