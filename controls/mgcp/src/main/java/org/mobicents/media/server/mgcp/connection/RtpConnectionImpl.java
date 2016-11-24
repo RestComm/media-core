@@ -42,6 +42,7 @@ import org.mobicents.media.server.io.sdp.rtcp.attributes.RtcpAttribute;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionFailureListener;
 import org.mobicents.media.server.spi.ConnectionMode;
+import org.mobicents.media.server.spi.ConnectionState;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ModeNotSupportedException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
@@ -151,20 +152,54 @@ public class RtpConnectionImpl extends BaseConnection implements RtpListener, Po
 	@Override
 	public void setOtherParty(byte[] descriptor) throws IOException {
 		try {
-			this.remoteSdp = SessionDescriptionParser.parse(new String(
-					descriptor));
-			setOtherParty();
+			this.remoteSdp = SessionDescriptionParser.parse(new String(descriptor));
+			if(ConnectionState.OPEN.equals(getState())) {
+			    renegotiateSession();
+			} else {
+			    setOtherParty();
+			}
 		} catch (SdpException e) {
 			throw new IOException(e);
 		}
 	}
 
-	@Override
+    @Override
 	public void setOtherParty(Text descriptor) throws IOException {
 		setOtherParty(descriptor.toString().getBytes());
 	}
 
-	/**
+    private void renegotiateSession() throws IOException {
+        MediaDescriptionField remoteAudio = this.remoteSdp.getMediaDescription("audio");
+
+        // Negotiate audio codecs
+        this.audioChannel.negotiateFormats(remoteAudio);
+        if (!this.audioChannel.containsNegotiatedFormats()) {
+            throw new IOException("Audio codecs were not supported");
+        }
+
+        // Generate SDP answer
+        String bindAddress = this.local ? this.channelsManager.getLocalBindAddress() : this.channelsManager.getBindAddress();
+        String externalAddress = this.channelsManager.getUdpManager().getExternalAddress();
+        this.localSdp = SdpFactory.buildSdp(false, bindAddress, externalAddress, this.audioChannel);
+
+        // Reject any channels other than audio
+        MediaDescriptionField remoteVideo = this.remoteSdp.getMediaDescription("video");
+        if (remoteVideo != null) {
+            SdpFactory.rejectMediaField(this.localSdp, remoteVideo);
+        }
+
+        MediaDescriptionField remoteApplication = this.remoteSdp.getMediaDescription("application");
+        if (remoteApplication != null) {
+            SdpFactory.rejectMediaField(this.localSdp, remoteApplication);
+        }
+
+        // Connect to new remote address
+        String remoteAddr = remoteAudio.getConnection().getAddress();
+        this.audioChannel.connectRtp(remoteAddr, remoteAudio.getPort());
+        this.audioChannel.connectRtcp(remoteAddr, remoteAudio.getRtcpPort());
+    }
+
+    /**
 	 * Sets the remote peer based on the received remote SDP description.
 	 * 
 	 * <p>
