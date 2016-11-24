@@ -472,6 +472,7 @@ homebrew install tmux
 |mediaserver.conf|Configuration file containing the list of parameters used to configure the Media Server.
 Users must override the values of this file according to their preferences and environment.
 |logger.conf|Configuration file containing the list of appenders and categories to configure the Logger.
+|ssl.conf|Configuration file containing the list of parameters used to configure SSL.
 |start-mediaserver.sh| Shell script that auto-configures the Media Server and bootstraps the Media Server. Loads values from _mediaserver.conf_ file.
 Initiates a new session on tmux named _mediaserver_.
 |stop-mediaserver.sh| Shell script that stops the Media Server.
@@ -485,6 +486,7 @@ Kills the active tmux session named _mediaserver_.
 |.autoconfig/autoconfig.d/config-dtls.sh|Script responsible for configuring DTLS aspects of the Media Server.
 |.autoconfig/autoconfig.d/config-logger.sh|Script responsible for configuring the Logger of the Media Server.
 |.autoconfig/autoconfig.d/config-java-opts.sh|Script responsible for configuring the JAVA_OPTS of the Media Server process.
+|.autoconfig/autoconfig.d/config-ssl.sh|Script responsible for configuring SSL.
 |.autoconfig/autoconfigure.sh|Script responsible for invoking all configuration scripts within autoconfig.d directory.
 |.autoconfig/verify-dependencies.sh|Script responsible for verifying if all dependencies are installed in the system. Interrupts auto-configuration process if not all requirements are met.
 ||
@@ -514,6 +516,8 @@ Note that even though DEBUG traces are enabled for RTP stack, the Console and Fi
 LOG_APPENDER_CONSOLE=INFO
 LOG_APPENDER_FILE=INFO
 
+LOG_FILE_URL=log/server.log
+
 # Categories
 LOG_CATEGORY_RTP='org.mobicents.media.server.impl.rtp:DEBUG'
 ----
@@ -525,6 +529,50 @@ If the user wished to, for example, define a logging threshold for the MGCP stac
 ----
 LOG_CATEGORY_MGCP='org.mobicents.media.server.mgcp:DEBUG'
 ----
+
+The user can also edit the *LOG_FILE_URL* parameter to define the location of the Media Server's log file.
+
+[NOTE]
+====
+*LOG_FILE_URL* can be set to use either relative or absolute URL. If relative URL is used, then the root address of the URL will be the root directory of the Media Server installation (commonly known as _MS_HOME_).
+====
+
+[[_ctms_configuring_the_media_server_automatic_ssl]]
+=== Configuring Secure Sockets Layer (SSL)
+
+**SSL** is the standard security technology for establishing an encrypted link between a web server and a browser. This link ensures that all data passed between the web server and browsers remain private and integral.
+
+To configure SSL, the user must edit the _ssl.conf_ file. The changes will take effect during bootstrap.
+
+.Configuration for SSL
+====
+[source,shell]
+----
+# Secure SSL configuration.
+SSL_ENABLED=false
+SSL_KEYSTORE=conf/ssl/keystore.jks
+SSL_PASSWORD=changeme
+----
+====
+
+The parameter *SSL_ENABLED* can assume the values `true` or `false` and dictates whether SSL is enabled or not.
+If SSL is enabled, then the user must assign the path of the KeyStore to the variable *SSL_KEYSTORE* as well as its password in *SSL_PASSWORD*.
+
+[NOTE]
+====
+*SSL_KEYSTORE* can be set to use either relative or absolute URL. If relative URL is used, then the root address of the URL will be the root directory of the Media Server installation (commonly known as _MS_HOME_).
+====
+
+Support for SSL is enabled by appending a new set of parameters to the JAVA_OPTS of the Media Server process. These definitions are present in the script `MS_HOME/bin/run.sh`.
+
+.SSL configuration in JAVA_OPTS
+====
+[source,shell]
+----
+# SSL Configuration
+JAVA_OPTS="$JAVA_OPTS -Djavax.net.ssl.trustStore=../conf/ssl/mediaserver.jks -Djavax.net.ssl.trustStorePassword=changeme"
+----
+====
 
 [[_ctms_configuring_the_media_server_automatic_running]]
 === Running

@@ -15,6 +15,7 @@ loadConfigurationParams() {
     # load default configuration files
     source $MS_HOME/mediaserver.conf
     source $MS_HOME/logger.conf
+    source $MS_HOME/ssl.conf
 
     # load file to override configuration (if any)
     if [ -n "$override_conf" ]; then
@@ -23,7 +24,10 @@ loadConfigurationParams() {
 }
 
 configureMediaServer() {
+    # Configure media server
     source $MS_HOME/.autoconfig/autoconfigure.sh
+    # Set permissions of run script because it may have been overwritten by commands like sed
+    chmod 755 $MS_HOME/bin/run.sh
 }
 
 startMediaServer() {
