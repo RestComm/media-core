@@ -3,11 +3,11 @@
 ## Author: Henrique Rosa (henrique.rosa@telestax.com)
 
 configNetwork() {
-    bind_address=${1-127.0.0.1}
-    external_address=${2-127.0.0.1}
-    network=${3-127.0.0.1}
-    subnet=${4-255.255.255.255}
-    sbc=${5-false}
+    local bind_address=${BIND_ADDRESS-127.0.0.1}
+    local external_address=$EXTERNAL_ADDRESS
+    local network=${NETWORK-127.0.0.1}
+    local subnet=${SUBNET-255.255.255.255}
+    local sbc=${USE_SBC-false}
 
     echo "Configuring Network [BindAddress=$bind_address, ExternalAddress=$external_address, Network=$network, Subnet=$subnet, Use SBC=$sbc]"
 
@@ -20,4 +20,4 @@ configNetwork() {
         $MS_HOME/conf/mediaserver.xml
 }
 
-configNetwork $BIND_ADDRESS $EXTERNAL_ADDRESS $NETWORK $SUBNET $USE_SBC
+configNetwork
