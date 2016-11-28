@@ -31,6 +31,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.mobicents.media.resources</groupId>
+			<artifactId>recorder</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.mobicents.media.client</groupId>
 			<artifactId>mgcp-driver</artifactId>
 			<version>${project.version}</version>
@@ -64,9 +69,9 @@
 			<version>${version.guava}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.squirrelframework</groupId>
+			<groupId>org.restcomm.fsm</groupId>
 			<artifactId>squirrel-foundation</artifactId>
-			<version>0.3.8</version>
+			<version>0.3.9.11</version>
 		</dependency>
 	</dependencies>
 

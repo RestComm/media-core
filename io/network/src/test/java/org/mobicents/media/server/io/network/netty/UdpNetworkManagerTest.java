@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import java.net.InetSocketAddress;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mobicents.media.server.io.network.PortManager;
 
@@ -43,6 +44,7 @@ import io.netty.channel.ChannelHandler;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
+@Ignore
 public class UdpNetworkManagerTest {
     
     private NetworkManager manager;

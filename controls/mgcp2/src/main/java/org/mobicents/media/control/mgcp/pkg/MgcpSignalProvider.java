@@ -27,8 +27,8 @@ import org.mobicents.media.control.mgcp.endpoint.MediaGroup;
 import org.mobicents.media.control.mgcp.pkg.au.AudioPackage;
 import org.mobicents.media.control.mgcp.pkg.au.AudioSignalType;
 import org.mobicents.media.control.mgcp.pkg.au.PlayAnnouncement;
-import org.mobicents.media.control.mgcp.pkg.au.PlayRecord;
 import org.mobicents.media.control.mgcp.pkg.au.pc.PlayCollect;
+import org.mobicents.media.control.mgcp.pkg.au.pr.PlayRecord;
 import org.mobicents.media.control.mgcp.pkg.exception.UnrecognizedMgcpPackageException;
 import org.mobicents.media.control.mgcp.pkg.exception.UnsupportedMgcpSignalException;
 
@@ -89,8 +89,7 @@ public class MgcpSignalProvider {
                 return new PlayCollect(mediaGroup.getPlayer(), mediaGroup.getDetector(), parameters, executor);
 
             case PLAY_RECORD:
-                // TODO provide player and recorder
-                return new PlayRecord();
+                return new PlayRecord(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getRecorder(), parameters);
 
             default:
                 throw new IllegalArgumentException("Unsupported audio signal: " + signal);

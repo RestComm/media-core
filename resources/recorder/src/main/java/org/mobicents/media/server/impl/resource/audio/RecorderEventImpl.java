@@ -78,7 +78,7 @@ public class RecorderEventImpl implements RecorderEvent {
      * 
      * @param qualifier qualifier id.
      */
-    protected void setQualifier(int qualifier) {
+    public void setQualifier(int qualifier) {
         this.qualifier = qualifier;
     }    
 }
