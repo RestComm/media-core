@@ -23,6 +23,7 @@ package org.mobicents.media.server.bootstrap.ioc;
 
 import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.media.AudioPlayerProviderProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.media.AudioRecorderProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.media.ChannelsManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.media.DtmfDetectorProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.media.MediaChannelProviderProvider;
@@ -31,6 +32,7 @@ import org.mobicents.media.server.impl.rtp.channels.MediaChannelProvider;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
 import org.mobicents.media.server.spi.player.PlayerProvider;
+import org.mobicents.media.server.spi.recorder.RecorderProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -47,6 +49,7 @@ public class MediaModule extends AbstractModule {
         bind(ChannelsManager.class).toProvider(ChannelsManagerProvider.class).in(Singleton.class);
         bind(MediaChannelProvider.class).toProvider(MediaChannelProviderProvider.class).in(Singleton.class);
         bind(PlayerProvider.class).toProvider(AudioPlayerProviderProvider.class).in(Singleton.class);
+        bind(RecorderProvider.class).toProvider(AudioRecorderProviderProvider.class).in(Singleton.class);
         bind(DtmfDetectorProvider.class).toProvider(DtmfDetectorProviderProvider.class).in(Singleton.class);
     }
 

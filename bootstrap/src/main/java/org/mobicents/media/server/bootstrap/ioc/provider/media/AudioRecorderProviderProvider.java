@@ -19,11 +19,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
+package org.mobicents.media.server.bootstrap.ioc.provider.media;
 
-import org.mobicents.media.control.mgcp.endpoint.provider.MediaGroupProvider;
-import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
-import org.mobicents.media.server.spi.player.PlayerProvider;
+import org.mobicents.media.server.impl.resource.audio.AudioRecorderProvider;
+import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.spi.recorder.RecorderProvider;
 
 import com.google.inject.Inject;
@@ -33,23 +32,19 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MediaGroupProviderProvider implements Provider<MediaGroupProvider> {
+public class AudioRecorderProviderProvider implements Provider<RecorderProvider> {
 
-    private final PlayerProvider players;
-    private final DtmfDetectorProvider detectors;
-    private final RecorderProvider recorders;
+    private final PriorityQueueScheduler scheduler;
 
     @Inject
-    public MediaGroupProviderProvider(PlayerProvider players, DtmfDetectorProvider detectors, RecorderProvider recorders) {
+    public AudioRecorderProviderProvider(PriorityQueueScheduler scheduler) {
         super();
-        this.players = players;
-        this.detectors = detectors;
-        this.recorders = recorders;
+        this.scheduler = scheduler;
     }
 
     @Override
-    public MediaGroupProvider get() {
-        return new MediaGroupProvider(this.players, this.detectors, this.recorders);
+    public RecorderProvider get() {
+        return new AudioRecorderProvider(this.scheduler);
     }
 
 }

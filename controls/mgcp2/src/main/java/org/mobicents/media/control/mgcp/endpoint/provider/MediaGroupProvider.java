@@ -27,6 +27,7 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorProvider;
 import org.mobicents.media.server.spi.player.PlayerProvider;
+import org.mobicents.media.server.spi.recorder.RecorderProvider;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -36,14 +37,16 @@ public class MediaGroupProvider {
 
     private final PlayerProvider players;
     private final DtmfDetectorProvider detectors;
+    private final RecorderProvider recorders;
 
-    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors) {
+    public MediaGroupProvider(PlayerProvider players, DtmfDetectorProvider detectors, RecorderProvider recorders) {
         this.players = players;
         this.detectors = detectors;
+        this.recorders = recorders;
     }
 
     public MediaGroup provide() {
-        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, detectors);
+        return new MediaGroupImpl(new AudioComponent(0), new OOBComponent(0), players, recorders, detectors);
     }
 
 }
