@@ -142,7 +142,7 @@ public class PlayRecordFsmBuilder {
             DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener,
             PlayRecordContext context) {
         return this.builder.newStateMachine(PlayRecordState.LOADING_PLAYLIST,
-                StateMachineConfiguration.getInstance().enableDebugMode(true), mgcpEventSubject, recorder, recorderListener,
+                StateMachineConfiguration.getInstance().enableDebugMode(false), mgcpEventSubject, recorder, recorderListener,
                 detector, detectorListener, player, playerListener, context);
     }
 
