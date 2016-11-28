@@ -457,7 +457,6 @@ public class PlayRecordTest {
         verify(recorder, times(2)).activate();
         verify(player, times(6)).activate();
         verify(player, times(2)).deactivate();
-        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
         verify(detector, times(2)).deactivate();
         verify(recorder, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -505,7 +504,6 @@ public class PlayRecordTest {
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
         verify(player, times(1)).deactivate();
-        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
         verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -555,7 +553,6 @@ public class PlayRecordTest {
         verify(recorder, times(2)).activate();
         verify(player, times(3)).activate();
         verify(player, times(1)).deactivate();
-        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
         verify(detector, times(2)).deactivate();
         verify(recorder, times(2)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -603,7 +600,6 @@ public class PlayRecordTest {
         verify(recorder, times(1)).activate();
         verify(player, times(3)).activate();
         verify(player, times(1)).deactivate();
-        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
         verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -638,7 +634,6 @@ public class PlayRecordTest {
         verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, never()).activate();
-        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
         verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
@@ -674,7 +669,6 @@ public class PlayRecordTest {
         verify(detector, times(1)).activate();
         verify(recorder, times(1)).activate();
         verify(player, never()).activate();
-        // TODO Bug in Squirrel invokes exitCollecting and exitRecording an extra time, so next validations will fail
         verify(detector, times(1)).deactivate();
         verify(recorder, times(1)).deactivate();
         verify(observer, timeout(100)).onEvent(eq(pr), eventCaptor.capture());
