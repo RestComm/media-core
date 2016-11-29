@@ -1,0 +1,47 @@
+[plantuml,file="mgcp-playcollect-state.png"]
+--
+state PlayCollect {
+[*] --> LoadingPlaylist
+LoadingPlaylist --> Prompting : prompt
+LoadingPlaylist --> Reprompting : reprompt
+LoadingPlaylist --> NoDigitsReprompting : no_digits
+LoadingPlaylist --> Prompted : no_prompt
+Prompting --> Prompted : end_prompt
+Prompting --> Prompting : next_track
+Reprompting --> Prompted : end_prompt
+Reprompting --> Reprompting : next_track
+NoDigitsReprompting --> Prompted : end_prompt
+NoDigitsReprompting --> NoDigitsReprompting : next_track
+Prompted --> [*]
+||
+[*] --> Collecting
+Collecting --> Collecting : dtmf_tone
+Collecting --> Collected : end_collect
+Collected --> [*]
+}
+
+[*] -down-> PlayCollect
+PlayCollect -down-> Evaluating : evaluate/timeout/restart/reinput
+PlayCollect --> Canceled : cancel
+
+Evaluating -up-> PlayCollect : collect/reprompt/no_digits
+Evaluating -down-> Failing : no_digits/pattern_mismatch/max_attempts
+Evaluating -down-> Canceled : cancel
+Evaluating -down-> Succeeding : succeed
+
+Failing -down-> PlayingFailure : prompt
+Failing -down-> Failed : no_prompt/cancel
+PlayingFailure --> PlayingFailure : next_track
+PlayingFailure -down-> Failed : end_prompt/cancel
+
+Succeeding -down-> PlayingSuccess : prompt
+Succeeding -down-> Succeeded : no_prompt/cancel
+PlayingSuccess --> PlayingSuccess : next_track
+PlayingSuccess -down-> Succeeded : end_prompt/cancel
+
+Canceled -down-> Succeeded : succeed
+Canceled -down-> Failed : fail
+
+Succeeded --> [*]
+Failed --> [*]
+--
