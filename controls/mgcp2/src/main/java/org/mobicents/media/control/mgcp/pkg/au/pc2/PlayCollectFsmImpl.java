@@ -103,6 +103,24 @@ public class PlayCollectFsmImpl extends
             // TODO create transition from PROMPTING to FAILED
         }
     }
+    
+    @Override
+    public void enterPlayCollect(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
+            PlayCollectContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered PLAY_COLLECT state");
+        }
+        
+    }
+    
+    @Override
+    public void exitPlayCollect(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
+            PlayCollectContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Exited PLAY_COLLECT state");
+        }
+        
+    }
 
     @Override
     public void enterLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
@@ -290,6 +308,39 @@ public class PlayCollectFsmImpl extends
     public void onCollecting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
         if (log.isTraceEnabled()) {
             log.trace("On COLLECTING state");
+        }
+
+        // Stop current prompt IF is interruptible
+        if (!context.getNonInterruptibleAudio()) {
+            // TODO check if child state PLAYING is currently active
+            fire(PlayCollectEvent.END_PROMPT, context);
+        }
+
+        final char tone = context.getLastTone();
+
+        if (context.getReinputKey() == tone) {
+            // Force collection to cancel any scheduled timeout
+            context.collectDigit(tone);
+
+            fire(PlayCollectEvent.REINPUT, context);
+        } else if (context.getRestartKey() == tone) {
+            // Force collection to cancel any scheduled timeout
+            context.collectDigit(tone);
+
+            fire(PlayCollectEvent.RESTART, context);
+        } else if (context.getEndInputKey() == tone) {
+            fire(PlayCollectEvent.END_INPUT);
+        } else {
+            // Collect tone
+            context.collectDigit(tone);
+            
+            // Stop digit collection if maximum number of digits was reached
+            if(context.countCollectedDigits() == context.getMaximumDigits()) {
+                if(log.isTraceEnabled()) {
+                    log.trace("Maximum numbers of digits. Stopping collecting operation.");
+                }
+                fire(PlayCollectEvent.END_INPUT, context);
+            }
         }
 
         // TODO Implement onCollecting

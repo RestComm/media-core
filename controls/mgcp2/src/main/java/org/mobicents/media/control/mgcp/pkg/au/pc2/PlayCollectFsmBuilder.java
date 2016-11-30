@@ -71,21 +71,24 @@ public class PlayCollectFsmBuilder {
         this.builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
         this.builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPrompting");
         this.builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
         
         this.builder.onEntry(PlayCollectState.REPROMPTING).callMethod("enterReprompting");
         this.builder.internalTransition().within(PlayCollectState.REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onReprompting");
         this.builder.transition().from(PlayCollectState.REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition().from(PlayCollectState.REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.REPROMPTING).callMethod("exitReprompting");
         
         this.builder.onEntry(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("enterNoDigitsReprompting");
         this.builder.internalTransition().within(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onNoDigitsReprompting");
         this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("exitNoDigitsReprompting");
 
         this.builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         this.builder.internalTransition().within(PlayCollectState.COLLECTING).on(PlayCollectEvent.DTMF_TONE).callMethod("onCollecting");
-        this.builder.transition().from(PlayCollectState.COLLECTING).toFinal(PlayCollectState.COLLECTED).on(PlayCollectEvent.END_COLLECT);
+        this.builder.transition().from(PlayCollectState.COLLECTING).toFinal(PlayCollectState.COLLECTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
         
         this.builder.onEntry(PlayCollectState.EVALUATING).callMethod("enterEvaluating");
@@ -121,8 +124,8 @@ public class PlayCollectFsmBuilder {
     public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,
             PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler,
             PlayCollectContext context) {
-        return builder.newStateMachine(PlayCollectState.LOADING_PLAYLIST,
-                StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player,
+        return builder.newStateMachine(PlayCollectState.PLAY_COLLECT,
+                StateMachineConfiguration.getInstance().enableDebugMode(true), detector, detectorListener, player,
                 playerListener, eventSubject, scheduler, context);
     }
 

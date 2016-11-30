@@ -29,8 +29,13 @@ import org.squirrelframework.foundation.fsm.StateMachine;
  */
 public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> {
 
-    void enterLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
+    
+    void enterPlayCollect(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
+    void exitPlayCollect(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
+
+    void enterLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
+    
     void exitLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void enterPrompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);

@@ -70,7 +70,8 @@ public class PlayCollect extends AbstractMgcpSignal {
     // Execution Context
     private final PlayCollectContext context;
 
-    public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters, ListeningScheduledExecutorService executor) {
+    public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters,
+            ListeningScheduledExecutorService executor) {
         super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, parameters);
 
         // Media Components
@@ -153,8 +154,8 @@ public class PlayCollect extends AbstractMgcpSignal {
         @Override
         public void process(DtmfEvent event) {
             final char tone = event.getTone().charAt(0);
-            final DtmfToneEvent dtmfToneEvent = DtmfToneEvent.fromTone(tone);
-            fsm.fire(dtmfToneEvent, PlayCollect.this.context);
+            context.setLastTone(tone);
+            fsm.fire(PlayCollectEvent.DTMF_TONE, PlayCollect.this.context);
         }
 
     }
