@@ -63,10 +63,9 @@ public class PlayCollectTest {
     }
 
     @Test
-    public void testPlayCollectOneDigitWithEndInputKey() throws InterruptedException {
+    public void testCollectOneDigitWithEndInputKey() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
-        parameters.put("ip", "prompt.wav");
         parameters.put("mn", "1");
         parameters.put("mx", "5");
         parameters.put("eik", "#");
@@ -83,15 +82,14 @@ public class PlayCollectTest {
         pc.observe(observer);
         pc.execute();
 
-        pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
         pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
 
         // then
         verify(detector, times(1)).activate();
         verify(detector, times(1)).deactivate();
-        verify(player, times(1)).activate();
-        verify(player, times(1)).deactivate();
+        verify(player, never()).activate();
+        verify(player, never()).deactivate();
         verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
 
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
@@ -100,12 +98,13 @@ public class PlayCollectTest {
     }
 
     @Test
-    public void testPlayCollectWithInterruptiblePrompt() throws InterruptedException {
+    public void testPlayCollectOneDigitWithEndInputKeyAndInterruptiblePrompt() throws InterruptedException {
         // given
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ip", "prompt.wav");
+        parameters.put("ni", "false");
         parameters.put("mn", "1");
-        parameters.put("mx", "1");
+        parameters.put("mx", "2");
         
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
@@ -120,16 +119,20 @@ public class PlayCollectTest {
         pc.execute();
         
         pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
+        verify(player, times(1)).deactivate();
+        pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
         
         // then
+
         verify(detector, times(1)).activate();
         verify(detector, times(1)).deactivate();
         verify(player, times(1)).activate();
         verify(player, times(1)).deactivate();
+        
         verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
         
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
-        assertEquals("5", eventCaptor.getValue().getParameter("dc"));
+        assertEquals("55", eventCaptor.getValue().getParameter("dc"));
         assertEquals("1", eventCaptor.getValue().getParameter("na"));
     }
 
@@ -139,7 +142,9 @@ public class PlayCollectTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put("ip", "prompt.wav");
         parameters.put("mn", "1");
-        parameters.put("mx", "1");
+        parameters.put("mx", "2");
+        parameters.put("eik", "#");
+        parameters.put("ni", "true");
         
         final AudioPlayerImpl player = mock(AudioPlayerImpl.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
@@ -154,7 +159,8 @@ public class PlayCollectTest {
         pc.execute();
         
         pc.detectorListener.process(new DtmfEventImpl(detector, "5", -30));
-        pc.playerListener.process(new AudioPlayerEvent(player, AudioPlayerEvent.STOP));
+        verify(player, times(0)).deactivate();
+        pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
         
         // then
         verify(detector, times(1)).activate();
