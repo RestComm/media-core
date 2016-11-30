@@ -119,6 +119,9 @@ public class PlayCollectFsmBuilder {
         this.builder.internalTransition().within(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingSuccess");
         this.builder.transition().from(PlayCollectState.PLAYING_SUCCESS).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.END_PROMPT);
         this.builder.onExit(PlayCollectState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
+
+        this.builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
+        this.builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
     }
 
     public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,

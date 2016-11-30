@@ -103,23 +103,23 @@ public class PlayCollectFsmImpl extends
             // TODO create transition from PROMPTING to FAILED
         }
     }
-    
+
     @Override
     public void enterPlayCollect(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
         if (log.isTraceEnabled()) {
             log.trace("Entered PLAY_COLLECT state");
         }
-        
+
     }
-    
+
     @Override
     public void exitPlayCollect(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
         if (log.isTraceEnabled()) {
             log.trace("Exited PLAY_COLLECT state");
         }
-        
+
     }
 
     @Override
@@ -329,14 +329,14 @@ public class PlayCollectFsmImpl extends
 
             fire(PlayCollectEvent.RESTART, context);
         } else if (context.getEndInputKey() == tone) {
-            fire(PlayCollectEvent.END_INPUT);
+            fire(PlayCollectEvent.END_INPUT, context);
         } else {
             // Collect tone
             context.collectDigit(tone);
-            
+
             // Stop digit collection if maximum number of digits was reached
-            if(context.countCollectedDigits() == context.getMaximumDigits()) {
-                if(log.isTraceEnabled()) {
+            if (context.countCollectedDigits() == context.getMaximumDigits()) {
+                if (log.isTraceEnabled()) {
                     log.trace("Maximum numbers of digits. Stopping collecting operation.");
                 }
                 fire(PlayCollectEvent.END_INPUT, context);
@@ -363,6 +363,18 @@ public class PlayCollectFsmImpl extends
             log.trace("Entered EVALUATING state");
         }
 
+        final int digitCount = context.countCollectedDigits();
+        if (digitCount == 0) {
+            // No digits were collected
+            fire(PlayCollectEvent.NO_DIGITS, context);
+        } else if (digitCount < context.getMinimumDigits()) {
+            // Minimum digits not met
+            fire(PlayCollectEvent.PATTERN_MISMATCH, context);
+        } else {
+            // Pattern validation was successful
+            fire(PlayCollectEvent.SUCCEED, context);
+        }
+
         // TODO implement EVALUATING state
     }
 
@@ -386,6 +398,28 @@ public class PlayCollectFsmImpl extends
     public void exitCanceled(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
         if (log.isTraceEnabled()) {
             log.trace("Exited CANCELED state");
+        }
+    }
+
+    @Override
+    public void enterSucceeding(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
+            PlayCollectContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered SUCCEEDING state");
+        }
+        
+        final Playlist prompt = context.getSuccessAnnouncement();
+        if(prompt.isEmpty()) {
+            fire(PlayCollectEvent.NO_PROMPT, context);
+        } else {
+            fire(PlayCollectEvent.PROMPT, context);
+        }
+    }
+
+    @Override
+    public void exitSucceeding(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered SUCCEEDING state");
         }
     }
 
@@ -450,6 +484,27 @@ public class PlayCollectFsmImpl extends
         operationComplete.setParameter("na", String.valueOf(attempt));
         operationComplete.setParameter("dc", collectedDigits);
         this.mgcpEventSubject.notify(this.mgcpEventSubject, operationComplete);
+    }
+
+    @Override
+    public void enterFailing(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Entered FAILING state");
+        }
+
+        final Playlist prompt = context.getFailureAnnouncement();
+        if(prompt.isEmpty()) {
+            fire(PlayCollectEvent.NO_PROMPT, context);
+        } else {
+            fire(PlayCollectEvent.PROMPT, context);
+        }
+    }
+
+    @Override
+    public void exitFailing(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
+        if (log.isTraceEnabled()) {
+            log.trace("Exited FAILING state");
+        }
     }
 
     @Override

@@ -69,7 +69,11 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     void enterCanceled(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void exitCanceled(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-
+    
+    void enterSucceeding(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
+    
+    void exitSucceeding(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
+    
     void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void onPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
@@ -77,7 +81,11 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     void exitPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void enterSucceeded(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-
+    
+    void enterFailing(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
+    
+    void exitFailing(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
+    
     void enterPlayingFailure(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void onPlayingFailure(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
