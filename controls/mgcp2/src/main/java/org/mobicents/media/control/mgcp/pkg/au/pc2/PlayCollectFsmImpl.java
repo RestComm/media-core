@@ -22,13 +22,18 @@
 package org.mobicents.media.control.mgcp.pkg.au.pc2;
 
 import java.net.MalformedURLException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventSubject;
+import org.mobicents.media.control.mgcp.pkg.au.OperationComplete;
+import org.mobicents.media.control.mgcp.pkg.au.OperationFailed;
+import org.mobicents.media.control.mgcp.pkg.au.Playlist;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.dtmf.DtmfDetector;
 import org.mobicents.media.server.spi.dtmf.DtmfDetectorListener;
+import org.mobicents.media.server.spi.listener.TooManyListenersException;
 import org.mobicents.media.server.spi.player.Player;
 import org.mobicents.media.server.spi.player.PlayerListener;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
@@ -39,7 +44,8 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> implements PlayCollectFsm {
+public class PlayCollectFsmImpl extends
+        AbstractStateMachine<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> implements PlayCollectFsm {
 
     private static final Logger log = Logger.getLogger(PlayCollectFsmImpl.class);
 
@@ -105,6 +111,12 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered LOADING PLAYLIST state");
         }
 
+        final Playlist prompt = context.getInitialPrompt();
+        if (prompt.isEmpty()) {
+            fire(PlayCollectEvent.NO_PROMPT, context);
+        } else {
+            fire(PlayCollectEvent.PROMPT, context);
+        }
     }
 
     @Override
@@ -113,7 +125,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if (log.isTraceEnabled()) {
             log.trace("Exited LOADING PLAYLIST state");
         }
-
     }
 
     @Override
@@ -122,6 +133,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered PROMPTING state");
         }
 
+        final Playlist prompt = context.getInitialPrompt();
+        final String track = prompt.next();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(track, 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
     }
 
     @Override
@@ -130,6 +151,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("On PROMPTING state");
         }
 
+        final Playlist prompt = context.getInitialPrompt();
+        final String track = prompt.next();
+
+        if (track.isEmpty()) {
+            // No more announcements to play
+            fire(PlayCollectEvent.END_PROMPT, context);
+        } else {
+            playAnnouncement(track, 10 * 100);
+        }
     }
 
     @Override
@@ -138,6 +168,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Exited PROMPTING state");
         }
 
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
@@ -147,6 +179,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered REPROMPTING state");
         }
 
+        final Playlist prompt = context.getReprompt();
+        final String track = prompt.next();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(track, 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
     }
 
     @Override
@@ -155,6 +197,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("On REPROMPTING state");
         }
 
+        final Playlist prompt = context.getReprompt();
+        final String track = prompt.next();
+
+        if (track.isEmpty()) {
+            // No more announcements to play
+            fire(PlayCollectEvent.END_PROMPT, context);
+        } else {
+            playAnnouncement(track, 10 * 100);
+        }
     }
 
     @Override
@@ -164,6 +215,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Exited REPROMPTING state");
         }
 
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
@@ -173,6 +226,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered NO DIGITS REPROMPTING state");
         }
 
+        final Playlist prompt = context.getNoDigitsReprompt();
+        final String track = prompt.next();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(track, 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
     }
 
     @Override
@@ -182,6 +245,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("On NO DIGITS REPROMPTING state");
         }
 
+        final Playlist prompt = context.getNoDigitsReprompt();
+        final String track = prompt.next();
+
+        if (track.isEmpty()) {
+            // No more announcements to play
+            fire(PlayCollectEvent.END_PROMPT, context);
+        } else {
+            playAnnouncement(track, 10 * 100);
+        }
     }
 
     @Override
@@ -191,6 +263,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Exited NO DIGITS REPROMPTING state");
         }
 
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
@@ -200,6 +274,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered COLLECTING state");
         }
 
+        try {
+            // Activate DTMF detector and bind listener
+            this.detector.addListener(this.detectorListener);
+            this.detector.activate();
+
+            // Activate timer for first digit
+            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
+        } catch (TooManyListenersException e) {
+            log.error("Too many DTMF listeners", e);
+        }
     }
 
     @Override
@@ -208,6 +292,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("On COLLECTING state");
         }
 
+        // TODO Implement onCollecting
     }
 
     @Override
@@ -216,6 +301,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Exited COLLECTING state");
         }
 
+        this.detector.removeListener(this.detectorListener);
+        this.detector.deactivate();
     }
 
     @Override
@@ -225,6 +312,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered EVALUATING state");
         }
 
+        // TODO implement EVALUATING state
     }
 
     @Override
@@ -232,7 +320,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if (log.isTraceEnabled()) {
             log.trace("Exited EVALUATING state");
         }
-
     }
 
     @Override
@@ -241,6 +328,7 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered CANCELED state");
         }
 
+        // TODO implement CANCELED state
     }
 
     @Override
@@ -248,7 +336,6 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
         if (log.isTraceEnabled()) {
             log.trace("Exited CANCELED state");
         }
-
     }
 
     @Override
@@ -258,6 +345,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered PLAYING SUCCESS state");
         }
 
+        final Playlist prompt = context.getSuccessAnnouncement();
+        final String track = prompt.next();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(track, 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
     }
 
     @Override
@@ -267,6 +364,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("On PLAYING SUCCESS state");
         }
 
+        final Playlist prompt = context.getSuccessAnnouncement();
+        final String track = prompt.next();
+
+        if (track.isEmpty()) {
+            // No more announcements to play
+            fire(PlayCollectEvent.END_PROMPT, context);
+        } else {
+            playAnnouncement(track, 10 * 100);
+        }
     }
 
     @Override
@@ -276,6 +382,8 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Exited PLAYING SUCCESS state");
         }
 
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
@@ -284,6 +392,13 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered SUCCEEDED state");
         }
 
+        final String collectedDigits = context.getCollectedDigits();
+        final int attempt = context.getAttempt();
+
+        final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, ReturnCode.SUCCESS.code());
+        operationComplete.setParameter("na", String.valueOf(attempt));
+        operationComplete.setParameter("dc", collectedDigits);
+        this.mgcpEventSubject.notify(this.mgcpEventSubject, operationComplete);
     }
 
     @Override
@@ -293,6 +408,16 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Entered PLAYING FAILURE state");
         }
 
+        final Playlist prompt = context.getFailureAnnouncement();
+        final String track = prompt.next();
+        try {
+            this.player.addListener(this.playerListener);
+            playAnnouncement(track, 0L);
+        } catch (TooManyListenersException e) {
+            log.error("Too many player listeners", e);
+            context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+            fire(PlayCollectEvent.FAIL, context);
+        }
     }
 
     @Override
@@ -302,6 +427,15 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("On PLAYING FAILURE state");
         }
 
+        final Playlist prompt = context.getFailureAnnouncement();
+        final String track = prompt.next();
+
+        if (track.isEmpty()) {
+            // No more announcements to play
+            fire(PlayCollectEvent.END_PROMPT, context);
+        } else {
+            playAnnouncement(track, 10 * 100);
+        }
     }
 
     @Override
@@ -311,12 +445,51 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
             log.trace("Exited PLAYING FAILURE state");
         }
 
+        this.player.removeListener(this.playerListener);
+        this.player.deactivate();
     }
 
     @Override
     public void enterFailed(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
         if (log.isTraceEnabled()) {
             log.trace("Entered FAILED state");
+        }
+
+        final OperationFailed operationFailed = new OperationFailed(PlayCollect.SYMBOL, context.getReturnCode());
+        this.mgcpEventSubject.notify(this.mgcpEventSubject, operationFailed);
+    }
+
+    /**
+     * Timer that defines interval the system will wait for user's input. May interrupt Collect process.
+     * 
+     * @author Henrique Rosa (henrique.rosa@telestax.com)
+     *
+     */
+    private final class DetectorTimer implements Runnable {
+
+        private final long timestamp;
+        private final PlayCollectContext context;
+
+        public DetectorTimer(PlayCollectContext context) {
+            this.timestamp = System.currentTimeMillis();
+            this.context = context;
+        }
+
+        @Override
+        public void run() {
+            if (context.getLastCollectedDigitOn() <= this.timestamp) {
+                if (PlayCollectState.PLAY_COLLECT.equals(getCurrentState())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Timing out collect operation!");
+                    }
+                    fire(PlayCollectEvent.TIMEOUT, context);
+                }
+            } else {
+                if (log.isTraceEnabled()) {
+                    log.trace("Aborting timeout operation because a tone has been received in the meantime.");
+                }
+            }
+
         }
 
     }

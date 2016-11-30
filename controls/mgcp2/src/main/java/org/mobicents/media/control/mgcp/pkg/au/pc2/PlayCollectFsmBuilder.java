@@ -51,6 +51,8 @@ public class PlayCollectFsmBuilder {
                         DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
                         ListeningScheduledExecutorService.class, PlayCollectContext.class);
 
+        this.builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
+
         this.builder.defineParallelStatesOn(PlayCollectState.PLAY_COLLECT, PlayCollectState.PLAY, PlayCollectState.COLLECT);
         this.builder.defineSequentialStatesOn(PlayCollectState.PLAY, HistoryType.NONE, PlayCollectState.LOADING_PLAYLIST, PlayCollectState.PROMPTING, PlayCollectState.PROMPTED);
         this.builder.defineSequentialStatesOn(PlayCollectState.COLLECT, PlayCollectState.COLLECTING, PlayCollectState.COLLECTED);
