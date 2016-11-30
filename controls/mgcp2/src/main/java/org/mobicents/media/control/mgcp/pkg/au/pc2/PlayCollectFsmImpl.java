@@ -491,12 +491,47 @@ public class PlayCollectFsmImpl extends
         if (log.isTraceEnabled()) {
             log.trace("Entered FAILING state");
         }
-
-        final Playlist prompt = context.getFailureAnnouncement();
-        if(prompt.isEmpty()) {
-            fire(PlayCollectEvent.NO_PROMPT, context);
+        
+        if(context.hasMoreAttempts()) {
+            context.newAttempt();
+            switch (event) {
+                case RESTART:
+                case REINPUT:
+                case NO_DIGITS:
+                    fire(event, context);
+                    break;
+                    
+                case PATTERN_MISMATCH:
+                default:
+                    fire(PlayCollectEvent.RESTART, context);
+                    break;
+            }
         } else {
-            fire(PlayCollectEvent.PROMPT, context);
+            switch (event) {
+                case NO_DIGITS:
+                    context.setReturnCode(ReturnCode.NO_DIGITS.code());
+                    break;
+
+                case PATTERN_MISMATCH:
+                    context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
+                    break;
+                    
+                case RESTART:
+                case REINPUT:
+                    context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
+                    break;
+
+                default:
+                    context.setReturnCode(ReturnCode.UNSPECIFIED_FAILURE.code());
+                    break;
+            }
+
+            final Playlist prompt = context.getFailureAnnouncement();
+            if(prompt.isEmpty()) {
+                fire(PlayCollectEvent.NO_PROMPT, context);
+            } else {
+                fire(PlayCollectEvent.PROMPT, context);
+            }
         }
     }
 

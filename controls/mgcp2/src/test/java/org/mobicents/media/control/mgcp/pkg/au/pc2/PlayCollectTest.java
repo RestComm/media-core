@@ -181,6 +181,7 @@ public class PlayCollectTest {
         parameters.put("mx", "100");
         parameters.put("eik", "#");
         parameters.put("rik", "A");
+        parameters.put("na", "2");
 
         final Player player = mock(Player.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
@@ -204,13 +205,13 @@ public class PlayCollectTest {
         pc.detectorListener.process(new DtmfEventImpl(detector, "#", -30));
 
         // then
-        verify(detector, times(1)).activate();
+        verify(detector, times(2)).activate();
         verify(player, never()).activate();
         verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
 
         assertEquals(String.valueOf(ReturnCode.SUCCESS.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("456", eventCaptor.getValue().getParameter("dc"));
-        assertEquals("1", eventCaptor.getValue().getParameter("na"));
+        assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
 
     @Test
@@ -244,7 +245,7 @@ public class PlayCollectTest {
         verify(player, times(1)).deactivate();
         verify(observer, timeout(5)).onEvent(eq(pc), eventCaptor.capture());
         
-        assertEquals(String.valueOf(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code()), eventCaptor.getValue().getParameter("rc"));
+        assertEquals(String.valueOf(ReturnCode.NO_DIGITS.code()), eventCaptor.getValue().getParameter("rc"));
     }
 
 }
