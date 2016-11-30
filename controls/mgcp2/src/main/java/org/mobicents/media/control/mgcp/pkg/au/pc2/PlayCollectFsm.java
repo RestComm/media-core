@@ -30,7 +30,7 @@ import org.squirrelframework.foundation.fsm.StateMachine;
 public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> {
 
     void enterLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
+
     void exitLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void enterPrompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
@@ -58,17 +58,13 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     void exitCollecting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void enterEvaluating(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
+
     void exitEvaluating(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
-    void enterTimedOut(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
-    void exitTimedOut(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
+
     void enterCanceled(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
+
     void exitCanceled(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
+
     void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void onPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
@@ -76,7 +72,7 @@ public interface PlayCollectFsm extends StateMachine<PlayCollectFsm, PlayCollect
     void exitPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void enterSucceeded(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
-    
+
     void enterPlayingFailure(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);
 
     void onPlayingFailure(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context);

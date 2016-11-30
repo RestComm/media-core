@@ -101,183 +101,223 @@ public class PlayCollectFsmImpl extends AbstractStateMachine<PlayCollectFsm, Pla
     @Override
     public void enterLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered LOADING PLAYLIST state");
+        }
 
     }
 
     @Override
     public void exitLoadingPlaylist(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited LOADING PLAYLIST state");
+        }
 
     }
 
     @Override
     public void enterPrompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered PROMPTING state");
+        }
 
     }
 
     @Override
     public void onPrompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On PROMPTING state");
+        }
 
     }
 
     @Override
     public void exitPrompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited PROMPTING state");
+        }
 
     }
 
     @Override
     public void enterReprompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered REPROMPTING state");
+        }
 
     }
 
     @Override
     public void onReprompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On REPROMPTING state");
+        }
 
     }
 
     @Override
     public void exitReprompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited REPROMPTING state");
+        }
 
     }
 
     @Override
     public void enterNoDigitsReprompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered NO DIGITS REPROMPTING state");
+        }
 
     }
 
     @Override
     public void onNoDigitsReprompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On NO DIGITS REPROMPTING state");
+        }
 
     }
 
     @Override
     public void exitNoDigitsReprompting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited NO DIGITS REPROMPTING state");
+        }
 
     }
 
     @Override
     public void enterCollecting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered COLLECTING state");
+        }
 
     }
 
     @Override
     public void onCollecting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On COLLECTING state");
+        }
 
     }
 
     @Override
     public void exitCollecting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited COLLECTING state");
+        }
 
     }
 
     @Override
     public void enterEvaluating(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered EVALUATING state");
+        }
 
     }
 
     @Override
     public void exitEvaluating(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void enterTimedOut(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void exitTimedOut(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited EVALUATING state");
+        }
 
     }
 
     @Override
     public void enterCanceled(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered CANCELED state");
+        }
 
     }
 
     @Override
     public void exitCanceled(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited CANCELED state");
+        }
 
     }
 
     @Override
     public void enterPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered PLAYING SUCCESS state");
+        }
 
     }
 
     @Override
     public void onPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On PLAYING SUCCESS state");
+        }
 
     }
 
     @Override
     public void exitPlayingSuccess(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited PLAYING SUCCESS state");
+        }
 
     }
 
     @Override
     public void enterSucceeded(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered SUCCEEDED state");
+        }
 
     }
 
     @Override
     public void enterPlayingFailure(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered PLAYING FAILURE state");
+        }
 
     }
 
     @Override
     public void onPlayingFailure(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("On PLAYING FAILURE state");
+        }
 
     }
 
     @Override
     public void exitPlayingFailure(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Exited PLAYING FAILURE state");
+        }
 
     }
 
     @Override
     public void enterFailed(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
-        // TODO Auto-generated method stub
+        if (log.isTraceEnabled()) {
+            log.trace("Entered FAILED state");
+        }
 
     }
 
