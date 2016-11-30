@@ -53,13 +53,15 @@ public class PlayCollectFsmBuilder {
 
         this.builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
 
+        this.builder.onEntry(PlayCollectState.PLAY_COLLECT).callMethod("enterPlayCollect");
         this.builder.defineParallelStatesOn(PlayCollectState.PLAY_COLLECT, PlayCollectState.PLAY, PlayCollectState.COLLECT);
-        this.builder.defineSequentialStatesOn(PlayCollectState.PLAY, HistoryType.NONE, PlayCollectState.LOADING_PLAYLIST, PlayCollectState.PROMPTING, PlayCollectState.PROMPTED);
+        this.builder.defineSequentialStatesOn(PlayCollectState.PLAY, HistoryType.NONE, PlayCollectState.LOADING_PLAYLIST, PlayCollectState.PROMPTING, PlayCollectState.REPROMPTING, PlayCollectState.NO_DIGITS_REPROMPTING, PlayCollectState.PROMPTED);
         this.builder.defineSequentialStatesOn(PlayCollectState.COLLECT, PlayCollectState.COLLECTING, PlayCollectState.COLLECTED);
         this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.EVALUATE);
         this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.TIMEOUT);
         this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.FAILING).on(PlayCollectEvent.RESTART);
         this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.FAILING).on(PlayCollectEvent.REINPUT);
+        this.builder.onExit(PlayCollectState.PLAY_COLLECT).callMethod("exitPlayCollect");
 
         this.builder.onEntry(PlayCollectState.LOADING_PLAYLIST).callMethod("enterLoadingPlaylist");
         this.builder.transition().from(PlayCollectState.LOADING_PLAYLIST).to(PlayCollectState.PROMPTING).on(PlayCollectEvent.PROMPT);
@@ -128,7 +130,7 @@ public class PlayCollectFsmBuilder {
             PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler,
             PlayCollectContext context) {
         return builder.newStateMachine(PlayCollectState.PLAY_COLLECT,
-                StateMachineConfiguration.getInstance().enableDebugMode(true), detector, detectorListener, player,
+                StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player,
                 playerListener, eventSubject, scheduler, context);
     }
 

@@ -129,11 +129,38 @@ public class PlayCollectFsmImpl extends
             log.trace("Entered LOADING PLAYLIST state");
         }
 
-        final Playlist prompt = context.getInitialPrompt();
-        if (prompt.isEmpty()) {
-            fire(PlayCollectEvent.NO_PROMPT, context);
+        if (event == null) {
+            final Playlist prompt = context.getInitialPrompt();
+            if (prompt.isEmpty()) {
+                fire(PlayCollectEvent.NO_PROMPT, context);
+            } else {
+                fire(PlayCollectEvent.PROMPT, context);
+            }
         } else {
-            fire(PlayCollectEvent.PROMPT, context);
+            switch (event) {
+                case RESTART:
+                    final Playlist reprompt = context.getReprompt();
+                    if (reprompt.isEmpty()) {
+                        fire(PlayCollectEvent.NO_PROMPT, context);
+                    } else {
+                        fire(PlayCollectEvent.REPROMPT, context);
+                    }
+                    break;
+
+                case NO_DIGITS:
+                    final Playlist noDigitsReprompt = context.getNoDigitsReprompt();
+                    if (noDigitsReprompt.isEmpty()) {
+                        fire(PlayCollectEvent.NO_PROMPT, context);
+                    } else {
+                        fire(PlayCollectEvent.NO_DIGITS, context);
+                    }
+                    break;
+
+                case REINPUT:
+                default:
+                    fire(PlayCollectEvent.NO_PROMPT, context);
+                    break;
+            }
         }
     }
 
@@ -307,7 +334,8 @@ public class PlayCollectFsmImpl extends
     @Override
     public void onCollecting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
         if (log.isTraceEnabled()) {
-            log.trace("On COLLECTING state");
+            log.trace(
+                    "On COLLECTING state [digits=" + context.getCollectedDigits() + ", attempt=" + context.getAttempt() + "]");
         }
 
         // Stop current prompt IF is interruptible
@@ -321,29 +349,33 @@ public class PlayCollectFsmImpl extends
         if (context.getReinputKey() == tone) {
             // Force collection to cancel any scheduled timeout
             context.collectDigit(tone);
-
             fire(PlayCollectEvent.REINPUT, context);
         } else if (context.getRestartKey() == tone) {
             // Force collection to cancel any scheduled timeout
             context.collectDigit(tone);
-
             fire(PlayCollectEvent.RESTART, context);
         } else if (context.getEndInputKey() == tone) {
             fire(PlayCollectEvent.END_INPUT, context);
         } else {
-            // Collect tone
+            // Make sure first digit matches StartInputKey
+            if (context.countCollectedDigits() == 0 && context.getStartInputKeys().indexOf(tone) == -1) {
+                log.info("Dropping tone " + tone + " because it does not match any of StartInputKeys "
+                        + context.getStartInputKeys());
+                return;
+            }
+
+            // Append tone to list of collected digits
             context.collectDigit(tone);
 
-            // Stop digit collection if maximum number of digits was reached
-            if (context.countCollectedDigits() == context.getMaximumDigits()) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Maximum numbers of digits. Stopping collecting operation.");
-                }
+            // Stop collecting if maximum number of digits was reached.
+            // Only verified if no Digit Pattern was defined.
+            if (!context.hasDigitPattern() && context.countCollectedDigits() == context.getMaximumDigits()) {
                 fire(PlayCollectEvent.END_INPUT, context);
+            } else {
+                // Start interdigit timer
+                this.executor.schedule(new DetectorTimer(context), context.getInterDigitTimer(), TimeUnit.MILLISECONDS);
             }
         }
-
-        // TODO Implement onCollecting
     }
 
     @Override
@@ -360,13 +392,20 @@ public class PlayCollectFsmImpl extends
     public void enterEvaluating(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
             PlayCollectContext context) {
         if (log.isTraceEnabled()) {
-            log.trace("Entered EVALUATING state");
+            log.trace("Entered EVALUATING state.");
         }
 
         final int digitCount = context.countCollectedDigits();
         if (digitCount == 0) {
             // No digits were collected
             fire(PlayCollectEvent.NO_DIGITS, context);
+        } else if (context.hasDigitPattern()) {
+            // Succeed if digit pattern matches. Otherwise retry
+            if (context.getCollectedDigits().matches(context.getDigitPattern())) {
+                fire(PlayCollectEvent.SUCCEED, context);
+            } else {
+                fire(PlayCollectEvent.PATTERN_MISMATCH, context);
+            }
         } else if (digitCount < context.getMinimumDigits()) {
             // Minimum digits not met
             fire(PlayCollectEvent.PATTERN_MISMATCH, context);
@@ -374,8 +413,6 @@ public class PlayCollectFsmImpl extends
             // Pattern validation was successful
             fire(PlayCollectEvent.SUCCEED, context);
         }
-
-        // TODO implement EVALUATING state
     }
 
     @Override
@@ -407,9 +444,9 @@ public class PlayCollectFsmImpl extends
         if (log.isTraceEnabled()) {
             log.trace("Entered SUCCEEDING state");
         }
-        
+
         final Playlist prompt = context.getSuccessAnnouncement();
-        if(prompt.isEmpty()) {
+        if (prompt.isEmpty()) {
             fire(PlayCollectEvent.NO_PROMPT, context);
         } else {
             fire(PlayCollectEvent.PROMPT, context);
@@ -477,8 +514,11 @@ public class PlayCollectFsmImpl extends
             log.trace("Entered SUCCEEDED state");
         }
 
-        final String collectedDigits = context.getCollectedDigits();
         final int attempt = context.getAttempt();
+        String collectedDigits = context.getCollectedDigits();
+        if (context.getIncludeEndInputKey()) {
+            collectedDigits += context.getEndInputKey();
+        }
 
         final OperationComplete operationComplete = new OperationComplete(PlayCollect.SYMBOL, ReturnCode.SUCCESS.code());
         operationComplete.setParameter("na", String.valueOf(attempt));
@@ -491,8 +531,8 @@ public class PlayCollectFsmImpl extends
         if (log.isTraceEnabled()) {
             log.trace("Entered FAILING state");
         }
-        
-        if(context.hasMoreAttempts()) {
+
+        if (context.hasMoreAttempts()) {
             context.newAttempt();
             switch (event) {
                 case RESTART:
@@ -500,7 +540,7 @@ public class PlayCollectFsmImpl extends
                 case NO_DIGITS:
                     fire(event, context);
                     break;
-                    
+
                 case PATTERN_MISMATCH:
                 default:
                     fire(PlayCollectEvent.RESTART, context);
@@ -515,7 +555,7 @@ public class PlayCollectFsmImpl extends
                 case PATTERN_MISMATCH:
                     context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
                     break;
-                    
+
                 case RESTART:
                 case REINPUT:
                     context.setReturnCode(ReturnCode.MAX_ATTEMPTS_EXCEEDED.code());
@@ -527,7 +567,7 @@ public class PlayCollectFsmImpl extends
             }
 
             final Playlist prompt = context.getFailureAnnouncement();
-            if(prompt.isEmpty()) {
+            if (prompt.isEmpty()) {
                 fire(PlayCollectEvent.NO_PROMPT, context);
             } else {
                 fire(PlayCollectEvent.PROMPT, context);
