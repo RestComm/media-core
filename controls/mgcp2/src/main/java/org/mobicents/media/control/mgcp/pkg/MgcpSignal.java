@@ -45,4 +45,11 @@ public interface MgcpSignal extends MgcpEventSubject {
      */
     boolean isExecuting();
 
+    /**
+     * Gets the type of signal.
+     * 
+     * @return The type of the signal.
+     */
+    SignalType getSignalType();
+
 }

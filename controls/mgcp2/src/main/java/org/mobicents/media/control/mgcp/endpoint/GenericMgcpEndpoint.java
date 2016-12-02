@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,6 +51,7 @@ import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
+import org.mobicents.media.control.mgcp.pkg.SignalType;
 
 /**
  * Abstract representation of an MGCP Endpoint that groups connections by calls.
@@ -74,6 +77,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     // Events and Signals
     private NotificationRequest notificationRequest;
+    
     protected MgcpSignal signal;
 
     // Observers
@@ -170,7 +174,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 throw new MgcpConnectionNotFound("Connection " + Integer.toHexString(connectionId) + " was not found in call " + callId);
             } else {
                 // Unregister call if it contains no more connections
-                if (call.hasConnections()) {
+                if (!call.hasConnections()) {
                     this.calls.remove(callId);
                 }
 
@@ -303,22 +307,57 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     @Override
     public void requestNotification(NotificationRequest request) {
-        if (this.signal != null) {
-            // Cancel current signal.
-            // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
-            // registered with the event.
-            this.signal.cancel();
-        }
-
         // Set new notification request and start executing requested signals (if any)
         this.notificationRequest = request;
-        this.signal = this.notificationRequest.pollSignal();
-        if (signal != null) {
-            this.signal.observe(this);
-            this.signal.execute();
+
+        // Execute signals contained in RQNT
+        for (MgcpSignal signal = this.notificationRequest.pollSignal(); signal != null; signal = this.notificationRequest.pollSignal()) {
+            final SignalType signalType = signal.getSignalType();
+            switch (signalType) {
+                case TIME_OUT:
+                    executeTimeoutSignal(signal);
+                    break;
+
+                case BRIEF:
+                    executeBriefSignal(signal);
+                    break;
+
+                default:
+                    log.warn("Dropping signal " + signal.toString() + " on endpoint " + getEndpointId().toString()
+                            + " because signal type " + signalType + "is not supported.");
+                    break;
+            }
         }
     }
 
+    private void executeBriefSignal(MgcpSignal signal) {
+        if (!SignalType.BRIEF.equals(signal.getSignalType())) {
+            throw new IllegalArgumentException("Signal " + signal.toString() + " is not of type BRIEF.");
+        }
+        signal.execute();
+    }
+
+    private void executeTimeoutSignal(MgcpSignal signal) {
+        if (!SignalType.TIME_OUT.equals(signal.getSignalType())) {
+            throw new IllegalArgumentException("Signal " + signal.toString() + " is not of type TIMEOUT.");
+        }
+
+        // Cancel current signal, if any.
+        // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
+        // registered with the event.
+        if (this.signal != null) {
+            if (log.isInfoEnabled()) {
+                log.info("Canceling signal " + this.signal.toString() + " on endpoint " + getEndpointId().toString());
+            }
+            this.signal.cancel();
+        }
+
+        // Execute new signal
+        this.signal = signal;
+        this.signal.observe(this);
+        this.signal.execute();
+    }
+    
     private NotifiedEntity resolve(NotifiedEntity value, NotifiedEntity defaultValue) {
         if (value != null) {
             return value;
@@ -329,7 +368,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     @Override
     public void cancelSignal(String signal) {
         // TODO Auto-generated method stub
-
+        log.info("Canceling signal " + signal + " on endpoint " + getEndpointId().toString());
     }
 
     /**

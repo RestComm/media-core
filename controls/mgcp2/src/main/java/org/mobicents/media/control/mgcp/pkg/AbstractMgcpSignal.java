@@ -61,7 +61,8 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
         return symbol;
     }
 
-    public SignalType getType() {
+    @Override
+    public SignalType getSignalType() {
         return type;
     }
 
@@ -115,6 +116,11 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
             }
         }
         return equals;
+    }
+    
+    @Override
+    public String toString() {
+        return this.packageName + "/" + this.symbol;
     }
 
 }
