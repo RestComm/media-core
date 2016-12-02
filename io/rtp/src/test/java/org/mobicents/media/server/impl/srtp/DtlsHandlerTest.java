@@ -21,7 +21,12 @@
 
 package org.mobicents.media.server.impl.srtp;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Test;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 
 import junit.framework.Assert;
 
@@ -53,13 +58,20 @@ public class DtlsHandlerTest {
             0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54,
             0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54,
             0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54, 0x54 };
+    
+    private static final int cipherSuites[] = { 0xc030, 0xc02f, 0xc028, 0xc027, 0xc014, 0xc013, 0x009f, 0x009e, 0x006b, 0x0067,
+            0x0039, 0x0033, 0x009d, 0x009c, 0x003d, 0x003c, 0x0035, 0x002f, 0xc02b };
 
     @Test
     public void testCanHandle() {
         // given
-        DtlsHandler dtlsHandler = new DtlsHandler();
+        DtlsSrtpServerProvider mockedDtlsServerProvider = mock(DtlsSrtpServerProvider.class);
+        DtlsSrtpServer mockedDtlsSrtpServer = mock(DtlsSrtpServer.class);
+        DtlsHandler dtlsHandler = new DtlsHandler(mockedDtlsServerProvider);
 
         // when
+        when(mockedDtlsServerProvider.provide()).thenReturn(mockedDtlsSrtpServer);
+        when(mockedDtlsSrtpServer.getCipherSuites()).thenReturn(cipherSuites);
         boolean canHandleHelloClient = dtlsHandler.canHandle(HELLO_CLIENT);
         boolean canHandleRtp = dtlsHandler.canHandle(RTP_PACKET);
 

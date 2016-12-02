@@ -21,9 +21,14 @@
 
 package org.mobicents.media.server.mgcp.endpoint.connection;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.Test;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.connection.RtpConnectionFactory;
 import org.mobicents.media.server.mgcp.connection.RtpConnectionImpl;
@@ -47,6 +52,17 @@ public class RtpConnectionPoolTest {
     private final PriorityQueueScheduler mediaScheduler;
     private final Scheduler taskScheduler;
     private final UdpManager udpManager;
+    
+    // Dtls provider
+    protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
+    protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
+    protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
+    protected String certificatePath = DtlsConfiguration.CERTIFICATE_PATH;
+    protected String keyPath = DtlsConfiguration.KEY_PATH;
+    protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.RSA;
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
+            certificatePath, keyPath, algorithmCertificate);
+    
     private final ChannelsManager connectionFactory;
     private final DspFactory dspFactory;
     
@@ -55,7 +71,7 @@ public class RtpConnectionPoolTest {
         this.mediaScheduler = new PriorityQueueScheduler();
         this.taskScheduler = new ServiceScheduler(clock);
         this.udpManager = new UdpManager(taskScheduler);
-        this.connectionFactory = new ChannelsManager(udpManager);
+        this.connectionFactory = new ChannelsManager(udpManager, dtlsServerProvider);
         this.dspFactory = new DspFactoryImpl();
         
         this.mediaScheduler.setClock(clock);

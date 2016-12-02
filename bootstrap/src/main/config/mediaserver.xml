@@ -47,17 +47,30 @@
 				require a license fee and/or royalty fee. For more information please visit 
 				http://www.sipro.com/G-729.html -->
 			<codec name="g729" />
+			<codec name="telephone-event" />
 		</codecs>
 	</media>
 
 	<resources>
 		<localConnection poolSize="100" />
 		<remoteConnection poolSize="50" />
-		<player poolSize="50" />
+		<player poolSize="50">
+			<cache>
+				<cacheSize>100</cacheSize>
+				<cacheEnabled>false</cacheEnabled>
+			</cache>
+		</player>
 		<recorder poolSize="50" />
 		<dtmfDetector poolSize="50" dbi="-35" />
 		<dtmfGenerator poolSize="50" toneVolume="-20" toneDuration="80" />
 		<signalDetector poolSize="0" />
 		<signalGenerator poolSize="0" />
 	</resources>
+
+	<dtls>
+		<minVersion>1.0</minVersion>
+		<maxVersion>1.2</maxVersion>
+		<cipherSuites>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</cipherSuites>
+		<certificate path="../conf/dtls/x509-server-ecdsa.pem" key="../conf/dtls/x509-server-key-ecdsa.pem" algorithm="ecdsa"/>
+	</dtls>
 </mediaserver>

@@ -21,8 +21,12 @@
 
 package org.mobicents.media.server.bootstrap.configuration;
 
+import org.bouncycastle.crypto.tls.ClientCertificateType;
+import org.bouncycastle.crypto.tls.ProtocolVersion;
+import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.core.configuration.MediaConfiguration;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
@@ -39,9 +43,10 @@ public class XmlConfigurationLoaderTest {
 
     /**
      * Test all information from a valid and complete configuration file is loaded properly into memory.
+     * @throws Exception
      */
     @Test
-    public void testLoadConfiguration() {
+    public void testLoadConfiguration() throws Exception {
         // given
         String filepath = "mediaserver.xml";
         XmlConfigurationLoader loader = new XmlConfigurationLoader();
@@ -92,7 +97,6 @@ public class XmlConfigurationLoaderTest {
         ResourcesConfiguration resources = config.getResourcesConfiguration();
         Assert.assertEquals(200, resources.getLocalConnectionCount());
         Assert.assertEquals(100, resources.getRemoteConnectionCount());
-        Assert.assertEquals(100, resources.getPlayerCount());
         Assert.assertEquals(100, resources.getRecorderCount());
         Assert.assertEquals(100, resources.getDtmfDetectorCount());
         Assert.assertEquals(-25, resources.getDtmfDetectorDbi());
@@ -101,13 +105,31 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(-25, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(10, resources.getSignalDetectorCount());
         Assert.assertEquals(10, resources.getSignalGeneratorCount());
+
+        DtlsConfiguration dtls = config.getDtlsConfiguration();
+        Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
+        Assert.assertEquals(ProtocolVersion.DTLSv12, dtls.getMaxVersion());
+        String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
+        Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
+        for (int i = 0; i < dtls.getCipherSuites().length; i++) {
+            Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
+        }
+        Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
+        Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
+
+        Assert.assertEquals(100, resources.getPlayerCount());
+        Assert.assertEquals(100, resources.getPlayerCacheSize());
+        Assert.assertEquals(true, resources.getPlayerCacheEnabled());
     }
 
     /**
      * Test default configuration is loaded into memory after failing to locate a configuration file.
+     * @throws Exception
      */
-    @Test
-    public void testFileNotFound() {
+    @Test(expected = Exception.class)
+    public void testFileNotFound() throws Exception {
         // given
         String filepath = "not-found.xml";
         XmlConfigurationLoader loader = new XmlConfigurationLoader();
@@ -149,10 +171,23 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
+
+        DtlsConfiguration dtls = config.getDtlsConfiguration();
+        Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
+        Assert.assertEquals(ProtocolVersion.DTLSv12, dtls.getMaxVersion());
+        String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
+        Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
+        for (int i = 0; i < dtls.getCipherSuites().length; i++) {
+            Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
+        }
+        Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
+        Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
-    @Test
-    public void testFileNetworkMisconfigured() {
+    @Test(expected = Exception.class)
+    public void testFileNetworkMisconfigured() throws Exception {
         // given
         String filepath = "media-server-network-misconfigured.xml";
         XmlConfigurationLoader loader = new XmlConfigurationLoader();
@@ -194,6 +229,19 @@ public class XmlConfigurationLoaderTest {
         Assert.assertEquals(ResourcesConfiguration.DTMF_GENERATOR_TONE_VOLUME, resources.getDtmfGeneratorToneVolume());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_DETECTOR_COUNT, resources.getSignalDetectorCount());
         Assert.assertEquals(ResourcesConfiguration.SIGNAL_GENERATOR_COUNT, resources.getSignalGeneratorCount());
+        
+        DtlsConfiguration dtls = config.getDtlsConfiguration();
+        Assert.assertEquals(ProtocolVersion.DTLSv10, dtls.getMinVersion());
+        Assert.assertEquals(ProtocolVersion.DTLSv12, dtls.getMaxVersion());
+        String[] defaultCipherSuiteNames = DtlsConfiguration.CIPHER_SUITES.split(",");
+        Assert.assertEquals(defaultCipherSuiteNames.length, dtls.getCipherSuites().length);
+        for (int i = 0; i < dtls.getCipherSuites().length; i++) {
+            Assert.assertEquals(dtls.getCipherSuites()[i].name(), defaultCipherSuiteNames[i].trim());
+        }
+        Assert.assertEquals(DtlsConfiguration.CERTIFICATE_PATH, dtls.getCertificatePath());
+        Assert.assertEquals(DtlsConfiguration.KEY_PATH, dtls.getKeyPath());
+        Assert.assertEquals(SignatureAlgorithm.ecdsa, dtls.getAlgorithmCertificate().getSignatureAlgorithm());
+        Assert.assertEquals(ClientCertificateType.ecdsa_sign, dtls.getAlgorithmCertificate().getClientCertificate());
     }
 
 }

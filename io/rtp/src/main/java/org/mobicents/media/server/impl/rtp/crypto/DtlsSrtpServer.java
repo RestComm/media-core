@@ -27,9 +27,9 @@ import java.util.Vector;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x509.Certificate;
+import org.bouncycastle.crypto.tls.AlertDescription;
 import org.bouncycastle.crypto.tls.AlertLevel;
 import org.bouncycastle.crypto.tls.CertificateRequest;
-import org.bouncycastle.crypto.tls.ClientCertificateType;
 import org.bouncycastle.crypto.tls.DefaultTlsServer;
 import org.bouncycastle.crypto.tls.ExporterLabel;
 import org.bouncycastle.crypto.tls.HashAlgorithm;
@@ -37,10 +37,13 @@ import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.bouncycastle.crypto.tls.SRTPProtectionProfile;
 import org.bouncycastle.crypto.tls.SignatureAlgorithm;
 import org.bouncycastle.crypto.tls.SignatureAndHashAlgorithm;
+import org.bouncycastle.crypto.tls.TlsECCUtils;
 import org.bouncycastle.crypto.tls.TlsEncryptionCredentials;
+import org.bouncycastle.crypto.tls.TlsFatalAlert;
 import org.bouncycastle.crypto.tls.TlsSRTPUtils;
 import org.bouncycastle.crypto.tls.TlsSignerCredentials;
 import org.bouncycastle.crypto.tls.UseSRTPData;
+import org.bouncycastle.util.Arrays;
 
 /**
  * 
@@ -59,9 +62,10 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     private static final Logger LOGGER = Logger.getLogger(DtlsSrtpServer.class);
 
     // Certificate resources
-	private static final String[] CERT_RESOURCES = new String[] { "x509-server.pem", "x509-ca.pem" };
-	private static final String KEY_RESOURCE = "x509-server-key.pem";
-	
+    private final String[] certificateResources;
+    private final String keyResource;
+    private final AlgorithmCertificate algorithmCertificate;
+
 	private String hashFunction = "";
     
     // the server response to the client handshake request
@@ -77,7 +81,21 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	// Policies
 	private SRTPPolicy srtpPolicy;
 	private SRTPPolicy srtcpPolicy;
-	
+
+	private final ProtocolVersion minVersion;
+	private final ProtocolVersion maxVersion;
+	private final CipherSuite[] cipherSuites;
+
+    public DtlsSrtpServer(ProtocolVersion minVersion, ProtocolVersion maxVersion, CipherSuite[] cipherSuites,
+            String[] certificatesPath, String keyPath, AlgorithmCertificate algorithmCertificate) {
+        this.minVersion = minVersion;
+        this.maxVersion = maxVersion;
+        this.cipherSuites = cipherSuites;
+        this.certificateResources = certificatesPath;
+        this.keyResource = keyPath;
+        this.algorithmCertificate = algorithmCertificate;
+    }
+
 	public void notifyAlertRaised(short alertLevel, short alertDescription, String message, Exception cause) {
     	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
         LOGGER.log(logLevel, String.format("DTLS server raised alert (AlertLevel.%d, AlertDescription.%d, message='%s')", alertLevel, alertDescription, message), cause);
@@ -87,12 +105,41 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     	Level logLevel = (alertLevel == AlertLevel.fatal) ? Level.ERROR : Level.WARN; 
         LOGGER.log(logLevel, String.format("DTLS server received alert (AlertLevel.%d, AlertDescription.%d)", alertLevel, alertDescription));
     }
+    
+    @Override
+    public int getSelectedCipherSuite() throws IOException {
+        /*
+         * TODO RFC 5246 7.4.3. In order to negotiate correctly, the server MUST check any candidate cipher suites against the
+         * "signature_algorithms" extension before selecting them. This is somewhat inelegant but is a compromise designed to
+         * minimize changes to the original cipher suite design.
+         */
+
+        /*
+         * RFC 4429 5.1. A server that receives a ClientHello containing one or both of these extensions MUST use the client's
+         * enumerated capabilities to guide its selection of an appropriate cipher suite. One of the proposed ECC cipher suites
+         * must be negotiated only if the server can successfully complete the handshake while using the curves and point
+         * formats supported by the client [...].
+         */
+        boolean eccCipherSuitesEnabled = supportsClientECCCapabilities(this.namedCurves, this.clientECPointFormats);
+
+        int[] cipherSuites = getCipherSuites();
+        for (int i = 0; i < cipherSuites.length; ++i) {
+            int cipherSuite = cipherSuites[i];
+
+            if (Arrays.contains(this.offeredCipherSuites, cipherSuite)
+                    && (eccCipherSuitesEnabled || !TlsECCUtils.isECCCipherSuite(cipherSuite))
+                    && org.bouncycastle.crypto.tls.TlsUtils.isValidCipherSuiteForVersion(cipherSuite, serverVersion)) {
+                return this.selectedCipherSuite = cipherSuite;
+            }
+        }
+        throw new TlsFatalAlert(AlertDescription.handshake_failure);
+    }
 
     public CertificateRequest getCertificateRequest() {
 		Vector<SignatureAndHashAlgorithm> serverSigAlgs = null;
 		if (org.bouncycastle.crypto.tls.TlsUtils.isSignatureAlgorithmsExtensionAllowed(serverVersion)) {
 			short[] hashAlgorithms = new short[] { HashAlgorithm.sha512, HashAlgorithm.sha384, HashAlgorithm.sha256, HashAlgorithm.sha224, HashAlgorithm.sha1 };
-			short[] signatureAlgorithms = new short[] { SignatureAlgorithm.rsa, SignatureAlgorithm.ecdsa };
+			short[] signatureAlgorithms = new short[] { algorithmCertificate.getSignatureAlgorithm(), SignatureAlgorithm.ecdsa };
 
 			serverSigAlgs = new Vector<SignatureAndHashAlgorithm>();
 			for (int i = 0; i < hashAlgorithms.length; ++i) {
@@ -101,7 +148,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 				}
 			}
 		}
-		return new CertificateRequest(new short[] { ClientCertificateType.rsa_sign }, serverSigAlgs, null);
+		return new CertificateRequest(new short[] { algorithmCertificate.getClientCertificate() }, serverSigAlgs, null);
     }
 
     public void notifyClientCertificate(org.bouncycastle.crypto.tls.Certificate clientCertificate) throws IOException {
@@ -115,15 +162,21 @@ public class DtlsSrtpServer extends DefaultTlsServer {
     }
 
     protected ProtocolVersion getMaximumVersion() {
-        return ProtocolVersion.DTLSv12;
+        return maxVersion;
     }
 
     protected ProtocolVersion getMinimumVersion() {
-        return ProtocolVersion.DTLSv10;
+        return minVersion;
     }
-
+    
+    @Override
+    protected TlsSignerCredentials getECDSASignerCredentials() throws IOException {
+        return TlsUtils.loadSignerCredentials(context, certificateResources, keyResource, new SignatureAndHashAlgorithm(HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
+    }
+    
+    @Override
     protected TlsEncryptionCredentials getRSAEncryptionCredentials() throws IOException {
-        return TlsUtils.loadEncryptionCredentials(context, CERT_RESOURCES, KEY_RESOURCE);
+        return TlsUtils.loadEncryptionCredentials(context, certificateResources, keyResource);
     }
 
     @SuppressWarnings("unchecked")
@@ -147,7 +200,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
                 return null;
             }
         }
-        return TlsUtils.loadSignerCredentials(context, new String[]{"x509-server.pem", "x509-ca.pem"}, "x509-server-key.pem", signatureAndHashAlgorithm);
+        return TlsUtils.loadSignerCredentials(context, certificateResources, keyResource, signatureAndHashAlgorithm);
     }
     
     @SuppressWarnings("unchecked")
@@ -283,7 +336,7 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 	public String generateFingerprint(String hashFunction) {
 		try {
 			this.hashFunction = hashFunction;
-			org.bouncycastle.crypto.tls.Certificate chain = TlsUtils.loadCertificateChain(CERT_RESOURCES);
+			org.bouncycastle.crypto.tls.Certificate chain = TlsUtils.loadCertificateChain(certificateResources);
 			Certificate certificate = chain.getCertificateAt(0);
 			return TlsUtils.fingerprint(this.hashFunction, certificate);
 		} catch (IOException e) {
@@ -291,5 +344,14 @@ public class DtlsSrtpServer extends DefaultTlsServer {
 			return "";
 		}
 	}
-    
+
+    @Override
+    public int[] getCipherSuites() {
+        int[] cipherSuites = new int[this.cipherSuites.length];
+        for (int i = 0; i < this.cipherSuites.length; i++) {
+            cipherSuites[i] = this.cipherSuites[i].getValue();
+        }
+        return cipherSuites;
+    }
+
 }

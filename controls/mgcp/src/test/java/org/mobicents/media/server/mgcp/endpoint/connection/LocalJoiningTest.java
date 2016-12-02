@@ -31,11 +31,13 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.bouncycastle.crypto.tls.ProtocolVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
+import org.mobicents.media.core.configuration.DtlsConfiguration;
 import org.mobicents.media.server.component.DspFactoryImpl;
 import org.mobicents.media.server.component.audio.SpectraAnalyzer;
 import org.mobicents.media.server.impl.resource.audio.AudioRecorderFactory;
@@ -44,6 +46,7 @@ import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfDetectorPool;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorFactory;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfGeneratorPool;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.CachedRemoteStreamProvider;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerFactory;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorFactory;
@@ -51,6 +54,9 @@ import org.mobicents.media.server.impl.resource.phone.PhoneSignalDetectorPool;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorFactory;
 import org.mobicents.media.server.impl.resource.phone.PhoneSignalGeneratorPool;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.AlgorithmCertificate;
+import org.mobicents.media.server.impl.rtp.crypto.CipherSuite;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionFactory;
 import org.mobicents.media.server.mgcp.connection.LocalConnectionPool;
@@ -78,6 +84,16 @@ public class LocalJoiningTest {
     //clock and scheduler
     private Clock clock;
     private PriorityQueueScheduler mediaScheduler;
+    
+    //Dtls Server Provider
+    protected ProtocolVersion minVersion = ProtocolVersion.DTLSv10;
+    protected ProtocolVersion maxVersion = ProtocolVersion.DTLSv12;
+    protected CipherSuite[] cipherSuites = new DtlsConfiguration().getCipherSuites();
+    protected String certificatePath = DtlsConfiguration.CERTIFICATE_PATH;
+    protected String keyPath = DtlsConfiguration.KEY_PATH;
+    protected AlgorithmCertificate algorithmCertificate = AlgorithmCertificate.RSA;
+    protected DtlsSrtpServerProvider dtlsServerProvider = new DtlsSrtpServerProvider(minVersion, maxVersion, cipherSuites,
+            certificatePath, keyPath, algorithmCertificate);
 
     //endpoint and connection
     private MyTestEndpoint endpoint1;
@@ -102,7 +118,7 @@ public class LocalJoiningTest {
     private PhoneSignalDetectorPool signalDetectorPool;
     private PhoneSignalGeneratorFactory signalGeneratorFactory;
     private PhoneSignalGeneratorPool signalGeneratorPool;
-    
+
     Component sine1,sine2;
     Component analyzer1,analyzer2;
     
@@ -112,13 +128,12 @@ public class LocalJoiningTest {
     public void setUp() throws ResourceUnavailableException, TooManyConnectionsException, IOException {
     	//use default clock
         clock = new WallClock();
-
         //create single thread scheduler
         mediaScheduler = new PriorityQueueScheduler();
         mediaScheduler.setClock(clock);
         mediaScheduler.start();
 
-        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()));
+        channelsManager = new ChannelsManager(new UdpManager(new ServiceScheduler()), dtlsServerProvider);
         channelsManager.setScheduler(mediaScheduler);
         
         // Resource
@@ -126,7 +141,7 @@ public class LocalJoiningTest {
         this.rtpConnectionPool = new RtpConnectionPool(0, rtpConnectionFactory);
         this.localConnectionFactory = new LocalConnectionFactory(channelsManager);
         this.localConnectionPool = new LocalConnectionPool(0, localConnectionFactory);
-        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory);
+        this.playerFactory = new AudioPlayerFactory(mediaScheduler, dspFactory, new CachedRemoteStreamProvider(100));
         this.playerPool = new AudioPlayerPool(0, playerFactory);
         this.recorderFactory = new AudioRecorderFactory(mediaScheduler);
         this.recorderPool = new AudioRecorderPool(0, recorderFactory);

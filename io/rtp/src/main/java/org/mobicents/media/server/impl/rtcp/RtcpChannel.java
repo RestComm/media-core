@@ -33,6 +33,7 @@ import org.mobicents.media.io.ice.IceHandler;
 import org.mobicents.media.io.ice.events.IceEventListener;
 import org.mobicents.media.io.ice.events.SelectedCandidatesEvent;
 import org.mobicents.media.server.impl.rtp.RtpListener;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.statistics.RtpStatistics;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
 import org.mobicents.media.server.impl.srtp.DtlsListener;
@@ -73,7 +74,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener, Ice
 	// Listeners
 	private RtpListener rtpListener;
 
-	public RtcpChannel(int channelId, RtpStatistics statistics, UdpManager udpManager) {
+	public RtcpChannel(int channelId, RtpStatistics statistics, UdpManager udpManager, DtlsSrtpServerProvider dtlsServerProvider) {
 		// Initialize MultiplexedChannel elements
 		super();
 
@@ -86,7 +87,7 @@ public class RtcpChannel extends MultiplexedChannel implements DtlsListener, Ice
 
 		// Protocol Handler pipeline
 		this.rtcpHandler = new RtcpHandler(udpManager.getScheduler(), statistics);
-		this.dtlsHandler = new DtlsHandler();
+        this.dtlsHandler = new DtlsHandler(dtlsServerProvider);
         this.stunHandler = new IceHandler(IceComponent.RTCP_ID, this);
 		
 		// WebRTC

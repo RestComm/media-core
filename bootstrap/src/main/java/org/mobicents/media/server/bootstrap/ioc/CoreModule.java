@@ -22,6 +22,7 @@
 package org.mobicents.media.server.bootstrap.ioc;
 
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.bootstrap.ioc.provider.DirectRemoteStreamProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider.AudioPlayerFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider;
@@ -29,7 +30,9 @@ import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider.AudioRecorderFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider;
-import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider.AudioRecorderPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.ChannelsManagerProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DspProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtlsSrtpServerProviderProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider.DtmfDetectorFactoryType;
 import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider;
@@ -61,11 +64,35 @@ import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionPoolProvid
 import org.mobicents.media.server.bootstrap.ioc.provider.TaskSchedulerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.UdpManagerProvider;
 import org.mobicents.media.server.bootstrap.ioc.provider.WallClockProvider;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerFactoryProvider.AudioPlayerFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioPlayerPoolProvider.AudioPlayerPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderFactoryProvider.AudioRecorderFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.AudioRecorderPoolProvider.AudioRecorderPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorFactoryProvider.DtmfDetectorFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfDetectorPoolProvider.DtmfDetectorPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorFactoryProvider.DtmfGeneratorFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.DtmfGeneratorPoolProvider.DtmfGeneratorPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.EndpointInstallerListProvider.EndpointInstallerListType;
+import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionFactoryProvider.LocalConnectionFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.LocalConnectionPoolProvider.LocalConnectionPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorFactoryProvider.PhoneSignalDetectorFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalDetectorPoolProvider.PhoneSignalDetectorPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorFactoryProvider.PhoneSignalGeneratorFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.PhoneSignalGeneratorPoolProvider.PhoneSignalGeneratorPoolType;
+import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionFactoryProvider.RtpConnectionFactoryType;
+import org.mobicents.media.server.bootstrap.ioc.provider.RtpConnectionPoolProvider.RtpConnectionPoolType;
+import org.mobicents.media.server.impl.rtp.ChannelsManager;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServer;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.mgcp.resources.ResourcesPool;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.ServerManager;
+import org.mobicents.media.server.spi.dsp.DspFactory;
+import org.mobicents.media.server.bootstrap.ioc.provider.CachedRemoteStreamProvider;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.RemoteStreamProvider;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
@@ -107,6 +134,15 @@ public class CoreModule extends AbstractModule {
         bind(PhoneSignalGeneratorPoolType.INSTANCE).toProvider(PhoneSignalGeneratorPoolProvider.class).in(Singleton.class);
         bind(ResourcesPool.class).toProvider(ResourcesPoolProvider.class).in(Singleton.class);
         bind(EndpointInstallerListType.INSTANCE).toProvider(EndpointInstallerListProvider.class).in(Singleton.class);
+        bind(ServerManager.class).toProvider(MgcpControllerProvider.class).in(Singleton.class);
+        bind(DtlsSrtpServerProvider.class).toProvider(DtlsSrtpServerProviderProvider.class).in(Singleton.class);
+        Class remoteStreamProvider;
+        if (this.config.getResourcesConfiguration().getPlayerCacheEnabled()) {
+            remoteStreamProvider = CachedRemoteStreamProvider.class;
+        } else {
+            remoteStreamProvider = DirectRemoteStreamProvider.class;
+        }
+        bind(RemoteStreamProvider.class).toProvider(remoteStreamProvider).in(Singleton.class);
     }
 
 }

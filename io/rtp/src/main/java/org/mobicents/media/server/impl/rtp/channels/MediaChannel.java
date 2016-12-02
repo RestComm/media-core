@@ -115,9 +115,12 @@ public abstract class MediaChannel {
 		this.rtpChannel = channelsManager.getRtpChannel(this.statistics, this.clock, this.oobClock);
 		this.rtcpChannel = channelsManager.getRtcpChannel(this.statistics);
 		
+        this.supportedFormats = channelsManager.getCodecs();
 		this.offeredFormats = new RTPFormats();
 		this.negotiatedFormats = new RTPFormats();
 		this.negotiated = false;
+
+		setFormats(this.supportedFormats);
 
 		// ICE Components
 		this.iceAuthenticator = new IceAuthenticatorImpl();

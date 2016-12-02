@@ -29,6 +29,7 @@ import java.nio.channels.SelectionKey;
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.impl.rtp.crypto.DtlsSrtpServerProvider;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfInput;
 import org.mobicents.media.server.impl.rtp.rfc2833.DtmfOutput;
 import org.mobicents.media.server.impl.srtp.DtlsHandler;
@@ -131,6 +132,8 @@ public class RTPDataChannel {
 	// WebRTC
 	private boolean isWebRtc = false;
 	private DtlsHandler webRtcHandler;
+	
+	private DtlsSrtpServerProvider dtlsServerProvider;
 
 	/**
 	 * Create RTP channel instance.
@@ -139,7 +142,7 @@ public class RTPDataChannel {
 	 *            Channel manager
 	 * 
 	 */
-	protected RTPDataChannel(ChannelsManager channelsManager, int channelId) {
+	protected RTPDataChannel(ChannelsManager channelsManager, int channelId, DtlsSrtpServerProvider dtlsServerProvider) {
 		this.channelsManager = channelsManager;
 		this.jitterBufferSize = channelsManager.getJitterBufferSize();
 
@@ -175,6 +178,7 @@ public class RTPDataChannel {
 		oobComponent = new OOBComponent(channelId);
 		oobComponent.addInput(dtmfInput.getOOBInput());
 		oobComponent.addOutput(dtmfOutput.getOOBOutput());
+		this.dtlsServerProvider = dtlsServerProvider;
 	}
 
 	public AudioComponent getAudioComponent() {
@@ -830,7 +834,7 @@ public class RTPDataChannel {
 	public void enableWebRTC(Text remotePeerFingerprint) {
 		this.isWebRtc = true;
 		if (this.webRtcHandler == null) {
-			this.webRtcHandler = new DtlsHandler();
+			this.webRtcHandler = new DtlsHandler(this.dtlsServerProvider);
 		}
 		this.webRtcHandler.setRemoteFingerprint("sha-256", remotePeerFingerprint.toString());
 	}
