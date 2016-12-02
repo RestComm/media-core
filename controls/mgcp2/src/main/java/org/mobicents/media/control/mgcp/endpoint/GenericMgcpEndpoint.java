@@ -326,6 +326,12 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
         return defaultValue;
     }
 
+    @Override
+    public void cancelSignal(String signal) {
+        // TODO Auto-generated method stub
+
+    }
+
     /**
      * Event that is called when a new connection is created in the endpoint. <br>
      * <b>To be overridden by subclasses.</b>

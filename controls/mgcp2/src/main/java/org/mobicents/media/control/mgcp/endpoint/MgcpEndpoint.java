@@ -102,6 +102,13 @@ public interface MgcpEndpoint extends MgcpEndpointSubject, MgcpMessageSubject, M
     void requestNotification(NotificationRequest request);
 
     /**
+     * Attempts to cancel an active signal in the endpoint.
+     * 
+     * @param signal The name of the signal.
+     */
+    void cancelSignal(String signal);
+
+    /**
      * Gets the media group that holds media components of the endpoint.
      * 
      * @return The media group.

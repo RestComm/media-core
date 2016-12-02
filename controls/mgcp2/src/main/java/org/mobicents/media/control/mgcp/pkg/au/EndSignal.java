@@ -21,8 +21,12 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
+import org.apache.log4j.Logger;
+import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
 import org.mobicents.media.control.mgcp.pkg.SignalType;
+
+import com.google.common.base.Optional;
 
 /**
  * Gracefully terminates a Play, PlayCollect, or PlayRecord signal.
@@ -38,8 +42,13 @@ import org.mobicents.media.control.mgcp.pkg.SignalType;
  */
 public class EndSignal extends AbstractMgcpSignal {
 
-    public EndSignal() {
+    private static final Logger log = Logger.getLogger(EndSignal.class);
+
+    private final MgcpEndpoint endpoint;
+
+    public EndSignal(MgcpEndpoint endpoint) {
         super(AudioPackage.PACKAGE_NAME, "es", SignalType.BRIEF);
+        this.endpoint = endpoint;
     }
 
     @Override
@@ -49,14 +58,21 @@ public class EndSignal extends AbstractMgcpSignal {
 
     @Override
     public void execute() {
-        // TODO Auto-generated method stub
+        if (this.executing.getAndSet(true)) {
+            throw new IllegalStateException("Already executing.");
+        }
 
+        String signal = Optional.fromNullable(getParameter(SignalParameters.SIGNAL.symbol())).or("");
+        if (signal.isEmpty()) {
+            log.warn("The EndSignal has no target signal to stop. Execution was canceled.");
+        } else {
+            this.endpoint.cancelSignal(signal);
+        }
     }
 
     @Override
     public void cancel() {
-        // TODO Auto-generated method stub
-
+        // It's a brief signal so it cannot be stopped
     }
 
 }
