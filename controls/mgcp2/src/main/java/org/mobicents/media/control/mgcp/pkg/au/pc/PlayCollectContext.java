@@ -49,8 +49,8 @@ public class PlayCollectContext {
     // Runtime data
     private final StringBuilder collectedDigits;
     private long lastCollectedDigitOn;
+    private char lastTone;
     private int attempt;
-    private boolean canceled;
     private int returnCode;
 
     public PlayCollectContext(DtmfDetector detector, DtmfDetectorListener detectorListener, Map<String, String> parameters) {
@@ -67,9 +67,9 @@ public class PlayCollectContext {
         // Runtime Data
         this.collectedDigits = new StringBuilder("");
         this.lastCollectedDigitOn = 0L;
+        this.lastTone = ' ';
         this.returnCode = 0;
         this.attempt = 1;
-        this.canceled = false;
     }
 
     /*
@@ -147,7 +147,7 @@ public class PlayCollectContext {
     public Playlist getFailureAnnouncement() {
         return failureAnnouncement;
     }
-    
+
     public boolean hasFailureAnnouncement() {
         return !this.failureAnnouncement.isEmpty();
     }
@@ -168,7 +168,7 @@ public class PlayCollectContext {
     public Playlist getSuccessAnnouncement() {
         return successAnnouncement;
     }
-    
+
     public boolean hasSuccessAnnouncement() {
         return !this.successAnnouncement.isEmpty();
     }
@@ -448,7 +448,7 @@ public class PlayCollectContext {
         this.collectedDigits.append(digit);
         this.lastCollectedDigitOn = System.currentTimeMillis();
     }
-    
+
     public void clearCollectedDigits() {
         this.collectedDigits.setLength(0);
     }
@@ -465,10 +465,18 @@ public class PlayCollectContext {
         return lastCollectedDigitOn;
     }
 
+    public char getLastTone() {
+        return lastTone;
+    }
+
+    public void setLastTone(char lastTone) {
+        this.lastTone = lastTone;
+    }
+
     public int getAttempt() {
         return attempt;
     }
-    
+
     public boolean hasMoreAttempts() {
         return this.attempt < getNumberOfAttempts();
     }
@@ -480,14 +488,6 @@ public class PlayCollectContext {
     protected void setReturnCode(int returnCode) {
         this.returnCode = returnCode;
     }
-    
-    public boolean isCanceled() {
-        return canceled;
-    }
-    
-    protected void cancel() {
-        this.canceled = true;
-    }
 
     /**
      * Resets the collected digits and increments the attempts counter.
@@ -495,6 +495,7 @@ public class PlayCollectContext {
     protected void newAttempt() {
         this.attempt++;
         this.collectedDigits.setLength(0);
+        this.lastTone = ' ';
         this.initialPrompt.rewind();
         this.reprompt.rewind();
         this.noDigitsReprompt.rewind();

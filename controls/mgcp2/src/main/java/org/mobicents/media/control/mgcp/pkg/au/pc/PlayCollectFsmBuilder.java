@@ -30,6 +30,7 @@ import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
+import org.squirrelframework.foundation.fsm.TransitionPriority;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
@@ -38,163 +39,111 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
  *
  */
 public class PlayCollectFsmBuilder {
-    
+
     public static final PlayCollectFsmBuilder INSTANCE = new PlayCollectFsmBuilder();
 
-    private final StateMachineBuilder<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> builder;
+    private final StateMachineBuilder<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> builder;
 
     private PlayCollectFsmBuilder() {
         // Finite State Machine
-        this.builder = StateMachineBuilderFactory.<PlayCollectFsm, PlayCollectState, Object, PlayCollectContext> create(
-                PlayCollectFsmImpl2.class, PlayCollectState.class, Object.class, PlayCollectContext.class, DtmfDetector.class,
-                DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
-                ListeningScheduledExecutorService.class, PlayCollectContext.class);
+        this.builder = StateMachineBuilderFactory
+                .<PlayCollectFsm, PlayCollectState, PlayCollectEvent, PlayCollectContext> create(PlayCollectFsmImpl.class,
+                        PlayCollectState.class, PlayCollectEvent.class, PlayCollectContext.class, DtmfDetector.class,
+                        DtmfDetectorListener.class, Player.class, PlayerListener.class, MgcpEventSubject.class,
+                        ListeningScheduledExecutorService.class, PlayCollectContext.class);
 
-        // builder.onEntry(PlayCollectState.READY).callMethod("enterReady");
-        // builder.transition().from(PlayCollectState.READY).to(PlayCollectState.PROCESSING).on(PlayCollectEvent.PROMPT);
-        // builder.transition().from(PlayCollectState.READY).to(PlayCollectState.ACTIVE).on(PlayCollectEvent.REPROMPT);
-        // builder.transition().from(PlayCollectState.READY).to(PlayCollectState.ACTIVE).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
-        // builder.onExit(PlayCollectState.READY).callMethod("exitReady");
+        this.builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
 
-        builder.defineFinishEvent(PlayCollectEvent.EVALUATE);
-        builder.defineParallelStatesOn(PlayCollectState.PROCESSING, PlayCollectState.PROMPT, PlayCollectState.COLLECT);
-        builder.transition().from(PlayCollectState.PROCESSING).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.EVALUATE);
-        builder.transition().from(PlayCollectState.PROCESSING).to(PlayCollectState.TIMED_OUT).on(PlayCollectEvent.TIMEOUT);
+        this.builder.onEntry(PlayCollectState.PLAY_COLLECT).callMethod("enterPlayCollect");
+        this.builder.defineParallelStatesOn(PlayCollectState.PLAY_COLLECT, PlayCollectState.PLAY, PlayCollectState.COLLECT);
+        this.builder.defineSequentialStatesOn(PlayCollectState.PLAY, HistoryType.NONE, PlayCollectState.LOADING_PLAYLIST, PlayCollectState.PROMPTING, PlayCollectState.REPROMPTING, PlayCollectState.NO_DIGITS_REPROMPTING, PlayCollectState.PROMPTED);
+        this.builder.defineSequentialStatesOn(PlayCollectState.COLLECT, PlayCollectState.COLLECTING, PlayCollectState.COLLECTED);
+        this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.EVALUATE);
+        this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.TIMEOUT);
+        this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.FAILING).on(PlayCollectEvent.RESTART);
+        this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.FAILING).on(PlayCollectEvent.REINPUT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL);
+        this.builder.onExit(PlayCollectState.PLAY_COLLECT).callMethod("exitPlayCollect");
 
-        builder.defineSequentialStatesOn(PlayCollectState.PROMPT, HistoryType.DEEP, PlayCollectState.PROMPTING, PlayCollectState.PROMPTED);
-        builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
-        builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPrompting");
-        builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
-        builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
+        this.builder.onEntry(PlayCollectState.LOADING_PLAYLIST).callMethod("enterLoadingPlaylist");
+        this.builder.transition().from(PlayCollectState.LOADING_PLAYLIST).to(PlayCollectState.PROMPTING).on(PlayCollectEvent.PROMPT);
+        this.builder.transition().from(PlayCollectState.LOADING_PLAYLIST).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
+        this.builder.transition().from(PlayCollectState.LOADING_PLAYLIST).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS);
+        this.builder.transition().from(PlayCollectState.LOADING_PLAYLIST).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.NO_PROMPT);
+        this.builder.onExit(PlayCollectState.LOADING_PLAYLIST).callMethod("exitLoadingPlaylist");
         
-        builder.defineSequentialStatesOn(PlayCollectState.COLLECT, HistoryType.DEEP, PlayCollectState.COLLECTING, PlayCollectState.COLLECTED);
-        builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_0).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_1).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_2).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_3).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_4).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_5).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_6).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_7).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_8).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_9).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_A).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_B).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_C).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_D).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_HASH).callMethod("onCollecting");
-        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_STAR).callMethod("onCollecting");
-        builder.transition().from(PlayCollectState.COLLECTING).toFinal(PlayCollectState.COLLECTED).on(PlayCollectEvent.END_INPUT);
-        builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
+        this.builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
+        this.builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPrompting");
+        this.builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition().from(PlayCollectState.PROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
+        this.builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
         
-        builder.onEntry(PlayCollectState.EVALUATING).perform(EvaluateInputAction.INSTANCE);
-        builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
-        builder.transition().from(PlayCollectState.EVALUATING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+        this.builder.onEntry(PlayCollectState.REPROMPTING).callMethod("enterReprompting");
+        this.builder.internalTransition().within(PlayCollectState.REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onReprompting");
+        this.builder.transition().from(PlayCollectState.REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition().from(PlayCollectState.REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
+        this.builder.onExit(PlayCollectState.REPROMPTING).callMethod("exitReprompting");
         
-        builder.onEntry(PlayCollectState.TIMED_OUT).perform(TimeoutAction.INSTANCE);
-        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
-        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
-        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
-        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-//      builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
-//      builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
-//      builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.TIMED_OUT).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL).perform(CancelAction.INSTANCE);
-//      builder.onExit(PlayCollectState.TIMED_OUT).callMethod("exitTimedOut");
-        
-        builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
-        builder.defineState(PlayCollectState.SUCCEEDED).setFinal(true);
+        this.builder.onEntry(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("enterNoDigitsReprompting");
+        this.builder.internalTransition().within(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onNoDigitsReprompting");
+        this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
+        this.builder.onExit(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("exitNoDigitsReprompting");
 
-        builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
-        builder.defineState(PlayCollectState.FAILED).setFinal(true);
+        this.builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
+        this.builder.internalTransition().within(PlayCollectState.COLLECTING).on(PlayCollectEvent.DTMF_TONE).callMethod("onCollecting");
+        this.builder.transition().from(PlayCollectState.COLLECTING).toFinal(PlayCollectState.COLLECTED).on(PlayCollectEvent.END_INPUT);
+        this.builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
         
-//        builder.onEntry(PlayCollectState.READY).callMethod("enterReady");
-//        builder.transition().from(PlayCollectState.READY).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
-//        builder.transition().from(PlayCollectState.READY).to(PlayCollectState.PROMPTING).on(PlayCollectEvent.PROMPT);
-//        builder.onExit(PlayCollectState.READY).callMethod("exitReady");
-//
-//        builder.onEntry(PlayCollectState.PROMPTING).callMethod("enterPrompting");
-//        builder.internalTransition().within(PlayCollectState.PROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPrompting");
-//        builder.transition().from(PlayCollectState.PROMPTING).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
-//        builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PROMPTING).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL).perform(CancelAction.INSTANCE);
-//        builder.onExit(PlayCollectState.PROMPTING).callMethod("exitPrompting");
-//
-//        builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_0).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_1).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_2).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_3).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_4).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_5).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_6).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_7).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_8).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_9).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_A).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_B).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_C).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_D).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_HASH).callMethod("onCollecting");
-//        builder.internalTransition().within(PlayCollectState.COLLECTING).on(DtmfToneEvent.DTMF_STAR).callMethod("onCollecting");
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.TIMED_OUT).on(PlayCollectEvent.TIMEOUT).perform(TimeoutAction.INSTANCE);
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.READY).on(PlayCollectEvent.RESTART);
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
-//        builder.transition().from(PlayCollectState.COLLECTING).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
-//        builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.COLLECTING).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL).perform(CancelAction.INSTANCE);
-//        builder.onExit(PlayCollectState.COLLECTING).callMethod("exitCollecting");
-//
-//        builder.onEntry(PlayCollectState.TIMED_OUT).callMethod("enterTimedOut");
-//        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PLAY_SUCCESS);
-//        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
-//        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PLAY_FAILURE);
-//        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-//        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.REPROMPTING).on(PlayCollectEvent.REPROMPT);
-//        builder.transition().from(PlayCollectState.TIMED_OUT).to(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NO_DIGITS_REPROMPT);
-//        builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.TIMED_OUT).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL).perform(CancelAction.INSTANCE);
-//        builder.onExit(PlayCollectState.TIMED_OUT).callMethod("exitTimedOut");
-//
-//        builder.onEntry(PlayCollectState.REPROMPTING).callMethod("enterReprompting");
-//        builder.transition().from(PlayCollectState.REPROMPTING).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
-//        builder.internalTransition().within(PlayCollectState.REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onReprompting");
-//        builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.REPROMPTING).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL).perform(CancelAction.INSTANCE);
-//        builder.onExit(PlayCollectState.REPROMPTING).callMethod("exitReprompting");
-//
-//        builder.onEntry(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("enterNoDigitsReprompting");
-//        builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).to(PlayCollectState.COLLECTING).on(PlayCollectEvent.COLLECT);
-//        builder.internalTransition().within(PlayCollectState.NO_DIGITS_REPROMPTING).on(PlayCollectEvent.NEXT_TRACK).callMethod("onNoDigitsReprompting");
-//        builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.NO_DIGITS_REPROMPTING).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL).perform(CancelAction.INSTANCE);
-//        builder.onExit(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("exitNoDigitsReprompting");
-//
-//        builder.onEntry(PlayCollectState.CANCELED).callMethod("enterCanceled");
-//        builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
-//        builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-//        builder.onExit(PlayCollectState.CANCELED).callMethod("exitCanceled");
-//
-//        builder.onEntry(PlayCollectState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
-//        builder.internalTransition().within(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingSuccess");
-//        builder.transition().from(PlayCollectState.PLAYING_SUCCESS).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
-//        builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAYING_SUCCESS).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.CANCEL);
-//        builder.onExit(PlayCollectState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
-//
-//        builder.onEntry(PlayCollectState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
-//        builder.internalTransition().within(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingFailure");
-//        builder.transition().from(PlayCollectState.PLAYING_FAILURE).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
-//        builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAYING_FAILURE).to(PlayCollectState.FAILED).on(PlayCollectEvent.CANCEL);
-//        builder.onExit(PlayCollectState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
-//
-//        builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
-//        builder.defineState(PlayCollectState.SUCCEEDED).setFinal(true);
-//
-//        builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
-//        builder.defineState(PlayCollectState.FAILED).setFinal(true);
+        this.builder.onEntry(PlayCollectState.EVALUATING).callMethod("enterEvaluating");
+        this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.SUCCEEDING).on(PlayCollectEvent.SUCCEED);
+        this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.FAILING).on(PlayCollectEvent.NO_DIGITS);
+        this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.FAILING).on(PlayCollectEvent.PATTERN_MISMATCH);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.EVALUATING).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL);
+        this.builder.onExit(PlayCollectState.EVALUATING).callMethod("exitEvaluating");
+        
+        this.builder.onEntry(PlayCollectState.CANCELED).callMethod("enterCanceled");
+        this.builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        this.builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+        this.builder.onExit(PlayCollectState.CANCELED).callMethod("exitCanceled");
+        
+        this.builder.onEntry(PlayCollectState.FAILING).callMethod("enterFailing");
+        this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAY_COLLECT).on(PlayCollectEvent.REINPUT);
+        this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAY_COLLECT).on(PlayCollectEvent.RESTART);
+        this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAY_COLLECT).on(PlayCollectEvent.NO_DIGITS);
+        this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PROMPT);
+        this.builder.transition().from(PlayCollectState.FAILING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.NO_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.FAILING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.CANCEL);
+        this.builder.onExit(PlayCollectState.FAILING).callMethod("exitFailing");
+
+        this.builder.onEntry(PlayCollectState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
+        this.builder.internalTransition().within(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingFailure");
+        this.builder.transition().from(PlayCollectState.PLAYING_FAILURE).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAYING_FAILURE).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.CANCEL);
+        this.builder.onExit(PlayCollectState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
+
+        this.builder.onEntry(PlayCollectState.SUCCEEDING).callMethod("enterSucceeding");
+        this.builder.transition().from(PlayCollectState.SUCCEEDING).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PROMPT);
+        this.builder.transition().from(PlayCollectState.SUCCEEDING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.NO_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.SUCCEEDING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.CANCEL);
+        this.builder.onExit(PlayCollectState.SUCCEEDING).callMethod("exitSucceeding");
+        
+        this.builder.onEntry(PlayCollectState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
+        this.builder.internalTransition().within(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingSuccess");
+        this.builder.transition().from(PlayCollectState.PLAYING_SUCCESS).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAYING_SUCCESS).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.CANCEL);
+        this.builder.onExit(PlayCollectState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
+
+        this.builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
+        this.builder.onEntry(PlayCollectState.FAILED).callMethod("enterFailed");
     }
-    
-    public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player, PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler, PlayCollectContext context) {
-        return builder.newStateMachine(PlayCollectState.PROCESSING, StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player, playerListener, eventSubject, scheduler, context);
+
+    public PlayCollectFsm build(DtmfDetector detector, DtmfDetectorListener detectorListener, Player player,
+            PlayerListener playerListener, MgcpEventSubject eventSubject, ListeningScheduledExecutorService scheduler,
+            PlayCollectContext context) {
+        return builder.newStateMachine(PlayCollectState.PLAY_COLLECT,
+                StateMachineConfiguration.getInstance().enableDebugMode(false), detector, detectorListener, player,
+                playerListener, eventSubject, scheduler, context);
     }
 
 }
