@@ -21,14 +21,15 @@ Collected --> [*]
 }
 
 [*] -down-> PlayCollect
-PlayCollect -down-> Evaluating : evaluate/timeout/restart/reinput
+PlayCollect -down-> Evaluating : evaluate/timeout
+PlayCollect -down-> Failing : restart/reinput
 PlayCollect --> Canceled : cancel
 
-Evaluating -up-> PlayCollect : collect/reprompt/no_digits
-Evaluating -down-> Failing : no_digits/pattern_mismatch/max_attempts
+Evaluating -down-> Failing : no_digits/pattern_mismatch
 Evaluating -down-> Canceled : cancel
 Evaluating -down-> Succeeding : succeed
 
+Failing -up-> PlayCollect : restart/reinput/no_digits
 Failing -down-> PlayingFailure : prompt
 Failing -down-> Failed : no_prompt/cancel
 PlayingFailure --> PlayingFailure : next_track
