@@ -34,7 +34,7 @@ import com.google.inject.Provider;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpControllerProvider implements Provider<MgcpController> {
+public class Mgcp2ControllerProvider implements Provider<MgcpController> {
 
     private final MgcpChannel channel;
     private final TransactionManager transactions;
@@ -42,7 +42,7 @@ public class MgcpControllerProvider implements Provider<MgcpController> {
     private final MgcpCommandProvider commands;
 
     @Inject
-    public MgcpControllerProvider(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public Mgcp2ControllerProvider(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
         this.channel = channel;
         this.transactions = transactions;
         this.endpoints = endpoints;

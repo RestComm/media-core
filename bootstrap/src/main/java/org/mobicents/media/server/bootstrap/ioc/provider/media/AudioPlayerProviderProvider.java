@@ -22,6 +22,7 @@
 package org.mobicents.media.server.bootstrap.ioc.provider.media;
 
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerProvider;
+import org.mobicents.media.server.impl.resource.mediaplayer.audio.RemoteStreamProvider;
 import org.mobicents.media.server.scheduler.PriorityQueueScheduler;
 
 import com.google.inject.Inject;
@@ -34,16 +35,18 @@ import com.google.inject.Provider;
 public class AudioPlayerProviderProvider implements Provider<AudioPlayerProvider> {
 
     private final PriorityQueueScheduler scheduler;
+    private final RemoteStreamProvider streamProvider;
 
     @Inject
-    public AudioPlayerProviderProvider(PriorityQueueScheduler scheduler) {
+    public AudioPlayerProviderProvider(PriorityQueueScheduler scheduler, RemoteStreamProvider streamProvider) {
         super();
         this.scheduler = scheduler;
+        this.streamProvider = streamProvider;
     }
 
     @Override
     public AudioPlayerProvider get() {
-        return new AudioPlayerProvider(scheduler);
+        return new AudioPlayerProvider(scheduler, streamProvider);
     }
 
 }

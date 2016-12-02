@@ -36,15 +36,17 @@ import org.mobicents.media.server.spi.player.PlayerProvider;
 public class AudioPlayerProvider implements PlayerProvider {
 
     private final PriorityQueueScheduler scheduler;
+    private final RemoteStreamProvider remoteStreamProvider;
     private final AtomicInteger id;
 
-    public AudioPlayerProvider(PriorityQueueScheduler scheduler) {
+    public AudioPlayerProvider(PriorityQueueScheduler scheduler, RemoteStreamProvider remoteStreamProvider) {
         this.scheduler = scheduler;
+        this.remoteStreamProvider = remoteStreamProvider;
         this.id = new AtomicInteger(0);
     }
 
     public Player provide() {
-        return new AudioPlayerImpl(nextId(), this.scheduler);
+        return new AudioPlayerImpl(nextId(), this.scheduler, remoteStreamProvider);
     }
 
     private String nextId() {
