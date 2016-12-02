@@ -427,8 +427,28 @@ public class PlayCollectFsmImpl extends
         if (log.isTraceEnabled()) {
             log.trace("Entered CANCELED state");
         }
-
-        // TODO implement CANCELED state
+        
+        final int digitCount = context.countCollectedDigits();
+        if (digitCount == 0) {
+            // No digits were collected
+            context.setReturnCode(ReturnCode.NO_DIGITS.code());
+            fire(PlayCollectEvent.FAIL, context);
+        } else if (context.hasDigitPattern()) {
+            // Succeed if digit pattern matches. Otherwise retry
+            if (context.getCollectedDigits().matches(context.getDigitPattern())) {
+                fire(PlayCollectEvent.SUCCEED, context);
+            } else {
+                context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
+                fire(PlayCollectEvent.FAIL, context);
+            }
+        } else if (digitCount < context.getMinimumDigits()) {
+            // Minimum digits not met
+            context.setReturnCode(ReturnCode.DIGIT_PATTERN_NOT_MATCHED.code());
+            fire(PlayCollectEvent.FAIL, context);
+        } else {
+            // Pattern validation was successful
+            fire(PlayCollectEvent.SUCCEED, context);
+        }
     }
 
     @Override

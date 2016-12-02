@@ -30,6 +30,7 @@ import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
 import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
+import org.squirrelframework.foundation.fsm.TransitionPriority;
 
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 
@@ -61,6 +62,7 @@ public class PlayCollectFsmBuilder {
         this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.EVALUATING).on(PlayCollectEvent.TIMEOUT);
         this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.FAILING).on(PlayCollectEvent.RESTART);
         this.builder.transition().from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.FAILING).on(PlayCollectEvent.REINPUT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAY_COLLECT).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.PLAY_COLLECT).callMethod("exitPlayCollect");
 
         this.builder.onEntry(PlayCollectState.LOADING_PLAYLIST).callMethod("enterLoadingPlaylist");
@@ -97,7 +99,13 @@ public class PlayCollectFsmBuilder {
         this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.SUCCEEDING).on(PlayCollectEvent.SUCCEED);
         this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.FAILING).on(PlayCollectEvent.NO_DIGITS);
         this.builder.transition().from(PlayCollectState.EVALUATING).to(PlayCollectState.FAILING).on(PlayCollectEvent.PATTERN_MISMATCH);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.EVALUATING).to(PlayCollectState.CANCELED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.EVALUATING).callMethod("exitEvaluating");
+        
+        this.builder.onEntry(PlayCollectState.CANCELED).callMethod("enterCanceled");
+        this.builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.SUCCEED);
+        this.builder.transition().from(PlayCollectState.CANCELED).to(PlayCollectState.FAILED).on(PlayCollectEvent.FAIL);
+        this.builder.onExit(PlayCollectState.CANCELED).callMethod("exitCanceled");
         
         this.builder.onEntry(PlayCollectState.FAILING).callMethod("enterFailing");
         this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAY_COLLECT).on(PlayCollectEvent.REINPUT);
@@ -105,21 +113,25 @@ public class PlayCollectFsmBuilder {
         this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAY_COLLECT).on(PlayCollectEvent.NO_DIGITS);
         this.builder.transition().from(PlayCollectState.FAILING).to(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.PROMPT);
         this.builder.transition().from(PlayCollectState.FAILING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.NO_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.FAILING).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.FAILING).callMethod("exitFailing");
 
         this.builder.onEntry(PlayCollectState.PLAYING_FAILURE).callMethod("enterPlayingFailure");
         this.builder.internalTransition().within(PlayCollectState.PLAYING_FAILURE).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingFailure");
         this.builder.transition().from(PlayCollectState.PLAYING_FAILURE).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAYING_FAILURE).toFinal(PlayCollectState.FAILED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.PLAYING_FAILURE).callMethod("exitPlayingFailure");
 
         this.builder.onEntry(PlayCollectState.SUCCEEDING).callMethod("enterSucceeding");
         this.builder.transition().from(PlayCollectState.SUCCEEDING).to(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.PROMPT);
         this.builder.transition().from(PlayCollectState.SUCCEEDING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.NO_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.SUCCEEDING).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.SUCCEEDING).callMethod("exitSucceeding");
         
         this.builder.onEntry(PlayCollectState.PLAYING_SUCCESS).callMethod("enterPlayingSuccess");
         this.builder.internalTransition().within(PlayCollectState.PLAYING_SUCCESS).on(PlayCollectEvent.NEXT_TRACK).callMethod("onPlayingSuccess");
         this.builder.transition().from(PlayCollectState.PLAYING_SUCCESS).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.END_PROMPT);
+        this.builder.transition(TransitionPriority.HIGHEST).from(PlayCollectState.PLAYING_SUCCESS).toFinal(PlayCollectState.SUCCEEDED).on(PlayCollectEvent.CANCEL);
         this.builder.onExit(PlayCollectState.PLAYING_SUCCESS).callMethod("exitPlayingSuccess");
 
         this.builder.onEntry(PlayCollectState.SUCCEEDED).callMethod("enterSucceeded");
