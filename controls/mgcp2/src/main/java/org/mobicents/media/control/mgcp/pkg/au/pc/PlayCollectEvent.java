@@ -18,7 +18,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
+        
 package org.mobicents.media.control.mgcp.pkg.au.pc;
 
 /**
@@ -27,6 +27,8 @@ package org.mobicents.media.control.mgcp.pkg.au.pc;
  */
 public enum PlayCollectEvent {
 
-    EXECUTE, PROMPT, REPROMPT, NO_DIGITS_REPROMPT, NEXT_TRACK, COLLECT, TIMEOUT, CANCEL, PLAY_SUCCESS, SUCCEED, PLAY_FAILURE, FAIL, RESTART; 
+    PROMPT, REPROMPT, NO_DIGITS, NO_PROMPT, NEXT_TRACK, END_PROMPT, END_INPUT, DTMF_TONE, 
+    EVALUATE, TIMEOUT, CANCEL, RESTART, REINPUT, PATTERN_MISMATCH, MAX_ATTEMPTS, 
+    PLAY_SUCCESS, PLAY_FAILURE, SUCCEED, FAIL;
 
 }
