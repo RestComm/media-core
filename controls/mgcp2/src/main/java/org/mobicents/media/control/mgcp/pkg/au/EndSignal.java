@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.pkg.au;
 
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.pkg.AbstractMgcpSignal;
@@ -46,8 +48,8 @@ public class EndSignal extends AbstractMgcpSignal {
 
     private final MgcpEndpoint endpoint;
 
-    public EndSignal(MgcpEndpoint endpoint) {
-        super(AudioPackage.PACKAGE_NAME, "es", SignalType.BRIEF);
+    public EndSignal(MgcpEndpoint endpoint, Map<String, String> parameters) {
+        super(AudioPackage.PACKAGE_NAME, "es", SignalType.BRIEF, parameters);
         this.endpoint = endpoint;
     }
 

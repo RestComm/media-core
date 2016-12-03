@@ -143,7 +143,7 @@ public class RequestNotificationCommand extends AbstractMgcpCommand {
                 signals = new MgcpSignal[signalRequests.length];
                 for (int i = 0; i < signalRequests.length; i++) {
                     SignalRequest signalRequest = signalRequests[i];
-                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), endpoint.getMediaGroup());
+                    signals[i] = this.signalProvider.provide(signalRequest.getPackageName(), signalRequest.getSignalType(), signalRequest.getParameters(), endpoint);
                 }
             } catch (UnrecognizedMgcpPackageException e) {
                 throw new MgcpCommandException(MgcpResponseCode.UNKNOWN_PACKAGE);
