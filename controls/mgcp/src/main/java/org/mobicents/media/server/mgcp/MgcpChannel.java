@@ -19,26 +19,27 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.io.network.channel2;
+package org.mobicents.media.server.mgcp;
 
-import java.net.InetSocketAddress;
+import org.apache.log4j.Logger;
+import org.mobicents.media.server.io.network.channel2.MultiplexedNetworkChannel;
+import org.mobicents.media.server.io.network.channel2.RestrictedNetworkGuard;
 
 /**
- * Guards a {@link NetworkChannel} by deciding whether remote sources are secure or not. The channel must not handle packets
- * that the Guard deems insecure.
- * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NetworkGuard {
+public class MgcpChannel extends MultiplexedNetworkChannel {
 
-    /**
-     * Decides whether a remote peer is secure or not.
-     * 
-     * @param channel The channel who received the packet.
-     * @param source The address of the remote peer.
-     * @return Returns true if source is considered secure; otherwise, returns false.
-     */
-    boolean isSecure(NetworkChannel channel, InetSocketAddress source);
+    private static final Logger log = Logger.getLogger(MgcpChannel.class);
+
+    public MgcpChannel(RestrictedNetworkGuard guard, MgcpPacketHandler handler) {
+        super(guard, handler);
+    }
+
+    @Override
+    protected Logger log() {
+        return log;
+    }
 
 }

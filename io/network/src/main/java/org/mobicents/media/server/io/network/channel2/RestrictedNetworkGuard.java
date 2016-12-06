@@ -21,9 +21,9 @@
 
 package org.mobicents.media.server.io.network.channel2;
 
-import java.net.InetAddress;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.IPAddressCompare;
 
 /**
@@ -34,19 +34,29 @@ import org.mobicents.media.server.io.network.IPAddressCompare;
  */
 public class RestrictedNetworkGuard implements NetworkGuard {
 
-    private final InetAddress address;
-    private final InetAddress network;
-    private final InetAddress subnet;
+    private static final Logger log = Logger.getLogger(RestrictedNetworkGuard.class);
+    
+    private final InetSocketAddress address;
+    private final String network;
+    private final String subnet;
 
-    public RestrictedNetworkGuard(InetAddress address, InetAddress network, InetAddress subnet) {
+    public RestrictedNetworkGuard(InetSocketAddress address, String network, String subnet) {
         this.address = address;
         this.network = network;
         this.subnet = subnet;
     }
 
     @Override
-    public boolean isSecure(NetworkChannel channel, SocketAddress source) {
-        return IPAddressCompare.isInRangeV4(this.network.getAddress(), this.subnet.getAddress(), address.getAddress());
+    public boolean isSecure(NetworkChannel channel, InetSocketAddress source) {
+        byte[] networkBytes = IPAddressCompare.addressToByteArrayV4(this.network);
+        byte[] subnetBytes = IPAddressCompare.addressToByteArrayV4(this.subnet);
+        boolean secure = IPAddressCompare.isInRangeV4(networkBytes, subnetBytes, this.address.getAddress().getAddress());
+        
+        if(log.isInfoEnabled()) {
+            log.info("Is packet secure? [local address="+this.address.getAddress().getHostAddress()+", network="+this.network+", subnet="+this.subnet+", remote address="+source.getAddress().getHostAddress()+"]");
+        }
+        
+        return secure;
     }
 
 }

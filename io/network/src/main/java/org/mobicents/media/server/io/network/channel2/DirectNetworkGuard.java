@@ -21,7 +21,7 @@
 
 package org.mobicents.media.server.io.network.channel2;
 
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
@@ -30,7 +30,7 @@ import java.net.SocketAddress;
 public class DirectNetworkGuard implements NetworkGuard {
 
     @Override
-    public boolean isSecure(NetworkChannel channel, SocketAddress source) {
+    public boolean isSecure(NetworkChannel channel, InetSocketAddress source) {
         if(channel.isConnected()) {
             return channel.getRemoteAddress().equals(source);
         }

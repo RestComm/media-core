@@ -22,7 +22,7 @@
 package org.mobicents.media.server.io.network.channel2;
 
 import java.io.IOException;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
 
@@ -38,7 +38,7 @@ public class SbcNetworkGuard implements NetworkGuard {
     private static final Logger log = Logger.getLogger(SbcNetworkGuard.class);
 
     @Override
-    public boolean isSecure(NetworkChannel channel, SocketAddress source) {
+    public boolean isSecure(NetworkChannel channel, InetSocketAddress source) {
         if (channel.isConnected()) {
             return channel.getRemoteAddress().equals(source);
         } else {

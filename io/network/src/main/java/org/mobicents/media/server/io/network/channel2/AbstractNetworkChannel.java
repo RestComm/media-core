@@ -22,10 +22,13 @@
 package org.mobicents.media.server.io.network.channel2;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 
 import org.apache.log4j.Logger;
 
@@ -42,14 +45,18 @@ public abstract class AbstractNetworkChannel implements NetworkChannel {
     // The buffer into which we will read data when it's available
     private static final int BUFFER_SIZE = 8192;
     private final ByteBuffer receiveBuffer;
+    
+    // Filters incoming packet according to a security policy
+    private final NetworkGuard guard;
 
-    public AbstractNetworkChannel() {
+    public AbstractNetworkChannel(NetworkGuard guard) {
         super();
         this.receiveBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+        this.guard = guard;
     }
 
     @Override
-    public void bind(SocketAddress address) throws IOException {
+    public void bind(InetSocketAddress address) throws IOException {
         if (isOpen()) {
             this.dataChannel.bind(address);
         } else {
@@ -61,6 +68,7 @@ public abstract class AbstractNetworkChannel implements NetworkChannel {
     public void open() throws IOException {
         if (!isOpen()) {
             this.dataChannel = DatagramChannel.open();
+            this.dataChannel.configureBlocking(false);
         } else {
             throw new IOException("Channel is already open.");
         }
@@ -76,37 +84,47 @@ public abstract class AbstractNetworkChannel implements NetworkChannel {
                     log().warn("Was unable to disconnect channel", e);
                 }
             }
-        }
 
-        try {
-            this.selectionKey.cancel();
-            this.dataChannel.close();
-        } catch (IOException e) {
-            log().error("Could not close channel.", e);
+            if (isRegistered()) {
+                this.selectionKey.cancel();
+            }
+
+            try {
+                this.dataChannel.close();
+            } catch (IOException e) {
+                log().error("Could not close channel.", e);
+            }
         }
     }
-    
+
     @Override
-    public void connect(SocketAddress address) throws IOException {
-        if(isOpen()) {
+    public void register(Selector selector, int opts) throws ClosedChannelException {
+        SelectionKey key = this.dataChannel.register(selector, opts);
+        key.attach(this);
+    }
+
+    @Override
+    public void connect(InetSocketAddress address) throws IOException {
+        if (isOpen()) {
             this.dataChannel.connect(address);
         } else {
             throw new IOException("The channel is closed.");
         }
     }
-    
+
     @Override
     public void disconnect() throws IOException {
-        if(isConnected()) {
+        if (isConnected()) {
             this.dataChannel.disconnect();
         }
     }
 
     @Override
-    public SocketAddress getLocalAddress() {
+    public InetSocketAddress getLocalAddress() {
         if (isOpen()) {
             try {
-                return this.dataChannel.getLocalAddress();
+                final SocketAddress address = this.dataChannel.getLocalAddress();
+                return address == null ? null : (InetSocketAddress) address;
             } catch (IOException e) {
                 log().warn("Cannot retrieve local address.", e);
             }
@@ -115,10 +133,11 @@ public abstract class AbstractNetworkChannel implements NetworkChannel {
     }
 
     @Override
-    public SocketAddress getRemoteAddress() {
+    public InetSocketAddress getRemoteAddress() {
         if (isConnected()) {
             try {
-                return this.dataChannel.getRemoteAddress();
+                final SocketAddress address = this.dataChannel.getRemoteAddress();
+                return address == null ? null : (InetSocketAddress) address;
             } catch (IOException e) {
                 log().warn("Cannot retrieve remote address.", e);
             }
@@ -135,27 +154,32 @@ public abstract class AbstractNetworkChannel implements NetworkChannel {
     public boolean isConnected() {
         return this.dataChannel != null && this.dataChannel.isConnected();
     }
-    
+
+    @Override
+    public boolean isRegistered() {
+        return this.selectionKey != null && this.selectionKey.isValid();
+    }
+
     @Override
     public void receive() throws IOException {
         // Get buffer ready for new data
         this.receiveBuffer.clear();
-        
+
         // Read data from channel
-        SocketAddress remotePeer = null;
+        InetSocketAddress remotePeer = null;
         int dataLength = 0;
         try {
-            remotePeer = dataChannel.receive(this.receiveBuffer);
+            remotePeer = (InetSocketAddress) dataChannel.receive(this.receiveBuffer);
             dataLength = this.receiveBuffer.position();
         } catch (IOException e) {
             dataLength = -1;
         }
-        
+
         if (dataLength == -1) {
             // Stop if socket was shutdown or error occurred
             close();
             return;
-        } else if (dataLength > 0) {
+        } else if (dataLength > 0 && this.guard.isSecure(this, remotePeer)) {
             // Copy data from buffer so we don't mess with original
             byte[] dataCopy = new byte[dataLength];
             this.receiveBuffer.rewind();
@@ -165,26 +189,35 @@ public abstract class AbstractNetworkChannel implements NetworkChannel {
             onIncomingPacket(dataCopy, remotePeer);
         }
     }
-    
+
     @Override
     public void send(byte[] data) throws IOException {
-        if(isConnected()) {
+        if (isConnected()) {
             this.dataChannel.send(ByteBuffer.wrap(data), this.dataChannel.getRemoteAddress());
         } else {
             throw new IOException("Channel is not connected");
         }
     }
-    
+
     @Override
-    public void send(byte[] data, SocketAddress remotePeer) throws IOException {
-        if(isOpen()) {
+    public void send(byte[] data, InetSocketAddress remotePeer) throws IOException {
+        if (isOpen()) {
             this.dataChannel.send(ByteBuffer.wrap(data), remotePeer);
         } else {
             throw new IOException("Channel is closed.");
         }
     }
-    
-    protected abstract void onIncomingPacket(byte[] data, SocketAddress remotePeer);
+
+    @Override
+    public void send(ByteBuffer data, InetSocketAddress remotePeer) throws IOException {
+        if (isOpen()) {
+            this.dataChannel.send(data, remotePeer);
+        } else {
+            throw new IOException("Channel is closed.");
+        }
+    }
+
+    protected abstract void onIncomingPacket(byte[] data, InetSocketAddress remotePeer);
 
     protected abstract Logger log();
 }
