@@ -52,8 +52,8 @@ public class RestrictedNetworkGuard implements NetworkGuard {
         byte[] subnetBytes = IPAddressCompare.addressToByteArrayV4(this.subnet);
         boolean secure = IPAddressCompare.isInRangeV4(networkBytes, subnetBytes, this.address.getAddress().getAddress());
         
-        if(log.isInfoEnabled()) {
-            log.info("Is packet secure? [local address="+this.address.getAddress().getHostAddress()+", network="+this.network+", subnet="+this.subnet+", remote address="+source.getAddress().getHostAddress()+"]");
+        if(log.isDebugEnabled()) {
+            log.debug("Is packet secure? [local address="+this.address.getAddress().getHostAddress()+", network="+this.network+", subnet="+this.subnet+", remote address="+source.getAddress().getHostAddress()+"]");
         }
         
         return secure;
