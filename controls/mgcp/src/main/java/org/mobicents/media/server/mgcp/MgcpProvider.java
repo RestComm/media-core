@@ -65,7 +65,7 @@ public class MgcpProvider {
      */
     public MgcpProvider(UdpManager transport, int port) {
         this.transport = transport;
-        this.networkGuard = new RestrictedNetworkGuard(new InetSocketAddress(transport.getBindAddress(), port), transport.getLocalNetwork(), transport.getLocalSubnet());
+        this.networkGuard = new RestrictedNetworkGuard(transport.getLocalNetwork(), transport.getLocalSubnet());
         this.mgcpHandler = new MgcpPacketHandler(this);
         this.dataChannel = new MgcpChannel(this.networkGuard, this.mgcpHandler);
         this.port = port;

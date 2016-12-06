@@ -35,13 +35,11 @@ import org.mobicents.media.server.io.network.IPAddressCompare;
 public class RestrictedNetworkGuard implements NetworkGuard {
 
     private static final Logger log = Logger.getLogger(RestrictedNetworkGuard.class);
-    
-    private final InetSocketAddress address;
+
     private final String network;
     private final String subnet;
 
-    public RestrictedNetworkGuard(InetSocketAddress address, String network, String subnet) {
-        this.address = address;
+    public RestrictedNetworkGuard(String network, String subnet) {
         this.network = network;
         this.subnet = subnet;
     }
@@ -50,12 +48,12 @@ public class RestrictedNetworkGuard implements NetworkGuard {
     public boolean isSecure(NetworkChannel channel, InetSocketAddress source) {
         byte[] networkBytes = IPAddressCompare.addressToByteArrayV4(this.network);
         byte[] subnetBytes = IPAddressCompare.addressToByteArrayV4(this.subnet);
-        boolean secure = IPAddressCompare.isInRangeV4(networkBytes, subnetBytes, this.address.getAddress().getAddress());
-        
-        if(log.isDebugEnabled()) {
-            log.debug("Is packet secure? [local address="+this.address.getAddress().getHostAddress()+", network="+this.network+", subnet="+this.subnet+", remote address="+source.getAddress().getHostAddress()+"]");
+        boolean secure = IPAddressCompare.isInRangeV4(networkBytes, subnetBytes, source.getAddress().getAddress());
+
+        if (log.isDebugEnabled()) {
+            log.debug("Is packet secure? " + secure + " [network=" + this.network + ", subnet=" + this.subnet + ", remote address=" + source.getAddress().getHostAddress() + "]");
         }
-        
+
         return secure;
     }
 
