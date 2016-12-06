@@ -19,22 +19,26 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.io.network.channel2;
+package org.mobicents.media.server.io.network.channel;
 
 import java.net.InetSocketAddress;
 
 /**
+ * Guards a {@link NetworkChannel} by deciding whether remote sources are secure or not. The channel must not handle packets
+ * that the Guard deems insecure.
+ * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class DirectNetworkGuard implements NetworkGuard {
+public interface NetworkGuard {
 
-    @Override
-    public boolean isSecure(NetworkChannel channel, InetSocketAddress source) {
-        if(channel.isConnected()) {
-            return channel.getRemoteAddress().equals(source);
-        }
-        return false;
-    }
+    /**
+     * Decides whether a remote peer is secure or not.
+     * 
+     * @param channel The channel who received the packet.
+     * @param source The address of the remote peer.
+     * @return Returns true if source is considered secure; otherwise, returns false.
+     */
+    boolean isSecure(NetworkChannel channel, InetSocketAddress source);
 
 }

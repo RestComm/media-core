@@ -19,14 +19,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.io.network.channel2;
+package org.mobicents.media.server.io.network.channel;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-
-import org.mobicents.media.server.io.network.channel.PacketHandler;
-import org.mobicents.media.server.io.network.channel.PacketHandlerException;
-import org.mobicents.media.server.io.network.channel.PacketHandlerPipeline;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)

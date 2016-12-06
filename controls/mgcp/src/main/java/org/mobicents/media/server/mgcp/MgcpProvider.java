@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.channel2.RestrictedNetworkGuard;
+import org.mobicents.media.server.io.network.channel.RestrictedNetworkGuard;
 import org.mobicents.media.server.mgcp.message.MgcpMessage;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;

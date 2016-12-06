@@ -35,8 +35,9 @@ import org.apache.log4j.Logger;
  * Data channel that supports multiplexing.
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- * 
+ * @deprecated Use {@link NetworkChannel} instead.
  */
+@Deprecated
 public class MultiplexedChannel implements Channel {
 	
 	private static final Logger logger = Logger.getLogger(MultiplexedChannel.class);

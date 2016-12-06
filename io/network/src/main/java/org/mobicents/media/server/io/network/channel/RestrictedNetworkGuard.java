@@ -19,7 +19,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.mobicents.media.server.io.network.channel2;
+package org.mobicents.media.server.io.network.channel;
 
 import java.net.InetSocketAddress;
 

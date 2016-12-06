@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.channel.Channel;
-import org.mobicents.media.server.io.network.channel2.NetworkChannel;
+import org.mobicents.media.server.io.network.channel.NetworkChannel;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 

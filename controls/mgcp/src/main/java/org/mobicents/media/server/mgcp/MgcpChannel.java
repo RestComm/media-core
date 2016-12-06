@@ -22,8 +22,8 @@
 package org.mobicents.media.server.mgcp;
 
 import org.apache.log4j.Logger;
-import org.mobicents.media.server.io.network.channel2.MultiplexedNetworkChannel;
-import org.mobicents.media.server.io.network.channel2.RestrictedNetworkGuard;
+import org.mobicents.media.server.io.network.channel.MultiplexedNetworkChannel;
+import org.mobicents.media.server.io.network.channel.RestrictedNetworkGuard;
 
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
