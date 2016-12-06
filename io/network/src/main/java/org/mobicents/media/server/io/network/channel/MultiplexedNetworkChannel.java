@@ -24,11 +24,15 @@ package org.mobicents.media.server.io.network.channel;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public abstract class MultiplexedNetworkChannel extends AbstractNetworkChannel {
+public class MultiplexedNetworkChannel extends AbstractNetworkChannel {
+    
+    private static final Logger log = Logger.getLogger(MultiplexedNetworkChannel.class);
 
     protected final PacketHandlerPipeline handlers;
 
@@ -62,6 +66,11 @@ public abstract class MultiplexedNetworkChannel extends AbstractNetworkChannel {
                 log().warn(handler.getClass().getSimpleName() + " could not send response to remote peer " + remotePeer.getAddress().toString());
             }
         }
+    }
+    
+    @Override
+    protected Logger log() {
+        return log;
     }
 
 }
