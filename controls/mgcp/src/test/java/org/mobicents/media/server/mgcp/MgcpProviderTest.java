@@ -70,17 +70,6 @@ public class MgcpProviderTest {
     
     InetSocketAddress destination,destination2;
     
-    public MgcpProviderTest() {    	
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
     @Before
     public void setUp() throws IOException, TooManyListenersException {
     	mediaScheduler = new PriorityQueueScheduler();
@@ -90,6 +79,8 @@ public class MgcpProviderTest {
         udpInterface = new UdpManager(scheduler);
         udpInterface.setLocalBindAddress("127.0.0.1");
         udpInterface.setBindAddress("127.0.0.1");
+        udpInterface.setLocalNetwork("127.0.0.1");
+        udpInterface.setLocalSubnet("255.255.255.255");
         scheduler.start();
         udpInterface.start();
         
