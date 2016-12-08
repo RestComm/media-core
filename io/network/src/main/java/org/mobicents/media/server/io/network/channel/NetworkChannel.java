@@ -33,7 +33,7 @@ import java.nio.channels.Selector;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public interface NetworkChannel {
+public interface NetworkChannel extends AutoCloseable {
 
     /**
      * Binds the channel to an address.
@@ -54,6 +54,7 @@ public interface NetworkChannel {
      * Disconnects and closes the channel.<br>
      * Invoking this method will have no effect if the channel is already closed.
      */
+    @Override
     void close();
 
     /**
