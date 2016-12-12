@@ -1,0 +1,37 @@
+[uml,file="network-channel-mgcp.png"]
+--
+interface NetworkChannel {
+}
+
+abstract class AbstractNetworkChannel {
+}
+
+class MultiplexedNetworkChannel {
+-List<PacketHandler> handlers
+}
+
+interface NetworkGuard {
++isSecure(NetworkChannel,SocketAddress)
+}
+
+class RestrictedNetworkGuard {
+}
+
+class DirectNetworkGuard {
+}
+
+class SbcNetworkGuard {
+}
+
+NetworkChannel <|-- AbstractNetworkChannel
+AbstractNetworkChannel <|-- MultiplexedNetworkChannel
+MultiplexedNetworkChannel <|-- MgcpChannel : restricted
+MultiplexedNetworkChannel <|-- RtpChannel : direct or sbc
+MultiplexedNetworkChannel <|-- RtcpChannel : direct or sbc
+
+AbstractNetworkChannel -right-> NetworkGuard
+NetworkGuard <|-- AbstractNetworkGuard
+AbstractNetworkGuard <|-- RestrictedNetworkGuard
+AbstractNetworkGuard <|-- DirectNetworkGuard
+AbstractNetworkGuard <|-- SbcNetworkGuard
+--
