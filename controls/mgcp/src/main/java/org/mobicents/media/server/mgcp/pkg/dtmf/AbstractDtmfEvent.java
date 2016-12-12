@@ -56,7 +56,8 @@ public abstract class AbstractDtmfEvent extends Signal implements DtmfDetectorLi
         }
 
         try {
-        	dtmfDetector.addListener(this);            
+        	dtmfDetector.addListener(this); 
+        	dtmfDetector.activate();
         } catch (TooManyListenersException e) {
         }
 
@@ -76,6 +77,7 @@ public abstract class AbstractDtmfEvent extends Signal implements DtmfDetectorLi
     public void cancel() {
         if (dtmfDetector != null) {
             dtmfDetector.removeListener(this);
+            dtmfDetector.deactivate();
             dtmfDetector=null;
         }
     }

@@ -341,6 +341,7 @@ public class PlayRecord extends Signal {
     private void terminateCollectPhase() {
         if (dtmfDetector != null) {
             dtmfDetector.removeListener(buffer);
+            dtmfDetector.deactivate();
 
             // dtmfDetector.clearDigits();
 
@@ -368,6 +369,7 @@ public class PlayRecord extends Signal {
     private void startCollectPhase() {
         buffer.activate();
         buffer.flush();
+        dtmfDetector.activate();
     }
 
     /**
