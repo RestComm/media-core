@@ -57,7 +57,7 @@ The Restcomm Media Server is capable of
 ** DTMF(RFC 2833, INBAND)				
 
 * Media Files : 
-** WAV
+** WAV (Sample rate of 8000Hz, bit rate of 8, Mono)
 ** GSM				
 
 * Signaling and control : 
