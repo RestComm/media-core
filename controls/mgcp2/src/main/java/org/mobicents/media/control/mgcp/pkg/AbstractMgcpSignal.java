@@ -60,6 +60,11 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     public String getSymbol() {
         return symbol;
     }
+    
+    @Override
+    public String getName() {
+        return this.packageName + "/" + this.symbol;
+    }
 
     @Override
     public SignalType getSignalType() {
