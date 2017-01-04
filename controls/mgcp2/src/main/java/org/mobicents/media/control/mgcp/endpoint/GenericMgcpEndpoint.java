@@ -373,15 +373,13 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 }
             }
             
+            
             // Cancel every ongoing signal that was not retained
-            Iterator<String> keys = retained.iterator();
+            Iterator<String> keys = this.signals.keySet().iterator();
             while (keys.hasNext()) {
-                MgcpSignal ongoing = this.signals.get(keys.next());
-                if(ongoing != null) {
-                    if (log.isInfoEnabled()) {
-                        log.info("Canceling signal " + ongoing.toString() + " on endpoint " + getEndpointId().toString());
-                    }
-                    ongoing.cancel();
+                String key = keys.next();
+                if(!retained.contains(key)) {
+                    cancelSignal(key);
                 }
             }
         }
@@ -389,8 +387,13 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     @Override
     public void cancelSignal(String signal) {
-        // TODO Auto-generated method stub
-        log.info("Canceling signal " + signal + " on endpoint " + getEndpointId().toString());
+        MgcpSignal ongoing = this.signals.get(signal);
+        if(ongoing != null) {
+            if (log.isInfoEnabled()) {
+                log.info("Canceling signal " + ongoing.toString() + " on endpoint " + getEndpointId().toString());
+            }
+            ongoing.cancel();
+        }
     }
 
     /**
@@ -468,8 +471,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 notify.setEndpointId(this.endpointId.toString());
                 notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
                 notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
-                // TODO notify.addParameter(MgcpParameterType.REQUEST_ID, signal.getRequestIdentifier());
-                notify.addParameter(MgcpParameterType.REQUEST_ID, "1");
+                notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
 
                 // Send notification to call agent
                 notify(this, notify, MessageDirection.OUTGOING);

@@ -61,8 +61,8 @@ public class PlayRecord extends AbstractMgcpSignal {
     // Execution Context
     private final PlayRecordContext context;
 
-    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, parameters);
+    public PlayRecord(Player player, DtmfDetector detector, Recorder recorder, int requestId, Map<String, String> parameters) {
+        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, parameters);
 
         // Media Components
         this.player = player;

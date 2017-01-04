@@ -35,6 +35,13 @@ public interface MgcpSignal extends MgcpEventSubject {
     String getName();
 
     /**
+     * Gets the identifier of the request that submitted the signal.
+     * 
+     * @return The request identifier.
+     */
+    int getRequestId();
+
+    /**
      * Gets the type of signal.
      * 
      * @return The type of the signal.

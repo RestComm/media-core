@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractMgcpSignal implements MgcpSignal {
 
+    private final int requestId;
     private final String packageName;
     private final String symbol;
     private final SignalType type;
@@ -43,18 +44,19 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     private final List<MgcpEventObserver> observers;
     protected final AtomicBoolean executing;
 
-    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, Map<String, String> parameters) {
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, int requestId, Map<String, String> parameters) {
         super();
         this.packageName = packageName;
         this.symbol = symbol;
         this.type = type;
+        this.requestId = requestId;
         this.parameters = parameters;
         this.observers = new CopyOnWriteArrayList<>();
         this.executing = new AtomicBoolean(false);
     }
 
-    public AbstractMgcpSignal(String packageName, String symbol, SignalType type) {
-        this(packageName, symbol, type, Collections.<String, String> emptyMap());
+    public AbstractMgcpSignal(String packageName, String symbol, SignalType type, int requestId) {
+        this(packageName, symbol, type, requestId, Collections.<String, String> emptyMap());
     }
 
     public String getSymbol() {
@@ -69,6 +71,11 @@ public abstract class AbstractMgcpSignal implements MgcpSignal {
     @Override
     public SignalType getSignalType() {
         return type;
+    }
+    
+    @Override
+    public int getRequestId() {
+        return this.requestId;
     }
 
     public String getParameter(String name) {

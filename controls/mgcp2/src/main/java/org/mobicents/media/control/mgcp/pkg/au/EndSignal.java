@@ -48,8 +48,8 @@ public class EndSignal extends AbstractMgcpSignal {
 
     private final MgcpEndpoint endpoint;
 
-    public EndSignal(MgcpEndpoint endpoint, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, "es", SignalType.BRIEF, parameters);
+    public EndSignal(MgcpEndpoint endpoint, int requestId, Map<String, String> parameters) {
+        super(AudioPackage.PACKAGE_NAME, "es", SignalType.BRIEF, requestId, parameters);
         this.endpoint = endpoint;
     }
 
