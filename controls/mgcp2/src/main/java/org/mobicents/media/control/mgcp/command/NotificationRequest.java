@@ -65,13 +65,8 @@ public class NotificationRequest {
         return notifiedEntity;
     }
 
-    public boolean isListening(String event) {
-        for (MgcpRequestedEvent evt : this.requestedEvents) {
-            if (evt.getQualifiedName().equalsIgnoreCase(event)) {
-                return true;
-            }
-        }
-        return false;
+    public MgcpRequestedEvent[] getRequestedEvents() {
+        return requestedEvents;
     }
 
     public MgcpSignal pollSignal() {
@@ -80,5 +75,14 @@ public class NotificationRequest {
 
     public int countSignals() {
         return this.requestedSignals.size();
+    }
+
+    public boolean isListening(String event) {
+        for (MgcpRequestedEvent evt : this.requestedEvents) {
+            if (evt.getQualifiedName().equalsIgnoreCase(event)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

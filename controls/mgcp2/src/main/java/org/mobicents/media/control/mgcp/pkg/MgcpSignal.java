@@ -28,6 +28,27 @@ package org.mobicents.media.control.mgcp.pkg;
 public interface MgcpSignal extends MgcpEventSubject {
 
     /**
+     * Gets the name of the signal which is composed of the MGCP package plus the signal name.
+     * 
+     * @return The name of the signal.
+     */
+    String getName();
+
+    /**
+     * Gets the identifier of the request that submitted the signal.
+     * 
+     * @return The request identifier.
+     */
+    int getRequestId();
+
+    /**
+     * Gets the type of signal.
+     * 
+     * @return The type of the signal.
+     */
+    SignalType getSignalType();
+
+    /**
      * Executes the signal.
      */
     void execute();

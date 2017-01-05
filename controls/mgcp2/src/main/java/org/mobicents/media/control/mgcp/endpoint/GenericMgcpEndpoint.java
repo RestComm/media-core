@@ -48,7 +48,9 @@ import org.mobicents.media.control.mgcp.message.MgcpParameterType;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
 import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
+import org.mobicents.media.control.mgcp.pkg.MgcpRequestedEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpSignal;
+import org.mobicents.media.control.mgcp.pkg.SignalType;
 
 /**
  * Abstract representation of an MGCP Endpoint that groups connections by calls.
@@ -66,15 +68,15 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
     // Endpoint Properties
     private final EndpointIdentifier endpointId;
-    private final NotifiedEntity defaultNotifiedEntity;
     private final ConcurrentHashMap<Integer, MgcpCall> calls;
 
     // Endpoint State
     private final AtomicBoolean active;
 
     // Events and Signals
-    private NotificationRequest notificationRequest;
-    protected MgcpSignal signal;
+    private NotifiedEntity notifiedEntity;
+    private ConcurrentHashMap<String, MgcpSignal> signals;
+    private MgcpRequestedEvent[] requestedEvents;
 
     // Observers
     private final Collection<MgcpEndpointObserver> endpointObservers;
@@ -86,7 +88,6 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
         // Endpoint Properties
         this.endpointId = endpointId;
-        this.defaultNotifiedEntity = new NotifiedEntity();
         this.calls = new ConcurrentHashMap<>(10);
 
         // Endpoint State
@@ -94,6 +95,10 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
 
         // Media Components
         this.mediaGroup = mediaGroup;
+        
+        // Events and Signals
+        this.notifiedEntity = new NotifiedEntity();
+        this.signals = new ConcurrentHashMap<>(5);
 
         // Observers
         this.endpointObservers = new CopyOnWriteArrayList<>();
@@ -170,7 +175,7 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
                 throw new MgcpConnectionNotFound("Connection " + Integer.toHexString(connectionId) + " was not found in call " + callId);
             } else {
                 // Unregister call if it contains no more connections
-                if (call.hasConnections()) {
+                if (!call.hasConnections()) {
                     this.calls.remove(callId);
                 }
 
@@ -302,28 +307,93 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     }
 
     @Override
-    public void requestNotification(NotificationRequest request) {
-        if (this.signal != null) {
-            // Cancel current signal.
-            // Upon cancellation, the signal will send an event that the endpoint will use to send NTFY to the call agent
-            // registered with the event.
-            this.signal.cancel();
+    public synchronized void requestNotification(NotificationRequest request) {
+        // Update Notified Entity (IF required)
+        if (request.getNotifiedEntity() != null) {
+            this.notifiedEntity = request.getNotifiedEntity();
         }
+        
+        // Update registered events
+        this.requestedEvents = request.getRequestedEvents();
 
-        // Set new notification request and start executing requested signals (if any)
-        this.notificationRequest = request;
-        this.signal = this.notificationRequest.pollSignal();
-        if (signal != null) {
-            this.signal.observe(this);
-            this.signal.execute();
+        /*
+         * https://tools.ietf.org/html/rfc3435#section-2.3.4
+         * 
+         * When a (possibly empty) list of signal(s) is supplied, this list completely replaces the current list of active
+         * time-out signals.
+         * 
+         * Currently active time-out signals that are not provided in the new list MUST be stopped and the new signal(s)
+         * provided will now become active.
+         * 
+         * Currently active time-out signals that are provided in the new list of signals MUST remain active without
+         * interruption, thus the timer for such time-out signals will not be affected. Consequently, there is currently no way
+         * to restart the timer for a currently active time-out signal without turning the signal off first.
+         * 
+         * If the time-out signal is parameterized, the original set of parameters MUST remain in effect, regardless of what
+         * values are provided subsequently. A given signal MUST NOT appear more than once in a SignalRequests.
+         */
+        if (request.countSignals() == 0) {
+            // List is empty. Cancel all ongoing events.
+            Iterator<String> keys = this.signals.keySet().iterator();
+            while (keys.hasNext()) {
+                MgcpSignal ongoing = this.signals.get(keys.next());
+                if (ongoing != null) {
+                    ongoing.cancel();
+                }
+            }
+        } else {
+            // Execute signals listed in RQNT and cancel remaining
+            List<String> retained = new ArrayList<>(request.countSignals());
+            for (MgcpSignal signal = request.pollSignal(); signal != null; signal = request.pollSignal()) {
+                final SignalType signalType = signal.getSignalType();
+                switch (signalType) {
+                    case TIME_OUT:
+                        // Mark this key to retain ongoing signals
+                        String signalName = signal.getName();
+                        retained.add(signalName);
+                        
+                        // Register and execute signal IF NOT duplicate
+                        MgcpSignal original = this.signals.putIfAbsent(signalName, signal);
+                        if(original == null) {
+                            signal.observe(this);
+                            signal.execute();
+                        }
+                        break;
+
+                    case BRIEF:
+                        // Brief signals can be executed right away and do not need to be queued.
+                        // Their execution is fast and do not generate events.
+                        signal.execute();
+                        break;
+
+                    default:
+                        log.warn("Dropping signal " + signal.toString() + " on endpoint " + getEndpointId().toString()
+                                + " because signal type " + signalType + "is not supported.");
+                        break;
+                }
+            }
+            
+            
+            // Cancel every ongoing signal that was not retained
+            Iterator<String> keys = this.signals.keySet().iterator();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if(!retained.contains(key)) {
+                    cancelSignal(key);
+                }
+            }
         }
     }
 
-    private NotifiedEntity resolve(NotifiedEntity value, NotifiedEntity defaultValue) {
-        if (value != null) {
-            return value;
+    @Override
+    public void cancelSignal(String signal) {
+        MgcpSignal ongoing = this.signals.get(signal);
+        if(ongoing != null) {
+            if (log.isInfoEnabled()) {
+                log.info("Canceling signal " + ongoing.toString() + " on endpoint " + getEndpointId().toString());
+            }
+            ongoing.cancel();
         }
-        return defaultValue;
     }
 
     /**
@@ -388,30 +458,24 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
     public void onEvent(Object originator, MgcpEvent event) {
         // Verify if endpoint is listening for such event
         final String composedName = event.getPackage() + "/" + event.getSymbol();
-        if (this.notificationRequest.isListening(composedName)) {
+        if (isListening(composedName)) {
             // Unregister from current event
-            this.signal.forget(this);
+            if(originator instanceof MgcpSignal) {
+                MgcpSignal signal = (MgcpSignal) originator;
+                this.signals.remove(signal.getName());
+                
+                // Build Notification
+                MgcpRequest notify = new MgcpRequest();
+                notify.setRequestType(MgcpRequestType.NTFY);
+                notify.setTransactionId(0);
+                notify.setEndpointId(this.endpointId.toString());
+                notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, this.notifiedEntity.toString());
+                notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
+                notify.addParameter(MgcpParameterType.REQUEST_ID, Integer.toString(signal.getRequestId(), 16));
 
-            // Build Notification
-            MgcpRequest notify = new MgcpRequest();
-            notify.setRequestType(MgcpRequestType.NTFY);
-            notify.setTransactionId(0);
-            notify.setEndpointId(this.endpointId.toString());
-            notify.addParameter(MgcpParameterType.NOTIFIED_ENTITY, resolve(this.notificationRequest.getNotifiedEntity(), this.defaultNotifiedEntity).toString());
-            notify.addParameter(MgcpParameterType.OBSERVED_EVENT, event.toString());
-            notify.addParameter(MgcpParameterType.REQUEST_ID, notificationRequest.getRequestIdentifier());
-
-            // Send notification to call agent
-            notify(this, notify, MessageDirection.OUTGOING);
-        }
-
-        // Execute next event in pipeline
-        this.signal = this.notificationRequest.pollSignal();
-        if (this.signal != null) {
-            this.signal.execute();
-        } else {
-            // No further events are scheduled. Cleanup notification request.
-            this.notificationRequest = null;
+                // Send notification to call agent
+                notify(this, notify, MessageDirection.OUTGOING);
+            }
         }
     }
 
@@ -432,6 +496,15 @@ public class GenericMgcpEndpoint implements MgcpEndpoint, MgcpCallListener, Mgcp
             MgcpEndpointObserver observer = iterator.next();
             observer.onEndpointStateChanged(this, state);
         }
+    }
+    
+    private boolean isListening(String event) {
+        for (MgcpRequestedEvent evt : this.requestedEvents) {
+            if (evt.getQualifiedName().equalsIgnoreCase(event)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

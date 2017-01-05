@@ -45,7 +45,7 @@ public enum MgcpResponseCode {
     ENDPOINT_UNKNOWN(500, "The transaction could not be executed, because the endpoint is unknown"),
     ENDPOINT_NOT_READY(501, "The transaction could not be executed, because the endpoint is not ready"),
     ENDPOINT_DOES_NOT_HAVE_RESOURCES(502, "The transaction could not be executed, because the endpoint does not have sufficient resources"),
-    WILDCARD_TOO_COMPLICATED(503, "ALL_OF wildcard too complicated"),
+    WILDCARD_TOO_COMPLICATED(503, "Wildcard too complicated"),
     UNKNOWN_OR_UNSUPPORTED_COMMAND(504, "Unknown or unsupported command"),
     UNSUPPORTED_SDP(505, "Unsupported RemoteConnectionDescriptor"),
     REMOTE_SDP_AND_LOCAL_OPTION_CONFLICT(506, "Unable to satisfy both LocalConnectionOptions and RemoteConnectionDescriptor"),

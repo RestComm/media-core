@@ -79,8 +79,8 @@ public class PlayAnnouncement extends AbstractMgcpSignal implements PlayerListen
     private final long duration;
     private final long interval;
 
-    public PlayAnnouncement(Player player, Map<String, String> parameters) {
-        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT, parameters);
+    public PlayAnnouncement(Player player, int requestId, Map<String, String> parameters) {
+        super(AudioPackage.PACKAGE_NAME, SIGNAL, SignalType.TIME_OUT, requestId, parameters);
 
         // Setup Play Parameters
         this.duration = getDuration();

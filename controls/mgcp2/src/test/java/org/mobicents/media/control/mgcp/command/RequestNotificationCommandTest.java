@@ -75,7 +75,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class), eq(mediaGroup))).thenReturn(mock(MgcpSignal.class));
+        when(signalProvider.provide(eq("AU"), eq("pa"), eq(16), any(Map.class), eq(endpoint))).thenReturn(mock(MgcpSignal.class));
 
         doAnswer(new Answer<Object>() {
 
@@ -133,7 +133,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AU"), eq("pa"), any(Map.class), eq(mediaGroup))).thenReturn(mock(MgcpSignal.class));
+        when(signalProvider.provide(eq("AU"), eq("pa"), eq(16), any(Map.class), eq(endpoint))).thenReturn(mock(MgcpSignal.class));
         doAnswer(new Answer<Object>() {
 
             @Override
@@ -265,7 +265,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AX"), eq("pa"), any(Map.class), eq(mediaGroup))).thenThrow(new UnrecognizedMgcpPackageException(""));
+        when(signalProvider.provide(eq("AX"), eq("pa"), eq(16), any(Map.class), eq(endpoint))).thenThrow(new UnrecognizedMgcpPackageException(""));
 
         MgcpCommandResult result = rqnt.call();
         
@@ -295,7 +295,7 @@ public class RequestNotificationCommandTest {
         // when
         when(endpointManager.getEndpoint("mobicents/ivr/10@127.0.0.1:2427")).thenReturn(endpoint);
         when(endpoint.getMediaGroup()).thenReturn(mediaGroup);
-        when(signalProvider.provide(eq("AU"), eq("xyz"), any(Map.class), eq(mediaGroup))).thenThrow(new UnsupportedMgcpSignalException(""));
+        when(signalProvider.provide(eq("AU"), eq("xyz"), eq(16), any(Map.class), eq(endpoint))).thenThrow(new UnsupportedMgcpSignalException(""));
 
         MgcpCommandResult result = rqnt.call();
         

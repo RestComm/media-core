@@ -74,7 +74,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -113,7 +113,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -156,7 +156,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -191,7 +191,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -227,7 +227,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -270,7 +270,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -314,7 +314,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -370,7 +370,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -427,7 +427,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -483,7 +483,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -528,7 +528,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -579,7 +579,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -620,7 +620,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
 
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -655,7 +655,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -691,7 +691,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -725,7 +725,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -767,7 +767,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -807,7 +807,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -856,7 +856,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -905,7 +905,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
@@ -933,7 +933,7 @@ public class PlayRecordTest {
         assertEquals(String.valueOf(ReturnCode.NO_SPEECH.code()), eventCaptor.getValue().getParameter("rc"));
         assertEquals("2", eventCaptor.getValue().getParameter("na"));
     }
-    
+
     @Test
     public void testCancelOnNoSpeechReprompt() throws InterruptedException {
         // given
@@ -949,7 +949,7 @@ public class PlayRecordTest {
         final Recorder recorder = mock(Recorder.class);
         final DtmfDetector detector = mock(DtmfDetector.class);
         final Player player = mock(Player.class);
-        final PlayRecord pr = new PlayRecord(player, detector, recorder, parameters);
+        final PlayRecord pr = new PlayRecord(player, detector, recorder, 1, parameters);
         
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
