@@ -910,7 +910,6 @@ public class PlayCollectTest {
         Thread.sleep(5 * 100);
 
         // Play reprompt
-        Thread.sleep(10);
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
 
         // Collect two digits and end input
