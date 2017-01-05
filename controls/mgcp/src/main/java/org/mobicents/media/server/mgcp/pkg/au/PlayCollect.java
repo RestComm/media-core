@@ -230,7 +230,7 @@ public class PlayCollect extends Signal {
                 return;
             }
 
-            player = (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
+            player = getPlayer();
             try {
                 // assign listener
                 if (!playerListenerAdded) {
@@ -285,7 +285,7 @@ public class PlayCollect extends Signal {
      */
     private void prepareCollectPhase(Options options) {
         // obtain detector instance
-        dtmfDetector = (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
+        dtmfDetector = this.getDetector();
 
         // DTMF detector was buffering digits and now it can contain
         // digits in the buffer
@@ -305,6 +305,9 @@ public class PlayCollect extends Signal {
         } else {
             buffer.setCount(options.getDigitsNumber());
         }
+
+        // Activate DTMF detector (so prompt can be interrupted, if wished)
+        dtmfDetector.activate();
     }
 
     /**
@@ -364,6 +367,7 @@ public class PlayCollect extends Signal {
     private void terminateCollectPhase() {
         if (dtmfDetector != null) {
             dtmfDetector.removeListener(buffer);
+            dtmfDetector.deactivate();
             dtmfListenerAdded = false;
 
             // dtmfDetector.clearDigits();
@@ -418,6 +422,14 @@ public class PlayCollect extends Signal {
         }
         this.isPromptActive = false;
         this.terminate();
+    }
+
+    private Player getPlayer() {
+        return (Player) getEndpoint().getResource(MediaType.AUDIO, ComponentType.PLAYER);
+    }
+
+    private DtmfDetector getDetector() {
+        return (DtmfDetector) getEndpoint().getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
     }
 
     @Override

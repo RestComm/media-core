@@ -36,9 +36,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mobicents.media.server.concurrent.ConcurrentMap;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -74,17 +72,6 @@ public class MgcpProviderLoadTest {
     private volatile int errorCount;
     private AtomicInteger txID = new AtomicInteger(1);
     
-    public MgcpProviderLoadTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
     @Before
     public void setUp() throws IOException, TooManyListenersException {
     	mediaScheduler = new PriorityQueueScheduler();
@@ -94,6 +81,8 @@ public class MgcpProviderLoadTest {
         udpInterface = new UdpManager(scheduler);
         udpInterface.setLocalBindAddress("127.0.0.1");
         udpInterface.setBindAddress("127.0.0.1");
+        udpInterface.setLocalNetwork("127.0.0.1");
+        udpInterface.setLocalSubnet("255.255.255.255");
         scheduler.start();
         udpInterface.start();
         

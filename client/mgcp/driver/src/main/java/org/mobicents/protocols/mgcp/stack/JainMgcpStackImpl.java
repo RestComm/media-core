@@ -50,6 +50,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Map;
@@ -302,17 +303,13 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
 		this.prFactory.deallocate(pr);		
 	}
 	
-	public void send(PacketRepresentation pr) 
-	{
-		try {						
-			this.channel.send(pr.getBuffer(), pr.getInetAddress());											
-		} catch (IOException e) {
-			if(logger.isEnabledFor(Level.ERROR))
-			{							
-				logger.error("I/O Exception occured, caused by", e);
-			}
-		}			
-	}	
+    public void send(PacketRepresentation pr) {
+        try {
+            this.channel.send(pr.getBuffer(), pr.getInetAddress());
+        } catch (Exception e) {
+            logger.error("Could not send data " + pr.getBuffer().toString() + " to " + pr.getInetAddress().toString(), e);
+        }
+    }
 	
 	public boolean isRequest(String header) {
 		return header.matches("[\\w]{4}(\\s|\\S)*");

@@ -42,15 +42,6 @@ public class IvrEndpoint extends BaseMixerEndpointImpl {
 	}
 
 	@Override
-	public Connection createConnection(ConnectionType type, Boolean isLocal) throws ResourceUnavailableException {
-		Connection connection = super.createConnection(type, isLocal);
-		if (getActiveConnectionsCount() == 1) {
-			mediaGroup.getDtmfDetector().activate();
-		}
-		return connection;
-	}
-
-	@Override
 	public void start() throws ResourceUnavailableException {
 		super.start();
 		audioMixer.addComponent(mediaGroup.getAudioComponent());

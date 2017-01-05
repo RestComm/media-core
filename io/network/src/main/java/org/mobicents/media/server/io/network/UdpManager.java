@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.channel.Channel;
+import org.mobicents.media.server.io.network.channel.NetworkChannel;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.ServiceScheduler;
 
@@ -69,8 +70,10 @@ public class UdpManager {
     private String externalAddress;
 
     private byte[] localNetwork;
+    private String localNetworkString;
     private IPAddressType currNetworkType;
     private byte[] localSubnet;
+    private String localSubnetString;
     private IPAddressType currSubnetType;
 
     private Boolean useSbc;
@@ -182,12 +185,17 @@ public class UdpManager {
     public void setLocalNetwork(String localNetwork) {
         IPAddressType currNetworkType = IPAddressCompare.getAddressType(localNetwork);
         this.currNetworkType = currNetworkType;
+        this.localNetworkString = localNetwork;
 
         if (currNetworkType == IPAddressType.IPV4) {
             this.localNetwork = IPAddressCompare.addressToByteArrayV4(localNetwork);
         } else if (currNetworkType == IPAddressType.IPV6) {
             this.localNetwork = IPAddressCompare.addressToByteArrayV6(localNetwork);
         }
+    }
+    
+    public String getLocalNetwork() {
+        return localNetworkString;
     }
 
     /**
@@ -198,12 +206,17 @@ public class UdpManager {
     public void setLocalSubnet(String localSubnet) {
         IPAddressType currSubnetType = IPAddressCompare.getAddressType(localSubnet);
         this.currSubnetType = currSubnetType;
+        this.localSubnetString = localSubnet;
 
         if (currSubnetType == IPAddressType.IPV4) {
             this.localSubnet = IPAddressCompare.addressToByteArrayV4(localSubnet);
         } else if (currSubnetType == IPAddressType.IPV6) {
             this.localSubnet = IPAddressCompare.addressToByteArrayV6(localSubnet);
         }
+    }
+    
+    public String getLocalSubnet() {
+        return localSubnetString;
     }
 
     /**
@@ -313,6 +326,11 @@ public class UdpManager {
         SelectionKey key = dataChannel.register(selectors.get(index % selectors.size()), SelectionKey.OP_READ);
         key.attach(channel);
         return key;
+    }
+    
+    public void register(NetworkChannel channel) throws IOException {
+        int index = this.currSelectorIndex.getAndIncrement();
+        channel.register(this.selectors.get(index % this.selectors.size()), SelectionKey.OP_READ);
     }
 
     @Deprecated
@@ -545,6 +563,18 @@ public class UdpManager {
                                     if (channel.hasPendingData()) {
                                         channel.send();
                                     }
+                                }
+                            } else {
+                                // Close data channel if datagram channel is closed
+                                channel.close();
+                            }
+                        } else if (attachment instanceof NetworkChannel) {
+                            NetworkChannel channel = (NetworkChannel) attachment;
+                         
+                            // Perform an operation only if channel is open and key is valid
+                            if (udpChannel.isOpen()) {
+                                if (key.isValid()) {
+                                    channel.receive();
                                 }
                             } else {
                                 // Close data channel if datagram channel is closed

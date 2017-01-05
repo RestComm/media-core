@@ -28,8 +28,9 @@ import java.nio.channels.DatagramChannel;
  * Represents a channel where data can be exchanged
  * 
  * @author Henrique Rosa (henrique.rosa@telestax.com)
- * 
+ * @deprecated Use {@link NetworkChannel} instead.
  */
+@Deprecated
 public interface Channel {
 
 	/**

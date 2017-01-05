@@ -26,15 +26,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
-import org.mobicents.media.server.io.network.channel.PacketHandler;
-import org.mobicents.media.server.io.network.channel.PacketHandlerException;
+import org.mobicents.media.server.io.network.channel.RestrictedNetworkGuard;
 import org.mobicents.media.server.mgcp.message.MgcpMessage;
 import org.mobicents.media.server.mgcp.message.MgcpRequest;
 import org.mobicents.media.server.mgcp.message.MgcpResponse;
@@ -46,12 +43,14 @@ import org.mobicents.media.server.spi.listener.TooManyListenersException;
  * @author Oifa Yulian
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  */
-public class MgcpProvider extends MultiplexedChannel {
+public class MgcpProvider {
 
     private final static Logger log = Logger.getLogger(MgcpProvider.class);
 
     private final UdpManager transport;
-    private final MGCPHandler mgcpHandler;
+    private final MgcpChannel dataChannel;
+    private final MgcpPacketHandler mgcpHandler;
+    private final RestrictedNetworkGuard networkGuard;
     private final int port;
 
     private final ConcurrentLinkedQueue<ByteBuffer> txBuffer = new ConcurrentLinkedQueue<ByteBuffer>();
@@ -66,11 +65,10 @@ public class MgcpProvider extends MultiplexedChannel {
      */
     public MgcpProvider(UdpManager transport, int port) {
         this.transport = transport;
-        this.mgcpHandler = new MGCPHandler();
+        this.networkGuard = new RestrictedNetworkGuard(transport.getLocalNetwork(), transport.getLocalSubnet());
+        this.mgcpHandler = new MgcpPacketHandler(this);
+        this.dataChannel = new MgcpChannel(this.networkGuard, this.mgcpHandler);
         this.port = port;
-
-        // Setup packet handlers
-        this.handlers.addHandler(this.mgcpHandler);
 
         // prepare event pool
         for (int i = 0; i < 100; i++) {
@@ -113,7 +111,7 @@ public class MgcpProvider extends MultiplexedChannel {
         }
 
         msg.write(currBuffer);
-        this.dataChannel.send(currBuffer, event.getAddress());
+        this.dataChannel.send(currBuffer, (InetSocketAddress) event.getAddress());
 
         currBuffer.clear();
         txBuffer.offer(currBuffer);
@@ -140,24 +138,22 @@ public class MgcpProvider extends MultiplexedChannel {
 
     public void activate() {
         try {
-            if (log.isInfoEnabled()) {
-                log.info("Opening MGCP channel");
-            }
-            this.selectionKey = this.transport.open(this);
-            this.dataChannel = (DatagramChannel) this.selectionKey.channel();
-        } catch (Exception e) {
-            log.error("Could not open MGCP channel", e);
-            return;
-        }
+            // Open channel
+            this.dataChannel.open();
 
-        try {
+            // Bind channel to local address
+            final InetSocketAddress address = new InetSocketAddress(this.transport.getBindAddress(), this.port);
+            this.dataChannel.bind(address);
+            
+            // Register channel in Network Manager to handle read operations
+            this.transport.register(this.dataChannel);
+            
             if (log.isInfoEnabled()) {
-                log.info("Binding channel to " + transport.getLocalBindAddress() + ":" + port);
+                log.info("Opened MGCP channel at " + address.getAddress().toString());
             }
-            transport.bindLocal(this.dataChannel, this.port);
         } catch (Exception e) {
-            log.error("Could not bind MGCP channel. Closing the channel.", e);
-            close();
+            log.error("Could not open MGCP channel properly.", e);
+            this.dataChannel.close();
         }
     }
 
@@ -165,7 +161,7 @@ public class MgcpProvider extends MultiplexedChannel {
         if (log.isInfoEnabled()) {
             log.info("Closing the MGCP channel.");
         }
-        close();
+        this.dataChannel.close();
     }
 
     private void recycleEvent(MgcpEventImpl event) {
@@ -177,64 +173,9 @@ public class MgcpProvider extends MultiplexedChannel {
             events.offer(event);
         }
     }
-
-    /**
-     * MGCP message handler asynchronous implementation.
-     */
-    private class MGCPHandler implements PacketHandler {
-
-        @Override
-        public int compareTo(PacketHandler o) {
-            if (o == null) {
-                return 1;
-            }
-            return this.getPipelinePriority() - o.getPipelinePriority();
-        }
-
-        @Override
-        public boolean canHandle(byte[] packet) {
-            return canHandle(packet, packet.length, 0);
-        }
-
-        @Override
-        public boolean canHandle(byte[] packet, int dataLength, int offset) {
-            // TODO [MGCPHandler] Check if packet can be handled
-            return true;
-        }
-
-        @Override
-        public byte[] handle(byte[] packet, InetSocketAddress localPeer, InetSocketAddress remotePeer)
-                throws PacketHandlerException {
-            return handle(packet, packet.length, 0, localPeer, remotePeer);
-        }
-
-        @Override
-        public byte[] handle(byte[] packet, int dataLength, int offset, InetSocketAddress localPeer,
-                InetSocketAddress remotePeer) throws PacketHandlerException {
-            try {
-                // Create event
-                byte b = packet[0];
-                int msgType = (b >= 48 && b <= 57) ? MgcpEvent.RESPONSE : MgcpEvent.REQUEST;
-                MgcpEvent evt = createEvent(msgType, remotePeer);
-
-                // Parse message
-                if (log.isDebugEnabled()) {
-                    log.debug("Parsing message: " + new String(packet, offset, dataLength));
-                }
-                evt.getMessage().parse(packet, offset, dataLength);
-
-                // Dispatch message
-                listeners.dispatch(evt);
-            } catch (Exception e) {
-                throw new PacketHandlerException(e);
-            }
-            return null;
-        }
-
-        @Override
-        public int getPipelinePriority() {
-            return 0;
-        }
+    
+    void onIncomingEvent(MgcpEvent event) {
+        listeners.dispatch(event);
     }
 
     /**
