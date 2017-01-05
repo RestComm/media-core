@@ -58,7 +58,7 @@ public class PlayAnnouncementTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 
@@ -97,7 +97,7 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), announcements);
         parameters.put(SignalParameters.ITERATIONS.symbol(), String.valueOf(iterations));
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 
@@ -133,7 +133,7 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "");
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
 
         // when
         doAnswer(new Answer<Object>() {
@@ -163,7 +163,7 @@ public class PlayAnnouncementTest {
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav,track2.wav");
         parameters.put(SignalParameters.INTERVAL.symbol(), "50");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 
@@ -200,7 +200,7 @@ public class PlayAnnouncementTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
 
         // when
         signal.execute();
@@ -217,7 +217,7 @@ public class PlayAnnouncementTest {
         final Map<String, String> parameters = new HashMap<>(5);
         parameters.put(SignalParameters.ANNOUNCEMENT.symbol(), "track1.wav");
         final Player player = mock(Player.class);
-        final PlayAnnouncement signal = new PlayAnnouncement(player, parameters);
+        final PlayAnnouncement signal = new PlayAnnouncement(player, 1, parameters);
         final MgcpEventObserver observer = mock(MgcpEventObserver.class);
         final PlayerEvent playerEvent = mock(PlayerEvent.class);
 

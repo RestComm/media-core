@@ -23,9 +23,7 @@ package org.mobicents.media.control.mgcp.endpoint;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.command.NotificationRequest;
@@ -43,7 +41,7 @@ import org.mobicents.media.control.mgcp.pkg.SignalType;
 public class GenericMgcpEndpointTest {
 
     @Test
-    public void testExecuteSignal() {
+    public void testExecuteTimeoutSignal() {
         // given
         final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
         final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
@@ -56,6 +54,8 @@ public class GenericMgcpEndpointTest {
         final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
 
         // when
+        when(signal.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal.getName()).thenReturn("AU/pa");
         genericMgcpEndpoint.requestNotification(rqnt);
 
         // then
@@ -63,12 +63,103 @@ public class GenericMgcpEndpointTest {
     }
 
     @Test
-    public void testExecuteSignalDuringSignalExecution() {
+    public void testExecuteMultipleTimeoutSignals() {
         // given
         final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
         final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
-        final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT);
-        final MockSignal signal2 = new MockSignal("AU", "pc", SignalType.TIME_OUT);
+        final MgcpSignal signal1 = mock(MgcpSignal.class);
+        final MgcpSignal signal2 = mock(MgcpSignal.class);
+        final NotificationRequest rqnt = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1, signal2);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1:2427");
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(signal1.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal1.getName()).thenReturn("AU/pa");
+        when(signal2.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal2.getName()).thenReturn("AU/pc");
+
+        genericMgcpEndpoint.requestNotification(rqnt);
+        
+        // then
+        verify(signal1, times(1)).execute();
+        verify(signal2, times(1)).execute();
+    }
+
+    @Test
+    public void testOverriedExecutingSignals() {
+        // given
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
+        final MgcpSignal signal1 = mock(MgcpSignal.class);
+        final MgcpSignal signal2 = mock(MgcpSignal.class);
+        final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1, signal2);
+        final MgcpSignal signal3 = mock(MgcpSignal.class);
+        final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents, signal1, signal3);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1:2427");
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(signal1.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal1.getName()).thenReturn("AU/pa");
+        when(signal2.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal2.getName()).thenReturn("AU/pc");
+        when(signal3.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal3.getName()).thenReturn("AU/pr");
+        
+        genericMgcpEndpoint.requestNotification(rqnt1);
+        genericMgcpEndpoint.requestNotification(rqnt2);
+        
+        // then
+        verify(signal1, times(1)).execute();
+        verify(signal1, times(0)).cancel();
+        verify(signal2, times(1)).execute();
+        verify(signal2, times(1)).cancel();
+        verify(signal3, times(1)).execute();
+        verify(signal3, times(0)).cancel();
+    }
+
+    @Test
+    public void testCancelAllExecutingSignals() {
+        // given
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
+        final MgcpSignal signal1 = mock(MgcpSignal.class);
+        final MgcpSignal signal2 = mock(MgcpSignal.class);
+        final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1, signal2);
+        final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1:2427");
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        when(signal1.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal1.getName()).thenReturn("AU/pa");
+        when(signal2.getSignalType()).thenReturn(SignalType.TIME_OUT);
+        when(signal2.getName()).thenReturn("AU/pc");
+        
+        genericMgcpEndpoint.requestNotification(rqnt1);
+        genericMgcpEndpoint.requestNotification(rqnt2);
+        
+        // then
+        verify(signal1, times(1)).execute();
+        verify(signal1, times(1)).cancel();
+        verify(signal2, times(1)).execute();
+        verify(signal2, times(1)).cancel();
+    }
+
+    @Test
+    public void testExecuteTimeoutSignalDuringSignalExecution() {
+        // given
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
+        final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT, 1);
+        final MockSignal signal2 = new MockSignal("AU", "pc", SignalType.TIME_OUT, 2);
         final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1);
         final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents, signal2);
         final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
@@ -87,6 +178,31 @@ public class GenericMgcpEndpointTest {
         assertFalse(signal2.calledCancel);
     }
 
+    @Test
+    public void testExecuteTimeoutSignalWhileSameSignalTypeIsExecuting() {
+        // given
+        final NotifiedEntity notifiedEntity = new NotifiedEntity("call-agent", "127.0.0.1", 2727);
+        final MgcpRequestedEvent[] requestedEvents = new MgcpRequestedEvent[] { mock(MgcpRequestedEvent.class), mock(MgcpRequestedEvent.class) };
+        final MockSignal signal1 = new MockSignal("AU", "pa", SignalType.TIME_OUT, 1);
+        final MockSignal signal2 = new MockSignal("AU", "pa", SignalType.TIME_OUT, 2);
+        final NotificationRequest rqnt1 = new NotificationRequest(1, "1a", notifiedEntity, requestedEvents, signal1);
+        final NotificationRequest rqnt2 = new NotificationRequest(2, "1b", notifiedEntity, requestedEvents, signal2);
+        final MgcpConnectionProvider connectionProvider = mock(MgcpConnectionProvider.class);
+        final MediaGroup mediaGroup = mock(MediaGroup.class);
+        final EndpointIdentifier endpointId = new EndpointIdentifier("mobicents/endpoint/1", "127.0.0.1:2427");
+        final MgcpEndpoint genericMgcpEndpoint = new GenericMgcpEndpoint(endpointId, connectionProvider, mediaGroup);
+        
+        // when
+        genericMgcpEndpoint.requestNotification(rqnt1);
+        genericMgcpEndpoint.requestNotification(rqnt2);
+        
+        // then
+        assertTrue(signal1.calledExecute);
+        assertFalse(signal1.calledCancel);
+        assertFalse(signal2.calledExecute);
+        assertFalse(signal2.calledCancel);
+    }
+
     /**
      * Needed to create a mock class because Mockito overrides equals() so we cannot use mocks for MgcpSignal.
      * 
@@ -98,8 +214,8 @@ public class GenericMgcpEndpointTest {
         boolean calledExecute = false;
         boolean calledCancel = false;
 
-        public MockSignal(String packageName, String symbol, SignalType type) {
-            super(packageName, symbol, type);
+        public MockSignal(String packageName, String symbol, SignalType type, int requestId) {
+            super(packageName, symbol, type, requestId);
         }
 
         @Override

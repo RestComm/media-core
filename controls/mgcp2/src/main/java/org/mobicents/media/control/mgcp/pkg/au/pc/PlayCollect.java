@@ -70,9 +70,9 @@ public class PlayCollect extends AbstractMgcpSignal {
     // Execution Context
     private final PlayCollectContext context;
 
-    public PlayCollect(Player player, DtmfDetector detector, Map<String, String> parameters,
+    public PlayCollect(Player player, DtmfDetector detector, int requestId, Map<String, String> parameters,
             ListeningScheduledExecutorService executor) {
-        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, parameters);
+        super(AudioPackage.PACKAGE_NAME, SYMBOL, SignalType.TIME_OUT, requestId, parameters);
 
         // Media Components
         this.detector = detector;

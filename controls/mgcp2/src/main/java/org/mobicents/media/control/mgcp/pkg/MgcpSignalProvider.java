@@ -62,18 +62,18 @@ public class MgcpSignalProvider {
      * @throws UnrecognizedMgcpPackageException When package name is unrecognized.
      * @throws UnsupportedMgcpSignalException When package does not support the specified signal.
      */
-    public MgcpSignal provide(String pkg, String signal, Map<String, String> parameters, MgcpEndpoint endpoint)
+    public MgcpSignal provide(String pkg, String signal, int requestId, Map<String, String> parameters, MgcpEndpoint endpoint)
             throws UnrecognizedMgcpPackageException, UnsupportedMgcpSignalException {
         switch (pkg) {
             case AudioPackage.PACKAGE_NAME:
-                return provideAudioSignal(signal, parameters, endpoint, this.executor);
+                return provideAudioSignal(signal, requestId, parameters, endpoint, this.executor);
 
             default:
                 throw new UnrecognizedMgcpPackageException("Unrecognized package " + pkg);
         }
     }
 
-    private MgcpSignal provideAudioSignal(String signal, Map<String, String> parameters, MgcpEndpoint endpoint, ListeningScheduledExecutorService executor) throws UnsupportedMgcpSignalException {
+    private MgcpSignal provideAudioSignal(String signal, int requestId, Map<String, String> parameters, MgcpEndpoint endpoint, ListeningScheduledExecutorService executor) throws UnsupportedMgcpSignalException {
         // Validate signal type
         final AudioSignalType signalType = AudioSignalType.fromSymbol(signal);
 
@@ -86,16 +86,16 @@ public class MgcpSignalProvider {
 
         switch (signalType) {
             case PLAY_ANNOUNCEMENT:
-                return new PlayAnnouncement(mediaGroup.getPlayer(), parameters);
+                return new PlayAnnouncement(mediaGroup.getPlayer(), requestId, parameters);
 
             case PLAY_COLLECT:
-                return new PlayCollect(mediaGroup.getPlayer(), mediaGroup.getDetector(), parameters, executor);
+                return new PlayCollect(mediaGroup.getPlayer(), mediaGroup.getDetector(), requestId, parameters, executor);
 
             case PLAY_RECORD:
-                return new PlayRecord(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getRecorder(), parameters);
+                return new PlayRecord(mediaGroup.getPlayer(), mediaGroup.getDetector(), mediaGroup.getRecorder(), requestId, parameters);
 
             case END_SIGNAL:
-                return new EndSignal(endpoint, parameters);
+                return new EndSignal(endpoint, requestId, parameters);
 
             default:
                 throw new IllegalArgumentException("Unsupported audio signal: " + signal);
