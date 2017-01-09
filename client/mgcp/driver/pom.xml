@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.mobicents.media.client</groupId>
         <artifactId>mgcp</artifactId>
-        <version>5.2.0-SNAPSHOT</version>
+        <version>5.2.0.37</version>
     </parent>
 
         <artifactId>mgcp-driver</artifactId>
