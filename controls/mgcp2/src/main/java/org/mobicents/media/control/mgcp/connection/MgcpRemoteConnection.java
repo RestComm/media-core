@@ -129,7 +129,7 @@ public class MgcpRemoteConnection extends AbstractMgcpConnection implements RtpL
 
                     // Generate SDP offer
                     this.localSdp = SdpFactory.buildSdp(true, this.localAddress, this.externalAddress, this.audioChannel);
-                    return this.localAddress;
+                    return this.localSdp.toString();
                 default:
                     throw new MgcpConnectionException("Cannot half-open connection " + this.getHexIdentifier()
                             + " because state is " + this.state.name());

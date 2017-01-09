@@ -152,10 +152,10 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
         // Create connection
         MgcpConnection connection = endpoint.createConnection(callId, false);
         // TODO set call agent
-        connection.setMode(mode);
         // TODO provide local connection options
         String localDescription = connection.halfOpen(new LocalConnectionOptions());
         context.setLocalDescription(localDescription);
+        connection.setMode(mode);
         return connection;
     }
 
