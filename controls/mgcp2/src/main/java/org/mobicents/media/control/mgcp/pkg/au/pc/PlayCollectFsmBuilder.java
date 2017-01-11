@@ -89,6 +89,8 @@ public class PlayCollectFsmBuilder {
         this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_PROMPT);
         this.builder.transition().from(PlayCollectState.NO_DIGITS_REPROMPTING).toFinal(PlayCollectState.PROMPTED).on(PlayCollectEvent.END_INPUT);
         this.builder.onExit(PlayCollectState.NO_DIGITS_REPROMPTING).callMethod("exitNoDigitsReprompting");
+        
+        this.builder.onEntry(PlayCollectState.PROMPTED).callMethod("enterPrompted");
 
         this.builder.onEntry(PlayCollectState.COLLECTING).callMethod("enterCollecting");
         this.builder.internalTransition().within(PlayCollectState.COLLECTING).on(PlayCollectEvent.DTMF_TONE).callMethod("onCollecting");

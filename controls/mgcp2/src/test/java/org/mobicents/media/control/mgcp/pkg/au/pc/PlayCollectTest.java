@@ -35,12 +35,12 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.junit.AfterClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.pkg.MgcpEvent;
 import org.mobicents.media.control.mgcp.pkg.MgcpEventObserver;
 import org.mobicents.media.control.mgcp.pkg.au.ReturnCode;
-import org.mobicents.media.control.mgcp.pkg.au.pc.PlayCollect;
 import org.mobicents.media.server.impl.resource.dtmf.DtmfEventImpl;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerEvent;
 import org.mobicents.media.server.impl.resource.mediaplayer.audio.AudioPlayerImpl;
@@ -59,10 +59,15 @@ import com.google.common.util.concurrent.MoreExecutors;
  */
 public class PlayCollectTest {
 
-    private static final ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService threadPool;
 
-    @AfterClass
-    public static void cleanup() {
+    @Before
+    public void before() {
+        threadPool = Executors.newScheduledThreadPool(5);
+    }
+
+    @After
+    public void after() {
         threadPool.shutdown();
     }
 
@@ -829,16 +834,15 @@ public class PlayCollectTest {
 
         // when
         final ArgumentCaptor<MgcpEvent> eventCaptor = ArgumentCaptor.forClass(MgcpEvent.class);
-
         pc.observe(observer);
         pc.execute();
-
         // Play initial prompt
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
 
         // Collect one digit and wait for timeout
+        Thread.sleep(5);
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
-        Thread.sleep(20 * 100);
+        Thread.sleep(10 * 100);
 
         // Play reprompt
         Thread.sleep(5);
@@ -1800,11 +1804,13 @@ public class PlayCollectTest {
         pc.execute();
 
         // Play initial prompt
+        Thread.sleep(5);
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
+        Thread.sleep(5);
 
         // collect one digit and wait for timeout
         pc.detectorListener.process(new DtmfEventImpl(detector, "1", -30));
-        Thread.sleep(21 * 100);
+        Thread.sleep(11 * 100);
 
         // Play reprompt
         pc.playerListener.process(new AudioPlayerEvent(player, PlayerEvent.STOP));
