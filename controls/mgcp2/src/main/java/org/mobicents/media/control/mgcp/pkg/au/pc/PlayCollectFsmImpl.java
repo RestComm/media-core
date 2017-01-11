@@ -311,6 +311,18 @@ public class PlayCollectFsmImpl extends
         this.player.removeListener(this.playerListener);
         this.player.deactivate();
     }
+    
+    @Override
+    public void enterPrompted(PlayCollectState from, PlayCollectState to, PlayCollectEvent event, PlayCollectContext context) {
+        // Check if no digit has been pressed while prompt was playing
+        if (context.countCollectedDigits() == 0) {
+            // Activate timer for first digit
+            if(log.isTraceEnabled()) {
+                log.trace("Scheduled First Digit Timer to fire in " + context.getFirstDigitTimer() + " ms");
+            }
+            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
+        }
+    }
 
     @Override
     public void enterCollecting(PlayCollectState from, PlayCollectState to, PlayCollectEvent event,
@@ -323,9 +335,6 @@ public class PlayCollectFsmImpl extends
             // Activate DTMF detector and bind listener
             this.detector.addListener(this.detectorListener);
             this.detector.activate();
-
-            // Activate timer for first digit
-            this.executor.schedule(new DetectorTimer(context), context.getFirstDigitTimer(), TimeUnit.MILLISECONDS);
         } catch (TooManyListenersException e) {
             log.error("Too many DTMF listeners", e);
         }
@@ -373,6 +382,9 @@ public class PlayCollectFsmImpl extends
                 fire(PlayCollectEvent.END_INPUT, context);
             } else {
                 // Start interdigit timer
+                if(log.isTraceEnabled()) {
+                    log.trace("Scheduled Inter Digit Timer to fire in " + context.getFirstDigitTimer() + " ms");
+                }
                 this.executor.schedule(new DetectorTimer(context), context.getInterDigitTimer(), TimeUnit.MILLISECONDS);
             }
         }
@@ -681,7 +693,7 @@ public class PlayCollectFsmImpl extends
             if (context.getLastCollectedDigitOn() <= this.timestamp) {
                 if (PlayCollectState.PLAY_COLLECT.equals(getCurrentState())) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Timing out collect operation!");
+                        log.debug("Timing out collect operation! " + context.getLastCollectedDigitOn() + " <= " + this.timestamp);
                     }
                     fire(PlayCollectEvent.TIMEOUT, context);
                 }
