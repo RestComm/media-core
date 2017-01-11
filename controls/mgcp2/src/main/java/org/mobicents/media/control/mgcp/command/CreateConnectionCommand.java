@@ -328,12 +328,13 @@ public class CreateConnectionCommand extends AbstractMgcpCommand {
             context.setCode(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.code());
             context.setMessage(MgcpResponseCode.TRANSACTION_WAS_EXECUTED.message());
         } catch (RuntimeException | MgcpConnectionException e) {
-            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Rolling back.");
+            log.error("Unexpected error occurred during tx=" + this.transactionId + " execution. Reason: " + e.getMessage()
+                    + ". Rolling back.");
             rollback(context);
             context.setCode(MgcpResponseCode.PROTOCOL_ERROR.code());
             context.setMessage(MgcpResponseCode.PROTOCOL_ERROR.message());
         } catch (MgcpCommandException e) {
-            log.error("Protocol error occurred during tx=" + this.transactionId + " execution: " + e.getMessage());
+            log.error("Protocol error occurred during tx=" + this.transactionId + " execution. Reason: " + e.getMessage());
             context.setCode(e.getCode());
             context.setMessage(e.getMessage());
         }
