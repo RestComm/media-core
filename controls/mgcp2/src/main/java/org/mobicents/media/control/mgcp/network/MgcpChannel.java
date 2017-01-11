@@ -60,7 +60,7 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
     // Message Observers
     private final Collection<MgcpMessageObserver> observers;
 
-    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager) {
+    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpPacketHandler packetHandler) {
         // Core Components
         this.networkManager = networkManager;
 
@@ -69,7 +69,7 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
         this.open = false;
 
         // Packet Handlers
-        this.mgcpHandler = new MgcpPacketHandler(new MgcpMessageParser());
+        this.mgcpHandler = packetHandler;
         // TODO only register to handler on opening and unregister on close!!
         this.mgcpHandler.observe(this);
         this.handlers.addHandler(this.mgcpHandler);

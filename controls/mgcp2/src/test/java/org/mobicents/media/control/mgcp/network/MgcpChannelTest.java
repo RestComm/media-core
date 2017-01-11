@@ -55,8 +55,9 @@ public class MgcpChannelTest {
             // given
             final SelectionKey selectionKey = mock(SelectionKey.class);
             final UdpManager networkManager = mock(UdpManager.class);
+            final MgcpPacketHandler packetHandler = mock(MgcpPacketHandler.class);
 
-            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager);
+            MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
 
             // when - open channel
             when(networkManager.open(channel)).thenReturn(selectionKey);
@@ -85,7 +86,8 @@ public class MgcpChannelTest {
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpMessage message = mock(MgcpMessage.class);
         final UdpManager networkManager = mock(UdpManager.class);
-        final MgcpChannel channel = new MgcpChannel(bindAddress, networkManager);
+        final MgcpPacketHandler packetHandler = mock(MgcpPacketHandler.class);
+        final MgcpChannel channel = new MgcpChannel(bindAddress, networkManager, packetHandler);
 
         // when
         channel.observe(observer);

@@ -24,6 +24,7 @@ package org.mobicents.media.server.bootstrap.ioc.provider.mgcp;
 import java.net.InetSocketAddress;
 
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
+import org.mobicents.media.control.mgcp.network.MgcpPacketHandler;
 import org.mobicents.media.core.configuration.MediaServerConfiguration;
 import org.mobicents.media.core.configuration.MgcpControllerConfiguration;
 import org.mobicents.media.server.io.network.UdpManager;
@@ -39,17 +40,19 @@ public class MgcpChannelProvider implements Provider<MgcpChannel> {
 
     private final MediaServerConfiguration configuration;
     private final UdpManager networkManager;
+    private final MgcpPacketHandler mgcpHandler;
 
     @Inject
-    public MgcpChannelProvider(MediaServerConfiguration configuration, UdpManager networkManager) {
+    public MgcpChannelProvider(MediaServerConfiguration configuration, UdpManager networkManager, MgcpPacketHandler mgcpHandler) {
         this.configuration = configuration;
         this.networkManager = networkManager;
+        this.mgcpHandler = mgcpHandler;
     }
 
     @Override
     public MgcpChannel get() {
         MgcpControllerConfiguration mgcp = configuration.getControllerConfiguration();
-        return new MgcpChannel(new InetSocketAddress(mgcp.getAddress(), mgcp.getPort()), this.networkManager);
+        return new MgcpChannel(new InetSocketAddress(mgcp.getAddress(), mgcp.getPort()), this.networkManager, this.mgcpHandler);
     }
 
 }
