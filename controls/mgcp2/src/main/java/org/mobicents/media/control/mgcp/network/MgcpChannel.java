@@ -22,8 +22,7 @@
 package org.mobicents.media.control.mgcp.network;
 
 import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.channels.DatagramChannel;
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -32,10 +31,10 @@ import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
 import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
-import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
-import org.mobicents.media.server.io.network.UdpManager;
-import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
+import org.mobicents.media.control.mgcp.message.MgcpParameterType;
+import org.mobicents.media.server.io.network.channel.MultiplexedNetworkChannel;
+import org.mobicents.media.server.io.network.channel.NetworkGuard;
 
 /**
  * UDP channel that handles MGCP traffic.
@@ -43,16 +42,9 @@ import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubject, MgcpMessageObserver {
+public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessageSubject, MgcpMessageObserver {
 
     private static final Logger log = Logger.getLogger(MgcpChannel.class);
-
-    // Core Components
-    private final UdpManager networkManager;
-
-    // MGCP Channel
-    private final SocketAddress bindAddress;
-    private boolean open;
 
     // Packet Handlers
     private final MgcpPacketHandler mgcpHandler;
@@ -60,74 +52,20 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
     // Message Observers
     private final Collection<MgcpMessageObserver> observers;
 
-    public MgcpChannel(SocketAddress bindAddress, UdpManager networkManager, MgcpPacketHandler packetHandler) {
-        // Core Components
-        this.networkManager = networkManager;
-
-        // MGCP Channel
-        this.bindAddress = bindAddress;
-        this.open = false;
+    public MgcpChannel(NetworkGuard networkGuard, MgcpPacketHandler packetHandler) {
+        super(networkGuard, packetHandler);
 
         // Packet Handlers
         this.mgcpHandler = packetHandler;
-        // TODO only register to handler on opening and unregister on close!!
         this.mgcpHandler.observe(this);
-        this.handlers.addHandler(this.mgcpHandler);
 
         // Observers
         this.observers = new CopyOnWriteArrayList<>();
     }
 
     @Override
-    public void open() throws IllegalStateException, IOException {
-        if (this.open) {
-            throw new IllegalStateException("MGCP channel is already open.");
-        } else {
-            // Open channel
-            this.selectionKey = this.networkManager.open(this);
-            this.dataChannel = (DatagramChannel) this.selectionKey.channel();
-
-            // Bind channel
-            try {
-                this.dataChannel.bind(this.bindAddress);
-            } catch (IOException e) {
-                log.error("BOMBED!!");
-                close();
-                throw e;
-            }
-
-            // Declare the channel officially active
-            this.open = true;
-            if (log.isInfoEnabled()) {
-                log.info("MGCP Channel is open on " + this.bindAddress.toString());
-            }
-        }
-    }
-
-    @Override
-    public void close() throws IllegalStateException {
-        if (this.open) {
-            // Close the channel
-            super.close();
-
-            // Declare channel officially inactive
-            this.open = false;
-            if (log.isInfoEnabled()) {
-                log.info("MGCP Channel is closed");
-            }
-        } else {
-            throw new IllegalStateException("MGCP channel is already closed.");
-        }
-    }
-
-    @Override
-    public boolean isOpen() {
-        return this.open;
-    }
-    
-    @Override
-    public void queueData(byte[] data) {
-        super.queueData(data);
+    protected Logger log() {
+        return log;
     }
 
     @Override
@@ -150,16 +88,23 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
             }
         }
     }
-    
+
     @Override
     public void onMessage(MgcpMessage message, MessageDirection direction) {
         // Forward message to registered observers
         notify(this, message, direction);
     }
-    
+
     public void send(MgcpMessage message) throws IOException {
-        queueData(message.toString().getBytes());
-        send();
+        final byte[] data = message.toString().getBytes();
+        final String notifiedEntity = message.getParameter(MgcpParameterType.NOTIFIED_ENTITY);
+
+        if (notifiedEntity == null) {
+            send(data);
+        } else {
+            String[] tokens = notifiedEntity.split(":");
+            send(data, new InetSocketAddress(tokens[0], Integer.parseInt(tokens[1])));
+        }
     }
 
 }

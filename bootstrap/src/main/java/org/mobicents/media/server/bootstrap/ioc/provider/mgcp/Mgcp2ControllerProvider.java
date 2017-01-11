@@ -26,6 +26,8 @@ import org.mobicents.media.control.mgcp.controller.MgcpController;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.core.configuration.MediaServerConfiguration;
+import org.mobicents.media.server.io.network.UdpManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -36,14 +38,20 @@ import com.google.inject.Provider;
  */
 public class Mgcp2ControllerProvider implements Provider<MgcpController> {
 
+    private final String address;
+    private final int port;
     private final MgcpChannel channel;
+    private final UdpManager networkManager;
     private final TransactionManager transactions;
     private final MgcpEndpointManager endpoints;
     private final MgcpCommandProvider commands;
 
     @Inject
-    public Mgcp2ControllerProvider(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public Mgcp2ControllerProvider(MediaServerConfiguration config, UdpManager networkManager, MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+        this.address = config.getControllerConfiguration().getAddress();
+        this.port = config.getControllerConfiguration().getPort();
         this.channel = channel;
+        this.networkManager = networkManager;
         this.transactions = transactions;
         this.endpoints = endpoints;
         this.commands = commands;
@@ -51,7 +59,7 @@ public class Mgcp2ControllerProvider implements Provider<MgcpController> {
 
     @Override
     public MgcpController get() {
-        return new MgcpController(this.channel, this.transactions, this.endpoints, this.commands);
+        return new MgcpController(this.address, this.port, this.networkManager, this.channel, this.transactions, this.endpoints, this.commands);
     }
 
 }

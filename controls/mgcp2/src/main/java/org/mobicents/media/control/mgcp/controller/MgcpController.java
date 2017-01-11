@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.controller;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
@@ -37,6 +38,7 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
 import org.mobicents.media.control.mgcp.transaction.TransactionManager;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mobicents.media.server.spi.ControlProtocol;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
@@ -50,6 +52,9 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
 
     private static final Logger log = Logger.getLogger(MgcpController.class);
 
+    // Core Components
+    private final UdpManager networkManager;
+    
     // MGCP Components
     private final MgcpChannel channel;
     private final TransactionManager transactions;
@@ -57,9 +62,14 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     private final MgcpCommandProvider commands;
 
     // MGCP Controller State
+    private final String address;
+    private final int port;
     private boolean active;
 
-    public MgcpController(MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+    public MgcpController(String address, int port, UdpManager networkManager, MgcpChannel channel, TransactionManager transactions, MgcpEndpointManager endpoints, MgcpCommandProvider commands) {
+        // Core Components
+        this.networkManager = networkManager;
+
         // MGCP Components
         this.channel = channel;
         this.transactions = transactions;
@@ -67,6 +77,8 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         this.commands = commands;
 
         // MGCP Controller State
+        this.address = address;
+        this.port = port;
         this.active = false;
     }
 
@@ -81,7 +93,18 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
             throw new IllegalStateException("Controller is already active");
         } else {
             try {
+                // Open MGCP channel and bind it to configured address
                 this.channel.open();
+                this.channel.bind(new InetSocketAddress(this.address, this.port));
+
+                if (log.isInfoEnabled()) {
+                    log.info("Opened MGCP channel at " + this.address + ":" + this.port);
+                }
+                
+                // Register channel to network manager for multiplexing purposes
+                this.networkManager.register(this.channel);
+
+                // Register as observer to other components to receive notifications
                 this.channel.observe(this);
                 this.transactions.observe(this);
                 this.endpoints.observe(this);

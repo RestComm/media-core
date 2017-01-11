@@ -46,6 +46,7 @@ import org.mobicents.media.control.mgcp.message.MgcpRequestType;
 import org.mobicents.media.control.mgcp.message.MgcpResponse;
 import org.mobicents.media.control.mgcp.message.MgcpResponseCode;
 import org.mobicents.media.control.mgcp.network.MgcpChannel;
+import org.mobicents.media.server.io.network.UdpManager;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -58,14 +59,17 @@ public class MgcpControllerTest {
     @Test
     public void testIncomingRequest() throws DuplicateMgcpTransactionException {
         // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
         final int transactionId = 147483653;
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
+        final UdpManager networkManager = mock(UdpManager.class);
         final TransactionManager transactions = mock(TransactionManager.class);
         final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+        final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
         when(request.isRequest()).thenReturn(true);
@@ -82,14 +86,17 @@ public class MgcpControllerTest {
     @Test
     public void testIncomingDuplicateRequest() throws DuplicateMgcpTransactionException, IOException {
         // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
         final int transactionId = 147483653;
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
+        final UdpManager networkManager = mock(UdpManager.class);
         final TransactionManager transactions = mock(TransactionManager.class);
         final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+        final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
         when(request.isRequest()).thenReturn(true);
@@ -119,12 +126,15 @@ public class MgcpControllerTest {
     @Test
     public void testIncomingResponse() throws MgcpTransactionNotFoundException {
         // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
+        final UdpManager networkManager = mock(UdpManager.class);
         final TransactionManager transactions = mock(TransactionManager.class);
         final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+        final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
         controller.onMessage(response, MessageDirection.INCOMING);
@@ -136,14 +146,17 @@ public class MgcpControllerTest {
     @Test
     public void testOutgoingRequest() throws DuplicateMgcpTransactionException, IOException {
         // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
         final int transactionId = 147483653;
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
+        final UdpManager networkManager = mock(UdpManager.class);
         final TransactionManager transactions = mock(TransactionManager.class);
         final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+        final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
         when(request.isRequest()).thenReturn(true);
@@ -161,14 +174,17 @@ public class MgcpControllerTest {
     @Test
     public void testOutgoingDuplicateRequest() throws DuplicateMgcpTransactionException, IOException {
         // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
         final int transactionId = 147483653;
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
+        final UdpManager networkManager = mock(UdpManager.class);
         final TransactionManager transactions = mock(TransactionManager.class);
         final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+        final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
         when(request.isRequest()).thenReturn(true);
@@ -187,12 +203,15 @@ public class MgcpControllerTest {
     @Test
     public void testOutgoingResponse() throws MgcpTransactionNotFoundException, IOException {
         // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
+        final UdpManager networkManager = mock(UdpManager.class);
         final TransactionManager transactions = mock(TransactionManager.class);
         final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+        final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
         controller.onMessage(response, MessageDirection.OUTGOING);
@@ -205,12 +224,15 @@ public class MgcpControllerTest {
     @Test
     public void testOutgoingResponseWithUnknownTransaction() throws MgcpTransactionNotFoundException, IOException {
         // given
+        final String address = "127.0.0.1";
+        final int port = 2427;
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
+        final UdpManager networkManager = mock(UdpManager.class);
         final TransactionManager transactions = mock(TransactionManager.class);
         final MgcpEndpointManager endpoints = mock(MgcpEndpointManager.class);
-        final MgcpController controller = new MgcpController(channel, transactions, endpoints, commands);
+        final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
         doThrow(new MgcpTransactionNotFoundException("")).when(transactions).process(response);
