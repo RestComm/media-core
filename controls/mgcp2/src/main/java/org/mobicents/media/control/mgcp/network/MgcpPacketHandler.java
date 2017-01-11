@@ -22,10 +22,14 @@
 package org.mobicents.media.control.mgcp.network;
 
 import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
+import org.mobicents.media.control.mgcp.message.MgcpMessageObserver;
 import org.mobicents.media.control.mgcp.message.MgcpMessageParser;
 import org.mobicents.media.control.mgcp.message.MgcpMessageSubject;
 import org.mobicents.media.control.mgcp.message.MgcpRequest;
@@ -39,14 +43,14 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpPacketHandler implements PacketHandler {
+public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
 
     public final MgcpMessageParser parser;
-    public final MgcpMessageSubject listener;
+    public final Collection<MgcpMessageObserver> observers;
 
-    public MgcpPacketHandler(MgcpMessageParser parser, MgcpMessageSubject listener) {
+    public MgcpPacketHandler(MgcpMessageParser parser) {
         this.parser = parser;
-        this.listener = listener;
+        this.observers = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -89,9 +93,7 @@ public class MgcpPacketHandler implements PacketHandler {
         }
 
         // Warn listener packet was decoded
-        if (this.listener != null) {
-            this.listener.notify(this, message, MessageDirection.INCOMING);
-        }
+        notify(this, message, MessageDirection.INCOMING);
         return null;
     }
 
@@ -116,6 +118,27 @@ public class MgcpPacketHandler implements PacketHandler {
     @Override
     public int getPipelinePriority() {
         return 0;
+    }
+
+    @Override
+    public void observe(MgcpMessageObserver observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void forget(MgcpMessageObserver observer) {
+        this.observers.remove(observer);
+    }
+
+    @Override
+    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+        Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
+        while (iterator.hasNext()) {
+            MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
+            if(observer != originator) {
+                observer.onMessage(message, direction);
+            }
+        }
     }
 
 }
