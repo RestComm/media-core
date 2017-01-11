@@ -67,6 +67,7 @@ public class RtpTransmitter {
 	private RTPFormat currentFormat;
 	private long timestamp;
 	private long dtmfTimestamp;
+	private long dtmfDuration;
 	private int sequenceNumber;
 
 	public RtpTransmitter(final PriorityQueueScheduler scheduler, final RtpClock clock, final RtpStatistics statistics) {
@@ -77,6 +78,7 @@ public class RtpTransmitter {
 		this.dtmfOutput = new DtmfOutput(scheduler, this);
 		this.sequenceNumber = 0;
 		this.dtmfTimestamp = -1;
+		this.dtmfDuration = -1;
 		this.timestamp = -1;
 		this.formats = null;
 		this.secure = false;
@@ -138,6 +140,7 @@ public class RtpTransmitter {
 	public void clear() {
 		this.timestamp = -1;
 		this.dtmfTimestamp = -1;
+		this.dtmfDuration = -1;
 		// Reset format in case connection is reused.
 		// Otherwise it would point to incorrect codec.
 		this.currentFormat = null;
@@ -186,12 +189,26 @@ public class RtpTransmitter {
 			return;
 		}
 
-		// convert to milliseconds first
-		dtmfTimestamp = frame.getTimestamp() / 1000000L;
-		// convert to rtp time units
-		dtmfTimestamp = rtpClock.convertToRtpTime(dtmfTimestamp);
-		oobPacket.wrap(false, AVProfile.telephoneEventsID, this.sequenceNumber++, dtmfTimestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
+        // // convert to milliseconds first
+        // dtmfTimestamp = frame.getTimestamp() / 1000000L;
+        // // convert to rtp time units
+        // dtmfTimestamp = rtpClock.convertToRtpTime(dtmfTimestamp);
+        // oobPacket.wrap(false, AVProfile.telephoneEventsID, this.sequenceNumber++, dtmfTimestamp, this.statistics.getSsrc(),
+        // frame.getData(), frame.getOffset(), frame.getLength());
 
+		// hrosa - Hack to workaround MEDIA-61: https://telestax.atlassian.net/browse/MEDIA-61
+		long duration = (frame.getData()[2]<<8) | (frame.getData()[3] & 0xFF); 
+		boolean toneChanged = false;
+		
+		if(this.dtmfDuration == -1 || this.dtmfDuration > duration) {
+		    this.dtmfTimestamp = this.timestamp;
+		    toneChanged = true;
+		}
+		this.dtmfDuration = duration;
+		
+		oobPacket.wrap(toneChanged, AVProfile.telephoneEventsID, this.sequenceNumber++, this.dtmfTimestamp, this.statistics.getSsrc(), frame.getData(), frame.getOffset(), frame.getLength());
+		// end of hack - hrosa
+		
 		frame.recycle();
 		
 		try {
@@ -210,7 +227,7 @@ public class RtpTransmitter {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
-	
+
 	public void send(Frame frame) {
 		// discard frame if format is unknown
 		if (frame.getFormat() == null) {
