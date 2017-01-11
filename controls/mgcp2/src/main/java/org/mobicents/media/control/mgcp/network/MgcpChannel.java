@@ -43,7 +43,7 @@ import org.mobicents.media.server.io.network.channel.MultiplexedChannel;
  * @author Henrique Rosa (henrique.rosa@telestax.com)
  *
  */
-public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubject {
+public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubject, MgcpMessageObserver {
 
     private static final Logger log = Logger.getLogger(MgcpChannel.class);
 
@@ -69,7 +69,9 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
         this.open = false;
 
         // Packet Handlers
-        this.mgcpHandler = new MgcpPacketHandler(new MgcpMessageParser(), this);
+        this.mgcpHandler = new MgcpPacketHandler(new MgcpMessageParser());
+        // TODO only register to handler on opening and unregister on close!!
+        this.mgcpHandler.observe(this);
         this.handlers.addHandler(this.mgcpHandler);
 
         // Observers
@@ -147,6 +149,12 @@ public class MgcpChannel extends MultiplexedChannel implements MgcpMessageSubjec
                 observer.onMessage(message, direction);
             }
         }
+    }
+    
+    @Override
+    public void onMessage(MgcpMessage message, MessageDirection direction) {
+        // Forward message to registered observers
+        notify(this, message, direction);
     }
     
     public void send(MgcpMessage message) throws IOException {

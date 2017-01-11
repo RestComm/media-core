@@ -45,8 +45,8 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
  */
 public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
 
-    public final MgcpMessageParser parser;
-    public final Collection<MgcpMessageObserver> observers;
+    private final MgcpMessageParser parser;
+    private final Collection<MgcpMessageObserver> observers;
 
     public MgcpPacketHandler(MgcpMessageParser parser) {
         this.parser = parser;
