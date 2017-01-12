@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.log4j.Logger;
 import org.mobicents.media.control.mgcp.exception.MgcpParseException;
 import org.mobicents.media.control.mgcp.message.MessageDirection;
 import org.mobicents.media.control.mgcp.message.MgcpMessage;
@@ -44,6 +45,8 @@ import org.mobicents.media.server.io.network.channel.PacketHandlerException;
  *
  */
 public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
+    
+    private static final Logger log = Logger.getLogger(MgcpPacketHandler.class);
 
     private final MgcpMessageParser parser;
     private final Collection<MgcpMessageObserver> observers;
@@ -90,6 +93,10 @@ public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
             message = handleResponse(packet, dataLength, offset, localPeer, remotePeer);
         } else {
             message = handleRequest(packet, dataLength, offset, localPeer, remotePeer);
+        }
+        
+        if(log.isDebugEnabled()) {
+            log.info("Incoming MGCP message:\n" + message.toString());
         }
 
         // Warn listener packet was decoded
