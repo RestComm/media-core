@@ -84,6 +84,8 @@ public class MgcpChannelTest {
     @Test
     public void testMessageNotification() {
         // given
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpMessage message = mock(MgcpMessage.class);
         final NetworkGuard networkGuard = mock(NetworkGuard.class);
@@ -92,10 +94,10 @@ public class MgcpChannelTest {
 
         // when
         channel.observe(observer);
-        channel.notify(channel, message, MessageDirection.INCOMING);
+        channel.notify(channel, from, to, message, MessageDirection.INCOMING);
 
         // then
-        verify(observer, times(1)).onMessage(message, MessageDirection.INCOMING);
+        verify(observer, times(1)).onMessage(from, to, message, MessageDirection.INCOMING);
     }
 
 }

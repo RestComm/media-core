@@ -148,21 +148,21 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
     }
 
     @Override
-    public void onMessage(MgcpMessage message, MessageDirection direction) {
+    public void onMessage(InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         switch (direction) {
             case INCOMING:
                 if (message.isRequest()) {
-                    onIncomingRequest((MgcpRequest) message);
+                    onIncomingRequest(from, to, (MgcpRequest) message);
                 } else {
-                    onIncomingResponse((MgcpResponse) message);
+                    onIncomingResponse(from, to, (MgcpResponse) message);
                 }
                 break;
 
             case OUTGOING:
                 if (message.isRequest()) {
-                    onOutgoingRequest((MgcpRequest) message);
+                    onOutgoingRequest(from, to, (MgcpRequest) message);
                 } else {
-                    onOutgoingResponse((MgcpResponse) message);
+                    onOutgoingResponse(from, to, (MgcpResponse) message);
                 }
                 break;
 
@@ -171,31 +171,31 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         }
     }
 
-    private void onIncomingRequest(MgcpRequest request) {
+    private void onIncomingRequest(InetSocketAddress from, InetSocketAddress to, MgcpRequest request) {
         // Get command to be executed
         MgcpCommand command = this.commands.provide(request.getRequestType(), request.getTransactionId(), request.getParameters());
 
         try {
             // Start transaction that will execute the command
-            this.transactions.process(request, command);
+            this.transactions.process(from, to, request, command);
         } catch (DuplicateMgcpTransactionException e) {
             // Transaction is already being processed
             // Send provisional message
             MgcpResponseCode provisional = MgcpResponseCode.TRANSACTION_BEING_EXECUTED;
             try {
-                sendResponse(request.getTransactionId(), provisional.code(), provisional.message());
+                sendResponse(to, request.getTransactionId(), provisional.code(), provisional.message());
             } catch (IOException e1) {
                 log.error("Could not send provisional response to call agent, regarding transaction " + request.getTransactionId(), e);
             }
         }
     }
 
-    private void onOutgoingRequest(MgcpRequest request) {
+    private void onOutgoingRequest(InetSocketAddress from, InetSocketAddress to, MgcpRequest request) {
         try {
             // Start transaction
-            this.transactions.process(request, null);
+            this.transactions.process(from, to, request, null);
             // Send request to call agent
-            this.channel.send(request);
+            this.channel.send(to, request);
         } catch (DuplicateMgcpTransactionException e) {
             log.error(e.getMessage() + ". Request wont' be sent to call agent.");
         } catch (IOException e) {
@@ -203,21 +203,21 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         }
     }
 
-    private void onIncomingResponse(MgcpResponse response) {
+    private void onIncomingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(response);
+            this.transactions.process(from, to, response);
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage());
         }
     }
 
-    private void onOutgoingResponse(MgcpResponse response) {
+    private void onOutgoingResponse(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) {
         try {
             // Close transaction
-            this.transactions.process(response);
+            this.transactions.process(from, to, response);
             // Send response to call agent
-            this.channel.send(response);
+            this.channel.send(to, response);
         } catch (MgcpTransactionNotFoundException e) {
             log.error(e.getMessage() + ". Response won't be sent to call agent.");
         } catch (IOException e) {
@@ -225,12 +225,12 @@ public class MgcpController implements ServerManager, MgcpMessageObserver {
         }
     }
 
-    private void sendResponse(int transactionId, int code, String message) throws IOException {
+    private void sendResponse(InetSocketAddress to, int transactionId, int code, String message) throws IOException {
         MgcpResponse response = new MgcpResponse();
         response.setTransactionId(transactionId);
         response.setCode(code);
         response.setMessage(message);
-        this.channel.send(response);
+        this.channel.send(to, response);
     }
 
 }

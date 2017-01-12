@@ -93,7 +93,7 @@ public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
         }
 
         // Warn listener packet was decoded
-        notify(this, message, MessageDirection.INCOMING);
+        notify(this, remotePeer, localPeer, message, MessageDirection.INCOMING);
         return null;
     }
 
@@ -131,12 +131,12 @@ public class MgcpPacketHandler implements PacketHandler, MgcpMessageSubject {
     }
 
     @Override
-    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
             MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
             if(observer != originator) {
-                observer.onMessage(message, direction);
+                observer.onMessage(from, to, message, direction);
             }
         }
     }

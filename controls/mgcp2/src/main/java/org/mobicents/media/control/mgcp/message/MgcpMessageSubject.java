@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.message;
 
+import java.net.InetSocketAddress;
+
 /**
  * Subscribes observers to receive notifications about MGCP Message passing.
  * 
@@ -33,6 +35,6 @@ public interface MgcpMessageSubject {
 
     void forget(MgcpMessageObserver observer);
 
-    void notify(Object originator, MgcpMessage message, MessageDirection direction);
+    void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction);
 
 }

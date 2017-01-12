@@ -21,6 +21,8 @@
 
 package org.mobicents.media.control.mgcp.message;
 
+import java.net.InetSocketAddress;
+
 /**
  * Listens to incoming MGCP packets.
  * 
@@ -32,9 +34,11 @@ public interface MgcpMessageObserver {
     /**
      * Event triggered when a message arrives.
      * 
-     * @param message The message
+     * @param from The sender of the message.
+     * @param to The recipient of the message.
+     * @param message The message.
      * @param direction The direction of the message: incoming or outgoing.
      */
-    void onMessage(MgcpMessage message, MessageDirection direction);
+    void onMessage(InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction);
 
 }

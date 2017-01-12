@@ -24,6 +24,8 @@ package org.mobicents.media.control.mgcp.endpoint;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.net.InetSocketAddress;
+
 import org.junit.Test;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpoint;
 import org.mobicents.media.control.mgcp.endpoint.MgcpEndpointManager;
@@ -144,16 +146,18 @@ public class MgcpEndpointManagerTest {
     @Test
     public void testMessagePropagation() {
         // given
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
         final MgcpMessageObserver observer = mock(MgcpMessageObserver.class);
         final MgcpMessage message = mock(MgcpMessage.class);
         final MgcpEndpointManager endpointManager = new MgcpEndpointManager();
 
         // when
         endpointManager.observe(observer);
-        endpointManager.onMessage(message, MessageDirection.OUTGOING);
+        endpointManager.onMessage(from, to, message, MessageDirection.OUTGOING);
 
         // then
-        verify(observer, times(1)).onMessage(message, MessageDirection.OUTGOING);
+        verify(observer, times(1)).onMessage(from, to, message, MessageDirection.OUTGOING);
 
     }
 }

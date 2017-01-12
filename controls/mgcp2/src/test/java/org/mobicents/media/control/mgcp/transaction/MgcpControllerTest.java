@@ -22,6 +22,7 @@
 package org.mobicents.media.control.mgcp.transaction;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -62,6 +64,8 @@ public class MgcpControllerTest {
         final String address = "127.0.0.1";
         final int port = 2427;
         final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
@@ -77,10 +81,10 @@ public class MgcpControllerTest {
         when(request.getTransactionId()).thenReturn(transactionId);
         when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
 
-        controller.onMessage(request, MessageDirection.INCOMING);
+        controller.onMessage(from, to, request, MessageDirection.INCOMING);
 
         // then
-        verify(transactions, times(1)).process(request, command);
+        verify(transactions, times(1)).process(from, to, request, command);
     }
 
     @Test
@@ -89,6 +93,8 @@ public class MgcpControllerTest {
         final String address = "127.0.0.1";
         final int port = 2427;
         final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
@@ -103,24 +109,24 @@ public class MgcpControllerTest {
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
         when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
-        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(request, command);
+        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(from, to, request, command);
 
         doAnswer(new Answer<Object>() {
 
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 // then
-                MgcpResponse obj = invocation.getArgumentAt(0, MgcpResponse.class);
+                MgcpResponse obj = invocation.getArgumentAt(1, MgcpResponse.class);
                 Assert.assertEquals(MgcpResponseCode.TRANSACTION_BEING_EXECUTED.code(), obj.getCode());
                 return null;
             }
-        }).when(channel).send(any(MgcpResponse.class));
+        }).when(channel).send(eq(to), any(MgcpResponse.class));
 
-        controller.onMessage(request, MessageDirection.INCOMING);
+        controller.onMessage(from, to, request, MessageDirection.INCOMING);
 
         // then
-        verify(transactions, times(1)).process(request, command);
-        verify(channel, times(1)).send(any(MgcpResponse.class));
+        verify(transactions, times(1)).process(from, to, request, command);
+        verify(channel, times(1)).send(eq(to), any(MgcpResponse.class));
     }
 
     @Test
@@ -128,6 +134,8 @@ public class MgcpControllerTest {
         // given
         final String address = "127.0.0.1";
         final int port = 2427;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2727);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2427);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
@@ -137,10 +145,10 @@ public class MgcpControllerTest {
         final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
-        controller.onMessage(response, MessageDirection.INCOMING);
+        controller.onMessage(from, to, response, MessageDirection.INCOMING);
 
         // then
-        verify(transactions, times(1)).process(response);
+        verify(transactions, times(1)).process(from, to, response);
     }
 
     @Test
@@ -149,6 +157,8 @@ public class MgcpControllerTest {
         final String address = "127.0.0.1";
         final int port = 2427;
         final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
@@ -164,11 +174,11 @@ public class MgcpControllerTest {
         when(request.getTransactionId()).thenReturn(transactionId);
         when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
 
-        controller.onMessage(request, MessageDirection.OUTGOING);
+        controller.onMessage(from, to, request, MessageDirection.OUTGOING);
 
         // then
-        verify(transactions, times(1)).process(request, null);
-        verify(channel, times(1)).send(request);
+        verify(transactions, times(1)).process(from, to, request, null);
+        verify(channel, times(1)).send(to, request);
     }
 
     @Test
@@ -177,6 +187,8 @@ public class MgcpControllerTest {
         final String address = "127.0.0.1";
         final int port = 2427;
         final int transactionId = 147483653;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpRequest request = mock(MgcpRequest.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpCommand command = mock(MgcpCommand.class);
@@ -191,13 +203,13 @@ public class MgcpControllerTest {
         when(request.getRequestType()).thenReturn(MgcpRequestType.CRCX);
         when(request.getTransactionId()).thenReturn(transactionId);
         when(commands.provide(request.getRequestType(), transactionId, request.getParameters())).thenReturn(command);
-        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(request, null);
+        doThrow(new DuplicateMgcpTransactionException("")).when(transactions).process(from, to, request, null);
 
-        controller.onMessage(request, MessageDirection.OUTGOING);
+        controller.onMessage(from, to, request, MessageDirection.OUTGOING);
 
         // then
-        verify(transactions, times(1)).process(request, null);
-        verify(channel, never()).send(request);
+        verify(transactions, times(1)).process(from, to, request, null);
+        verify(channel, never()).send(to, request);
     }
 
     @Test
@@ -205,6 +217,8 @@ public class MgcpControllerTest {
         // given
         final String address = "127.0.0.1";
         final int port = 2427;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
@@ -214,11 +228,11 @@ public class MgcpControllerTest {
         final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
-        controller.onMessage(response, MessageDirection.OUTGOING);
+        controller.onMessage(from, to, response, MessageDirection.OUTGOING);
 
         // then
-        verify(transactions, times(1)).process(response);
-        verify(channel, times(1)).send(response);
+        verify(transactions, times(1)).process(from, to, response);
+        verify(channel, times(1)).send(to, response);
     }
 
     @Test
@@ -226,6 +240,8 @@ public class MgcpControllerTest {
         // given
         final String address = "127.0.0.1";
         final int port = 2427;
+        final InetSocketAddress from = new InetSocketAddress("127.0.0.1", 2427);
+        final InetSocketAddress to = new InetSocketAddress("127.0.0.1", 2727);
         final MgcpResponse response = mock(MgcpResponse.class);
         final MgcpCommandProvider commands = mock(MgcpCommandProvider.class);
         final MgcpChannel channel = mock(MgcpChannel.class);
@@ -235,12 +251,12 @@ public class MgcpControllerTest {
         final MgcpController controller = new MgcpController(address, port, networkManager, channel, transactions, endpoints, commands);
 
         // when
-        doThrow(new MgcpTransactionNotFoundException("")).when(transactions).process(response);
-        controller.onMessage(response, MessageDirection.OUTGOING);
+        doThrow(new MgcpTransactionNotFoundException("")).when(transactions).process(from, to, response);
+        controller.onMessage(from, to, response, MessageDirection.OUTGOING);
 
         // then
-        verify(transactions, times(1)).process(response);
-        verify(channel, never()).send(response);
+        verify(transactions, times(1)).process(from, to, response);
+        verify(channel, never()).send(to, response);
     }
 
 }

@@ -21,6 +21,8 @@
         
 package org.mobicents.media.control.mgcp.transaction;
 
+import java.net.InetSocketAddress;
+
 import org.mobicents.media.control.mgcp.command.MgcpCommand;
 import org.mobicents.media.control.mgcp.exception.DuplicateMgcpTransactionException;
 import org.mobicents.media.control.mgcp.exception.MgcpTransactionNotFoundException;
@@ -34,8 +36,8 @@ import org.mobicents.media.control.mgcp.message.MgcpResponse;
  */
 public interface TransactionManager extends MgcpMessageSubject {
     
-    void process(MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException;
+    void process(InetSocketAddress from, InetSocketAddress to, MgcpRequest request, MgcpCommand command) throws DuplicateMgcpTransactionException;
     
-    void process(MgcpResponse response) throws MgcpTransactionNotFoundException;
+    void process(InetSocketAddress from, InetSocketAddress to, MgcpResponse response) throws MgcpTransactionNotFoundException;
 
 }

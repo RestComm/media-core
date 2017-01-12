@@ -79,32 +79,25 @@ public class MgcpChannel extends MultiplexedNetworkChannel implements MgcpMessag
     }
 
     @Override
-    public void notify(Object originator, MgcpMessage message, MessageDirection direction) {
+    public void notify(Object originator, InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         Iterator<MgcpMessageObserver> iterator = this.observers.iterator();
         while (iterator.hasNext()) {
             MgcpMessageObserver observer = (MgcpMessageObserver) iterator.next();
             if (observer != originator) {
-                observer.onMessage(message, direction);
+                observer.onMessage(from, to, message, direction);
             }
         }
     }
 
     @Override
-    public void onMessage(MgcpMessage message, MessageDirection direction) {
+    public void onMessage(InetSocketAddress from, InetSocketAddress to, MgcpMessage message, MessageDirection direction) {
         // Forward message to registered observers
-        notify(this, message, direction);
+        notify(this, from, to, message, direction);
     }
 
-    public void send(MgcpMessage message) throws IOException {
+    public void send(InetSocketAddress to, MgcpMessage message) throws IOException {
         final byte[] data = message.toString().getBytes();
-        final String notifiedEntity = message.getParameter(MgcpParameterType.NOTIFIED_ENTITY);
-
-        if (notifiedEntity == null) {
-            send(data);
-        } else {
-            String[] tokens = notifiedEntity.split(":");
-            send(data, new InetSocketAddress(tokens[0], Integer.parseInt(tokens[1])));
-        }
+        send(data, to);
     }
 
 }
